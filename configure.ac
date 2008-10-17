@@ -430,89 +430,19 @@ CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_10" = "yes" && echo gtk-2
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_12" = "yes" && echo gtk-2.12`"
 
 dnl Also allow us to conditionally compile binding to the new Gtk+ APIs.
-GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
-GTK_MAJOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f1`
-GTK_MINOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f2`
-GTK_MICRO_VERSION=`echo $GTK_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(_GTK_MAJOR_VERSION, ($GTK_MAJOR_VERSION), [Gtk major version number])
-AC_DEFINE_UNQUOTED(_GTK_MINOR_VERSION, ($GTK_MINOR_VERSION), [Gtk minor version number])
-AC_DEFINE_UNQUOTED(_GTK_MICRO_VERSION, ($GTK_MICRO_VERSION), [Gtk minor patch level])
-AH_BOTTOM([
-/* Allow code to be compiled differently for different versions of GTK+ */
-#define GTK_CHECK_VERSION(major,minor,micro)    \
-    (_GTK_MAJOR_VERSION > (major) || \
-     (_GTK_MAJOR_VERSION == (major) && _GTK_MINOR_VERSION > (minor)) || \
-     (_GTK_MAJOR_VERSION == (major) && _GTK_MINOR_VERSION == (minor) && \
-      _GTK_MICRO_VERSION >= (micro)))
-])
+GTKHS_PACKAGE_ADD_CHECK_VERSION(gtk+-2.0, GTK, Gtk+)
 
-dnl Also allow us to conditionally compile bindings to Pango APIs.
-PANGO_VERSION=`$PKG_CONFIG pango --modversion`
-PANGO_MAJOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f1`
-PANGO_MINOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f2`
-PANGO_MICRO_VERSION=`echo $PANGO_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(_PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Pango major version number])
-AC_DEFINE_UNQUOTED(_PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Pango minor version number])
-AC_DEFINE_UNQUOTED(_PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Pango minor patch level])
-AH_BOTTOM([
-/* Allow code to be compiled differently for different versions of Pango */
-#define PANGO_CHECK_VERSION(major,minor,micro)    \
-    (_PANGO_MAJOR_VERSION > (major) || \
-     (_PANGO_MAJOR_VERSION == (major) && _PANGO_MINOR_VERSION > (minor)) || \
-     (_PANGO_MAJOR_VERSION == (major) && _PANGO_MINOR_VERSION == (minor) && \
-      _PANGO_MICRO_VERSION >= (micro)))
-])
+dnl Allow us to conditionally compile bindings to Pango APIs.
+GTKHS_PACKAGE_ADD_CHECK_VERSION(pango, PANGO, Pango)
 
-dnl Also allow us to conditionally compile bindings to Glib APIs.
-GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
-GLIB_MAJOR_VERSION=`echo $GLIB_VERSION | $CUT -d. -f1`
-GLIB_MINOR_VERSION=`echo $GLIB_VERSION | $CUT -d. -f2`
-GLIB_MICRO_VERSION=`echo $GLIB_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(_GLIB_MAJOR_VERSION, ($GLIB_MAJOR_VERSION), [Glib major version number])
-AC_DEFINE_UNQUOTED(_GLIB_MINOR_VERSION, ($GLIB_MINOR_VERSION), [Glib minor version number])
-AC_DEFINE_UNQUOTED(_GLIB_MICRO_VERSION, ($GLIB_MICRO_VERSION), [Glib minor patch level])
-AH_BOTTOM([
-/* Allow code to be compiled differently for different versions of Glib */
-#define GLIB_CHECK_VERSION(major,minor,micro)    \
-    (_GLIB_MAJOR_VERSION > (major) || \
-     (_GLIB_MAJOR_VERSION == (major) && _GLIB_MINOR_VERSION > (minor)) || \
-     (_GLIB_MAJOR_VERSION == (major) && _GLIB_MINOR_VERSION == (minor) && \
-      _GLIB_MICRO_VERSION >= (micro)))
-])
+dnl Allow us to conditionally compile bindings to Glib APIs.
+GTKHS_PACKAGE_ADD_CHECK_VERSION(glib-2.0, GLIB, Glib)
 
-dnl Also allow us to conditionally compile bindings to Glib APIs.
-GSTREAMER_VERSION=`$PKG_CONFIG gstreamer-0.10 --modversion`
-GSTREAMER_MAJOR_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f1`
-GSTREAMER_MINOR_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f2`
-GSTREAMER_MICRO_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(_GSTREAMER_MAJOR_VERSION, ($GSTREAMER_MAJOR_VERSION), [Glib major version number])
-AC_DEFINE_UNQUOTED(_GSTREAMER_MINOR_VERSION, ($GSTREAMER_MINOR_VERSION), [Glib minor version number])
-AC_DEFINE_UNQUOTED(_GSTREAMER_MICRO_VERSION, ($GSTREAMER_MICRO_VERSION), [Glib minor patch level])
-AH_BOTTOM([
-/* Allow code to be compiled differently for different versions of Glib */
-#define GSTREAMER_CHECK_VERSION(major,minor,micro)    \
-    (_GSTREAMER_MAJOR_VERSION > (major) || \
-     (_GSTREAMER_MAJOR_VERSION == (major) && _GSTREAMER_MINOR_VERSION > (minor)) || \
-     (_GSTREAMER_MAJOR_VERSION == (major) && _GSTREAMER_MINOR_VERSION == (minor) && \
-      _GSTREAMER_MICRO_VERSION >= (micro)))
-])
+dnl Allow us to conditionally compile bindings to Glib APIs.
+GTKHS_PACKAGE_ADD_CHECK_VERSION(gstreamer-0.10, GSTREAMER, gstreamer)
 
-dnl Also allow us to conditionally compile bindings to GnomeVFS APIs.
-GNOME_VFS_VERSION=`$PKG_CONFIG gnome-vfs-2.0 --modversion`
-GNOME_VFS_MAJOR_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f1`
-GNOME_VFS_MINOR_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f2`
-GNOME_VFS_MICRO_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(_GNOME_VFS_MAJOR_VERSION, ($GNOME_VFS_MAJOR_VERSION), [Glib major version number])
-AC_DEFINE_UNQUOTED(_GNOME_VFS_MINOR_VERSION, ($GNOME_VFS_MINOR_VERSION), [Glib minor version number])
-AC_DEFINE_UNQUOTED(_GNOME_VFS_MICRO_VERSION, ($GNOME_VFS_MICRO_VERSION), [Glib minor patch level])
-AH_BOTTOM([
-/* Allow code to be compiled differently for different versions of Glib */
-#define GNOME_VFS_CHECK_VERSION(major,minor,micro)    \
-    (_GNOME_VFS_MAJOR_VERSION > (major) || \
-     (_GNOME_VFS_MAJOR_VERSION == (major) && _GNOME_VFS_MINOR_VERSION > (minor)) || \
-     (_GNOME_VFS_MAJOR_VERSION == (major) && _GNOME_VFS_MINOR_VERSION == (minor) && \
-      _GNOME_VFS_MICRO_VERSION >= (micro)))
-])
+dnl Allow us to conditionally compile bindings to GnomeVFS APIs.
+GTKHS_PACKAGE_ADD_CHECK_VERSION(gnome-vfs-2.0, GNOME_VFS, gnome-vfs)
 HAVE_GNOME_VFS_VERSION_2_14=`$PKG_CONFIG gnome-vfs-2.0 --atleast-version=2.14 && echo yes || echo no`
 AM_CONDITIONAL(HAVE_GNOME_VFS_VERSION_2_14, test "$HAVE_GNOME_VFS_VERSION_2_14" = "yes")
 

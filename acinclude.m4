@@ -256,6 +256,29 @@ done;
 $1=`echo [$]RES`;
 ])
 
+dnl GTKHS_PACKAGE_ADD_CHECK_VERSION(PACKAGE, PREFIX, NAME)
+dnl
+dnl add PREFIX_CHECK_VERSION macro to gtk2hs-config.h
+dnl PACKAGE is the pkg-config package name, while NAME is an arbitrary string
+AC_DEFUN([GTKHS_PACKAGE_ADD_CHECK_VERSION],
+[
+$2_VERSION=$($PKG_CONFIG $1 --modversion)
+$2_MAJOR_VERSION=$(echo $$2_VERSION | $CUT -d. -f1)
+$2_MINOR_VERSION=$(echo $$2_VERSION | $CUT -d. -f2)
+$2_MICRO_VERSION=$(echo $$2_VERSION | $CUT -d. -f3)
+AC_DEFINE_UNQUOTED(_$2_MAJOR_VERSION, ($$2_MAJOR_VERSION), [$3 major version])
+AC_DEFINE_UNQUOTED(_$2_MINOR_VERSION, ($$2_MINOR_VERSION), [$3 minor version])
+AC_DEFINE_UNQUOTED(_$2_MICRO_VERSION, ($$2_MICRO_VERSION), [$3 micro version])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of $3 */
+#define $2_CHECK_VERSION(major, minor, micro) \
+    (_$2_MAJOR_VERSION > (major) || \
+     (_$2_MAJOR_VERSION == (major) && _$2_MINOR_VERSION > (minor)) || \
+     (_$2_MAJOR_VERSION == (major) && _$2_MINOR_VERSION == (minor) && \
+      _$2_MICRO_VERSION >= (micro)))
+])
+])
+
 dnl PROG_LD_X_FLAG
 dnl
 dnl Sets the output variable LD_X to -x if ld supports this flag, otherwise the
