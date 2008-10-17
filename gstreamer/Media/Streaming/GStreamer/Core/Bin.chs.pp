@@ -23,10 +23,9 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 --  
---  |
---  Maintainer  : gtk2hs-devel@lists.sourceforge.net
---  Stability   : alpha
---  Portability : portable (depends on GHC)
+--  | Maintainer  : gtk2hs-devel@lists.sourceforge.net
+--    Stability   : alpha
+--    Portability : portable (depends on GHC)
 --  
 --  Base class for elements that can contain other elements.
 module Media.Streaming.GStreamer.Core.Bin (
