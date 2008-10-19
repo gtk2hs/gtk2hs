@@ -36,6 +36,8 @@ import System.Glib.GObject
 
 {#import System.GIO.Types#}
 
+type Offset = {# type goffset #}
+
 cToFlags :: (Integral int, Flags flags)
          => int
          -> [flags]

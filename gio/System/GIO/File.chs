@@ -84,6 +84,13 @@ module System.GIO.File (
     fileSetDisplayNameFinish,
     fileDelete,
     fileTrash,
+    fileCopy,
+    fileCopyAsync,
+    fileCopyFinish,
+    fileMove,
+    fileMakeDirectory,
+    fileMakeDirectoryWithParents,
+    fileMakeSymbolicLink
     ) where
 
 import Control.Monad
@@ -114,7 +121,20 @@ instance Flags FileMonitorFlags
 
 {# enum GFilesystemPreviewType as FilesystemPreviewType {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
 
-type FileProgressCallback = {# type goffset #} -> {# type goffset #} -> IO ()
+type FileProgressCallback = Offset -> Offset -> IO ()
+type CFileProgressCallback = {# type goffset #} -> {# type goffset #} -> Ptr () -> IO ()
+foreign import ccall "wrapper"
+    makeFileProgressCallback :: CFileProgressCallback
+                             -> IO {# type GFileProgressCallback #}
+
+marshalFileProgressCallback :: FileProgressCallback -> IO {# type GFileProgressCallback #}
+marshalFileProgressCallback fileProgressCallback =
+    makeFileProgressCallback cFileProgressCallback
+    where cFileProgressCallback :: CFileProgressCallback
+          cFileProgressCallback cCurrentNumBytes cTotalNumBytes _ = do
+            fileProgressCallback (fromIntegral cCurrentNumBytes)
+                                 (fromIntegral cTotalNumBytes)
+
 type FileReadMoreCallback = BS.ByteString -> IO Bool
 
 fileFromPath :: FilePath -> File
@@ -608,4 +628,122 @@ fileTrash file cancellable =
         maybeWith withGObject cancellable $ \cCancellable ->
         propagateGError (g_file_trash cFile cCancellable) >> return ()
     where _ = {# call file_trash #}
+
+fileCopy :: (FileClass source, FileClass destination)
+         => source
+         -> destination
+         -> [FileCopyFlags]
+         -> Maybe Cancellable
+         -> Maybe FileProgressCallback
+         -> IO Bool
+fileCopy source destination flags cancellable progressCallback =
+    withGObject (toFile source) $ \cSource ->
+        withGObject (toFile destination) $ \cDestination ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
+          propagateGError $ \cError -> do
+            ret <- g_file_copy cSource
+                               cDestination
+                               (cFromFlags flags)
+                               cCancellable
+                               cProgressCallback
+                               nullPtr
+                               cError
+            freeHaskellFunPtr cProgressCallback
+            return $ toBool ret
+    where _ = {# call file_copy #}
+
+fileCopyAsync :: (FileClass source, FileClass destination)
+              => source
+              -> destination
+              -> [FileCopyFlags]
+              -> Int
+              -> Maybe Cancellable
+              -> Maybe FileProgressCallback
+              -> AsyncReadyCallback
+              -> IO ()
+fileCopyAsync source destination flags ioPriority cancellable progressCallback callback =
+    withGObject (toFile source) $ \cSource ->
+        withGObject (toFile destination) $ \cDestination ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
+          cCallback <- marshalAsyncReadyCallback $ \sourceObject res -> do
+                         freeHaskellFunPtr cProgressCallback
+                         callback sourceObject res
+          g_file_copy_async cSource
+                            cDestination
+                            (cFromFlags flags)
+                            (fromIntegral ioPriority)
+                            cCancellable
+                            cProgressCallback
+                            nullPtr
+                            cCallback
+                            (castFunPtrToPtr cCallback)
+    where _ = {# call file_copy_async #}
+
+fileCopyFinish :: FileClass file
+               => file
+               -> AsyncResult
+               -> IO Bool
+fileCopyFinish file asyncResult =
+    liftM toBool $ propagateGError ({# call file_copy_finish #} (toFile file) asyncResult)
+
+fileMove :: (FileClass source, FileClass destination)
+         => source
+         -> destination
+         -> [FileCopyFlags]
+         -> Maybe Cancellable
+         -> Maybe FileProgressCallback
+         -> IO Bool
+fileMove source destination flags cancellable progressCallback =
+    withGObject (toFile source) $ \cSource ->
+        withGObject (toFile destination) $ \cDestination ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
+          propagateGError $ \cError -> do
+            ret <- g_file_move cSource
+                               cDestination
+                               (cFromFlags flags)
+                               cCancellable
+                               cProgressCallback
+                               nullPtr
+                               cError
+            freeHaskellFunPtr cProgressCallback
+            return $ toBool ret
+    where _ = {# call file_move #}
+
+fileMakeDirectory :: FileClass file
+                  => file
+                  -> Maybe Cancellable
+                  -> IO ()
+fileMakeDirectory file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          propagateGError $ g_file_make_directory cFile cCancellable
+          return ()
+    where _ = {# call file_make_directory #}
+
+fileMakeDirectoryWithParents :: FileClass file
+                             => file
+                             -> Maybe Cancellable
+                             -> IO ()
+fileMakeDirectoryWithParents file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          propagateGError $ g_file_make_directory_with_parents cFile cCancellable
+          return ()
+    where _ = {# call file_make_directory_with_parents #}
+
+fileMakeSymbolicLink :: FileClass file
+                     => file
+                     -> String
+                     -> Maybe Cancellable
+                     -> IO ()
+fileMakeSymbolicLink file symlinkValue cancellable =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString symlinkValue $ \cSymlinkValue ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          propagateGError $ g_file_make_symbolic_link cFile cSymlinkValue cCancellable
+          return ()
+    where _ = {# call file_make_symbolic_link #}
 
