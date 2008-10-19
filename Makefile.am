@@ -395,6 +395,8 @@ endif
 #
 ################################################################################
 
+if ENABLE_GIO
+
 gio_PKGNAME = libHSgio_a
 
 libHSgio_a_NAME			= gio
@@ -413,37 +415,37 @@ libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GIO_CFLAGS))
 
 libHSgio_a_SOURCESDIRS		= gio
 
-libHSgio_a_SOURCES =	        		\
-	gio/System/GIO/AsyncResult.chs		\
-	gio/System/GIO/Base.chs			\
-	gio/System/GIO/Types.chs		\
-	gio/System/GIO/Signals.chs		\
-	gio/System/GIO/Cancellable.chs		\
-	gio/System/GIO/File.chs			\
-	gio/System/GIO.hs
+gio/libHSgio_a.deps	: glib/libHSglib_a.deps
 
 libHSgio_a_GENERATEDSOURCES =			\
 	gio/System/GIO/Types.chs		\
 	gio/System/GIO/Signals.chs
 
+nodist_libHSgio_a_SOURCES = $(libHSgio_a_GENERATEDSOURCES)
+
+libHSgio_a_SOURCES =	        		\
+	gio/System/GIO/AsyncResult.chs		\
+	gio/System/GIO/Base.chs			\
+	gio/System/GIO/Cancellable.chs		\
+	gio/System/GIO/File.chs			\
+	gio/System/GIO.hs
+
 libHSgio_a_LIBADD  = 				\
 	gio/System/GIO/Base_stub.o
 
-nodist_libHSgio_a_SOURCES = $(libHSgio_a_GENERATEDSOURCES)
-
 htmldoc_HSFILES_HIDDEN +=			\
-	glib/System/GIO/Types.chs
+	$(libHSgio_a_GENERATEDSOURCES:.chs=.hs)
 
 gio/System/GIO/Types.chs : \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
-        $(srcdir)/tools/hierarchyGen/hierarchy.list \
-        $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-        $@ --tag=gio --lib=gio --prefix=g \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=gio --lib=gio --prefix=g \
 	--modname=System.GIO.Types \
-        --parentname=System.Glib.GObject)
+	--parentname=System.Glib.GObject)
 
 gio/System/GIO/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -454,26 +456,29 @@ gio/System/GIO/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
 	System.GIO.Signals)
 
+libHSgio_a_ALLSOURCES = $(libHSgio_a_SOURCES) $(nodist_libHSgio_a_SOURCES)
+
 am_libHSgio_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_SOURCES))))
 
-libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_SOURCES))
-libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_SOURCES))
+libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_ALLSOURCES))
+libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_ALLSOURCES))
 libHSgio_a_CHSFILES = \
-  $(filter %.chs,$(libHSgio_a_SOURCES:.chs.pp=.chs))
+  $(filter %.chs,$(libHSgio_a_ALLSOURCES:.chs.pp=.chs))
 libHSgio_a_CHSFILES_HS = $(libHSgio_a_CHSFILES:.chs=.hs)
-libHSgio_a_HSCFILES    = $(filter %.hsc, $(libHSgio_a_SOURCES))
+libHSgio_a_HSCFILES    = $(filter %.hsc, $(libHSgio_a_ALLSOURCES))
 libHSgio_a_HSCFILES_HS = $(libHSgio_a_HSCFILES:.hsc=.hs)
 libHSgio_a_BUILDSOURCES = \
-	$(libHSgio_a_GENERATEDSOURCES) \
 	$(libHSgio_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSgio_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgio_a_CHSFILES_HS) \
-	$(libHSgio_a_HSCFILES_HS)
+	$(libHSgio_a_HSCFILES_HS) \
+	$(libHSgio_a_GENERATEDSOURCES)
+
 libHSgio_a_HSFILES  = \
 	$(filter %.hs,$(libHSgio_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSgio_a_SOURCES))
-libHSgio_a_CFILES  = $(filter %.c,$(libHSgio_a_SOURCES))
+	$(filter %.hs,$(libHSgio_a_ALLSOURCES))
+libHSgio_a_CFILES  = $(filter %.c,$(libHSgio_a_ALLSOURCES))
 
 nobase_hi_DATA += $(libHSgio_a_HSFILES:.hs=.hi)
 
@@ -521,6 +526,8 @@ gio_MOSTLYCLEANFILES += $(libHSgio_a_HSFILES:.hs=.p_hi)
 gio_MOSTLYCLEANFILES += $(libHSgio_a_HSFILES:.hs=.p_o)
 gio_MOSTLYCLEANFILES += $(libHSgio_a_LIBADD:.o=.p_o)
 endif
+
+endif #ENABLE_GIO
 
 #
 #	gtk package
@@ -756,7 +763,6 @@ endif
 
 htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
-	gtk/Graphics/UI/Gtk/Signals.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
 	gtk/Graphics/UI/Gtk/Pango/Description.hs		\
 	gtk/Graphics/UI/Gtk/Pango/Types.hs			\
