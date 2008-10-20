@@ -139,19 +139,19 @@ type FileReadMoreCallback = BS.ByteString -> IO Bool
 
 fileFromPath :: FilePath -> File
 fileFromPath path =
-    unsafePerformIO $ withUTFString path $ {# call file_new_for_path #} >=> takeGObject
+    unsafePerformIO $ withUTFString path $ \cPath -> {# call file_new_for_path #} cPath >>= takeGObject
 
 fileFromURI :: String -> File
 fileFromURI uri =
-    unsafePerformIO $ withUTFString uri $ {# call file_new_for_uri #} >=> takeGObject
+    unsafePerformIO $ withUTFString uri $ \cURI -> {# call file_new_for_uri #} cURI >>= takeGObject
 
 fileFromCommandlineArg :: String -> File
 fileFromCommandlineArg arg =
-    unsafePerformIO $ withUTFString arg $ {# call file_new_for_commandline_arg #} >=> takeGObject
+    unsafePerformIO $ withUTFString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg >>= takeGObject
 
 fileFromParseName :: String -> File
 fileFromParseName parseName =
-    unsafePerformIO $ withUTFString parseName $ {# call file_parse_name #} >=> takeGObject
+    unsafePerformIO $ withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName >>= takeGObject
 
 fileEqual :: (FileClass file1, FileClass file2)
           => file1 -> file2 -> Bool
@@ -162,30 +162,30 @@ instance Eq File where
     (==) = fileEqual
 
 fileBasename :: FileClass file => file -> String
-fileBasename =
-    unsafePerformIO . ({# call file_get_basename #} . toFile >=> readUTFString)
+fileBasename file =
+    unsafePerformIO $ {# call file_get_basename #} (toFile file) >>= readUTFString
 
 filePath :: FileClass file => file -> FilePath
-filePath =
-    unsafePerformIO . ({# call file_get_path #} . toFile >=> readUTFString)
+filePath file =
+    unsafePerformIO $ {# call file_get_path #} (toFile file) >>= readUTFString
 
 fileURI :: FileClass file => file -> String
-fileURI =
-    unsafePerformIO . ({# call file_get_uri #} . toFile >=> readUTFString)
+fileURI file =
+    unsafePerformIO $ {# call file_get_uri #} (toFile file) >>= readUTFString
 
 fileParseName :: FileClass file => file -> String
-fileParseName =
-    unsafePerformIO . ({# call file_get_parse_name #} . toFile >=> readUTFString)
+fileParseName file =
+    unsafePerformIO $ {# call file_get_parse_name #} (toFile file) >>= readUTFString
 
 fileParent :: FileClass file => file -> Maybe File
-fileParent =
-    unsafePerformIO . ({# call file_get_parent #} . toFile >=> maybePeek takeGObject)
+fileParent file =
+    unsafePerformIO $ {# call file_get_parent #} (toFile file) >>= maybePeek takeGObject
 
 fileGetChild :: FileClass file => file -> String -> File
 fileGetChild file name =
     unsafePerformIO $
-        withUTFString name $
-        {# call file_get_child #} (toFile file) >=> takeGObject
+        withUTFString name $ \cName ->
+        {# call file_get_child #} (toFile file) cName >>= takeGObject
 
 fileGetChildForDisplayName :: FileClass file => file -> String -> Maybe File
 fileGetChildForDisplayName file displayName =
@@ -224,8 +224,8 @@ fileHasURIScheme file uriScheme =
         liftM toBool $ {# call file_has_uri_scheme #} (toFile file) cURIScheme
 
 fileURIScheme :: FileClass file => file -> String
-fileURIScheme =
-    unsafePerformIO . ({# call file_get_uri_scheme #} . toFile >=> readUTFString)
+fileURIScheme file =
+    unsafePerformIO $ {# call file_get_uri_scheme #} (toFile file) >>= readUTFString
 
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
 fileRead file cancellable =
