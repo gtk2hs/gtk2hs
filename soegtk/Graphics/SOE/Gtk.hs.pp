@@ -97,6 +97,7 @@ import Control.Concurrent.Chan
 
 import qualified System.Time
 import qualified Graphics.UI.Gtk as Gtk
+import qualified Graphics.UI.Gtk.Gdk.Events as Gtk
 
 #ifdef USE_CAIRO
 import qualified Graphics.UI.Gtk.Cairo as Gtk.Cairo
