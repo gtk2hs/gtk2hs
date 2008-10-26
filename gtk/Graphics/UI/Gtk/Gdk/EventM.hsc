@@ -17,25 +17,81 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #prune
+
 -- |
 -- Maintainer  : gtk2hs-users\@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Types and accessors to examine information in events.
+-- Types and accessors to examine information in events. This module is not
+-- exposed by default and therefore has to be imported explicitly using:
+-- @import Graphics.UI.Gtk.Gdk.EventM@
 --
 module Graphics.UI.Gtk.Gdk.EventM (
 -- * Detail
 --
--- | This modules provides an monad that makes it possible to access the
---   event information passed to callbacks without marshalling all the
---   information contained in each event.
+-- | This modules provides a monad that encapsulates the information in an
+--   event.
 --
-  Modifier(..),		-- a mask of control keys
-  TimeStamp,
-  currentTime,
-  
-  -- | Event Monad and type tags
+--   The events a widget can receive are defined in
+--   "Graphics.UI.Gtk.Abstract.Widget#7". Every event carries additional
+--   information which is accessible through functions in the 'EventM' monad.
+--   For instance, every event is associated with a
+--   'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' which is accessed using the
+--   'eventWindow' accessor function. Other information is only available in
+--   one specific event. For example, the
+--   area that has to be redrawn, accessed by 'eventArea' is only available in
+--   the 'Graphics.UI.Gtk.Abstract.Widget.exposeEvent'. Indeed, you can only
+--   call 'eventArea' if the first type parameter of 'EventM' is the phantom
+--   type 'EExpose'. (A phantom type is a type for which no values exist and
+--   which is only used to enforce certain constraints on the usage of
+--   functions such as 'eventArea'.) Some information is available in several
+--   but not all events. In order to express these constraints the module
+--   defines type classes whose names start with @Has...@ but which are not
+--   exported, implying that no new instance can be created. (They could be
+--   called phantom type classes.) For instance, the mouse pointer coordinates
+--   can be retrieved using the function 'eventCoordinates' which requires
+--   that the first type parameter of 'EventM' is in the class
+--   'HasCoordinates'. The module supplies instance of class 'HasCoordinates'
+--   for the types 'EButton', 'ECrossing', 'EMotion' and 'EScroll'. Thus for
+--   all events that require an 'EventM' action with one of the types above,
+--   the accessor function 'eventCoordinates' may be used.
+--
+--   Note that an event handler must always returns @True@ if the event
+--   was handled or @False@ if the event should be dealt with by another
+--   event handler. For instance, a handler for a key press should return
+--   @False@ if the pressed key is not one of those that the widget reacts
+--   to. In this case the event is passed to the parent widgets. This
+--   ensures that pressing, say, @Alt-F@ opens the file menu even if the
+--   current input focus is in a text entry widget. In order to facilitate
+--   writing handlers that may abort handling an event, this module provides
+--   the function 'tryEvent'. This function catches pattern match exceptions
+--   and returns @False@. If the signal successfully runs to its end, it
+--   returns @True@. A typical use is as follows:
+--
+--   > widget `on` keyPressEvent $ tryEvent $ do
+--   >   [Control] <- eventModifier
+--   >   "Return" <- eventKeyName
+--   >   liftIO $ putStrLn "Ctrl-Return pressed"
+--
+--   The rationale is that the action will throw an exception if the
+--   two event functions 'eventModifier' and 'eventKeyName' return something
+--   else than what is stated in
+--   the pattern. When no exception is thrown, execution continues to
+--   the last statement where the event is processed, here we merely
+--   print a message. Note that the return
+--   value of this statement must be @()@ since 'tryEvent' always
+--   assumes that the
+--   function handeled the event if no exception is thrown. A handler
+--   wrapped by 'tryEvent' can also indicate that it cannot handle the
+--   given event by calling 'stopEvent'.
+--
+--   Finally, not that the 'EventM' monad wraps the @IO@ monad. As such
+--   you can (and usually have to) use @liftIO@ to execute @IO@ functions.
+--
+
+-- * Event monad and type tags
   EventM,
   EAny,
   EKey,
@@ -56,17 +112,17 @@ module Graphics.UI.Gtk.Gdk.EventM (
 #if GTK_CHECK_VERSION(2,8,0)
   EGrabBroken,
 #endif
+
+-- * Accessor functions for event information
   eventWindow,
   eventSent,
-  HasCoordinates,
   eventCoordinates,
-  HasRootCoordinates,
   eventRootCoordinates,
-  HasModifier,
   eventModifier,
-  HasTime,
+  eventModifierAll,
   eventTime,
   eventKeyVal,
+  eventKeyName,
   eventHardwareKeycode,
   eventKeyboardGroup,
   MouseButton(..),
@@ -102,21 +158,23 @@ module Graphics.UI.Gtk.Gdk.EventM (
   eventGrabWindow,
 #endif
 
+-- * Auxilliary Definitions
+  Modifier(..),		-- a mask of control keys
+  TimeStamp,
+  currentTime,
+  tryEvent,
+  stopEvent,
   ) where
 
-import System.IO.Unsafe (unsafeInterleaveIO)
+import Prelude hiding (catch)
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
-import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
+import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
-import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
-                                         VisibilityState(..),
-					 CrossingMode(..),
-					 NotifyType(..),
-					 WindowState(..),
-					 ScrollDirection(..),
-					 OwnerChange(..))
+import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..), VisibilityState(..),
+  CrossingMode(..), NotifyType(..), WindowState(..), ScrollDirection(..),
+  OwnerChange(..))
 import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 import Graphics.UI.Gtk.General.DNDTypes (Atom(..), SelectionTag)
@@ -124,15 +182,18 @@ import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
 
 import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
 import Data.Maybe (catMaybes)
-import Control.Monad.Reader ( ReaderT, ask )
+import Data.List (isPrefixOf)
+import Control.Monad.Reader ( ReaderT, ask, runReaderT )
 import Control.Monad.Trans ( liftIO )
 import Control.Monad ( liftM )
-
+import Control.Exception (catch, throw, 
+                          Exception(PatternMatchFail,IOException) )
+ 
 #include <gdk/gdk.h>
 
 -- | A monad providing access to data in an event.
 --
-type EventM t a = ReaderT (Ptr ()) IO a 
+type EventM t a = ReaderT (Ptr t) IO a 
 
 -- | A tag for events that do not carry any event-specific information.
 data EAny = EAny
@@ -275,31 +336,48 @@ instance HasModifier EMotion
 instance HasModifier ECrossing
 
 -- | Query the modifier keys that were depressed when the event happened.
+--   Sticky modifiers such as CapsLock are omitted in the return value.
+--   Use 'eventModifierAll' your application requires all modifiers.
+--
 eventModifier :: HasModifier t => EventM t [Modifier]
-eventModifier = do
+eventModifier = eM False
+
+-- | Query the modifier keys that were depressed when the event happened.
+--   The result includes sticky modifiers such as CapsLock. Normally,
+--   'eventModifier' is more appropriate in applications.
+--
+eventModifierAll :: HasModifier t => EventM t [Modifier]
+eventModifierAll = eM True
+
+foreign import ccall safe "gtk_accelerator_get_default_mod_mask"
+  defModMask :: #type guint
+
+eM allModifs = do
+  let mask | allModifs = -1
+           | otherwise = defModMask
   ptr <- ask
   liftIO $ do
     (ty :: #{type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_KEY_PRESS},
                    #{const GDK_KEY_RELEASE}] then do
         (modif ::#type guint)	<- #{peek GdkEventKey, state} ptr
-        return (toFlags (fromIntegral modif))
+        return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
         (modif ::#type guint)	<- #{peek GdkEventButton, state} ptr
-        return (toFlags (fromIntegral modif))
+        return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
         (modif ::#type guint)	<- #{peek GdkEventScroll, state} ptr
-        return (toFlags (fromIntegral modif))
+        return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
         (modif ::#type guint)	<- #{peek GdkEventMotion, state} ptr
-        return (toFlags (fromIntegral modif))
+        return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
         (modif ::#type guint)	<- #{peek GdkEventCrossing, state} ptr
-        return (toFlags (fromIntegral modif))
+        return (toFlags (fromIntegral (modif .&. mask)))
       else error ("eventModifiers: none for event type "++show ty)
 
 class HasTime a
@@ -364,6 +442,10 @@ eventTime = do
 eventKeyVal :: EventM EKey KeyVal
 eventKeyVal = ask >>= \ptr -> liftIO $ liftM fromIntegral 
   (#{peek GdkEventKey, keyval} ptr :: IO #{type guint})  
+
+-- | The key value as a string. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
+eventKeyName :: EventM EKey String
+eventKeyName = liftM keyName $ eventKeyVal
 
 -- | The hardware key code.
 eventHardwareKeycode :: EventM EKey Word16
@@ -497,5 +579,23 @@ eventGrabWindow = do
 #endif
 
 
+-- | Execute an event handler and assume it handled the event unless it
+--   threw a pattern match exception.
+tryEvent :: EventM any () -> EventM any Bool
+tryEvent act = do
+  ptr <- ask
+  liftIO $ catch (runReaderT (act >> return True) ptr)
+                 (\e -> case e of
+                    IOException e
+                      | "user error (Pattern" `isPrefixOf` show e ->
+                        return False
+                    PatternMatchFail _ -> return False
+                    _ -> throw e)
 
-
+-- | Explicitly stop the handling of an event. This function should only be
+--   called inside a handler that is wrapped with 'tryEvent'. (It merely
+--   throws a bogus pattern matching error which 'tryEvent' interprets as if
+--   the handler does not handle the event.)
+stopEvent :: EventM any ()
+stopEvent =
+  liftIO $ throw (PatternMatchFail "EventM.stopEvent called explicitly")

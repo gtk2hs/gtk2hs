@@ -19,7 +19,7 @@
 --
 -- |
 -- Maintainer  : gtk2hs-users\@lists.sourceforge.net
--- Stability   : provisional
+-- Stability   : deprecated
 -- Portability : portable (depends on GHC)
 --
 -- Definiton of a record that contains event information. Deprecated in

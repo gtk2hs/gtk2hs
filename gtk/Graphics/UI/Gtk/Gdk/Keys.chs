@@ -16,20 +16,23 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
---
--- TODO
---
--- Documentation
---
+-- #prune
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Gdk KeyVal functions.
+-- A 'KeyVal' is a numeric value identifying a keyboard key. The defined
+-- values can be found at <http://gitweb.freedesktop.org/?p=xorg/proto/x11proto.git;a=blob_plain;f=keysymdef.h>.
+-- The names of the keys are the names of the macros without the prefix.
 --
 module Graphics.UI.Gtk.Gdk.Keys (
   KeyVal,
+  keyName,
+  keyFromName,
+  keyToChar,
+
   keyvalName,
   keyvalFromName,
   keyvalToChar,
@@ -49,13 +52,27 @@ type KeyVal = Word32
 
 -- | Converts a key value into a symbolic name.
 --
+keyName :: KeyVal -> String
+keyName k = unsafePerformIO $ keyvalName k
+
+-- | Converts a key name to a key value.
+--
+keyFromName :: String -> KeyVal
+keyFromName k = unsafePerformIO $ keyvalFromName k
+
+-- | Convert from a Gdk key symbol to the corresponding Unicode character.
+--
+keyToChar :: 
+    KeyVal          -- ^ @keyval@ - a Gdk key symbol
+ -> Maybe Char -- ^ returns the corresponding unicode character, or
+               -- Nothing if there is no corresponding character.
+keyToChar k = unsafePerformIO $ keyvalToChar k
+
 keyvalName :: KeyVal -> IO String
 keyvalName keyval = do
   strPtr <- {# call gdk_keyval_name #} (fromIntegral keyval)
   if strPtr==nullPtr then return "" else peekUTFString strPtr
 
--- | Converts a key name to a key value.
---
 keyvalFromName :: String -> IO KeyVal
 keyvalFromName keyvalName =
   liftM fromIntegral $
@@ -63,12 +80,7 @@ keyvalFromName keyvalName =
   {# call gdk_keyval_from_name #}
     keyvalNamePtr
 
--- | Convert from a Gdk key symbol to the corresponding Unicode character.
---
-keyvalToChar :: 
-    KeyVal          -- ^ @keyval@ - a Gdk key symbol
- -> IO (Maybe Char) -- ^ returns the corresponding unicode character, or
-                    -- Nothing if there is no corresponding character.
+keyvalToChar :: KeyVal -> IO (Maybe Char)
 keyvalToChar keyval =
   {# call gdk_keyval_to_unicode #} (fromIntegral keyval)
   >>= \code -> if code == 0 then return Nothing
