@@ -71,12 +71,23 @@ newtype Signal object handler =
 -- > on obj sig $ \args -> do
 -- >   ...
 --
-on, after ::
+on ::
     object
  -> Signal object callback
  -> callback
  -> IO (ConnectId object)
 on    object (Signal connect) handler = connect False object handler
+
+-- | Perform an action in response to a signal.
+--
+-- * Like 'on' but the signal is executed after Gtk's default handler has
+--   run.
+--
+after ::
+    object
+ -> Signal object callback
+ -> callback
+ -> IO (ConnectId object)
 after object (Signal connect) handler = connect True  object handler
 
 -- Specify if the handler is to run before (False) or after (True) the
@@ -97,7 +108,7 @@ disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect = signalDisconnect
 {-# DEPRECATED disconnect "use signalDisconnect instead" #-}
 
--- | Disconnect a signal handler. After disconecting the handler will no
+-- | Disconnect a signal handler. After disconnecting the handler will no
 -- longer be invoked when the event occurs.
 --
 signalDisconnect :: GObjectClass obj => ConnectId obj -> IO ()
