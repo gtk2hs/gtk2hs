@@ -2,11 +2,13 @@
 
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Gdk.EventM
 
 import Data.Array.MArray
 import Data.Word
 import Data.IORef
 import Control.Monad ( when )
+import Control.Monad.Trans ( liftIO )
 import Data.Array.Base ( unsafeWrite ) 
 
 
@@ -16,7 +18,7 @@ main = do
   dialogAddButton dia stockOk ResponseOk
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
-  canvas `onSizeRequest` return (Requisition 256 256)
+  canvas `on` sizeRequest $ return (Requisition 256 256)
 
   -- create the Pixbuf
   pb <- pixbufNew ColorspaceRgb False 8 256 256
@@ -65,21 +67,17 @@ main = do
 	return True 
  
   idleAdd updateBlue priorityLow
-  canvas `onExpose` updateCanvas canvas pb
+  canvas `on` exposeEvent $ updateCanvas pb
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
   return ()
 
-{-
-instance Show Rectangle where
-  show (Rectangle x y w h) = "x="++show x++", y="++show y++
-			     ", w="++show w++", h="++show h++";"
--}
-
-updateCanvas :: DrawingArea -> Pixbuf -> Event -> IO Bool
-updateCanvas canvas pb Expose { eventRegion = region } = do
-  win <- widgetGetDrawWindow canvas
+updateCanvas :: Pixbuf -> EventM EExpose Bool
+updateCanvas pb = do
+  win <- eventWindow
+  region <- eventRegion
+  liftIO $ do
   gc <- gcNew win
   width  <- pixbufGetWidth pb
   height <- pixbufGetHeight pb

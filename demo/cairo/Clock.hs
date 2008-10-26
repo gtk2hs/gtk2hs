@@ -12,6 +12,7 @@
 
 import Graphics.Rendering.Cairo
 import Graphics.UI.Gtk hiding (fill)
+import Graphics.UI.Gtk.Gdk.EventM
 import System.Glib (handleGError, GError(..))
 import System.Time
 import Control.Monad (when)
@@ -296,17 +297,22 @@ main = do
         maybe (return ()) (widgetSetColormap widget) colormap
   setAlpha window --TODO: also call setAlpha on alpha screen change
 
-  onKeyPress window $ \Key { eventKeyName = key } ->
-    when (key == "Escape") mainQuit >> return True
+  window `on` keyPressEvent $ tryEvent $ do
+    "Escape" <- eventKeyName
+    liftIO mainQuit
   
-  onButtonPress window $ \Button { eventButton = button, eventTime = time,
-                                   eventXRoot = x, eventYRoot = y } -> do
-    case button of
-      LeftButton -> windowBeginMoveDrag window button (round x) (round y) time
-      MiddleButton -> windowBeginResizeDrag window WindowEdgeSouthEast button
-                                            (round x) (round y) time
-      _ -> return ()
-    return True
+  window `on` buttonPressEvent $ tryEvent $ do
+    LeftButton <- eventButton
+    time <- eventTime
+    (x,y) <- eventRootCoordinates
+    liftIO $ windowBeginMoveDrag window LeftButton (round x) (round y) time
+    
+  window `on` buttonPressEvent $ tryEvent $ do
+    MiddleButton <- eventButton
+    time <- eventTime
+    (x,y) <- eventRootCoordinates
+    liftIO $ windowBeginResizeDrag window WindowEdgeSouthEast MiddleButton
+                                   (round x) (round y) time
 
   timeoutAdd (widgetQueueDraw window >> return True) 1000
 
@@ -336,7 +342,9 @@ main = do
 
   sizeRef <- newIORef (initialSize, initialSize)
   timeoutHandlerRef <- newIORef Nothing
-  onConfigure window $ \Configure { eventWidth = w, eventHeight = h } -> do
+  window `on` configureEvent $ do
+    (w,h) <- eventSize
+    liftIO $ do
     size <- readIORef sizeRef
     writeIORef sizeRef (w,h)
     when (size /= (w,h)) $ do
@@ -362,10 +370,11 @@ main = do
       
     return False
 
-  onExpose window $ \Expose { eventRegion = exposeRegion } -> do
-
-    (width, height) <- widgetGetSize window
-    drawWin <- widgetGetDrawWindow window
+  window `on` exposeEvent $ do
+    drawWin <- eventWindow
+    exposeRegion <- eventRegion
+    liftIO $ do
+    (width, height) <- drawableGetSize drawWin
 
     background <- readIORef backgroundRef
     foreground <- readIORef foregroundRef

@@ -1,5 +1,9 @@
--- Example of an drawing graphics onto a canvas.
+-- Example of an drawing graphics onto a canvas. Note that this example
+-- uses the old-style Gdk drawing functions. New implementations should
+-- use Cairo. See examples in that directory.
 import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Gdk.EventM
+import Control.Monad.Trans ( liftIO )
 
 main = do
   initGUI
@@ -7,18 +11,19 @@ main = do
   dialogAddButton dia stockOk ResponseOk
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
-  canvas `onSizeRequest` return (Requisition 40 40)
+  canvas `on` sizeRequest $ return (Requisition 40 40)
   text <- canvas `widgetCreateLayout` "Hello World."
-  canvas `onExpose` updateCanvas canvas text
+  canvas `on` exposeEvent $ updateCanvas text
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
   return ()
 
-updateCanvas :: DrawingArea -> PangoLayout -> Event -> IO Bool
-updateCanvas canvas text (Expose { eventArea=rect }) = do
-  win <- widgetGetDrawWindow canvas
-  (width,height) <- widgetGetSize canvas
+updateCanvas :: PangoLayout -> EventM EExpose Bool
+updateCanvas text = do
+  win <- eventWindow
+  liftIO $ do
+  (width,height) <- drawableGetSize win
   gc <- gcNew win
   gcSetValues gc $ newGCValues {
     foreground = Color 65535 0 0,
