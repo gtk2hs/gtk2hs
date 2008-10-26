@@ -407,10 +407,13 @@ import Graphics.UI.Gtk.Embedding.Plug
 import Graphics.UI.Gtk.Embedding.Socket
 
 -- non widgets
-import System.Glib.Signals		(ConnectId, disconnect,
+import System.Glib.Signals
+{- do eport 'on' and 'after'
+		(ConnectId, disconnect,
 					 signalDisconnect,
 					 signalBlock,
 					 signalUnblock)
+-}
 import System.Glib.Attributes
 
 -- pango modules
