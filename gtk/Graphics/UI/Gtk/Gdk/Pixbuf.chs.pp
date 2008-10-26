@@ -255,10 +255,9 @@ instance GErrorClass PixbufError where
 --
 -- * Use this function to load only small images as this call will block.
 --
--- * If an error occurs, the function will return @Left (err,msg)@ where @err@
---   is the error code and @msg@ is a human readable description
---   of the error. If an error occurs which is not captured by any of
---   those in 'PixbufError', an exception is thrown.
+-- * If an error occurs, the function will throw an exception that can
+--   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
+--   error codes in 'PixbufError'.
 --
 pixbufNewFromFile :: FilePath -> IO Pixbuf
 pixbufNewFromFile fname = 
@@ -277,10 +276,9 @@ pixbufNewFromFile fname =
 -- detected automatically. The image will be scaled to fit in the requested
 -- size, preserving the image's aspect ratio.
 --
--- * If an error occurs, the function will return @Left (err,msg)@ where @err@
---   is the error code and @msg@ is a human readable description
---   of the error. If an error occurs which is not captured by any of
---   those in 'PixbufError', an exception is thrown.
+-- * If an error occurs, the function will throw an exception that can
+--   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
+--   error codes in 'PixbufError'.
 --
 -- * Available since Gtk+ version 2.4
 --
@@ -311,10 +309,9 @@ pixbufNewFromFileAtSize filename width height =
 -- or height of -1 means to not scale the image at all in that dimension.
 -- Negative values for width and height are allowed since Gtk+ 2.8.
 --
--- * If an error occurs, the function will return @Left (err,msg)@ where @err@
---   is the error code and @msg@ is a human readable description
---   of the error. If an error occurs which is not captured by any of
---   those in 'PixbufError', an exception is thrown.
+-- * If an error occurs, the function will throw an exception that can
+--   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
+--   error codes in 'PixbufError'.
 --
 -- * Available since Gtk+ version 2.6
 --
@@ -361,13 +358,12 @@ pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 --   \"tEXt::key\", where key is an ASCII string of length 1-79.
 --   The values are Unicode strings.
 --
--- * The function returns @Nothing@ if writing was successful.
---   Otherwise the error code and a description is returned or,
---   if the error is not captured by one of the error codes in
---   'PixbufError', an exception is thrown.
+-- * If an error occurs, the function will throw an exception that can
+--   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
+--   error codes in 'PixbufError'.
 --
 pixbufSave :: Pixbuf -> FilePath -> ImageFormat -> [(String, String)] ->
-	      IO (Maybe (PixbufError, String))
+	      IO ()
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   let optLen = length keys in
@@ -382,7 +378,7 @@ pixbufSave pb fname iType options =
       {# call unsafe pixbuf_savev #}
 #endif
         pb fnPtr tyPtr keysPtr valuesPtr errPtrPtr
-      return Nothing
+      return ()
 
 -- | Create a new image in memory.
 --
