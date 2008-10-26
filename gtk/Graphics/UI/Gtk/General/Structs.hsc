@@ -578,6 +578,13 @@ toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
 
 -- | The size of an icon in pixels.
 --
+-- * This enumeration contains one case that is not exported and which
+--   is used when new sizes are registered using
+--   'Graphics.UI.Gtk.General.IconFactory.iconSizeRegister'.
+--
+-- * Applying 'show' to this type will reveal the name of the size
+--   that is registered with Gtk+.
+--
 data IconSize
   -- | Don't scale but use any of the available sizes.
   = IconSizeInvalid
@@ -586,21 +593,41 @@ data IconSize
   | IconSizeMenu
 
   -- | Icon size for small toolbars.
-  | IconSizeSmallToolBar
+  | IconSizeSmallToolbar
 
   -- | Icon size for larger toolbars.
-  | IconSizeLargeToolBar
+  | IconSizeLargeToolbar
 
   -- | Icon size for icons in buttons, next to the label.
   | IconSizeButton
 
-  -- | Icon size for icons in DragNDrop.
+  -- | Icon size for icons in drag-and-drop.
   | IconSizeDnd
 
   -- | Icon size for icons next to dialog text.
   | IconSizeDialog
-  deriving (Show, Eq, Enum)
-                             
+  
+  | IconSizeUser Int
+  deriving (Eq)
+
+instance Enum IconSize where
+  toEnum #{const GTK_ICON_SIZE_INVALID} = IconSizeInvalid
+  toEnum #{const GTK_ICON_SIZE_MENU}    = IconSizeMenu
+  toEnum #{const GTK_ICON_SIZE_SMALL_TOOLBAR} = IconSizeSmallToolbar
+  toEnum #{const GTK_ICON_SIZE_LARGE_TOOLBAR} = IconSizeLargeToolbar
+  toEnum #{const GTK_ICON_SIZE_BUTTON} = IconSizeButton
+  toEnum #{const GTK_ICON_SIZE_DND} = IconSizeDnd
+  toEnum #{const GTK_ICON_SIZE_DIALOG} = IconSizeDialog
+  toEnum n = IconSizeUser n
+  fromEnum IconSizeInvalid = #{const GTK_ICON_SIZE_INVALID}
+  fromEnum IconSizeMenu = #{const GTK_ICON_SIZE_MENU}   
+  fromEnum IconSizeSmallToolbar = #{const GTK_ICON_SIZE_SMALL_TOOLBAR}
+  fromEnum IconSizeLargeToolbar = #{const GTK_ICON_SIZE_LARGE_TOOLBAR}
+  fromEnum IconSizeButton = #{const GTK_ICON_SIZE_BUTTON}
+  fromEnum IconSizeDnd = #{const GTK_ICON_SIZE_DND}
+  fromEnum IconSizeDialog = #{const GTK_ICON_SIZE_DIALOG}
+  fromEnum (IconSizeUser n) = n
+  
 -- entry Widget Combo
 
 #ifndef DISABLE_DEPRECATED

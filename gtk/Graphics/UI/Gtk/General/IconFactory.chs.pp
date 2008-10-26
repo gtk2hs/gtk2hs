@@ -126,6 +126,14 @@ import Graphics.UI.Gtk.General.Structs	(IconSize(..))
 
 {#pointer *IconSet foreign newtype#}
 
+-- The Show instance for IconSize is here since we need c2hs.
+instance Show IconSize where
+  show i = unsafePerformIO (lookupSizeString (fromEnum i))
+    where
+    lookupSizeString n = do
+      ptr <- {#call unsafe icon_size_get_name#} (fromIntegral n)
+      if ptr==nullPtr then return "" else peekUTFString ptr
+
 --------------------
 -- Constructors
 
@@ -267,8 +275,12 @@ iconSizeCheck size = liftM toBool $
 
 -- | Register a new IconSize.
 --
-iconSizeRegister :: Int -> String -> Int -> IO IconSize
-iconSizeRegister height name width = liftM (toEnum . fromIntegral) $
+iconSizeRegister ::
+     String -- ^ the new name of the size
+  -> Int -- ^ the width of the icon
+  -> Int -- ^ the height of the icon
+  -> IO IconSize -- ^ the new icon size
+iconSizeRegister name width height = liftM (toEnum . fromIntegral) $
   withUTFString name $ \strPtr -> {#call unsafe icon_size_register#} 
   strPtr (fromIntegral width) (fromIntegral height)
 
