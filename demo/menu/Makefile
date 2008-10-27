@@ -1,9 +1,16 @@
 
-PROG  = menudemo 
-SOURCES = MenuDemo.hs
+PROGS  = menudemo combodemo
+SOURCES = MenuDemo.hs ComboDemo.hs
 
-$(PROG) : $(SOURCES)
-	$(HC) --make $< -o $@ $(HCFLAGS)
+all : $(PROGS)
+
+menudemo : MenuDemo.hs
+	$(HC_RULE)
+
+combodemo : ComboDemo.hs
+	$(HC_RULE)
+
+HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
 
 clean:
 	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)
