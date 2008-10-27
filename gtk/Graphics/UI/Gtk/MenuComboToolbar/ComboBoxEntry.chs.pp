@@ -28,24 +28,25 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- * Detail
--- 
+--  
 -- | A 'ComboBoxEntry' is a widget that allows the user to choose from a list
 -- of valid choices or enter a different value. It is very similar to a
 -- 'ComboBox', but it displays the selected value in an entry to allow
 -- modifying it.
 --
--- In contrast to a 'ComboBox', the underlying model of a 'ComboBoxEntry'
--- must always have a text column (see 'comboBoxEntrySetTextColumn'), and the
--- entry will show the content of the text column in the selected row. To get
--- the text from the entry, use 'comboBoxGetActiveText'.
+-- In contrast to a 'ComboBox', the underlying model of a 'ComboBoxEntry' must
+-- always have a text column (see 'comboBoxEntrySetTextColumn'), and the entry
+-- will show the content of the text column in the selected row. To get the
+-- text from the entry, use 'comboBoxEntryGetActiveText'.
 --
--- The changed signal will be emitted while typing into a 'ComboBoxEntry',
--- as well as when selecting an item from the 'ComboBoxEntry''s list. Use
--- 'comboBoxGetActive' or 'comboBoxGetActiveIter' to discover whether an item
--- was actually selected from the list.
+-- The 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.changed' signal will be
+-- emitted while typing into a 'ComboBoxEntry', as well as when selecting an
+-- item from the 'ComboBoxEntry''s list. Use 'comboBoxGetActive' or
+-- 'comboBoxGetActiveIter' to discover whether an item was actually selected
+-- from the list.
 --
--- Connect to the activate signal of the 'Entry' (use 'binGetChild') to
--- detect when the user actually finishes entering text.
+-- Connect to the activate signal of the 'Entry' (use 'binGetChild') to detect
+-- when the user actually finishes entering text.
 --
 
 -- * Class Hierarchy
@@ -75,7 +76,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- * Methods
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
-
+#if GTK_CHECK_VERSION(2,6,0)
+  comboBoxEntryGetActiveText,
+#endif
+  
 -- * Attributes
   comboBoxEntryTextColumn,
 #endif
@@ -84,6 +88,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#} hiding ( ListStore )
@@ -169,6 +174,21 @@ comboBoxEntryGetTextColumn self =
   liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_combo_box_entry_get_text_column #}
     (toComboBoxEntry self)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Retrieve the text currently in the entry.
+--
+-- * Returns @Nothing@ if no text is selected or entered.
+--
+-- * Availabe in Gtk 2.6 or higher.
+--
+comboBoxEntryGetActiveText :: ComboBoxEntryClass self => self
+  -> IO (Maybe String)
+comboBoxEntryGetActiveText self = do
+  strPtr <- {# call gtk_combo_box_get_active_text #} (toComboBox self)
+  if strPtr == nullPtr then return Nothing else liftM Just $
+    peekUTFString (castPtr strPtr)
+#endif
 
 --------------------
 -- Attributes
