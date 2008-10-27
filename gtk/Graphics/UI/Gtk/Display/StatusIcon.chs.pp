@@ -5,7 +5,7 @@
 --
 --  Created: 19 July 2007
 --
---  Copyright (C) 2007 [Insert your full name here]
+--  Copyright (C) 2007 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -104,9 +104,9 @@ module Graphics.UI.Gtk.Display.StatusIcon (
   statusIconVisible,
 
 -- * Signals
-  sizeChanged,
-  activate,
-  popupMenu,
+  statusIconSizeChanged,
+  statusIconActivate,
+  statusIconPopupMenu,
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -530,13 +530,13 @@ statusIconVisible = newAttrFromBoolProperty "visible"
 -- | Gets emitted when the size available for the image changes, e.g. because
 -- the notification area got resized.
 --
-sizeChanged :: StatusIconClass self => Signal self (Int -> IO Bool)
-sizeChanged = Signal (connect_INT__BOOL "size_changed")
+statusIconSizeChanged :: StatusIconClass self => Signal self (Int -> IO Bool)
+statusIconSizeChanged = Signal (connect_INT__BOOL "size_changed")
 
 -- | Gets emitted when the user activates the status icon. 
 -- If and how status icons can activated is platform-dependent.
-activate :: StatusIconClass self => Signal self (IO ())
-activate = Signal (connect_NONE__NONE "activate")
+statusIconActivate :: StatusIconClass self => Signal self (IO ())
+statusIconActivate = Signal (connect_NONE__NONE "activate")
  
 -- | Gets emitted when the user brings up the context menu
 -- of the status icon. Whether status icons can have context 
@@ -544,8 +544,8 @@ activate = Signal (connect_NONE__NONE "activate")
 --
 -- The 'MouseButton' and 'TimeStamp' parameters should be 
 -- passed as the last to arguments to 'Graphics.UI.Gtk.menuPopup'.
-popupMenu :: StatusIconClass self => Signal self (Maybe MouseButton -> TimeStamp -> IO ())
-popupMenu = Signal wrap
+statusIconPopupMenu :: StatusIconClass self => Signal self (Maybe MouseButton -> TimeStamp -> IO ())
+statusIconPopupMenu = Signal wrap
 
 wrap flag self f = connect_WORD_WORD__NONE "popup_menu" flag self (\m t -> f (toMB m) (fromIntegral t))
     where toMB 0 = Nothing
