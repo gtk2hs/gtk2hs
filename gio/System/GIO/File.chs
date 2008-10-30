@@ -90,7 +90,9 @@ module System.GIO.File (
     fileMove,
     fileMakeDirectory,
     fileMakeDirectoryWithParents,
-    fileMakeSymbolicLink
+    fileMakeSymbolicLink,
+    fileQuerySettableAttributes,
+    fileQueryWritableNamespaces
     ) where
 
 import Control.Monad
@@ -104,6 +106,7 @@ import System.Glib.UTFString
 
 import System.GIO.Base
 {#import System.GIO.Types#}
+import System.GIO.FileAttribute
 
 {# context lib = "gio" prefix = "g" #}
 
@@ -746,4 +749,39 @@ fileMakeSymbolicLink file symlinkValue cancellable =
           propagateGError $ g_file_make_symbolic_link cFile cSymlinkValue cCancellable
           return ()
     where _ = {# call file_make_symbolic_link #}
+
+{# pointer *FileAttributeInfoList newtype #}
+takeFileAttributeInfoList :: Ptr FileAttributeInfoList
+                          -> IO [FileAttributeInfo]
+takeFileAttributeInfoList ptr =
+    do cInfos <- liftM castPtr $ {# get FileAttributeInfoList->infos #} ptr
+       cNInfos <- {# get FileAttributeInfoList->n_infos #} ptr
+       infos <- peekArray (fromIntegral cNInfos) cInfos
+       g_file_attribute_info_list_unref ptr
+       return infos
+    where _ = {# call file_attribute_info_list_unref #}
+
+fileQuerySettableAttributes :: FileClass file
+                            => file
+                            -> Maybe Cancellable
+                            -> IO [FileAttributeInfo]
+fileQuerySettableAttributes file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          ptr <- propagateGError $ g_file_query_settable_attributes cFile cCancellable
+          infos <- takeFileAttributeInfoList ptr
+          return infos
+    where _ = {# call file_query_settable_attributes #}
+
+fileQueryWritableNamespaces :: FileClass file
+                            => file
+                            -> Maybe Cancellable
+                            -> IO [FileAttributeInfo]
+fileQueryWritableNamespaces file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          ptr <- propagateGError $ g_file_query_writable_namespaces cFile cCancellable
+          infos <- takeFileAttributeInfoList ptr
+          return infos
+    where _ = {# call file_query_writable_namespaces #}
 

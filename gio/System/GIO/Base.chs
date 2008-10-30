@@ -98,3 +98,6 @@ marshalAsyncReadyCallback asyncReadyCallback =
             asyncResult <- peekGObject cAsyncResult
             asyncReadyCallback object asyncResult
             freeHaskellFunPtr (castPtrToFunPtr cCallback)
+
+{# enum GFileAttributeInfoFlags as FileAttributeInfoFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Read, Show) #}
+instance Flags FileAttributeInfoFlags
