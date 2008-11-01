@@ -408,14 +408,17 @@ widgetGetSavedState w =
 
 -- | Allocation
 --
--- * for Widget's size_allocate signal
+-- * For Widget's 'Graphics.UI.Gtk.Abstract.Widget.sizeAllocate' signal.
+--   The @x@ and @y@ values of the rectangle refer to the widgets position
+--   relative to its parent window.
 --
 type Allocation = Rectangle
 
 
 -- | Requisition
 --
--- * for Widget's size_request
+-- * For 'Graphics.UI.Gtk.Abstract.Widget.widgetSizeRequest'. The values
+--   represent the desired width and height of the widget.
 --
 data Requisition = Requisition Int Int deriving (Eq,Show)
 

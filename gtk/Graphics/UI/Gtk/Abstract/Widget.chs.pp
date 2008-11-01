@@ -86,6 +86,13 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHideAll,
   widgetDestroy,
   widgetQueueDraw,
+  widgetQueueResize,
+#if GTK_CHECK_VERSION(2,4,0)
+  widgetQueueResizeNoRedraw,
+#endif
+  widgetSizeRequest,
+  widgetGetChildRequisition,
+  widgetSizeAllocate,
   widgetAddAccelerator,
   widgetRemoveAccelerator,
   widgetSetAccelPath,
@@ -477,7 +484,8 @@ widgetDestroy self =
   {# call widget_destroy #}
     (toWidget self)
 
--- * Functions to be used with 'Graphics.UI.Gtk.Misc.DrawingArea'.
+-- * Functions to be used with 'Graphics.UI.Gtk.Misc.DrawingArea' or
+--   container implementations.
 
 -- | Send a redraw request to a widget. Equivalent to calling
 -- 'widgetQueueDrawArea' for the entire area of a widget.
@@ -486,6 +494,82 @@ widgetQueueDraw :: WidgetClass self => self -> IO ()
 widgetQueueDraw self =
   {# call widget_queue_draw #}
     (toWidget self)
+
+-- | This function is only for use in widget implementations. Flags a widget
+-- to have its size renegotiated; should be called when a widget for some
+-- reason has a new size request. For example, when you change the text in a
+-- 'Graphics.UI.Gtk.Display.Label.Label',
+-- 'Graphics.UI.Gtk.Display.Label.Label' queues a resize to ensure there's
+-- enough space for the new text.
+--
+widgetQueueResize :: WidgetClass self => self -> IO ()
+widgetQueueResize self =
+  {# call widget_queue_resize #}
+    (toWidget self)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | This function works like 'widgetQueueResize', except that the widget is
+-- not invalidated.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetQueueResizeNoRedraw :: WidgetClass self => self -> IO ()
+widgetQueueResizeNoRedraw self =
+  {# call widget_queue_resize_no_redraw #}
+    (toWidget self)
+#endif
+
+-- | This function is typically used when implementing a
+-- 'Graphics.UI.Gtk.Abstract.Container.Container' subclass. Obtains the preferred size
+-- of a widget. The container uses this information to arrange its child
+-- widgets and decide what size allocations to give them with
+-- 'widgetSizeAllocate'.
+--
+-- You can also call this function from an application, with some caveats.
+-- Most notably, getting a size request requires the widget to be associated
+-- with a screen, because font information may be needed. Multihead-aware
+-- applications should keep this in mind.
+--
+-- Also remember that the size request is not necessarily the size a widget
+-- will actually be allocated.
+--
+widgetSizeRequest :: WidgetClass self => self -> IO Requisition
+widgetSizeRequest self = alloca $ \reqPtr -> do
+  {#call widget_size_request #} (toWidget self) (castPtr reqPtr)
+  peek reqPtr
+
+-- | This function is only for use in widget implementations. Obtains the
+-- chached requisition information in the widget, unless someone has forced a
+-- particular geometry on the widget (e.g. with 'widgetSetUsize'), in which
+-- case it returns that geometry instead of the widget's requisition.
+--
+-- This function differs from 'widgetSizeRequest' in that it retrieves the
+-- last size request value stored in the widget, while 'widgetSizeRequest'
+-- actually emits the 'sizeRequest' signal on the widget to compute the size
+-- request (which updates the widget's requisition information).
+--
+-- Since this function does not emit the 'sizeRequest' signal, it can only be
+-- used when you know that the widget's requisition is up-to-date, that is,
+-- 'widgetSizeRequest' has been called since the last time a resize was
+-- queued. In general, only container implementations have this information;
+-- applications should use 'widgetSizeRequest'.
+--
+widgetGetChildRequisition :: WidgetClass self => self -> IO Requisition
+widgetGetChildRequisition self = alloca $ \reqPtr -> do
+  {#call widget_get_child_requisition #} (toWidget self) (castPtr reqPtr)
+  peek reqPtr
+
+-- | This function is only used by
+-- 'Graphics.UI.Gtk.Abstract.Container.Container' subclasses, to assign a
+-- size and position to their child widgets.
+--
+widgetSizeAllocate :: WidgetClass self => self
+  -> Allocation -- ^ The @x@ and @y@ values of the rectangle determine the
+                --   the position of the widget's area relative to its parent
+                --   allocation.
+  -> IO ()
+widgetSizeAllocate self rect = with rect $ \rectPtr ->
+  {#call widget_size_allocate#} (toWidget self) (castPtr rectPtr)
 
 -- %hash c:1e14 d:53c5
 -- | Installs an accelerator for this @widget@ in @accelGroup@ that causes
