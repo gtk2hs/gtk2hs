@@ -427,7 +427,7 @@ instance Storable Requisition where
   alignment _ = alignment (undefined::#type gint)
   peek ptr = do
     (width_  ::#type gint)	<- #{peek GtkRequisition, width} ptr
-    (height_ ::#type gint)	<- #{peek GtkRequisition, width} ptr
+    (height_ ::#type gint)	<- #{peek GtkRequisition, height} ptr
     return $ Requisition (fromIntegral width_) (fromIntegral height_)
   poke ptr (Requisition width height) = do
     #{poke GtkRequisition, width} ptr ((fromIntegral width)::#type gint)
