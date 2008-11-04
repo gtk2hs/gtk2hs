@@ -102,6 +102,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetActivate,
   widgetIntersect,
   widgetHasIntersection,
+  widgetGetIsFocus,
   widgetGrabFocus,
   widgetGrabDefault,
   widgetSetName,
