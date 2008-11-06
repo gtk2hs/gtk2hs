@@ -167,8 +167,8 @@ drawMinuteHand quality minutes seconds = do
   setLineWidth (1/60)
   setOperator OperatorOver
   setSourceRGB 0.16 0.18 0.19
-  moveTo (-16/75 - 0.025) (-0.025)
-  lineTo (2/3 - 0.025)    (-0.025)
+  moveTo (-16/75) 0
+  lineTo (2/3) 0
   stroke
   restore
 
