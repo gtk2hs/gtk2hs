@@ -186,8 +186,15 @@ import Data.List (isPrefixOf)
 import Control.Monad.Reader ( ReaderT, ask, runReaderT )
 import Control.Monad.Trans ( liftIO )
 import Control.Monad ( liftM )
-import Control.Exception (catch, throw, 
+#if __GLASGOW_HASKELL__ >= 610
+import Control.Exception ( Handler(..)
+                         , PatternMatchFail(..)
+                         , catches, throw )
+import System.IO.Error (isUserError, ioeGetErrorString)
+#else
+import Control.Exception (catch, throw,
                           Exception(PatternMatchFail,IOException) )
+#endif
  
 #include <gdk/gdk.h>
 
@@ -584,13 +591,21 @@ eventGrabWindow = do
 tryEvent :: EventM any () -> EventM any Bool
 tryEvent act = do
   ptr <- ask
-  liftIO $ catch (runReaderT (act >> return True) ptr)
-                 (\e -> case e of
-                    IOException e
-                      | "user error (Pattern" `isPrefixOf` show e ->
-                        return False
-                    PatternMatchFail _ -> return False
-                    _ -> throw e)
+  liftIO $ (runReaderT (act >> return True) ptr)
+#if __GLASGOW_HASKELL__ >= 610
+    `catches` [ Handler (\ (PatternMatchFail _) -> return False)
+              , Handler (\ e -> if isUserError e && "Pattern" `isPrefixOf` ioeGetErrorString e
+                                then return False
+                                else throw e) ]
+#else
+    `catch` (\e -> case e of
+               IOException e
+                 | "user error (Pattern" `isPrefixOf` show e ->
+                   return False
+               PatternMatchFail _ -> return False
+               _ -> throw e)
+#endif
+
 
 -- | Explicitly stop the handling of an event. This function should only be
 --   called inside a handler that is wrapped with 'tryEvent'. (It merely
