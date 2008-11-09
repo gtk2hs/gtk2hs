@@ -799,13 +799,20 @@ if test "$BUILDDOCS" = "yes"; then
     Install haddock or re-run configure without --enable-docs])
   fi
   AC_MSG_CHECKING([version of haddock])
-  HADDOCK_VERSION=`$HADDOCK --version | $CUT -d' ' -f3 | $CUT -d, -f1`
+  HADDOCK_VERSION="`$HADDOCK --version | head -n 1 | $CUT -d' ' -f3 | $CUT -d, -f1`"
+  bad_haddock_version=no
   AC_MSG_RESULT([$HADDOCK_VERSION])  
-  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 0.7, [
-    AC_MSG_ERROR([I need haddock 0.7 or later to build the documentation.
-    Upgrade your version of haddock or re-run configure without --enable-docs])])
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 0.7, [bad_haddock_version=yes;])
   GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.8, [USE_CPP_LINES="yes";])
-  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 2.0, [HADDOCK2="yes";])
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 2.0, [
+    HADDOCK2="yes";
+    GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 2.4, [bad_haddock_version=yes;])
+  ])
+  if test "$bad_haddock_version" = "yes" ; then
+    AC_MSG_ERROR([I need haddock version x, where 0.7 <= x < 2.0 or x > 2.4
+    to build the documentation.
+    Upgrade your version of haddock or re-run configure without --enable-docs])
+  fi
 else
   USE_CPP_LINES="yes"
 fi
