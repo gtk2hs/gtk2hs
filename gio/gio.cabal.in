@@ -1,4 +1,4 @@
-name: gIO
+name: gio
 version: @PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB

@@ -408,10 +408,10 @@ endif
 libHSgio_a_INTERNALDEPS		= glib
 libHSgio_a_HEADER 		= gio/gio.h
 libHSgio_a_PRECOMP		= gio/gio.precomp
-libHSgio_a_LIBS			= $(GIO_LIBS)
+libHSgio_a_LIBS			= $(GLIB_LIBS) $(GIO_LIBS)
 libHSgio_a_HCFLAGS		= $(FFI) -fglasgow-exts
-libHSgio_a_CFLAGS		= $(filter-out -I% -D%,$(GIO_CFLAGS))
-libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GIO_CFLAGS))
+libHSgio_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GIO_CFLAGS))
+libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GIO_CFLAGS))
 
 libHSgio_a_SOURCESDIRS		= gio
 
@@ -431,11 +431,16 @@ libHSgio_a_SOURCES =	        		\
 	gio/System/GIO/File.chs			\
 	gio/System/GIO.hs
 
+htmldoc_HSFILES_HIDDEN +=			\
+	$(libHSgio_a_GENERATEDSOURCES:.chs=.hs)
+
 libHSgio_a_LIBADD  = 				\
 	gio/System/GIO/Base_stub.o
 
-htmldoc_HSFILES_HIDDEN +=			\
-	$(libHSgio_a_GENERATEDSOURCES:.chs=.hs)
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSgio_a_LIBADD +=	\
+	gio/System/GIO/Signals_stub.o
+endif
 
 gio/System/GIO/Types.chs : \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -493,6 +498,9 @@ gio_MOSTLYCLEANFILES += \
 	$(libHSgio_a_CHSFILES:.chs=_stub.c)
 gio_CLEANFILES  = $(libHSgio_a_BUILDSOURCES)
 gio_CLEANFILES += $(libHSgio_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgio_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgio_a_GENERATEDSOURCES)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgio_a_CHSFILES:.chs=.dep) gio/libHSgio_a.deps
