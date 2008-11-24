@@ -27,13 +27,12 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module System.GIO.File (
-    File,
-    FileClass,
-    FileQueryInfoFlags,
-    FileCreateFlags,
-    FileCopyFlags,
-    FileMonitorFlags,
-    FilesystemPreviewType,
+    module System.GIO.Types,
+    FileQueryInfoFlags(..),
+    FileCreateFlags(..),
+    FileCopyFlags(..),
+    FileMonitorFlags(..),
+    FilesystemPreviewType(..),
     FileProgressCallback,
     FileReadMoreCallback,
     fileFromPath,
