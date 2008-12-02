@@ -2,6 +2,7 @@
 import System.Environment (getArgs)
 
 import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.Rendering.Cairo
 import Graphics.Rendering.Cairo.SVG
 
@@ -18,15 +19,16 @@ main = do
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   onSizeRequest canvas $ return (Requisition width height)
-  onExpose canvas $ updateCanvas canvas svg
+  canvas `on` exposeEvent $ updateCanvas canvas svg
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
   return ()
 
-updateCanvas :: DrawingArea -> SVG -> Event -> IO Bool
-updateCanvas canvas svg (Expose { eventArea=rect }) = do
-  win <- widgetGetDrawWindow canvas
+updateCanvas :: DrawingArea -> SVG -> EventM EExpose Bool
+updateCanvas canvas svg = do
+  win <- eventWindow
+  liftIO $ do
   let (width, height) = svgGetSize svg
   (width', height') <- widgetGetSize canvas
   renderWithDrawable win $ do
