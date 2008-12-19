@@ -310,8 +310,8 @@ GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0], [GLIB],
 	[build gconf package (default=auto)],
 	[GConf requirement not met. Perhaps you need to install gconf or gconf-devel])
 
-GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0], [GLIB GTK],
-	[build sourceview package (default=auto)],
+GTKHS_PKG_CHECK_DEPRECATED(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0], [GLIB GTK],
+	[build sourceview package [[DEPRECATED]] (default=no with --disable-deprecated, default=auto otherwise)],
 	[GtkSourceView requirement not met. Perhaps you need to install gtksourceview or gtksourceview-devel])
 
 GTKHS_PKG_CHECK(mozilla, mozembed, MOZILLA_MOZEMBED, [mozilla-gtkmozembed >= 1.4], [GLIB GTK],
@@ -375,8 +375,8 @@ GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5], [GLIB GTK],
  	[build bindings for the Gtk OpenGL extension (default=auto)],
  	[GtkGLExt library requirement not met. Perhaps you need to install gtkglext or gtkglext-devel])
 
-GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0 gnome-vfs-module-2.0 >= 2.0.0 ], [GLIB],
-	[build gnome-vfs package (default=auto)],
+GTKHS_PKG_CHECK_DEPRECATED(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0 gnome-vfs-module-2.0 >= 2.0.0 ], [GLIB],
+	[build gnome-vfs package [[DEPRECATED]] (default=no with --disable-deprecated, default=auto otherwise)],
 	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
 GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER,
