@@ -1,0 +1,26 @@
+name: gtksourceview2
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/gtksourceview2"
+library-dirs: @GTKSOURCEVIEW2_LIBDIR_CQ@
+hs-libraries: HSgtksourceview2
+extra-libraries: @GTKSOURCEVIEW2_LIBS_CQ@
+include-dirs: @GTKSOURCEVIEW2_CFLAGS_CQ@
+includes: gtksourceview/gtksourcebuffer.h,
+          gtksourceview/gtksourceiter.h,
+          gtksourceview/gtksourceiter.h,
+          gtksourceview/gtksourcelanguage.h,
+          gtksourceview/gtksourcelanguagemanager.h,
+          gtksourceview/gtksourcestyle.h,
+          gtksourceview/gtksourcestylescheme.h,
+          gtksourceview/gtksourcestyleschememanager.h,
+          gtksourceview/gtksourceview.h,
+          gtksourceview/gtksourceview-typebuiltins.h
+depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
+ld-options: @GTKSOURCEVIEW2_LIBEXTRA_CQ@

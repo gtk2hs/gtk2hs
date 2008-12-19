@@ -310,9 +310,24 @@ GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0], [GLIB],
 	[build gconf package (default=auto)],
 	[GConf requirement not met. Perhaps you need to install gconf or gconf-devel])
 
+GTKHS_PKG_CHECK(gtksourceview2, gtksourceview2, GTKSOURCEVIEW2, [gtksourceview-2.0 >= 2.0.2], [GLIB GTK],
+	[build gtksourceview2 package (default=auto)],
+	[GtkSourceView-2.0 requirement not met. Perhaps you need to install gtksourceview-2.0 or gtksourceview-devel-2.0])
+
+dnl Don't build sourceview and gtksourceview2 at the same time
+dnl (prefer gtksourceview2 if both are auto)
+ENABLE_PKG_DEFAULT_sourceview_save="$ENABLE_PKG_DEFAULT"
+if test "$ENABLE_GTKSOURCEVIEW2" = "yes" ; then
+  ENABLE_PKG_DEFAULT=no
+fi
 GTKHS_PKG_CHECK_DEPRECATED(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0], [GLIB GTK],
 	[build sourceview package [[DEPRECATED]] (default=no with --disable-deprecated, default=auto otherwise)],
 	[GtkSourceView requirement not met. Perhaps you need to install gtksourceview or gtksourceview-devel])
+ENABLE_PKG_DEFAULT="$ENABLE_PKG_DEFAULT_sourceview_save"
+if test "$ENABLE_GTKSOURCEVIEW2" = "yes" -a "$ENABLE_SOURCEVIEW" = "yes" ; then
+  AC_ERROR([The sourceview and gtksourceview2 packages cannot be enabled simultaneously.
+            If you want to build sourceview, you must use --disable-gtksourceview2.])
+fi
 
 GTKHS_PKG_CHECK(mozilla, mozembed, MOZILLA_MOZEMBED, [mozilla-gtkmozembed >= 1.4], [GLIB GTK],
 	[build bindings for the Mozilla display widget (default=auto)],
@@ -411,6 +426,7 @@ case "$host_os" in
     GTKHS_GLIBC_PTHREAD_HACK(LIBGLADE_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(GCONF_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(SOURCEVIEW_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(GTKSOURCEVIEW2_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(MOZEMBED_LIBS);;
 esac
 
@@ -562,6 +578,9 @@ GTKHS_PACKAGE_FILTER_LIBS([GIO_LIBS], [$GLIB_LIBS], [$GIO_LIBS])
 GTKHS_PACKAGE_FILTER_CFLAGS([SOURCEVIEW_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$SOURCEVIEW_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([SOURCEVIEW_LIBS], [$GLIB_LIBS $GTK_LIBS], [$SOURCEVIEW_LIBS])
 
+GTKHS_PACKAGE_FILTER_CFLAGS([GTKSOURCEVIEW2_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$GTKSOURCEVIEW2_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([GTKSOURCEVIEW2_LIBS], [$GLIB_LIBS $GTK_LIBS], [$GTKSOURCEVIEW2_LIBS])
+
 GTKHS_PACKAGE_FILTER_CFLAGS([LIBGLADE_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$LIBGLADE_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([LIBGLADE_LIBS], [$GLIB_LIBS $GTK_LIBS], [$LIBGLADE_LIBS])
 
@@ -625,6 +644,14 @@ AC_SUBST(SOURCEVIEW_CFLAGS_CQ)
 AC_SUBST(SOURCEVIEW_LIBS_CQ)
 AC_SUBST(SOURCEVIEW_LIBDIR_CQ)
 AC_SUBST(SOURCEVIEW_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GTKSOURCEVIEW2_CFLAGS, GTKSOURCEVIEW2_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GTKSOURCEVIEW2_LIBS, GTKSOURCEVIEW2_LIBS_CQ,
+			    GTKSOURCEVIEW2_LIBDIR_CQ, GTKSOURCEVIEW2_LIBEXTRA_CQ)
+AC_SUBST(GTKSOURCEVIEW2_CFLAGS_CQ)
+AC_SUBST(GTKSOURCEVIEW2_LIBS_CQ)
+AC_SUBST(GTKSOURCEVIEW2_LIBDIR_CQ)
+AC_SUBST(GTKSOURCEVIEW2_LIBEXTRA_CQ)
 
 GTKHS_REFORMAT_PACKAGE_CFLAGS(LIBGLADE_CFLAGS, LIBGLADE_CFLAGS_CQ)
 GTKHS_REFORMAT_PACKAGE_LIBS(LIBGLADE_LIBS, LIBGLADE_LIBS_CQ,
@@ -860,19 +887,20 @@ AC_CONFIG_FILES([
   mk/link-splitobjs.sh
   docs/prologue.txt
 
-  glib/glib.package.conf		glib/glib.cabal
-  gtk/gtk.package.conf			gtk/gtk.cabal
-  gio/gio.package.conf			gio/gio.cabal
-  glade/glade.package.conf		glade/glade.cabal
-  gconf/gconf.package.conf		gconf/gconf.cabal
-  sourceview/sourceview.package.conf	sourceview/sourceview.cabal
-  mozembed/mozembed.package.conf	mozembed/mozembed.cabal
-  cairo/cairo.package.conf		cairo/cairo.cabal
-  svgcairo/svgcairo.package.conf	svgcairo/svgcairo.cabal
-  gtkglext/gtkglext.package.conf	gtkglext/gtkglext.cabal
-  soegtk/soegtk.package.conf		soegtk/soegtk.cabal
-  gnomevfs/gnomevfs.package.conf	gnomevfs/gnomevfs.cabal
-  gstreamer/gstreamer.package.conf	gstreamer/gstreamer.cabal
+  glib/glib.package.conf			glib/glib.cabal
+  gtk/gtk.package.conf				gtk/gtk.cabal
+  gio/gio.package.conf				gio/gio.cabal
+  glade/glade.package.conf			glade/glade.cabal
+  gconf/gconf.package.conf			gconf/gconf.cabal
+  sourceview/sourceview.package.conf		sourceview/sourceview.cabal
+  gtksourceview2/gtksourceview2.package.conf	gtksourceview2/gtksourceview2.cabal
+  mozembed/mozembed.package.conf		mozembed/mozembed.cabal
+  cairo/cairo.package.conf			cairo/cairo.cabal
+  svgcairo/svgcairo.package.conf		svgcairo/svgcairo.cabal
+  gtkglext/gtkglext.package.conf		gtkglext/gtkglext.cabal
+  soegtk/soegtk.package.conf			soegtk/soegtk.cabal
+  gnomevfs/gnomevfs.package.conf		gnomevfs/gnomevfs.cabal
+  gstreamer/gstreamer.package.conf		gstreamer/gstreamer.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT
@@ -883,20 +911,21 @@ echo "* Configuration completed successfully.           "
 echo "*                                                 "
 echo "* The following packages will be built:           "
 echo "*                                                 "
-echo "* glib          : yes                             "
-echo "* gtk           : ${ENABLE_GTK}                   "
-echo "* gio           : ${ENABLE_GIO}                   "
-echo "* glade         : ${ENABLE_LIBGLADE}              "
-echo "* cairo         : ${ENABLE_CAIRO}                 "
-echo "* svgcairo      : ${ENABLE_SVGCAIRO}              "
-echo "* gtkglext      : ${ENABLE_GTKGLEXT}              "
-echo "* gconf         : ${ENABLE_GCONF}                 "
-echo "* sourceview    : ${ENABLE_SOURCEVIEW}            "
-echo "* mozembed      : ${ENABLE_MOZEMBED}              "
-echo "* soegtk        : ${ENABLE_GTK}                   "
-echo "* gnomevfs      : ${ENABLE_GNOMEVFS}              "
-echo "* gstreamer     : ${ENABLE_GSTREAMER}             "
-echo "* documentation : ${BUILDDOCS}                    "
+echo "* glib           : yes                            "
+echo "* gtk            : ${ENABLE_GTK}                  "
+echo "* gio            : ${ENABLE_GIO}                  "
+echo "* glade          : ${ENABLE_LIBGLADE}             "
+echo "* cairo          : ${ENABLE_CAIRO}                "
+echo "* svgcairo       : ${ENABLE_SVGCAIRO}             "
+echo "* gtkglext       : ${ENABLE_GTKGLEXT}             "
+echo "* gconf          : ${ENABLE_GCONF}                "
+echo "* sourceview     : ${ENABLE_SOURCEVIEW}           "
+echo "* gtksourceview2 : ${ENABLE_GTKSOURCEVIEW2}       "
+echo "* mozembed       : ${ENABLE_MOZEMBED}             "
+echo "* soegtk         : ${ENABLE_GTK}                  "
+echo "* gnomevfs       : ${ENABLE_GNOMEVFS}             "
+echo "* gstreamer      : ${ENABLE_GSTREAMER}            "
+echo "* documentation  : ${BUILDDOCS}                   "
 dnl echo "* tutorials     : no                              "
 echo "*                                                 "
 echo "* Now do \"(g)make\" followed by \"(g)make install\""

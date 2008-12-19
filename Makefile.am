@@ -19,6 +19,7 @@ EXTRA_DIST = \
 	tools/hierarchyGen/Hierarchy.chs.template \
         gconf/System/Gnome/GConf/marshal.list	\
 	sourceview/sourceview.h			\
+	gtksourceview2/gtksourceview2.h		\
 	gtk/wingtk.h				\
         glib/System/Glib/hsgclosure.h		\
 	cairo/COPYRIGHT				\
@@ -67,6 +68,9 @@ pkglib_LIBRARIES += libHSgconf.a
 endif
 if ENABLE_SOURCEVIEW
 pkglib_LIBRARIES += libHSsourceview.a
+endif
+if ENABLE_GTKSOURCEVIEW2
+pkglib_LIBRARIES += libHSgtksourceview2.a
 endif
 if ENABLE_MOZEMBED
 pkglib_LIBRARIES += libHSmozembed.a
@@ -1315,6 +1319,142 @@ sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_LIBADD:.o=.p_o)
 endif
 
 endif #ENABLE_SOURCEVIEW
+
+#
+#	gtksourceview2 package
+#
+################################################################################
+
+if ENABLE_GTKSOURCEVIEW2
+
+gtksourceview2_PKGNAME = libHSgtksourceview2_a
+
+libHSgtksourceview2_a_NAME		= gtksourceview2
+libHSgtksourceview2_a_CONFIG	= gtksourceview2/gtksourceview2.package.conf
+libHSgtksourceview2_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
+libHSgtksourceview2_a_INTERNALDEPS	= glib gtk
+libHSgtksourceview2_a_HEADER 	= gtksourceview2.h
+libHSgtksourceview2_a_PRECOMP	= gtksourceview2/gtksourceview2.precomp
+libHSgtksourceview2_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GTKSOURCEVIEW2_LIBS)
+libHSgtksourceview2_a_HCFLAGS	= $(FFI)
+libHSgtksourceview2_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKSOURCEVIEW2_CFLAGS))
+libHSgtksourceview2_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKSOURCEVIEW2_CFLAGS)) -Igtksourceview2
+
+libHSgtksourceview2_a_SOURCESDIRS	= gtksourceview2
+
+gtksourceview2/libHSgtksourceview2_a.deps	: gtk/libHSgtk_a.deps
+
+libHSgtksourceview2_a_GENERATEDSOURCES =					\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs			\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs
+
+nodist_libHSgtksourceview2_a_SOURCES = $(libHSgtksourceview2_a_GENERATEDSOURCES)
+
+libHSgtksourceview2_a_SOURCES =							\
+	gtksourceview2/Graphics/UI/Gtk/SourceView.hs				\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceBuffer.chs		\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceIter.chs		\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguageManager.chs	\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle.hs		\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle/Internal.chs	\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs		\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyleSchemeManager.chs	\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceView.chs
+
+htmldoc_HSFILES_HIDDEN += $(libHSgtksourceview2_a_GENERATEDSOURCES:.chs=.hs)	\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle/Internal.hs
+
+gtksourceview2_Graphics_UI_Gtk_SourceView_Types_hs_HCFLAGS		= -fglasgow-exts
+gtksourceview2_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
+
+gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs :	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=gtksourceview2 --parentname=Graphics.UI.Gtk.Types \
+        --modname=Graphics.UI.Gtk.SourceView.Types)
+
+gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/gtksourceview2/marshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/gtksourceview2/marshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	Graphics.UI.Gtk.SourceView.Signals)
+
+libHSgtksourceview2_a_ALLSOURCES = $(libHSgtksourceview2_a_SOURCES) $(nodist_libHSgtksourceview2_a_SOURCES)
+
+am_libHSgtksourceview2_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtksourceview2_a_ALLSOURCES))))
+
+libHSgtksourceview2_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtksourceview2_a_ALLSOURCES))
+libHSgtksourceview2_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtksourceview2_a_ALLSOURCES))
+libHSgtksourceview2_a_CHSFILES = \
+  $(filter %.chs,$(libHSgtksourceview2_a_ALLSOURCES:.chs.pp=.chs))
+libHSgtksourceview2_a_CHSFILES_HS = $(libHSgtksourceview2_a_CHSFILES:.chs=.hs)
+libHSgtksourceview2_a_HSCFILES = $(filter %.hsc, $(libHSgtksourceview2_a_ALLSOURCES))
+libHSgtksourceview2_a_HSCFILES_HS = $(libHSgtksourceview2_a_HSCFILES:.hsc=.hs)
+libHSgtksourceview2_a_BUILDSOURCES = \
+	$(libHSgtksourceview2_a_HSPPFILES:.hs.pp=.hs) \
+	$(libHSgtksourceview2_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSgtksourceview2_a_CHSFILES_HS) \
+        $(libHSgtksourceview2_a_HSCFILES_HS) \
+        $(libHSgtksourceview2_a_GENERATEDSOURCES)
+libHSgtksourceview2_a_HSFILES  = \
+	$(filter %.hs,$(libHSgtksourceview2_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSgtksourceview2_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSgtksourceview2_a_HSFILES:.hs=.hi)
+
+gtksourceview2_MOSTLYCLEANFILES  = $(am_libHSgtksourceview2_a_OBJECTS)
+gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_HSFILES:.hs=.hi)
+gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_CHSFILES:.chs=.chi)
+gtksourceview2_CLEANFILES  = $(libHSgtksourceview2_a_BUILDSOURCES)
+gtksourceview2_CLEANFILES += $(libHSgtksourceview2_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgtksourceview2_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgtk_a_GENERATEDSOURCES)		\
+	$(libHSgtksourceview2_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSgtksourceview2_a_CHSFILES:.chs=.dep) gtksourceview2/libHSgtksourceview2_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSgtksourceview2_a_AR = $(srcdir)/mk/link-splitobjs.sh
+gtksourceview2_CLEANFILES_SPLIT = $(libHSgtksourceview2_a_HSFILES:.hs=_split/)
+else
+libHSgtksourceview2_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSgtksourceview2_a_DEPENDENCIES = HSgtksourceview2.o
+pkglib_DATA += HSgtksourceview2.o
+HSgtksourceview2.o : $(libHSgtksourceview2_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgtksourceview2_a_OBJECTS) $(libHSgtksourceview2_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSgtksourceview2_a_DEPENDENCIES += libHSgtksourceview2_p.a
+pkglib_DATA += libHSgtksourceview2_p.a
+libHSgtksourceview2_p.a : $(libHSgtksourceview2_a_HSFILES:.hs=.p_o) \
+		$(libHSgtksourceview2_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gtksourceview2/libHSgtksourceview2_a.p_deps
+ endif
+
+nobase_hi_DATA              += $(libHSgtksourceview2_a_HSFILES:.hs=.p_hi)
+gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_HSFILES:.hs=.p_hi)
+gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_HSFILES:.hs=.p_o)
+gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_LIBADD:.o=.p_o)
+endif
+
+endif #ENABLE_GTKSOURCEVIEW2
 
 #
 #	mozembed package
@@ -2790,6 +2930,7 @@ mostlyclean: mostlyclean-am
 	rm -f $(glade_MOSTLYCLEANFILES)
 	rm -f $(gconf_MOSTLYCLEANFILES)
 	rm -f $(sourceview_MOSTLYCLEANFILES)
+	rm -f $(gtksourceview2_MOSTLYCLEANFILES)
 	rm -f $(mozembed_MOSTLYCLEANFILES)
 	rm -f $(cairo_MOSTLYCLEANFILES)
 	rm -f $(svgcairo_MOSTLYCLEANFILES)
@@ -2814,6 +2955,8 @@ clean: mostlyclean clean-am
 	rm -rf $(gconf_CLEANFILES_SPLIT)
 	rm -f  $(sourceview_CLEANFILES)
 	rm -rf $(sourceview_CLEANFILES_SPLIT)
+	rm -f  $(gtksourceview2_CLEANFILES)
+	rm -rf $(gtksourceview2_CLEANFILES_SPLIT)
 	rm -f  $(mozembed_CLEANFILES)
 	rm -rf $(mozembed_CLEANFILES_SPLIT)
 	rm -f  $(cairo_CLEANFILES)

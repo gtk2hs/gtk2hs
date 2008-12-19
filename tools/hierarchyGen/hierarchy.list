@@ -30,6 +30,7 @@
         GtkSettings
         GtkTextBuffer
             GtkSourceBuffer	if sourceview
+            GtkSourceBuffer	if gtksourceview2
         GtkTextTag
             GtkSourceTag	if sourceview
         GtkTextTagTable
@@ -124,6 +125,7 @@
                     GtkTable
                     GtkTextView
                         GtkSourceView	if sourceview
+                        GtkSourceView	if gtksourceview2
                     GtkToolbar
                     GtkTreeView
                 GtkCalendar
@@ -193,12 +195,17 @@
 	GtkUIManager			if gtk-2.4
 	GtkWindowGroup
         GtkSourceLanguage		if sourceview
+        GtkSourceLanguage		if gtksourceview2
         GtkSourceLanguagesManager	if sourceview
+        GtkSourceLanguageManager	if gtksourceview2
 	GladeXML			as GladeXML, glade_xml_get_type if libglade
 	GConfClient			as GConf if gconf
 # These ones are actualy interfaces, but interface implementations are GObjects
 	GtkEditable
+	GtkSourceStyle			as SourceStyleObject if gtksourceview2
 	GtkSourceStyleScheme		if sourceview
+	GtkSourceStyleScheme		if gtksourceview2
+	GtkSourceStyleSchemeManager	if gtksourceview2
 	GtkFileChooser			if gtk-2.4
 ## This now became a GObject in version 2:
 	GdkGC				as GC, gdk_gc_get_type
