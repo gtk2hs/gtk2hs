@@ -170,6 +170,14 @@ AC_ARG_ENABLE(split-objs,
 	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=yes])
 AM_CONDITIONAL(ENABLE_SPLITOBJS, test "$ENABLE_SPLITOBJS" = "yes")
 
+dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
+AC_MSG_CHECKING([whether to build deprecated bindings])
+AC_ARG_ENABLE(deprecated,
+	     [  --disable-deprecated    do not generate bindings for any deprecated APIs],
+	     [ENABLE_DEPRECATED=$enableval],[ENABLE_DEPRECATED=yes])
+AC_MSG_RESULT($ENABLE_DEPRECATED)
+DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
+
 dnl packager mode is for people building packages, eg for linux distros.
 dnl in packager mode you do not get any optional dependancies unless you
 dnl explicitly ask for them with --enable-PACKAGE
@@ -676,17 +684,6 @@ AC_SUBST(GSTREAMER_CFLAGS_CQ)
 AC_SUBST(GSTREAMER_LIBS_CQ)
 AC_SUBST(GSTREAMER_LIBDIR_CQ)
 AC_SUBST(GSTREAMER_LIBEXTRA_CQ)
-
-
-dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
-AC_MSG_CHECKING([whether to build deprecated bindings])
-
-AC_ARG_ENABLE(deprecated,
-	     [  --disable-deprecated    do not generate bindings for any deprecated APIs],
-	     [ENABLE_DEPRECATED=$enableval],[ENABLE_DEPRECATED=yes])
-AC_MSG_RESULT($ENABLE_DEPRECATED)
-
-DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
 
 if test $DISABLE_DEPRECATED = yes; then
   AC_DEFINE(DISABLE_DEPRECATED, [], [Leave out all deprecated functions.])
