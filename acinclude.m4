@@ -153,6 +153,16 @@ if test "[$]ENABLE_$3" = "yes"; then
 fi
 ])dnl
 
+AC_DEFUN([GTKHS_PKG_CHECK_DEPRECATED],
+[
+ENABLE_PKG_DEFAULT_save="$ENABLE_PKG_DEFAULT"
+if test "$DISABLE_DEPRECATED" = "yes" ; then
+  ENABLE_PKG_DEFAULT=no
+fi
+GTKHS_PKG_CHECK($@)
+ENABLE_PKG_DEFAULT="$ENABLE_PKG_DEFAULT_save"
+])
+
 dnl GTKHS_REFORMAT_PACKAGE_CFLAGS(CFLAGS, CFLAGS_CQ)
 dnl 
 dnl for ghc package.conf files, we need to convert from
