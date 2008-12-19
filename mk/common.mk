@@ -105,6 +105,14 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 # another module. A sound fix would be to calculate dependencies each
 # time which is too time consuming.
 
+if GHC_VERSION_610
+DEP_MAKEFILE=-dep-makefile
+OPTDEP_F=
+else
+DEP_MAKEFILE=
+OPTDEP_F=-f
+endif
+
 %.deps : package.conf.inplace
 	$(if $(strip \
 	  $(if $(findstring c2hs,$@),\
@@ -113,7 +121,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	touch $@; \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
-	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
+	  $(HC) -M $(DEP_MAKEFILE) $(addprefix -optdep,$(OPTDEP_F) $@) -fglasgow-exts \
 	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
 	  $(HCFLAGS_PACKAGE_DEPS) \
 	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
@@ -127,7 +135,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	touch $@; \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
-	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
+	  $(HC) -M $(DEP_MAKEFILE) $(addprefix -optdep,$(OPTDEP_F) $@) -fglasgow-exts \
 	  -hisuf p_hi -osuf p_o \
 	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
 	  $(HCFLAGS_PACKAGE_DEPS) \
