@@ -2401,7 +2401,18 @@ htmldoc_haddock_files =								  \
 	docs/reference/gtk2hs.haddock
 
 if !WIN32
-if !HADDOCK2
+if HADDOCK2
+htmldoc_haddock_files +=							  \
+	$(foreach HSFILE, $(filter-out						  \
+	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
+	    $(patsubst $(firstword $(subst /,					  \
+	    ,$(HSFILE)))-%.hs,							  \
+	     docs/reference/mini_%.html,					  \
+		$(subst /,-,$(HSFILE:.uncpp=))))				  \
+	docs/reference/frames.html						  \
+	docs/reference/index-frames.html
+
+else
 htmldoc_haddock_files +=
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y
 		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
