@@ -72,6 +72,10 @@ module Graphics.UI.Gtk.Abstract.Range (
   afterMoveSlider,
   onAdjustBounds,
   afterAdjustBounds,
+#if GTK_CHECK_VERSION(2,6,0)
+  onRangeChangeValue,
+  afterRangeChangeValue,
+#endif
   onRangeValueChanged,
   afterRangeValueChanged
   ) where
@@ -248,6 +252,23 @@ rangeValue = newAttr
 
 --------------------
 -- Signals
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Emitted when a scroll action is performed on a range. It allows
+--   an application to determine the type of scroll event that
+--   occurred and the resultant new value. The application can handle
+--   the event itself and return 'True' to prevent further
+--   processing. Or, by returning 'False', it can pass the event to
+--   other handlers until the default GTK+ handler is reached.
+--   
+--   * Since Gtk 2.6
+--   
+onRangeChangeValue, afterRangeChangeValue :: RangeClass self => self
+ -> (ScrollType -> Double -> IO Bool)
+ -> IO (ConnectId self)
+onRangeChangeValue = connect_ENUM_DOUBLE__BOOL "change_value" False
+afterRangeChangeValue = connect_ENUM_DOUBLE__BOOL "change_value" True
+#endif
 
 -- | Emitted when the range value is changed either programmatically or by
 -- user action.
