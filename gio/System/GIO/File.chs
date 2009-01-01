@@ -27,7 +27,8 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module System.GIO.File (
-    module System.GIO.Types,
+    File(..),
+    FileClass(..),
     FileQueryInfoFlags(..),
     FileCreateFlags(..),
     FileCopyFlags(..),
