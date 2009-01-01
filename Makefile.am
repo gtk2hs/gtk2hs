@@ -594,7 +594,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Misc.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp			\
-	gtk/Graphics/UI/Gtk/Abstract/Range.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Scale.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp			\
