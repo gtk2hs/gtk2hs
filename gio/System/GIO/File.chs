@@ -28,7 +28,7 @@
 --   Portability : portable (depends on GHC)
 module System.GIO.File (
     File(..),
-    FileClass(..),
+    FileClass,
     FileQueryInfoFlags(..),
     FileCreateFlags(..),
     FileCopyFlags(..),
