@@ -48,6 +48,9 @@ module Graphics.UI.Gtk.General.Structs (
   toResponse,
   #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   NativeWindowId,
+  toNativeWindowId,
+  fromNativeWindowId,
+  nativeWindowIdNone,
   #endif
 #ifndef DISABLE_DEPRECATED
   toolbarChildButton,
@@ -564,7 +567,27 @@ toResponse i | i > 0  = ResponseUser $ fromIntegral i
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | The identifer of a window of the underlying windowing system.
 --
-type NativeWindowId = #type GdkNativeWindow
+#ifdef GDK_NATIVE_WINDOW_POINTER
+newtype NativeWindowId = NativeWindowId (Ptr ()) deriving (Eq, Show)
+unNativeWindowId :: NativeWindowId -> Ptr a
+unNativeWindowId (NativeWindowId id) = castPtr id
+toNativeWindowId :: Ptr a -> NativeWindowId
+toNativeWindowId = NativeWindowId . castPtr
+fromNativeWindowId :: NativeWindowId -> Ptr a
+fromNativeWindowId = castPtr . unNativeWindowId
+nativeWindowIdNone :: NativeWindowId
+nativeWindowIdNone = NativeWindowId nullPtr
+#else
+newtype NativeWindowId = NativeWindowId #{type GdkNativeWindow} deriving (Eq, Show)
+unNativeWindowId :: Integral a => NativeWindowId -> a
+unNativeWindowId (NativeWindowId id) = fromIntegral id
+toNativeWindowId :: Integral a => a -> NativeWindowId
+toNativeWindowId = NativeWindowId . fromIntegral
+fromNativeWindowId :: Integral a => NativeWindowId -> a
+fromNativeWindowId = fromIntegral . unNativeWindowId
+nativeWindowIdNone :: NativeWindowId
+nativeWindowIdNone = NativeWindowId 0
+#endif
 #endif
 
 #ifndef DISABLE_DEPRECATED

@@ -100,7 +100,7 @@ plugNew socketId =
   makeNewObject mkPlug $
   liftM (castPtr :: Ptr Widget -> Ptr Plug) $
   {# call unsafe plug_new #}
-    (fromIntegral (fromMaybe 0 socketId))
+    (fromNativeWindowId (fromMaybe nativeWindowIdNone socketId))
 
 --------------------
 -- Methods
@@ -112,7 +112,7 @@ plugNew socketId =
 plugGetId :: PlugClass self => self
  -> IO NativeWindowId -- ^ returns the window ID for the plug
 plugGetId self =
-  liftM fromIntegral $
+  liftM toNativeWindowId $
   {# call unsafe plug_get_id #}
     (toPlug self)
 

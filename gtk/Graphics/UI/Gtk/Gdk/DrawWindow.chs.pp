@@ -523,4 +523,4 @@ drawWindowGetOrigin self =
 -- for X windows and a HWND for Win32.
 drawWindowForeignNew :: NativeWindowId -> IO (Maybe DrawWindow)
 drawWindowForeignNew anid = maybeNull (makeNewGObject mkDrawWindow) $
-  liftM castPtr $ {#call gdk_window_foreign_new#} (fromIntegral anid)
+  liftM castPtr $ {#call gdk_window_foreign_new#} (fromNativeWindowId anid)

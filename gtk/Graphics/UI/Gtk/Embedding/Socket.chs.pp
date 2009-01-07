@@ -155,7 +155,7 @@ socketAddId :: SocketClass self => self
 socketAddId self windowId =
   {# call unsafe socket_add_id #}
     (toSocket self)
-    (fromIntegral windowId)
+    (fromNativeWindowId windowId)
 
 -- | Gets the window ID of a 'Socket' widget, which can then be used to create
 -- a client embedded inside the socket, for instance with
@@ -166,7 +166,7 @@ socketAddId self windowId =
 --
 socketGetId :: SocketClass self => self -> IO NativeWindowId
 socketGetId self =
-  liftM fromIntegral $
+  liftM toNativeWindowId $
   {# call unsafe socket_get_id #}
     (toSocket self)
 
