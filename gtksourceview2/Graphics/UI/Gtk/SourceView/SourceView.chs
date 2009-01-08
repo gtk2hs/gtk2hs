@@ -42,6 +42,8 @@ module Graphics.UI.Gtk.SourceView.SourceView (
   sourceViewGetSmartHomeEnd,
   sourceViewSetHighlightCurrentLine,
   sourceViewGetHighlightCurrentLine,
+  sourceViewSetShowLineMarks,
+  sourceViewGetShowLineMarks,
   sourceViewSetShowLineNumbers,
   sourceViewGetShowLineNumbers,
   sourceViewSetShowRightMargin,
@@ -50,6 +52,8 @@ module Graphics.UI.Gtk.SourceView.SourceView (
   sourceViewGetRightMarginPosition,
   sourceViewSetTabWidth,
   sourceViewGetTabWidth,
+  sourceViewSetMarkCategoryPixbuf,
+  sourceViewGetMarkCategoryPixbuf,
   sourceViewAutoIndent,
   sourceViewHighlightCurrentLine,
   sourceViewIndentOnTab,
@@ -165,6 +169,18 @@ sourceViewGetHighlightCurrentLine sv = liftM toBool $
 
 -- | 
 --
+sourceViewSetShowLineMarks :: SourceViewClass sv => sv -> Bool -> IO ()
+sourceViewSetShowLineMarks sv newVal =
+  {#call source_view_set_show_line_marks#} (toSourceView sv) (fromBool newVal)
+  
+-- | 
+--
+sourceViewGetShowLineMarks :: SourceViewClass sv => sv -> IO Bool 
+sourceViewGetShowLineMarks sv = liftM toBool $
+  {#call unsafe source_view_get_show_line_marks#} (toSourceView sv)
+
+--- | 
+--
 sourceViewSetShowLineNumbers :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetShowLineNumbers sv newVal =
   {#call source_view_set_show_line_numbers#} (toSourceView sv) (fromBool newVal)
@@ -210,6 +226,32 @@ sourceViewSetTabWidth sv width =
 sourceViewGetTabWidth :: SourceViewClass sv => sv -> IO Int 
 sourceViewGetTabWidth sv = liftM fromIntegral $
   {#call unsafe source_view_get_tab_width#} (toSourceView sv)
+
+-- |
+--
+sourceViewSetMarkCategoryPriority :: SourceViewClass sv => sv -> String -> Int -> IO ()
+sourceViewSetMarkCategoryPriority sv markerType priority = withCString markerType $ \strPtr ->
+  {#call source_view_set_mark_category_priority#} (toSourceView sv) strPtr (fromIntegral priority)
+
+-- |
+--
+sourceViewGetMarkCategoryPriority :: SourceViewClass sv => sv -> String -> IO Int
+sourceViewGetMarkCategoryPriority sv markerType = withCString markerType $ \strPtr ->
+  liftM fromIntegral $
+  {#call unsafe source_view_get_mark_category_priority#} (toSourceView sv) strPtr
+
+--- |
+--
+sourceViewSetMarkCategoryPixbuf :: SourceViewClass sv => sv -> String -> Pixbuf -> IO ()
+sourceViewSetMarkCategoryPixbuf sv markerType marker = withCString markerType $ \strPtr ->
+  {#call source_view_set_mark_category_pixbuf#} (toSourceView sv) strPtr marker
+
+-- |
+--
+sourceViewGetMarkCategoryPixbuf :: SourceViewClass sv => sv -> String -> IO Pixbuf
+sourceViewGetMarkCategoryPixbuf sv markerType = withCString markerType $ \strPtr ->
+  constructNewGObject mkPixbuf $
+  {#call unsafe source_view_get_mark_category_pixbuf#} (toSourceView sv) strPtr
 
 -- |
 --

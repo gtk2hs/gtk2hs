@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.SourceView.SourceBuffer (
   sourceBufferRedo,
   sourceBufferBeginNotUndoableAction,
   sourceBufferEndNotUndoableAction,
+  sourceBufferCreateSourceMark,
   sourceBufferEnsureHighlight,
   sourceBufferCanRedo,
   sourceBufferCanUndo,
@@ -69,6 +70,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
+
+import Graphics.UI.Gtk.SourceView.SourceMark
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -184,6 +187,39 @@ sourceBufferBeginNotUndoableAction sb =
 sourceBufferEndNotUndoableAction :: SourceBuffer -> IO ()
 sourceBufferEndNotUndoableAction sb =
   {#call source_buffer_end_not_undoable_action#} sb
+
+-- | Creates a marker in the buffer of the given type.
+--
+-- *  A marker is
+--    semantically very similar to a 'Graphics.UI.Gtk.Multiline.TextMark',
+--    except it has a type
+--    which is used by the 'SourceView' displaying the buffer to show a
+--    pixmap on the left margin, at the line the marker is in.  Because
+--    of this, a marker is generally associated to a line and not a
+--    character position.  Markers are also accessible through a position
+--    or range in the buffer.
+--
+-- *  Markers are implemented using 'Graphics.UI.Gtk.Multiline.TextMark',
+--    so all characteristics
+--    and restrictions to marks apply to markers too.  These includes
+--    life cycle issues and 'Graphics.UI.Gtk.Multiline.TextMark.onMarkSet'
+--    and 'Graphics.UI.Gtk.Multiline.TextMark.onMarkDeleted' signal
+--    emissions.
+--
+-- *  Like a 'Graphics.UI.Gtk.Multiline.TextMark', a 'SourceMarker'
+--    can be anonymous if the
+--    passed name is @Nothing@.  Also, the buffer owns the markers so you
+--    shouldn't unreference it.
+
+sourceBufferCreateSourceMark :: SourceBuffer -- the buffer
+                         -> Maybe String -- the name of the mark
+                         -> String -- the category of the mark
+                         -> TextIter -> IO SourceMark
+sourceBufferCreateSourceMark sb name category iter =
+  makeNewGObject mkSourceMark $
+  maybeWith withCString name       $ \strPtr1 ->
+  withCString category $ \strPtr2 ->
+  {#call source_buffer_create_source_mark#} sb strPtr1 strPtr2 iter
 
 -- |
 -- 

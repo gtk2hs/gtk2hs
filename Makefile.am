@@ -1380,6 +1380,7 @@ nodist_libHSgtksourceview2_a_SOURCES = $(libHSgtksourceview2_a_GENERATEDSOURCES)
 
 libHSgtksourceview2_a_SOURCES =							\
 	gtksourceview2/Graphics/UI/Gtk/SourceView.hs				\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceMark.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceBuffer.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceIter.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
