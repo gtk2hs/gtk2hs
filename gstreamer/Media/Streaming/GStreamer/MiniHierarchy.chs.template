@@ -23,7 +23,7 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
-
+--
 -- #hide
 
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net

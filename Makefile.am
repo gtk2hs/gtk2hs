@@ -777,6 +777,7 @@ endif
 htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
+	gtk/Graphics/UI/Gtk/General/Structs.hs			\
 	gtk/Graphics/UI/Gtk/Pango/Description.hs		\
 	gtk/Graphics/UI/Gtk/Pango/Types.hs			\
 	gtk/Graphics/UI/Gtk/Pango/Structs.hs			\
@@ -784,6 +785,7 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\
 	gtk/Graphics/UI/Gtk/ModelView/Types.hs			\
+	gtk/Graphics/UI/Gtk/ModelView/Sequence.hs		\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs \
 	gtk/Graphics/UI/Gtk/General/DNDTypes.hs
@@ -2084,6 +2086,7 @@ endif
 htmldoc_HSFILES_HIDDEN				+=	\
 	$(libHSgnomevfs_a_GENERATEDSOURCES:.chs=.hs)	\
 	gnomevfs/System/Gnome/VFS/Types.hs		\
+	gnomevfs/System/Gnome/VFS/Constants.hs		\
 	gnomevfs/System/Gnome/VFS/Marshal.hs
 
 gnomevfs_System_Gnome_VFS_FileInfo_hs_HCFLAGS	 = '-\#include"hsfileinfo.h"'
@@ -2297,12 +2300,13 @@ gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
-	gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchyBase.hs \
-	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
+	gstreamer/Media/Streaming/GStreamer/Core/Constants.hs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
-	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs
+	gstreamer/Media/Streaming/GStreamer/Audio/Types.hs		\
+	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs		\
+	gstreamer/Media/Streaming/GStreamer/Net/Types.hs
 
 EXTRA_DIST +=					\
 	gstreamer/hsgstreamer.h			\
@@ -2536,11 +2540,9 @@ htmldoc_haddock_files =								  \
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
 	docs/reference/plus.gif docs/reference/minus.gif			  \
 	docs/reference/haddock.js						  \
-	docs/reference/haddock-util.js						  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock
 
-if !WIN32
 if HADDOCK2
 htmldoc_haddock_files +=							  \
 	$(foreach HSFILE, $(filter-out						  \
@@ -2549,15 +2551,14 @@ htmldoc_haddock_files +=							  \
 	    ,$(HSFILE)))-%.hs,							  \
 	     docs/reference/mini_%.html,					  \
 		$(subst /,-,$(HSFILE:.uncpp=))))				  \
+	docs/reference/haddock-util.js						  \
 	docs/reference/frames.html						  \
 	docs/reference/index-frames.html
+endif
 
-else
-htmldoc_haddock_files +=
-	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y
+htmldoc_haddock_files +=							  \
+	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
 		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
-endif
-endif
 
 htmldoc_images =								  \
 	docs/reference/images/stock-icons/stock_about_24.png			  \
@@ -2670,19 +2671,22 @@ $(htmldoc_haddock_files) : $(htmldoc_HSFILES)
 		$(HADDOCK_FLAGS) $^)
 else
 
-htmldoc_HSFILES = $(foreach DEPPKG,$(PACKAGES),$(libHS$(DEPPKG)_a_HSFILES))
+htmldoc_HSFILES =  $(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES))
 
 htmldoc_HSFILES_AM = $(foreach HSFILE, $(htmldoc_HSFILES), $(subst .,_,$(subst /,_,$(HSFILE))))
 
 all_externaldeps = $(sort $(foreach DEPPKG,$(PACKAGES),$(libHS$(DEPPKG)_a_EXTERNALDEPS)))
 
+if !WIN32
 htmldoc_haddock_interfaces = \
 	$(foreach DEPPKG,$(all_externaldeps),$(shell $(GHCPKG) field $(DEPPKG) haddock-interfaces | sed 's,^[^:]*:,,' ))
+else
+htmldoc_haddock_interfaces = \
+	$(foreach DEPPKG,$(all_externaldeps),$(shell $(GHCPKG) field $(DEPPKG) haddock-interfaces | sed -e 's,^[^:]*:,,' -e 's,\\,/,g' ))
+endif
 
 $(htmldoc_haddock_files) : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
-	echo $(all_externaldeps)
-	echo $(htmldoc_haddock_interfaces)
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
 		--dump-interface=docs/reference/gtk2hs.haddock \
