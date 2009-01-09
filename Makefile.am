@@ -359,6 +359,11 @@ glib_MOSTLYCLEANFILES += \
 	$(libHSglib_a_CHSFILES:.chs=_stub.c)
 glib_CLEANFILES  = $(libHSglib_a_BUILDSOURCES)
 glib_CLEANFILES += $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+glib_CLEANFILES += \
+	$(libHSglib_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))			\
+	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.o)
+
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
@@ -502,6 +507,10 @@ gio_MOSTLYCLEANFILES += \
 	$(libHSgio_a_CHSFILES:.chs=_stub.c)
 gio_CLEANFILES  = $(libHSgio_a_BUILDSOURCES)
 gio_CLEANFILES += $(libHSgio_a_CHSFILES_HS:.hs=.dep)
+gio_CLEANFILES += \
+	$(libHSgio_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
+	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.c)	\
+	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgio_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgio_a_GENERATEDSOURCES)
@@ -901,6 +910,10 @@ gtk_MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
 gtk_CLEANFILES  = $(libHSgtk_a_BUILDSOURCES)
 gtk_CLEANFILES += $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+gtk_CLEANFILES += \
+	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
+	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.c)	\
+	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
@@ -1015,6 +1028,10 @@ glade_MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
 glade_MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 glade_CLEANFILES  = $(libHSglade_a_BUILDSOURCES)
 glade_CLEANFILES += $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+glade_CLEANFILES += \
+	$(libHSglade_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
+	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.c)		\
+	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -1157,6 +1174,10 @@ gconf_MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 gconf_CLEANFILES  = $(libHSgconf_a_BUILDSOURCES)
 gconf_CLEANFILES += $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+gconf_CLEANFILES += \
+	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
@@ -1282,6 +1303,10 @@ sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
 sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
 sourceview_CLEANFILES  = $(libHSsourceview_a_BUILDSOURCES)
 sourceview_CLEANFILES += $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+sourceview_CLEANFILES += \
+	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1418,6 +1443,10 @@ gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_HSFILES:.hs=.hi)
 gtksourceview2_MOSTLYCLEANFILES += $(libHSgtksourceview2_a_CHSFILES:.chs=.chi)
 gtksourceview2_CLEANFILES  = $(libHSgtksourceview2_a_BUILDSOURCES)
 gtksourceview2_CLEANFILES += $(libHSgtksourceview2_a_CHSFILES_HS:.hs=.dep)
+gtksourceview2_CLEANFILES += \
+	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgtksourceview2_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1532,6 +1561,10 @@ mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
 mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
 mozembed_CLEANFILES  = $(libHSmozembed_a_BUILDSOURCES)
 mozembed_CLEANFILES += $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+mozembed_CLEANFILES += \
+	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -1670,6 +1703,10 @@ cairo_MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.hi)
 cairo_MOSTLYCLEANFILES += $(libHScairo_a_CHSFILES:.chs=.chi)
 cairo_CLEANFILES  = $(libHScairo_a_BUILDSOURCES)
 cairo_CLEANFILES += $(libHScairo_a_CHSFILES_HS:.hs=.dep)
+cairo_CLEANFILES += \
+	$(libHScairo_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.o)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
@@ -1766,6 +1803,10 @@ svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
 svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_CHSFILES:.chs=.chi)
 svgcairo_CLEANFILES  = $(libHSsvgcairo_a_BUILDSOURCES)
 svgcairo_CLEANFILES += $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
+svgcairo_CLEANFILES += \
+	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.o)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
@@ -1884,6 +1925,10 @@ gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.hi)
 gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_CHSFILES:.chs=.chi)
 gtkglext_CLEANFILES  = $(libHSgtkglext_a_BUILDSOURCES)
 gtkglext_CLEANFILES += $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
+gtkglext_CLEANFILES += \
+	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -2146,6 +2191,10 @@ gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=_stub.o)
 gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=_stub.c)
 gnomevfs_CLEANFILES	   = $(libHSgnomevfs_a_BUILDSOURCES)
 gnomevfs_CLEANFILES 	  += $(libHSgnomevfs_a_CHSFILES_HS:.hs=.dep)
+gnomevfs_CLEANFILES += \
+	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgnomevfs_a_CHSFILES:.chs=.dep) :		\
 	$(libHSgnomevfs_a_GENERATEDSOURCES)
@@ -2450,6 +2499,10 @@ gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.o)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.c)
 gstreamer_CLEANFILES	   = $(libHSgstreamer_a_BUILDSOURCES)
 gstreamer_CLEANFILES 	  += $(libHSgstreamer_a_CHSFILES_HS:.hs=.dep)
+gstreamer_CLEANFILES += \
+	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))		\
+	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.c)			\
+	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.o)
 
 $(libHSgstreamer_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgstreamer_a_GENERATEDSOURCES)
