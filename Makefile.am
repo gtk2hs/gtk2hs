@@ -11,6 +11,7 @@ FFI = -fffi
 endif
 
 EXTRA_DIST = \
+	template-hsc-gtk2hs.h			\
 	tools/callbackGen/Signal.chs.template	\
 	tools/callbackGen/gtkmarshal.list	\
 	tools/checkDirs.sh			\

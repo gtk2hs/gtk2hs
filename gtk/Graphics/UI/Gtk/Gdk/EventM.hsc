@@ -277,26 +277,26 @@ eventCoordinates :: HasCoordinates t => EventM t (Double, Double)
 eventCoordinates = do
   ptr <- ask
   liftIO $ do
-    (ty :: #{type GdkEventType}) <- peek (castPtr ptr)
+    (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventButton, x} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventButton, y} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventButton, x} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventButton, y} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventScroll, x} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventScroll, y} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventScroll, x} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventScroll, y} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventMotion, x} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventMotion, y} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventMotion, x} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventMotion, y} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventCrossing, x} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventCrossing, y} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventCrossing, x} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventCrossing, y} ptr
         return (realToFrac x, realToFrac y)
       else error ("eventCoordinates: none for event type "++show ty)
 
@@ -312,26 +312,26 @@ eventRootCoordinates :: HasRootCoordinates t => EventM t (Double, Double)
 eventRootCoordinates = do
   ptr <- ask
   liftIO $ do
-    (ty :: #{type GdkEventType}) <- peek (castPtr ptr)
+    (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventButton, x_root} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventButton, y_root} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventButton, x_root} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventButton, y_root} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventScroll, x_root} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventScroll, y_root} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventScroll, x_root} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventScroll, y_root} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventMotion, x_root} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventMotion, y_root} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventMotion, x_root} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventMotion, y_root} ptr
         return (realToFrac x, realToFrac y)
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
-        (x :: #{type gdouble}) <- #{peek GdkEventCrossing, x_root} ptr
-        (y :: #{type gdouble}) <- #{peek GdkEventCrossing, y_root} ptr
+        (x :: #{gtk2hs_type gdouble}) <- #{peek GdkEventCrossing, x_root} ptr
+        (y :: #{gtk2hs_type gdouble}) <- #{peek GdkEventCrossing, y_root} ptr
         return (realToFrac x, realToFrac y)
       else error ("eventRootCoordinates: none for event type "++show ty)
 
@@ -357,33 +357,33 @@ eventModifierAll :: HasModifier t => EventM t [Modifier]
 eventModifierAll = eM True
 
 foreign import ccall safe "gtk_accelerator_get_default_mod_mask"
-  defModMask :: #type guint
+  defModMask :: #gtk2hs_type guint
 
 eM allModifs = do
   let mask | allModifs = -1
            | otherwise = defModMask
   ptr <- ask
   liftIO $ do
-    (ty :: #{type GdkEventType}) <- peek (castPtr ptr)
+    (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_KEY_PRESS},
                    #{const GDK_KEY_RELEASE}] then do
-        (modif ::#type guint)	<- #{peek GdkEventKey, state} ptr
+        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventKey, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
-        (modif ::#type guint)	<- #{peek GdkEventButton, state} ptr
+        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventButton, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
-        (modif ::#type guint)	<- #{peek GdkEventScroll, state} ptr
+        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventScroll, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
-        (modif ::#type guint)	<- #{peek GdkEventMotion, state} ptr
+        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventMotion, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
-        (modif ::#type guint)	<- #{peek GdkEventCrossing, state} ptr
+        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else error ("eventModifiers: none for event type "++show ty)
 
@@ -412,43 +412,43 @@ eventTime :: HasTime t => EventM t TimeStamp
 eventTime = do
   ptr <- ask
   liftIO $ do
-    (ty :: #{type GdkEventType}) <- peek (castPtr ptr)
+    (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_KEY_PRESS},
                    #{const GDK_KEY_RELEASE}] then do
-        (time :: #type guint32) <- #{peek GdkEventKey, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventKey, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
-        (time :: #type guint32) <- #{peek GdkEventButton, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventButton, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
-        (time :: #type guint32) <- #{peek GdkEventScroll, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventScroll, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
-        (time :: #type guint32) <- #{peek GdkEventMotion, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventMotion, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
-        (time :: #type guint32) <- #{peek GdkEventCrossing, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventCrossing, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_PROPERTY_NOTIFY} ] then do
-        (time :: #type guint32) <- #{peek GdkEventProperty, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventProperty, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_PROXIMITY_IN},
                           #{const GDK_PROXIMITY_OUT}] then do
-        (time :: #type guint32) <- #{peek GdkEventProximity, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventProximity, time} ptr
         return (fromIntegral time)
       else if ty `elem` [ #{const GDK_OWNER_CHANGE} ] then do
-        (time :: #type guint32) <- #{peek GdkEventOwnerChange, time} ptr
+        (time :: #gtk2hs_type guint32) <- #{peek GdkEventOwnerChange, time} ptr
         return (fromIntegral time)
       else error ("eventModifiers: none for event type "++show ty)
 
 -- | The key value. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
 eventKeyVal :: EventM EKey KeyVal
 eventKeyVal = ask >>= \ptr -> liftIO $ liftM fromIntegral 
-  (#{peek GdkEventKey, keyval} ptr :: IO #{type guint})  
+  (#{peek GdkEventKey, keyval} ptr :: IO #{gtk2hs_type guint})  
 
 -- | The key value as a string. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
 eventKeyName :: EventM EKey String
@@ -457,28 +457,28 @@ eventKeyName = liftM keyName $ eventKeyVal
 -- | The hardware key code.
 eventHardwareKeycode :: EventM EKey Word16
 eventHardwareKeycode = ask >>= \ptr -> liftIO $ liftM fromIntegral 
-  (#{peek GdkEventKey, hardware_keycode} ptr :: IO #{type guint16})
+  (#{peek GdkEventKey, hardware_keycode} ptr :: IO #{gtk2hs_type guint16})
 
 -- | The keyboard group.
 eventKeyboardGroup :: EventM EKey Word8
 eventKeyboardGroup = ask >>= \ptr -> liftIO $ liftM fromIntegral 
-  (#{peek GdkEventKey, group} ptr :: IO #{type guint8})
+  (#{peek GdkEventKey, group} ptr :: IO #{gtk2hs_type guint8})
 
 -- | Query the mouse buttons.
 eventButton :: EventM EButton MouseButton
 eventButton = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
-  (#{peek GdkEventButton, button} ptr :: IO #{type guint})
+  (#{peek GdkEventButton, button} ptr :: IO #{gtk2hs_type guint})
 
 -- | Query the direction of scrolling.
 eventScrollDirection :: EventM EScroll ScrollDirection
 eventScrollDirection = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
-  (#{peek GdkEventScroll, direction} ptr :: IO #{type GdkScrollDirection})
+  (#{peek GdkEventScroll, direction} ptr :: IO #{gtk2hs_type GdkScrollDirection})
 
 -- | Check if the motion event is only a hint rather than the full mouse
 --   movement information.
 eventIsHint :: EventM EMotion Bool
 eventIsHint = ask >>= \ptr -> liftIO $ liftM toBool 
-  (#{peek GdkEventMotion, is_hint} ptr :: IO #{type gint16})
+  (#{peek GdkEventMotion, is_hint} ptr :: IO #{gtk2hs_type gint16})
 
 -- | Query a bounding box of the region that needs to be updated.
 eventArea :: EventM EExpose Rectangle
@@ -498,40 +498,40 @@ foreign import ccall "gdk_region_copy"
 -- | Get the visibility status of a window.
 eventVisibilityState :: EventM EVisibility VisibilityState
 eventVisibilityState = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
-  (#{peek GdkEventVisibility, state} ptr :: IO #{type GdkVisibilityState})
+  (#{peek GdkEventVisibility, state} ptr :: IO #{gtk2hs_type GdkVisibilityState})
 
 -- | Get the mode of the mouse cursor crossing a window.
 eventCrossingMode :: EventM ECrossing CrossingMode
 eventCrossingMode = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
-  (#{peek GdkEventCrossing, mode} ptr :: IO #{type GdkCrossingMode})
+  (#{peek GdkEventCrossing, mode} ptr :: IO #{gtk2hs_type GdkCrossingMode})
 
 -- | Get the notify type of the mouse cursor crossing a window.
 eventNotifyType :: EventM ECrossing NotifyType
 eventNotifyType = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
-  (#{peek GdkEventCrossing, detail} ptr :: IO #{type GdkNotifyType})
+  (#{peek GdkEventCrossing, detail} ptr :: IO #{gtk2hs_type GdkNotifyType})
 
 -- | Query if the window has the focus or is an inferior window.
 eventCrossingFocus :: EventM ECrossing Bool
 eventCrossingFocus = ask >>= \ptr -> liftIO $ liftM toBool
-  (#{peek GdkEventCrossing, focus} ptr :: IO #{type gboolean})
+  (#{peek GdkEventCrossing, focus} ptr :: IO #{gtk2hs_type gboolean})
 
 -- | Query if a window gained focus (@True@) or lost the focus (@False@).
 eventFocusIn :: EventM EFocus Bool
 eventFocusIn = ask >>= \ptr -> liftIO $ liftM toBool 
-  (#{peek GdkEventFocus, in} ptr :: IO #{type gint16})
+  (#{peek GdkEventFocus, in} ptr :: IO #{gtk2hs_type gint16})
 
 -- | Get the @(x,y)@ position of the window within the parent window.
 eventPosition :: EventM EConfigure (Int,Int)
 eventPosition = ask >>= \ptr -> liftIO $ do
-  (x :: #{type gint})	<- #{peek GdkEventConfigure, x} ptr
-  (y :: #{type gint})	<- #{peek GdkEventConfigure, y} ptr
+  (x :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, x} ptr
+  (y :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, y} ptr
   return (fromIntegral x, fromIntegral y)
 
 -- | Get the new size of the window as @(width,height)@.
 eventSize :: EventM EConfigure (Int,Int)
 eventSize = ask >>= \ptr -> liftIO $ do
-  (x :: #{type gint})	<- #{peek GdkEventConfigure, width} ptr
-  (y :: #{type gint})	<- #{peek GdkEventConfigure, height} ptr
+  (x :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, width} ptr
+  (y :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, height} ptr
   return (fromIntegral x, fromIntegral y)
 
 eventProperty :: EventM EProperty Atom
@@ -541,18 +541,18 @@ eventProperty = ask >>= \ptr -> liftIO $ liftM Atom
 -- | Query which window state bits have changed.
 eventWindowStateChanged :: EventM EWindowState [WindowState]
 eventWindowStateChanged = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral) 
-  (#{peek GdkEventWindowState, changed_mask} ptr :: IO #{type GdkWindowState})
+  (#{peek GdkEventWindowState, changed_mask} ptr :: IO #{gtk2hs_type GdkWindowState})
 
 -- | Query the new window state.
 eventWindowState :: EventM EWindowState [WindowState]
 eventWindowState = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral) 
-  (#{peek GdkEventWindowState, new_window_state} ptr :: IO #{type GdkWindowState})
+  (#{peek GdkEventWindowState, new_window_state} ptr :: IO #{gtk2hs_type GdkWindowState})
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Query why a seleciton changed its owner.
 eventChangeReason :: EventM EOwnerChange OwnerChange
 eventChangeReason = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
-  (#{peek GdkEventOwnerChange, reason} ptr :: IO #{type GdkOwnerChange})
+  (#{peek GdkEventOwnerChange, reason} ptr :: IO #{gtk2hs_type GdkOwnerChange})
   
 -- | Query what selection changed its owner.
 eventSelection :: EventM EOwnerChange SelectionTag
@@ -562,7 +562,7 @@ eventSelection = ask >>= \ptr -> liftIO $ liftM Atom
 -- | Query the time when the selection was taken over.
 eventSelectionTime :: EventM EOwnerChange TimeStamp
 eventSelectionTime = ask >>= \ptr -> liftIO $ liftM fromIntegral 
-  (#{peek GdkEventOwnerChange, selection_time} ptr :: IO (#{type guint32}))
+  (#{peek GdkEventOwnerChange, selection_time} ptr :: IO (#{gtk2hs_type guint32}))
 #endif
 
 #if GTK_CHECK_VERSION(2,8,0)
@@ -570,12 +570,12 @@ eventSelectionTime = ask >>= \ptr -> liftIO $ liftM fromIntegral
 --   broken.
 eventKeyboardGrab :: EventM EGrabBroken Bool
 eventKeyboardGrab = ask >>= \ptr -> liftIO $ liftM toBool 
-  (#{peek GdkEventGrabBroken, keyboard} ptr :: IO #{type gboolean})
+  (#{peek GdkEventGrabBroken, keyboard} ptr :: IO #{gtk2hs_type gboolean})
 
 -- | Check if a grab was broken implicitly.
 eventImplicit :: EventM EGrabBroken Bool
 eventImplicit = ask >>= \ptr -> liftIO $ liftM toBool 
-  (#{peek GdkEventGrabBroken, implicit} ptr :: IO #{type gboolean})
+  (#{peek GdkEventGrabBroken, implicit} ptr :: IO #{gtk2hs_type gboolean})
 
 -- | Get the new window that owns the grab or @Nothing@ if the window
 --   is not part of this application.

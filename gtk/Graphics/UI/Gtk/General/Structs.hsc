@@ -128,37 +128,37 @@ data Rectangle = Rectangle Int Int Int Int deriving (Eq,Show)
 
 instance Storable Rectangle where
   sizeOf _ = #{const sizeof(GdkRectangle)}
-  alignment _ = alignment (undefined:: #type gint)
+  alignment _ = alignment (undefined:: #gtk2hs_type gint)
   peek ptr = do
-    (x_	     ::#type gint)	<- #{peek GdkRectangle, x} ptr
-    (y_	     ::#type gint)	<- #{peek GdkRectangle, y} ptr
-    (width_  ::#type gint)	<- #{peek GdkRectangle, width} ptr
-    (height_ ::#type gint)	<- #{peek GdkRectangle, height} ptr
+    (x_	     ::#gtk2hs_type gint)	<- #{peek GdkRectangle, x} ptr
+    (y_	     ::#gtk2hs_type gint)	<- #{peek GdkRectangle, y} ptr
+    (width_  ::#gtk2hs_type gint)	<- #{peek GdkRectangle, width} ptr
+    (height_ ::#gtk2hs_type gint)	<- #{peek GdkRectangle, height} ptr
     return $ Rectangle (fromIntegral x_) (fromIntegral y_) 
 		       (fromIntegral width_) (fromIntegral height_)
   poke ptr (Rectangle x y width height) = do
-    #{poke GdkRectangle, x} ptr ((fromIntegral x)::#type gint)
-    #{poke GdkRectangle, y} ptr ((fromIntegral y)::#type gint)
-    #{poke GdkRectangle, width} ptr ((fromIntegral width)::#type gint)
-    #{poke GdkRectangle, height} ptr ((fromIntegral height)::#type gint)
+    #{poke GdkRectangle, x} ptr ((fromIntegral x)::#gtk2hs_type gint)
+    #{poke GdkRectangle, y} ptr ((fromIntegral y)::#gtk2hs_type gint)
+    #{poke GdkRectangle, width} ptr ((fromIntegral width)::#gtk2hs_type gint)
+    #{poke GdkRectangle, height} ptr ((fromIntegral height)::#gtk2hs_type gint)
 
 -- | Color
 --
 -- * Specifies a color with three integer values for red, green and blue.
 --   All values range from 0 (least intense) to 65535 (highest intensity).
 --
-data Color = Color (#type guint16) (#type guint16) (#type guint16)
+data Color = Color (#gtk2hs_type guint16) (#gtk2hs_type guint16) (#gtk2hs_type guint16)
 	     deriving (Eq,Show)
 instance Storable Color where
   sizeOf _ = #{const sizeof(GdkColor)}
-  alignment _ = alignment (undefined::#type guint32)
+  alignment _ = alignment (undefined::#gtk2hs_type guint32)
   peek ptr = do
     red	   <- #{peek GdkColor, red} ptr
     green  <- #{peek GdkColor, green} ptr
     blue   <- #{peek GdkColor, blue} ptr
     return $ Color red green blue
   poke ptr (Color red green blue) = do
-    #{poke GdkColor, pixel} ptr (0::#{type gint32})
+    #{poke GdkColor, pixel} ptr (0::#{gtk2hs_type gint32})
     #{poke GdkColor, red}   ptr red
     #{poke GdkColor, green} ptr green
     #{poke GdkColor, blue}  ptr blue
@@ -223,8 +223,8 @@ instance Storable GCValues where
 
     foreground_ <- peek (#{ptr GdkGCValues, foreground} ptr)
     background_ <- peek (#{ptr GdkGCValues, background} ptr)
-    (function_	:: #{type GdkFunction}) <- #{peek GdkGCValues, function} ptr
-    (fill_	:: #{type GdkFill}) <- #{peek GdkGCValues, fill} ptr
+    (function_	:: #{gtk2hs_type GdkFunction}) <- #{peek GdkGCValues, function} ptr
+    (fill_	:: #{gtk2hs_type GdkFill}) <- #{peek GdkGCValues, fill} ptr
     tile_	<- do
 		     pPtr <- #{peek GdkGCValues, tile} ptr
 		     if (pPtr==nullPtr) then return Nothing else
@@ -237,25 +237,25 @@ instance Storable GCValues where
 		     pPtr <- #{peek GdkGCValues, clip_mask} ptr
 		     if (pPtr==nullPtr) then return Nothing else
 		       liftM Just $ makeNewGObject mkPixmap $ return pPtr
-    (subwindow_	:: #{type GdkSubwindowMode}) 
+    (subwindow_	:: #{gtk2hs_type GdkSubwindowMode}) 
 		<- #{peek GdkGCValues, subwindow_mode} ptr
-    (tsXOrigin_	:: #{type gint}) 
+    (tsXOrigin_	:: #{gtk2hs_type gint}) 
 		<- #{peek GdkGCValues, ts_x_origin} ptr
-    (tsYOrigin_	:: #{type gint}) 
+    (tsYOrigin_	:: #{gtk2hs_type gint}) 
 		<- #{peek GdkGCValues, ts_y_origin} ptr
-    (clipXOrigin_:: #{type gint}) 
+    (clipXOrigin_:: #{gtk2hs_type gint}) 
 		<- #{peek GdkGCValues, clip_x_origin} ptr
-    (clipYOrigin_:: #{type gint}) 
+    (clipYOrigin_:: #{gtk2hs_type gint}) 
 		<- #{peek GdkGCValues, clip_y_origin} ptr
-    (graphics_	:: #{type gint})
+    (graphics_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, graphics_exposures} ptr
-    (lineWidth_	:: #{type gint})
+    (lineWidth_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, line_width} ptr
-    (lineStyle_	:: #{type GdkLineStyle}) 
+    (lineStyle_	:: #{gtk2hs_type GdkLineStyle}) 
 		<- #{peek GdkGCValues, line_style} ptr
-    (capStyle_	:: #{type GdkCapStyle}) 
+    (capStyle_	:: #{gtk2hs_type GdkCapStyle}) 
 		<- #{peek GdkGCValues, cap_style} ptr
-    (joinStyle_	:: #{type GdkJoinStyle}) 
+    (joinStyle_	:: #{gtk2hs_type GdkJoinStyle}) 
 		<- #{peek GdkGCValues, join_style} ptr
     return $ GCValues {
       foreground = foreground_,
@@ -304,10 +304,10 @@ pokeGCValues ptr (GCValues {
       poke (#{ptr GdkGCValues, background} ptr) background_
     add r #{const GDK_GC_FUNCTION } $ 
       #{poke GdkGCValues, function} ptr 
-      (fromIntegral (fromEnum function_):: #{type GdkFunction})
+      (fromIntegral (fromEnum function_):: #{gtk2hs_type GdkFunction})
     add r #{const GDK_GC_FILL } $
       #{poke GdkGCValues, fill} ptr 
-      (fromIntegral (fromEnum fill_):: #{type GdkFill})
+      (fromIntegral (fromEnum fill_):: #{gtk2hs_type GdkFill})
     case tile_ of 
       Nothing -> return ()
       Just tile_ -> add r #{const GDK_GC_TILE} $
@@ -325,34 +325,34 @@ pokeGCValues ptr (GCValues {
                         #{poke GdkGCValues, clip_mask} ptr
     add r #{const GDK_GC_SUBWINDOW } $
       #{poke GdkGCValues, subwindow_mode} ptr
-      (fromIntegral (fromEnum subwindow_):: #{type GdkSubwindowMode})
+      (fromIntegral (fromEnum subwindow_):: #{gtk2hs_type GdkSubwindowMode})
     add r #{const GDK_GC_TS_X_ORIGIN } $
       #{poke GdkGCValues, ts_x_origin } ptr
-      (fromIntegral tsXOrigin_:: #{type gint})
+      (fromIntegral tsXOrigin_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_TS_Y_ORIGIN } $
       #{poke GdkGCValues, ts_y_origin } ptr
-      (fromIntegral tsYOrigin_:: #{type gint})
+      (fromIntegral tsYOrigin_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_CLIP_X_ORIGIN } $ 
       #{poke GdkGCValues, clip_x_origin } ptr
-      (fromIntegral clipXOrigin_:: #{type gint})
+      (fromIntegral clipXOrigin_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_CLIP_Y_ORIGIN } $
       #{poke GdkGCValues, clip_y_origin } ptr
-      (fromIntegral clipYOrigin_:: #{type gint})
+      (fromIntegral clipYOrigin_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_EXPOSURES } $
       #{poke GdkGCValues, graphics_exposures } ptr
-      (fromBool graphics_:: #{type gint})
+      (fromBool graphics_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_LINE_WIDTH } $
       #{poke GdkGCValues, line_width } ptr
-      (fromIntegral lineWidth_:: #{type gint})
+      (fromIntegral lineWidth_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_LINE_STYLE } $
       #{poke GdkGCValues, line_style } ptr
-      (fromIntegral (fromEnum lineStyle_):: #{type GdkLineStyle})
+      (fromIntegral (fromEnum lineStyle_):: #{gtk2hs_type GdkLineStyle})
     add r #{const GDK_GC_CAP_STYLE } $ 
       #{poke GdkGCValues, cap_style } ptr
-      (fromIntegral (fromEnum capStyle_):: #{type GdkCapStyle})
+      (fromIntegral (fromEnum capStyle_):: #{gtk2hs_type GdkCapStyle})
     add r #{const GDK_GC_JOIN_STYLE } $ 
       #{poke GdkGCValues, join_style } ptr
-      (fromIntegral (fromEnum joinStyle_):: #{type GdkJoinStyle})
+      (fromIntegral (fromEnum joinStyle_):: #{gtk2hs_type GdkJoinStyle})
     readIORef r
   where
     add :: IORef CInt -> CInt -> IO () -> IO ()
@@ -395,7 +395,7 @@ newGCValues = GCValues {
 --
 widgetGetState :: WidgetClass w => w -> IO StateType
 widgetGetState w =
-  liftM (\x -> toEnum (fromIntegral (x :: #type guint8))) $
+  liftM (\x -> toEnum (fromIntegral (x :: #gtk2hs_type guint8))) $
   withForeignPtr ((unWidget . toWidget) w) $ #{peek GtkWidget,state}
 
 -- | Retrieve the current state of the widget.
@@ -405,7 +405,7 @@ widgetGetState w =
 --
 widgetGetSavedState :: WidgetClass w => w -> IO StateType
 widgetGetSavedState w =
-  liftM (\x -> toEnum (fromIntegral (x :: #type guint8))) $
+  liftM (\x -> toEnum (fromIntegral (x :: #gtk2hs_type guint8))) $
   withForeignPtr ((unWidget . toWidget) w) $ #{peek GtkWidget,saved_state}
 
 
@@ -427,21 +427,21 @@ data Requisition = Requisition Int Int deriving (Eq,Show)
 
 instance Storable Requisition where
   sizeOf _ = #{const sizeof(GtkRequisition)}
-  alignment _ = alignment (undefined::#type gint)
+  alignment _ = alignment (undefined::#gtk2hs_type gint)
   peek ptr = do
-    (width_  ::#type gint)	<- #{peek GtkRequisition, width} ptr
-    (height_ ::#type gint)	<- #{peek GtkRequisition, height} ptr
+    (width_  ::#gtk2hs_type gint)	<- #{peek GtkRequisition, width} ptr
+    (height_ ::#gtk2hs_type gint)	<- #{peek GtkRequisition, height} ptr
     return $ Requisition (fromIntegral width_) (fromIntegral height_)
   poke ptr (Requisition width height) = do
-    #{poke GtkRequisition, width} ptr ((fromIntegral width)::#type gint)
-    #{poke GtkRequisition, height} ptr ((fromIntegral height)::#type gint)
+    #{poke GtkRequisition, width} ptr ((fromIntegral width)::#gtk2hs_type gint)
+    #{poke GtkRequisition, height} ptr ((fromIntegral height)::#gtk2hs_type gint)
 
 
 -- SpinButton related mothods
 
 -- If an invalid input has been put into a SpinButton the input function may
 -- reject this value by returning this value.
-inputError :: #{type gint}
+inputError :: #{gtk2hs_type gint}
 inputError = #{const GTK_INPUT_ERROR}
 
 
@@ -578,7 +578,7 @@ fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
 #else
-newtype NativeWindowId = NativeWindowId #{type GdkNativeWindow} deriving (Eq, Show)
+newtype NativeWindowId = NativeWindowId #{gtk2hs_type GdkNativeWindow} deriving (Eq, Show)
 unNativeWindowId :: Integral a => NativeWindowId -> a
 unNativeWindowId (NativeWindowId id) = fromIntegral id
 toNativeWindowId :: Integral a => a -> NativeWindowId
@@ -596,7 +596,7 @@ nativeWindowIdNone = NativeWindowId 0
 -- * c2hs and hsc should agree on types!
 --
 toolbarChildButton, toolbarChildToggleButton, toolbarChildRadioButton ::
-  CInt -- \#type GtkToolbarChildType
+  CInt -- \#gtk2hs_type GtkToolbarChildType
 toolbarChildButton       = #const GTK_TOOLBAR_CHILD_BUTTON
 toolbarChildToggleButton = #const GTK_TOOLBAR_CHILD_TOGGLEBUTTON
 toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
@@ -704,9 +704,9 @@ widgetGetDrawWindow da =
 --
 widgetGetSize :: WidgetClass widget => widget -> IO (Int, Int)
 widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
-    (width :: #{type gint}) <- #{peek GtkAllocation, width} 
+    (width :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, width} 
 			       (#{ptr GtkWidget, allocation} wPtr)
-    (height :: #{type gint}) <- #{peek GtkAllocation, height}
+    (height :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, height}
 				(#{ptr GtkWidget, allocation} wPtr)
     return (fromIntegral width, fromIntegral height)
 
@@ -852,28 +852,28 @@ colorSelectionDialogGetHelpButton cd =
       #{peek GtkColorSelectionDialog, help_button}
 
 dragContextGetActions :: DragContext -> IO Int
-dragContextGetActions dc = liftM (fromIntegral :: #{type int} -> Int) $
+dragContextGetActions dc = liftM (fromIntegral :: #{gtk2hs_type int} -> Int) $
   withForeignPtr (unDragContext dc) #{peek GdkDragContext, actions}
 
 dragContextSetActions :: DragContext -> Int -> IO ()
 dragContextSetActions dc val = withForeignPtr (unDragContext dc) $ \ptr ->
-  #{poke GdkDragContext, actions} ptr (fromIntegral val :: #{type int})
+  #{poke GdkDragContext, actions} ptr (fromIntegral val :: #{gtk2hs_type int})
 
 dragContextGetAction :: DragContext -> IO Int
-dragContextGetAction dc = liftM (fromIntegral :: #{type int} -> Int) $
+dragContextGetAction dc = liftM (fromIntegral :: #{gtk2hs_type int} -> Int) $
   withForeignPtr (unDragContext dc) #{peek GdkDragContext, action}
 
 dragContextSetAction :: DragContext -> Int -> IO ()
 dragContextSetAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
-  #{poke GdkDragContext, action} ptr (fromIntegral val :: #{type int})
+  #{poke GdkDragContext, action} ptr (fromIntegral val :: #{gtk2hs_type int})
 
 dragContextGetSuggestedAction :: DragContext -> IO Int
-dragContextGetSuggestedAction dc = liftM (fromIntegral :: #{type int} -> Int) $
+dragContextGetSuggestedAction dc = liftM (fromIntegral :: #{gtk2hs_type int} -> Int) $
   withForeignPtr (unDragContext dc) #{peek GdkDragContext, suggested_action}
 
 dragContextSetSuggestedAction :: DragContext -> Int -> IO ()
 dragContextSetSuggestedAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
-  #{poke GdkDragContext, suggested_action} ptr (fromIntegral val :: #{type int})
+  #{poke GdkDragContext, suggested_action} ptr (fromIntegral val :: #{gtk2hs_type int})
 
 -- | ID number of a sort column.
 --
@@ -934,7 +934,7 @@ selectionDataGetType selPtr =
 
 -- A type that identifies a target. This is needed to marshal arrays of
 -- GtkTargetEntries.
-data TargetEntry = TargetEntry (Ptr #{type gchar}) InfoId
+data TargetEntry = TargetEntry (Ptr #{gtk2hs_type gchar}) InfoId
 
 -- brain damaged API: the whole selection API doesn't need GtkTargetEntry
 -- structure, but stupid Clipboard has two functions that only provide this
@@ -952,16 +952,16 @@ withTargetEntries tags fun = do
   return res
 
 foreign import ccall unsafe "gdk_atom_name"
-  gdk_atom_name :: Ptr () -> IO (Ptr #{type gchar})
+  gdk_atom_name :: Ptr () -> IO (Ptr #{gtk2hs_type gchar})
 
 foreign import ccall unsafe "g_free"
-  g_free :: Ptr #{type gchar} -> IO ()
+  g_free :: Ptr #{gtk2hs_type gchar} -> IO ()
 
 instance Storable TargetEntry where
   sizeOf _ = #{const sizeof(GtkTargetEntry)}
-  alignment _ = alignment (undefined::#type guint32)
+  alignment _ = alignment (undefined::#gtk2hs_type guint32)
   peek ptr = undefined
   poke ptr (TargetEntry cPtr info) = do
     #{poke GtkTargetEntry, target} ptr cPtr
-    #{poke GtkTargetEntry, flags} ptr (0::#{type guint})
+    #{poke GtkTargetEntry, flags} ptr (0::#{gtk2hs_type guint})
     #{poke GtkTargetEntry, info} ptr info

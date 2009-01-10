@@ -185,9 +185,9 @@ instance Storable StockItem where
   peek siPtr	= do
     (stockId    :: CString) <- #{peek GtkStockItem, stock_id} siPtr
     (label	:: CString) <- #{peek GtkStockItem, label} siPtr
-    (modifier	:: #type GdkModifierType)
+    (modifier	:: #gtk2hs_type GdkModifierType)
 		            <- #{peek GtkStockItem, modifier} siPtr
-    (keyval	:: #type guint)
+    (keyval	:: #gtk2hs_type guint)
 			    <- #{peek GtkStockItem, keyval} siPtr
     (transDom	:: CString) <- #{peek GtkStockItem, translation_domain} siPtr
     return $ StockItem {
@@ -213,8 +213,8 @@ instance Storable StockItem where
     labelPtr   <- newUTFString label
     #{poke GtkStockItem, label}	   siPtr labelPtr
     #{poke GtkStockItem, modifier} siPtr 
-      ((fromIntegral (fromFlags modifier))::#{type GdkModifierType})
-    #{poke GtkStockItem, keyval}   siPtr ((fromIntegral keyval)::#{type guint})
+      ((fromIntegral (fromFlags modifier))::#{gtk2hs_type GdkModifierType})
+    #{poke GtkStockItem, keyval}   siPtr ((fromIntegral keyval)::#{gtk2hs_type guint})
     transDomPtr<- newUTFString transDom
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr
 
@@ -257,10 +257,10 @@ stockListIds = do
   return res
 
 foreign import ccall unsafe "gtk_stock_add"
-  stock_add :: Ptr StockItem -> #{type guint} -> IO ()
+  stock_add :: Ptr StockItem -> #{gtk2hs_type guint} -> IO ()
 
 foreign import ccall unsafe "gtk_stock_lookup"
-  stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
+  stock_lookup :: CString -> Ptr StockItem -> IO #gtk2hs_type gboolean
 
 foreign import ccall unsafe "gtk_stock_list_ids"
   stock_list_ids :: IO GSList

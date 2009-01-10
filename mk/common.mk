@@ -189,7 +189,7 @@ endif
 	$(addprefix -include ,$(CONFIG_HEADER)) \
 	$< -o $@)
 
-.hsc.hs: $(CONFIG_HEADER)
+.hsc.hs: $(CONFIG_HEADER) template-hsc-gtk2hs.h
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LIBS)) \
         $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) \
@@ -197,6 +197,7 @@ endif
 	$(addprefix -opta,$(AM_CFLAGS) $(CFLAGS) $($(PKG)_CFLAGS)))\
         $(filter -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) $($(PKG)_CPPFLAGS)\
 	-C'-optc-include' -C'-optc$(CONFIG_HEADER)' \
+	-C'-optc-include' -C'-optctemplate-hsc-gtk2hs.h' \
 	--include $($(PKG)_HEADER) \
         --cc="$(HC)" --lflag=-no-hs-main $<)
 

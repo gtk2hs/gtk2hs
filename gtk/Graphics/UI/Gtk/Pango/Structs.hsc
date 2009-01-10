@@ -153,16 +153,16 @@ pangoItemRawAnalysis = #{ptr PangoItem, analysis}
 pangoItemRawGetLevel :: Ptr pangoItem -> IO Bool
 pangoItemRawGetLevel ptr = do
   level <- #{peek PangoItem, analysis.level} ptr
-  return (toBool (level :: #{type guint8}))
+  return (toBool (level :: #{gtk2hs_type guint8}))
 
 -- Set the start and end position of an attribute
 setAttrPos :: UTFCorrection -> Int -> Int -> IO (Ptr ()) -> IO (Ptr ())
 setAttrPos correct start end act = do
   atPtr <- act
   #{poke PangoAttribute, start_index} atPtr
-    (fromIntegral (ofsToUTF start correct) :: #{type guint})
+    (fromIntegral (ofsToUTF start correct) :: #{gtk2hs_type guint})
   #{poke PangoAttribute, end_index} atPtr
-    (fromIntegral (ofsToUTF end correct) :: #{type guint})
+    (fromIntegral (ofsToUTF end correct) :: #{gtk2hs_type guint})
   return atPtr
 
 -- | Convert a pointer to an attribute to an attribute.
@@ -173,10 +173,10 @@ readAttr correct attrPtr = do
   endByte <- #{peek PangoAttribute, end_index} attrPtr
   ty <- #{peek PangoAttrClass, type} klassPtr
   let b :: Int
-      b = ofsFromUTF (fromIntegral (startByte :: #{type guint})) correct
+      b = ofsFromUTF (fromIntegral (startByte :: #{gtk2hs_type guint})) correct
       e :: Int
-      e = ofsFromUTF (fromIntegral (endByte :: #{type guint})) correct
-  case ty :: #{type PangoAttrType} of
+      e = ofsFromUTF (fromIntegral (endByte :: #{gtk2hs_type guint})) correct
+  case ty :: #{gtk2hs_type PangoAttrType} of
     #{const PANGO_ATTR_LANGUAGE} -> do
       lang <- #{peek PangoAttrLanguage, value} attrPtr
       return $ AttrLanguage b e (Language lang)
@@ -186,23 +186,23 @@ readAttr correct attrPtr = do
       return $ AttrFamily b e str
     #{const PANGO_ATTR_STYLE} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrStyle b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrStyle b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
     #{const PANGO_ATTR_WEIGHT} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrWeight b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrWeight b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
     #{const PANGO_ATTR_VARIANT} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrVariant b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrVariant b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
     #{const PANGO_ATTR_STRETCH} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrStretch b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrStretch b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
     #{const PANGO_ATTR_SIZE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
-      return $ AttrSize b e (realToFrac (v::#{type double}))
+      return $ AttrSize b e (realToFrac (v::#{gtk2hs_type double}))
 #if PANGO_CHECK_VERSION(1,8,0)
     #{const PANGO_ATTR_ABSOLUTE_SIZE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
-      return $ AttrAbsSize b e (realToFrac (v::#{type double}))
+      return $ AttrAbsSize b e (realToFrac (v::#{gtk2hs_type double}))
 #endif
     #{const PANGO_ATTR_FONT_DESC} -> do
       fdPtr <- #{peek PangoAttrFontDesc, desc} attrPtr
@@ -216,7 +216,7 @@ readAttr correct attrPtr = do
       return $ AttrBackground b e col
     #{const PANGO_ATTR_UNDERLINE} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrUnderline b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrUnderline b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
 #if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
  || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
     #{const PANGO_ATTR_UNDERLINE_COLOR} -> do
@@ -225,7 +225,7 @@ readAttr correct attrPtr = do
 #endif
     #{const PANGO_ATTR_STRIKETHROUGH} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrStrikethrough b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrStrikethrough b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
 #if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
  || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
     #{const PANGO_ATTR_STRIKETHROUGH_COLOR} -> do
@@ -234,7 +234,7 @@ readAttr correct attrPtr = do
 #endif
     #{const PANGO_ATTR_RISE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
-      return $ AttrRise b e  (realToFrac (v::#{type double}))
+      return $ AttrRise b e  (realToFrac (v::#{gtk2hs_type double}))
 #if PANGO_CHECK_VERSION(1,8,0)
     #{const PANGO_ATTR_SHAPE} -> do
       rect1 <- #{peek PangoAttrShape, ink_rect} attrPtr
@@ -243,23 +243,23 @@ readAttr correct attrPtr = do
 #endif
     #{const PANGO_ATTR_SCALE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
-      return $ AttrScale b e (realToFrac (v::#{type double}))
+      return $ AttrScale b e (realToFrac (v::#{gtk2hs_type double}))
 #if PANGO_CHECK_VERSION(1,4,0)
     #{const PANGO_ATTR_FALLBACK} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrFallback b e (toBool (v::#{type int}))
+      return $ AttrFallback b e (toBool (v::#{gtk2hs_type int}))
 #endif
 #if PANGO_CHECK_VERSION(1,6,0)
     #{const PANGO_ATTR_LETTER_SPACING} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
-      return $ AttrLetterSpacing b e (realToFrac (v::#{type double}))
+      return $ AttrLetterSpacing b e (realToFrac (v::#{gtk2hs_type double}))
 #endif
 #if PANGO_CHECK_VERSION(1,16,0)
     #{const PANGO_ATTR_GRAVITY} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrGravity b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrGravity b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
     #{const PANGO_ATTR_GRAVITY_HINT} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
-      return $ AttrGravityHint b e (toEnum (fromIntegral (v::#{type int})))
+      return $ AttrGravityHint b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
 #endif
     _ -> error "extracting pango attributes: unknown attribute type"

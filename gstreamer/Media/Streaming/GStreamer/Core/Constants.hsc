@@ -59,7 +59,7 @@ bufferOffsetNone :: BufferOffset
 bufferOffsetNone = #{const GST_BUFFER_OFFSET_NONE}
 
 -- | A format identifier.
-newtype FormatId = FormatId #{type GstFormat}
+newtype FormatId = FormatId #{gtk2hs_type GstFormat}
     deriving (Eq, Ord, Show)
 
 -- | An enumeration of standard predefined formats.
@@ -71,7 +71,7 @@ data Format = FormatUndefined     -- ^ no format
             | FormatPercent       -- ^ percentage of stream
             | FormatUser FormatId -- ^ a user defined format
               deriving (Eq, Ord, Show)
-toFormat :: #{type GstFormat} -> Format
+toFormat :: #{gtk2hs_type GstFormat} -> Format
 toFormat n | n == #{const GST_FORMAT_UNDEFINED} = FormatUndefined
            | n == #{const GST_FORMAT_DEFAULT}   = FormatDefault
            | n == #{const GST_FORMAT_BYTES}     = FormatBytes
@@ -79,7 +79,7 @@ toFormat n | n == #{const GST_FORMAT_UNDEFINED} = FormatUndefined
            | n == #{const GST_FORMAT_BUFFERS}   = FormatBuffers
            | n == #{const GST_FORMAT_PERCENT}   = FormatPercent
            | otherwise                          = FormatUser (FormatId n)
-fromFormat :: Format -> #{type GstFormat}
+fromFormat :: Format -> #{gtk2hs_type GstFormat}
 fromFormat FormatUndefined = #{const GST_FORMAT_UNDEFINED}
 fromFormat FormatDefault   = #{const GST_FORMAT_DEFAULT}
 fromFormat FormatBytes     = #{const GST_FORMAT_BYTES}
