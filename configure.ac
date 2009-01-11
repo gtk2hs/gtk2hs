@@ -85,11 +85,11 @@ AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
-            [  --with-hc=HC            use Haskell compiler HC],
+            [AS_HELP_STRING([--with-hc=HC], [use Haskell compiler HC])],
 	    [HC=$withval])
 
 AC_ARG_WITH(hcflags, 
-            [  --with-hcflags=HCFLAGS  flags for Haskell tools, default: -O],
+            [AS_HELP_STRING([--with-hcflags=HCFLAGS], [flags for Haskell tools, default: -O])],
 	    [HCFLAGS=$withval],[HCFLAGS=-O])
 
 
@@ -161,19 +161,19 @@ if test "$WIN32" = "yes"; then
 fi
 
 AC_ARG_ENABLE(profiling,
-	     [  --enable-profiling      additionally build profiling versions of all libs],
+	     [AS_HELP_STRING([--enable-profiling], [additionally build profiling versions of all libs])],
 	     [ENABLE_PROFILING=$enableval],[ENABLE_PROFILING=no])
 AM_CONDITIONAL(ENABLE_PROFILING, test "$ENABLE_PROFILING" = "yes")
 
 AC_ARG_ENABLE(split-objs,
-	     [  --enable-split-objs     produce smaller executables (on supported platforms)],
+	     [AS_HELP_STRING([--enable-split-objs], [produce smaller executables (on supported platforms)])],
 	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=yes])
 AM_CONDITIONAL(ENABLE_SPLITOBJS, test "$ENABLE_SPLITOBJS" = "yes")
 
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
 AC_MSG_CHECKING([whether to build deprecated bindings])
 AC_ARG_ENABLE(deprecated,
-	     [  --disable-deprecated    do not generate bindings for any deprecated APIs],
+	     [AS_HELP_STRING([--disable-deprecated], [do not generate bindings for any deprecated APIs])],
 	     [ENABLE_DEPRECATED=$enableval],[ENABLE_DEPRECATED=yes])
 AC_MSG_RESULT($ENABLE_DEPRECATED)
 DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
@@ -209,17 +209,17 @@ dnl Check whether to register the packages with ghc-pkg
 dnl Distributors usuall want to install into a temp directory without registering
 dnl anything and leave the registering phase for a post-install action.
 AC_ARG_WITH(pkgreg,
-            [  --without-pkgreg        Do not reigster Haskell packages (useful for distributors)],
+            [AS_HELP_STRING([--without-pkgreg], [Do not reigster Haskell packages (useful for distributors)])],
 	    [PKGREG=$withval;],[PKGREG=$PKGREG_DEFAULT;])
 AM_CONDITIONAL(ENABLE_PKGREG, test "$PKGREG" = "yes")
 
 dnl Check whether to use a local package file.
 AC_ARG_WITH(user-pkgconf,
-	   [  --with-user-pkgconf     use the current user's GHC package database],
+	   [AS_HELP_STRING([--with-user-pkgconf], [use the current user's GHC package database])],
 	   [USERPKGCONF=yes;],[USERPKGCONF=;])
 
 AC_ARG_WITH(pkgconf,
-	   [  --with-pkgconf=FILE     GHC package file to install packages],
+	   [AS_HELP_STRING([--with-pkgconf=FILE], [GHC package file to install packages])],
 	   [PKGCONF=$withval;],[PKGCONF=;])
 
 
@@ -814,7 +814,7 @@ fi
 
 dnl Documentation
 AC_ARG_ENABLE(docs,
-              [  --enable-docs           build html documentation],
+              [AS_HELP_STRING([--enable-docs], [build html documentation])],
               [BUILDDOCS=$enableval],[BUILDDOCS=no])
 if test "$BUILDDOCS" = "yes"; then
   AC_PATH_PROG(HADDOCK,haddock, no)
