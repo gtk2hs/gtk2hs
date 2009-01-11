@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-overlapping-instances #-} -- String & [a] overlap
+-- String & [a] overlap
 -- -*-haskell-*-
 -- GIMP Toolkit (GTK) GConf API
 --
