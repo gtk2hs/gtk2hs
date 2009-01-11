@@ -817,6 +817,7 @@ AC_ARG_ENABLE(docs,
               [AS_HELP_STRING([--enable-docs], [build html documentation])],
               [BUILDDOCS=$enableval],[BUILDDOCS=no])
 if test "$BUILDDOCS" = "yes"; then
+  AC_ARG_VAR(HADDOCK,[path to Haddock (versions 0.8 & 0.9, or versions 2.4 and above)])
   AC_PATH_PROG(HADDOCK,haddock, no)
   if test "$HADDOCK" = "no"; then
     AC_MSG_ERROR([Could not find haddock which is required to build the documentation.
