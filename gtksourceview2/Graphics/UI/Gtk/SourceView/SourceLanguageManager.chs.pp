@@ -74,7 +74,7 @@ sourceLanguageManagerSetSearchPath slm dirs =
 sourceLanguageManagerGetSearchPath :: SourceLanguageManager -> IO [String]
 sourceLanguageManagerGetSearchPath slm = do
   dirsPtr <- {#call unsafe source_language_manager_get_search_path#} slm
-  peekUTFStringArray0 dirsPtr
+  liftM (fromMaybe []) $ maybePeek peekUTFStringArray0 dirsPtr
 
 -- |
 --

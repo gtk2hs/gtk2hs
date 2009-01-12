@@ -41,6 +41,7 @@ module Graphics.UI.Gtk.SourceView.SourceLanguage (
   ) where
 
 import Control.Monad	(liftM)
+import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -91,7 +92,7 @@ sourceLanguageGetMetadata sl name = do
 sourceLanguageGetMimeTypes :: SourceLanguage -> IO [String]
 sourceLanguageGetMimeTypes sl = do
   mimeTypesArray <- {#call unsafe source_language_get_mime_types#} sl
-  mimeTypes <- peekUTFStringArray0 mimeTypesArray
+  mimeTypes <- liftM (fromMaybe []) $ maybePeek peekUTFStringArray0 mimeTypesArray
   {# call g_strfreev #} mimeTypesArray
   return mimeTypes
 
@@ -100,7 +101,7 @@ sourceLanguageGetMimeTypes sl = do
 sourceLanguageGetGlobs :: SourceLanguage -> IO [String]
 sourceLanguageGetGlobs sl = do
   globsArray <- {#call unsafe source_language_get_globs#} sl
-  globs <- peekUTFStringArray0 globsArray
+  globs <- liftM (fromMaybe []) $ maybePeek peekUTFStringArray0 globsArray
   {# call g_strfreev #} globsArray
   return globs
 
