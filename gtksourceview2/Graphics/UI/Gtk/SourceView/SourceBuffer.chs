@@ -235,7 +235,7 @@ sourceBufferCanRedo = readAttrFromBoolProperty "can-redo"
 -- |
 -- 
 sourceBufferCanUndo :: ReadAttr SourceBuffer Bool
-sourceBufferCanUndo = readAttrFromBoolProperty "can-redo"
+sourceBufferCanUndo = readAttrFromBoolProperty "can-undo"
 
 -- |
 --
