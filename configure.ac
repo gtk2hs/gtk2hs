@@ -178,6 +178,14 @@ AC_ARG_ENABLE(deprecated,
 AC_MSG_RESULT($ENABLE_DEPRECATED)
 DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
 
+AC_MSG_CHECKING([whether to build deprecated packages (gnomevfs, sourceview)])
+AC_ARG_ENABLE(deprecated-packages,
+	     [AS_HELP_STRING([--disable-deprecated-packages], [do not build deprecated packages])],
+	     [ENABLE_DEPRECATED_PACKAGES=$enableval],[ENABLE_DEPRECATED_PACKAGES=yes])
+AC_MSG_RESULT($ENABLE_DEPRECATED_PACKAGES)
+DISABLE_DEPRECATED_PACKAGES=`test $ENABLE_DEPRECATED_PACKAGES = yes && echo no || echo yes`
+
+
 dnl packager mode is for people building packages, eg for linux distros.
 dnl in packager mode you do not get any optional dependancies unless you
 dnl explicitly ask for them with --enable-PACKAGE
