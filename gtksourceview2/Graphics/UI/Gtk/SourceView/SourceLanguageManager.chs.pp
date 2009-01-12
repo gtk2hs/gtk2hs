@@ -89,6 +89,15 @@ sourceLanguageManagerGetLanguage :: SourceLanguageManager -> String -> IO Source
 sourceLanguageManagerGetLanguage slm id = makeNewGObject mkSourceLanguage $ liftM castPtr $
   withUTFString id ({#call unsafe source_language_manager_get_language#} slm)
 
+#if GTKSOURCEVIEW2_CHECK_VERSION(2,4,0)
+-- |
+--
+sourceLanguageManagerGuessLanguage slm filename contentType = makeNewGObject mkSourceLanguage $ liftM castPtr $
+  withUTFString filename $ \cFilename ->
+  withUTFString contentType $ \cContentType ->
+  {#call unsafe source_language_manager_guess_language#} slm cFilename cContentType
+#endif
+
 -- |
 --
 sourceLanguageManagerLanguageIds :: ReadAttr SourceLanguageManager [String]

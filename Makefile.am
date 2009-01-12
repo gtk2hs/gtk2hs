@@ -1383,7 +1383,7 @@ libHSgtksourceview2_a_SOURCES =							\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceBuffer.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceIter.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
-	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguageManager.chs	\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguageManager.chs.pp	\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle.hs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle/Internal.chs	\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs		\
