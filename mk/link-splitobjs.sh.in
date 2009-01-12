@@ -11,10 +11,18 @@ for obj in $@; do
 		echo ${obj} >> ${lib}.list
 	fi
 done
+exitcode=0
 echo "Linking ${lib}, for larger libs this can take quite some time..."
 if [ -z "@XARGS@" ] ; then
-  cat ${lib}.list | while read file ; do @AR@ q ${lib} ${file} ; done
+  cat ${lib}.list | while read file ; do
+    @AR@ q ${lib} ${file} < /dev/null || {
+      exitcode=$?
+      break
+    }
+  done
 else
-  cat ${lib}.list | @XARGS@ @AR@ q ${lib}
+  cat ${lib}.list | @XARGS@ @AR@ q ${lib} || exitcode=$?
 fi
 rm ${lib}.list
+
+exit $exitcode
