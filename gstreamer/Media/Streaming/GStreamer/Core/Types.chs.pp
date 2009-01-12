@@ -670,9 +670,7 @@ giveStructure :: MonadIO m
 giveStructure structure action =
     do structure <- liftIO $ liftM Structure $
                         {# call structure_copy #} structure >>= newForeignPtr_
-       ret <- action structure
-       liftIO $ {# call structure_free #} structure
-       return ret
+       action structure
 
 foreign import ccall unsafe "&gst_structure_free"
     structureFinalizer :: FunPtr (Ptr Structure -> IO ())
