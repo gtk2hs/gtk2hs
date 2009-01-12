@@ -660,8 +660,10 @@ takeStructure, peekStructure :: Ptr Structure
                             -> IO Structure
 takeStructure =
     mkNewStructure $ flip newForeignPtr structureFinalizer
-peekStructure =
-    mkNewStructure $ newForeignPtr_
+peekStructure ptr = do
+    copy <- gst_structure_copy ptr
+    takeStructure copy
+    where _ = {#call structure_copy#}
 
 giveStructure :: MonadIO m
               => Structure
