@@ -57,6 +57,7 @@ AC_PATH_PROG(CUT,cut)
 AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
+AC_PATH_PROG(XARGS,xargs)
 
 dnl Does ld support -x and the @FILE input style?
 PROG_LD_X
