@@ -68,7 +68,9 @@ import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.UTFString
 import System.Glib.FFI
+import System.Glib.GTypeConstants
 {#import System.Glib.GDateTime#}
+{#import System.Glib.GType#}
 {#import System.Glib.GValue#}
 {#import System.Glib.GValueTypes#}
 
@@ -233,67 +235,69 @@ structureRemoveFieldM name =
     StructureM $ \structure ->
         withUTFString name $ {# call structure_remove_field #} structure
 
-marshalStructureSetM :: (GValue -> a -> IO ())
+marshalStructureSetM :: GType
+                     -> (GValue -> a -> IO ())
                      -> String
                      -> a
                      -> StructureM ()
-marshalStructureSetM setGValue fieldname value =
+marshalStructureSetM valueType setGValue fieldname value =
     StructureM $ \structure ->
         withUTFString fieldname $ \cFieldname ->
         allocaGValue $ \gValue ->
-            do setGValue gValue value
+            do valueInit gValue valueType
+               setGValue gValue value
                {# call structure_set_value #} structure cFieldname gValue
 
 structureSetBoolM :: String
                   -> Bool
                   -> StructureM ()
 structureSetBoolM =
-    marshalStructureSetM valueSetBool
+    marshalStructureSetM bool valueSetBool
 
 structureSetIntM :: String
                  -> Int
                  -> StructureM ()
 structureSetIntM =
-    marshalStructureSetM valueSetInt
+    marshalStructureSetM int valueSetInt
 
 structureSetFourCCM :: String
                     -> FourCC
                     -> StructureM ()
 structureSetFourCCM =
-    marshalStructureSetM $ \gValue fourcc ->
+    marshalStructureSetM fourcc $ \gValue fourcc ->
         {# call value_set_fourcc #} gValue $ fromIntegral fourcc
 
 structureSetDoubleM :: String
                     -> Double
                     -> StructureM ()
 structureSetDoubleM =
-    marshalStructureSetM valueSetDouble
+    marshalStructureSetM double valueSetDouble
 
 structureSetStringM :: String
                     -> String
                     -> StructureM ()
 structureSetStringM =
-    marshalStructureSetM valueSetString
+    marshalStructureSetM string valueSetString
 
 structureSetDateM :: String
                   -> GDate
                   -> StructureM ()
 structureSetDateM =
-    marshalStructureSetM $ \gValue date ->
+    marshalStructureSetM date $ \gValue date ->
         with date $ ({# call value_set_date #} gValue) . castPtr
 
 structureSetClockTimeM :: String
                        -> ClockTime
                        -> StructureM ()
 structureSetClockTimeM =
-    marshalStructureSetM $ \gValue clockTime ->
+    marshalStructureSetM uint64 $ \gValue clockTime ->
         {# call g_value_set_uint64 #} gValue $ fromIntegral clockTime
 
 structureSetFractionM :: String
                       -> Fraction
                       -> StructureM ()
 structureSetFractionM =
-    marshalStructureSetM $ \gValue fraction ->
+    marshalStructureSetM fraction $ \gValue fraction ->
         {# call value_set_fraction #} gValue
                                       (fromIntegral $ numerator fraction)
                                       (fromIntegral $ denominator fraction)
@@ -348,3 +352,8 @@ structureFixateFieldBoolM =
                     structure
                     cFieldname
                     (fromBool target)
+
+
+fourcc = {# call fun fourcc_get_type #}
+date = {# call fun date_get_type #}         
+fraction = {# call fun fraction_get_type #}         
