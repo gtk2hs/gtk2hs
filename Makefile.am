@@ -1380,7 +1380,6 @@ nodist_libHSgtksourceview2_a_SOURCES = $(libHSgtksourceview2_a_GENERATEDSOURCES)
 
 libHSgtksourceview2_a_SOURCES =							\
 	gtksourceview2/Graphics/UI/Gtk/SourceView.hs				\
-	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceMark.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceBuffer.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceIter.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
@@ -1390,6 +1389,11 @@ libHSgtksourceview2_a_SOURCES =							\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs		\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyleSchemeManager.chs	\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceView.chs
+
+if HAVE_GTKSOURCEVIEW2_VERSION_2_2
+libHSgtksourceview2_a_SOURCES +=						\
+	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceMark.chs
+endif
 
 htmldoc_HSFILES_HIDDEN += $(libHSgtksourceview2_a_GENERATEDSOURCES:.chs=.hs)	\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/SourceStyle/Internal.hs
@@ -1404,7 +1408,8 @@ gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=gtksourceview2 --parentname=Graphics.UI.Gtk.Types \
+	$@ $(addprefix --tag=,$(GTKSOURCEVIEW2_CREATE_TYPES)) \
+	--parentname=Graphics.UI.Gtk.Types \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
 gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs : \

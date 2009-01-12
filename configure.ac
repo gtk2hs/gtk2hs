@@ -464,6 +464,14 @@ CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_12" = "yes" && echo gtk-2
 dnl Also allow us to conditionally compile binding to the new Gtk+ APIs.
 GTKHS_PACKAGE_ADD_CHECK_VERSION(gtk+-2.0, GTK, Gtk+)
 
+dnl Also allow us to conditionally compile binding to GtkSourceView-2.0 APIs.
+GTKHS_PACKAGE_ADD_CHECK_VERSION(gtksourceview-2.0, GTKSOURCEVIEW2, gtksourceview2)
+HAVE_GTKSOURCEVIEW2_VERSION_2_2=`$PKG_CONFIG gtksourceview-2.0 --atleast-version=2.2 && echo yes || echo no`
+AM_CONDITIONAL(HAVE_GTKSOURCEVIEW2_VERSION_2_2, test "$HAVE_GTKSOURCEVIEW2_VERSION_2_2" = "yes")
+GTKSOURCEVIEW2_CREATE_TYPES=gtksourceview2
+GTKSOURCEVIEW2_CREATE_TYPES="$GTKSOURCEVIEW2_CREATE_TYPES `test "$HAVE_GTKSOURCEVIEW2_VERSION_2_2" = "yes" && echo gtksourceview2-2.2`"
+AC_SUBST(GTKSOURCEVIEW2_CREATE_TYPES)
+
 dnl Allow us to conditionally compile bindings to Pango APIs.
 GTKHS_PACKAGE_ADD_CHECK_VERSION(pango, PANGO, Pango)
 
