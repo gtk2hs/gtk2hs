@@ -405,6 +405,7 @@ GTKHS_PKG_CHECK_DEPRECATED(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0
 
 GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER,
                 [gstreamer-0.10 >= 0.10 \
+                 gstreamer-audio-0.10 >= 0.10 \
                  gstreamer-base-0.10 >= 0.10 \
                  gstreamer-controller-0.10 >= 0.10 
                  gstreamer-dataprotocol-0.10 >= 0.10 \
