@@ -33,6 +33,9 @@ module Graphics.UI.Gtk.SourceView.SourceLanguageManager (
   sourceLanguageManagerGetSearchPath,
   sourceLanguageManagerGetLanguageIds,
   sourceLanguageManagerGetLanguage,
+#if GTKSOURCEVIEW2_CHECK_VERSION(2,4,0)
+  sourceLanguageManagerGuessLanguage
+#endif
   ) where
 
 import Control.Monad	(liftM)
