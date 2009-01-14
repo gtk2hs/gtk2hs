@@ -71,7 +71,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
 
-import Graphics.UI.Gtk.SourceView.SourceMark
+{#import Graphics.UI.Gtk.SourceView.SourceMark#}
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -50,7 +50,7 @@ import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.SourceView.SourceStyleScheme
+{#import Graphics.UI.Gtk.SourceView.SourceStyleScheme#}
 
 {# context lib="gtk" prefix="gtk" #}
 
