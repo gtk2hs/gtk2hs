@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 . ./versions.conf
 
 cd zips
@@ -8,36 +8,34 @@ cd zips
 ##################
 
 # don't need makefiles or docs
-rm -rf */make/ */share/man/ */man/ */share/gtk-doc/ */share/doc/
+rm -rvf */make/ */share/man/ */man/ */share/gtk-doc/ */share/doc/ */src
 
 # only needed for rebuilding gtk libs
-rm -rf */share/aclocal/
+rm -rvf */share/aclocal/
 
 # don't need deverloper util progs
-rm -rf *-dev-*/bin/
+rm -rvf *-dev-*/bin/
 
 # don't need manifests
-rm -rf */manifest/
+rm -rvf */manifest/
 
 # don't need the .a & .def files where we have .lib ones
-rm -rf *-dev-*/lib/*.a *-dev-*/lib/*.def
+rm -rvf *-dev-*/lib/*.a *-dev-*/lib/*.def
 
 # don't need locale files
-rm -rf */lib/locale/ */share/locale/
+rm -rvf */lib/locale/ */share/locale/
 
+rm -rvf */contrib/
 
 ## package-specific pruning
 ###########################
 
-pushd gtk+-bundle-${GTK_VERSION}
+pushd gtk+-bundle_${GTK_BUNDLE_VERSION}_win32
 # don't need the gtk demo
-rm -rf share/gtk-2.0/
-rmdir share/gtk-2.0
-# don't need the glib gettext stuff
-rm -rf share/glib-2.0/
-rmdir share/glib-2.0
-rm bin/pango-querymodules.exe
-rm lib/libz.a lib/zdll.lib
+rm -rvf share/gtk-2.0/demo
+rm -vf bin/pango-querymodules.exe
+rm -vf lib/libz.a lib/zdll.lib
+rm -rvf share/glib-2.0
 popd
 
 pushd libiconv-${LIBICONV_VERSION}.bin.woe32
@@ -48,7 +46,7 @@ popd
 #rm -rf share
 #popd
 
-pushd gtkglext-${GTKGLEXT_VERSION}
+pushd gtkglext-${GTKGLEXT_VERSION}-win32
 rm -rf bin/gtkglext-env.{bat,sh}
 popd
 

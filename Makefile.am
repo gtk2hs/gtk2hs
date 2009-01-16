@@ -3008,13 +3008,6 @@ install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SED)	-e 's|$(GTK_BASEPATH)|$${GTK_BASEPATH}|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
-		-e '/^extra-libraries:/ \
-			p; \
-			s/extra-libraries/extra-ghci-libraries/; \
-			s/"\([a-z0-9._-]*\.0\)"/"lib\1-0"/g; \
-			s/"cairo"/"libcairo-2"/; \
-			s/"rsvg-2"/"librsvg-2-2"/; \
-			s/"xml2"/"libxml2"/' \
 		$(call getVar,$(pkgname),CONFIG) \
 	> $(call getVar,$(pkgname),CONFIG).tmp; \
 	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG);)

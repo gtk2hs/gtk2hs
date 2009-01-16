@@ -1,6 +1,10 @@
 #!/bin/bash
-
+set -x
 . ./versions.conf
+
+if test -z "$UNZIPPER" ; then
+  UNZIPPER=unzip
+fi
 
 cd zips
 
@@ -9,6 +13,6 @@ do
 	rm -rf $(basename $f .zip)
 	mkdir $(basename $f .zip)
 	pushd $(basename $f .zip)
-	unzip -q ../$f
+	$UNZIPPER ../$f
 	popd
 done

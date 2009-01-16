@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 . ./versions.conf
 
 cd zips
@@ -13,16 +13,16 @@ cd zips
 #sed -i -e 's/-lz//' lib/pkgconfig/cairo-pdf.pc
 #popd
 
-pushd gtk+-bundle-${GTK_VERSION}
+pushd gtk+-bundle_${GTK_BUNDLE_VERSION}_win32
 echo 'gtk-theme-name = "MS-Windows"' > etc/gtk-2.0/gtkrc
 popd
 
 # the gtkglext binaries are now only available as an installer
 # copy them from where the installer put them
-mkdir gtkglext-${GTKGLEXT_VERSION}
-mkdir gtkglext-dev-${GTKGLEXT_VERSION}
-cp -av /c/GtkGLExt/1.0/bin gtkglext-${GTKGLEXT_VERSION}
-cp -av /c/GtkGLExt/1.0/{lib,include} gtkglext-dev-${GTKGLEXT_VERSION}
+#mkdir gtkglext-${GTKGLEXT_VERSION}
+#mkdir gtkglext-dev-${GTKGLEXT_VERSION}
+#cp -av /c/GtkGLExt/1.0/bin gtkglext-${GTKGLEXT_VERSION}
+#cp -av /c/GtkGLExt/1.0/{lib,include} gtkglext-dev-${GTKGLEXT_VERSION}
 
 rm -vf libxml2-dev-${LIBXML_VERSION}/lib/libxml2_a.lib
 

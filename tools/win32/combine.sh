@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 . ./versions.conf
 
 pushd zips
@@ -14,36 +14,46 @@ done
 
 popd
 
-rm -rf gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32
-mkdir gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32
-pushd gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32
-for tar in ../zips/*.tar
+rm -rf gtk2hs
+mkdir -p gtk2hs/${GTK2HS_VERSION}
+pushd gtk2hs/${GTK2HS_VERSION}
+for tar in ../../zips/*.tar
 do
   tar -xf $tar
 done
 chmod -x bin/*
-cp -v ../pc/*.pc lib/pkgconfig/
+cp -v ../../pc/*.pc lib/pkgconfig/
 for file in lib/pkgconfig/*.pc ; do
-  sed "s,^prefix=.*,prefix=/gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32/${GTK2HS_VERSION}," < "$file" > "$file".new
+  sed "s,^prefix=.*,prefix=/c/gtk2hs/${GTK2HS_VERSION}," < "$file" > "$file".new
   mv -v "$file".new "$file"
 done
 popd
 
-rm -rf gtk2hs-clibs-${GTK2HS_VERSION}-win32
-cp -rl gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32 gtk2hs-clibs-${GTK2HS_VERSION}-win32
-pushd gtk2hs-clibs-${GTK2HS_VERSION}-win32
-  rm -f bin/pkg-config.exe
-  rm -r include
-  rm lib/*.lib
-  rm -rf lib/pkgconfig
-  rm -rf lib/*/include
-  rm -rf lib/glib-2.0 lib/gtkglext-1.0
+rm -f gtk2hs-${GTK2HS_VERSION}-clibs-win32{,-dev}.zip
+zip -9 -q -r gtk2hs-${GTK2HS_VERSION}-clibs-win32-dev.zip gtk2hs
+echo "created gtk2hs-${GTK2HS_VERSION}-clibs-win32-dev.zip"
+
+mkdir no-dev
+cp -a gtk2hs no-dev/gtk2hs
+pushd no-dev
+rm -rvf \
+	gtk2hs/${GTK2HS_VERSION}/bin/gdk-pixbuf-csource.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/glib-* \
+	gtk2hs/${GTK2HS_VERSION}/bin/gobject-query.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/gtk-demo.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/ior-decode-2.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/orbit-idl-2.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/pkg-config.exe \
+	gtk2hs/${GTK2HS_VERSION}/bin/typelib-dump.exe \
+	gtk2hs/${GTK2HS_VERSION}/include \
+	gtk2hs/${GTK2HS_VERSION}/lib/*.lib \
+	gtk2hs/${GTK2HS_VERSION}/lib/gtk-2.0/include \
+	gtk2hs/${GTK2HS_VERSION}/lib/glib-2.0 \
+	gtk2hs/${GTK2HS_VERSION}/lib/gtkglext-1.0 \
+	gtk2hs/${GTK2HS_VERSION}/lib/pkgconfig \
+	gtk2hs/${GTK2HS_VERSION}/share/idl
+zip -9 -q -r ../gtk2hs-${GTK2HS_VERSION}-clibs-win32.zip gtk2hs
+echo "created gtk2hs-${GTK2HS_VERSION}-clibs-win32-dev.zip"
 popd
 
-rm -f gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32.zip
-zip -9 -q -r gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32.zip gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32/
-echo "created gtk2hs-clibs-dev-${GTK2HS_VERSION}-win32.zip"
-
-rm -f gtk2hs-clibs-${GTK2HS_VERSION}-win32.zip
-zip -9 -q -r gtk2hs-clibs-${GTK2HS_VERSION}-win32.zip gtk2hs-clibs-${GTK2HS_VERSION}-win32/
-echo "created gtk2hs-clibs-${GTK2HS_VERSION}-win32.zip"
+rm -rf no-dev
