@@ -30,9 +30,17 @@ EXTRA_DIST = \
 	gnomevfs/hsgnomevfs-2.14.h		\
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
+	gstreamer/hsgstreamer.h			\
+	gstreamer/hierarchy.list		\
+	gstreamer/mini-hierarchy.list		\
+	gstreamer/gobject-hierarchy.list	\
+	gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
+	gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template \
 	gstreamer/marshal.list 			\
 	gio/marshal.list			\
-	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
+	gtksourceview2/marshal.list		\
+	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h	\
+	COPYING.LGPLv3 COPYING.GPLv3
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
@@ -475,7 +483,7 @@ gio/System/GIO/Signals.chs : \
 libHSgio_a_ALLSOURCES = $(libHSgio_a_SOURCES) $(nodist_libHSgio_a_SOURCES)
 
 am_libHSgio_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_SOURCES))))
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_ALLSOURCES))))
 
 libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_ALLSOURCES))
 libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_ALLSOURCES))
@@ -2364,14 +2372,6 @@ htmldoc_HSFILES_HIDDEN				+=			\
 	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Net/Types.hs
 
-EXTRA_DIST +=					\
-	gstreamer/hsgstreamer.h			\
-	gstreamer/hierarchy.list		\
-	gstreamer/mini-hierarchy.list		\
-	gstreamer/gobject-hierarchy.list	\
-	gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
-	gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template
-
 libHSgstreamer_a_ALLSOURCES			 = $(libHSgstreamer_a_SOURCES) $(nodist_libHSgstreamer_a_SOURCES)
 
 gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :				\
@@ -2581,45 +2581,6 @@ CLEANFILES += package.conf.inplace package.conf.inplace.old
 #
 ################################################################################
 
-if BUILDDOCS
-
-# For now just build all the docs together, we can think about doing it in a
-# more modular fashion later if it turns out to be useful.
-
-htmldocdir = $(datadir)/doc/gtk2hs/html
-
-PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
-
-htmldoc_haddock_files =								  \
-	$(foreach HSFILE, $(filter-out						  \
-	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
-	    $(patsubst $(firstword $(subst /,					  \
-	    ,$(HSFILE)))-%.hs,							  \
-	     docs/reference/%.html,						  \
-		$(subst /,-,$(HSFILE:.uncpp=))))				  \
-	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
-	docs/reference/plus.gif docs/reference/minus.gif			  \
-	docs/reference/haddock.js						  \
-	docs/reference/index.html docs/reference/doc-index.html			  \
-	docs/reference/gtk2hs.haddock
-
-if HADDOCK2
-htmldoc_haddock_files +=							  \
-	$(foreach HSFILE, $(filter-out						  \
-	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
-	    $(patsubst $(firstword $(subst /,					  \
-	    ,$(HSFILE)))-%.hs,							  \
-	     docs/reference/mini_%.html,					  \
-		$(subst /,-,$(HSFILE:.uncpp=))))				  \
-	docs/reference/haddock-util.js						  \
-	docs/reference/frames.html						  \
-	docs/reference/index-frames.html
-endif
-
-htmldoc_haddock_files +=							  \
-	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
-		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
-
 htmldoc_images =								  \
 	docs/reference/images/stock-icons/stock_about_24.png			  \
 	docs/reference/images/stock-icons/stock_add_24.png			  \
@@ -2713,6 +2674,47 @@ htmldoc_images =								  \
 	docs/reference/images/stock-icons/stock_zoom_fit_24.png			  \
 	docs/reference/images/stock-icons/stock_zoom_in_24.png			  \
 	docs/reference/images/stock-icons/stock_zoom_out_24.png
+EXTRA_DIST += $(htmldoc_images)
+
+if BUILDDOCS
+
+# For now just build all the docs together, we can think about doing it in a
+# more modular fashion later if it turns out to be useful.
+
+htmldocdir = $(datadir)/doc/gtk2hs/html
+
+PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
+
+htmldoc_haddock_files =								  \
+	$(foreach HSFILE, $(filter-out						  \
+	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
+	    $(patsubst $(firstword $(subst /,					  \
+	    ,$(HSFILE)))-%.hs,							  \
+	     docs/reference/%.html,						  \
+		$(subst /,-,$(HSFILE:.uncpp=))))				  \
+	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
+	docs/reference/plus.gif docs/reference/minus.gif			  \
+	docs/reference/haddock.js						  \
+	docs/reference/index.html docs/reference/doc-index.html			  \
+	docs/reference/gtk2hs.haddock
+
+if HADDOCK2
+htmldoc_haddock_files +=							  \
+	$(foreach HSFILE, $(filter-out						  \
+	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
+	    $(patsubst $(firstword $(subst /,					  \
+	    ,$(HSFILE)))-%.hs,							  \
+	     docs/reference/mini_%.html,					  \
+		$(subst /,-,$(HSFILE:.uncpp=))))				  \
+	docs/reference/haddock-util.js						  \
+	docs/reference/frames.html						  \
+	docs/reference/index-frames.html
+endif
+
+htmldoc_haddock_files +=							  \
+	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
+		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
+
 
 htmldoc_DATA = $(htmldoc_haddock_files) $(htmldoc_images)
 
@@ -2881,7 +2883,15 @@ EXTRA_DIST +=								\
 	demo/svg/Makefile  demo/svg/Svg2Png.hs  demo/svg/SvgViewer.hs	\
 	demo/soe/BouncingBall.hs demo/soe/Demo1.hs demo/soe/Demo2.hs	\
 		demo/soe/Snowflake.hs demo/soe/Makefile			\
-	demo/statusicon/StatusIcon.hs demo/statusicon/Makefile
+	demo/statusicon/StatusIcon.hs demo/statusicon/Makefile		\
+	demo/gstreamer/VorbisPlay.hs demo/gstreamer/Makefile		\
+	demo/gnomevfs/TestDir.hs					\
+		demo/gnomevfs/TestDriveVolume.hs			\
+		demo/gnomevfs/TestSync.hs				\
+		demo/gnomevfs/TestVolumeMonitor.hs			\
+		demo/gnomevfs/TestXfer.hs				\
+		demo/gnomevfs/Makefile
+
 
 
 #
