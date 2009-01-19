@@ -44,6 +44,14 @@
 #include <gst/audio/audio.h>
 #include <gst/audio/gstaudioclock.h>
 
+#if !(GST_VERSION_MAJOR > 0 || GST_VERSION_MINOR > 10 || GST_VERSION_MICRO > 18)
+#define GST_CHECK_VERSION(major,minor,micro)    \
+  (GST_VERSION_MAJOR > (major) || \
+  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR > (minor)) || \
+  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR == (minor) && \
+   GST_VERSION_MICRO >= (micro)))
+#endif
+
 guint    _hs_gst_object_flags (GstObject* obj);
 void     _hs_gst_object_flag_set (GstObject* obj, guint flags);
 void     _hs_gst_object_flag_unset (GstObject* obj, guint flags);
