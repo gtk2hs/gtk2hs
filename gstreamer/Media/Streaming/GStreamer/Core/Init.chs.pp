@@ -32,13 +32,13 @@ module Media.Streaming.GStreamer.Core.Init (
   deinit,
   version,
   versionString,
-#if GSTREAMER_CHECK_VERSION(0,10,10)
+#if GST_CHECK_VERSION(0,10,10)
   segtrapIsEnabled,
   segtrapSetEnabled,
   registryForkIsEnabled,
   registryForkSetEnabled,
 #endif
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   updateRegistry
 #endif
   ) where
@@ -91,7 +91,7 @@ versionString =
     unsafePerformIO $
     {# call version_string #} >>= peekUTFString
 
-#if GSTREAMER_CHECK_VERSION(0,10,10)
+#if GST_CHECK_VERSION(0,10,10)
 segtrapIsEnabled :: IO Bool
 segtrapIsEnabled =
     liftM toBool {# call segtrap_is_enabled #}
@@ -111,7 +111,7 @@ registryForkSetEnabled enabled =
     {# call registry_fork_set_enabled #} $ fromBool enabled
 #endif
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 updateRegistry :: IO Bool
 updateRegistry =
     liftM toBool {# call update_registry #}

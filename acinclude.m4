@@ -281,11 +281,13 @@ AC_DEFINE_UNQUOTED(_$2_MINOR_VERSION, ($$2_MINOR_VERSION), [$3 minor version])
 AC_DEFINE_UNQUOTED(_$2_MICRO_VERSION, ($$2_MICRO_VERSION), [$3 micro version])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of $3 */
+#ifdef GTK2HS_HS_PREPROC
 #define $2_CHECK_VERSION(major, minor, micro) \
     (_$2_MAJOR_VERSION > (major) || \
      (_$2_MAJOR_VERSION == (major) && _$2_MINOR_VERSION > (minor)) || \
      (_$2_MAJOR_VERSION == (major) && _$2_MINOR_VERSION == (minor) && \
       _$2_MICRO_VERSION >= (micro)))
+#endif
 ])
 ])
 

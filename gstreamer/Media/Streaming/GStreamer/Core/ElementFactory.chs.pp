@@ -55,7 +55,7 @@ module Media.Streaming.GStreamer.Core.ElementFactory (
   elementFactoryGetNumPadTemplates,
   elementFactoryGetURIType,
   elementFactoryGetURIProtocols,
-#if GSTREAMER_CHECK_VERSION(0,10,14)
+#if GST_CHECK_VERSION(0,10,14)
   elementFactoryHasInterface,
 #endif
   elementFactoryCreate,
@@ -155,7 +155,7 @@ elementFactoryGetURIProtocols factory =
     {# call element_factory_get_uri_protocols #} (toElementFactory factory) >>=
         liftM (fromMaybe []) . maybePeek peekUTFStringArray0
 
-#if GSTREAMER_CHECK_VERSION(0,10,14)
+#if GST_CHECK_VERSION(0,10,14)
 -- | Check if the given factory implements the interface with the given name.
 --   
 --   Since 0.10.14.

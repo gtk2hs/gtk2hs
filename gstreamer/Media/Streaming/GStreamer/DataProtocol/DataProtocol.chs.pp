@@ -36,7 +36,7 @@ import System.Glib.FFI
 {# context lib = "gstreamer" prefix = "gst" #}
 
 {# enum GstDPPayloadType as DPPayloadType {underscoreToCase} with prefix = "GST" #}
-#if GSTREAMER_CHECK_VERSION(0,10,7)
+#if GST_CHECK_VERSION(0,10,7)
 {# enum GstDPVersion as DPVersion {underscoreToCase} with prefix = "GST" #}
 
 {# pointer *GstDPPacketizer as DPPacketizer #}

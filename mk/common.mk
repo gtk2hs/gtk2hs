@@ -180,12 +180,14 @@ endif
 .chs.pp.chs: $(CONFIG_HEADER)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
+	-DGTK2HS_HS_PREPROC \
 	$(addprefix -include ,$(CONFIG_HEADER)) \
 	$< -o $@)
 
 .hs.pp.hs: $(CONFIG_HEADER)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
+	-DGTK2HS_HS_PREPROC \
 	$(addprefix -include ,$(CONFIG_HEADER)) \
 	$< -o $@)
 

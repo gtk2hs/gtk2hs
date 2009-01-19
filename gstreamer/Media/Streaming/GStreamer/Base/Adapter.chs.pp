@@ -38,7 +38,7 @@ module Media.Streaming.GStreamer.Base.Adapter (
   adapterPush,
 #if __GLASGOW_HASKELL__ >= 606
   adapterPeek,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   adapterCopy,
   adapterCopyInto,
 #endif
@@ -112,7 +112,7 @@ adapterPeek adapter size =
 #endif
                      (castPtr ptr, fromIntegral size)
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 adapterCopy :: AdapterClass adapterT
             => adapterT
             -> Word

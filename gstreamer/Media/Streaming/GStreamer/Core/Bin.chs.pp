@@ -226,7 +226,7 @@ binIterateAllByInterface bin iface =
     {# call bin_iterate_all_by_interface #} (toBin bin) (fromIntegral iface) >>=
         maybePeek takeIterator
 
-#if GSTREAMER_CHECK_VERSION (0, 10, 3)
+#if GST_CHECK_VERSION (0, 10, 3)
 -- | Recursively looks for elements with an unconnected pad of the
 --   given direction within the specified bin. Returns an unconnected
 --   pad if one is found, otherwise 'Nothing'.

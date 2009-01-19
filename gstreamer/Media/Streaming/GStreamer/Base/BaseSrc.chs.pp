@@ -35,7 +35,7 @@ module Media.Streaming.GStreamer.Base.BaseSrc (
   baseSrcGetFlags,
   baseSrcSetFlags,
   baseSrcUnsetFlags,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   baseSrcWaitPlaying,
 #endif
   baseSrcIsLive,
@@ -75,7 +75,7 @@ baseSrcUnsetFlags :: BaseSrcClass baseSrcT
                   -> IO ()
 baseSrcUnsetFlags = mkObjectUnsetFlags
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 baseSrcWaitPlaying :: BaseSrcClass baseSrcT
                    => baseSrcT
                    -> IO FlowReturn

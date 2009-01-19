@@ -83,7 +83,7 @@ uIntToPu i = fromIntegral i/pangoScale
 instance Enum PangoDirection where
   fromEnum PangoDirectionLtr        = #{const PANGO_DIRECTION_LTR }
   fromEnum PangoDirectionRtl        = #{const PANGO_DIRECTION_RTL }
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
   fromEnum PangoDirectionWeakLtr    = #{const PANGO_DIRECTION_WEAK_LTR }
   fromEnum PangoDirectionWeakRtl    = #{const PANGO_DIRECTION_WEAK_RTL }
   fromEnum PangoDirectionNeutral    = #{const PANGO_DIRECTION_NEUTRAL }
@@ -92,7 +92,7 @@ instance Enum PangoDirection where
   toEnum #{const PANGO_DIRECTION_RTL } = PangoDirectionRtl
   toEnum #{const PANGO_DIRECTION_TTB_LTR } = PangoDirectionLtr
   toEnum #{const PANGO_DIRECTION_TTB_RTL } = PangoDirectionRtl
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
   toEnum #{const PANGO_DIRECTION_WEAK_LTR } = PangoDirectionWeakLtr
   toEnum #{const PANGO_DIRECTION_WEAK_RTL } = PangoDirectionWeakRtl
   toEnum #{const PANGO_DIRECTION_NEUTRAL } = PangoDirectionNeutral
@@ -102,7 +102,7 @@ instance Enum PangoDirection where
 pangodirToLevel :: PangoDirection -> Int
 pangodirToLevel PangoDirectionLtr = 1
 pangodirToLevel PangoDirectionRtl = -1
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
 pangodirToLevel PangoDirectionWeakLtr = 1
 pangodirToLevel PangoDirectionWeakRtl = -1
 pangodirToLevel PangoDirectionNeutral = 0
@@ -199,7 +199,7 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_SIZE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrSize b e (realToFrac (v::#{gtk2hs_type double}))
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
     #{const PANGO_ATTR_ABSOLUTE_SIZE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrAbsSize b e (realToFrac (v::#{gtk2hs_type double}))
@@ -217,8 +217,8 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_UNDERLINE} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
       return $ AttrUnderline b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
     #{const PANGO_ATTR_UNDERLINE_COLOR} -> do
       col <- #{peek PangoAttrColor, color} attrPtr
       return $ AttrUnderlineColor b e col
@@ -226,8 +226,8 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_STRIKETHROUGH} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
       return $ AttrStrikethrough b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
     #{const PANGO_ATTR_STRIKETHROUGH_COLOR} -> do
       col <- #{peek PangoAttrColor, color} attrPtr
       return $ AttrStrikethroughColor b e col
@@ -235,7 +235,7 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_RISE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrRise b e  (realToFrac (v::#{gtk2hs_type double}))
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
     #{const PANGO_ATTR_SHAPE} -> do
       rect1 <- #{peek PangoAttrShape, ink_rect} attrPtr
       rect2 <- #{peek PangoAttrShape, logical_rect} attrPtr
@@ -244,17 +244,17 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_SCALE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrScale b e (realToFrac (v::#{gtk2hs_type double}))
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
     #{const PANGO_ATTR_FALLBACK} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
       return $ AttrFallback b e (toBool (v::#{gtk2hs_type int}))
 #endif
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
     #{const PANGO_ATTR_LETTER_SPACING} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrLetterSpacing b e (realToFrac (v::#{gtk2hs_type double}))
 #endif
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
     #{const PANGO_ATTR_GRAVITY} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
       return $ AttrGravity b e (toEnum (fromIntegral (v::#{gtk2hs_type int})))

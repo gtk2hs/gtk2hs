@@ -32,11 +32,11 @@ module Media.Streaming.GStreamer.Base.BaseSink (
   BaseSinkClass,
   castToBaseSink,
   toBaseSink,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   baseSinkQueryLatency,
   baseSinkGetLatency,
 #endif
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
   baseSinkWaitPreroll,
 #endif
   baseSinkSetSync,
@@ -62,7 +62,7 @@ import System.Glib.Attributes
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 baseSinkQueryLatency :: BaseSinkClass baseSinkT
                      => baseSinkT
                      -> IO (Maybe (Bool, Bool, ClockTime, ClockTime))
@@ -93,7 +93,7 @@ baseSinkGetLatency baseSink =
         {# call base_sink_get_latency #} (toBaseSink baseSink)
 #endif
 
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
 baseSinkWaitPreroll :: BaseSinkClass baseSinkT
                     => baseSinkT
                     -> IO FlowReturn

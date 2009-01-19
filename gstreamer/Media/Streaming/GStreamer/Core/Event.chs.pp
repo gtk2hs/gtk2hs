@@ -57,7 +57,7 @@ module Media.Streaming.GStreamer.Core.Event (
   eventNewEOS,
   eventNewFlushStart,
   eventNewFlushStop,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   eventNewLatency,
 #endif
   eventNewNavigation,
@@ -67,7 +67,7 @@ module Media.Streaming.GStreamer.Core.Event (
   eventNewSeek,
   eventNewTag,
   eventParseBufferSize,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   eventParseLatency,
 #endif
   eventParseNewSegment,
@@ -111,7 +111,7 @@ eventNewEOS = {# call event_new_eos #} >>= takeMiniObject
 eventNewFlushStart = {# call event_new_flush_start #} >>= takeMiniObject
 eventNewFlushStop = {# call event_new_flush_stop #} >>= takeMiniObject
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 eventNewLatency :: ClockTime
                 -> IO Event
 eventNewLatency latency =
@@ -211,7 +211,7 @@ eventParseBufferSize event | eventType event == EventBufferSize =
                return (format, minSize, maxSize, async)
                            | otherwise = Nothing
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 eventParseLatency :: EventClass event
                   => event
                   -> Maybe ClockTime

@@ -92,7 +92,7 @@ module Media.Streaming.GStreamer.Core.Bus (
   busHavePending,
   busPeek,
   busPop,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   busTimedPop,
 #endif
   busSetFlushing,
@@ -186,7 +186,7 @@ busPop :: BusClass busT
 busPop bus =
     {# call bus_pop #} (toBus bus) >>= maybePeek takeMiniObject
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 -- | Get a message from the bus, waiting up to the specified timeout.
 --   If the time given is 'Nothing', the function will wait forever.
 --   If the time given is @0@, the function will behave like 'busPop'.

@@ -79,7 +79,7 @@ module Media.Streaming.GStreamer.Core.Caps (
   capsCreate,
   capsModify,
   capsAppendStructure,
-#if GSTREAMER_CHECK_VERSION(0,10,10)
+#if GST_CHECK_VERSION(0,10,10)
   capsMergeStructure,
   capsRemoveStructure,
 #endif
@@ -296,7 +296,7 @@ capsAppendStructure structure = do
   where _ = {# call caps_append_structure #}
         _ = {# call structure_copy #}
 
-#if GSTREAMER_CHECK_VERSION(0,10,10)
+#if GST_CHECK_VERSION(0,10,10)
 -- | Append the structure to the current caps, if it is not already
 --   expressed by the caps.
 --   

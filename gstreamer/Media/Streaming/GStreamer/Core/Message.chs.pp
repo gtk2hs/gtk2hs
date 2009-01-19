@@ -50,7 +50,7 @@ module Media.Streaming.GStreamer.Core.Message (
   messageNewElement,
   messageNewEOS,
   messageNewError,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   messageNewInfo,
 #endif
   messageNewNewClock,
@@ -58,20 +58,20 @@ module Media.Streaming.GStreamer.Core.Message (
   messageNewSegmentStart,
   messageNewStateChanged,
   messageNewTag,
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
   messageNewBuffering,
 #endif
   messageNewWarning,
   messageNewDuration,
   messageNewStateDirty,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   messageNewLatency,
 #endif
   
   messageParseClockLost,
   messageParseClockProvide,
   messageParseError,
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
   messageParseInfo,
 #endif
   messageParseNewClock,
@@ -79,7 +79,7 @@ module Media.Streaming.GStreamer.Core.Message (
   messageParseSegmentStart,
   messageParseStateChanged,
   messageParseTag,
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
   messageParseBuffering,
 #endif
   messageParseWarning,
@@ -227,7 +227,7 @@ messageNewError src error debug =
                                         debugPtr >>=
                takeMiniObject
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 messageNewInfo :: ObjectClass objectT
                => objectT
                -> GError
@@ -300,7 +300,7 @@ messageNewTag src tagList =
                                    (castPtr tagListPtr) >>=
             takeMiniObject
 
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
 messageNewBuffering :: ObjectClass objectT
                     => objectT
                     -> Int
@@ -345,7 +345,7 @@ messageNewStateDirty src =
         {# call message_new_state_dirty #} (toObject src) >>=
             takeMiniObject
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 messageNewLatency :: ObjectClass objectT
                   => objectT
                   -> Message
@@ -388,7 +388,7 @@ messageParseError message | messageType message == MessageError =
                return (gError, debug)
                           | otherwise = Nothing
 
-#if GSTREAMER_CHECK_VERSION(0,10,12)
+#if GST_CHECK_VERSION(0,10,12)
 messageParseInfo :: Message
                  -> Maybe (GError, String)
 messageParseInfo message | messageType message == MessageInfo =
@@ -454,7 +454,7 @@ messageParseTag message | messageType message == MessageTag =
            peek tagListPtr >>= takeTagList
                         | otherwise = Nothing
 
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
 messageParseBuffering :: Message
                       -> Maybe Int
 messageParseBuffering message | messageType message == MessageBuffering =

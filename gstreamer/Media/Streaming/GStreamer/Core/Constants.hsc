@@ -112,7 +112,7 @@ data PadFlags = PadBlocked   -- ^ dataflow on the pad is blocked
               | PadFlushing  -- ^ the pad is refusing buffers
               | PadInGetCaps -- ^ 'padGetCaps' is executing
               | PadInSetCaps -- ^ 'padSetCaps' is executing
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
               | PadBlocking  -- ^ the pad is blocking on a buffer or event
 #endif
                 deriving (Eq, Bounded, Show)
@@ -121,14 +121,14 @@ instance Enum PadFlags where
              | n == #{const GST_PAD_FLUSHING}   = PadFlushing
              | n == #{const GST_PAD_IN_GETCAPS} = PadInGetCaps
              | n == #{const GST_PAD_IN_SETCAPS} = PadInSetCaps
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
              | n == #{const GST_PAD_BLOCKING}   = PadBlocking
 #endif
     fromEnum PadBlocked   = #{const GST_PAD_BLOCKED}
     fromEnum PadFlushing  = #{const GST_PAD_FLUSHING}
     fromEnum PadInGetCaps = #{const GST_PAD_IN_GETCAPS}
     fromEnum PadInSetCaps = #{const GST_PAD_IN_SETCAPS}
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
     fromEnum PadBlocking  = #{const GST_PAD_BLOCKING}
 #endif
 instance Flags PadFlags
@@ -254,7 +254,7 @@ data EventType = EventUnknown             -- ^ an unknown event
                | EventQOS                 -- ^ quality of service notification
                | EventSeek                -- ^ a request for a new playback position and rate
                | EventNavigation          -- ^ notification of user request
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
                | EventLatency             -- ^ notification of latency adjustment
 #endif
                | EventCustomUpstream      -- ^ custom upstream event
@@ -274,7 +274,7 @@ instance Enum EventType where
              | n == #{const GST_EVENT_QOS} = EventQOS
              | n == #{const GST_EVENT_SEEK} = EventSeek
              | n == #{const GST_EVENT_NAVIGATION} = EventNavigation
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
              | n == #{const GST_EVENT_LATENCY} = EventLatency
 #endif
              | n == #{const GST_EVENT_CUSTOM_UPSTREAM} = EventCustomUpstream
@@ -293,7 +293,7 @@ instance Enum EventType where
     fromEnum EventQOS                 = #{const GST_EVENT_QOS}
     fromEnum EventSeek                = #{const GST_EVENT_SEEK}
     fromEnum EventNavigation          = #{const GST_EVENT_NAVIGATION}
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
     fromEnum EventLatency             = #{const GST_EVENT_LATENCY}
 #endif
     fromEnum EventCustomUpstream      = #{const GST_EVENT_CUSTOM_UPSTREAM}
@@ -321,10 +321,10 @@ data MessageType = MessageEOS             -- ^ end-of-stream
                  | MessageSegmentStart    -- ^ the pipeline started playback of a segment
                  | MessageSegmentDone     -- ^ the pipeline finished playback of a segment
                  | MessageDuration        -- ^ the duration of the pipeline changed
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
                  | MessageLatency         -- ^ an element's latency has changed
 #endif
-#if GSTREAMER_CHECK_VERSION(0, 10, 13)
+#if GST_CHECK_VERSION(0, 10, 13)
                  | MessageAsyncStart      -- ^ an element has started an async state change; used internally
                  | MessageAsyncDone       -- ^ an element has completed an async state change; used internally
 #endif
@@ -348,10 +348,10 @@ instance Enum MessageType where
              | n == #{const GST_MESSAGE_SEGMENT_START}     = MessageSegmentStart
              | n == #{const GST_MESSAGE_SEGMENT_DONE}      = MessageSegmentDone
              | n == #{const GST_MESSAGE_DURATION}          = MessageDuration
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
              | n == #{const GST_MESSAGE_LATENCY}           = MessageLatency
 #endif
-#if GSTREAMER_CHECK_VERSION(0, 10, 13)
+#if GST_CHECK_VERSION(0, 10, 13)
              | n == #{const GST_MESSAGE_ASYNC_START}       = MessageAsyncStart
              | n == #{const GST_MESSAGE_ASYNC_DONE}        = MessageAsyncDone
 #endif
@@ -373,10 +373,10 @@ instance Enum MessageType where
     fromEnum MessageSegmentStart    = #{const GST_MESSAGE_SEGMENT_START}
     fromEnum MessageSegmentDone     = #{const GST_MESSAGE_SEGMENT_DONE}
     fromEnum MessageDuration        = #{const GST_MESSAGE_DURATION}
-#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+#if GST_CHECK_VERSION(0, 10, 12)
     fromEnum MessageLatency         = #{const GST_MESSAGE_LATENCY}
 #endif
-#if GSTREAMER_CHECK_VERSION(0, 10, 13)
+#if GST_CHECK_VERSION(0, 10, 13)
     fromEnum MessageAsyncStart      = #{const GST_MESSAGE_ASYNC_START}
     fromEnum MessageAsyncDone       = #{const GST_MESSAGE_ASYNC_DONE}
 #endif

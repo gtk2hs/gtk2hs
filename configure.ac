@@ -481,7 +481,7 @@ dnl Allow us to conditionally compile bindings to Glib APIs.
 GTKHS_PACKAGE_ADD_CHECK_VERSION(glib-2.0, GLIB, Glib)
 
 dnl Allow us to conditionally compile bindings to Glib APIs.
-GTKHS_PACKAGE_ADD_CHECK_VERSION(gstreamer-0.10, GSTREAMER, gstreamer)
+GTKHS_PACKAGE_ADD_CHECK_VERSION(gstreamer-0.10, GST, gstreamer)
 
 dnl Allow us to conditionally compile bindings to GnomeVFS APIs.
 GTKHS_PACKAGE_ADD_CHECK_VERSION(gnome-vfs-2.0, GNOME_VFS, gnome-vfs)
@@ -542,11 +542,13 @@ AC_DEFINE_UNQUOTED(_CAIRO_MINOR_VERSION, (${_CAIRO_VERSION_MINOR}), [cairo minor
 AC_DEFINE_UNQUOTED(_CAIRO_MICRO_VERSION, (${_CAIRO_VERSION_MICRO}), [cairo minor patch level])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of cairo */
+#ifdef GTK2HS_HS_PREPROC
 #define CAIRO_CHECK_VERSION(major,minor,micro)    \
     (_CAIRO_MAJOR_VERSION > (major) || \
      (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION > (minor)) || \
      (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION == (minor) && \
       _CAIRO_MICRO_VERSION >= (micro)))
+#endif
 ])
 fi
 

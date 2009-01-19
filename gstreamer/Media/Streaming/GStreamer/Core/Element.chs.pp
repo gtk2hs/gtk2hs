@@ -115,7 +115,7 @@ module Media.Streaming.GStreamer.Core.Element (
   elementIsLockedState,
   elementAbortState,
   elementStateGetName,
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
   elementStateChangeReturnGetName,
 #endif
   elementSyncStateWithParent,
@@ -125,7 +125,7 @@ module Media.Streaming.GStreamer.Core.Element (
   elementQueryPosition,
   elementQueryDuration,
   elementSendEvent, 
-#if GSTREAMER_CHECK_VERSION(0,10,7)
+#if GST_CHECK_VERSION(0,10,7)
   elementSeekSimple,
 #endif
   elementSeek,
@@ -580,7 +580,7 @@ elementStateGetName :: State  -- ^ @state@ -
 elementStateGetName state =
     unsafePerformIO $ ({# call element_state_get_name #} $ fromIntegral $ fromEnum state) >>= peekUTFString
 
-#if GSTREAMER_CHECK_VERSION(0,10,11)
+#if GST_CHECK_VERSION(0,10,11)
 -- | Get a string representation of @stateRet@.
 --   
 --   Since 0.10.11.
@@ -693,7 +693,7 @@ elementSendEvent element event =
     liftM toBool $
         giveMiniObject (toEvent event) $ {# call element_send_event #} (toElement element)
 
-#if GSTREAMER_CHECK_VERSION(0,10,7)
+#if GST_CHECK_VERSION(0,10,7)
 -- | Perform a seek on the given element. This function only supports
 --   seeking to a position relative to the start of the stream. For
 --   more complex operations like segment seeks (such as for looping),
