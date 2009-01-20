@@ -2600,7 +2600,7 @@ CLEANFILES += package.conf.inplace package.conf.inplace.old
 #
 ################################################################################
 
-htmldoc_images =								  \
+htmldoc_images_stock_icons_dist =						  \
 	docs/reference/images/stock-icons/stock_about_24.png			  \
 	docs/reference/images/stock-icons/stock_add_24.png			  \
 	docs/reference/images/stock-icons/stock_align_center_24.png		  \
@@ -2693,7 +2693,7 @@ htmldoc_images =								  \
 	docs/reference/images/stock-icons/stock_zoom_fit_24.png			  \
 	docs/reference/images/stock-icons/stock_zoom_in_24.png			  \
 	docs/reference/images/stock-icons/stock_zoom_out_24.png
-EXTRA_DIST += $(htmldoc_images)
+EXTRA_DIST += $(htmldoc_images_stock_icons_dist)
 
 if BUILDDOCS
 
@@ -2701,6 +2701,8 @@ if BUILDDOCS
 # more modular fashion later if it turns out to be useful.
 
 htmldocdir = $(datadir)/doc/gtk2hs/html
+htmldoc_images_stock_iconsdir = $(htmldocdir)/images/stock-icons
+htmldoc_images_stock_icons_DATA = $(htmldoc_images_stock_icons_dist)
 
 PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
 
