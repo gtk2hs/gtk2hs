@@ -1,5 +1,4 @@
 --								  -*-haskell-*-
---  ** @configure_input@ **
 --  ===========================================================================
 --  C -> Haskell Compiler: configuration
 --
@@ -57,7 +56,7 @@ import Foreign.C (CInt)
 -- C preprocessor executable (EXPORTED)
 --
 cpp :: FilePath
-cpp  = "@CPP@"
+cpp  = _C2HS_CPP -- used to be: "@CPP@"
 
 -- C preprocessor options (EXPORTED)
 --
@@ -78,7 +77,7 @@ hpaths  = [".", "/usr/include", "/usr/local/include"]
 -- OS-dependent suffix for dynamic libraries
 --
 dlsuffix :: String
-dlsuffix  = "@DLSUFFIX@"
+dlsuffix  = error "C2HSConfig.dlsuffix" -- used to be: "@DLSUFFIX@"
 
 -- possibly system-dependent location for temporary files
 --

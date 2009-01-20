@@ -231,19 +231,17 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/state/Switches.hs		\
 	tools/c2hs/toplevel/Main.hs		\
 	tools/c2hs/toplevel/Version.hs		\
-	tools/c2hs/toplevel/c2hs_config.c
-
-nodist_tools_c2hs_c2hsLocal_SOURCES =		\
+	tools/c2hs/toplevel/c2hs_config.c	\
 	tools/c2hs/toplevel/C2HSConfig.hs
 
 tools_c2hs_c2hsLocal_ALLSOURCES =		\
-	$(tools_c2hs_c2hsLocal_SOURCES)		\
-	$(nodist_tools_c2hs_c2hsLocal_SOURCES)
+	$(tools_c2hs_c2hsLocal_SOURCES)
 
 tools_c2hs_base_general_Binary_hs_HCFLAGS = -O -funbox-strict-fields
 tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
-tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = $(FFI) '-\#include<c2hs_config.h>'
+tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = $(FFI) '-\#include<c2hs_config.h>' \
+	-cpp -D_C2HS_CPP=\""$(CPP)"\" 
 
 tools/c2hs/c/CLexer.hs : tools/c2hs/c/CLexer.x
 	$(ALEX) --ghc -o $@ $<

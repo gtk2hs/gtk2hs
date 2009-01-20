@@ -902,7 +902,6 @@ AC_SUBST(CPP)
 dnl write the results...
 AC_CONFIG_FILES([
   Makefile
-  tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
   mk/link-splitobjs.sh
