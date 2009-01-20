@@ -2742,7 +2742,8 @@ if !HADDOCK2
 htmldoc_HSFILES =  $(filter-out $(htmldoc_HSFILES_EXCLUDE),	\
 		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
 
-$(htmldoc_haddock_files) : $(htmldoc_HSFILES)
+$(htmldoc_haddock_files) : docs/reference/stamp
+docs/reference/stamp : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
@@ -2750,6 +2751,8 @@ $(htmldoc_haddock_files) : $(htmldoc_HSFILES)
 		--prologue=docs/prologue.txt \
 		$(addprefix --use-package=,$(HADDOCK_PACKAGES)) \
 		$(HADDOCK_FLAGS) $^)
+	touch docs/reference/stamp
+CLEANFILES+=docs/reference/stamp
 else
 
 htmldoc_HSFILES =  $(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES))
@@ -2766,7 +2769,8 @@ htmldoc_haddock_interfaces = \
 	$(foreach DEPPKG,$(all_externaldeps),$(shell $(GHCPKG) field $(DEPPKG) haddock-interfaces | sed -e 's,^[^:]*:,,' -e 's,\\,/,g' ))
 endif
 
-$(htmldoc_haddock_files) : $(htmldoc_HSFILES)
+$(htmldoc_haddock_files) : docs/reference/stamp
+docs/reference/stamp : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
@@ -2776,7 +2780,8 @@ $(htmldoc_haddock_files) : $(htmldoc_HSFILES)
 		$(addprefix --optghc=,$(sort $(foreach PACKAGE, $(PACKAGES), $(libHS$(PACKAGE)_a_HCFLAGS) $(libHS$(PACKAGE)_a_CPPFLAGS))) \
 		                      $(sort $(foreach HSFILE, $(htmldoc_HSFILES_AM), $($(HSFILE)_HCFLAGS)))) \
 		$(HADDOCK_FLAGS) $^)
-
+	touch docs/reference/stamp
+CLEANFILES+=docs/reference/stamp
 endif
 
 doc_CLEANFILES  = $(htmldoc_haddock_files)
