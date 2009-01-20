@@ -2730,11 +2730,12 @@ htmldoc_haddock_files +=							  \
 	docs/reference/haddock-util.js						  \
 	docs/reference/frames.html						  \
 	docs/reference/index-frames.html
-endif
-
+else
 htmldoc_haddock_files +=							  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
 		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
+endif
+
 
 
 htmldoc_DATA = $(htmldoc_haddock_files) $(htmldoc_images)
