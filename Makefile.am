@@ -270,7 +270,7 @@ c2hs_MOSTLYCLEANFILES  = $(am_tools_c2hs_c2hsLocal_OBJECTS)
 c2hs_MOSTLYCLEANFILES += $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 c2hs_CLEANFILES = tools/c2hs/c2hsLocal.deps
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include tools/c2hs/c2hsLocal.deps
  endif
 
@@ -379,7 +379,7 @@ glib_CLEANFILES += \
 
 $(libHSglib_a_CHSFILES_HS): $(libHSglib_a_PRECOMP)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
  endif
 
@@ -403,7 +403,7 @@ libHSglib_p.a : $(libHSglib_a_HSFILES:.hs=.p_o) \
 		$(libHSglib_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include glib/libHSglib_a.p_deps
  endif
 
@@ -530,7 +530,7 @@ $(libHSgio_a_CHSFILES_HS): $(libHSgio_a_PRECOMP)
 $(libHSgio_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgio_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgio_a_CHSFILES:.chs=.dep) gio/libHSgio_a.deps
  endif
 
@@ -554,7 +554,7 @@ libHSgio_p.a : $(libHSgio_a_HSFILES:.hs=.p_o) \
 		$(libHSgio_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gio/libHSgio_a.p_deps
  endif
 
@@ -933,7 +933,7 @@ gtk_CLEANFILES += \
 $(libHSgtk_a_CHSFILES_HS): $(libHSgtk_a_PRECOMP)
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgtk_a_CHSFILES_HS:.hs=.dep) gtk/libHSgtk_a.deps
  endif
 
@@ -957,7 +957,7 @@ libHSgtk_p.a : $(libHSgtk_a_HSFILES:.hs=.p_o) \
 		$(libHSgtk_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gtk/libHSgtk_a.p_deps
  endif
 
@@ -1054,7 +1054,7 @@ $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSglade_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSglade_a_CHSFILES:.chs=.dep) glade/libHSglade_a.deps
  endif
 
@@ -1077,7 +1077,7 @@ libHSglade_p.a : $(libHSglade_a_HSFILES:.hs=.p_o) \
 		$(libHSglade_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include glade/libHSglade_a.p_deps
  endif
 
@@ -1200,7 +1200,7 @@ $(libHSgconf_a_CHSFILES_HS): $(libHSgconf_a_PRECOMP)
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
  endif
 
@@ -1223,7 +1223,7 @@ libHSgconf_p.a : $(libHSgconf_a_HSFILES:.hs=.p_o) \
 		$(libHSgconf_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gconf/libHSgconf_a.p_deps
  endif
 
@@ -1331,7 +1331,7 @@ $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSsourceview_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
  endif
 
@@ -1354,7 +1354,7 @@ libHSsourceview_p.a : $(libHSsourceview_a_HSFILES:.hs=.p_o) \
 		$(libHSsourceview_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include sourceview/libHSsourceview_a.p_deps
  endif
 
@@ -1478,7 +1478,7 @@ $(libHSgtksourceview2_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSgtksourceview2_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgtksourceview2_a_CHSFILES:.chs=.dep) gtksourceview2/libHSgtksourceview2_a.deps
  endif
 
@@ -1501,7 +1501,7 @@ libHSgtksourceview2_p.a : $(libHSgtksourceview2_a_HSFILES:.hs=.p_o) \
 		$(libHSgtksourceview2_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gtksourceview2/libHSgtksourceview2_a.p_deps
  endif
 
@@ -1597,7 +1597,7 @@ $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSmozembed_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSmozembed_a_CHSFILES:.chs=.dep) mozembed/libHSmozembed_a.deps
  endif
 
@@ -1620,7 +1620,7 @@ libHSmozembed_p.a : $(libHSmozembed_a_HSFILES:.hs=.p_o) \
 		$(libHSmozembed_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include mozembed/libHSmozembed_a.p_deps
  endif
 
@@ -1737,7 +1737,7 @@ cairo_CLEANFILES += \
 
 $(libHScairo_a_CHSFILES_HS): $(libHScairo_a_PRECOMP)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
  endif
 
@@ -1760,7 +1760,7 @@ libHScairo_p.a : $(libHScairo_a_HSFILES:.hs=.p_o) \
 		$(libHScairo_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include cairo/libHScairo_a.p_deps
  endif
 
@@ -1839,7 +1839,7 @@ svgcairo_CLEANFILES += \
 
 $(libHSsvgcairo_a_CHSFILES_HS): $(libHSsvgcairo_a_PRECOMP)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) svgcairo/libHSsvgcairo_a.deps
  endif
 
@@ -1862,7 +1862,7 @@ libHSsvgcairo_p.a : $(libHSsvgcairo_a_HSFILES:.hs=.p_o) \
 		$(libHSsvgcairo_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include svgcairo/libHSsvgcairo_a.p_deps
  endif
 
@@ -1966,7 +1966,7 @@ $(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSgtkglext_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgtkglext_a_CHSFILES:.chs=.dep) gtkglext/libHSgtkglext_a.deps
  endif
 
@@ -1989,7 +1989,7 @@ libHSgtkglext_p.a : $(libHSgtkglext_a_HSFILES:.hs=.p_o) \
 		$(libHSgtkglext_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gtkglext/libHSgtkglext_a.p_deps
  endif
 
@@ -2052,7 +2052,7 @@ soegtk_MOSTLYCLEANFILES  = $(am_libHSsoegtk_a_OBJECTS)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_BUILDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.deps
  endif
 
@@ -2075,7 +2075,7 @@ libHSsoegtk_p.a : $(libHSsoegtk_a_HSFILES:.hs=.p_o) \
 		$(libHSsoegtk_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.p_deps
  endif
 
@@ -2232,7 +2232,7 @@ $(libHSgnomevfs_a_CHSFILES_HS): $(libHSgnomevfs_a_PRECOMP)
 $(libHSgnomevfs_a_CHSFILES:.chs=.dep) :		\
 	$(libHSgnomevfs_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgnomevfs_a_CHSFILES:.chs=.dep) gnomevfs/libHSgnomevfs_a.deps
  endif
 
@@ -2255,7 +2255,7 @@ libHSgnomevfs_p.a : $(libHSgnomevfs_a_HSFILES:.hs=.p_o) \
 	$(libHSgnomevfs_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gnomevfs/libHSgnomevfs_a.p_deps
  endif
 
@@ -2533,7 +2533,7 @@ $(libHSgstreamer_a_CHSFILES_HS): $(libHSgstreamer_a_PRECOMP)
 $(libHSgstreamer_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgstreamer_a_GENERATEDSOURCES)
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include $(libHSgstreamer_a_CHSFILES:.chs=.dep) gstreamer/libHSgstreamer_a.deps
  endif
 
@@ -2558,7 +2558,7 @@ libHSgstreamer_p.a :				\
 	$(libHSgstreamer_a_CFILES:.c=.o)
 	$(AR) $(ARFLAGS) $@ $^
 
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+ifeq (,$(findstring clean,$(MAKECMDGOALS))$(findstring dist,$(MAKECMDGOALS)))
 -include gstreamer/libHSgstreamer_a.p_deps
  endif
 
