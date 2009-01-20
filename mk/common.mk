@@ -117,21 +117,17 @@ endif
 	$(if $(strip \
 	  $(if $(findstring c2hs,$@),\
 	  $(findstring clean,$(MAKECMDGOALS)),$(noDeps))),,\
-	$(strip if test -f $@; then touch $@; else \
 	touch $@; \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
-	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
 	  $(HC) -M $(DEP_MAKEFILE) $(addprefix -optdep,$(OPTDEP_F) $@) -fglasgow-exts \
 	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
 	  $(HCFLAGS_PACKAGE_DEPS) \
-	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
-	fi;))
+	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);))
 
 %.p_deps : package.conf.inplace
 	$(if $(strip \
 	  $(if $(findstring c2hs,$@),\
 	  $(findstring clean,$(MAKECMDGOALS)),$(noDeps))),,\
-	$(strip if test -f $@; then touch $@; else \
 	touch $@; \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
@@ -139,8 +135,7 @@ endif
 	  -hisuf p_hi -osuf p_o \
 	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
 	  $(HCFLAGS_PACKAGE_DEPS) \
-	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
-	fi;))
+	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);))
 
 .chs.dep :
 	$(CHSDEPEND) -i$(CHS_SEARCH_PATH) $<
@@ -170,7 +165,7 @@ endif
 # Same for .chi
 .PRECIOUS: %.chi
 
-%.precomp :
+%.precomp : $(C2HS)
 	$(strip $(C2HS) $(C2HS_FLAGS)		\
 	+RTS $(HSTOOLFLAGS) $(PROFFLAGS) -RTS		\
 	$(addprefix -C,$($(PKG)_CFLAGS) $($(PKG)_CPPFLAGS))		\
@@ -203,11 +198,7 @@ endif
 	--include $($(PKG)_HEADER) \
         --cc="$(HC)" --lflag=-no-hs-main $<)
 
-.chs.hs: 
-	$(strip if test -x $(C2HS); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) $(C2HS); fi;)
-	$(strip if test -f $($(PKG)_PRECOMP); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
+.chs.hs: $(C2HS)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
 	-i$(CHS_SEARCH_PATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)

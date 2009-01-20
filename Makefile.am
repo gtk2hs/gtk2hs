@@ -264,6 +264,8 @@ tools_c2hs_c2hsLocal_HSFILES		= \
 # Fix automake - the subdir-objects option doesn't work here.
 am_tools_c2hs_c2hsLocal_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_ALLSOURCES)))
+$(am_tools_c2hs_c2hsLocal_OBJECTS): | tools/c2hs/c2hsLocal.deps
+tools/c2hs/c2hsLocal.deps: $(tools_c2hs_c2hsLocal_HSFILES)
 c2hs_MOSTLYCLEANFILES  = $(am_tools_c2hs_c2hsLocal_OBJECTS)
 c2hs_MOSTLYCLEANFILES += $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 c2hs_CLEANFILES = tools/c2hs/c2hsLocal.deps
@@ -291,6 +293,8 @@ libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
 libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
 libHSglib_a_SOURCESDIRS		= glib
+
+glib/libHSglib_a.deps	: $(libHSglib_a_HSFILES)
 
 libHSglib_a_SOURCES =	        		\
 	glib/System/Glib.hs			\
@@ -373,6 +377,7 @@ glib_CLEANFILES += \
 	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSglib_a_CHSFILES_HS): $(libHSglib_a_PRECOMP)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
@@ -433,7 +438,7 @@ libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GIO_CFLAGS))
 
 libHSgio_a_SOURCESDIRS		= gio
 
-gio/libHSgio_a.deps	: glib/libHSglib_a.deps
+gio/libHSgio_a.deps	: $(libHSgio_a_HSFILES) | glib/libHSglib_a.deps
 
 libHSgio_a_GENERATEDSOURCES =			\
 	gio/System/GIO/Types.chs		\
@@ -521,6 +526,7 @@ gio_CLEANFILES += \
 	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.c)	\
 	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgio_a_CHSFILES_HS): $(libHSgio_a_PRECOMP)
 $(libHSgio_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgio_a_GENERATEDSOURCES)
 
@@ -585,11 +591,11 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
 libHSgtk_a_SOURCESDIRS		= gtk
 
-gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
+gtk/libHSgtk_a.deps	: $(libHSgtk_a_HSFILES) | glib/libHSglib_a.deps
 
 if ENABLE_CAIRO
 libHSgtk_a_INTERNALDEPS += cairo
-gtk/libHSgtk_a.deps	: cairo/libHScairo_a.deps
+gtk/libHSgtk_a.deps	: | cairo/libHScairo_a.deps
 endif
 
 libHSgtk_a_GENERATEDSOURCES =						\
@@ -924,6 +930,7 @@ gtk_CLEANFILES += \
 	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.c)	\
 	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgtk_a_CHSFILES_HS): $(libHSgtk_a_PRECOMP)
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
@@ -984,7 +991,7 @@ libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLAD
 
 libHSglade_a_SOURCESDIRS	= glade
 
-glade/libHSglade_a.deps	: gtk/libHSgtk_a.deps
+glade/libHSglade_a.deps	: $(libHSglade_a_HSFILES) | gtk/libHSgtk_a.deps
 
 libHSglade_a_GENERATEDSOURCES =	\
 	glade/Graphics/UI/Gtk/Glade/Types.chs
@@ -1042,6 +1049,7 @@ glade_CLEANFILES += \
 	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.c)		\
 	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSglade_a_CHSFILES_HS): $(libHSglade_a_PRECOMP)
 $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSglade_a_GENERATEDSOURCES)
@@ -1108,7 +1116,7 @@ libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
 libHSgconf_a_SOURCESDIRS	= gconf
 
-gconf/libHSgconf_a.deps	: glib/libHSglib_a.deps
+gconf/libHSgconf_a.deps	: $(libHSgconf_a_HSFILES) | glib/libHSglib_a.deps
 
 libHSgconf_a_GENERATEDSOURCES =				\
 	gconf/System/Gnome/GConf/Types.chs		\
@@ -1188,6 +1196,7 @@ gconf_CLEANFILES += \
 	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgconf_a_CHSFILES_HS): $(libHSgconf_a_PRECOMP)
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
 
@@ -1248,7 +1257,7 @@ libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOU
 
 libHSsourceview_a_SOURCESDIRS	= sourceview
 
-sourceview/libHSsourceview_a.deps	: gtk/libHSgtk_a.deps
+sourceview/libHSsourceview_a.deps	: $(libHSsourceview_a_HSFILES) | gtk/libHSgtk_a.deps
 
 libHSsourceview_a_GENERATEDSOURCES =						\
 	sourceview/Graphics/UI/Gtk/SourceView/Types.chs
@@ -1317,6 +1326,7 @@ sourceview_CLEANFILES += \
 	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSsourceview_a_CHSFILES_HS): $(libHSsourceview_a_PRECOMP)
 $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSsourceview_a_GENERATEDSOURCES)
@@ -1378,7 +1388,7 @@ libHSgtksourceview2_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $
 
 libHSgtksourceview2_a_SOURCESDIRS	= gtksourceview2
 
-gtksourceview2/libHSgtksourceview2_a.deps	: gtk/libHSgtk_a.deps
+gtksourceview2/libHSgtksourceview2_a.deps	: $(libHSgtksourceview2_a_HSFILES) | gtk/libHSgtk_a.deps
 
 libHSgtksourceview2_a_GENERATEDSOURCES =					\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs			\
@@ -1463,6 +1473,7 @@ gtksourceview2_CLEANFILES += \
 	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgtksourceview2_a_CHSFILES_HS): $(libHSgtksourceview2_a_PRECOMP)
 $(libHSgtksourceview2_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSgtksourceview2_a_GENERATEDSOURCES)
@@ -1524,7 +1535,7 @@ libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEM
 
 libHSmozembed_a_SOURCESDIRS	= mozembed
 
-mozembed/libHSmozembed_a.deps	: gtk/libHSgtk_a.deps
+mozembed/libHSmozembed_a.deps	: $(libHSmozembed_a_HSFILES) | gtk/libHSgtk_a.deps
 
 libHSmozembed_a_GENERATEDSOURCES =			\
 	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
@@ -1581,6 +1592,7 @@ mozembed_CLEANFILES += \
 	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSmozembed_a_CHSFILES_HS): $(libHSmozembed_a_PRECOMP)
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSmozembed_a_GENERATEDSOURCES)
@@ -1645,7 +1657,7 @@ libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS))
 
 libHScairo_a_SOURCESDIRS	= cairo
 
-cairo/libHScairo_a.deps: glib/libHSglib_a.deps
+cairo/libHScairo_a.deps: $(libHScairo_a_HSFILES) | glib/libHSglib_a.deps
 
 libHScairo_a_GENERATEDSOURCES =
 
@@ -1723,6 +1735,8 @@ cairo_CLEANFILES += \
 	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHScairo_a_CHSFILES_HS): $(libHScairo_a_PRECOMP)
+
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
  endif
@@ -1780,7 +1794,7 @@ libHSsvgcairo_a_CPPFLAGS	= $(filter -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 
 libHSsvgcairo_a_SOURCESDIRS	= svgcairo
 
-svgcairo/libHSsvgcairo_a.deps: cairo/libHSsvgcairo_a.deps
+svgcairo/libHSsvgcairo_a.deps: $(libHSsvgcairo_a_HSFILES) | cairo/libHScairo_a.deps
 
 libHSsvgcairo_a_GENERATEDSOURCES =
 
@@ -1823,8 +1837,10 @@ svgcairo_CLEANFILES += \
 	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSsvgcairo_a_CHSFILES_HS): $(libHSsvgcairo_a_PRECOMP)
+
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
--include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
+-include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) svgcairo/libHSsvgcairo_a.deps
  endif
 
 if ENABLE_SPLITOBJS
@@ -1880,7 +1896,7 @@ libHSgtkglext_a_CPPFLAGS	= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(G
 
 libHSgtkglext_a_SOURCESDIRS	= gtkglext
 
-gtkglext/libHSgtkglext_a.deps	: gtk/libHSgtk_a.deps
+gtkglext/libHSgtkglext_a.deps	: $(libHSgtkglext_a_HSFILES) | gtk/libHSgtk_a.deps
 
 libHSgtkglext_a_GENERATEDSOURCES =					\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs
@@ -1945,6 +1961,7 @@ gtkglext_CLEANFILES += \
 	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgtkglext_a_CHSFILES_HS): $(libHSgtkglext_a_PRECOMP)
 $(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSgtkglext_a_GENERATEDSOURCES)
@@ -2008,7 +2025,7 @@ libHSsoegtk_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
 
 libHSsoegtk_a_SOURCESDIRS	= soegtk
 
-soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
+soegtk/libHSsoegtk_a.deps	: $(libHSsoegtk_a_HSFILES) | gtk/libHSgtk_a.deps
 
 if ENABLE_CAIRO
 libHSsoegtk_a_EXTERNALDEPS += mtl-$(PKG_MTL_VERSION)
@@ -2110,7 +2127,7 @@ if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgnomevfs_a_LIBADD += gnomevfs/System/Gnome/VFS/Signals_stub.o
 endif
 
-gnomevfs/libHSgnomevfs_a.deps	: glib/libHSglib_a.deps
+gnomevfs/libHSgnomevfs_a.deps	: $(libHSgnomevfs_a_HSFILES) glib/libHSglib_a.deps
 
 libHSgnomevfs_a_GENERATEDSOURCES	=		\
 	gnomevfs/System/Gnome/VFS/Signals.chs		\
@@ -2211,6 +2228,7 @@ gnomevfs_CLEANFILES += \
 	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgnomevfs_a_CHSFILES_HS): $(libHSgnomevfs_a_PRECOMP)
 $(libHSgnomevfs_a_CHSFILES:.chs=.dep) :		\
 	$(libHSgnomevfs_a_GENERATEDSOURCES)
 
@@ -2286,7 +2304,7 @@ if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgstreamer_a_LIBADD += gstreamer/Media/Streaming/GStreamer/Core/Signals_stub.o
 endif
 
-gstreamer/libHSgstreamer_a.deps	: glib/libHSglib_a.deps
+gstreamer/libHSgstreamer_a.deps	: $(libHSgstreamer_a_HSFILES) | glib/libHSglib_a.deps
 
 libHSgstreamer_a_GENERATEDSOURCES	=				\
 	gstreamer/Media/Streaming/GStreamer/Core/Signals.chs		\
@@ -2511,6 +2529,7 @@ gstreamer_CLEANFILES += \
 	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.o)
 
+$(libHSgstreamer_a_CHSFILES_HS): $(libHSgstreamer_a_PRECOMP)
 $(libHSgstreamer_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgstreamer_a_GENERATEDSOURCES)
 
