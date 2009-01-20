@@ -88,17 +88,26 @@ sourceLanguageManagerGetLanguageIds slm = do
 
 -- |
 --
-sourceLanguageManagerGetLanguage :: SourceLanguageManager -> String -> IO SourceLanguage
-sourceLanguageManagerGetLanguage slm id = makeNewGObject mkSourceLanguage $ liftM castPtr $
-  withUTFString id ({#call unsafe source_language_manager_get_language#} slm)
+sourceLanguageManagerGetLanguage :: SourceLanguageManager -> String -> IO (Maybe SourceLanguage)
+sourceLanguageManagerGetLanguage slm id = do
+  slPtr <- liftM castPtr $
+    withUTFString id ({#call unsafe source_language_manager_get_language#} slm)
+  if slPtr /= nullPtr
+    then liftM Just $ makeNewGObject mkSourceLanguage $ return slPtr
+    else return Nothing
 
 #if GTKSOURCEVIEW2_CHECK_VERSION(2,4,0)
 -- |
 --
-sourceLanguageManagerGuessLanguage slm filename contentType = makeNewGObject mkSourceLanguage $ liftM castPtr $
-  withUTFString filename $ \cFilename ->
-  withUTFString contentType $ \cContentType ->
-  {#call unsafe source_language_manager_guess_language#} slm cFilename cContentType
+sourceLanguageManagerGuessLanguage :: SourceLanguageManager -> Maybe String -> Maybe String -> IO (Maybe SourceLanguage)
+sourceLanguageManagerGuessLanguage slm filename contentType =
+  maybeWith withUTFString filename $ \cFilename ->
+  maybeWith withUTFString contentType $ \cContentType -> do
+    slPtr <- liftM castPtr $
+      {#call unsafe source_language_manager_guess_language#} slm cFilename cContentType
+    if slPtr /= nullPtr
+      then liftM Just $ makeNewGObject mkSourceLanguage $ return slPtr
+      else return Nothing
 #endif
 
 -- |
