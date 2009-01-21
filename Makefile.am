@@ -801,6 +801,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/General/Selection.chs.pp \
 	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
 	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
+gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.o: gtk/Graphics/UI/Gtk/ModelView/CustomStore.o
 
 if ENABLE_CAIRO
 libHSgtk_a_SOURCES +=					 		\
