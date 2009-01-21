@@ -905,6 +905,7 @@ AC_CONFIG_FILES([
   gtk2hs.spec
   mk/chsDepend
   mk/link-splitobjs.sh
+  mk/fix-package-conf.sh
   docs/prologue.txt
 
   glib/glib.package.conf			glib/glib.cabal

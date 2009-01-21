@@ -1,0 +1,84 @@
+#!/bin/sh
+
+FILE="$1"
+MODULES="$2"
+TMPFILE="${FILE}.tmp"
+
+if [ "$#" != 2 ] ; then
+  echo "usage: $0 foo.package.conf \"Module1 Module2 ...\"" 1>&2
+  exit 1
+fi
+
+if [ ! -f "$FILE" ] ; then
+  echo "$FILE does not exist"
+  exit 1
+fi
+
+WIN32_INSTALLER=
+@WIN32_INSTALLER_TRUE@ WIN32_INSTALLER=yes
+
+if [ -z "$WIN32_INSTALLER" ] ; then
+  
+  @SED@ \
+    -e 's|\${pkglibdir}|@libdir@/@PACKAGE@|g'
+    -e "s|\${modules}|${MODULES}|" \
+    < "${FILE}" > "${TMPFILE}" || exit 1
+  
+else # WIN32_INSTALLER
+
+  @SED@ \
+    -e 's|@GTK_BASEPATH@|${GTK_BASEPATH}|g' \
+    -e "s|\${modules}|${MODULES}|" \
+    < "${FILE}" > "${TMPFILE}" || exit 1
+
+  DLLS=""
+
+  ORIG_SHORTNAMES="$( cat "$FILE" | \
+    @GREP@ '^[ 	]*extra-libraries[ 	]*:' | \
+    @SED@ -e 's/^[ 	]*extra-libraries[ 	]*:[   ]*//' -e 's/[   ]*,[    ]*/ /g' -e 's,\",,g' )"
+
+  echo "processing $FILE" 1>&2
+  for lib in $ORIG_SHORTNAMES ; do
+    echo "processing library $lib" 1>&2
+    
+    case $lib in
+      glu32|opengl32|user32|kernel32|gdi32)
+        DLLS="$DLLS $lib"
+        ;;
+      *)
+        foundfile=
+        IFS=:
+        for dir in $PATH ; do
+          unset IFS
+          for base in {,lib}${lib} {,lib}${lib}-{0,1,2,3,4,5,6,7,8,9} ; do
+            testfile="$dir/$base.dll"
+            #echo "testing $testfile" 1>&2
+            if [ -f "$testfile" ] ; then
+              if [ -n "$foundfile" ] ; then
+                echo duplicate found for "$lib": "$testfile" 1>&2
+                exit 1
+              else
+                foundfile="$testfile"
+                echo "found $foundfile" 1>&2
+                if [ -n "$DLLS" ]; then
+                  DLLS="$DLLS, \"$base\""
+                else
+                  DLLS="\"$base\""
+                fi
+              fi
+            fi
+          done
+        done
+        if [ -z "$foundfile" ]
+        then
+          echo "file for $lib not found" 1>&2
+          exit 1
+        fi
+        ;;
+    esac
+  done
+  
+  echo "extra-ghci-libraries: ${DLLS}" >> "$TMPFILE"
+fi
+
+mv -f "$TMPFILE" "$FILE" || exit 1

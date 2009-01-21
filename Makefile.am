@@ -2979,18 +2979,17 @@ pkglib_DATA += $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),C
 # Before we install the .pkg/.package.conf files we need to substitute for the
 # ${pkglibdir} and ${modules} variables.
 if !WIN32_INSTALLER
-install-exec-local:
+install-exec-hook:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SED)	-e 's|$${pkglibdir}|$(pkglibdir)|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
 		$(call getVar,$(pkgname),CONFIG) \
-	> $(call getVar,$(pkgname),CONFIG).tmp; \
-	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG); \
+	> $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)).tmp; \
+	mv $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)){.tmp,} ; \
 	$(SED)	's|$${modules}|$(call getModules,$(pkgname))|' \
 		$(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)) \
-	> $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp; \
-	mv $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp \
-	   $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG));)
+	> $(DESTDIR)/$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))).tmp; \
+	mv $(DESTDIR)/$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))){.tmp,};)
 
 else WIN32_INSTALLER
 # Except on Windows if we're makeing an installer where we delay the variable
@@ -3004,13 +3003,13 @@ else WIN32_INSTALLER
 # ghc. Eg while it's gtk-2.0.lib it's libgtk-2.0-0.dll.
 # We generate the "extra-ghci-libraries:" field from the "extra-libraries:"
 # field using a bit of cunning sed hackery.
-install-exec-local:
+install-exec-hook:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	$(SED)	-e 's|$(GTK_BASEPATH)|$${GTK_BASEPATH}|g' \
-		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
-		$(call getVar,$(pkgname),CONFIG) \
-	> $(call getVar,$(pkgname),CONFIG).tmp; \
-	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG);)
+	$(SHELL) mk/fix-package-conf.sh \
+	         $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)) \
+	         "$(call getModules,$(pkgname))" && \
+	) true
+
 endif WIN32_INSTALLER
 
 COMMA := ,
