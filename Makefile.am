@@ -487,6 +487,7 @@ libHSgio_a_ALLSOURCES = $(libHSgio_a_SOURCES) $(nodist_libHSgio_a_SOURCES)
 
 am_libHSgio_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_ALLSOURCES))))
+$(libHSgio_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_ALLSOURCES))
 libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_ALLSOURCES))
@@ -893,6 +894,11 @@ libHSgtk_a_ALLSOURCES = $(libHSgtk_a_SOURCES) $(nodist_libHSgtk_a_SOURCES)
 
 am_libHSgtk_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_ALLSOURCES))))
+libHSgtk_a_objects_deps = $(libHSglib_a_OBJECTS)
+if ENABLE_CAIRO
+libHSgtk_a_objects_deps += $(libHScairo_a_OBJECTS)
+endif
+$(libHSgtk_a_OBJECTS) : $(libHSgtk_a_objects_deps)
 
 libHSgtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_ALLSOURCES))
@@ -1017,6 +1023,7 @@ libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
 
 am_libHSglade_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_ALLSOURCES))))
+$(libHSglade_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSglade_a_HSPPFILES  = $(filter %.hs.pp, $(libHSglade_a_ALLSOURCES))
 libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_ALLSOURCES))
@@ -1160,6 +1167,7 @@ libHSgconf_a_ALLSOURCES = $(libHSgconf_a_SOURCES) $(nodist_libHSgconf_a_SOURCES)
 
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_ALLSOURCES))))
+$(libHSgconf_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgconf_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_ALLSOURCES))
@@ -1294,6 +1302,7 @@ libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsource
 
 am_libHSsourceview_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_ALLSOURCES))))
+$(libHSsourceview_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSsourceview_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_ALLSOURCES))
@@ -1441,6 +1450,7 @@ libHSgtksourceview2_a_ALLSOURCES = $(libHSgtksourceview2_a_SOURCES) $(nodist_lib
 
 am_libHSgtksourceview2_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtksourceview2_a_ALLSOURCES))))
+$(libHSgtksourceview2_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSgtksourceview2_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtksourceview2_a_ALLSOURCES))
 libHSgtksourceview2_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtksourceview2_a_ALLSOURCES))
@@ -1561,6 +1571,7 @@ libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a
 
 am_libHSmozembed_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_ALLSOURCES))))
+$(libHSmozembed_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSmozembed_a_HSPPFILES  = $(filter %.hs.pp, $(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_ALLSOURCES))
@@ -1703,6 +1714,7 @@ libHScairo_a_ALLSOURCES = $(libHScairo_a_SOURCES) $(nodist_libHScairo_a_SOURCES)
 
 am_libHScairo_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHScairo_a_ALLSOURCES))))
+$(libHScairo_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHScairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHScairo_a_ALLSOURCES))
 libHScairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHScairo_a_ALLSOURCES))
@@ -1805,6 +1817,7 @@ libHSsvgcairo_a_ALLSOURCES = $(libHSsvgcairo_a_SOURCES) $(nodist_libHSsvgcairo_a
 
 am_libHSsvgcairo_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsvgcairo_a_ALLSOURCES))))
+$(libHSsvgcairo_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHScairo_a_OBJECTS)
 
 libHSsvgcairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsvgcairo_a_ALLSOURCES))
 libHSsvgcairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsvgcairo_a_ALLSOURCES))
@@ -1929,6 +1942,7 @@ libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a
 
 am_libHSgtkglext_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtkglext_a_ALLSOURCES))))
+$(libHSgtkglext_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSgtkglext_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtkglext_a_ALLSOURCES))
 libHSgtkglext_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtkglext_a_ALLSOURCES))
@@ -2036,6 +2050,7 @@ libHSsoegtk_a_SOURCES =			\
 
 am_libHSsoegtk_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsoegtk_a_SOURCES))))
+$(libHSsoegtk_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSsoegtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSsoegtk_a_SOURCES))
 libHSsoegtk_a_BUILDSOURCES = \
@@ -2191,6 +2206,7 @@ gnomevfs/System/Gnome/VFS/Signals.chs : \
 
 am_libHSgnomevfs_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgnomevfs_a_ALLSOURCES))))
+$(libHSgnomevfs_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgnomevfs_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgnomevfs_a_ALLSOURCES))
 libHSgnomevfs_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgnomevfs_a_ALLSOURCES))
@@ -2492,6 +2508,7 @@ gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs :				\
 
 am_libHSgstreamer_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgstreamer_a_ALLSOURCES))))
+$(libHSgstreamer_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgstreamer_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgstreamer_a_ALLSOURCES))
 libHSgstreamer_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgstreamer_a_ALLSOURCES))
