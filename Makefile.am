@@ -2936,6 +2936,7 @@ EXTRA_DIST +=								\
 		demo/treeList/resListDND/printer.png			\
 		demo/treeList/resListDND/server.png			\
 		demo/treeList/resListDND/tower.png			\
+		demo/treeList/TreeSort.hs				\
 		demo/treeList/Makefile					\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
 	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
