@@ -9,7 +9,7 @@ echo "Building Gtk2Hs ${VERSION} with GHC ${GHC_VERSION} and Gtk+ ${GTK_VERSION}
 
 VERSION_SUFFIX="ghc-${GHC_VERSION}"
 VERSIONED_DIR="gtk2hs-${VERSION}-${VERSION_SUFFIX}"
-BUILD_DIR="build-${VERSIONED_DIR}"
+BUILD_DIR="`pwd`/build-${VERSIONED_DIR}"
 
 CONFIGURE_FLAGS="--enable-packager-mode --enable-split-objs --enable-profiling --enable-docs"
 ENABLE_PACKAGES="--enable-gtk --enable-libglade --enable-opengl --enable-gio --enable-gstreamer --enable-cairo --enable-svg --enable-gconf --enable-gtksourceview2"
@@ -17,10 +17,10 @@ ENABLE_PACKAGES="--enable-gtk --enable-libglade --enable-opengl --enable-gio --e
 rm -rf ${BUILD_DIR}
 if [ ! -d ${BUILD_DIR} ] ; then
   mkdir ${BUILD_DIR}
-  cd ${BUILD_DIR}
+  pushd ${BUILD_DIR}
   tar -xzf ../gtk2hs-${VERSION}.tar.gz
 else
-  cd ${BUILD_DIR}
+  pushd ${BUILD_DIR}
 fi
 cd gtk2hs-${VERSION}
 
@@ -31,8 +31,8 @@ if [ ! -f Makefile ] ; then
   XARGS="/bin/xargs -L128" ./configure --prefix=$PREFIX ${CONFIGURE_FLAGS} ${ENABLE_PACKAGES} ${CONFIGURE_EXTRAFLAGS} || exit 1
 fi
 
-make HSTOOLFLAGS=-M256m
-make install DESTDIR="$DESTDIR"
+make HSTOOLFLAGS=-M256m || exit 1
+make install DESTDIR="$DESTDIR" || exit 1
 
 rm -rf "$/ghclibs"
 INSTALL_GHC_LIBS_DIR=${INSTALL_SOURCE_DIR}/gtk2hs-${VERSION}-ghc-${GHC_VERSION}
@@ -44,11 +44,12 @@ mkdir -p ${INSTALL_CLIBS_DIR} || exit 1
 mkdir -p ${INSTALL_DOC_DIR} || exit 1
 mkdir -p ${INSTALL_DEMO_DIR} || exit 1
 
-cp -av $PREFIX/* ${INSTALL_CLIBS_DIR} || exit 1
-mv -v ${DESTDIR}/${PREFIX}/lib ${INSTALL_GHC_LIBS_DIR} || exit 1
+cp -a $PREFIX/* ${INSTALL_CLIBS_DIR} || exit 1
+mv ${DESTDIR}/${PREFIX}/lib ${INSTALL_GHC_LIBS_DIR} || exit 1
 mkdir -p ${INSTALL_DOC_DIR}/share/doc || exit 1
-mv -v ${DESTDIR}/${PREFIX}/share/doc/gtk2hs/html ${INSTALL_DOC_DIR}/share/doc || exit 1
+mv ${DESTDIR}/${PREFIX}/share/doc/gtk2hs/html ${INSTALL_DOC_DIR}/share/doc || exit 1
 mkdir -p ${INSTALL_DEMO_DIR}/share/demo || exit 1
-cp -av ${BUILD_DIR}/gtk2hs-${VERSION}/demo/* ${INSTALL_DEMO_DIR}/share/demo/ || exit 1
+cp -a ${BUILD_DIR}/gtk2hs-${VERSION}/demo/* ${INSTALL_DEMO_DIR}/share/demo/ || exit 1
 
-rm -rf ${BUILD_DIR}
+popd
+rm -rf ${BUILD_DIR} ${DESTDIR}

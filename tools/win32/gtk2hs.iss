@@ -437,15 +437,18 @@ end;
 procedure PackageFileVarSubstitute(const PackageFile: String);
 var
   PackageFileContent: String;
+  BaseDir: String;
   PackageLibDir: String;
 begin
-  PackageLibDir := ExpandConstant('{app}') + '\lib\gtk2hs';
+  BaseDir := ExpandConstant('{app}');
+  PackageLibDir := BaseDir + '\lib\gtk2hs';
+  StringChange(BaseDir, '\', '/');
   StringChange(PackageLibDir, '\', '/');
   
   LoadStringFromFile(PackageFile, PackageFileContent);
 
   StringChange(PackageFileContent, '${pkglibdir}', PackageLibDir);
-  StringChange(PackageFileContent, '${GTK_BASEPATH}', PackageLibDir);
+  StringChange(PackageFileContent, '${GTK_BASEPATH}', BaseDir);
   
   SaveStringToFile(PackageFile, PackageFileContent, False);
   Log('Expanding variables in ' + PackageFile);
