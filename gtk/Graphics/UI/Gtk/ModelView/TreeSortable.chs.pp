@@ -24,7 +24,8 @@
 -- be confusing.
 --
 -- |
--- Maintainer  : gtk2hs-users@lists.sourceforge.net Stability   : provisional
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
 -- The interface for sortable models used by 'TreeView'
