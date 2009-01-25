@@ -28,12 +28,22 @@
 
 #include <gst/gst.h>
 
+#if !((GST_VERSION_MAJOR > 0) ||                                        \
+      (GST_VERSION_MAJOR == 0 && GST_VERSION_MINOR > 10) ||                 \
+      (GST_VERSION_MAJOR == 0 && GST_VERSION_MINOR == 10 && GST_VERSION_MICRO >= 18))
+#define GST_CHECK_VERSION(major,minor,micro)    \
+  (GST_VERSION_MAJOR > (major) || \
+  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR > (minor)) || \
+  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR == (minor) && \
+   GST_VERSION_MICRO >= (micro)))
+#endif
+
 #include <gst/base/gstadapter.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasesrc.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/base/gstcollectpads.h>
-#if GST_VERSION_MAJOR > 0 || GST_VERSION_MINOR > 10 || GST_VERSION_MICRO > 10
+#if GST_CHECK_VERSION(0,10,10)
 #include <gst/base/gstdataqueue.h>
 #endif
 #include <gst/base/gstpushsrc.h>
@@ -43,14 +53,6 @@
 #include <gst/dataprotocol/dataprotocol.h>
 #include <gst/audio/audio.h>
 #include <gst/audio/gstaudioclock.h>
-
-#if !(GST_VERSION_MAJOR > 0 || GST_VERSION_MINOR > 10 || GST_VERSION_MICRO > 18)
-#define GST_CHECK_VERSION(major,minor,micro)    \
-  (GST_VERSION_MAJOR > (major) || \
-  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR > (minor)) || \
-  (GST_VERSION_MAJOR == (major) && GST_VERSION_MINOR == (minor) && \
-   GST_VERSION_MICRO >= (micro)))
-#endif
 
 guint    _hs_gst_object_flags (GstObject* obj);
 void     _hs_gst_object_flag_set (GstObject* obj, guint flags);
