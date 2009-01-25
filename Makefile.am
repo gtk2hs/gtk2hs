@@ -295,8 +295,6 @@ libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
 libHSglib_a_SOURCESDIRS		= glib
 
-glib/libHSglib_a.deps	: $(libHSglib_a_HSFILES)
-
 libHSglib_a_SOURCES =	        		\
 	glib/System/Glib.hs			\
 	glib/System/Glib/FFI.hs.pp		\
@@ -378,7 +376,13 @@ glib_CLEANFILES += \
 	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSglib_a_HSCFILES:.hsc=_hsc_make.o)
 
+glib/libHSglib_a.deps: $(libHSglib_a_HSFILES) | \
+	$(foreach pkg,$(libHSglib_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSglib_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,glib $(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSglib_a_CHSFILES_HS): $(libHSglib_a_PRECOMP)
+$(libHSglib_a_OBJECTS) : \
+	$(foreach pkg,$(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSglib_a_CHSFILES:.chs=.dep)
 
@@ -441,8 +445,6 @@ libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GIO_CFLAGS))
 
 libHSgio_a_SOURCESDIRS		= gio
 
-gio/libHSgio_a.deps	: $(libHSgio_a_HSFILES) | glib/libHSglib_a.deps
-
 libHSgio_a_GENERATEDSOURCES =			\
 	gio/System/GIO/Types.chs		\
 	gio/System/GIO/Signals.chs
@@ -492,7 +494,6 @@ libHSgio_a_ALLSOURCES = $(libHSgio_a_SOURCES) $(nodist_libHSgio_a_SOURCES)
 
 am_libHSgio_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_ALLSOURCES))))
-$(libHSgio_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_ALLSOURCES))
 libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_ALLSOURCES))
@@ -530,9 +531,13 @@ gio_CLEANFILES += \
 	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.c)	\
 	$(libHSgio_a_HSCFILES:.hsc=_hsc_make.o)
 
+gio/libHSgio_a.deps: $(libHSgio_a_HSFILES) | \
+	$(foreach pkg,$(libHSgio_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgio_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gio $(libHSgio_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSgio_a_CHSFILES_HS): $(libHSgio_a_PRECOMP)
-$(libHSgio_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgio_a_GENERATEDSOURCES)
+$(libHSgio_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgio_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgio_a_CHSFILES:.chs=.dep)
 
@@ -590,7 +595,6 @@ endif
 libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/hsgtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
-$(libHSgtk_a_PRECOMP): $(libHSgtk_a_HEADER)
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
 libHSgtk_a_HCFLAGS		= $(FFI)
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
@@ -598,11 +602,8 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS)) -I.
 
 libHSgtk_a_SOURCESDIRS		= gtk
 
-gtk/libHSgtk_a.deps	: $(libHSgtk_a_HSFILES) | glib/libHSglib_a.deps
-
 if ENABLE_CAIRO
 libHSgtk_a_INTERNALDEPS += cairo
-gtk/libHSgtk_a.deps	: | cairo/libHScairo_a.deps
 endif
 
 libHSgtk_a_GENERATEDSOURCES =						\
@@ -907,7 +908,6 @@ libHSgtk_a_objects_deps = $(libHSglib_a_OBJECTS)
 if ENABLE_CAIRO
 libHSgtk_a_objects_deps += $(libHScairo_a_OBJECTS)
 endif
-$(libHSgtk_a_OBJECTS) : $(libHSgtk_a_objects_deps)
 
 libHSgtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_ALLSOURCES))
@@ -943,8 +943,15 @@ gtk_CLEANFILES += \
 	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.c)	\
 	$(libHSgtk_a_HSCFILES:.hsc=_hsc_make.o)
 
-$(libHSgtk_a_CHSFILES_HS): $(libHSgtk_a_PRECOMP)
-$(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
+$(libHSgtk_a_PRECOMP): $(libHSgtk_a_HEADER)
+gtk/libHSgtk_a.deps: $(libHSgtk_a_HSFILES) | \
+	$(foreach pkg,$(libHSgtk_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgtk_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gtk $(libHSgtk_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSgtk_a_CHSFILES_HS): $(libHSgtk_a_PRECOMP) $(libHSgtk_a_HEADER)
+$(libHSgtk_a_HSCFILES_HS): $(libHSgtk_a_HEADER)
+$(libHSgtk_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgtk_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgtk_a_CHSFILES:.chs=.dep)
 
@@ -1006,8 +1013,6 @@ libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLAD
 
 libHSglade_a_SOURCESDIRS	= glade
 
-glade/libHSglade_a.deps	: $(libHSglade_a_HSFILES) | gtk/libHSgtk_a.deps
-
 libHSglade_a_GENERATEDSOURCES =	\
 	glade/Graphics/UI/Gtk/Glade/Types.chs
 
@@ -1034,7 +1039,6 @@ libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
 
 am_libHSglade_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_ALLSOURCES))))
-$(libHSglade_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSglade_a_HSPPFILES  = $(filter %.hs.pp, $(libHSglade_a_ALLSOURCES))
 libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_ALLSOURCES))
@@ -1065,10 +1069,13 @@ glade_CLEANFILES += \
 	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.c)		\
 	$(libHSglade_a_HSCFILES:.hsc=_hsc_make.o)
 
+glade/libHSglade_a.deps: $(libHSglade_a_HSFILES) | \
+	$(foreach pkg,$(libHSglade_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSglade_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,glade $(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSglade_a_CHSFILES_HS): $(libHSglade_a_PRECOMP)
-$(libHSglade_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgtk_a_GENERATEDSOURCES)	\
-	$(libHSglade_a_GENERATEDSOURCES)
+$(libHSglade_a_OBJECTS) : \
+	$(foreach pkg,$(libHSglade_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSglade_a_CHSFILES:.chs=.dep)
 
@@ -1134,8 +1141,6 @@ libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
 libHSgconf_a_SOURCESDIRS	= gconf
 
-gconf/libHSgconf_a.deps	: $(libHSgconf_a_HSFILES) | glib/libHSglib_a.deps
-
 libHSgconf_a_GENERATEDSOURCES =				\
 	gconf/System/Gnome/GConf/Types.chs		\
 	gconf/System/Gnome/GConf/Signals.chs
@@ -1180,7 +1185,6 @@ libHSgconf_a_ALLSOURCES = $(libHSgconf_a_SOURCES) $(nodist_libHSgconf_a_SOURCES)
 
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_ALLSOURCES))))
-$(libHSgconf_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgconf_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_ALLSOURCES))
@@ -1215,9 +1219,13 @@ gconf_CLEANFILES += \
 	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgconf_a_HSCFILES:.hsc=_hsc_make.o)
 
+gconf/libHSgconf_a.deps: $(libHSgconf_a_HSFILES) | \
+	$(foreach pkg,$(libHSgconf_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgconf_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gconf $(libHSgconf_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSgconf_a_CHSFILES_HS): $(libHSgconf_a_PRECOMP)
-$(libHSgconf_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgconf_a_GENERATEDSOURCES)
+$(libHSgconf_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgconf_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgconf_a_CHSFILES:.chs=.dep)
 
@@ -1278,8 +1286,6 @@ libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOU
 
 libHSsourceview_a_SOURCESDIRS	= sourceview
 
-sourceview/libHSsourceview_a.deps	: $(libHSsourceview_a_HSFILES) | gtk/libHSgtk_a.deps
-
 libHSsourceview_a_GENERATEDSOURCES =						\
 	sourceview/Graphics/UI/Gtk/SourceView/Types.chs
 
@@ -1317,7 +1323,6 @@ libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsource
 
 am_libHSsourceview_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_ALLSOURCES))))
-$(libHSsourceview_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSsourceview_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_ALLSOURCES))
@@ -1348,10 +1353,13 @@ sourceview_CLEANFILES += \
 	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSsourceview_a_HSCFILES:.hsc=_hsc_make.o)
 
+sourceview/libHSsourceview_a.deps: $(libHSsourceview_a_HSFILES) | \
+	$(foreach pkg,$(libHSsourceview_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSsourceview_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,sourceview $(libHSsourceview_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSsourceview_a_CHSFILES_HS): $(libHSsourceview_a_PRECOMP)
-$(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgtk_a_GENERATEDSOURCES)		\
-	$(libHSsourceview_a_GENERATEDSOURCES)
+$(libHSsourceview_a_OBJECTS) : \
+	$(foreach pkg,$(libHSsourceview_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSsourceview_a_CHSFILES:.chs=.dep)
 
@@ -1412,8 +1420,6 @@ libHSgtksourceview2_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $
 
 libHSgtksourceview2_a_SOURCESDIRS	= gtksourceview2
 
-gtksourceview2/libHSgtksourceview2_a.deps	: $(libHSgtksourceview2_a_HSFILES) | gtk/libHSgtk_a.deps
-
 libHSgtksourceview2_a_GENERATEDSOURCES =					\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs			\
 	gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs
@@ -1467,7 +1473,6 @@ libHSgtksourceview2_a_ALLSOURCES = $(libHSgtksourceview2_a_SOURCES) $(nodist_lib
 
 am_libHSgtksourceview2_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtksourceview2_a_ALLSOURCES))))
-$(libHSgtksourceview2_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSgtksourceview2_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtksourceview2_a_ALLSOURCES))
 libHSgtksourceview2_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtksourceview2_a_ALLSOURCES))
@@ -1498,10 +1503,13 @@ gtksourceview2_CLEANFILES += \
 	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgtksourceview2_a_HSCFILES:.hsc=_hsc_make.o)
 
+gtksourceview2/libHSgtksourceview2_a.deps: $(libHSgtksourceview2_a_HSFILES) | \
+	$(foreach pkg,$(libHSgtksourceview2_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgtksourceview2_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gtksourceview2 $(libHSgtksourceview2_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSgtksourceview2_a_CHSFILES_HS): $(libHSgtksourceview2_a_PRECOMP)
-$(libHSgtksourceview2_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgtk_a_GENERATEDSOURCES)		\
-	$(libHSgtksourceview2_a_GENERATEDSOURCES)
+$(libHSgtksourceview2_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgtksourceview2_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgtksourceview2_a_CHSFILES:.chs=.dep)
 
@@ -1562,8 +1570,6 @@ libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEM
 
 libHSmozembed_a_SOURCESDIRS	= mozembed
 
-mozembed/libHSmozembed_a.deps	: $(libHSmozembed_a_HSFILES) | gtk/libHSgtk_a.deps
-
 libHSmozembed_a_GENERATEDSOURCES =			\
 	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
 
@@ -1590,7 +1596,6 @@ libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a
 
 am_libHSmozembed_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_ALLSOURCES))))
-$(libHSmozembed_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSmozembed_a_HSPPFILES  = $(filter %.hs.pp, $(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_ALLSOURCES))
@@ -1620,10 +1625,13 @@ mozembed_CLEANFILES += \
 	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSmozembed_a_HSCFILES:.hsc=_hsc_make.o)
 
+mozembed/libHSmozembed_a.deps: $(libHSmozembed_a_HSFILES) | \
+	$(foreach pkg,$(libHSmozembed_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSmozembed_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,mozembed $(libHSmozembed_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSmozembed_a_CHSFILES_HS): $(libHSmozembed_a_PRECOMP)
-$(libHSmozembed_a_CHSFILES:.chs=.dep) : \
-	$(libHSgtk_a_GENERATEDSOURCES)	\
-	$(libHSmozembed_a_GENERATEDSOURCES)
+$(libHSmozembed_a_OBJECTS) : \
+	$(foreach pkg,$(libHSmozembed_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSmozembed_a_CHSFILES:.chs=.dep)
 
@@ -1687,8 +1695,6 @@ libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS))
 
 libHScairo_a_SOURCESDIRS	= cairo
 
-cairo/libHScairo_a.deps: $(libHScairo_a_HSFILES) | glib/libHSglib_a.deps
-
 libHScairo_a_GENERATEDSOURCES =
 
 nodist_libHScairo_a_SOURCES = $(libHScairo_a_GENERATEDSOURCES)
@@ -1735,7 +1741,6 @@ libHScairo_a_ALLSOURCES = $(libHScairo_a_SOURCES) $(nodist_libHScairo_a_SOURCES)
 
 am_libHScairo_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHScairo_a_ALLSOURCES))))
-$(libHScairo_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHScairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHScairo_a_ALLSOURCES))
 libHScairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHScairo_a_ALLSOURCES))
@@ -1766,7 +1771,15 @@ cairo_CLEANFILES += \
 	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHScairo_a_HSCFILES:.hsc=_hsc_make.o)
 
-$(libHScairo_a_CHSFILES_HS): $(libHScairo_a_PRECOMP)
+$(libHScairo_a_PRECOMP): $(libHScairo_a_HEADER)
+cairo/libHScairo_a.deps: $(libHScairo_a_HSFILES) | \
+	$(foreach pkg,$(libHScairo_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHScairo_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,cairo $(libHScairo_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHScairo_a_CHSFILES_HS): $(libHScairo_a_PRECOMP) $(libHScairo_a_HEADER)
+$(libHScairo_a_HSCFILES_HS): $(libHScairo_a_HEADER)
+$(libHScairo_a_OBJECTS) : \
+	$(foreach pkg,$(libHScairo_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHScairo_a_CHSFILES:.chs=.dep)
 
@@ -1827,8 +1840,6 @@ libHSsvgcairo_a_CPPFLAGS	= $(filter -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 
 libHSsvgcairo_a_SOURCESDIRS	= svgcairo
 
-svgcairo/libHSsvgcairo_a.deps: $(libHSsvgcairo_a_HSFILES) | cairo/libHScairo_a.deps
-
 libHSsvgcairo_a_GENERATEDSOURCES =
 
 nodist_libHSsvgcairo_a_SOURCES = $(libHSsvgcairo_a_GENERATEDSOURCES)
@@ -1840,7 +1851,6 @@ libHSsvgcairo_a_ALLSOURCES = $(libHSsvgcairo_a_SOURCES) $(nodist_libHSsvgcairo_a
 
 am_libHSsvgcairo_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsvgcairo_a_ALLSOURCES))))
-$(libHSsvgcairo_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHScairo_a_OBJECTS)
 
 libHSsvgcairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsvgcairo_a_ALLSOURCES))
 libHSsvgcairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsvgcairo_a_ALLSOURCES))
@@ -1871,7 +1881,15 @@ svgcairo_CLEANFILES += \
 	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSsvgcairo_a_HSCFILES:.hsc=_hsc_make.o)
 
-$(libHSsvgcairo_a_CHSFILES_HS): $(libHSsvgcairo_a_PRECOMP)
+$(libHSsvgcairo_a_PRECOMP): $(libHSsvgcairo_a_HEADER)
+svgcairo/libHSsvgcairo_a.deps: $(libHSsvgcairo_a_HSFILES) | \
+	$(foreach pkg,$(libHSsvgcairo_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSsvgcairo_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,svgcairo $(libHSsvgcairo_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSsvgcairo_a_CHSFILES_HS): $(libHSsvgcairo_a_PRECOMP) $(libHSsvgcairo_a_HEADER)
+$(libHSsvgcairo_a_HSCFILES_HS): $(libHSsvgcairo_a_HEADER)
+$(libHSsvgcairo_a_OBJECTS) : \
+	$(foreach pkg,$(libHSsvgcairo_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSsvgcairo_a_CHSFILES:.chs=.dep)
 
@@ -1932,8 +1950,6 @@ libHSgtkglext_a_CPPFLAGS	= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(G
 
 libHSgtkglext_a_SOURCESDIRS	= gtkglext
 
-gtkglext/libHSgtkglext_a.deps	: $(libHSgtkglext_a_HSFILES) | gtk/libHSgtk_a.deps
-
 libHSgtkglext_a_GENERATEDSOURCES =					\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs
 
@@ -1967,7 +1983,6 @@ libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a
 
 am_libHSgtkglext_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtkglext_a_ALLSOURCES))))
-$(libHSgtkglext_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSgtkglext_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtkglext_a_ALLSOURCES))
 libHSgtkglext_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtkglext_a_ALLSOURCES))
@@ -1998,10 +2013,13 @@ gtkglext_CLEANFILES += \
 	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgtkglext_a_HSCFILES:.hsc=_hsc_make.o)
 
+gtkglext/libHSgtkglext_a.deps: $(libHSgtkglext_a_HSFILES) | \
+	$(foreach pkg,$(libHSgtkglext_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgtkglext_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gtkglext $(libHSgtkglext_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
 $(libHSgtkglext_a_CHSFILES_HS): $(libHSgtkglext_a_PRECOMP)
-$(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgtk_a_GENERATEDSOURCES)		\
-	$(libHSgtkglext_a_GENERATEDSOURCES)
+$(libHSgtkglext_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgtkglext_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgtkglext_a_CHSFILES:.chs=.dep)
 
@@ -2064,12 +2082,9 @@ libHSsoegtk_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
 
 libHSsoegtk_a_SOURCESDIRS	= soegtk
 
-soegtk/libHSsoegtk_a.deps	: $(libHSsoegtk_a_HSFILES) | gtk/libHSgtk_a.deps
-
 if ENABLE_CAIRO
 libHSsoegtk_a_EXTERNALDEPS += mtl-$(PKG_MTL_VERSION)
 libHSsoegtk_a_INTERNALDEPS += cairo
-gtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
 endif
 
 libHSsoegtk_a_SOURCES =			\
@@ -2077,7 +2092,6 @@ libHSsoegtk_a_SOURCES =			\
 
 am_libHSsoegtk_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsoegtk_a_SOURCES))))
-$(libHSsoegtk_a_OBJECTS) : $(libHSglib_a_OBJECTS) $(libHSgtk_a_OBJECTS)
 
 libHSsoegtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSsoegtk_a_SOURCES))
 libHSsoegtk_a_BUILDSOURCES = \
@@ -2091,6 +2105,10 @@ nobase_hi_DATA += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 soegtk_MOSTLYCLEANFILES  = $(am_libHSsoegtk_a_OBJECTS)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_BUILDSOURCES)
+
+soegtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
+$(libHSsoegtk_a_OBJECTS) : \
+	$(foreach pkg,$(libHSsoegtk_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 ifeq (,$(DONT_USE_DEPS))
 -include soegtk/libHSsoegtk_a.deps
@@ -2146,7 +2164,6 @@ libHSgnomevfs_a_INTERNALDEPS		= glib
 libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
 if HAVE_GNOME_VFS_VERSION_2_14
 libHSgnomevfs_a_HEADER			= gnomevfs/hsgnomevfs-2.14.h
-$(libHSgnomevfs_a_PRECOMP): $(libHSgnomevfs_a_HEADER)
 else
 libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
 endif
@@ -2166,8 +2183,6 @@ libHSgnomevfs_a_LIBADD			=		\
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgnomevfs_a_LIBADD += gnomevfs/System/Gnome/VFS/Signals_stub.o
 endif
-
-gnomevfs/libHSgnomevfs_a.deps	: $(libHSgnomevfs_a_HSFILES) glib/libHSglib_a.deps
 
 libHSgnomevfs_a_GENERATEDSOURCES	=		\
 	gnomevfs/System/Gnome/VFS/Signals.chs		\
@@ -2233,7 +2248,6 @@ gnomevfs/System/Gnome/VFS/Signals.chs : \
 
 am_libHSgnomevfs_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgnomevfs_a_ALLSOURCES))))
-$(libHSgnomevfs_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgnomevfs_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgnomevfs_a_ALLSOURCES))
 libHSgnomevfs_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgnomevfs_a_ALLSOURCES))
@@ -2269,9 +2283,15 @@ gnomevfs_CLEANFILES += \
 	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgnomevfs_a_HSCFILES:.hsc=_hsc_make.o)
 
-$(libHSgnomevfs_a_CHSFILES_HS): $(libHSgnomevfs_a_PRECOMP)
-$(libHSgnomevfs_a_CHSFILES:.chs=.dep) :		\
-	$(libHSgnomevfs_a_GENERATEDSOURCES)
+$(libHSgnomevfs_a_PRECOMP): $(libHSgnomevfs_a_HEADER)
+gnomevfs/libHSgnomevfs_a.deps: $(libHSgnomevfs_a_HSFILES) | \
+	$(foreach pkg,$(libHSgnomevfs_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgnomevfs_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gnomevfs $(libHSgnomevfs_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSgnomevfs_a_CHSFILES_HS): $(libHSgnomevfs_a_PRECOMP) $(libHSgnomevfs_a_HEADER)
+$(libHSgnomevfs_a_HSCFILES_HS): $(libHSgnomevfs_a_HEADER)
+$(libHSgnomevfs_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgnomevfs_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgnomevfs_a_CHSFILES:.chs=.dep)
 
@@ -2329,7 +2349,6 @@ endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
-$(libHSgstreamer_a_PRECOMP): $(libHSgstreamer_a_HEADER)
 libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS)
 libHSgstreamer_a_HCFLAGS		= $(FFI)
 libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
@@ -2346,8 +2365,6 @@ libHSgstreamer_a_LIBADD			=				\
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgstreamer_a_LIBADD += gstreamer/Media/Streaming/GStreamer/Core/Signals_stub.o
 endif
-
-gstreamer/libHSgstreamer_a.deps	: $(libHSgstreamer_a_HSFILES) | glib/libHSglib_a.deps
 
 libHSgstreamer_a_GENERATEDSOURCES	=				\
 	gstreamer/Media/Streaming/GStreamer/Core/Signals.chs		\
@@ -2537,7 +2554,6 @@ gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs :				\
 
 am_libHSgstreamer_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgstreamer_a_ALLSOURCES))))
-$(libHSgstreamer_a_OBJECTS) : $(libHSglib_a_OBJECTS)
 
 libHSgstreamer_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgstreamer_a_ALLSOURCES))
 libHSgstreamer_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgstreamer_a_ALLSOURCES))
@@ -2573,9 +2589,15 @@ gstreamer_CLEANFILES += \
 	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.c)			\
 	$(libHSgstreamer_a_HSCFILES:.hsc=_hsc_make.o)
 
-$(libHSgstreamer_a_CHSFILES_HS): $(libHSgstreamer_a_PRECOMP)
-$(libHSgstreamer_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgstreamer_a_GENERATEDSOURCES)
+$(libHSgstreamer_a_PRECOMP): $(libHSgstreamer_a_HEADER)
+gstreamer/libHSgstreamer_a.deps: $(libHSgstreamer_a_HSFILES) | \
+	$(foreach pkg,$(libHSgstreamer_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSgstreamer_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,gstreamer $(libHSgstreamer_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSgstreamer_a_CHSFILES_HS): $(libHSgstreamer_a_PRECOMP) $(libHSgstreamer_a_HEADER)
+$(libHSgstreamer_a_HSCFILES_HS): $(libHSgstreamer_a_HEADER)
+$(libHSgstreamer_a_OBJECTS) : \
+	$(foreach pkg,$(libHSgstreamer_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
 
 EARLY_DEPS += $(libHSgstreamer_a_CHSFILES:.chs=.dep)
 
