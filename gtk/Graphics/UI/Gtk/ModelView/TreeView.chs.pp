@@ -199,10 +199,14 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewShowExpanders,
   treeViewLevelIndentation,
   treeViewRubberBanding,
+#if GTK_CHECK_VERSION(2,10,0)
   treeViewEnableGridLines,
+#endif
   treeViewEnableTreeLines,
+#if GTK_CHECK_VERSION(2,10,0)
   treeViewGridLines,
   treeViewSearchEntry,
+#endif
 
 -- * Signals
   columnsChanged,
@@ -1576,6 +1580,7 @@ treeViewLevelIndentation = newAttrFromIntProperty "level-indentation"
 treeViewRubberBanding :: TreeViewClass self => Attr self Bool
 treeViewRubberBanding = newAttrFromBoolProperty "rubber-banding"
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:e926 d:86a8
 -- | Whether grid lines should be drawn in the tree view.
 --
@@ -1584,6 +1589,7 @@ treeViewRubberBanding = newAttrFromBoolProperty "rubber-banding"
 treeViewEnableGridLines :: TreeViewClass self => Attr self TreeViewGridLines
 treeViewEnableGridLines = newAttrFromEnumProperty "enable-grid-lines"
                             {# call pure unsafe gtk_tree_view_grid_lines_get_type #}
+#endif
 
 -- %hash c:a7eb d:4c53
 -- | Whether tree lines should be drawn in the tree view.
@@ -1593,6 +1599,7 @@ treeViewEnableGridLines = newAttrFromEnumProperty "enable-grid-lines"
 treeViewEnableTreeLines :: TreeViewClass self => Attr self Bool
 treeViewEnableTreeLines = newAttrFromBoolProperty "enable-tree-lines"
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:688c d:cbcd
 -- | \'gridLines\' property. See 'treeViewGetGridLines' and
 -- 'treeViewSetGridLines'
@@ -1610,6 +1617,7 @@ treeViewSearchEntry :: (TreeViewClass self, EntryClass entry) => ReadWriteAttr s
 treeViewSearchEntry = newAttr
   treeViewGetSearchEntry
   treeViewSetSearchEntry
+#endif
 
 --------------------
 -- Signals
