@@ -21,6 +21,7 @@ EXTRA_DIST = \
         gconf/System/Gnome/GConf/marshal.list	\
 	sourceview/sourceview.h			\
 	gtksourceview2/gtksourceview2.h		\
+	gtk/hsgtk.h				\
 	gtk/wingtk.h				\
         glib/System/Glib/hsgclosure.h		\
 	cairo/COPYRIGHT				\
@@ -587,12 +588,13 @@ if HAVE_SPLIT_BASE
 libHSgtk_a_EXTERNALDEPS		+= containers-$(PKG_CONTAINERS_VERSION) array-$(PKG_ARRAY_VERSION)
 endif
 libHSgtk_a_INTERNALDEPS		= glib
-libHSgtk_a_HEADER 		= gtk/gtk.h
+libHSgtk_a_HEADER 		= gtk/hsgtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
+$(libHSgtk_a_PRECOMP): $(libHSgtk_a_HEADER)
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
 libHSgtk_a_HCFLAGS		= $(FFI)
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
-libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
+libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS)) -I.
 
 libHSgtk_a_SOURCESDIRS		= gtk
 
