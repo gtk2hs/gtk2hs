@@ -89,7 +89,9 @@ module System.GIO.File (
     fileCopyFinish,
     fileMove,
     fileMakeDirectory,
+#if GLIB_CHECK_VERSION(2,18,0)
     fileMakeDirectoryWithParents,
+#endif
     fileMakeSymbolicLink,
     fileQuerySettableAttributes,
     fileQueryWritableNamespaces
@@ -726,6 +728,7 @@ fileMakeDirectory file cancellable =
           return ()
     where _ = {# call file_make_directory #}
 
+#if GLIB_CHECK_VERSION(2,18,0)
 fileMakeDirectoryWithParents :: FileClass file
                              => file
                              -> Maybe Cancellable
@@ -736,6 +739,7 @@ fileMakeDirectoryWithParents file cancellable =
           propagateGError $ g_file_make_directory_with_parents cFile cCancellable
           return ()
     where _ = {# call file_make_directory_with_parents #}
+#endif
 
 fileMakeSymbolicLink :: FileClass file
                      => file
