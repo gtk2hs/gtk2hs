@@ -456,7 +456,7 @@ libHSgio_a_SOURCES =	        		\
 	gio/System/GIO/Base.chs			\
 	gio/System/GIO/Cancellable.chs		\
 	gio/System/GIO/FileAttribute.hsc	\
-	gio/System/GIO/File.chs			\
+	gio/System/GIO/File.chs.pp		\
 	gio/System/GIO.hs
 
 htmldoc_HSFILES_HIDDEN +=			\
