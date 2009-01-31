@@ -131,6 +131,7 @@ module Graphics.Rendering.Cairo (
   , setFontSize
   , setFontMatrix
   , getFontMatrix
+  , setFontOptions
   , showText
   , fontExtents
   , textExtents
@@ -988,12 +989,13 @@ withRadialPattern cx0 cy0 radius0 cx1 cy1 radius1 f =
 -- 'StatusPatternTypeMismatch'.
 --
 patternAddColorStopRGB ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
   -> Double  -- ^ an offset in the range [0.0 .. 1.0]
   -> Double  -- ^ red component of color
   -> Double  -- ^ green component of color
   -> Double  -- ^ blue component of color
-  -> Render ()
+  -> m ()
 patternAddColorStopRGB p offset r g b = liftIO $ Internal.patternAddColorStopRGB p offset r g b
 
 -- | Adds a translucent color stop to a gradient pattern. The offset specifies
@@ -1009,13 +1011,14 @@ patternAddColorStopRGB p offset r g b = liftIO $ Internal.patternAddColorStopRGB
 -- 'StatusPatternTypeMismatch'.
 --
 patternAddColorStopRGBA ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
   -> Double  -- ^ an offset in the range [0.0 .. 1.0]
   -> Double  -- ^ red component of color
   -> Double  -- ^ green component of color
   -> Double  -- ^ blue component of color
   -> Double  -- ^ alpha component of color
-  -> Render ()
+  -> m ()
 patternAddColorStopRGBA p offset r g b a = liftIO $ Internal.patternAddColorStopRGBA p offset r g b a
 
 -- | Sets the pattern's transformation matrix to matrix. This matrix is a
@@ -1033,46 +1036,52 @@ patternAddColorStopRGBA p offset r g b a = liftIO $ Internal.patternAddColorStop
 -- Also, please note the discussion of the user-space locking semantics of 'setSource'.
 --
 patternSetMatrix ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
   -> Matrix  -- ^ a 'Matrix'
-  -> Render ()
+  -> m ()
 patternSetMatrix p m = liftIO $ Internal.patternSetMatrix p m
 
 -- | Get the pattern's transformation matrix.
 --
 patternGetMatrix ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
-  -> Render Matrix
+  -> m Matrix
 patternGetMatrix p = liftIO $ Internal.patternGetMatrix p
 
 -- |
 --
 patternSetExtend ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
   -> Extend  -- ^ an 'Extent'
-  -> Render ()
+  -> m ()
 patternSetExtend p e = liftIO $ Internal.patternSetExtend p e
 
 -- |
 --
 patternGetExtend ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
-  -> Render Extend
+  -> m Extend
 patternGetExtend p = liftIO $ Internal.patternGetExtend p
 
 -- |
 --
 patternSetFilter ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
   -> Filter  -- ^ a 'Filter'
-  -> Render ()
+  -> m ()
 patternSetFilter p f = liftIO $ Internal.patternSetFilter p f
 
 -- |
 --
 patternGetFilter ::
+     MonadIO m =>
      Pattern -- ^ a 'Pattern'
-  -> Render Filter
+  -> m Filter
 patternGetFilter p = liftIO $ Internal.patternGetFilter p
 
 
@@ -1217,6 +1226,14 @@ setFontMatrix = liftRender1 Internal.setFontMatrix
 getFontMatrix :: Render Matrix
 getFontMatrix = liftRender0 Internal.getFontMatrix
 
+-- | Sets a set of custom font rendering options. Rendering options are
+-- derived by merging these options with the options derived from underlying
+-- surface; if the value in @options@ has a default value (like
+-- 'AntialiasDefault'), then the value from the surface is used.
+--
+setFontOptions :: FontOptions -> Render ()
+setFontOptions = liftRender1 Internal.setFontOptions
+	
 -- | A drawing operator that generates the shape from a string of Unicode
 -- characters, rendered according to the current font face, font size (font
 -- matrix), and font options.
@@ -1269,14 +1286,15 @@ textExtents = liftRender1 Internal.textExtents
 -- | Allocates a new font options object with all options initialized to default
 -- values.
 --
-fontOptionsCreate :: Render FontOptions
+fontOptionsCreate :: MonadIO m => m FontOptions
 fontOptionsCreate = liftIO $ Internal.fontOptionsCreate
 
 -- | Allocates a new font options object copying the option values from @original@.
 --
 fontOptionsCopy ::
+     MonadIO m => 
      FontOptions -- ^ @original@
-  -> Render FontOptions
+  -> m FontOptions
 fontOptionsCopy a = liftIO $ Internal.fontOptionsCopy a
 
 -- | Merges non-default options from @other@ into @options@, replacing existing
@@ -1284,31 +1302,32 @@ fontOptionsCopy a = liftIO $ Internal.fontOptionsCopy a
 -- @other@ onto @options@ with the operation of 'OperationOver'.
 --
 fontOptionsMerge ::
+     MonadIO m => 
      FontOptions -- ^ @options@
   -> FontOptions -- ^ @other@ 
-  -> Render ()
+  -> m ()
 fontOptionsMerge a b = liftIO $ Internal.fontOptionsMerge a b
 
 -- | Compute a hash for the font options object; this value will be useful when
 -- storing an object containing a 'FontOptions' in a hash table.
 --
-fontOptionsHash :: FontOptions -> Render Int
+fontOptionsHash :: MonadIO m => FontOptions -> m Int
 fontOptionsHash a = liftIO $ Internal.fontOptionsHash a
 
 -- | Compares two font options objects for equality.
 --
-fontOptionsEqual :: FontOptions -> FontOptions -> Render Bool
+fontOptionsEqual :: MonadIO m => FontOptions -> FontOptions -> m Bool
 fontOptionsEqual a b = liftIO $ Internal.fontOptionsEqual a b
 
 -- | Sets the antiliasing mode for the font options object. This specifies the
 -- type of antialiasing to do when rendering text.
 --
-fontOptionsSetAntialias :: FontOptions -> Antialias -> Render ()
+fontOptionsSetAntialias :: MonadIO m => FontOptions -> Antialias -> m ()
 fontOptionsSetAntialias a b = liftIO $ Internal.fontOptionsSetAntialias a b
 
 -- | Gets the antialising mode for the font options object.
 --
-fontOptionsGetAntialias :: FontOptions -> Render Antialias
+fontOptionsGetAntialias :: MonadIO m => FontOptions -> m Antialias
 fontOptionsGetAntialias a = liftIO $ Internal.fontOptionsGetAntialias a
 
 -- | Sets the subpixel order for the font options object. The subpixel order
@@ -1316,13 +1335,13 @@ fontOptionsGetAntialias a = liftIO $ Internal.fontOptionsGetAntialias a
 -- when rendering with an antialiasing mode of 'AntialiasSubpixel'.
 -- See the documentation for 'SubpixelOrder' for full details.
 --
-fontOptionsSetSubpixelOrder :: FontOptions -> SubpixelOrder-> Render ()
+fontOptionsSetSubpixelOrder :: MonadIO m => FontOptions -> SubpixelOrder-> m ()
 fontOptionsSetSubpixelOrder a b = liftIO $ Internal.fontOptionsSetSubpixelOrder a b
 
 -- | Gets the subpixel order for the font options object.
 -- See the documentation for 'SubpixelOrder' for full details.
 --
-fontOptionsGetSubpixelOrder :: FontOptions -> Render SubpixelOrder
+fontOptionsGetSubpixelOrder :: MonadIO m => FontOptions -> m SubpixelOrder
 fontOptionsGetSubpixelOrder a = liftIO $ Internal.fontOptionsGetSubpixelOrder a
 
 -- | Sets the hint style for font outlines for the font options object.
@@ -1330,26 +1349,26 @@ fontOptionsGetSubpixelOrder a = liftIO $ Internal.fontOptionsGetSubpixelOrder a
 -- whether to optimize for fidelity or contrast. See the documentation for
 -- 'HintStyle' for full details.
 --
-fontOptionsSetHintStyle :: FontOptions -> HintStyle -> Render ()
+fontOptionsSetHintStyle :: MonadIO m => FontOptions -> HintStyle -> m ()
 fontOptionsSetHintStyle a b = liftIO $ Internal.fontOptionsSetHintStyle a b
 
 -- | Gets the hint style for font outlines for the font options object.
 -- See the documentation for 'HintStyle' for full details.
 --
-fontOptionsGetHintStyle :: FontOptions -> Render HintStyle
+fontOptionsGetHintStyle :: MonadIO m => FontOptions -> m HintStyle
 fontOptionsGetHintStyle a = liftIO $ Internal.fontOptionsGetHintStyle a
 
 -- | Sets the metrics hinting mode for the font options object. This controls
 -- whether metrics are quantized to integer values in device units. See the
 -- documentation for 'HintMetrics' for full details.
 --
-fontOptionsSetHintMetrics :: FontOptions -> HintMetrics -> Render ()
+fontOptionsSetHintMetrics :: MonadIO m => FontOptions -> HintMetrics -> m ()
 fontOptionsSetHintMetrics a b = liftIO $ Internal.fontOptionsSetHintMetrics a b
 
 -- | Gets the metrics hinting mode for the font options object. See the
 -- documentation for 'HintMetrics' for full details.
 --
-fontOptionsGetHintMetrics :: FontOptions -> Render HintMetrics
+fontOptionsGetHintMetrics :: MonadIO m => FontOptions -> m HintMetrics
 fontOptionsGetHintMetrics a = liftIO $ Internal.fontOptionsGetHintMetrics a
 
 
@@ -1440,7 +1459,7 @@ renderWithSimilarSurface contentType width height render =
 -- cairo will call 'surfaceFinish' if it hasn't been called already, before
 -- freeing the resources associated with the surface.
 --
-surfaceFinish :: (MonadIO m) => Surface -> m ()
+surfaceFinish :: MonadIO m => Surface -> m ()
 surfaceFinish surface = liftIO $ do
   status <- Internal.surfaceStatus surface
   Internal.surfaceFinish surface
@@ -1453,7 +1472,7 @@ surfaceFinish surface = liftIO $ do
 -- it directly with native APIs. If the surface doesn't support direct access,
 -- then this function does nothing.
 --
-surfaceFlush :: Surface -> Render ()
+surfaceFlush :: MonadIO m => Surface -> m ()
 surfaceFlush a = liftIO $ Internal.surfaceFlush a
 
 -- | Retrieves the default font rendering options for the surface. This allows
@@ -1471,7 +1490,7 @@ surfaceGetFontOptions surface = do
 -- cairo, and that cairo should reread any cached areas. Note that you must call
 -- 'surfaceFlush' before doing such drawing.
 --
-surfaceMarkDirty :: Surface -> Render ()
+surfaceMarkDirty :: MonadIO m => Surface -> m ()
 surfaceMarkDirty a = liftIO $ Internal.surfaceMarkDirty a
 
 -- | Like 'surfaceMarkDirty', but drawing has been done only to the specified
@@ -1479,12 +1498,13 @@ surfaceMarkDirty a = liftIO $ Internal.surfaceMarkDirty a
 -- surface.
 --
 surfaceMarkDirtyRectangle ::
+     MonadIO m => 
      Surface -- ^ a 'Surface'
   -> Int     -- ^ X coordinate of dirty rectangle
   -> Int     -- ^ Y coordinate of dirty rectangle
   -> Int     -- ^ width of dirty rectangle
   -> Int     -- ^ height of dirty rectangle
-  -> Render ()
+  -> m ()
 surfaceMarkDirtyRectangle a b c d e = liftIO $ Internal.surfaceMarkDirtyRectangle a b c d e
 
 -- | Sets an offset that is added to the device coordinates determined by the
@@ -1499,10 +1519,11 @@ surfaceMarkDirtyRectangle a b c d e = liftIO $ Internal.surfaceMarkDirtyRectangl
 -- surface in a surface pattern.
 --
 surfaceSetDeviceOffset ::
+     MonadIO m => 
      Surface -- ^ a 'Surface'
   -> Double  -- ^ the offset in the X direction, in device units
   -> Double  -- ^ the offset in the Y direction, in device units
-  -> Render ()
+  -> m ()
 surfaceSetDeviceOffset a b c = liftIO $ Internal.surfaceSetDeviceOffset a b c
 
 -- | Creates an image surface of the specified format and dimensions.
@@ -1547,19 +1568,19 @@ createImageSurface format width height = do
 
 -- | Get the width of the image surface in pixels.
 --
-imageSurfaceGetWidth :: Surface -> Render Int
+imageSurfaceGetWidth :: MonadIO m => Surface -> m Int
 imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 
 -- | Get the height of the image surface in pixels.
 --
-imageSurfaceGetHeight :: Surface -> Render Int
+imageSurfaceGetHeight :: MonadIO m => Surface -> m Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
 #if CAIRO_CHECK_VERSION(1,2,0)
 -- | Get the number of bytes from the start of one row to the start of the
 --   next. If the image data contains no padding, then this is equal to
 --   the pixel depth * the width.
-imageSurfaceGetStride :: Surface -> Render Int
+imageSurfaceGetStride :: MonadIO m => Surface -> m Int
 imageSurfaceGetStride = liftIO . Internal.imageSurfaceGetStride
 
 #if __GLASGOW_HASKELL__ >= 606
@@ -1610,7 +1631,7 @@ withPDFSurface filename width height f = do
 -- surface or immediately after completing a page with either
 -- 'showPage' or 'copyPage'.
 --
-pdfSurfaceSetSize :: Surface -> Double -> Double -> Render ()
+pdfSurfaceSetSize :: MonadIO m => Surface -> Double -> Double -> m ()
 pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
 #endif
 #endif
@@ -1673,7 +1694,7 @@ withPSSurface filename width height f =
 -- surface or immediately after completing a page with either
 -- 'showPage' or 'copyPage'.
 --
-psSurfaceSetSize :: Surface -> Double -> Double -> Render ()
+psSurfaceSetSize :: MonadIO m => Surface -> Double -> Double -> m ()
 psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
 #endif
 #endif

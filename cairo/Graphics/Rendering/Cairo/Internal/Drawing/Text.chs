@@ -26,6 +26,7 @@ import Foreign.C
 {#fun set_font_size    as setFontSize    { unCairo `Cairo', `Double' } -> `()'#}
 {#fun set_font_matrix  as setFontMatrix  { unCairo `Cairo', `Matrix' } -> `()'#}
 {#fun get_font_matrix  as getFontMatrix  { unCairo `Cairo', alloca- `Matrix' peek*} -> `()'#}
+{#fun set_font_options as setFontOptions { unCairo `Cairo',  withFontOptions* `FontOptions' } -> `()'#}
 {#fun show_text        as showText       { unCairo `Cairo', withUTFString* `String' } -> `()'#}
 {#fun font_extents     as fontExtents    { unCairo `Cairo', alloca- `FontExtents' peek* } -> `()'#}
 {#fun text_extents     as textExtents    { unCairo `Cairo', withUTFString* `String', alloca- `TextExtents' peek* } -> `()'#}
