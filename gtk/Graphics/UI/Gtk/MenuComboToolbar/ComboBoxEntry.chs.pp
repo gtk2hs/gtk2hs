@@ -145,18 +145,21 @@ comboBoxEntryNewWithModel model = do
 
 -- | Set a model box that holds strings.
 --
--- This function stores a
--- 'Graphics.UI.Gtk.ModelView.ListStore' with the widget that contains only
--- strings. This model is also returned when calling 'comboBoxGetModel'. Note
--- that only the functions 'comboBoxAppendText', 'comboBoxInsertText',
--- 'comboBoxPrependText' and 'comboBoxRemoveText' should be called on this
--- widget once 'comboBoxSetModelText' is called. Any exisiting model or
--- renderers are removed before setting the new text model. In order to
--- respond to new texts that the user enters, it is necessary to connect to
--- the 'Graphics.UI.Gtk.Entry.Entry.entryActivate' signal of the contained
--- 'Graphics.UI.Gtk.Entry.Entry.Entry' an insert the text into the text model
--- which can be retrieved with
+-- This function stores a 'Graphics.UI.Gtk.ModelView.ListStore' with the
+-- widget and sets the model to the list store. The widget can contain only
+-- strings. The model can be retrieved with 'comboBoxGetModel'. The list
+-- store can be retrieved with 'comboBoxGetModelText'.
+-- Any exisiting model or renderers are removed before setting the new text
+-- model.
+-- In order to respond to new texts that the user enters, it is necessary to
+-- connect to the 'Graphics.UI.Gtk.Entry.Entry.entryActivate' signal of the
+-- contained 'Graphics.UI.Gtk.Entry.Entry.Entry' an insert the text into the
+-- text model which can be retrieved with
 -- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxGetModelText'.
+-- Note that the functions 'comboBoxAppendText', 'comboBoxInsertText',
+-- 'comboBoxPrependText', 'comboBoxRemoveText' and 'comboBoxGetActiveText'
+-- can be called on a combo box only once 'comboBoxEntrySetModelText' is
+-- called.
 --
 comboBoxEntrySetModelText :: ComboBoxEntryClass self => self ->
                              IO (ListStore String)

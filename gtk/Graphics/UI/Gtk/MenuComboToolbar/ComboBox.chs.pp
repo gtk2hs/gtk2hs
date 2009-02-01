@@ -82,6 +82,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxInsertText,
   comboBoxPrependText,
   comboBoxRemoveText,
+  comboBoxGetActiveText,
 
 -- ** Standard API
 #if GTK_CHECK_VERSION(2,6,0)
@@ -166,7 +167,8 @@ import System.Glib.GObject		(makeNewGObject,
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} 
 {#import Graphics.UI.Gtk.ModelView.TreeModel#} 
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew,
-  listStoreInsert, listStorePrepend, listStoreAppend, listStoreRemove )
+  listStoreInsert, listStorePrepend, listStoreAppend, listStoreRemove,
+  listStoreGetValue )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
 					      cellLayoutPackStart, cellLayoutClear )
 import Graphics.UI.Gtk.ModelView.CellRendererText ( cellRendererTextNew, 
@@ -215,11 +217,14 @@ comboBoxNewWithModel model =
 -- | Create a combo box that holds strings.
 --
 -- This function stores a 'Graphics.UI.Gtk.ModelView.ListStore' with the
--- widget that contains only strings. This model is also returned when calling
--- 'comboBoxGetModel'. Note that only the functions 'comboBoxAppendText',
--- 'comboBoxInsertText', 'comboBoxPrependText' and 'comboBoxRemoveText' should
--- be called on this widget once 'comboBoxSetModelText' is called. Any
--- exisiting model or renderers are removed before setting the new text model.
+-- widget and sets the model to the list store. The widget can contain only
+-- strings. The model can be retrieved with 'comboBoxGetModel'. The list
+-- store can be retrieved with 'comboBoxGetModelText'.
+-- Any exisiting model or renderers are removed before setting the new text
+-- model.
+-- Note that the functions 'comboBoxAppendText', 'comboBoxInsertText',
+-- 'comboBoxPrependText', 'comboBoxRemoveText' and 'comboBoxGetActiveText'
+-- can be called on a combo box only once 'comboBoxSetModelText' is called.
 --
 comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore String)
 comboBoxSetModelText combo = do
@@ -283,7 +288,19 @@ comboBoxRemoveText self position = do
   store <- comboBoxGetModelText self
   listStoreRemove store position
 
-
+-- | Returns the currently active string in @comboBox@ or @Nothing@ if none is
+-- selected. Note that you can only use this function with combo boxes
+-- constructed with 'comboBoxNewText'.
+--
+comboBoxGetActiveText :: ComboBoxClass self => self -> IO (Maybe String)
+comboBoxGetActiveText self = do
+  activeId <- comboBoxGetActive self
+  if activeId < 0
+    then return Nothing
+    else do
+      listStore <- comboBoxGetModelText self
+      value <- listStoreGetValue listStore activeId
+      return $ Just value
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash d:566e
