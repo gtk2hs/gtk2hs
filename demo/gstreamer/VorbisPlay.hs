@@ -73,7 +73,9 @@ main =
            Just (_, position') ->
                case duration of
                  Just (_, duration') -> do
-                   printf "%10d / %10d\r" (position' `div` Gst.second) (duration' `div` Gst.second)
+                   printf "%10d / %10d\r" 
+                     (fromIntegral (position' `div` Gst.second)::Integer)
+                     (fromIntegral (duration' `div` Gst.second)::Integer)
                  Nothing -> do
                    putStr "no information\r"
            Nothing -> do
