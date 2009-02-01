@@ -2874,7 +2874,7 @@ DEMOS =
 
 if ENABLE_GTK
 DEMOS += demo/hello demo/buttonbox demo/concurrent \
-	demo/graphic demo/unicode demo/soe
+	demo/graphic demo/unicode demo/soe demo/menu
 if HAVE_GTK_VERSION_2_2
 DEMOS += demo/fastdraw
 endif

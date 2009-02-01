@@ -13,8 +13,10 @@ main = do
   win <- windowNew
   onDestroy win mainQuit    
 
-  (combo, store) <-
-    comboBoxEntryNewText id (words "ice-cream turkey pasta sandwich steak")
+  combo <- comboBoxEntryNewText
+  mapM_ (comboBoxAppendText combo)
+    (words "ice-cream turkey pasta sandwich steak")
+
   -- select the first item
   comboBoxSetActive combo 0
   
@@ -26,6 +28,7 @@ main = do
   -- text to the store unless it's already in there.
   onEntryActivate entry $ do
     str <- entryGetText entry
+    store <- comboBoxGetModelText combo
     elems <- listStoreToList store
     comboBoxSetActive combo (-1)
     idx <- case (findIndex ((==) str) elems) of

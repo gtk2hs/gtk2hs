@@ -74,6 +74,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxNewWithModel,
 
 -- * Methods
+
+-- ** Simple Text API
+  comboBoxSetModelText,
+  comboBoxGetModelText,
+  comboBoxAppendText,
+  comboBoxInsertText,
+  comboBoxPrependText,
+  comboBoxRemoveText,
+
+-- ** Standard API
 #if GTK_CHECK_VERSION(2,6,0)
   comboBoxGetWrapWidth,
 #endif
@@ -145,17 +155,20 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject,
-					 mkFunPtrDestroyNotify)
+					 mkFunPtrDestroyNotify,
+					 Quark, objectSetAttribute, objectGetAttributeUnsafe )
 {#import Graphics.UI.Gtk.Types#} hiding (ListStore)
 {#import Graphics.UI.Gtk.ModelView.Types#} (TypedTreeModelClass,
                                             TreeIter,
-                                            receiveTreeIter)
+                                            receiveTreeIter,
+                                            comboQuark)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} 
 {#import Graphics.UI.Gtk.ModelView.TreeModel#} 
-import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew )
+import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew,
+  listStoreInsert, listStorePrepend, listStoreAppend, listStoreRemove )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
-					      cellLayoutPackStart )
+					      cellLayoutPackStart, cellLayoutClear )
 import Graphics.UI.Gtk.ModelView.CellRendererText ( cellRendererTextNew, 
 						    cellText)
 {# context lib="gtk" prefix="gtk" #}
@@ -172,23 +185,15 @@ comboBoxNew =
   liftM (castPtr :: Ptr Widget -> Ptr ComboBox) $
   {# call gtk_combo_box_new #}
 
--- | Convenience function which constructs a new text combo box, which is a
--- 'ComboBox' just displaying strings. If you use this function to create a
--- text combo box, you can supply the @id@ function as first argument. In this
--- case 'comboBoxNewText' will return a @'Graphics.UI.Gtk.ModelView.ListStore'
--- String@ containing the initial list of strings.
+-- | Convenience function which constructs a new text combo box that is a
+-- 'ComboBox' just displaying strings. This function internally calls
+-- 'comboBoxSetModelText' after creating a new combo box.
 --
-comboBoxNewText ::
-     (a -> String) -- ^ a function to extract elements from a the store
-  -> [a] -- ^ the initial contents of the store
-  -> IO (ComboBox, ListStore a) -- the resulting combo box and the store
-comboBoxNewText extract initial = do
-  store <- listStoreNew initial
-  combo <- comboBoxNewWithModel store
-  ren <- cellRendererTextNew
-  cellLayoutPackStart combo ren True
-  cellLayoutSetAttributes combo ren store (\a -> [cellText := extract a])
-  return (combo, store)
+comboBoxNewText :: IO ComboBox
+comboBoxNewText = do
+  combo <- comboBoxNew
+  comboBoxSetModelText combo
+  return combo
 
 -- %hash c:2570
 -- | Creates a new 'ComboBox' with the model initialized to @model@.
@@ -204,6 +209,81 @@ comboBoxNewWithModel model =
 
 --------------------
 -- Methods
+
+-- the text API
+
+-- | Create a combo box that holds strings.
+--
+-- This function stores a 'Graphics.UI.Gtk.ModelView.ListStore' with the
+-- widget that contains only strings. This model is also returned when calling
+-- 'comboBoxGetModel'. Note that only the functions 'comboBoxAppendText',
+-- 'comboBoxInsertText', 'comboBoxPrependText' and 'comboBoxRemoveText' should
+-- be called on this widget once 'comboBoxSetModelText' is called. Any
+-- exisiting model or renderers are removed before setting the new text model.
+--
+comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore String)
+comboBoxSetModelText combo = do
+  cellLayoutClear (toComboBox combo)
+  store <- listStoreNew ([] :: [String])
+  comboBoxSetModel combo (Just store)
+  ren <- cellRendererTextNew
+  cellLayoutPackStart (toComboBox combo) ren True
+  cellLayoutSetAttributes (toComboBox combo) ren store (\a -> [cellText := a])
+  objectSetAttribute comboQuark combo (Just store)
+  return store
+
+-- | Retrieve the model that was created with 'comboBoxSetModelText'.
+--
+comboBoxGetModelText :: ComboBoxClass self => self -> IO (ListStore String)
+comboBoxGetModelText self = do
+  (Just store) <- objectGetAttributeUnsafe comboQuark (toComboBox self)
+  return store
+
+-- %hash c:7228 d:5c35
+-- | Appends @string@ to the list of strings stored in @comboBox@. Note that
+-- you can only use this function with combo boxes constructed with
+-- 'comboBoxNewText'. Returns the index of the appended text.
+--
+comboBoxAppendText :: ComboBoxClass self => self -> String -> IO Int
+comboBoxAppendText self text = do
+  store <- comboBoxGetModelText self
+  listStoreAppend store text
+  
+-- %hash c:41de d:8ab0
+-- | Inserts @string@ at @position@ in the list of strings stored in
+-- @comboBox@. Note that you can only use this function with combo boxes
+-- constructed with 'comboBoxNewText'.
+--
+comboBoxInsertText :: ComboBoxClass self => self
+ -> Int    -- ^ @position@ - An index to insert @text@.
+ -> String -- ^ @text@ - A string.
+ -> IO ()
+comboBoxInsertText self position text = do
+  store <- comboBoxGetModelText self
+  listStoreInsert store position text
+  
+-- %hash c:98ea d:9fab
+-- | Prepends @string@ to the list of strings stored in @comboBox@. Note that
+-- you can only use this function with combo boxes constructed with
+-- 'comboBoxNewText'.
+--
+comboBoxPrependText :: ComboBoxClass self => self -> String -> IO ()
+comboBoxPrependText self text = do
+  store <- comboBoxGetModelText self
+  listStorePrepend store text
+
+-- %hash c:7ff6 d:ffbf
+-- | Removes the string at @position@ from @comboBox@. Note that you can only
+-- use this function with combo boxes constructed with 'comboBoxNewText'.
+--
+comboBoxRemoveText :: ComboBoxClass self => self
+ -> Int -- ^ @position@ - Index of the item to remove.
+ -> IO ()
+comboBoxRemoveText self position = do
+  store <- comboBoxGetModelText self
+  listStoreRemove store position
+
+
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash d:566e

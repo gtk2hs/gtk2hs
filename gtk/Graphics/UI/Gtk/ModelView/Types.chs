@@ -55,13 +55,17 @@ module Graphics.UI.Gtk.ModelView.Types (
   
   -- Columns
   ColumnAccess(..),
-  ColumnId(..),  
+  ColumnId(..),
+  
+  -- Storing the model in a ComboBox
+  comboQuark,  
   ) where
 
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
 import System.Glib.GValue         (GValue)
+import System.Glib.GObject        (Quark, quarkFromString)
 {#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
                                    Pixbuf)
 import Data.Char ( isDigit )
@@ -244,3 +248,9 @@ data ColumnAccess row
 data ColumnId row ty 
   = ColumnId (GValue -> IO ty) ((row -> ty) -> ColumnAccess row) Int
 
+-- it shouldn't matter if the following function is actually inlined
+{-# NOINLINE comboQuark #-}  
+comboQuark :: Quark
+comboQuark =
+  unsafePerformIO $ quarkFromString "comboBoxHaskellStringModelQuark"
+  

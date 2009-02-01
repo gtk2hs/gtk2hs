@@ -70,10 +70,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 
 -- * Constructors
   comboBoxEntryNew,
-  comboBoxEntryNewWithModel,
   comboBoxEntryNewText,
+  comboBoxEntryNewWithModel,
 
 -- * Methods
+  comboBoxEntrySetModelText,
+
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -116,6 +118,15 @@ comboBoxEntryNew =
   liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
   {# call gtk_combo_box_entry_new #}
 
+-- | Creates a new 'ComboBoxEntry' with a store containing strings.
+--   See 'comboBoxEntrySetModelText'.
+--
+comboBoxEntryNewText :: IO ComboBoxEntry
+comboBoxEntryNewText = do
+  combo <- comboBoxEntryNew
+  comboBoxEntrySetModelText combo
+  return combo
+  
 -- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child and a list of
 -- strings as popup. You can get the 'Entry' from a 'ComboBoxEntry' using
 -- 'binGetChild'. To add and remove strings from the list, just modify @model@
@@ -129,29 +140,34 @@ comboBoxEntryNewWithModel model = do
   comboBoxSetModel combo (Just model)
   return combo
 
--- | Convenience function which constructs a new editable text combo box,
--- which is a 'ComboBoxEntry' just displaying strings. Note that this
--- function does not setup any functionality to insert newly typed
--- text into the model. See the module introduction for information
--- about this.
---
-comboBoxEntryNewText ::
-     (a -> String) -- ^ a function to extract elements from a the store
-  -> [a] -- ^ the initial entries in the 'ComboBoxEntry'
-  -> IO (ComboBoxEntry, ListStore a)
-comboBoxEntryNewText extract initial = do
-  store <- listStoreNew initial
-  let colId = makeColumnIdString 0
-  customStoreSetColumn store colId extract
-  combo <- makeNewObject mkComboBoxEntry $
-    liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
-    {# call gtk_combo_box_entry_new_with_model #}
-    (toTreeModel store)
-    (fromIntegral (columnIdToNumber colId))
-  return (combo, store)
-
 --------------------
 -- Methods
+
+-- | Set a model box that holds strings.
+--
+-- This function stores a
+-- 'Graphics.UI.Gtk.ModelView.ListStore' with the widget that contains only
+-- strings. This model is also returned when calling 'comboBoxGetModel'. Note
+-- that only the functions 'comboBoxAppendText', 'comboBoxInsertText',
+-- 'comboBoxPrependText' and 'comboBoxRemoveText' should be called on this
+-- widget once 'comboBoxSetModelText' is called. Any exisiting model or
+-- renderers are removed before setting the new text model. In order to
+-- respond to new texts that the user enters, it is necessary to connect to
+-- the 'Graphics.UI.Gtk.Entry.Entry.entryActivate' signal of the contained
+-- 'Graphics.UI.Gtk.Entry.Entry.Entry' an insert the text into the text model
+-- which can be retrieved with
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxGetModelText'.
+--
+comboBoxEntrySetModelText :: ComboBoxEntryClass self => self ->
+                             IO (ListStore String)
+comboBoxEntrySetModelText combo = do
+  store <- listStoreNew ([] :: [String])
+  comboBoxSetModel combo (Just store)
+  let colId = makeColumnIdString 0
+  customStoreSetColumn store colId id
+  comboBoxEntrySetTextColumn (toComboBoxEntry combo) colId
+  objectSetAttribute comboQuark (toComboBoxEntry combo) (Just store)
+  return store
 
 -- %hash c:b7d7 d:2818
 -- | Sets the model column should be use to get strings from to
