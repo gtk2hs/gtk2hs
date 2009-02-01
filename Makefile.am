@@ -2874,7 +2874,8 @@ DEMOS =
 
 if ENABLE_GTK
 DEMOS += demo/hello demo/buttonbox demo/concurrent \
-	demo/graphic demo/unicode demo/soe demo/menu
+	demo/graphic demo/unicode demo/soe demo/menu \
+	demo/scaling
 if HAVE_GTK_VERSION_2_2
 DEMOS += demo/fastdraw
 endif
@@ -2986,7 +2987,13 @@ EXTRA_DIST +=								\
 		demo/gnomevfs/TestSync.hs				\
 		demo/gnomevfs/TestVolumeMonitor.hs			\
 		demo/gnomevfs/TestXfer.hs				\
-		demo/gnomevfs/Makefile
+		demo/gnomevfs/Makefile					\
+	demo/scaling/London_Eye.jpg					\
+		demo/scaling/Mountains.jpg				\
+		demo/scaling/Stones.jpg					\
+		demo/scaling/Scaling.hs					\
+		demo/scaling/scaling.glade				\
+		demo/scaling/Makefile
 
 
 
