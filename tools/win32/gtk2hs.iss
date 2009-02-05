@@ -12,7 +12,7 @@ AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName=c:\gtk2hs\0.10.0
-OutputBaseFilename=gtk2hs-0.10.0
+OutputBaseFilename=gtk2hs-0.10.0-win32-installer
 
 VersionInfoVersion=0.10.0
 VersionInfoCopyright=Copyright (C) 2001-2009 The Gtk2Hs Team
