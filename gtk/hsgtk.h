@@ -28,10 +28,11 @@
 
 #include <gtk/gtk.h>
 #include <pango/pango.h>
+#include <gtk2hs-config.h>
 
 #if ((_PANGO_MAJOR_VERSION < 1) ||                                      \
-     ((_PANGO_MAJOR_VERSION == 1) && (_PANGO_MINOR_VERSION < 16)) ||    \
-     ((_PANGO_MAJOR_VERSION == 1) && (_PANGO_MINOR_VERSION == 16) && (_PANGO_MICRO_VERSION < 0)))
+     ((_PANGO_MAJOR_VERSION == 1) && (_PANGO_MINOR_VERSION < 16)))
+
 #define PANGO_VERSION_MAJOR _PANGO_MAJOR_VERSION
 #define PANGO_VERSION_MINOR _PANGO_MINOR_VERSION
 #define PANGO_VERSION_MICRO _PANGO_MICRO_VERSION
