@@ -35,6 +35,9 @@ AC_CANONICAL_HOST
 
 AC_CONFIG_HEADERS([gtk2hs-config.h])
 AH_TOP([
+#ifndef _GTK2HS_CONFIG_H_
+#define _GTK2HS_CONFIG_H_
+
 /* Hack to suppress warnings that these symbols clash with
    the ones from ghc's version of config.h */
 #undef /**/ PACKAGE_NAME
@@ -548,6 +551,8 @@ AH_BOTTOM([
      (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION > (minor)) || \
      (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION == (minor) && \
       _CAIRO_MICRO_VERSION >= (micro)))
+#endif
+
 #endif
 ])
 fi
