@@ -2993,7 +2993,10 @@ EXTRA_DIST +=								\
 		demo/scaling/Stones.jpg					\
 		demo/scaling/Scaling.hs					\
 		demo/scaling/scaling.glade				\
-		demo/scaling/Makefile
+		demo/scaling/Makefile					\
+	demo/menu/ComboDemo.hs						\
+		demo/menu/MenuDemo.hs					\
+		demo/menu/Makefile
 
 
 
