@@ -683,8 +683,8 @@ fileSelectionGetButtons fsel =
 
 -- | Retrieves the 'DrawWindow' that the widget draws onto.
 --
--- This may be @Nothing@ if the widget has not yet been realized, since a
--- widget does not allocate its window resources until just before it is
+-- This function thows an error if the widget has not yet been realized, since
+-- a widget does not allocate its window resources until just before it is
 -- displayed on the screen. You can use the
 -- 'Graphics.UI.Gtk.Abstract.Widget.onRealize' signal to give you the
 -- opportunity to use a widget's 'DrawWindow' as soon as it has been created
