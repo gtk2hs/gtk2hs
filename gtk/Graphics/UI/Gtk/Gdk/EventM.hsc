@@ -127,6 +127,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
   eventKeyboardGroup,
   MouseButton(..),
   eventButton,
+  eventClick,
   ScrollDirection(..),
   eventScrollDirection,
   eventIsHint,
@@ -468,6 +469,19 @@ eventKeyboardGroup = ask >>= \ptr -> liftIO $ liftM fromIntegral
 eventButton :: EventM EButton MouseButton
 eventButton = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
   (#{peek GdkEventButton, button} ptr :: IO #{gtk2hs_type guint})
+
+--- | Query the mouse click.
+eventClick :: EventM EButton Click
+eventClick = do
+  ptr <- ask
+  liftIO $ do
+    (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
+    case ty of
+      #{const GDK_BUTTON_PRESS} -> return SingleClick
+      #{const GDK_2BUTTON_PRESS} -> return DoubleClick
+      #{const GDK_3BUTTON_PRESS} -> return TripleClick
+      #{const GDK_BUTTON_RELEASE} -> return ReleaseClick
+      _ -> error ("eventClick: non for event type "++show ty)
 
 -- | Query the direction of scrolling.
 eventScrollDirection :: EventM EScroll ScrollDirection
