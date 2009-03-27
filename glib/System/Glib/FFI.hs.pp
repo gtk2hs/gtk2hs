@@ -43,11 +43,24 @@ import System.IO.Unsafe (unsafePerformIO)
 import Foreign.C
 import qualified Foreign hiding (free)
 import Foreign  hiding	(with, newForeignPtr, free)
+#if (__GLASGOW_HASKELL__>=610)
+import qualified Foreign.Concurrent
+#endif
 
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
 with = Foreign.with
 
+#if (__GLASGOW_HASKELL__>=610)
+newForeignPtr :: Ptr a -> FinalizerPtr a -> IO (ForeignPtr a)
+newForeignPtr p finalizer
+   = Foreign.Concurrent.newForeignPtr p (mkFinalizer finalizer p)
+
+foreign import ccall "dynamic"
+   mkFinalizer :: FinalizerPtr a -> Ptr a -> IO ()
+#else
+newForeignPtr :: Ptr a -> FinalizerPtr a -> IO (ForeignPtr a)
 newForeignPtr = flip Foreign.newForeignPtr
+#endif
 
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
