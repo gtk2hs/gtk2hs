@@ -23,6 +23,12 @@ default :
 	@echo
 	@echo "make glade-modules"
 	@echo "  as above but for libglade"
+	@echo
+	@echo "make clean"
+	@echo "  Removes files from apiGen build."
+	@echo
+	@echo "make clean-all"
+	@echo "  Removes all created files, including downloaded tarballs."
 
 ########################
 #
@@ -421,5 +427,8 @@ gapi_format_xml : formatXml.c
 #
 
 clean :
-	rm src/*.o src/*.hi ApiGen gapi_format_xml
-	rm *-api.xml *-docs.xml
+	rm src/*.o src/*.hi ApiGen gapi_format_xml || true
+	rm *-api.xml *-docs.xml || true
+clean-all : clean
+	rm -r atk gconf glade gtk glib sourceview pango || true
+	rm -r gtk-modules tars glade-modules pango-modules || true
