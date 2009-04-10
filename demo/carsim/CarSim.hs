@@ -1,219 +1,283 @@
--- program: S.A.R.A.H. road simulator
--- author: Maur�cio C. Antunes
+-- program: S.A.R.A.H. jam simulator
+-- author: Maurício C. Antunes
 -- e-mail: mauricio.antunes@gmail.com
 -- license: public domain
 
-module Main (Main.main) where
-import Complex
+module Main where
 import Data.Maybe
-import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Abstract.Widget
-import Graphics.Rendering.Cairo hiding (translate)
-import Graphics.Rendering.Cairo.Matrix
+import Graphics.UI.Gtk hiding (fill)
+import Graphics.UI.Gtk.Gdk.EventM
+import Graphics.Rendering.Cairo
 import Control.Monad
 import Data.IORef
 import Data.List
-import Data.Char
-import System.Time
+import Data.Time
+import Data.Complex
 
-mod1 :: Double -> Double
-mod1 x = (x -) $ (fromIntegral.floor) x
+-- Constants
 
--- car limits
-acceleration = 0.9*carSize :: Double
-desacceleration = 10*acceleration:: Double
-carSize = 0.015 :: Double
--- time one takes to react to a change in the road
+accelerator = 0.7*carSize :: Double
+brake = 10*accelerator:: Double
+carSize = 2*pi/59 :: Double
 responseTime = 0.24 :: Double
-halfMaxCars = 20 :: Integer
+drawSide = 5/2 :: Double
 
--- in a car list the last car should try to keep its position
--- before the first car position plus 1.0.  The actual position of
--- a car in the road is (mod1 position), i.e., 0 <= actual position
--- < 1
-data Car = Car {position,speed::Double}
-carPositionCompare c1 c2 = compare (position c1) (position c2)
-carSpeedCompare c1 c2 = compare (speed c1) (speed c2)
-newCarList n = map (((flip Car) 0).(1.0/(fromIntegral n) *).fromIntegral) [1..n]
-changeCarListSize :: Int -> [Car] -> [Car]
-changeCarListSize _ [] = []
-changeCarListSize n carList = sortBy carPositionCompare $
-        take n $ cycle $ sortBy carSpeedCompare carList
+-- A few conveniences
 
--- safe speed according to distance from next car
-distance2speed distance = sqrt (b^2 + 2*d) - b
-  where
-    d = max 0 (distance*desacceleration)
-    b = desacceleration*responseTime
+eventWindowSize = do
+    dr <- eventWindow
+    (w,h) <- liftIO $ drawableGetSize dr
+    return $ if w*h > 1
+        then (fromIntegral w, fromIntegral h)
+        else (1,1)
 
--- update cars position and speed with a timestep
--- and maybe a congestion
-updateCarList :: Maybe Double -> Double -> [Car] -> [Car]
+eventPolarCoordinates = do
+    (w,h) <- eventWindowSize
+    (x,y) <- eventCoordinates
+    let (origX, origY) = (w/2, h/2)
+    let (scaleX, scaleY) = (drawSide/w, drawSide/h)
+    let (x',y') = (scaleX*(x-origX), scaleY*(y-origY))
+    let (radius,theta) = polar $ x' :+ y'
+    return $ (radius,theta)
+
+getAndSet :: a -> IO (IO a, a -> IO ())
+getAndSet a = do
+    ior <- newIORef a
+    let get = readIORef ior
+    let set = writeIORef ior
+    return (get,set)
+
+diffTime :: UTCTime -> UTCTime -> Double
+diffTime = (realToFrac .) . diffUTCTime
+
+moveToLineTo :: Double -> Double
+ -> Double -> Double -> Render ()
+moveToLineTo a b c d = moveTo a b >> lineTo c d
+
+-- Car list handling
+
+-- Each car is represented by a pair of Doubles. The first
+-- Double is its position in a circular road, represented by
+-- an angle. The second is its angular velocity. The general
+-- idea behind the simulation is that in a list of cars each
+-- one will try to keep a safe speed to avoid a crash in the
+-- event of a sudden brake of the next car.
+
+newCarList nCars = take nCars $ zip [0,2*pi/nCars'..] (repeat 0)
+    where nCars' = fromIntegral nCars
+
+-- This resizes car lists by copying or keeping those
+-- at lower speeds.
+
+newCarListFromList nCars [] = newCarListFromList nCars [(0,0)]
+newCarListFromList nCars list = sortBy ((. fst).(compare . fst)) $
+    take nCars $ cycle $ sortBy ((. snd).(compare . snd)) list
+
+-- Safe speed for car, given data from itself and the next
+-- and, possibly, a forced (by the user) jam. Speed changes
+-- are limited by accelerator and brake maxima.
+
+newSpeed dt jam (p1,s1) (p2,s2) = min cv $ max bv $ ds - br
+    where
+        pd = (p2-p1-carSize) - responseTime*(s2-s1)
+        pj = maybe pd ((subtract $ carSize/2)
+         . (until (>0) (+2*pi)) . (subtract p1)) jam
+        dd = brake*(max 0 $ min pd pj)
+        br = brake*responseTime
+        ds = sqrt $ br^2 + 2*dd
+        cv = s1 + accelerator*dt
+        bv = s1 - brake*dt
+
+-- Update positions and speeds based on a timestep and maybe
+-- taking a forced congestion into account
+
 updateCarList _ _ [] = []
-updateCarsList congestion timestep carList = newList
-  where
-    positions = map position carList
-    speeds = map speed carList
-   
-    -- distances considered to calculate speed are always 'responseTime'
-    -- in the past, since human brain takes that time to react
-    oldDistances = map (subtract carSize) $ zipWith (-) rotatedOldPositions oldPositions
-      where
-        oldPositions = zipWith (-) positions (map (responseTime *) speeds)
-        rotatedOldPositions = (tail oldPositions) ++ [1 + (head oldPositions)]
-    distancesToCongestion = congestion >>= \c -> Just $ map (mod1.(c - carSize/2 -)) positions
+updateCarList timestep jam list = zip newPositions' newSpeeds
+    where
+        fakeCar = (p+2*pi,s) where (p,s) = head list
+        newSpeeds = zipWith ns list (tail list ++ [fakeCar])
+            where ns = newSpeed timestep jam
+        newPositions = zipWith3 mean fsts snds newSpeeds
+            where
+                mean a b c = a + timestep*(b+c)/2
+                fsts = map fst list
+                snds = map snd list
+        newPositions' = map (subtract base) newPositions
+        base = (*(2*pi)) $ fromIntegral $ floor $ (/ (2*pi)) $
+            head newPositions
 
-    speedFromDistances = map distance2speed oldDistances
-    speedFromCongestion = distancesToCongestion >>= \d -> Just $ map distance2speed d
-    desiredSpeed = case speedFromCongestion of
-      Nothing -> speedFromDistances
-      Just d -> zipWith min d speedFromDistances
-
-    -- never change speeds more than given limits
-    upperSpeed = map (+ timestep*acceleration) speeds
-    lowerSpeed = map (subtract (timestep*desacceleration)) speeds
-    finalSpeed = zipWith3 between lowerSpeed desiredSpeed upperSpeed
-      where between x y z = max x (min y z)
-
-    newList = zipWith updateSpeed carList finalSpeed
-      where
-        updateSpeed (Car p _) s = Car (p+s*timestep-base) s
-        -- base is just to ensure that car positions
-        -- do not get too big, since just (mod1 position)
-        -- is what actually matter
-        base = (fromIntegral . floor . head) positions
-
--- matrix to transform a coordinate space
--- so that a a circle with radius 1.0 can
--- fit inside window area
-drawingMatrix :: DrawWindow -> IO Matrix
-drawingMatrix dw = do
-  (w_,h_) <- drawableGetSize dw
-  (w,h) <- return (fromIntegral w_,fromIntegral h_)
-  if (w*h)>0
-    then do
-      s <- return $ 0.85 * (min (w/2) (h/2))
-      return $ (translate (w/2) (h/2)) . (scalarMultiply s) $ identity
-    else
-      return identity
+about = do
+    ad <- aboutDialogNew
+    aboutDialogSetName ad "S.A.R.A.H."
+    aboutDialogSetVersion ad "1.0"
+    aboutDialogSetAuthors ad $ ["Maurício C. Antunes "
+        ++ "<mauricio.antunes@gmail.com>"]
+    aboutDialogSetComments ad $ "Software Automation of "
+        ++ "Road Automobile Headache"
+    dialogRun ad
+    widgetDestroy ad
 
 main :: IO ()
 main = do
-  -- GTK stuff
-  initGUI
-  window <- windowNew
-  set window [ containerBorderWidth := 10, windowTitle := "S.A.R.A.H.",
-      windowWindowPosition := WinPosCenter]
-  onDestroy window mainQuit
-  hBox <- hBoxNew False 5
-  hSeparator <- hSeparatorNew
-  vBox <- vBoxNew False 0
-  hButtonBox <- hButtonBoxNew
-  scaleCarAmount <- vScaleNewWithRange 1 (fromIntegral (2*halfMaxCars)) 1
-  mapM ($ scaleCarAmount) [(`scaleSetDigits` 0),(`scaleSetValuePos` PosTop),
-          (`rangeSetUpdatePolicy` UpdateDelayed),(`rangeSetInverted` True)]
-  scaleAdjustment <- rangeGetAdjustment scaleCarAmount
-  scaleAdjustment `adjustmentSetValue` (fromIntegral halfMaxCars)
-  [buttonReset,buttonAbout,buttonQuit] <- mapM buttonNewWithLabel ["Reset","About","Quit"]
-  widgetSetCanFocus scaleCarAmount False
-  mapM (`widgetSetCanFocus` False) [buttonReset,buttonAbout,buttonQuit]
-  desenho <- drawingAreaNew
-  desenho `onSizeRequest` return (Requisition 300 300)
 
-  -- layout
-  window `containerAdd` hBox
-  boxPackStart hBox scaleCarAmount PackNatural 0
-  boxPackStart hBox vBox PackGrow 0
-  boxPackStart vBox desenho PackGrow 0
-  boxPackStart vBox hSeparator PackNatural 0
-  boxPackStart vBox hButtonBox PackNatural 0
-  buttonBoxSetLayout hButtonBox ButtonboxSpread
-  mapM (boxPackStartDefaults hButtonBox) [buttonReset,buttonAbout,buttonQuit]
+    initGUI
 
-  aboutDialog <- aboutDialogNew
-  set aboutDialog [aboutDialogName := "S.A.R.A.H.", aboutDialogVersion := "0.95",
-      aboutDialogLicense := Just "This small program is public domain. You can do \
-      \whatever you want with it.", aboutDialogAuthors :=
-      ["Maur"++[chr 237]++"cio C. Antunes (mauricio.antunes@gmail.com)"], aboutDialogComments :=
-      "Software Automation of Road Automobile Headache"]
+    drawingArea <- drawingAreaNew
 
-  -- all variables. 'last_time' is the last time 'cars' has
-  -- been updated; used to calculate timestep
-  cars <- newIORef (newCarList (fromIntegral halfMaxCars))
-  last_time <- (newIORef =<< getClockTime)
+    (getTimeStamp,setTimeStamp) <- getCurrentTime >>= getAndSet
+    (getCars,setCars) <- getAndSet $ newCarList 20
+    (getJam,setJam) <- getAndSet Nothing
+    (getTimeoutId,setTimeoutId) <- getAndSet Nothing
 
-  onClicked buttonReset $ do
-    nCars <- adjustmentGetValue scaleAdjustment
-    writeIORef cars (newCarList (round nCars))
-  onClicked buttonAbout $ do
-    dialogRun aboutDialog
-    return ()
-  onClicked buttonQuit $ do
-    widgetDestroy window
+    -- If 'resume' is called, 'step' will be called at small
+    -- timesteps to update car data. If 'pause' is called, 'step'
+    -- calls are stoped.  'resume' is called at program startup,
+    -- and then the pause button alternates 'resume' and 'pause'.
 
-  afterValueChanged scaleAdjustment $ do
-    nCars <- adjustmentGetValue scaleAdjustment
-    modifyIORef cars (changeCarListSize (round nCars))
+    let step = do
+         time <- getCurrentTime
+         dt <- getTimeStamp >>= return . (diffTime time)
+         setTimeStamp time
+         liftM2 (updateCarList dt) getJam getCars >>= setCars
+    let pause = do
+         maybe (return ()) timeoutRemove =<< getTimeoutId
+         setTimeoutId Nothing
+    let resume = do
+         setTimeoutId . Just =<< flip timeoutAdd 33
+          (step >> widgetQueueDraw drawingArea >> return True)
+         getCurrentTime >>= setTimeStamp
 
-  -- every 33 milliseconds...
-  (flip timeoutAdd) 33 $ do
-    (TOD s1 ps1) <- readIORef last_time
-    (TOD s2 ps2) <- getClockTime
-    writeIORef last_time (TOD s2 ps2)
-    -- how much time since last update?
-    timestep <- return $ 1e-12 * fromInteger(10^12*(s2-s1)+ps2-ps1)
+    -- The elements of the graphic interface are the set of
+    -- buttons, the scale to set the number of cars and the
+    -- car track. They are named as 'buttons', 'howMany' and
+    -- 'track'. Each of them contains other widgets inside, but
+    -- there's no reason to expose their names to the main IO.
 
-    drawWindow <- widgetGetDrawWindow desenho
-    coordinateTransformation <- drawingMatrix drawWindow
+    buttons <- do
 
-    -- do we have a congestion, i.e., is mouse
-    -- close to the road?
-    (mouseFromOrigin,congestionPosition) <- do
-      (xI,yI) <- widgetGetPointer desenho
-      (xD,yD) <- return (fromIntegral xI, fromIntegral yI)
-      (x,y) <- return $ transformPoint (invert coordinateTransformation) (xD,yD)
-      return (sqrt(x^2+y^2),(atan2 y x)/(2*pi))
-    congestion <- return $ if mouseFromOrigin<0.85 || mouseFromOrigin>1.15
-      then Nothing
-      else Just congestionPosition
+        qr <- buttonNewFromStock stockClear
+        onClicked qr $ do
+            (liftM length) getCars >>= setCars . newCarList
+            getCurrentTime >>= setTimeStamp
+            widgetQueueDraw drawingArea
 
-    modifyIORef cars (updateCarsList congestion timestep)
+        qp <- toggleButtonNewWithLabel stockMediaPause
+        buttonSetUseStock qp True
+        onToggled qp $ do
+            p <- toggleButtonGetActive qp
+            case p of
+                True -> pause
+                False -> resume
 
-    -- paint
-    c <- readIORef cars
-    (w,h) <- drawableGetSize drawWindow
-    drawWindowBeginPaintRect drawWindow (Rectangle 0 0 w h)
-    renderWithDrawable drawWindow $ do
-      setMatrix coordinateTransformation
-      road2render congestion c
-    drawWindowEndPaint drawWindow
-    return True
+        qa <- buttonNewFromStock stockAbout
+        onClicked qa $ about
 
-  widgetShowAll window
-  mainGUI
+        qq <- buttonNewFromStock stockQuit
+        onClicked qq mainQuit
 
-road2render :: Maybe Double -> [Car] -> Render ()
-road2render congestion cars = do
-  newPath
-  -- road
-  setSourceRGB 0.0 0.0 0.0
-  s <- return (2*pi/30.0)
-  setDash [s,s] 0.0
-  setLineWidth 0.01
-  arc 0.0 0.0 1.0 0.0 (2*pi)
-  stroke
-  setDash [0.08,0.02] 0.0
-  -- congestion
-  case congestion of
-    Nothing -> return ()
-    Just c -> do
-      moveTo 0 0
-      lineTo (1.2*(cos(c*2*pi))) (1.2*(sin(c*2*pi)))
-      stroke
-  -- cars
-  setSourceRGBA 0.0 0.0 0.0 0.55
-  (flip mapM_) cars $ \(Car p _) -> do
-    (x,y) <- return (cos(2*pi*p),sin(2*pi*p))
-    arc x y (0.5*carSize*2*pi) 0.0 (2*pi)
-    Graphics.Rendering.Cairo.fill
+        bb <- hButtonBoxNew
+        containerAdd bb qr
+        containerAdd bb qp
+        containerAdd bb qa
+        containerAdd bb qq
+        return bb
+  
+    howMany <- do
 
+        sc <- vScaleNewWithRange 1 40 1
+        afterRangeValueChanged sc $ do
+            v <- liftM floor $ rangeGetValue sc
+            c <- getCars
+            setCars $ newCarListFromList v c
+            widgetQueueDraw drawingArea
+
+        scaleSetValuePos sc PosTop
+        scaleSetDigits sc 0
+        rangeSetUpdatePolicy sc UpdateDiscontinuous
+        rangeSetValue sc =<< liftM (fromIntegral . length) getCars
+
+        al <- alignmentNew 0.5 0.5 0 1
+        alignmentSetPadding al 15 15 15 15
+        containerAdd al sc
+        return al
+  
+    track <- do
+
+        let dr = drawingArea
+        widgetAddEvents dr [PointerMotionMask]
+
+        on dr motionNotifyEvent $ do
+            (r,t) <- eventPolarCoordinates
+            liftIO $ if (0.8<r && r<1.2)
+                then setJam (Just t)
+                else setJam Nothing
+            liftIO $ widgetQueueDraw dr
+            return True
+
+        on dr leaveNotifyEvent $ liftIO $
+            setJam Nothing >> return True
+
+        on dr exposeEvent $ do
+            (w,h) <- eventWindowSize
+            dw <- eventWindow
+            liftIO $ do
+                jam <- getJam
+                cars <- getCars
+                renderWithDrawable dw $ do
+                    translate (w/2) (h/2)
+                    scale (w/drawSide) (h/drawSide)
+                    road2render jam cars
+            return True
+
+        af <- aspectFrameNew 0.5 0.5 (Just 1)
+        frameSetShadowType af ShadowNone
+        containerAdd af dr
+        return af
+  
+    -- 'layout' is a widget that contains all interface elements
+    -- properly arranged.
+
+    layout <- do
+        vb <- vBoxNew False 0
+        hb <- hBoxNew False 0
+        boxPackStart vb track PackGrow 0
+        boxPackStart vb buttons PackNatural 0
+        boxPackStart hb howMany PackNatural 0
+        boxPackStart hb vb PackGrow 0
+        return hb
+
+    mainWindow <- windowNew
+    windowSetTitle mainWindow "S.A.R.A.H."
+    windowSetDefaultSize mainWindow 400 400
+    on mainWindow destroyEvent $
+     liftIO $ mainQuit >> return True
+    containerAdd mainWindow layout
+    widgetShowAll mainWindow
+
+    resume
+
+    mainGUI
+
+-- As the name says, this takes road info, in the form of a
+-- possible jam and a list of cars, and make it into a Cairo
+-- render.  Road will have radius 1.
+
+road2render :: Maybe Double -> [(Double,Double)] -> Render ()
+road2render jam cars = do
+    newPath
+    setSourceRGB 0 0 0
+    drawRoad
+    when (isJust jam) drawJam
+    setSourceRGBA 0 0 0 0.55
+    let cars' = map fst cars
+    let rotations = zipWith subtract (0:cars') cars'
+    sequence_ $ map ((>> drawCar) . rotate) rotations
+ where
+    drawRoad = setLineWidth 0.01 >> setDash [2*pi/34,2*pi/34]
+     (pi/34) >> arc 0.0 0.0 1.0 0.0 (2*pi) >> stroke
+    drawJam = setLineWidth 0.005 >> setDash [0.03,0.02] 0.04 >>
+     save >> rotate (fromJust jam) >> moveToLineTo 0.8 0 1.2
+     0 >> stroke >> setDash [] 0 >> moveToLineTo 0.8 (-0.015)
+     0.8 0.015 >> moveToLineTo 1.2 (-0.015) 1.2 0.015 >> stroke
+     >> restore
+    drawCar = arc 1 0 (carSize/2) 0 (2*pi) >> fill
