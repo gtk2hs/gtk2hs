@@ -113,7 +113,7 @@ volumeOpCallbackMarshal successCallback failureCallback =
         cCallback cSucceeded cError cDetailedError cUserData =
             let succeeded = cToBool cSucceeded
                 cCallbackFunPtr = castPtrToFunPtr cUserData
-            in finally (freeHaskellFunPtr cCallbackFunPtr) $
+            in (flip finally) (freeHaskellFunPtr cCallbackFunPtr) $
                    if succeeded
                       then assert (and [cError == nullPtr, cDetailedError == nullPtr]) $
                                   successCallback
