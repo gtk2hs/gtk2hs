@@ -1,10 +1,11 @@
+{-# OPTIONS -cpp #-}
 -- Test file for the ListView widget.
 module Main(main) where
 
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.ModelView as New
 
-import Control.Exception (handle)
+import Control.Exception
 import System.Directory
 import System.IO
 import System.Locale
@@ -24,8 +25,13 @@ main = do
   curDir <- getCurrentDirectory
   files <- getDirectoryContents curDir
   fInfos <- (flip mapM) files $ \f -> do
-    s <- handle (\_ -> return 0) $
-           do h <- openFile f ReadMode
+    s <- handle (\e ->
+#if __GLASGOW_HASKELL__>=610
+                 case e :: SomeException of
+                   e ->
+#endif
+                        return 0) $ do
+              h <- openFile f ReadMode
               s <- hFileSize h
               hClose h
               return s
