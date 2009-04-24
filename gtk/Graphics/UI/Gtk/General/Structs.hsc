@@ -562,7 +562,7 @@ toResponse (-8) = ResponseYes
 toResponse (-9) = ResponseNo
 toResponse (-10) = ResponseApply
 toResponse (-11) = ResponseHelp
-toResponse i | i > 0  = ResponseUser $ fromIntegral i
+toResponse i | i >= 0  = ResponseUser $ fromIntegral i
 
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | The identifer of a window of the underlying windowing system.
