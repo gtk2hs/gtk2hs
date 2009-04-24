@@ -3073,7 +3073,7 @@ install-data-hook :
 	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.package.conf,$(pkgname));)
 
 uninstall-hook :
-	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	$(foreach pkgname,$(call reverse,$(pkglib_LIBRARIES)), \
 	  $(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) $(if $(USERPKGCONF),--user) \
 	  unregister $(patsubst libHS%.a,%,$(pkgname))-$(PACKAGE_VERSION);) \
 	$(if $(PKGCONF),if test -f $(PKGCONF); then \

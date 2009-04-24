@@ -3,6 +3,9 @@
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
+# Define a reverse function in pure GNU make
+reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
+
 # Cunning make hackery, this function translates from a file name to the
 # package variable name prefix, eg
 #   "gtk/Graphics/UI/Gtk.hs" to "libHSgtk_a"
