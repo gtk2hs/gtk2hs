@@ -138,6 +138,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferGetIterAtChildAnchor,
 #if GTK_CHECK_VERSION(2,2,0)
   textBufferPasteClipboard,
+  textBufferPasteClipboardAtCursor,
   textBufferCopyClipboard,
   textBufferCutClipboard,
 #endif
@@ -961,13 +962,13 @@ textBufferGetBounds self start end =
     end
 
 #if GTK_CHECK_VERSION(2,2,0)
--- | Pastes the contents of a clipboard at the insertion point,
--- or at override_location. (Note: pasting is asynchronous, that is,
+-- | Pastes the contents of a clipboard at the given @location@.
+-- (Note: pasting is asynchronous, that is,
 -- we'll ask for the paste data and return, and at some point later
 -- after the main loop runs, the paste data will be inserted.)
 textBufferPasteClipboard :: TextBufferClass self => self
   -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard to paste from
-  -> TextIter   -- ^ @overrideLocation@ - 	location to insert pasted text
+  -> TextIter   -- ^ @location@ - 	location to insert pasted text
   -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
   -> IO ()
 textBufferPasteClipboard self clipboard overrideLocation defaultEditable =
@@ -975,6 +976,21 @@ textBufferPasteClipboard self clipboard overrideLocation defaultEditable =
     (toTextBuffer self)
     clipboard
     overrideLocation
+    (fromBool defaultEditable)
+
+-- | Pastes the contents of a clipboard at the insertion point.
+-- (Note: pasting is asynchronous, that is,
+-- we'll ask for the paste data and return, and at some point later
+-- after the main loop runs, the paste data will be inserted.)
+textBufferPasteClipboardAtCursor :: TextBufferClass self => self
+  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard to paste from
+  -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
+  -> IO ()
+textBufferPasteClipboardAtCursor self clipboard defaultEditable =
+  {# call gtk_text_buffer_paste_clipboard #}
+    (toTextBuffer self)
+    clipboard
+    (TextIter nullForeignPtr)
     (fromBool defaultEditable)
 
 -- | Copies the currently-selected text to a clipboard.
