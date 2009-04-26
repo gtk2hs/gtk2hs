@@ -232,6 +232,9 @@
 	GnomeVFSVolumeMonitor	as VolumeMonitor, gnome_vfs_volume_monitor_get_type if gnomevfs
 
 ## GIO classes
+# Note on all the "as" clauses: the prefix G is unfortunate since it leads
+# to two consecutive upper case letters which are not translated with an
+# underscore each (e.g. GConf -> gconf, GtkHButtonBox -> gtk_hbutton_box).
 #        GUnixMountMonitor		as UnixMountMonitor, g_unix_mount_monitor_get_type if gio
         GOutputStream			as OutputStream, g_output_stream_get_type if gio
             GFilterOutputStream		as FilterOutputStream, g_filter_output_stream_get_type if gio
@@ -267,5 +270,5 @@
         GAsyncResult			as AsyncResult, g_async_result_get_type if gio
         GLoadableIcon			as LoadableIcon, g_loadable_icon_get_type if gio
         GDrive				as Drive, g_drive_get_type if gio
-        GFile				as File, g_file_get_type if gio
+        GFile				noEq as File, g_file_get_type if gio
         GMount				as Mount, g_mount_get_type if gio

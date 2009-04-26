@@ -14,8 +14,16 @@ import System.Exit   (exitWith, ExitCode(..))
 type ObjectSpec = [(Int,String)]
 
 -- This is a mapping from a type name to a) the type name in Haskell and
--- b) the GTK blah_get_type function.
-type TypeQuery  = (String, (String, Maybe String))
+-- b) the info on this type 'TypeInfo'.
+type TypeQuery  = (String, TypeInfo)
+
+-- The information of on the type.
+data TypeInfo = TypeInfo {
+  tiQueryFunction :: String, -- the GTK blah_get_type function
+  tiAlternateName :: Maybe String,
+  tiNoEqualInst   :: Bool
+  }
+
 type TypeTable  = [TypeQuery]
 
 -- A Tag is a string restricting the generation of type entries to
@@ -51,25 +59,28 @@ pFreshLine ps input = pFL ps input
 pGetObject :: ParserState -> String -> String -> [(ObjectSpec, TypeQuery)]
 pGetObject ps@ParserState { onlyTags=tags } txt txt' = 
   (if readTag `elem` tags then (:) (spec, specialQuery) else id) $
-  pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem'')
+  pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem''')
   where
     isBlank     c = c==' ' || c=='\t'
     isAlphaNum_ c = isAlphaNum c || c=='_'
     isTagName c = isAlphaNum_ c || c=='-' || c=='.'  --to allow tag 'gtk-2.4'
     (origCName,rem) = span isAlphaNum txt
     (origHsName,_) = span isAlphaNum txt'
-    (name,specialQuery,rem') = case (dropWhile isBlank rem) of
+    (eqInst,rem') = 
+       let r = dropWhile isBlank rem in
+       if "noEq" `isPrefixOf` r then (True, drop 4 r) else (False, r)
+    (name,specialQuery,rem'') = case (dropWhile isBlank rem') of
       ('a':'s':r) ->
         let (tyName,r') = span isAlphaNum_ (dropWhile isBlank r) in
           case (dropWhile isBlank r') of
 	    (',':r) ->
 	      let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
-	        (tyName, (tyName, (origCName, Just tyQuery)), r')
-	    r -> (tyName, (tyName, (origCName, Nothing)), r)
-      r -> (origHsName, (origHsName, (origCName, Nothing)), r)
+	        (tyName, (tyName, TypeInfo origCName (Just tyQuery) eqInst), r')
+	    r -> (tyName, (tyName, TypeInfo origCName Nothing eqInst), r)
+      r -> (origHsName, (origHsName, TypeInfo origCName Nothing eqInst), r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
-    (readTag, rem'') = case (dropWhile isBlank rem') of
+    (readTag, rem''') = case (dropWhile isBlank rem'') of
       ('i':'f':r) -> span isTagName (dropWhile isBlank r)
       r -> ("default",r)
 
@@ -213,8 +224,10 @@ makeGType table (obj:_:_) =
   indent 0.ss "gType".ss obj.ss " =".
   indent 1.ss "{# call fun unsafe ".
     ss (case lookup obj table of 
-         (Just (_, Just get_type_func)) -> get_type_func
-	 (Just (cname, _)) -> tail $ c2u True cname++"_get_type").
+         (Just TypeInfo { tiAlternateName = Just get_type_func }) ->
+           get_type_func
+	 (Just TypeInfo { tiQueryFunction = cname}) ->
+	   tail $ c2u True cname++"_get_type").
     ss " #}".
   indent 0
   where
@@ -245,14 +258,19 @@ makeClass prefix table (name:parents) =
   indent 0.
   indent 0.ss "{#pointer *".
   (case lookup name table of
-        (Just (cname, _)) | stripPrefix cname == name -> ss name
-                          | otherwise     -> ss cname.ss " as ".ss name
+        (Just TypeInfo { tiQueryFunction = cname })
+          | stripPrefix cname == name -> ss name
+          | otherwise                 -> ss cname.ss " as ".ss name
 	  where stripPrefix s = if uCasePrefix `isPrefixOf` s
-	  	                  then drop (length prefix) s
+		                  then drop (length prefix) s
 				  else s
                 uCasePrefix = toUpper (head prefix) : tail prefix -- gtk -> Gtk
-  	).
+	).
   ss " foreign newtype #}".
+  (case lookup name table of
+     (Just (TypeInfo { tiNoEqualInst = False })) -> ss " deriving (Eq,Ord)"
+     _ -> id
+     ).
   indent 0.
   indent 0.ss "mk".ss name.ss " = ".ss name.
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".

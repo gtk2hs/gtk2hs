@@ -68,7 +68,8 @@ import Control.Monad.Reader                     (ask)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- | Compare two tree model for equality.
+-- this function is not necessary anymore since the models can be compared
+-- using equality ==
 treeModelEqual :: (TreeModelClass tm1, TreeModelClass tm2) => tm1 -> tm2 -> Bool
 treeModelEqual tm1 tm2 = unTreeModel (toTreeModel tm1) == unTreeModel (toTreeModel tm2)
 

@@ -196,13 +196,13 @@ treeStoreDefaultDragDestIface = DragDestIface {
       mModelPath <- treeGetRowDragData
       case mModelPath of
         Nothing -> return False
-        Just (model', source) -> return (treeModelEqual model model'),
+        Just (model', source) -> return (toTreeModel model==toTreeModel model'),
     treeDragDestDragDataReceived = \model dest@(_:_) -> do
       mModelPath <- treeGetRowDragData
       case mModelPath of
         Nothing -> return False
         Just (model', source@(_:_)) ->
-          if not (treeModelEqual model model') then return False
+          if toTreeModel model/=toTreeModel model' then return False
           else liftIO $ do
             row <- treeStoreGetTree model source
             treeStoreInsertTree model (init dest) (last dest) row

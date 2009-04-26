@@ -158,6 +158,10 @@ fileFromParseName :: String -> File
 fileFromParseName parseName =
     unsafePerformIO $ withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName >>= takeGObject
 
+-- | Compare two file descriptors for equality. This test is also used to
+--   implement the '(==)' function, that is, comparing two descriptions
+--   will compare their content, not the pointers to the two structures.
+--
 fileEqual :: (FileClass file1, FileClass file2)
           => file1 -> file2 -> Bool
 fileEqual file1 file2 =
