@@ -72,6 +72,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowSetChildShapes,
   drawWindowMergeChildShapes,
   drawWindowGetPointer,
+  drawWindowGetPointerPos,
   drawWindowGetOrigin,
   drawWindowForeignNew
   ) where
@@ -471,8 +472,8 @@ drawWindowMergeChildShapes self =
   {# call gdk_window_merge_child_shapes #}
      (toDrawWindow self)
 
-
--- | Obtains the current pointer position and modifier state.
+-- Superseded by 'drawWindowGetPointerPos', won't be removed.
+-- Obtains the current pointer position and modifier state.
 --
 -- * The position is
 -- given in coordinates relative to the given window.
@@ -498,6 +499,32 @@ drawWindowGetPointer self =
   m <- peek mPtr
   return (Just (same, fromIntegral x, fromIntegral y,
 		toFlags (fromIntegral m)))
+
+-- | Obtains the current pointer position and modifier state.
+--
+-- * The position is
+-- given in coordinates relative to the given window.
+-- 
+-- * The return value is @(Just win, x, y, mod)@ where @win@ is the
+--   window over which the mouse currently resides and @mod@ denotes
+--   the keyboard modifiers currently being depressed.
+--
+-- * The return value is @Nothing@ for the window if the mouse cursor is 
+--   not over a known window.
+--
+drawWindowGetPointerPos :: DrawWindowClass self => self
+ -> IO (Maybe DrawWindow, Int, Int, [Modifier])
+drawWindowGetPointerPos self =
+  alloca $ \xPtr -> alloca $ \yPtr -> alloca $ \mPtr -> do
+  winPtr <- {# call gdk_window_get_pointer #} (toDrawWindow self)
+     xPtr yPtr mPtr
+  x <- peek xPtr
+  y <- peek yPtr
+  m <- peek mPtr
+  mWin <- if winPtr==nullPtr then return Nothing else liftM Just $
+    makeNewGObject mkDrawWindow (return winPtr)
+  return (mWin, fromIntegral x, fromIntegral y, toFlags (fromIntegral m))
+
 
 -- | Obtains the position of a window in screen coordinates.
 --
