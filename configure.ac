@@ -23,7 +23,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
 AC_INIT([gtk2hs],[0.10.0])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([dist-bzip2])
 
 dnl * We require autoconf version 2.59
 dnl When this is bumped up to 2.61 then remove the definitions of AC_PROG_SED and
