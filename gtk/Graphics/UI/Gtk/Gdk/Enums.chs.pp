@@ -47,7 +47,9 @@ module Graphics.UI.Gtk.Gdk.Enums (
   WindowTypeHint(..),
   Gravity(..),
   GrabStatus(..),
+#if GTK_CHECK_VERSION(2,6,0)
   OwnerChange(..),
+#endif
   ) where
 
 import System.Glib.Flags	(Flags)
@@ -248,6 +250,7 @@ instance Flags WindowState
 --
 {#enum GrabStatus {underscoreToCase} deriving(Eq,Show) #}
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | Specifies why a selection ownership was changed.
 --
 -- [@OwnerChangeNewOwner@] some other application claimed the ownership
@@ -257,3 +260,4 @@ instance Flags WindowState
 -- [@OwnerChangeClose@] the client was closed
 --
 {#enum OwnerChange {underscoreToCase} deriving(Eq,Show) #}
+#endif

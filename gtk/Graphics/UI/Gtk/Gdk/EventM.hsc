@@ -175,7 +175,10 @@ import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..), VisibilityState(..),
   CrossingMode(..), NotifyType(..), WindowState(..), ScrollDirection(..),
-  OwnerChange(..))
+#if GTK_CHECK_VERSION(2,6,0)
+  OwnerChange(..)
+#endif
+  )
 import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 import Graphics.UI.Gtk.General.DNDTypes (Atom(..), SelectionTag)
@@ -396,7 +399,9 @@ instance HasTime EMotion
 instance HasTime ECrossing
 instance HasTime EProperty
 instance HasTime EProximity
+#if GTK_CHECK_VERSION(2,6,0)
 instance HasTime EOwnerChange
+#endif
 
 -- | The time (in milliseconds) when an event happened. This is used mostly
 -- for ordering events and responses to events.
@@ -441,9 +446,11 @@ eventTime = do
                           #{const GDK_PROXIMITY_OUT}] then do
         (time :: #gtk2hs_type guint32) <- #{peek GdkEventProximity, time} ptr
         return (fromIntegral time)
+#if GTK_CHECK_VERSION(2,6,0)
       else if ty `elem` [ #{const GDK_OWNER_CHANGE} ] then do
         (time :: #gtk2hs_type guint32) <- #{peek GdkEventOwnerChange, time} ptr
         return (fromIntegral time)
+#endif
       else error ("eventModifiers: none for event type "++show ty)
 
 -- | The key value. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
