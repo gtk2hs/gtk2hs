@@ -1,19 +1,19 @@
 module Names where
 
 import MarshalFixup (cTypeNameToHSType, fixCFunctionName)
-import Utils (splitBy, lowerCaseFirstChar, upperCaseFirstChar)
+import Utils (splitBy, lowerCaseFirstWord, upperCaseFirstChar)
 import Data.Char as Char (toLower, isUpper, isLower)
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
-    lowerCaseFirstChar
+    lowerCaseFirstWord
   . MarshalFixup.cTypeNameToHSType
   . toStudlyCapsWithFixups
   . takeWhile ('('/=)
 
 cParamNameToHsName :: String -> String
 cParamNameToHsName  =          --change "gtk_foo_bar" to "gtkFooBar"
-    lowerCaseFirstChar
+    lowerCaseFirstWord
   . toStudlyCaps
 
 cConstNameToHsName :: String -> String

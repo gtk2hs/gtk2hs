@@ -9,7 +9,7 @@ module Utils (
   commentBlock,
   
   -- string things
-  lowerCaseFirstChar,
+  lowerCaseFirstWord,
   upperCaseFirstChar,
   splitBy, splitOn,
   wrapText,
@@ -22,7 +22,7 @@ module Utils (
   
   ) where
 
-import Data.Char (toLower, toUpper)
+import Data.Char (isUpper, toLower, toUpper)
 import Data.List (unfoldr)
 import Text.PrettyPrint hiding (($$), ($+$))
 import qualified Text.PrettyPrint (($+$))
@@ -50,8 +50,12 @@ commentBlock = vcat . map (comment <+>)
 -- Stringy things
 -------------------------------------------------------------------------------
 
-lowerCaseFirstChar :: String -> String
-lowerCaseFirstChar (c:cs) = toLower c : cs
+lowerCaseFirstWord :: String -> String
+lowerCaseFirstWord s = case span isUpper s of
+  ([],_) -> s
+  ([c],cs) -> toLower c : cs
+  (caps,[]) -> map toLower caps
+  (caps,cs) -> map toLower (init caps) ++ (last caps : cs)
 
 upperCaseFirstChar :: String -> String
 upperCaseFirstChar (c:cs) = toUpper c : cs

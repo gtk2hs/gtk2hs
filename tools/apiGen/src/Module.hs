@@ -276,7 +276,7 @@ convertProperty :: Bool -> Api.Object -> Api.Property -> Decl
 convertProperty isChild object property =
   declDefaults {
     decl_name =
-      let objName  = lowerCaseFirstChar (Api.object_name object)
+      let objName  = lowerCaseFirstWord (Api.object_name object)
           propName = Names.cAttrNametoHsName (Api.property_cname property)
        in if isChild
             then objName ++ "Child" ++ propName
@@ -298,7 +298,7 @@ convertSignals :: Api.Object -> Api.Signal -> Decl
 convertSignals object signal =
   declDefaults {
     decl_name =
-      let objName = lowerCaseFirstChar (Api.object_name object)
+      let objName = lowerCaseFirstWord (Api.object_name object)
        in objName ++ Api.signal_name signal,
     decl_body = Signal {
       signal_name   = Api.signal_name signal,
@@ -517,7 +517,7 @@ makeGetSetProps module_ =
     module_decls =
       concat
       [ let attrName = Names.cFuncNameToHsPropName (method_cname getter_body)
-            declName = lowerCaseFirstChar (module_name module_) ++ attrName
+            declName = lowerCaseFirstWord (module_name module_) ++ attrName
          in declDefaults {
               decl_name = declName,
               decl_body = AttributeGetSet {

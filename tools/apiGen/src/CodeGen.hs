@@ -223,7 +223,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                   && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
                       then (Just propertyType, Nothing)
-                      else let typeVar = lowerCaseFirstChar propertyType
+                      else let typeVar = lowerCaseFirstWord propertyType
                                classConstraint' = propertyType ++ "Class " ++ typeVar
                             in (Just typeVar, Just classConstraint')
                    | not (attribute_constructonly attr)
@@ -256,7 +256,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                   && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
                       then (Just propertyType, Nothing)
-                      else let typeVar = lowerCaseFirstChar propertyType
+                      else let typeVar = lowerCaseFirstWord propertyType
                                classConstraint' = propertyType ++ "Class " ++ typeVar ++ ", WidgetClass child"
                             in (Just typeVar, Just classConstraint')
                    | not (attribute_constructonly attr)
@@ -288,8 +288,8 @@ genDeclCode knownSymbols Decl{ decl_module = module_,
    $$ text signalName <+> equals <+> text "connect_" <> connectCall <+> signalCName <+> text (show $ signal_is_after signal)
 
   | otherwise =
-      text (lowerCaseFirstChar signalName) <+> text "::" <+> signalType
-   $$ text (lowerCaseFirstChar signalName) <+> equals <+> text "Signal" <+> parens (text "connect_" <> connectCall <+> signalCName)
+      text (lowerCaseFirstWord signalName) <+> text "::" <+> signalType
+   $$ text (lowerCaseFirstWord signalName) <+> equals <+> text "Signal" <+> parens (text "connect_" <> connectCall <+> signalCName)
 
   where connectCall = let paramCategories' = if null paramCategories then [text "NONE"] else map text paramCategories
                        in hcat (punctuate (char '_') paramCategories') <> text "__" <> text returnCategory
@@ -589,7 +589,7 @@ genImports module_ =
            | (_, importLine) <- extraModules ]
   where (stdModules, extraModules)
           | null (Module.module_imports module_) =
-             ([(undefined, "import Monad\t(liftM)")]
+             ([(undefined, "import Control.Monad\t(liftM)")]
              ,[(undefined, "import System.Glib.FFI")
              ,(undefined, "{#import Graphics.UI.Gtk.Types#}")
              ,(undefined, "-- CHECKME: extra imports may be required")])
