@@ -249,8 +249,7 @@ main = do
     mainWindow <- windowNew
     windowSetTitle mainWindow "S.A.R.A.H."
     windowSetDefaultSize mainWindow 400 400
-    on mainWindow destroyEvent $
-     liftIO $ mainQuit >> return True
+    on mainWindow objectDestroy mainQuit
     containerAdd mainWindow layout
     widgetShowAll mainWindow
 

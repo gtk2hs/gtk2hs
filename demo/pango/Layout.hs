@@ -1,5 +1,6 @@
 -- Example of using a PangoLayout
 import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.Rendering.Cairo
 
 loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit,\
@@ -15,11 +16,11 @@ main = do
   initGUI
   -- Create the main window.
   win <- windowNew
-  win `onDestroy` mainQuit
+  on win objectDestroy mainQuit
   -- Create a drawing area in which we can render text.
   area <- drawingAreaNew
   containerAdd win area
-  area `onSizeRequest` return (Requisition 100 100)
+  on area sizeRequest $ return (Requisition 100 100)
   
   -- Create a Cairo Context that contains information about the current font,
   -- etc.
@@ -28,19 +29,20 @@ main = do
   layoutSetWrap lay WrapWholeWords
   
   -- Wrap the layout to a different width each time the window is resized.
-  area `onSizeAllocate` \(Rectangle _ _ w _) -> do
+  on area sizeAllocate $ \(Rectangle _ _ w _) -> do
     layoutSetWidth lay (Just (fromIntegral w))
 
   -- Setup the handler to draw the layout.
-  area `onExpose` updateArea area lay
+  on area exposeEvent $ updateArea area lay
   
   -- Run the whole thing.
   widgetShowAll win
   mainGUI
 
-updateArea :: DrawingArea -> PangoLayout -> Event -> IO Bool
-updateArea area lay Expose {} = do
-  win <- widgetGetDrawWindow area
+updateArea :: DrawingArea -> PangoLayout -> EventM EExpose Bool
+updateArea area lay = do
+  win <- eventWindow
+  liftIO $ do
   renderWithDrawable win $ do
     moveTo 0 0
     showLayout lay

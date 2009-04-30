@@ -59,6 +59,9 @@ module Graphics.UI.Gtk.Abstract.Object (
 
 -- * Methods
   makeNewObject,
+
+-- * Signals
+  objectDestroy
   ) where
 
 import Control.Monad (when)
@@ -71,6 +74,7 @@ import System.Glib.GObject	(objectRefSink)
 import System.Glib.GObject      (objectRef)
 #endif
 {#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -110,3 +114,14 @@ makeNewObject constr generator = do
 #endif
   obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
+
+
+--------------------
+-- Signals
+
+-- | Signals that all holders of a reference to the 'Object' should release
+-- the reference that they hold. May result in finalization of the object if
+-- all references are released.
+--
+objectDestroy :: ObjectClass self => Signal self (IO ())
+objectDestroy = Signal (connect_NONE__NONE "destroy")
