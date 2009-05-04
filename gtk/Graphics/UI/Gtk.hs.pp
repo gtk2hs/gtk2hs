@@ -189,8 +189,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.DrawingArea,
   module Graphics.UI.Gtk.Misc.EventBox,
   module Graphics.UI.Gtk.Misc.HandleBox,
---  module IMContext,
---  module IMMulticontext,
+  module Graphics.UI.Gtk.Misc.IMMulticontext,
   module Graphics.UI.Gtk.Misc.SizeGroup,
   module Graphics.UI.Gtk.Misc.Tooltips,
   module Graphics.UI.Gtk.Misc.Viewport,
@@ -200,6 +199,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Abstract.Container,
   module Graphics.UI.Gtk.Abstract.Bin,
   module Graphics.UI.Gtk.Abstract.Misc,
+  module Graphics.UI.Gtk.Abstract.IMContext,
   module Graphics.UI.Gtk.Abstract.Object,
   module Graphics.UI.Gtk.Abstract.Paned,
   module Graphics.UI.Gtk.Abstract.Range,
@@ -382,9 +382,7 @@ import Graphics.UI.Gtk.Misc.Calendar
 import Graphics.UI.Gtk.Misc.DrawingArea
 import Graphics.UI.Gtk.Misc.EventBox
 import Graphics.UI.Gtk.Misc.HandleBox
---import IMContext
---import IMContextSimple
---import IMMulitcontext
+import Graphics.UI.Gtk.Misc.IMMulticontext
 import Graphics.UI.Gtk.Misc.SizeGroup
 import Graphics.UI.Gtk.Misc.Tooltips
 import Graphics.UI.Gtk.Misc.Viewport
@@ -395,6 +393,7 @@ import Graphics.UI.Gtk.Abstract.ButtonBox
 import Graphics.UI.Gtk.Abstract.Container
 import Graphics.UI.Gtk.Abstract.Bin
 import Graphics.UI.Gtk.Abstract.Misc
+import Graphics.UI.Gtk.Abstract.IMContext
 import Graphics.UI.Gtk.Abstract.Object
 import Graphics.UI.Gtk.Abstract.Paned
 import Graphics.UI.Gtk.Abstract.Range

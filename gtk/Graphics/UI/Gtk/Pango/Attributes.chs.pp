@@ -30,7 +30,8 @@
 module Graphics.UI.Gtk.Pango.Attributes (
   withAttrList,
   parseMarkup,
-  fromAttrList
+  fromAttrList,
+  readAttrList
   ) where
 
 import System.Glib.FFI
@@ -46,6 +47,8 @@ import Control.Monad ( liftM )
 
 {# context lib="pango" prefix="pango" #}
 
+foreign import ccall unsafe "pango_attr_list_unref"
+  pango_attr_list_unref :: PangoAttrList -> IO ()
 
 -- Create an attribute list.
 withAttrList :: PangoString -> [PangoAttribute] -> (Ptr () -> IO a) -> IO a
@@ -59,7 +62,7 @@ withAttrList (PangoString correct _ _) pas act = do
 	   paPtr <- crAttr correct pa
 	   {#call unsafe pango_attr_list_insert#} alPtr (castPtr paPtr)) pas'
   res <- act alPtr
-  {#call unsafe attr_list_unref#} alPtr
+  pango_attr_list_unref alPtr
   return res
 
 -- Create a PangoAttribute.
@@ -206,3 +209,9 @@ fromAttr correct attrPtr = do
   attr <- readAttr correct attrPtr
   {#call unsafe pango_attribute_destroy#} attrPtr
   return attr
+
+readAttrList :: UTFCorrection -> PangoAttrList -> IO [[PangoAttribute]]
+readAttrList correct attrListPtr = do
+  elems <- fromAttrList correct attrListPtr
+  pango_attr_list_unref attrListPtr
+  return elems

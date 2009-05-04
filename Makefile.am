@@ -623,6 +623,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Container.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.chs	\
+	gtk/Graphics/UI/Gtk/Abstract/IMContext.chs			\
 	gtk/Graphics/UI/Gtk/Abstract/Misc.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp			\
@@ -698,6 +699,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Arrow.chs				\
 	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs				\
+	gtk/Graphics/UI/Gtk/Misc/IMMulticontext.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
