@@ -548,7 +548,7 @@ fromResponse ResponseYes = -8
 fromResponse ResponseNo = -9
 fromResponse ResponseApply = -10
 fromResponse ResponseHelp = -11
-fromResponse (ResponseUser i) | i > 0 = fromIntegral i
+fromResponse (ResponseUser i) = fromIntegral i
 
 toResponse :: Integral a => a -> ResponseId
 toResponse (-1) = ResponseNone
@@ -562,7 +562,7 @@ toResponse (-8) = ResponseYes
 toResponse (-9) = ResponseNo
 toResponse (-10) = ResponseApply
 toResponse (-11) = ResponseHelp
-toResponse i | i >= 0  = ResponseUser $ fromIntegral i
+toResponse i = ResponseUser $ fromIntegral i
 
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | The identifer of a window of the underlying windowing system.
