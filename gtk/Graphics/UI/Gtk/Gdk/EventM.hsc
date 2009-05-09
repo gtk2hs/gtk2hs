@@ -127,6 +127,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
   eventKeyboardGroup,
   MouseButton(..),
   eventButton,
+  Click(..),
   eventClick,
   ScrollDirection(..),
   eventScrollDirection,
