@@ -126,7 +126,10 @@ main = do
   let parentName = case map (drop 13) (filter ("--parentname=" `isPrefixOf`) rem) of
   		     [] -> ""
 		     (parentName:_) -> parentName
-
+  let forwardNames = map (drop 10) (filter ("--forward=" `isPrefixOf`) rem)
+  let destrFun = case map (drop 13) (filter ("--destructor=" `isPrefixOf`) rem) of
+                   [] -> "objectUnref"
+                   (destrFun:_) -> destrFun
   -----------------------------------------------------------------------------
   -- Read in the input files
   --
@@ -149,13 +152,17 @@ main = do
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
-        "MODULE_EXPORTS" -> generateExports parentName objs
+        "MODULE_EXPORTS" -> generateExports parentName forwardNames objs
 	"IMPORT_PARENT"  -> if null parentName
-	                      then ss ""
+	                      then id
 	                      else ss "{#import " .ss parentName .ss "#}"
+        "FORWARD_IMPORTS"->
+          foldl (.) id [ ss "import " . ss m . indent 0 | m <- forwardNames ]
+        "DESTR_IMPORT"   -> if destrFun/="objectUnref" then id else
+                            indent 0.ss "import System.Glib.GObject(objectUnref)"
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
-	"DECLERATIONS"   -> generateDeclerations prefix objs specialQueries
+	"DECLERATIONS"   -> generateDeclerations destrFun prefix objs specialQueries
 	_ -> ss ""
     ) ""
 
@@ -165,6 +172,7 @@ usage = do
 	\TypeGenerator <hierFile> <templateFile> <outFile> {--tag=<tag>}\n\
 	\              {--lib=<lib>} {--prefix=<prefix>}\n\
 	\              {--modname=<modName>} {--parentname=<parentName>}\n\
+	\              {--forward=<fwdName>} {--destructor=<destrName>}\n\
 	\where\n\
 	\  <hierFile>      a list of all possible objects, the hierarchy is\n\
 	\                  taken from the indentation\n\
@@ -179,7 +187,11 @@ usage = do
 	\  <modName>       specify module name if it does not match the\n\
 	\                  file name, eg a hierarchical module name\n\
 	\  <parentName>    specify the name of the module that defines any\n\
-	\                  parent classes eg Hierarchy (default is none)\n"
+	\                  parent classes eg Hierarchy (default is none)\n\
+	\  <fwdName>       specify a number of modules that are imported\n\
+	\                  as well as exported from the generated module\n\
+	\  <destrName>     specify a non-standard C function pointer that\n\
+	\                  is called to destroy the objects\n"
  exitWith $ ExitFailure 1
 
 
@@ -188,13 +200,15 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generateExports :: String -> [[String]] -> ShowS
-generateExports parent objs =
+generateExports :: String -> [String] -> [[String]] -> ShowS
+generateExports parent forwardNames objs =
   (if null parent
      then ss ""
      else ss "  module " .ss parent. ss ",").
-  drop 2.
-  foldl (\s1 s2 -> s1.ss ", ".s2) id
+  drop 1.
+  foldl (\s1 s2 -> s1.ss ",".indent 1.ss "module ".s2) id
+    (map ss forwardNames).
+  foldl (\s1 s2 -> s1.ss ",".s2) id
     [ indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
       indent 1.ss "to".ss n.ss ", ".
       indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
@@ -202,10 +216,10 @@ generateExports parent objs =
     | (n:_) <- objs
     , n /= "GObject" ]
 
-generateDeclerations :: String -> [[String]] -> TypeTable -> ShowS
-generateDeclerations prefix objs typeTable =
+generateDeclerations :: String -> String -> [[String]] -> TypeTable -> ShowS
+generateDeclerations destr prefix objs typeTable =
   foldl (.) id
-  [ makeClass prefix typeTable obj
+  [ makeClass destr prefix typeTable obj
   . makeUpcast obj
   . makeGType typeTable obj
   | obj <- objs ]
@@ -251,9 +265,9 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  fill obj.ss pr.ss "Tag".fill pr.
 			  ss " = GT".makeGT obj eds
 
-makeClass :: String -> TypeTable -> [String] -> ShowS
-makeClass prefix table (name:[])      = id
-makeClass prefix table (name:parents) =
+makeClass :: String -> String -> TypeTable -> [String] -> ShowS
+makeClass destr prefix table (name:[])      = id
+makeClass destr prefix table (name:parents) =
   indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
   indent 0.ss "{#pointer *".
@@ -272,7 +286,7 @@ makeClass prefix table (name:parents) =
      _ -> id
      ).
   indent 0.
-  indent 0.ss "mk".ss name.ss " = ".ss name.
+  indent 0.ss "mk".ss name.ss " = (".ss name.ss ", ".ss destr.ss ")".
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
   indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
@@ -292,8 +306,8 @@ makeInstance name (par:ents) =
 makeGObjectInstance :: String -> ShowS
 makeGObjectInstance name =
   indent 0.ss "instance GObjectClass ".ss name.ss " where".
-  indent 1.ss "toGObject = mkGObject . castForeignPtr . un".ss name.
-  indent 1.ss "unsafeCastGObject = mk".ss name.ss" . castForeignPtr . unGObject"
+  indent 1.ss "toGObject = GObject . castForeignPtr . un".ss name.
+  indent 1.ss "unsafeCastGObject = ".ss name.ss" . castForeignPtr . unGObject"
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 
