@@ -3022,12 +3022,12 @@ install-exec-hook:
 	$(SED)	-e 's|$${pkglibdir}|$(pkglibdir)|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
 		$(call getVar,$(pkgname),CONFIG) \
-	> $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)).tmp; \
-	mv $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)){.tmp,} ; \
+	> $(DESTDIR)$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)).tmp; \
+	mv $(DESTDIR)$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)){.tmp,} ; \
 	$(SED)	's|$${modules}|$(call getModules,$(pkgname))|' \
 		$(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)) \
-	> $(DESTDIR)/$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))).tmp; \
-	mv $(DESTDIR)/$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))){.tmp,};)
+	> $(DESTDIR)$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))).tmp; \
+	mv $(DESTDIR)$(pkglibdir)/$(notdir $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG))){.tmp,};)
 
 else WIN32_INSTALLER
 # Except on Windows if we're makeing an installer where we delay the variable
@@ -3044,7 +3044,7 @@ else WIN32_INSTALLER
 install-exec-hook:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SHELL) mk/fix-package-conf.sh \
-	         $(DESTDIR)/$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)) \
+	         $(DESTDIR)$(pkglibdir)/$(notdir $(call getVar,$(pkgname),CONFIG)) \
 	         "$(call getModules,$(pkgname))" && \
 	) true
 
