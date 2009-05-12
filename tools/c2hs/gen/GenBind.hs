@@ -98,7 +98,7 @@
 --    itself (without also considering the `typedef').  Calls to such
 --    functions are currently rejected, which is a BUG.
 --
---  * context hook must preceded all but the import hooks
+--  * context hook must precede all but the import hooks
 --
 --  * The use of `++' in the recursive definition of the routines generating
 --    `Enum' instances is not particularly efficient.
@@ -155,10 +155,9 @@ import CHS	  (CHSModule(..), CHSFrag(..), CHSHook(..), CHSTrans(..),
 import CInfo      (CPrimType(..), size, alignment, bitfieldIntSigned,
 		   bitfieldAlignment)
 import GBMonad    (TransFun, transTabToTransFun, HsObject(..), GB, HsPtrRep,
-		   initialGBState, setContext, getPrefix, 
+		   initialGBState, setContext, getPrefix, getLock,
 		   delayCode, getDelayedCode, ptrMapsTo, queryPtr, objIs,
 		   queryObj, queryClass, queryPointer, mergeMaps, dumpMaps)
-
 
 -- default marshallers
 -- -------------------
@@ -295,8 +294,9 @@ peekCStringLenIde = noPosIdent "peekCStringLenIntConv"
 --
 expandHooks        :: AttrC -> CHSModule -> CST s (CHSModule, String, String)
 expandHooks ac mod  = do
-		        (_, res) <- runCT (expandModule mod) ac initialGBState
-			return res
+  mLock <- getSwitch lockFunSB
+  (_, res) <- runCT (expandModule mod) ac (initialGBState mLock)
+  return res
 
 expandModule		       :: CHSModule -> GB (CHSModule, String, String)
 expandModule (CHSModule frags)  =
@@ -380,9 +380,9 @@ expandHook (CHSImport qual ide chi _) =
     mergeMaps chi
     return $ 
       "import " ++ (if qual then "qualified " else "") ++ identToLexeme ide
-expandHook (CHSContext olib oprefix _) =
+expandHook (CHSContext olib oprefix olock _) =
   do
-    setContext olib oprefix		      -- enter context information
+    setContext olib oprefix olock      	       -- enter context information
     mapMaybeM_ applyPrefixToNameSpaces oprefix -- use the prefix on name spaces
     return ""
 expandHook (CHSType ide pos) =
@@ -425,7 +425,7 @@ expandHook (CHSEnum cide oalias chsTrans oprefix derive _) =
     let trans = transTabToTransFun prefix chsTrans
 	hide  = identToLexeme . fromMaybe cide $ oalias
     enumDef enum hide trans (map identToLexeme derive)
-expandHook hook@(CHSCall isPure isUns ide oalias pos) =
+expandHook hook@(CHSCall isPure isUns isNol ide oalias pos) =
   do
     traceEnter
     -- get the corresponding C declaration; raises error if not found or not a
@@ -433,14 +433,15 @@ expandHook hook@(CHSCall isPure isUns ide oalias pos) =
     -- afterwards instead of the original one
     --
     (ObjCO cdecl, ide) <- findFunObj ide True
+    mLock <- if isNol then return Nothing else getLock
     let ideLexeme = identToLexeme ide  -- orignal name might have been a shadow
 	hsLexeme  = ideLexeme `maybe` identToLexeme $ oalias
         cdecl'    = ide `simplifyDecl` cdecl
-    callImport hook isPure isUns ideLexeme hsLexeme cdecl' pos
+    callImport hook isPure isUns mLock ideLexeme hsLexeme cdecl' pos
   where
     traceEnter = traceGenBind $ 
       "** Call hook for `" ++ identToLexeme ide ++ "':\n"
-expandHook hook@(CHSFun isPure isUns ide oalias ctxt parms parm pos) =
+expandHook hook@(CHSFun isPure isUns isNol ide oalias ctxt parms parm pos) =
   do
     traceEnter
     -- get the corresponding C declaration; raises error if not found or not a
@@ -448,14 +449,15 @@ expandHook hook@(CHSFun isPure isUns ide oalias ctxt parms parm pos) =
     -- afterwards instead of the original one
     --
     (ObjCO cdecl, cide) <- findFunObj ide True
+    mLock <- if isNol then return Nothing else getLock
     let ideLexeme = identToLexeme ide  -- orignal name might have been a shadow
 	hsLexeme  = ideLexeme `maybe` identToLexeme $ oalias
-	fiLexeme  = hsLexeme ++ "'_"   -- *Urgh* - probably unqiue...
+	fiLexeme  = hsLexeme ++ "'_"   -- *Urgh* - probably unique...
 	fiIde     = onlyPosIdent nopos fiLexeme
         cdecl'    = cide `simplifyDecl` cdecl
-	callHook  = CHSCall isPure isUns cide (Just fiIde) pos
-    callImport callHook isPure isUns (identToLexeme cide) fiLexeme cdecl' pos
-    funDef isPure hsLexeme fiLexeme cdecl' ctxt parms parm pos
+	callHook  = CHSCall isPure isUns isNol cide (Just fiIde) pos
+    callImport callHook isPure isUns mLock (identToLexeme cide) fiLexeme cdecl' pos
+    funDef isPure hsLexeme fiLexeme cdecl' ctxt mLock parms parm pos
   where
     traceEnter = traceGenBind $ 
       "** Fun hook for `" ++ identToLexeme ide ++ "':\n"
@@ -685,9 +687,9 @@ enumInst ident list =
 -- * the C declaration is a simplified declaration of the function that we
 --   want to import into Haskell land
 --
-callImport :: CHSHook -> Bool -> Bool -> String -> String -> CDecl -> Position
-	   -> GB String
-callImport hook isPure isUns ideLexeme hsLexeme cdecl pos =
+callImport :: CHSHook -> Bool -> Bool -> Maybe String -> String -> String
+           -> CDecl -> Position -> GB String
+callImport hook isPure isUns mLock ideLexeme hsLexeme cdecl pos =
   do
     -- compute the external type from the declaration, and delay the foreign
     -- export declaration
@@ -700,13 +702,13 @@ callImport hook isPure isUns ideLexeme hsLexeme cdecl pos =
     -- which strips off the constructors
     if any isJust mHsPtrRep
        then createLambdaExpr mHsPtrRep
-       else return hsLexeme
+       else return funStr
   where
     createLambdaExpr :: [Maybe HsPtrRep] -> GB String
     createLambdaExpr foreignVec = return $
       "(\\" ++
       unwords (zipWith wrPattern foreignVec [1..])++ " -> "++
-      concat (zipWith wrForPtr foreignVec [1..])++hsLexeme++" "++
+      concat (zipWith wrForPtr foreignVec [1..])++funStr++" "++
       unwords (zipWith wrArg foreignVec [1..])++")"
     wrPattern (Just (_,_,Just con,_)) n = "("++con++" arg"++show n++")"
     wrPattern _                    n = "arg"++show n
@@ -718,6 +720,8 @@ callImport hook isPure isUns ideLexeme hsLexeme cdecl pos =
 	"(castStablePtrToPtr arg"++show n++")"
     wrArg _ n = "arg"++show n
 
+    funStr = case mLock of Nothing -> hsLexeme
+                           Just lockFun -> lockFun ++ " $ " ++ hsLexeme
     traceFunType et = traceGenBind $ 
       "Imported function type: " ++ showExtType et ++ "\n"
 
@@ -737,11 +741,12 @@ funDef :: Bool		     -- pure function?
        -> String	     -- Haskell name of the foreign imported C function
        -> CDecl		     -- simplified declaration of the C function
        -> Maybe String	     -- type context of the new Haskell function
+       -> Maybe String       -- lock function
        -> [CHSParm]	     -- parameter marshalling description
        -> CHSParm	     -- result marshalling description 
        -> Position	     -- source location of the hook
        -> GB String	     -- Haskell code in text form
-funDef isPure hsLexeme fiLexeme cdecl octxt parms parm pos =
+funDef isPure hsLexeme fiLexeme cdecl octxt mLock parms parm pos =
   do
     (parms', parm', isImpure) <- addDftMarshaller pos parms parm cdecl
     traceMarsh parms' parm' isImpure
@@ -755,9 +760,11 @@ funDef isPure hsLexeme fiLexeme cdecl octxt parms parm pos =
       retArgs   = [retArg   | (_, _, _, _, retArg)   <- marshs, retArg   /= ""]
       funHead   = hsLexeme ++ join funArgs ++ " =\n" ++
 	          if isPure && isImpure then "  unsafePerformIO $\n" else ""
+      lock      = case mLock of Nothing -> ""
+                                Just lock -> lock ++ " $"
       call      = if isPure 
 		  then "  let {res = " ++ fiLexeme ++ join callArgs ++ "} in\n"
-		  else "  " ++ fiLexeme ++ join callArgs ++ " >>= \\res ->\n"
+		  else "  " ++ lock ++ fiLexeme ++ join callArgs ++ " >>= \\res ->\n"
       marshRes  = case parm' of
 	            CHSParm _ _ twoCVal (Just (_    , CHSVoidArg)) _ -> ""
 	            CHSParm _ _ twoCVal (Just (omIde, CHSIOArg  )) _ -> 

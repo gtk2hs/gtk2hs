@@ -81,7 +81,8 @@ data SwitchBoard = SwitchBoard {
 		     headerSB  :: FilePath,	-- generated header file
 		     preCompSB :: Maybe FilePath,-- optional binary header r/w
 		     oldFFI    :: Bool,		-- GHC 4.XX compatible code
-		     chiPathSB :: [FilePath]	-- .chi file directories
+		     chiPathSB :: [FilePath],	-- .chi file directories
+		     lockFunSB :: Maybe String  -- a function to wrap each call
 		   }
 
 -- switch states on startup (EXPORTED)
@@ -98,7 +99,8 @@ initialSwitchBoard  = SwitchBoard {
 			headerSB  = "",
 			preCompSB = Nothing,
 			oldFFI	  = False,
-			chiPathSB = ["."]
+			chiPathSB = ["."],
+			lockFunSB = Nothing
 		      }
 
 

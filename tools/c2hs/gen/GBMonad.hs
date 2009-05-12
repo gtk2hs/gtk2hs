@@ -67,7 +67,7 @@ module GBMonad (
   TransFun, transTabToTransFun,
 
   HsObject(..), GB, HsPtrRep, initialGBState, setContext, getLibrary,
-  getPrefix, delayCode, getDelayedCode, ptrMapsTo, queryPtr, objIs,
+  getPrefix, getLock, delayCode, getDelayedCode, ptrMapsTo, queryPtr, objIs,
   queryObj, queryClass, queryPointer, mergeMaps, dumpMaps
   ) where
 
@@ -223,6 +223,8 @@ instance Read Ident where
 --
 -- (1) the dynamic library specified by the context hook,
 -- (2) the prefix specified by the context hook,
+-- (3) an optional wrapper function that acquires a lock, this may also
+--     be specified on the command line
 -- (3) the set of delayed code fragaments, ie, pieces of Haskell code that,
 --     finally, have to be appended at the CHS module together with the hook
 --     that created them (the latter allows avoid duplication of foreign
@@ -235,6 +237,7 @@ instance Read Ident where
 data GBState  = GBState {
 		  lib     :: String,		   -- dynamic library
 		  prefix  :: String,		   -- prefix
+		  mLock   :: Maybe String,         -- a lock function
 	          frags   :: [(CHSHook, CHSFrag)], -- delayed code (with hooks)
 		  ptrmap  :: PointerMap,	   -- pointer representation
 		  objmap  :: HsObjectMap	   -- generated Haskell objects
@@ -242,21 +245,26 @@ data GBState  = GBState {
 
 type GB a = CT GBState a
 
-initialGBState :: GBState
-initialGBState  = GBState {
-		    lib    = "",
-		    prefix = "",
-		    frags  = [],
-		    ptrmap = Map.empty,
-		    objmap = Map.empty
-		  }
+initialGBState :: Maybe String -> GBState
+initialGBState mLock = GBState {
+    lib    = "",
+    prefix = "",
+    mLock = mLock,
+    frags  = [],
+    ptrmap = Map.empty,
+    objmap = Map.empty
+  }
 
 -- set the dynamic library and library prefix
 --
-setContext            :: (Maybe String) -> (Maybe String) -> GB ()
-setContext lib prefix  = 
+setContext            :: (Maybe String) -> (Maybe String) -> (Maybe String) ->
+                         GB ()
+setContext lib prefix newMLock = 
   transCT $ \state -> (state {lib    = fromMaybe "" lib,
-			      prefix = fromMaybe "" prefix},
+			      prefix = fromMaybe "" prefix,
+			      mLock  = case newMLock of
+			                 Nothing -> mLock state
+			                 Just _ -> newMLock },
 		       ())
 
 -- get the dynamic library
@@ -268,6 +276,10 @@ getLibrary  = readCT lib
 --
 getPrefix :: GB String
 getPrefix  = readCT prefix
+
+-- get the lock function
+getLock :: GB (Maybe String)
+getLock = readCT mLock
 
 -- add code to the delayed fragments (the code is made to start at a new line)
 --
@@ -286,11 +298,11 @@ delayCode hook str  =
     where
       newEntry = (hook, (CHSVerb ("\n" ++ str) (posOf hook)))
       --
-      delay hook@(CHSCall isFun isUns ide oalias _) frags =
+      delay hook@(CHSCall isFun isUns _ ide oalias _) frags =
 	case find (\(hook', _) -> hook' == hook) frags of
-	  Just (CHSCall isFun' isUns' ide' _ _, _) 
+	  Just (CHSCall isFun' isUns' _ ide' _ _, _) 
 	    |    isFun == isFun' 
-	      && isUns == isUns' 
+	      && isUns == isUns'
 	      && ide   == ide'   -> return frags
 	    | otherwise		 -> err (posOf ide) (posOf ide')
 	  Nothing                -> return $ frags ++ [newEntry]

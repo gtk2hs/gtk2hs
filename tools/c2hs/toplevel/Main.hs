@@ -124,6 +124,15 @@
 --	  affects only call hooks where instead of `Addr' types 
 --	  `Ptr <someOtherType>' is used.
 --
+--  --lock=NAME
+--        Wrap each foreign function call in the function NAME. This
+--        function is usually a function that acquires a lock for
+--        the memory region that the called function is about to access.
+--        A wrap function can also be specificed within the file in the
+--        context hook, in which case it overrides the command line function.
+--        The wrapper function can be omitted on a call-by-call basis by
+--        using the nolock option in the call hook.
+--
 --- TODO ----------------------------------------------------------------------
 --
 
@@ -200,6 +209,7 @@ data Flag = CPPOpts String      -- additional options for C preprocessor
 	  | Output  String      -- file where the generated file should go
 	  | OutDir  String      -- directory where generates files should go
 	  | PreComp String      -- write or read a precompiled header
+	  | LockFun String      -- wrap each function call in this function
 	  | Version	        -- print version information on stderr
 	  | Error   String      -- error occured during processing of options
 	  deriving Eq
@@ -250,6 +260,10 @@ options  = [
          ["precomp"]
          (ReqArg PreComp "FILE")
          "generate or read precompiled header file FILE",
+  Option ['l']
+         ["lock"]
+         (ReqArg LockFun "NAME")
+         "wrap each foreign call with the function NAME",
   Option ['v'] 
 	 ["version"] 
 	 (NoArg Version) 
@@ -401,6 +415,7 @@ processOpt (Include dirs   )  = setInclude dirs
 processOpt (Output  fname  )  = setOutput  fname
 processOpt (OutDir  fname  )  = setOutDir  fname
 processOpt (PreComp fname  )  = setPreComp fname
+processOpt (LockFun name   )  = setLockFun name
 processOpt Version            = do
 			          (version, _, _) <- getId 
 			          putStrCIO (version ++ "\n")
@@ -520,6 +535,10 @@ setHeader fname  = setSwitch $ \sb -> sb {headerSB = fname}
 setPreComp      :: FilePath -> CST s ()
 setPreComp fname = setSwitch $ \sb -> sb { preCompSB = Just fname }
 
+-- set the name of the wrapper function that acquires a lock
+--
+setLockFun      :: String -> CST s ()
+setLockFun name = setSwitch $ \sb -> sb { lockFunSB = Just name }
 
 -- compilation process
 -- -------------------

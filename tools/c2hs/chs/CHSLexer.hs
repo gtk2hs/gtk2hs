@@ -94,7 +94,7 @@
 --		     | `enum' | `foreign' | `fun' | `get' | `lib' 
 --		     | `newtype' | `pointer' | `prefix' | `pure' | `set'
 --		     | `sizeof' | `stable' | `type' | `underscoreToCase' 
---		     | `unsafe' | `with'
+--		     | `unsafe' | `with' | 'lock' | 'unlock'
 --      reservedsym -> `{#' | `#}' | `{' | `}' | `,' | `.' | `->' | `=' 
 --		     | `=>' | '-' | `*' | `&' | `^'
 --      string      -> `"' instr* `"'
@@ -227,6 +227,8 @@ data CHSToken = CHSTokArrow   Position		-- `->'
 	      | CHSTok_2Case  Position		-- `underscoreToCase'
 	      | CHSTokUnsafe  Position		-- `unsafe'
 	      | CHSTokWith    Position		-- `with'
+	      | CHSTokLock    Position		-- `lock'
+	      | CHSTokNolock  Position		-- `nolock'
 	      | CHSTokString  Position String	-- string 
 	      | CHSTokHSVerb  Position String	-- verbatim Haskell (`...')
 	      | CHSTokIdent   Position Ident	-- identifier
@@ -274,6 +276,8 @@ instance Pos CHSToken where
   posOf (CHSTok_2Case  pos  ) = pos
   posOf (CHSTokUnsafe  pos  ) = pos
   posOf (CHSTokWith    pos  ) = pos
+  posOf (CHSTokLock    pos  ) = pos
+  posOf (CHSTokNolock  pos  ) = pos
   posOf (CHSTokString  pos _) = pos
   posOf (CHSTokHSVerb  pos _) = pos
   posOf (CHSTokIdent   pos _) = pos
@@ -320,6 +324,8 @@ instance Eq CHSToken where
   (CHSTok_2Case   _  ) == (CHSTok_2Case   _  ) = True
   (CHSTokUnsafe   _  ) == (CHSTokUnsafe   _  ) = True
   (CHSTokWith     _  ) == (CHSTokWith     _  ) = True
+  (CHSTokLock     _  ) == (CHSTokLock     _  ) = True
+  (CHSTokNolock   _  ) == (CHSTokNolock   _  ) = True
   (CHSTokString   _ _) == (CHSTokString   _ _) = True
   (CHSTokHSVerb   _ _) == (CHSTokHSVerb   _ _) = True
   (CHSTokIdent    _ _) == (CHSTokIdent    _ _) = True
@@ -367,6 +373,8 @@ instance Show CHSToken where
   showsPrec _ (CHSTok_2Case  _  ) = showString "underscoreToCase"
   showsPrec _ (CHSTokUnsafe  _  ) = showString "unsafe"
   showsPrec _ (CHSTokWith    _  ) = showString "with"
+  showsPrec _ (CHSTokLock    _  ) = showString "lock"
+  showsPrec _ (CHSTokNolock  _  ) = showString "nolock"
   showsPrec _ (CHSTokString  _ s) = showString ("\"" ++ s ++ "\"")
   showsPrec _ (CHSTokHSVerb  _ s) = showString ("`" ++ s ++ "'")
   showsPrec _ (CHSTokIdent   _ i) = (showString . identToLexeme) i
@@ -687,6 +695,8 @@ identOrKW  =
     idkwtok pos "underscoreToCase" _    = CHSTok_2Case  pos
     idkwtok pos "unsafe"           _    = CHSTokUnsafe  pos
     idkwtok pos "with"             _    = CHSTokWith    pos
+    idkwtok pos "lock"             _    = CHSTokLock    pos
+    idkwtok pos "nolock"           _    = CHSTokNolock  pos
     idkwtok pos cs                 name = mkid pos cs name
     --
     mkid pos cs name = CHSTokIdent pos (lexemeToIdent pos cs name)
