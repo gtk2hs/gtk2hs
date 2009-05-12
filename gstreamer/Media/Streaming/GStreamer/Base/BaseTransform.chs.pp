@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Base.BaseTransform (
   BaseTransform,
   BaseTransformClass,
   castToBaseTransform,
-  toBaseTransform,
+  gTypeBaseTransform,
+
   baseTransformIsPassthrough,
   baseTransformSetPassthrough,
   baseTransformIsInPlace,

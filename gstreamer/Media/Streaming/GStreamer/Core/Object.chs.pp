@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Core.Object (
   Object,
   ObjectClass,
   castToObject,
-  toObject,
+  gTypeObject,
+
   objectGetFlags,
   objectSetFlags,
   objectUnsetFlags,

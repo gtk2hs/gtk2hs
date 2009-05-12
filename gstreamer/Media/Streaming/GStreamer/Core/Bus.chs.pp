@@ -82,7 +82,8 @@ module Media.Streaming.GStreamer.Core.Bus (
   --   Only one sync handler may be attached to a given bus.
   BusSyncHandler,
   castToBus,
-  toBus,
+  gTypeBus,
+
 -- * Bus Operations
   busGetFlags,
   busSetFlags,

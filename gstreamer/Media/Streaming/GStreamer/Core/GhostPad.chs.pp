@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Core.GhostPad (
   GhostPad,
   GhostPadClass,
   castToGhostPad,
-  toGhostPad,
+  gTypeGhostPad,
+
   ghostPadNew,
   ghostPadNewNoTarget,
 #if GST_CHECK_VERSION(0,10,10)

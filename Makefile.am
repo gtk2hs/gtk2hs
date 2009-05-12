@@ -101,7 +101,6 @@ endif
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
-	tools/hierarchyGenGst/TypeGenerator \
 	tools/callbackGen/HookGenerator \
 	tools/c2hs/c2hsLocal
 
@@ -139,21 +138,6 @@ am_tools_hierarchyGen_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_hierarchyGen_TypeGenerator_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_hierarchyGen_TypeGenerator_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_hierarchyGen_TypeGenerator_SOURCES:.hs=.hi)
-
-tools_hierarchyGenGst_PKGNAME = tools_hierarchyGenGst_TypeGenerator
-
-tools_hierarchyGenGst_TypeGenerator_MAIN = \
-  $(tools_hierarchyGenGst_TypeGenerator_SOURCES)
-tools_hierarchyGenGst_TypeGenerator_EXTERNALDEPS = base-$(PKG_BASE_VERSION)
-tools_hierarchyGenGst_TypeGenerator_NOSPLITOBJS = yes
-tools_hierarchyGenGst_TypeGenerator_SOURCESDIRS = tools/hierarchyGenGst
-tools_hierarchyGenGst_TypeGenerator_SOURCES = \
-  tools/hierarchyGenGst/TypeGen.hs
-# Fix automake - the subdir-objects option doesn't work here.
-am_tools_hierarchyGenGst_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
-  $(basename $(tools_hierarchyGenGst_TypeGenerator_SOURCES)))
-MOSTLYCLEANFILES+= $(am_tools_hierarchyGenGst_TypeGenerator_OBJECTS)
-MOSTLYCLEANFILES+= $(tools_hierarchyGenGst_TypeGenerator_SOURCES:.hs=.hi)
 
 #
 #	HookGenerator Tool
@@ -2505,19 +2489,11 @@ endif
 libHSgstreamer_a_GENERATEDSOURCES	=				\
 	gstreamer/Media/Streaming/GStreamer/Core/Signals.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs		\
-	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs		\
-	gstreamer/Media/Streaming/GStreamer/Base/GObjectHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Controller/GObjectHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs		\
-	gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs
+	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs
 
 nodist_libHSgstreamer_a_SOURCES		= $(libHSgstreamer_a_GENERATEDSOURCES)
 
 libHSgstreamer_a_SOURCES		=               		\
-	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
-	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Core/Init.chs.pp		\
@@ -2578,7 +2554,6 @@ gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
-	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
@@ -2588,84 +2563,27 @@ htmldoc_HSFILES_HIDDEN				+=			\
 
 libHSgstreamer_a_ALLSOURCES			 = $(libHSgstreamer_a_SOURCES) $(nodist_libHSgstreamer_a_SOURCES)
 
-gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :				\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Core.Hierarchy)
+gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :		\
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)		\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
+	$@ --tag=gstreamer --lib=gstreamer --prefix=gst			\
+	--modname=Media.Streaming.GStreamer.Core.Hierarchy		\
+	--parentname=System.Glib.GObject)
 
-gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :				\
-	$(srcdir)/gstreamer/mini-hierarchy.list						\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/mini-hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template	\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
-	--root=MiniObject								\
+gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :		\
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)		\
+	$(srcdir)/gstreamer/mini-hierarchy.list				\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)	\
+	$(srcdir)/gstreamer/mini-hierarchy.list				\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
+	$@ --tag=default --lib=gstreamer --prefix=gst --root=MiniObject	\
+	--parentname=Media.Streaming.GStreamer.Core.MiniHierarchyBase	\
 	--modname=Media.Streaming.GStreamer.Core.MiniHierarchy)
-
-gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchy.chs :				\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Core.GObjectHierarchy)
-
-gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs :				\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Base.Hierarchy				\
-	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
-
-gstreamer/Media/Streaming/GStreamer/Base/GObjectHierarchy.chs :				\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Base.GObjectHierarchy)
-
-gstreamer/Media/Streaming/GStreamer/Controller/GObjectHierarchy.chs :				\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/gobject-hierarchy.list					\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-controller --lib=gstreamer --prefix=gst			\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Controller.GObjectHierarchy)
-
-gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs :				\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-net --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Net.Hierarchy				\
-	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
 
 gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : 			\
 	$(srcdir)/tools/callbackGen/Signal.chs.template 		\
@@ -2675,18 +2593,6 @@ gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : 			\
 	$(srcdir)/gstreamer/marshal.list 				\
 	$(srcdir)/tools/callbackGen/Signal.chs.template $@ 		\
 	Media.Streaming.GStreamer.Core.Signals)
-
-gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs :				\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
-	$@ --tag=gstreamer-audio --lib=gstreamer --prefix=gst				\
-	--root=GObject									\
-	--modname=Media.Streaming.GStreamer.Audio.Hierarchy				\
-	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
 
 am_libHSgstreamer_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgstreamer_a_ALLSOURCES))))

@@ -60,12 +60,8 @@ module Media.Streaming.GStreamer.Core.Bin (
 -- * Types
   Bin,
   BinClass,
-  -- Safely downcast an 'Object' to a 'Bin'.
   castToBin,
-  -- Upcast to a 'Bin'.
-  toBin,
-  -- See if an 'Object' is a 'Bin'.
-  isBin,
+  gTypeBin,
 
 -- * Bin Operations
   binNew,

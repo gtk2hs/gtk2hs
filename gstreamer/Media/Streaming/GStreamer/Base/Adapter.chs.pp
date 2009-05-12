@@ -30,9 +30,9 @@ module Media.Streaming.GStreamer.Base.Adapter (
   
   Adapter,
   AdapterClass,
-  toAdapter,
   castToAdapter,
-  isAdapter,
+  gTypeAdapter,
+
   adapterNew,
   adapterClear,
   adapterPush,

@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Base.BaseSrc (
   BaseSrc,
   BaseSrcClass,
   castToBaseSrc,
-  toBaseSrc,
+  gTypeBaseSrc,
+
   baseSrcGetFlags,
   baseSrcSetFlags,
   baseSrcUnsetFlags,

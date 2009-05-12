@@ -40,20 +40,19 @@ import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
 import Foreign.C.Types    (CULong, CUInt)
 import System.Glib.GType	(GType, typeInstanceIsA)
 @IMPORT_PARENT@
-@DESTR_IMPORT@
 @FORWARD_IMPORTS@
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
 
 -- The usage of foreignPtrToPtr should be safe as the evaluation will only be
 -- forced if the object is used afterwards
 --
-castTo :: (GObjectClass obj, GObjectClass obj') => GType -> String
+castTo :: (@ROOTOBJECT@Class obj, @ROOTOBJECT@Class obj') => GType -> String
                                                 -> (obj -> obj')
 castTo gtype objTypeName obj =
-  case toGObject obj of
-    gobj\@(GObject objFPtr)
+  case to@ROOTOBJECT@ obj of
+    gobj\@(@ROOTOBJECT@ objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> unsafeCastGObject gobj
+                  -> unsafeCast@ROOTOBJECT@ gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
-@DECLERATIONS@
+@DECLARATIONS@

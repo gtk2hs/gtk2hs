@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Core.Registry (
   Registry,
   RegistryClass,
   castToRegistry,
-  toRegistry,
+  gTypeRegistry,
+
   defaultRegistry,
   registryGetFeatureList,
   registryGetFeatureListByPlugin,

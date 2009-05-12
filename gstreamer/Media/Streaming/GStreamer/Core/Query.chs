@@ -32,7 +32,7 @@ module Media.Streaming.GStreamer.Core.Query (
   QueryClass,
   toQuery,
   castToQuery,
-  isQuery,
+  gTypeQuery,
   
   ) where
 

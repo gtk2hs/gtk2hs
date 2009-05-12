@@ -43,7 +43,7 @@ module Media.Streaming.GStreamer.Core.ElementFactory (
   ElementFactory,
   ElementFactoryClass,
   castToElementFactory,
-  toElementFactory,
+  gTypeElementFactory,
   
 -- * ElementFactory Operations
   elementFactoryFind,

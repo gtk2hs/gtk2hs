@@ -41,13 +41,10 @@ module Media.Streaming.GStreamer.Core.Buffer (
   --   memory space goes away prematurely.
   Buffer,
   BufferClass,
-  BufferFlags(..),
-  -- Safely downcast an 'Object' to a 'Bin'.
   castToBuffer,
-  -- Upcast to a 'Bin'.
-  toBuffer,
-  -- See if an 'Object' is a 'Bin'.
-  isBuffer,
+  gTypeBuffer,
+
+  BufferFlags(..),
 
 -- * Buffer Operations
   bufferOffsetNone,

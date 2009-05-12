@@ -32,8 +32,6 @@
 module Media.Streaming.GStreamer.Base.Types (
   
   module Media.Streaming.GStreamer.Core.Types,
-  module Media.Streaming.GStreamer.Base.Hierarchy,
-  module Media.Streaming.GStreamer.Base.GObjectHierarchy,
   
   CollectData,
   
@@ -41,8 +39,6 @@ module Media.Streaming.GStreamer.Base.Types (
 
 import Data.Bits ( shiftL )
 {#import Media.Streaming.GStreamer.Core.Types#}
-{#import Media.Streaming.GStreamer.Base.Hierarchy#}
-{#import Media.Streaming.GStreamer.Base.GObjectHierarchy#}
 {#import System.Glib.GObject#}
 import System.Glib.Flags
 import System.Glib.FFI

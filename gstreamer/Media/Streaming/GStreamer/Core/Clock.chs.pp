@@ -106,7 +106,7 @@ module Media.Streaming.GStreamer.Core.Clock (
   Clock,
   ClockClass,
   castToClock,
-  toClock,
+  gTypeClock,
   
   -- | A time value measured in nanoseconds.
   ClockTime,

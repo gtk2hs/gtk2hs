@@ -30,6 +30,7 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Core.MiniHierarchyBase (
+  module System.Glib.GObject,
   MiniObject(..),
   MiniObjectClass(..),
   mkMiniObject,

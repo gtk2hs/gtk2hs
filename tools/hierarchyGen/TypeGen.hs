@@ -126,6 +126,9 @@ main = do
   let parentName = case map (drop 13) (filter ("--parentname=" `isPrefixOf`) rem) of
   		     [] -> ""
 		     (parentName:_) -> parentName
+  let rootObject = case map (drop 7) (filter ("--root=" `isPrefixOf`) rem) of
+                     [] -> "GObject"
+                     (rootObject:_) -> rootObject
   let forwardNames = map (drop 10) (filter ("--forward=" `isPrefixOf`) rem)
   let destrFun = case map (drop 13) (filter ("--destructor=" `isPrefixOf`) rem) of
                    [] -> "objectUnref"
@@ -152,17 +155,16 @@ main = do
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
-        "MODULE_EXPORTS" -> generateExports parentName forwardNames objs
+        "MODULE_EXPORTS" -> generateExports rootObject parentName forwardNames objs
 	"IMPORT_PARENT"  -> if null parentName
 	                      then id
 	                      else ss "{#import " .ss parentName .ss "#}"
         "FORWARD_IMPORTS"->
           foldl (.) id [ ss "import " . ss m . indent 0 | m <- forwardNames ]
-        "DESTR_IMPORT"   -> if destrFun/="objectUnref" then id else
-                            indent 0.ss "import System.Glib.GObject(objectUnref)"
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
-	"DECLERATIONS"   -> generateDeclerations destrFun prefix objs specialQueries
+	"DECLARATIONS"   -> generateDeclarations rootObject destrFun prefix objs specialQueries
+	"ROOTOBJECT"     -> ss rootObject
 	_ -> ss ""
     ) ""
 
@@ -200,8 +202,8 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generateExports :: String -> [String] -> [[String]] -> ShowS
-generateExports parent forwardNames objs =
+generateExports :: String -> String -> [String] -> [[String]] -> ShowS
+generateExports rootObject parent forwardNames objs =
   (if null parent
      then ss ""
      else ss "  module " .ss parent. ss ",").
@@ -214,25 +216,25 @@ generateExports parent forwardNames objs =
       indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
       indent 1.ss "castTo".ss n.ss ", gType".ss n
     | (n:_) <- objs
-    , n /= "GObject" ]
+    , n /= rootObject  ]
 
-generateDeclerations :: String -> String -> [[String]] -> TypeTable -> ShowS
-generateDeclerations destr prefix objs typeTable =
+generateDeclarations :: String -> String -> String -> [[String]] -> TypeTable -> ShowS
+generateDeclarations rootObject destr prefix objs typeTable =
   foldl (.) id
-  [ makeClass destr prefix typeTable obj
-  . makeUpcast obj
+  [ makeClass rootObject destr prefix typeTable obj
+  . makeUpcast rootObject obj
   . makeGType typeTable obj
   | obj <- objs ]
 
-makeUpcast :: [String] -> ShowS
-makeUpcast [obj]	   = id -- no casting for GObject
-makeUpcast (obj:_:_) = 
-  indent 0.ss "castTo".ss obj.ss " :: GObjectClass obj => obj -> ".ss obj.
+makeUpcast :: String -> [String] -> ShowS
+makeUpcast rootObject [obj]	   = id -- no casting for root
+makeUpcast rootObject (obj:_:_) = 
+  indent 0.ss "castTo".ss obj.ss " :: ".ss rootObject.ss "Class obj => obj -> ".ss obj.
   indent 0.ss "castTo".ss obj.ss " = castTo gType".ss obj.ss " \"".ss obj.ss "\"".
   indent 0
 
 makeGType :: TypeTable -> [String] -> ShowS
-makeGType table [obj] = id -- no GType for GObject
+makeGType table [obj] = id -- no GType for root
 makeGType table (obj:_:_) = 
   indent 0.ss "gType".ss obj.ss " :: GType".
   indent 0.ss "gType".ss obj.ss " =".
@@ -265,9 +267,9 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  fill obj.ss pr.ss "Tag".fill pr.
 			  ss " = GT".makeGT obj eds
 
-makeClass :: String -> String -> TypeTable -> [String] -> ShowS
-makeClass destr prefix table (name:[])      = id
-makeClass destr prefix table (name:parents) =
+makeClass :: String -> String -> String -> TypeTable -> [String] -> ShowS
+makeClass rootObject destr prefix table (name:[])      = id
+makeClass rootObject destr prefix table (name:parents) =
   indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
   indent 0.ss "{#pointer *".
@@ -291,10 +293,10 @@ makeClass destr prefix table (name:parents) =
   indent 0.
   indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
   indent 0.ss "to".ss name.ss " :: ".ss name.ss "Class o => o -> ".ss name.
-  indent 0.ss "to".ss name.ss " = unsafeCastGObject . toGObject".
+  indent 0.ss "to".ss name.ss " = unsafeCast".ss rootObject.ss " . to".ss rootObject.
   indent 0.
   makeInstance name (name:init parents).
-  makeGObjectInstance name.
+  makeRootInstance rootObject name.
   indent 0
 
 makeInstance :: String -> [String] -> ShowS
@@ -303,11 +305,11 @@ makeInstance name (par:ents) =
   indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents
 
-makeGObjectInstance :: String -> ShowS
-makeGObjectInstance name =
-  indent 0.ss "instance GObjectClass ".ss name.ss " where".
-  indent 1.ss "toGObject = GObject . castForeignPtr . un".ss name.
-  indent 1.ss "unsafeCastGObject = ".ss name.ss" . castForeignPtr . unGObject"
+makeRootInstance :: String -> String -> ShowS
+makeRootInstance rootObject name =
+  indent 0.ss "instance ".ss rootObject.ss "Class ".ss name.ss " where".
+  indent 1.ss "to".ss rootObject.ss " = ".ss rootObject.ss" . castForeignPtr . un".ss name.
+  indent 1.ss "unsafeCast".ss rootObject.ss " = ".ss name.ss " . castForeignPtr . un".ss rootObject
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 

@@ -74,7 +74,8 @@ module Media.Streaming.GStreamer.Core.Element (
   Element,
   ElementClass,
   castToElement,
-  toElement,
+  gTypeElement,
+
   ElementFlags(..),
   State(..),
   StateChange(..),

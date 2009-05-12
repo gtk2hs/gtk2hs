@@ -36,7 +36,6 @@ module Media.Streaming.GStreamer.Core.Types (
   module Media.Streaming.GStreamer.Core.HierarchyBase,
   module Media.Streaming.GStreamer.Core.MiniHierarchy,
   module Media.Streaming.GStreamer.Core.MiniHierarchyBase,
-  module Media.Streaming.GStreamer.Core.GObjectHierarchy,
   
   cToFlags,
   cFromFlags,
@@ -174,7 +173,6 @@ import Media.Streaming.GStreamer.Core.HierarchyBase
 {#import Media.Streaming.GStreamer.Core.MiniHierarchyBase#}
 {#import Media.Streaming.GStreamer.Core.Hierarchy#}
 {#import Media.Streaming.GStreamer.Core.MiniHierarchy#}
-{#import Media.Streaming.GStreamer.Core.GObjectHierarchy#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 

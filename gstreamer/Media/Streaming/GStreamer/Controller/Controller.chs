@@ -55,7 +55,7 @@ controllerNew object properties =
         do cPropertiesGList <- toGList cProperties
            cController <- {# call controller_new_list #} (toGObject object) cPropertiesGList
            {# call g_list_free #} cPropertiesGList
-           constructNewGObject Controller $ return cController
+           constructNewGObject mkController $ return cController
 
 controllerRemoveProperties :: ControllerClass controllerT
                            => controllerT

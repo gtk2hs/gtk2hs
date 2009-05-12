@@ -34,7 +34,6 @@ module Media.Streaming.GStreamer.Core.MiniObject (
   MiniObjectT,
   toMiniObject,
   castToMiniObject,
-  isMiniObject,
   
   miniObjectGetFlags,
   miniObjectGetFlagsM,

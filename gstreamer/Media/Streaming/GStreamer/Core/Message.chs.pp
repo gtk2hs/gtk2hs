@@ -31,7 +31,7 @@ module Media.Streaming.GStreamer.Core.Message (
   Message,
   MessageClass,
   castToMessage,
-  toMessage,
+  gTypeMessage,
   
   MessageType(..),
   messageTypeGetName,

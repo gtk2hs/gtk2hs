@@ -31,7 +31,7 @@ module Media.Streaming.GStreamer.Base.PushSrc (
   PushSrc,
   PushSrcClass,
   castToPushSrc,
-  toPushSrc,
+  gTypePushSrc,
   
   ) where
 

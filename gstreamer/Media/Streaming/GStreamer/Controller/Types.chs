@@ -32,9 +32,7 @@
 module Media.Streaming.GStreamer.Controller.Types (
   
   module Media.Streaming.GStreamer.Core.Types,
-  module Media.Streaming.GStreamer.Controller.GObjectHierarchy,
   
   ) where
 
 {#import Media.Streaming.GStreamer.Core.Types#}
-{#import Media.Streaming.GStreamer.Controller.GObjectHierarchy#}

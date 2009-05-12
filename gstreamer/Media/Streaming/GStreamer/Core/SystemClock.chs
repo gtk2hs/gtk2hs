@@ -30,8 +30,9 @@ module Media.Streaming.GStreamer.Core.SystemClock (
   
   SystemClock,
   SystemClockClass,
-  toSystemClock,
   castToSystemClock,
+  gTypeSystemClock,
+
   systemClockObtain
   
   ) where

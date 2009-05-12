@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Core.PluginFeature (
   PluginFeature,
   PluginFeatureClass,
   castToPluginFeature,
-  toPluginFeature,
+  gTypePluginFeature,
+
   pluginFeatureLoad,
   pluginFeatureCheckVersion
   

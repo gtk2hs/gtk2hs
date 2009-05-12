@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Core.Pad (
   Pad,
   PadClass,
   castToPad,
-  toPad,
+  gTypePad,
+
   PadFlags(..),
   
   PadDirection(..),

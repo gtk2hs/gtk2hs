@@ -30,7 +30,8 @@ module Media.Streaming.GStreamer.Core.Pipeline (
   Pipeline,
   PipelineClass,
   castToPipeline,
-  toPipeline,
+  gTypePipeline,
+
   pipelineNew,
   pipelineGetBus,
   pipelineSetClock,

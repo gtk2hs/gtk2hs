@@ -31,7 +31,8 @@ module Media.Streaming.GStreamer.Base.BaseSink (
   BaseSink,
   BaseSinkClass,
   castToBaseSink,
-  toBaseSink,
+  gTypeBaseSink,
+  
 #if GST_CHECK_VERSION(0,10,12)
   baseSinkQueryLatency,
   baseSinkGetLatency,
