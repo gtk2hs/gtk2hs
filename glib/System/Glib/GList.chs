@@ -44,6 +44,7 @@ module System.Glib.GList (
 
 import Foreign
 import Control.Exception	(bracket)
+import Control.Monad		(foldM)
 
 {# context lib="glib" prefix="g" #}
 
@@ -115,24 +116,18 @@ fromGSListRev gslist =
 -- Turn a list of something into a GList.
 --
 toGList :: [Ptr a] -> IO GList
-toGList xs = makeList nullPtr xs
+toGList = foldM prepend nullPtr . reverse
   where
-    -- makeList :: GList -> [Ptr a] -> IO GList
-    makeList current (x:xs) = do
-      newHead <- {#call unsafe list_prepend#} current (castPtr x)
-      makeList newHead xs
-    makeList current [] = return current
+    -- prepend :: GList -> Ptr a -> IO GList
+    prepend l x = {#call unsafe list_prepend#} l (castPtr x)
 
 -- Turn a list of something into a GSList.
 --
 toGSList :: [Ptr a] -> IO GSList
-toGSList xs = makeList nullPtr xs
+toGSList = foldM prepend nullPtr . reverse
   where
-    -- makeList :: GSList -> [Ptr a] -> IO GSList
-    makeList current (x:xs) = do
-      newHead <- {#call unsafe slist_prepend#} current (castPtr x)
-      makeList newHead xs
-    makeList current [] = return current
+    -- prepend :: GSList -> Ptr a -> IO GList
+    prepend l x = {#call unsafe slist_prepend#} l (castPtr x)
 
 -- Temporarily allocate a list of something
 --
