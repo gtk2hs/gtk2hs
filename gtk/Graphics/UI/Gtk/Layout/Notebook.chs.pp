@@ -490,7 +490,13 @@ notebookPageNum nb child =
     (toNotebook nb)
     (toWidget child)
 
--- | Switches to the page number @pageNum@.
+-- | Switches to the page number @pageNum@. Page numbers start from @0@.
+--   Use @-1@ to request the last page.
+--
+-- * Note that due to historical reasons, GtkNotebook refuses
+--   to switch to a page unless the child widget is visible. 
+--   Therefore, it is recommended to show child widgets before
+--   adding them to a notebook.
 --
 notebookSetCurrentPage :: NotebookClass self => self
  -> Int   -- ^ @pageNum@ - index of the page to switch to, starting from 0. If
