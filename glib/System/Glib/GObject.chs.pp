@@ -139,6 +139,11 @@ constructNewGObject :: GObjectClass obj =>
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 constructNewGObject constr generator = do
   objPtr <- generator
+#if GLIB_CHECK_VERSION(2,10,0)
+  -- change the exisiting floating reference into a proper reference;
+  -- the name is confusing, what the function does is ref,sink,unref
+  objectRefSink objPtr
+#endif
   obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
 
