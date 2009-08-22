@@ -1,13 +1,13 @@
 Axel Simon		<as49@ukc.ac.uk>
 (original author and current developer)
 
-Duncan Coutts <duncan@coutts.uklinux.net>
-(current maintainer)
-
 Peter Gavin <pgavin@gmail.com>
 (current developer)
 
 with contributions from
+
+Duncan Coutts <duncan@haskell.org>
+(joint maintainer 2005-2008, contributor 2003-)
 
 Manuel M. T. Chakravarty <chak@cse.unsw.edu.au>
 (c2hs and some sources and techniques)
