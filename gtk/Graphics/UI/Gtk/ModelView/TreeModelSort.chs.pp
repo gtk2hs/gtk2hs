@@ -121,7 +121,7 @@ treeModelSortConvertChildPathToPath :: TreeModelSortClass self => self
 treeModelSortConvertChildPathToPath self [] = return []
 treeModelSortConvertChildPathToPath self childPath =
   withTreePath childPath $ \childPath ->
-  {# call unsafe tree_model_sort_convert_child_path_to_path #}
+  {# call tree_model_sort_convert_child_path_to_path #}
     (toTreeModelSort self)
     childPath
   >>= fromTreePath
