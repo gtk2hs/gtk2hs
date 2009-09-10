@@ -81,6 +81,7 @@ module Graphics.UI.Gtk.General.Drag (
   dragDestAddImageTargets,
   dragDestAddURITargets,
 #endif
+  dragStatus,
   dragFinish,
   dragGetData,
   dragGetSourceWidget,
@@ -176,6 +177,15 @@ dragContextAction = newAttr (liftM toEnum . dragContextGetAction)
 --   of a widget for drops onto that widget. The given actions and any targets
 --   set through 'dragDestSetTargetList' only are used if 'DestDefaultMotion'
 --   or 'DestDefaultDrop' are given.
+--
+-- * Things become more complicated when you try to preview the dragged data,
+--   as described in the documentation for 'dragMotion'. The default
+--   behaviors described by flags make some assumptions, that can conflict
+--   with your own signal handlers. For instance 'DestDefaultDrop' causes
+--   invokations of 'dragStatus' in the handler of 'dragMotion", and
+--   invokations of 'dragFinish' in 'dragDataReceived'. Especially the
+--   latter is dramatic, when your own 'dragMotion' handler calls
+--   'dragGetData' to inspect the dragged data.
 --
 dragDestSet :: WidgetClass widget => widget -> [DestDefaults] -> [DragAction] -> IO ()
 dragDestSet widget flags actions =
@@ -580,6 +590,18 @@ dragSourceAddURITargets widget =
     (toWidget widget)
 #endif
 
+-- | Visualises the actions offered by the drag source.
+--
+-- * This function is called by the drag destination in response to
+--   'dragMotion' called by the drag source. The passed-in action
+--   is indicated where @Nothing@ will show that the drop is not
+--   allowed.
+--
+dragStatus :: DragContext -> Maybe DragAction -> TimeStamp -> IO ()
+dragStatus ctxt mAction ts =
+  {# call gdk_drag_status #} ctxt (maybe 0 (fromIntegral . fromEnum) mAction)
+    (fromIntegral ts)
+  
 -- %hash c:fcf8 d:b945
 -- | The 'dragBegin' signal is emitted on the drag source when a drag is
 -- started. A typical reason to connect to this signal is to set up a custom
