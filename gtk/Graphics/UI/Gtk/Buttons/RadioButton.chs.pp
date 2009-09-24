@@ -127,8 +127,15 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
 
 -- * Signals
 #if GTK_CHECK_VERSION(2,4,0)
+  groupChanged,
+#endif
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+#if GTK_CHECK_VERSION(2,4,0)
   onGroupChanged,
   afterGroupChanged,
+#endif
 #endif
   ) where
 
@@ -306,6 +313,25 @@ radioButtonGroup = newAttr
 -- Signals
 
 #if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:be94 d:a584
+-- | Emitted when the group of radio buttons that a radio button belongs to
+-- changes. This is emitted when a radio button switches from being alone to
+-- being part of a group of 2 or more buttons, or vice-versa, and when a
+-- buttton is moved from one group of 2 or more buttons to a different one, but
+-- not when the composition of the group that a button belongs to changes.
+--
+-- * Available since Gtk+ version 2.4
+--
+groupChanged :: RadioButtonClass self => Signal self (IO ())
+groupChanged = Signal (connect_NONE__NONE "group-changed")
+#endif
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Emitted when the group of radio buttons that a radio button belongs to
 -- changes. This is emitted when a radio button switches from being alone to
 -- being part of a group of 2 or more buttons, or vice-versa, and when a
@@ -317,4 +343,5 @@ onGroupChanged, afterGroupChanged :: RadioButtonClass self => self
  -> IO (ConnectId self)
 onGroupChanged = connect_NONE__NONE "group-changed" False
 afterGroupChanged = connect_NONE__NONE "group-changed" True
+#endif
 #endif

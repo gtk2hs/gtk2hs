@@ -88,10 +88,16 @@ module Graphics.UI.Gtk.Display.Statusbar (
   statusbarHasResizeGrip,
 
 -- * Signals
+  textPopped,
+  textPushed,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onTextPopped,
   afterTextPopped,
   onTextPushed,
   afterTextPushed,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -210,6 +216,22 @@ statusbarHasResizeGrip = newAttr
 --------------------
 -- Signals
 
+-- %hash c:4eb7 d:d0ef
+-- | Is emitted whenever a new message gets pushed onto a statusbar's stack.
+--
+textPushed :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
+textPushed = Signal (\a self user -> connect_WORD_STRING__NONE "text_pushed" a self (\w s -> user (fromIntegral w) s))
+
+-- %hash c:2614 d:c1d2
+-- | Is emitted whenever a new message is popped off a statusbar's stack.
+--
+textPopped :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
+textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text_popped" a self (\w s -> user (fromIntegral w) s))
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | Called if a message is removed.
 --
 onTextPopped, afterTextPopped :: StatusbarClass self => self
@@ -226,3 +248,4 @@ onTextPushed, afterTextPushed :: StatusbarClass self => self
  -> IO (ConnectId self)
 onTextPushed self user = connect_WORD_STRING__NONE "text-pushed" False self (user . fromIntegral)
 afterTextPushed self user = connect_WORD_STRING__NONE "text-pushed" True self (user . fromIntegral)
+#endif

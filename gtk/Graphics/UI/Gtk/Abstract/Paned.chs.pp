@@ -96,7 +96,9 @@ module Graphics.UI.Gtk.Abstract.Paned (
   panedChildShrink,
 #endif
 
--- * Signals
+
+-- * Deprecated Signals
+#ifndef DISABLE_DEPRECATED
   onCycleChildFocus,
   afterCycleChildFocus,
   onToggleHandleFocus,
@@ -109,6 +111,7 @@ module Graphics.UI.Gtk.Abstract.Paned (
   afterAcceptPosition,
   onCancelPosition,
   afterCancelPosition,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -290,8 +293,9 @@ panedChildShrink = newAttrFromContainerChildBoolProperty "shrink"
 #endif
 
 --------------------
--- Signals
+-- Deprecated Signals
 
+#ifndef DISABLE_DEPRECATED
 -- | 
 --
 onCycleChildFocus, afterCycleChildFocus :: PanedClass self => self
@@ -339,3 +343,5 @@ onCancelPosition, afterCancelPosition :: PanedClass self => self
  -> IO (ConnectId self)
 onCancelPosition = connect_NONE__BOOL "cancel_position" False
 afterCancelPosition = connect_NONE__BOOL "cancel_position" True
+
+#endif

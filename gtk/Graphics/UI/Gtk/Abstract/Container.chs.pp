@@ -508,25 +508,25 @@ containerFocusVAdjustment = newAttr
 -- Signals
 
 -- %hash c:26b d:af3f
--- |
+-- | A widget was added to the container.
 --
 add :: ContainerClass self => Signal self (Widget -> IO ())
 add = Signal (connect_OBJECT__NONE "add")
 
 -- %hash c:f43a d:af3f
--- |
+-- | A widget was removed from the container.
 --
 remove :: ContainerClass self => Signal self (Widget -> IO ())
 remove = Signal (connect_OBJECT__NONE "remove")
 
 -- %hash c:21a9 d:af3f
--- |
+-- | Emitted when widgets need to be queried again for their preferred size.
 --
 checkResize :: ContainerClass self => Signal self (IO ())
 checkResize = Signal (connect_NONE__NONE "check_resize")
 
 -- %hash c:b3a d:af3f
--- |
+-- | A widget in the container received the input focus.
 --
 setFocusChild :: ContainerClass self => Signal self (Widget -> IO ())
 setFocusChild = Signal (connect_OBJECT__NONE "set-focus-child")

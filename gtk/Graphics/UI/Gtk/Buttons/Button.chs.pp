@@ -87,6 +87,11 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonGetImage,
   buttonSetImage,
 #endif
+#if GTK_CHECK_VERSION(2,10,0)
+  PositionType(..),
+  buttonSetImagePosition,
+  buttonGetImagePosition,
+#endif
 
 -- * Attributes
   buttonLabel,
@@ -103,8 +108,15 @@ module Graphics.UI.Gtk.Buttons.Button (
 #if GTK_CHECK_VERSION(2,6,0)
   buttonImage,
 #endif
+#if GTK_CHECK_VERSION(2,10,0)
+  buttonImagePosition,
+#endif
 
 -- * Signals
+  buttonActivated,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onButtonActivate,
   afterButtonActivate,
   onClicked,
@@ -117,6 +129,7 @@ module Graphics.UI.Gtk.Buttons.Button (
   afterPressed,
   onReleased,
   afterReleased
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -128,7 +141,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
+import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..), PositionType(..))
 import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
@@ -250,6 +263,36 @@ buttonGetRelief self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe button_get_relief #}
     (toButton self)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:d8cb d:1e7d
+-- | If the child of the button is a 'Misc' or 'Alignment', this property can
+-- be used to control it's horizontal alignment. 0.0 is left aligned, 1.0 is
+-- right aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+-- * Available since Gtk+ version 2.4
+--
+buttonXAlign :: ButtonClass self => Attr self Float
+buttonXAlign = newAttrFromFloatProperty "xalign"
+
+-- %hash c:ce4e d:4fec
+-- | If the child of the button is a 'Misc' or 'Alignment', this property can
+-- be used to control it's vertical alignment. 0.0 is top aligned, 1.0 is
+-- bottom aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+-- * Available since Gtk+ version 2.4
+--
+buttonYAlign :: ButtonClass self => Attr self Float
+buttonYAlign = newAttrFromFloatProperty "yalign"
+#endif
 
 -- | Sets the text of the label of the button. This text is also used
 -- to select the stock item if 'buttonSetUseStock' is used.
@@ -422,6 +465,33 @@ buttonSetImage self image =
     (toWidget image)
 #endif
 
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:e7a6 d:7a76
+-- | Sets the position of the image relative to the text inside the button.
+--
+-- * Available since Gtk+ version 2.10
+--
+buttonSetImagePosition :: ButtonClass self => self
+ -> PositionType -- ^ @position@ - the position
+ -> IO ()
+buttonSetImagePosition self position =
+  {# call gtk_button_set_image_position #}
+    (toButton self)
+    ((fromIntegral . fromEnum) position)
+
+-- %hash c:3841 d:1f6a
+-- | Gets the position of the image relative to the text inside the button.
+--
+-- * Available since Gtk+ version 2.10
+--
+buttonGetImagePosition :: ButtonClass self => self
+ -> IO PositionType -- ^ returns the position
+buttonGetImagePosition self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_button_get_image_position #}
+    (toButton self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -510,9 +580,33 @@ buttonImage = newAttr
   buttonSetImage
 #endif
 
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:20f4 d:8ca6
+-- | The position of the image relative to the text inside the button.
+--
+-- Default value: 'PosLeft'
+--
+-- * Available since Gtk+ version 2.10
+--
+buttonImagePosition :: ButtonClass self => Attr self PositionType
+buttonImagePosition = newAttrFromEnumProperty "image-position"
+                        {# call pure unsafe gtk_position_type_get_type #}
+#endif
+
 --------------------
 -- Signals
 
+-- %hash c:b660 d:ab72
+-- | Emitted when the button has been activated (pressed and released).
+--
+buttonActivated :: ButtonClass self => Signal self (IO ())
+buttonActivated = Signal (connect_NONE__NONE "clicked")
+
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | The button has been depressed (but not
 -- necessarily released yet). See @clicked@ signal.
 --
@@ -551,3 +645,4 @@ afterPressed = connect_NONE__NONE "pressed" True
 onReleased, afterReleased :: ButtonClass b => b -> IO () -> IO (ConnectId b)
 onReleased = connect_NONE__NONE "released" False
 afterReleased = connect_NONE__NONE "released" True
+#endif

@@ -81,8 +81,14 @@ module Graphics.UI.Gtk.Buttons.ToggleButton (
   toggleButtonMode,
 
 -- * Signals
+  toggled,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+-- * Signals
   onToggled,
   afterToggled,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -264,6 +270,17 @@ toggleButtonMode = newAttr
 --------------------
 -- Signals
 
+-- %hash c:467 d:227e
+-- | Should be connected if you wish to perform an action whenever the
+-- 'ToggleButton''s state is changed.
+--
+toggled :: ToggleButtonClass self => Signal self (IO ())
+toggled = Signal (connect_NONE__NONE "toggled")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | Whenever the state of the button is changed, the toggled signal is
 -- emitted.
 --
@@ -272,3 +289,4 @@ onToggled, afterToggled :: ToggleButtonClass self => self
  -> IO (ConnectId self)
 onToggled = connect_NONE__NONE "toggled" False
 afterToggled = connect_NONE__NONE "toggled" True
+#endif

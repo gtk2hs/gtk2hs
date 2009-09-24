@@ -39,6 +39,7 @@ module Graphics.UI.Gtk.Abstract.Scale (
 -- 'Graphics.UI.Gtk.Entry.HScale.hScaleNewWithRange' or
 -- 'Graphics.UI.Gtk.Entry.VScale.vScaleNewWithRange'.
 --
+
 -- * Class Hierarchy
 -- |
 -- @

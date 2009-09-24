@@ -60,14 +60,33 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetIncrements,
   rangeSetRange,
   ScrollType(..),
+#if GTK_CHECK_VERSION(2,10,0)
+  SensitivityType(..),
+  rangeSetLowerStepperSensitivity,
+  rangeGetLowerStepperSensitivity,
+  rangeSetUpperStepperSensitivity,
+  rangeGetUpperStepperSensitivity,
+#endif
 
 -- * Attributes
   rangeUpdatePolicy,
   rangeAdjustment,
   rangeInverted,
+#if GTK_CHECK_VERSION(2,10,0)
+  rangeLowerStepperSensitivity,
+  rangeUpperStepperSensitivity,
+#endif
   rangeValue,
 
 -- * Signals
+  adjustBounds,
+  valueChanged,
+#if GTK_CHECK_VERSION(2,6,0)
+  changeValue,
+#endif
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onMoveSlider,
   afterMoveSlider,
   onAdjustBounds,
@@ -78,12 +97,14 @@ module Graphics.UI.Gtk.Abstract.Range (
 #endif
   onRangeValueChanged,
   afterRangeValueChanged
+#endif
   ) where
 
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -177,7 +198,7 @@ rangeGetValue self =
 
 -- | Sets the current value of the range; if the value is outside the minimum
 -- or maximum range values, it will be clamped to fit inside them. The range
--- emits the \"value_changed\" signal if the value changes.
+-- emits the 'valueChanged' signal if the value changes.
 --
 rangeSetValue :: RangeClass self => self
  -> Double -- ^ @value@ - new value of the range
@@ -215,6 +236,75 @@ rangeSetRange self min max =
     (realToFrac min)
     (realToFrac max)
 
+#if GTK_CHECK_VERSION(2,10,0)
+
+-- | Determines how Gtk+ handles the sensitivity of stepper arrows at the end of range widgets.
+--
+-- * 'SensitivityAuto': the arrow is made insensitive if the thumb is at the end
+--
+-- * 'SensitivityOn': the arrow is alwasy sensitive
+--
+-- * 'SensitivityOff': the arrow is always insensitive
+--
+{#enum SensitivityType {underscoreToCase} deriving (Bounded,Eq,Show)#}
+
+-- %hash c:3a8d d:d336
+-- | Sets the sensitivity policy for the stepper that points to the \'lower\'
+-- end of the 'Range''s adjustment.
+--
+-- * Available since Gtk+ version 2.10
+--
+rangeSetLowerStepperSensitivity :: RangeClass self => self
+ -> SensitivityType -- ^ @sensitivity@ - the lower stepper's sensitivity
+                    -- policy.
+ -> IO ()
+rangeSetLowerStepperSensitivity self sensitivity =
+  {# call gtk_range_set_lower_stepper_sensitivity #}
+    (toRange self)
+    ((fromIntegral . fromEnum) sensitivity)
+
+-- %hash c:12a2 d:2f2a
+-- | Gets the sensitivity policy for the stepper that points to the \'lower\'
+-- end of the 'Range''s adjustment.
+--
+-- * Available since Gtk+ version 2.10
+--
+rangeGetLowerStepperSensitivity :: RangeClass self => self
+ -> IO SensitivityType -- ^ returns The lower stepper's sensitivity policy.
+rangeGetLowerStepperSensitivity self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_range_get_lower_stepper_sensitivity #}
+    (toRange self)
+
+-- %hash c:a939 d:2d79
+-- | Sets the sensitivity policy for the stepper that points to the \'upper\'
+-- end of the 'Range''s adjustment.
+--
+-- * Available since Gtk+ version 2.10
+--
+rangeSetUpperStepperSensitivity :: RangeClass self => self
+ -> SensitivityType -- ^ @sensitivity@ - the upper stepper's sensitivity
+                    -- policy.
+ -> IO ()
+rangeSetUpperStepperSensitivity self sensitivity =
+  {# call gtk_range_set_upper_stepper_sensitivity #}
+    (toRange self)
+    ((fromIntegral . fromEnum) sensitivity)
+
+-- %hash c:456e d:896d
+-- | Gets the sensitivity policy for the stepper that points to the \'upper\'
+-- end of the 'Range''s adjustment.
+--
+-- * Available since Gtk+ version 2.10
+--
+rangeGetUpperStepperSensitivity :: RangeClass self => self
+ -> IO SensitivityType -- ^ returns The upper stepper's sensitivity policy.
+rangeGetUpperStepperSensitivity self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_range_get_upper_stepper_sensitivity #}
+    (toRange self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -243,6 +333,29 @@ rangeInverted = newAttr
   rangeGetInverted
   rangeSetInverted
 
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:b6dd d:1607
+-- | The sensitivity policy for the stepper that points to the adjustment's
+-- lower side.
+--
+-- Default value: 'SensitivityAuto'
+--
+rangeLowerStepperSensitivity :: RangeClass self => Attr self SensitivityType
+rangeLowerStepperSensitivity = newAttrFromEnumProperty "lower-stepper-sensitivity"
+                                 {# call pure unsafe gtk_sensitivity_type_get_type #}
+
+-- %hash c:2fc6 d:132a
+-- | The sensitivity policy for the stepper that points to the adjustment's
+-- upper side.
+--
+-- Default value: 'SensitivityAuto'
+--
+rangeUpperStepperSensitivity :: RangeClass self => Attr self SensitivityType
+rangeUpperStepperSensitivity = newAttrFromEnumProperty "upper-stepper-sensitivity"
+                                 {# call pure unsafe gtk_sensitivity_type_get_type #}
+#endif
+
+-- %hash c:f615 d:2481
 -- | \'value\' property. See 'rangeGetValue' and 'rangeSetValue'
 --
 rangeValue :: RangeClass self => Attr self Double
@@ -252,6 +365,45 @@ rangeValue = newAttr
 
 --------------------
 -- Signals
+
+-- %hash c:9758 d:680f
+-- | Emitted when the range value changes.
+--
+valueChanged :: RangeClass self => Signal self (IO ())
+valueChanged = Signal (connect_NONE__NONE "value_changed")
+
+-- %hash c:9576 d:af3f
+-- |
+--
+adjustBounds :: RangeClass self => Signal self (Double -> IO ())
+adjustBounds = Signal (connect_DOUBLE__NONE "adjust_bounds")
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:a84 d:a60c
+-- | The 'changeValue' signal is emitted when a scroll action is performed on
+-- a range. It allows an application to determine the type of scroll event that
+-- occurred and the resultant new value. The application can handle the event
+-- itself and return @True@ to prevent further processing. Or, by returning
+-- @False@, it can pass the event to other handlers until the default Gtk+
+-- handler is reached.
+--
+-- The value parameter is unrounded. An application that overrides the
+-- 'changeValue' signal is responsible for clamping the value to the desired
+-- number of decimal digits.
+--
+-- It is not possible to use delayed update policies in an overridden
+-- 'changeValue' handler.
+--
+-- * Available since Gtk+ version 2.6
+--
+changeValue :: RangeClass self => Signal self (ScrollType -> Double -> IO Bool)
+changeValue = Signal (connect_ENUM_DOUBLE__BOOL "change_value")
+#endif
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Emitted when a scroll action is performed on a range. It allows
@@ -302,3 +454,4 @@ onMoveSlider, afterMoveSlider :: RangeClass self => self
  -> IO (ConnectId self)
 onMoveSlider = connect_ENUM__NONE "move_slider" False
 afterMoveSlider = connect_ENUM__NONE "move_slider" True
+#endif
