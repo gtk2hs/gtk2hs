@@ -96,6 +96,7 @@
 				    GtkRadioToolButton	if gtk-2.4
 			    GtkSeparatorToolItem	if gtk-2.4
 			GtkMozEmbed		if mozembed
+			VteTerminal as Terminal if vte
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox

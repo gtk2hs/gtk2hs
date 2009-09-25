@@ -47,6 +47,8 @@ EXTRA_DIST = \
 dist-hook:
 	mkdir $(distdir)/glade/Graphics/UI/Gtk/Glade
 	touch $(distdir)/glade/Graphics/UI/Gtk/Glade/.keep
+	mkdir $(distdir)/vte/Graphics/UI/Gtk/Vte
+	touch $(distdir)/vte/Graphics/UI/Gtk/Vte/.keep
 	mkdir $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed
 	touch $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed/.keep
 
@@ -72,6 +74,9 @@ pkglib_LIBRARIES += libHSgio.a
 endif
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
+endif
+if ENABLE_VTE
+pkglib_LIBRARIES += libHSvte.a
 endif
 if ENABLE_GCONF
 pkglib_LIBRARIES += libHSgconf.a
@@ -1115,6 +1120,130 @@ glade_MOSTLYCLEANFILES += $(libHSglade_a_LIBADD:.o=.p_o)
 endif
 
 endif #ENABLE_LIBGLADE
+
+#
+##	vte package
+#
+##################################################################################
+
+if ENABLE_VTE
+
+vte_PKGNAME = libHSvte_a
+
+libHSvte_a_NAME		= vte
+libHSvte_a_CONFIG		= vte/vte.package.conf
+libHSvte_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
+libHSvte_a_INTERNALDEPS	= gtk glib
+libHSvte_a_HEADER 		= vte/vte.h
+libHSvte_a_PRECOMP		= vte/vte.precomp
+libHSvte_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(VTE_LIBS)
+libHSvte_a_HCFLAGS		= $(FFI)
+libHSvte_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(VTE_CFLAGS)) 
+libHSvte_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(VTE_CFLAGS))
+
+
+libHSvte_a_SOURCESDIRS	= vte
+
+libHSvte_a_GENERATEDSOURCES =	\
+	vte/Graphics/UI/Gtk/Vte/Types.chs
+
+nodist_libHSvte_a_SOURCES = $(libHSvte_a_GENERATEDSOURCES)
+
+libHSvte_a_SOURCES =	        \
+        vte/Graphics/UI/Gtk/Vte/Vte.chs
+
+htmldoc_HSFILES_HIDDEN += $(libHSvte_a_GENERATEDSOURCES:.chs=.hs)
+
+vte_Graphics_UI_Gtk_Vte_Types_hs_HCFLAGS	= -fglasgow-exts 
+
+vte/Graphics/UI/Gtk/Vte/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+		      $@ --tag=vte --lib=vte --prefix=vte \
+                      --modname=Graphics.UI.Gtk.Vte.Types \
+		      --parentname=Graphics.UI.Gtk.Types)
+
+libHSvte_a_ALLSOURCES = $(libHSvte_a_SOURCES) $(nodist_libHSvte_a_SOURCES)
+
+am_libHSvte_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSvte_a_ALLSOURCES))))
+
+libHSvte_a_HSPPFILES  = $(filter %.hs.pp, $(libHSvte_a_ALLSOURCES))
+libHSvte_a_CHSPPFILES = $(filter %.chs.pp,$(libHSvte_a_ALLSOURCES))
+libHSvte_a_CHSFILES = \
+  $(filter %.chs,$(libHSvte_a_ALLSOURCES:.chs.pp=.chs))
+libHSvte_a_CHSFILES_HS = $(libHSvte_a_CHSFILES:.chs=.hs)
+libHSvte_a_HSCFILES = $(filter %.hsc, $(libHSvte_a_ALLSOURCES))
+libHSvte_a_HSCFILES_HS = $(libHSvte_a_HSCFILES:.hsc=.hs)
+libHSvte_a_BUILDSOURCES = \
+	$(libHSvte_a_HSPPFILES:.hs.pp=.hs) \
+	$(libHSvte_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSvte_a_CHSFILES_HS) \
+        $(libHSvte_a_HSCFILES_HS) \
+        $(libHSvte_a_GENERATEDSOURCES)
+libHSvte_a_HSFILES  = \
+	$(filter %.hs,$(libHSvte_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSvte_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSvte_a_HSFILES:.hs=.hi)
+
+vte_MOSTLYCLEANFILES  = $(am_libHSvte_a_OBJECTS)
+vte_MOSTLYCLEANFILES += $(libHSvte_a_HSFILES:.hs=.hi)
+vte_MOSTLYCLEANFILES += $(libHSvte_a_CHSFILES:.chs=.chi)
+vte_CLEANFILES  = $(libHSvte_a_BUILDSOURCES)
+vte_CLEANFILES += $(libHSvte_a_CHSFILES_HS:.hs=.dep)
+vte_CLEANFILES += \
+	$(libHSvte_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
+	$(libHSvte_a_HSCFILES:.hsc=_hsc_make.c)		\
+	$(libHSvte_a_HSCFILES:.hsc=_hsc_make.o)
+
+vte/libHSvte_a.deps: $(libHSvte_a_HSFILES) | \
+	$(foreach pkg,$(libHSvte_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSvte_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,vte $(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSvte_a_CHSFILES_HS): $(libHSvte_a_PRECOMP)
+$(libHSvte_a_OBJECTS) : \
+	$(foreach pkg,$(libHSvte_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
+
+EARLY_DEPS += $(libHSvte_a_CHSFILES:.chs=.dep)
+
+ifeq (,$(DONT_USE_DEPS))
+-include $(libHSvte_a_CHSFILES:.chs=.dep) vte/libHSvte_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSvte_a_AR = $(srcdir)/mk/link-splitobjs.sh
+vte_CLEANFILES_SPLIT = $(libHSvte_a_HSFILES:.hs=_split/)
+else
+libHSvte_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSvte_a_DEPENDENCIES = HSvte.o
+pkglib_DATA += HSvte.o
+HSvte.o : $(libHSvte_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSvte_a_OBJECTS) $(libHSvte_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSvte_a_DEPENDENCIES += libHSvte_p.a
+pkglib_DATA += libHSvte_p.a
+libHSvte_p.a : $(libHSvte_a_HSFILES:.hs=.p_o) \
+		$(libHSvte_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(DONT_USE_DEPS))
+-include vte/libHSvte_a.p_deps
+ endif
+
+nobase_hi_DATA         += $(libHSvte_a_HSFILES:.hs=.p_hi)
+vte_MOSTLYCLEANFILES += $(libHSvte_a_HSFILES:.hs=.p_hi)
+vte_MOSTLYCLEANFILES += $(libHSvte_a_HSFILES:.hs=.p_o)
+vte_MOSTLYCLEANFILES += $(libHSvte_a_LIBADD:.o=.p_o)
+endif
+
+endif #ENABLE_VTE
 
 #
 #	gconf package

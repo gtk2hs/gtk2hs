@@ -1,0 +1,17 @@
+name: vte 
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/vte"
+library-dirs: @VTE_LIBDIR_CQ@
+hs-libraries: HSvte
+extra-libraries: @VTE_LIBS_CQ@
+include-dirs: @VTE_CFLAGS_CQ@
+includes: vte/vte.h
+depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
+ld-options: @VTE_LIBEXTRA_CQ@

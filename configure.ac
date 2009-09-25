@@ -318,6 +318,10 @@ GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0], [GLIB GTK],
 	[build glade package (default=auto)],
 	[libglade library requirement not met. Perhaps you need to install libglade or libglade-devel])
 
+GTKHS_PKG_CHECK(vte, vte, VTE, [vte >= 0.20], [GLIB GTK],
+    [build vte package (default=auto)],
+    [vte library requirement not met. Perhaps you need to install vte or vte-devel])
+
 GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0], [GLIB],
 	[build gconf package (default=auto)],
 	[GConf requirement not met. Perhaps you need to install gconf or gconf-devel])
@@ -437,6 +441,7 @@ dnl system dynamic linker loads up the pthread library automatically.
 case "$host_os" in
   linux*)
     GTKHS_GLIBC_PTHREAD_HACK(LIBGLADE_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(VTE_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(GCONF_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(SOURCEVIEW_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(GTKSOURCEVIEW2_LIBS)
@@ -609,6 +614,9 @@ GTKHS_PACKAGE_FILTER_LIBS([GTKSOURCEVIEW2_LIBS], [$GLIB_LIBS $GTK_LIBS], [$GTKSO
 GTKHS_PACKAGE_FILTER_CFLAGS([LIBGLADE_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$LIBGLADE_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([LIBGLADE_LIBS], [$GLIB_LIBS $GTK_LIBS], [$LIBGLADE_LIBS])
 
+GTKHS_PACKAGE_FILTER_CFLAGS([VTE_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$VTE_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([VTE_LIBS], [$GLIB_LIBS $GTK_LIBS], [$VTE_LIBS])
+
 GTKHS_PACKAGE_FILTER_CFLAGS([GCONF_CFLAGS], [$GLIB_CFLAGS], [$GCONF_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([GCONF_LIBS], [$GLIB_LIBS], [$GCONF_LIBS])
 
@@ -685,6 +693,14 @@ AC_SUBST(LIBGLADE_CFLAGS_CQ)
 AC_SUBST(LIBGLADE_LIBS_CQ)
 AC_SUBST(LIBGLADE_LIBDIR_CQ)
 AC_SUBST(LIBGLADE_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(VTE_CFLAGS, VTE_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(VTE_LIBS, VTE_LIBS_CQ,
+			    VTE_LIBDIR_CQ, VTE_LIBEXTRA_CQ)
+AC_SUBST(VTE_CFLAGS_CQ)
+AC_SUBST(VTE_LIBS_CQ)
+AC_SUBST(VTE_LIBDIR_CQ)
+AC_SUBST(VTE_LIBEXTRA_CQ)
 
 GTKHS_REFORMAT_PACKAGE_CFLAGS(GCONF_CFLAGS, GCONF_CFLAGS_CQ)
 GTKHS_REFORMAT_PACKAGE_LIBS(GCONF_LIBS, GCONF_LIBS_CQ, GCONF_LIBDIR_CQ,
@@ -927,6 +943,7 @@ AC_CONFIG_FILES([
   soegtk/soegtk.package.conf			soegtk/soegtk.cabal
   gnomevfs/gnomevfs.package.conf		gnomevfs/gnomevfs.cabal
   gstreamer/gstreamer.package.conf		gstreamer/gstreamer.cabal
+  vte/vte.package.conf			vte/vte.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT
@@ -951,6 +968,7 @@ echo "* mozembed       : ${ENABLE_MOZEMBED}             "
 echo "* soegtk         : ${ENABLE_GTK}                  "
 echo "* gnomevfs       : ${ENABLE_GNOMEVFS}             "
 echo "* gstreamer      : ${ENABLE_GSTREAMER}            "
+echo "* vte            : ${ENABLE_VTE}                  "
 echo "* documentation  : ${BUILDDOCS}                   "
 dnl echo "* tutorials     : no                              "
 echo "*                                                 "
