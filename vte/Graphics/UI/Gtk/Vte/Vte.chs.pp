@@ -193,7 +193,7 @@ module Graphics.UI.Gtk.Vte.Vte (
    windowTitleChanged,
    ) where
 
-import Control.Monad		(liftM)
+import Control.Monad		(liftM, unless)
 import Data.Char
 import Data.Word
 
@@ -203,16 +203,19 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Properties
 import System.Glib.GList
-import System.Glib.GError 
-import Graphics.UI.Gtk.Gdk.GC
+import System.Glib.GError
+import System.Glib.Flags                        (Flags, fromFlags) 
+import Graphics.UI.Gtk.General.Structs          (Color(..))
 import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Pango.Font
+import Graphics.UI.Gtk.Vte.Structs
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Vte.Types#}
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import System.Glib.GObject#}
+{#import System.Glib.GError#}                   (propagateGError)
 
 {#context lib= "vte" prefix= "vte"#}
 
@@ -843,12 +846,63 @@ terminalReset ::
  -> IO ()
 terminalReset terminal full clearHistory =
     {#call terminal_reset#} (toTerminal terminal) (fromBool full) (fromBool clearHistory)
-    
--- | Extracts a view of the visible part of the terminal. If is_selected is not NULL, characters will only be read if is_selected returns TRUE after being passed the column and row, respectively. 
--- A 'CharAttributes' structure is added to attributes for each byte added to the returned string detailing the character's position, colors, and other characteristics.
--- TODO:
--- terminalGetText
 
+-- | A predicate that states which characters are of interest.
+type VteSelect =
+    Int -- ^ the column of the character
+ -> Int -- ^ the row of the character
+ -> Bool -- ^ @True@ if the character should be inspected
+
+-- | A structure describing the individual characters in the visible part of
+--   a terminal window.
+--
+data VteChar = VteChar {
+  vcRow :: Int,
+  vcCol :: Int,
+  vcChar :: Char,
+  vcFore :: Color,
+  vcBack :: Color,
+  vcUnderline :: Bool,
+  vcStrikethrough :: Bool
+  }
+
+attrToChar :: Char -> VteAttributes -> VteChar
+attrToChar ch (VteAttributes r c f b u s) = VteChar r c ch f b u s
+     
+-- | Extracts a view of the visible part of the terminal. A selection
+--   predicate may be supplied to restrict the inspected characters. The
+--   return value is a list of 'VteChar' structures, each detailing the
+--   character's position, colors, and other characteristics.
+--
+terminalGetText ::
+    TerminalClass self => self
+ -> Maybe VteSelect -- ^ @Just p@ for a predicate @p@ that determines
+                    -- which character should be extracted or @Nothing@
+                    -- to select all characters
+ -> IO [VteChar]
+terminalGetText terminal mCB = do
+  cbPtr <- case mCB of
+    Just cb -> mkVteSelectionFunc $ \_ c r _ ->
+      return (fromBool (cb (fromIntegral c) (fromIntegral r)))
+    Nothing -> return nullFunPtr
+  gArrPtr <- {#call unsafe g_array_new#} 0 0
+    (fromIntegral (sizeOf (undefined :: VteAttributes)))
+  strPtr <- {#call terminal_get_text #} (toTerminal terminal) cbPtr nullPtr gArrPtr
+  str <- if strPtr==nullPtr then return "" else peekUTFString strPtr
+  (len,elemPtr) <- gArrayContent (castPtr gArrPtr)
+  attrs <- (flip mapM) [0..len-1] $ peekElemOff elemPtr
+  unless (cbPtr==nullFunPtr) $ freeHaskellFunPtr cbPtr
+  {#call unsafe g_free#} (castPtr strPtr)
+  {#call unsafe g_array_free#} gArrPtr 1
+  return (zipWith attrToChar str attrs)
+
+{#pointer VteSelectionFunc#}
+
+foreign import ccall "wrapper" mkVteSelectionFunc ::
+  (Ptr Terminal -> {#type glong#} -> {#type glong#} -> Ptr () -> IO {#type gboolean#})
+  -> IO VteSelectionFunc
+  
+  
 -- | Extracts a view of the visible part of the terminal. 
 -- If is_selected is not NULL, characters will only be read if is_selected returns TRUE after being passed the column and row, respectively. 
 -- A 'CharAttributes' structure is added to attributes for each byte added to the returned string detailing the character's position, colors, and other characteristics. 
@@ -894,19 +948,41 @@ terminalMatchClearAll terminal =
 terminalMatchAdd :: 
     TerminalClass self => self
  -> String   -- ^ @match@ - a regular expression                                          
- -> IO Int   -- ^ return an integer associated with this expression Deprecated: 0.17.1 
+ -> IO Int   -- ^ return an integer associated with this expression
 terminalMatchAdd terminal match =
     liftM fromIntegral $
     withUTFString match $ \matchPtr ->
     {#call terminal_match_add#} (toTerminal terminal) matchPtr
+
+-- | Flags determining how the regular expression is to be interpreted.
+{#enum GRegexCompileFlags as RegexCompileFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
+
+instance Flags RegexCompileFlags
+
+-- | Flags determining how the string is matched against the regular
+-- expression.
+{#enum GRegexMatchFlags as RegexMatchFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
+
+instance Flags RegexMatchFlags
     
 -- | Adds the regular expression regex to the list of matching expressions. 
 -- When the user moves the mouse cursor over a section of displayed text which matches this expression, the text will be highlighted.
 --
 -- * Available since Vte version 0.17.1
 --
--- TODO:
--- terminalMatchAddGregex 
+terminalMatchAddRegex ::
+    TerminalClass self => self
+ -> String -- ^ @pattern@ - a regular expression
+ -> [RegexCompileFlags] -- ^ @flags@ - specify how to interpret the pattern
+ -> [RegexMatchFlags] -- ^ @flags@ - specify how to match
+ -> IO Int -- ^ return an integer associated with this expression
+terminalMatchAddRegex terminal pattern cFlags mFlags =
+  withUTFString pattern $ \pat -> do
+    regexPtr <- propagateGError $
+      {#call g_regex_new#} pat  (fromIntegral (fromFlags cFlags))
+        (fromIntegral (fromFlags mFlags))
+    liftM fromIntegral $ {#call terminal_match_add_gregex#}
+      (toTerminal terminal) regexPtr (fromIntegral (fromFlags mFlags))
 
 -- | Removes the regular expression which is associated with the given tag from the list of expressions which the terminal will highlight when the user moves the mouse cursor over matching text.
 terminalMatchRemove :: 

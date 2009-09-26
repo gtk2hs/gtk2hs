@@ -41,14 +41,13 @@ EXTRA_DIST = \
 	gio/marshal.list			\
 	gtksourceview2/marshal.list		\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h	\
+	vte/Graphics/UI/Gtk/Vte/VteCharAttrFields.h	\
 	COPYING.LGPLv3 COPYING.GPLv3
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
 	mkdir $(distdir)/glade/Graphics/UI/Gtk/Glade
 	touch $(distdir)/glade/Graphics/UI/Gtk/Glade/.keep
-	mkdir $(distdir)/vte/Graphics/UI/Gtk/Vte
-	touch $(distdir)/vte/Graphics/UI/Gtk/Vte/.keep
 	mkdir $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed
 	touch $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed/.keep
 
@@ -1150,7 +1149,9 @@ libHSvte_a_GENERATEDSOURCES =	\
 nodist_libHSvte_a_SOURCES = $(libHSvte_a_GENERATEDSOURCES)
 
 libHSvte_a_SOURCES =	        \
-        vte/Graphics/UI/Gtk/Vte/Vte.chs
+	vte/Graphics/UI/Gtk/Vte/VteCharAttrFields.c 	\
+	vte/Graphics/UI/Gtk/Vte/Structs.hsc		\
+	vte/Graphics/UI/Gtk/Vte/Vte.chs
 
 htmldoc_HSFILES_HIDDEN += $(libHSvte_a_GENERATEDSOURCES:.chs=.hs)
 
