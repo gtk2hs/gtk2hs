@@ -1,0 +1,17 @@
+name: webkit 
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/webkit"
+library-dirs: @WEBKIT_LIBDIR_CQ@
+hs-libraries: HSwebkit
+extra-libraries: @WEBKIT_LIBS_CQ@
+include-dirs: @WEBKIT_CFLAGS_CQ@
+includes: webkit/webkit.h
+depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
+ld-options: @WEBKIT_LIBEXTRA_CQ@

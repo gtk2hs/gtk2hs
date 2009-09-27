@@ -102,6 +102,22 @@
 			    GtkSeparatorToolItem	if gtk-2.4
 			GtkMozEmbed		if mozembed
 			VteTerminal as Terminal if vte
+			WebkitWebView as WebView            if webkit 
+			WebkitWebFrame as WebFrame          if webkit 
+			WebkitWebSettings as WebSettings    if webkit
+			WebkitNetworkRequest as NetworkRequest  if webkit
+			WebkitNetworkResponse as NetworkResponse    if webkit
+			WebkitDownload as Download  if webkit
+			WebkitWebBackForwardList as WebBackForwardList if webkit
+			WebkitWebHistoryItem as WebHistoryItem if webkit
+			WebkitWebInspector as WebInspector if webkit
+			WebkitWebNavigationAction as WebNavigationAction if webkit 
+			WebkitWebPolicyDecision as WebPolicyDecision if webkit
+			WebkitWebWindowFeatures as WebWindowFeatures if webkit
+			WebkitWebDatabase as WebDatabase if webkit
+			WebkitWebDataSource as WebDataSource if webkit
+			WebkitWebResource as WebResource if webkit
+			WebkitSecurityOrigin as SecurityOrigin if webkit
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox

@@ -347,6 +347,10 @@ GTKHS_PKG_CHECK(gtksourceview2, gtksourceview2, GTKSOURCEVIEW2, [gtksourceview-2
 	[build gtksourceview2 package (default=auto)],
 	[GtkSourceView-2.0 requirement not met. Perhaps you need to install gtksourceview-2.0 or gtksourceview-devel-2.0])
 
+GTKHS_PKG_CHECK(webkit, webkit, WEBKIT, [webkit-1.0 >= 1.1.14], [GLIB GTK],
+    [build webkit package (default=auto)],
+    [webkit library requirement not met. Perhaps you need to install webkit or webkit-devel])
+
 dnl Don't build sourceview and gtksourceview2 at the same time
 dnl (prefer gtksourceview2 if both are auto)
 ENABLE_PKG_DEFAULT_sourceview_save="$ENABLE_PKG_DEFAULT"
@@ -462,7 +466,8 @@ case "$host_os" in
     GTKHS_GLIBC_PTHREAD_HACK(GCONF_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(SOURCEVIEW_LIBS)
     GTKHS_GLIBC_PTHREAD_HACK(GTKSOURCEVIEW2_LIBS)
-    GTKHS_GLIBC_PTHREAD_HACK(MOZEMBED_LIBS);;
+    GTKHS_GLIBC_PTHREAD_HACK(MOZEMBED_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(WEBKIT_LIBS);;
 esac
 
 dnl Some APIs only appeared in later versions of libraries. Generate only
@@ -655,6 +660,9 @@ GTKHS_PACKAGE_FILTER_LIBS([GNOMEVFS_LIBS], [$GLIB_LIBS], [$GNOMEVFS_LIBS])
 GTKHS_PACKAGE_FILTER_CFLAGS([GSTREAMER_CFLAGS], [$GLIB_CFLAGS], [$GSTREAMER_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([GSTREAMER_LIBS], [$GLIB_LIBS], [$GSTREAMER_LIBS])
 
+GTKHS_PACKAGE_FILTER_CFLAGS([WEBKIT_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$WEBKIT_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([WEBKIT_LIBS], [$GLIB_LIBS $GTK_LIBS], [$WEBKIT_LIBS])
+
 dnl Change the representation of these flags to "flag1","flag2". The
 dnl letters CQ stand for Comma, Quote.
 GTKHS_REFORMAT_PACKAGE_CFLAGS(GLIB_CFLAGS, GLIB_CFLAGS_CQ)
@@ -769,6 +777,14 @@ AC_SUBST(GSTREAMER_CFLAGS_CQ)
 AC_SUBST(GSTREAMER_LIBS_CQ)
 AC_SUBST(GSTREAMER_LIBDIR_CQ)
 AC_SUBST(GSTREAMER_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(WEBKIT_CFLAGS, WEBKIT_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(WEBKIT_LIBS, WEBKIT_LIBS_CQ,
+			    WEBKIT_LIBDIR_CQ, WEBKIT_LIBEXTRA_CQ)
+AC_SUBST(WEBKIT_CFLAGS_CQ)
+AC_SUBST(WEBKIT_LIBS_CQ)
+AC_SUBST(WEBKIT_LIBDIR_CQ)
+AC_SUBST(WEBKIT_LIBEXTRA_CQ)
 
 if test $DISABLE_DEPRECATED = yes; then
   AC_DEFINE(DISABLE_DEPRECATED, [], [Leave out all deprecated functions.])
@@ -961,6 +977,7 @@ AC_CONFIG_FILES([
   gnomevfs/gnomevfs.package.conf		gnomevfs/gnomevfs.cabal
   gstreamer/gstreamer.package.conf		gstreamer/gstreamer.cabal
   vte/vte.package.conf			vte/vte.cabal
+  webkit/webkit.package.conf          webkit/webkit.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT
@@ -986,6 +1003,7 @@ echo "* soegtk         : ${ENABLE_GTK}                  "
 echo "* gnomevfs       : ${ENABLE_GNOMEVFS}             "
 echo "* gstreamer      : ${ENABLE_GSTREAMER}            "
 echo "* vte            : ${ENABLE_VTE}                  "
+echo "* webkit         : ${ENABLE_WEBKIT}               "
 echo "* documentation  : ${BUILDDOCS}                   "
 dnl echo "* tutorials     : no                              "
 echo "*                                                 "

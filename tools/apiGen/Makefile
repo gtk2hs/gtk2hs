@@ -103,7 +103,7 @@ gtk-post-download-hook = \
 	ln -f -s gtkfilechooserprivate.h gtk/gtk/gtkfilechooserpriv.h
 
 atk-post-download-hook = \
-	sed -i 's:( \*link_activated):(\* link_activated):' atk/atk/atkhyperlink.h
+	gnused -i 's:( \*link_activated):(\* link_activated):' atk/atk/atkhyperlink.h
 
 
 ###################

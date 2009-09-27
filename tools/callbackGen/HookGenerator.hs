@@ -292,6 +292,7 @@ marshRet Tflags	 body = indent 5. ss "liftM fromFlags $ ". body
 marshRet Tfloat	 body = body
 marshRet Tdouble body = body
 marshRet Tstring body = body. indent 5. ss ">>= newUTFString"
+marshRet Tptr    body = indent 5. ss "liftM castPtr $ ". body
 marshRet _       _    = error "Signal handlers cannot return structured types."
 
 #else
@@ -342,6 +343,7 @@ marshRet Tenum	  = ss "(toEnum.fromEnum)"
 marshRet Tflags	  = ss "fromFlags"
 marshRet Tfloat	  = ss "(toRational.fromRational)"
 marshRet Tdouble  = ss "(toRational.fromRational)"
+marshRet Tptr     = ss "castPtr"
 marshRet _  = ss "(error \"Signal handlers cannot return structured types.\")"
 
 #endif
@@ -356,7 +358,8 @@ mkUserType (ret,ts) = let
 	    let (str',cs') = usertype t cs in (str.str'.ss " -> ",cs'))
 	    (sc '(',['a'..]) ts
   (str',_) = usertype ret cs
-  in str.ss "IO ".str'.sc ')'
+  str'' = if ' ' `elem` (str' "") then (sc '('.str'.sc ')') else str'
+  in str.ss "IO ".str''.sc ')'
 
 mkContext :: Signature -> ShowS
 mkContext (ret,ts) = let ctxts = context (ts++[ret]) ['a'..] in
