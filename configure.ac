@@ -318,7 +318,7 @@ GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0], [GLIB GTK],
 	[build glade package (default=auto)],
 	[libglade library requirement not met. Perhaps you need to install libglade or libglade-devel])
 
-GTKHS_PKG_CHECK(vte, vte, VTE, [vte >= 0.20], [GLIB GTK],
+GTKHS_PKG_CHECK(vte, vte, VTE, [vte >= 0.20.5], [GLIB GTK],
     [build vte package (default=auto)],
     [vte library requirement not met. Perhaps you need to install vte or vte-devel])
 

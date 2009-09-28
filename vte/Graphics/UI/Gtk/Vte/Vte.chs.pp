@@ -17,12 +17,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO:
---
---   ** Finish functions binding:
---      'terminalGetText', 'terminalGetTextIncludeTrailingSpaces'
---      'terminalGetTextRange', 'SelectionFunc', 'terminalMatchAddGregex'
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -35,15 +29,21 @@
 module Graphics.UI.Gtk.Vte.Vte (
 -- * Types
    Terminal,
+   VteSelect,
+   SelectionFunc,
+   VteChar(..),
+
+-- * Enums
+   TerminalEraseBinding(..),
+   TerminalCursorBlinkMode(..),
+   TerminalCursorShape(..),
+   RegexCompileFlags(..),
+   RegexMatchFlags(..),
 
 -- * Constructors
    terminalNew,
 
 -- * Methods
-   TerminalEraseBinding(..),
-   TerminalAntiAlias(..),
-   TerminalCursorShape(..),
-   TerminalCursorBlinkMode(..),
    terminalImAppendMenuitems,
    terminalForkCommand,
    terminalForkpty,
@@ -85,16 +85,12 @@ module Graphics.UI.Gtk.Vte.Vte (
    terminalSetScrollBackground,
    terminalSetCursorShape,
    terminalGetCursorShape,
-   terminalSetCursorBlinks,
    terminalSetCursorBlinkMode,
    terminalGetCursorBlinkMode,
    terminalSetScrollbackLines,
    terminalSetFont,
    terminalSetFontFromString,
-   terminalSetFontFromStringFull,
-   terminalSetFontFull,
    terminalGetFont,
-   terminalGetUsingXft,
    terminalGetHasSelection,
    terminalSetWordChars,
    terminalIsWordChar,
@@ -103,17 +99,16 @@ module Graphics.UI.Gtk.Vte.Vte (
    terminalSetMouseAutohide,
    terminalGetMouseAutohide,
    terminalReset,
-   -- terminalGetText,
-   -- terminalGetTextIncludeTrailingSpaces,
-   -- terminalGetTextRange,
-   -- SelectionFunc,
+   terminalGetText,
+   terminalGetTextIncludeTrailingSpaces,
+   terminalGetTextRange,
    terminalGetCursorPosition,
    terminalMatchClearAll,
-   terminalMatchAdd,
-   -- terminalMatchAddGregex,
+   terminalMatchAddRegex,
    terminalMatchRemove,
    terminalMatchCheck,
    terminalMatchSetCursor,
+   terminalMatchSetCursorType,
    terminalMatchSetCursorName,
    terminalSetEmulation,
    terminalGetEmulation,
@@ -123,8 +118,6 @@ module Graphics.UI.Gtk.Vte.Vte (
    terminalGetStatusLine,
    terminalGetPadding,
    terminalGetAdjustment,
-   terminalGetCharAscent,
-   terminalGetCharDescent,
    terminalGetCharHeight,
    terminalGetCharWidth,
    terminalGetColumnCount,
@@ -219,14 +212,63 @@ import Graphics.UI.Gtk.Vte.Structs
 
 {#context lib= "vte" prefix= "vte"#}
 
-{#enum VteTerminalEraseBinding as TerminalEraseBinding {underscoreToCase}#}
-{#enum VteTerminalCursorShape as TerminalCursorShape {underscoreToCase}#}
-{#enum VteTerminalCursorBlinkMode as TerminalCursorBlinkMode {underscoreToCase}#}
-{#enum VteTerminalAntiAlias as TerminalAntiAlias {underscoreToCase}#}
+--------------------
+-- Types
+-- | A predicate that states which characters are of interest. 
+-- The predicate @p c r@ should return @True@ if the character at column @c@ and row @r@ should be extracted.
+type VteSelect =
+    Int
+ -> Int 
+ -> Bool
+
+{#pointer SelectionFunc#}
+
+-- | A structure describing the individual characters in the visible part of
+--   a terminal window.
+--
+data VteChar = VteChar {
+  vcRow :: Int,
+  vcCol :: Int,
+  vcChar :: Char,
+  vcFore :: Color,
+  vcBack :: Color,
+  vcUnderline :: Bool,
+  vcStrikethrough :: Bool
+  }
+
+--------------------
+-- Utils
+-- | Utils function to transform 'VteAttributes' to 'VteChar'.
+attrToChar :: Char -> VteAttributes -> VteChar
+attrToChar ch (VteAttributes r c f b u s) = VteChar r c ch f b u s
+     
+foreign import ccall "wrapper" mkVteSelectionFunc ::
+  (Ptr Terminal -> {#type glong#} -> {#type glong#} -> Ptr () -> IO {#type gboolean#})
+  -> IO SelectionFunc
+  
+--------------------
+-- Enums
+-- | Values for "what should happen when the user hits backspace/delete".  
+-- Use 'EraseAuto' unless the user can cause them to be overridden.
+{#enum VteTerminalEraseBinding as TerminalEraseBinding {underscoreToCase} deriving (Bounded,Eq,Show)#}
+
+-- | Values for the cursor blink setting.
+{#enum VteTerminalCursorBlinkMode as TerminalCursorBlinkMode {underscoreToCase} deriving (Bounded,Eq,Show)#}
+
+-- | Values for the cursor shape setting.
+{#enum VteTerminalCursorShape as TerminalCursorShape {underscoreToCase} deriving (Bounded,Eq,Show)#}
+
+-- | Flags determining how the regular expression is to be interpreted.
+{#enum GRegexCompileFlags as RegexCompileFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
+instance Flags RegexCompileFlags
+
+-- | Flags determining how the string is matched against the regular
+-- expression.
+{#enum GRegexMatchFlags as RegexMatchFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
+instance Flags RegexMatchFlags
 
 --------------------
 -- Constructors
-
 -- | Create a new terminal widget.
 terminalNew :: IO Terminal
 terminalNew = 
@@ -234,8 +276,7 @@ terminalNew =
 
 --------------------
 -- Methods
-
--- |Appends menu items for various input methods to the given menu. 
+-- | Appends menu items for various input methods to the given menu. 
 -- The user can select one of these items to modify the input method used by the terminal.
 terminalImAppendMenuitems :: 
     TerminalClass self => self
@@ -379,26 +420,26 @@ terminalSelectNone :: TerminalClass self => self -> IO ()
 terminalSelectNone terminal =
     {#call terminal_select_none#} (toTerminal terminal)
 
--- | Places the selected text in the terminal in the GDK_SELECTION_CLIPBOARD selection.
+-- | Places the selected text in the terminal in the 'SelectionClipboard' selection.
 terminalCopyClipboard :: TerminalClass self => self -> IO ()
 terminalCopyClipboard terminal = 
     {#call terminal_copy_clipboard#} (toTerminal terminal)
   
--- | Sends the contents of the GDK_SELECTION_CLIPBOARD selection to the terminal's child. 
+-- | Sends the contents of the 'SelectionClipboard' selection to the terminal's child. 
 -- If necessary, the data is converted from UTF-8 to the terminal's current encoding. 
 -- It's called on paste menu item, or when user presses Shift+Insert.
 terminalPasteClipboard :: TerminalClass self => self -> IO ()
 terminalPasteClipboard terminal =
     {#call terminal_paste_clipboard#} (toTerminal terminal)
 
--- | Places the selected text in the terminal in the GDK_SELECTION_PRIMARY selection.
+-- | Places the selected text in the terminal in the 'SelectionPrimary' selection.
 terminalCopyPrimary :: TerminalClass self => self -> IO ()
 terminalCopyPrimary terminal =
     {#call terminal_copy_primary#} (toTerminal terminal)
 
--- | Sends the contents of the GDK_SELECTION_PRIMARY selection to the terminal's child. 
+-- | Sends the contents of the 'SelectionPrimary' selection to the terminal's child. 
 -- If necessary, the data is converted from UTF-8 to the terminal's current encoding. 
--- The terminal will call also paste the GDK_SELECTION_PRIMARY selection when the user clicks with the the second mouse button.
+-- The terminal will call also paste the 'SelectionPrimary' selection when the user clicks with the the second mouse button.
 terminalPastePrimary :: TerminalClass self => self -> IO ()
 terminalPastePrimary terminal =
     {#call terminal_paste_primary#} (toTerminal terminal)
@@ -427,7 +468,7 @@ terminalSetAudibleBell terminal isAudible =
 -- | Checks whether or not the terminal will beep when the child outputs the "bl" sequence.
 terminalGetAudibleBell :: 
     TerminalClass self => self   
- -> IO Bool   -- ^ return @True@ if audible bell is enabled, FALSE if not 
+ -> IO Bool   -- ^ return @True@ if audible bell is enabled, @False@ if not 
 terminalGetAudibleBell terminal =
     liftM toBool $
     {#call terminal_get_audible_bell#} (toTerminal terminal)
@@ -445,12 +486,13 @@ terminalSetVisibleBell terminal isVisible =
 -- The terminal will clear itself to the default foreground color and then repaint itself.
 terminalGetVisibleBell :: 
     TerminalClass self => self   
- -> IO Bool   -- ^ return @True@ if visible bell is enabled, FALSE if not 
+ -> IO Bool   -- ^ return @True@ if visible bell is enabled, @False@ if not 
 terminalGetVisibleBell terminal =
     liftM toBool $
     {#call terminal_get_visible_bell#} (toTerminal terminal)
     
--- | Controls whether or not the terminal will attempt to draw bold text, either by using a bold font variant or by repainting text with a different offset.
+-- | Controls whether or not the terminal will attempt to draw bold text, 
+-- either by using a bold font variant or by repainting text with a different offset.
 terminalSetAllowBold :: 
     TerminalClass self => self   
  -> Bool   -- ^ @allowBold@ - @True@ if the terminal should attempt to draw bold text 
@@ -461,7 +503,7 @@ terminalSetAllowBold terminal allowBold =
 -- | Checks whether or not the terminal will attempt to draw bold text by repainting text with a one-pixel offset.
 terminalGetAllowBold :: 
     TerminalClass self => self    
- -> IO Bool   -- ^ return @True@ if bolding is enabled, FALSE if not 
+ -> IO Bool   -- ^ return @True@ if bolding is enabled, @False@ if not 
 terminalGetAllowBold terminal =
     liftM toBool $
     {#call  terminal_get_allow_bold#} (toTerminal terminal)
@@ -604,7 +646,8 @@ terminalSetBackgroundImageFile terminal path =
     withUTFString path $ \pathPtr ->
     {#call terminal_set_background_image_file#} (toTerminal terminal) pathPtr
     
--- | If a background image has been set using 'terminalSetBackgroundImage', 'terminalSetBackgroundImageFile', or 'terminalSetBackgroundTransparent', and the saturation value is less than 1.0, the terminal will adjust the colors of the image before drawing the image. 
+-- | If a background image has been set using 'terminalSetBackgroundImage', 'terminalSetBackgroundImageFile', or 'terminalSetBackgroundTransparent', 
+-- and the saturation value is less than 1.0, the terminal will adjust the colors of the image before drawing the image. 
 -- To do so, the terminal will create a copy of the background image (or snapshot of the root window) and modify its pixel values.
 terminalSetBackgroundSaturation :: 
     TerminalClass self => self
@@ -613,7 +656,8 @@ terminalSetBackgroundSaturation ::
 terminalSetBackgroundSaturation terminal saturation =
     {#call terminal_set_background_saturation#} (toTerminal terminal) (realToFrac saturation)
     
--- | Sets the terminal's background image to the pixmap stored in the root window, adjusted so that if there are no windows below your application, the widget will appear to be transparent.
+-- | Sets the terminal's background image to the pixmap stored in the root window, adjusted so that if there are no windows below your application, 
+-- the widget will appear to be transparent.
 terminalSetBackgroundTransparent :: 
     TerminalClass self => self
  -> Bool   -- ^ @transparent@ - @True@ if the terminal should fake transparency 
@@ -621,8 +665,10 @@ terminalSetBackgroundTransparent ::
 terminalSetBackgroundTransparent terminal transparent =
     {#call terminal_set_background_transparent#} (toTerminal terminal) (fromBool transparent)
     
--- | If a background image has been set using 'terminalSetBackgroundImage', 'terminalSetBackgroundImageFile', or 'terminalSetBackgroundTransparent', and the value set by 'terminalSetBackgroundSaturation' is less than one, the terminal will adjust the color of the image before drawing the image. 
--- To do so, the terminal will create a copy of the background image (or snapshot of the root window) and modify its pixel values. The initial tint color is black.
+-- | If a background image has been set using 'terminalSetBackgroundImage', 'terminalSetBackgroundImageFile', or 'terminalSetBackgroundTransparent', 
+-- and the value set by 'terminalSetBackgroundSaturation' is less than one, the terminal will adjust the color of the image before drawing the image. 
+-- To do so, the terminal will create a copy of the background image (or snapshot of the root window) and modify its pixel values. 
+-- The initial tint color is black.
 --
 -- * Available since Vte version 0.11
 --
@@ -667,16 +713,6 @@ terminalGetCursorShape terminal =
     liftM (toEnum.fromIntegral) $
     {#call terminal_get_cursor_shape#} (toTerminal terminal)
 
--- | Sets whether or not the cursor will blink.
--- WARNING: 'terminalSetCursorBlinks' is deprecated and should not be used in newly-written code. 0.17.1
--- Use 'terminalSetCursorBlinkMode' instead.
-terminalSetCursorBlinks :: 
-    TerminalClass self => self
- -> Bool   -- ^ @blink@ - @True@ if the cursor should blink 
- -> IO ()
-terminalSetCursorBlinks terminal blink =
-    {#call terminal_set_cursor_blinks#} (toTerminal terminal) (fromBool blink)
-    
 -- | Returns the currently set cursor blink mode.
 --
 -- * Available since Vte version 0.17.1
@@ -700,7 +736,8 @@ terminalSetCursorBlinkMode terminal mode =
     {#call terminal_set_cursor_blink_mode#} (toTerminal terminal) $fromIntegral (fromEnum mode)
 
 -- | Sets the length of the scrollback buffer used by the terminal. 
--- The size of the scrollback buffer will be set to the larger of this value and the number of visible rows the widget can display, so 0 can safely be used to disable scrollback. 
+-- The size of the scrollback buffer will be set to the larger of this value and the number of visible rows the widget can display, 
+-- so 0 can safely be used to disable scrollback. 
 -- Note that this setting only affects the normal screen buffer. 
 -- For terminal types which have an alternate screen buffer, no scrollback is allowed on the alternate screen buffer.
 terminalSetScrollbackLines :: 
@@ -719,7 +756,7 @@ terminalSetFont ::
 terminalSetFont terminal fontDesc =
     {#call terminal_set_font#} (toTerminal terminal)  fontDesc
 
--- | A convenience function which converts name into a FontDescription and passes it to 'terminalSetFont'.
+-- | A convenience function which converts name into a 'FontDescription' and passes it to 'terminalSetFont'.
 terminalSetFontFromString :: 
     TerminalClass self => self
  -> String   -- ^ @name@ - a string describing the font. 
@@ -728,34 +765,6 @@ terminalSetFontFromString terminal name =
     withUTFString name $ \namePtr -> 
     {#call terminal_set_font_from_string#} (toTerminal terminal) namePtr
     
--- | A convenience function which converts name into a 'FontDescription' and passes it to 'terminalSetFontFull'.
--- WARNING: 'terminalSetFontFromStringFull' is deprecated and should not be used in newly-written code. 0.19.1
---
--- * Available since Vte version 0.11.11
---
-terminalSetFontFromStringFull :: 
-    TerminalClass self => self
- -> String   -- ^ @name@ - A string describing the font.                       
- -> TerminalAntiAlias   -- ^ @antialias@ - Whether or not to antialias the font (if possible). 
- -> IO ()
-terminalSetFontFromStringFull terminal name antialias =
-    withUTFString name $ \namePtr ->
-    {#call terminal_set_font_from_string_full#} (toTerminal terminal) namePtr $ fromIntegral (fromEnum antialias)
-
--- | Sets the font used for rendering all text displayed by the terminal, overriding any fonts set using 'widgetModifyFont'. 
--- The terminal will immediately attempt to load the desired font, retrieve its metrics, and attempt to resize itself to keep the same number of rows and columns.
--- WARNING: terminalSetFontFull' is deprecated and should not be used in newly-written code. 0.19.1
---
--- * Available since Vte version 0.11.11
---
-terminalSetFontFull :: 
-    TerminalClass self => self
- -> FontDescription   -- ^ @fontDesc@ - the 'FontDescription' of the desired font.               
- -> TerminalAntiAlias   -- ^ @antialias@ - specify if anti aliasing of the fonts is to be used or not. 
- -> IO ()
-terminalSetFontFull terminal fontDesc antialias =
-    {#call terminal_set_font_full#} (toTerminal terminal) fontDesc $fromIntegral (fromEnum antialias)
-
 -- | Queries the terminal for information about the fonts which will be used to draw text in the terminal.
 terminalGetFont :: 
     TerminalClass self => self
@@ -764,18 +773,8 @@ terminalGetFont terminal = do
     fdPtr <- {#call unsafe terminal_get_font#} (toTerminal terminal) 
     makeNewFontDescription fdPtr 
 
--- | A 'Terminal' can use multiple methods to draw text. 
--- This function allows an application to determine whether or not the current method uses fontconfig to find fonts. 
--- This setting cannot be changed by the caller, but in practice usually matches the behavior of GTK+ itself.
-terminalGetUsingXft :: 
-    TerminalClass self => self
- -> IO Bool   -- ^ return @True@ is use xft font.
-terminalGetUsingXft terminal =
-    liftM toBool $
-    {#call terminal_get_using_xft#} (toTerminal terminal)
-
 -- | Checks if the terminal currently contains selected text. 
--- Note that this is different from determining if the terminal is the owner of any GtkClipboard items.
+-- Note that this is different from determining if the terminal is the owner of any 'GtkClipboard' items.
 terminalGetHasSelection :: 
     TerminalClass self => self
  -> IO Bool   -- ^ return @True@ if part of the text in the terminal is selected. 
@@ -804,7 +803,8 @@ terminalIsWordChar terminal c =
     liftM toBool $
     {#call terminal_is_word_char#} (toTerminal terminal) (fromIntegral $ ord c)
 
--- | Modifies the terminal's backspace key binding, which controls what string or control sequence the terminal sends to its child when the user presses the backspace key.
+-- | Modifies the terminal's backspace key binding, 
+-- which controls what string or control sequence the terminal sends to its child when the user presses the backspace key.
 terminalSetBackspaceBinding :: 
     TerminalClass self => self
  -> TerminalEraseBinding   -- ^ @binding@ - a 'TerminalEraseBinding' for the backspace key 
@@ -812,7 +812,8 @@ terminalSetBackspaceBinding ::
 terminalSetBackspaceBinding terminal binding =
     {#call terminal_set_backspace_binding#} (toTerminal terminal) (fromIntegral (fromEnum binding))
 
--- | Modifies the terminal's delete key binding, which controls what string or control sequence the terminal sends to its child when the user presses the delete key.
+-- | Modifies the terminal's delete key binding, 
+-- which controls what string or control sequence the terminal sends to its child when the user presses the delete key.
 terminalSetDeleteBinding :: 
     TerminalClass self => self
  -> TerminalEraseBinding   -- ^ @bindign@ - a 'TerminalEraseBinding' for the delete key 
@@ -838,7 +839,9 @@ terminalGetMouseAutohide terminal =
     liftM toBool $
     {#call terminal_get_mouse_autohide#} (toTerminal terminal)
     
--- | Resets as much of the terminal's internal state as possible, discarding any unprocessed input data, resetting character attributes, cursor state, national character set state, status line, terminal modes (insert/delete), selection state, and encoding.
+-- | Resets as much of the terminal's internal state as possible, discarding any unprocessed input data, 
+-- resetting character attributes, cursor state, national character set state, status line, 
+-- terminal modes (insert/delete), selection state, and encoding.
 terminalReset :: 
     TerminalClass self => self
  -> Bool   -- ^ @full@ - @True@ to reset tabstops                         
@@ -847,28 +850,6 @@ terminalReset ::
 terminalReset terminal full clearHistory =
     {#call terminal_reset#} (toTerminal terminal) (fromBool full) (fromBool clearHistory)
 
--- | A predicate that states which characters are of interest.
-type VteSelect =
-    Int -- ^ the column of the character
- -> Int -- ^ the row of the character
- -> Bool -- ^ @True@ if the character should be inspected
-
--- | A structure describing the individual characters in the visible part of
---   a terminal window.
---
-data VteChar = VteChar {
-  vcRow :: Int,
-  vcCol :: Int,
-  vcChar :: Char,
-  vcFore :: Color,
-  vcBack :: Color,
-  vcUnderline :: Bool,
-  vcStrikethrough :: Bool
-  }
-
-attrToChar :: Char -> VteAttributes -> VteChar
-attrToChar ch (VteAttributes r c f b u s) = VteChar r c ch f b u s
-     
 -- | Extracts a view of the visible part of the terminal. A selection
 --   predicate may be supplied to restrict the inspected characters. The
 --   return value is a list of 'VteChar' structures, each detailing the
@@ -879,7 +860,7 @@ terminalGetText ::
  -> Maybe VteSelect -- ^ @Just p@ for a predicate @p@ that determines
                     -- which character should be extracted or @Nothing@
                     -- to select all characters
- -> IO [VteChar]
+ -> IO [VteChar] -- ^ return a text string
 terminalGetText terminal mCB = do
   cbPtr <- case mCB of
     Just cb -> mkVteSelectionFunc $ \_ c r _ ->
@@ -895,34 +876,66 @@ terminalGetText terminal mCB = do
   {#call unsafe g_free#} (castPtr strPtr)
   {#call unsafe g_array_free#} gArrPtr 1
   return (zipWith attrToChar str attrs)
-
-{#pointer VteSelectionFunc#}
-
-foreign import ccall "wrapper" mkVteSelectionFunc ::
-  (Ptr Terminal -> {#type glong#} -> {#type glong#} -> Ptr () -> IO {#type gboolean#})
-  -> IO VteSelectionFunc
-  
   
 -- | Extracts a view of the visible part of the terminal. 
--- If is_selected is not NULL, characters will only be read if is_selected returns TRUE after being passed the column and row, respectively. 
+-- If is_selected is not @Nothing@, characters will only be read if is_selected returns @True@ after being passed the column and row, respectively. 
 -- A 'CharAttributes' structure is added to attributes for each byte added to the returned string detailing the character's position, colors, and other characteristics. 
 -- This function differs from 'terminalGetText' in that trailing spaces at the end of lines are included.
 --
 -- * Available since Vte version 0.11.11
 --
--- TODO:
--- terminalGetTextIncludeTrailingSpaces
+terminalGetTextIncludeTrailingSpaces :: 
+    TerminalClass self => self
+ -> Maybe VteSelect -- ^ @Just p@ for a predicate @p@ that determines
+                    -- which character should be extracted or @Nothing@
+                    -- to select all characters    
+ -> IO [VteChar] -- ^ return a text string
+terminalGetTextIncludeTrailingSpaces terminal mCB = do
+  cbPtr <- case mCB of
+    Just cb -> mkVteSelectionFunc $ \_ c r _ ->
+      return (fromBool (cb (fromIntegral c) (fromIntegral r)))
+    Nothing -> return nullFunPtr
+  gArrPtr <- {#call unsafe g_array_new#} 0 0
+    (fromIntegral (sizeOf (undefined :: VteAttributes)))
+  strPtr <- {#call terminal_get_text_include_trailing_spaces #} (toTerminal terminal) cbPtr nullPtr gArrPtr
+  str <- if strPtr==nullPtr then return "" else peekUTFString strPtr
+  (len,elemPtr) <- gArrayContent (castPtr gArrPtr)
+  attrs <- (flip mapM) [0..len-1] $ peekElemOff elemPtr
+  unless (cbPtr==nullFunPtr) $ freeHaskellFunPtr cbPtr
+  {#call unsafe g_free#} (castPtr strPtr)
+  {#call unsafe g_array_free#} gArrPtr 1
+  return (zipWith attrToChar str attrs)
 
 -- | Extracts a view of the visible part of the terminal. 
--- If is_selected is not NULL, characters will only be read if is_selected returns TRUE after being passed the column and row, respectively. 
+-- If is_selected is not @Nothing@, characters will only be read if is_selected returns @True@ after being passed the column and row, respectively. 
 -- A 'CharAttributes' structure is added to attributes for each byte added to the returned string detailing the character's position, colors, and other characteristics. 
 -- The entire scrollback buffer is scanned, so it is possible to read the entire contents of the buffer using this function.
--- TODO:
--- terminalGetTextRange
-
--- | Specifies the type of a selection function used to check whether a cell has to be selected or not.
--- TODO:
--- SelectionFunc
+--
+terminalGetTextRange ::
+    TerminalClass self => self
+ -> Int   -- ^ @sRow@ first row to search for data                              
+ -> Int   -- ^ @sCol@ first column to search for data                           
+ -> Int   -- ^ @eRow@ last row to search for data                               
+ -> Int   -- ^ @eCol@ last column to search for data                            
+ -> Maybe VteSelect -- ^ @Just p@ for a predicate @p@ that determines
+                    -- which character should be extracted or @Nothing@
+                    -- to select all characters
+ -> IO [VteChar] -- ^ return a text string
+terminalGetTextRange terminal sRow sCol eRow eCol mCB = do 
+  cbPtr <- case mCB of
+    Just cb -> mkVteSelectionFunc $ \_ c r _ ->
+      return (fromBool (cb (fromIntegral c) (fromIntegral r)))
+    Nothing -> return nullFunPtr
+  gArrPtr <- {#call unsafe g_array_new#} 0 0
+    (fromIntegral (sizeOf (undefined :: VteAttributes)))
+  strPtr <- {#call terminal_get_text_range #} (toTerminal terminal) (fromIntegral sRow) (fromIntegral sCol) (fromIntegral eRow) (fromIntegral eCol) cbPtr nullPtr gArrPtr
+  str <- if strPtr==nullPtr then return "" else peekUTFString strPtr
+  (len,elemPtr) <- gArrayContent (castPtr gArrPtr)
+  attrs <- (flip mapM) [0..len-1] $ peekElemOff elemPtr
+  unless (cbPtr==nullFunPtr) $ freeHaskellFunPtr cbPtr
+  {#call unsafe g_free#} (castPtr strPtr)
+  {#call unsafe g_array_free#} gArrPtr 1
+  return (zipWith attrToChar str attrs)
 
 -- | Reads the location of the insertion cursor and returns it. The row coordinate is absolute.
 terminalGetCursorPosition :: 
@@ -942,31 +955,10 @@ terminalMatchClearAll :: TerminalClass self => self -> IO ()
 terminalMatchClearAll terminal =
     {#call terminal_match_clear_all#} (toTerminal terminal)
     
--- | Adds a regular expression to the list of matching expressions. 
--- When the user moves the mouse cursor over a section of displayed text which matches this expression, the text will be highlighted.
--- WARNING: 'terminalMatchAdd' is deprecated and should not be used in newly-written code.
-terminalMatchAdd :: 
-    TerminalClass self => self
- -> String   -- ^ @match@ - a regular expression                                          
- -> IO Int   -- ^ return an integer associated with this expression
-terminalMatchAdd terminal match =
-    liftM fromIntegral $
-    withUTFString match $ \matchPtr ->
-    {#call terminal_match_add#} (toTerminal terminal) matchPtr
-
--- | Flags determining how the regular expression is to be interpreted.
-{#enum GRegexCompileFlags as RegexCompileFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
-
-instance Flags RegexCompileFlags
-
--- | Flags determining how the string is matched against the regular
--- expression.
-{#enum GRegexMatchFlags as RegexMatchFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
-
-instance Flags RegexMatchFlags
-    
 -- | Adds the regular expression regex to the list of matching expressions. 
 -- When the user moves the mouse cursor over a section of displayed text which matches this expression, the text will be highlighted.
+--
+-- NOTE: see http://library.gnome.org/devel/glib/stable/glib-regex-syntax.html for details about GRegex.
 --
 -- * Available since Vte version 0.17.1
 --
@@ -992,15 +984,16 @@ terminalMatchRemove ::
 terminalMatchRemove terminal tag =
     {#call terminal_match_remove#} (toTerminal terminal) (fromIntegral tag)
 
--- | Checks if the text in and around the specified position matches any of the regular expressions previously set using 'terminalMatchAdd'. 
--- If a match exists, the text string is returned and if tag is not @Nothing@, the number associated with the matched regular expression will be stored in tag.
--- If more than one regular expression has been set with 'terminalMatchAdd', then expressions are checked in the order in which they were added.
+-- | Checks if the text in and around the specified position matches any of the regular expressions previously set using 'terminalMatchAddRegex'. 
+-- If a match exists, the text string is returned and if tag is not @Nothing@, 
+-- the number associated with the matched regular expression will be stored in tag.
+-- If more than one regular expression has been set with 'terminalMatchAddRegex', then expressions are checked in the order in which they were added.
 terminalMatchCheck :: 
     TerminalClass self => self
  -> Int   -- ^ @column@ - the text column                                                                                             
  -> Int   -- ^ @row@ - the text row                                                                                                
- -> IO (String   -- ^ return pointer to an integer
-      ,Int)   -- ^ return a string which matches one of the previously set regular expressions, and which must be freed by the caller.
+ -> IO (String   -- ^ return a string which matches one of the previously set regular expressions, and which must be freed by the caller.
+      ,Int)   -- ^ return pointer to an integer
 terminalMatchCheck terminal column row = do
       alloca $ \tagPtr ->
           {#call terminal_match_check#} (toTerminal terminal) (fromIntegral column) (fromIntegral row) tagPtr >>= peekCString
@@ -1026,7 +1019,13 @@ terminalMatchSetCursor terminal tag (Cursor cur) =
 --
 -- * Available since Vte version 0.11.9
 --
--- terminalMatchSetCursorType
+terminalMatchSetCursorType :: 
+    TerminalClass self => self
+ -> Int    -- ^ @tag@ the tag of the regex which should use the specified cursor 
+ -> CursorType -- ^ @cursorType@ a 'CursorType'
+ -> IO ()
+terminalMatchSetCursorType terminal tag cursorType = 
+    {#call terminal_match_set_cursor_type#} (toTerminal terminal) (fromIntegral tag) $fromIntegral (fromEnum cursorType) 
 
 -- | Sets which cursor the terminal will use if the pointer is over the pattern specified by tag.
 --
@@ -1086,7 +1085,8 @@ terminalGetEncoding ::
 terminalGetEncoding terminal =
     {#call terminal_get_encoding#} (toTerminal terminal) >>= peekCString
     
--- | Some terminal emulations specify a status line which is separate from the main display area, and define a means for applications to move the cursor to the status line and back.
+-- | Some terminal emulations specify a status line which is separate from the main display area, 
+-- and define a means for applications to move the cursor to the status line and back.
 terminalGetStatusLine :: 
     TerminalClass self => self
  -> IO String   -- ^ return the current contents of the terminal's status line. For terminals like "xterm", this will usually be the empty string. The string must not be modified or freed by the caller.
@@ -1116,24 +1116,6 @@ terminalGetAdjustment ::
 terminalGetAdjustment terminal =
     makeNewObject mkAdjustment $ {#call terminal_get_adjustment#} (toTerminal terminal)
 
--- | Get terminal 's char ascent.
--- WARNING: 'terminalGetCharAscent' is deprecated and should not be used in newly-written code. 0.19.1
-terminalGetCharAscent :: 
-    TerminalClass self => self
- -> IO Int   -- ^ return the contents of terminal's char_ascent field 
-terminalGetCharAscent terminal =
-    liftM fromIntegral $
-    {#call terminal_get_char_ascent#} (toTerminal terminal)
-    
--- | Get terminal's char descent. 
--- WARNING: 'terminalGetCharDescent' is deprecated and should not be used in newly-written code. 0.19.1
-terminalGetCharDescent :: 
-    TerminalClass self => self
- -> IO Int   -- ^ return the contents of terminal's char_descent field 
-terminalGetCharDescent terminal =
-    liftM fromIntegral $
-    {#call terminal_get_char_descent#} (toTerminal terminal)
-    
 -- | Get terminal's char height.
 terminalGetCharHeight :: 
     TerminalClass self => self
@@ -1241,7 +1223,8 @@ terminalBackgroundOpacity :: TerminalClass self => Attr self Double
 terminalBackgroundOpacity =
   newAttrFromDoubleProperty "background-opacity"
 
--- | If a background image has been set using "background-image-file:" or "background-image-pixbuf:", or "background-transparent:", and the saturation value is less than 1.0, the terminal will adjust the colors of the image before drawing the image. 
+-- | If a background image has been set using "background-image-file:" or "background-image-pixbuf:", or "background-transparent:", 
+-- and the saturation value is less than 1.0, the terminal will adjust the colors of the image before drawing the image. 
 -- To do so, the terminal will create a copy of the background image (or snapshot of the root window) and modify its pixel values.
 --
 -- Allowed values: [0,1]
@@ -1254,7 +1237,8 @@ terminalBackgroundSaturation :: TerminalClass self => Attr self Double
 terminalBackgroundSaturation =
   newAttrFromDoubleProperty "background-saturation"
 
--- | If a background image has been set using "background-image-file:" or "background-image-pixbuf:", or "background-transparent:", and and the value set by 'Terminal' background-saturation: is less than 1.0, the terminal will adjust the color of the image before drawing the image. 
+-- | If a background image has been set using "background-image-file:" or "background-image-pixbuf:", or "background-transparent:", 
+-- and the value set by 'Terminal' background-saturation: is less than 1.0, the terminal will adjust the color of the image before drawing the image. 
 -- To do so, the terminal will create a copy of the background image (or snapshot of the root window) and modify its pixel values. 
 -- The initial tint color is black.
 --
@@ -1265,7 +1249,9 @@ terminalBackgroundTintColor =
   newAttrFromBoxedStorableProperty "background-tint-color"
   {#call pure unsafe gdk_color_get_type#}
 
--- | Sets whther the terminal uses the pixmap stored in the root window as the background, adjusted so that if there are no windows below your application, the widget will appear to be transparent.
+-- | Sets whther the terminal uses the pixmap stored in the root window as the background, 
+-- adjusted so that if there are no windows below your application, the widget will appear to be transparent.
+--
 -- NOTE: When using a compositing window manager, you should instead set a RGBA colourmap on the toplevel window, so you get real transparency.
 -- 
 -- Default value: @False@
@@ -1278,7 +1264,7 @@ terminalBackgroundTransparent =
 
 -- | *Controls what string or control sequence the terminal sends to its child when the user presses the backspace key.
 --
--- Default value: VTE_ERASE_AUTO
+-- Default value: 'EraseAuto'
 --
 -- * Available since Vte version 0.19.1
 --
@@ -1288,9 +1274,9 @@ terminalBackspaceBinding =
   {#call pure unsafe terminal_erase_binding_get_type#}
 
 -- | Sets whether or not the cursor will blink. 
--- Using VTE_CURSOR_BLINK_SYSTEM will use the "gtk-cursor-blink" setting.
+-- Using 'CursorBlinkSystem' will use the "gtk-cursor-blink" setting.
 --
--- Default value: VTE_CURSOR_BLINK_SYSTEM
+-- Default value: 'CursorBlinkSystem'
 --
 -- * Available since Vte version 0.19.1
 --
@@ -1301,7 +1287,7 @@ terminalCursorBlinkMode = newAttr
 
 -- | Controls the shape of the cursor.
 --
--- Default value: VTE_CURSOR_SHAPE_BLOCK
+-- Default value: 'CursorShapeBlock'
 --
 -- * Available since Vte version 0.19.1
 --
@@ -1312,7 +1298,7 @@ terminalCursorShape = newAttr
 
 -- | Controls what string or control sequence the terminal sends to its child when the user presses the delete key.
 --
--- Default value: VTE_ERASE_AUTO
+-- Default value: 'EraseAuto'
 -- 
 -- * Available since Vte version 0.19.1
 --
@@ -1346,8 +1332,9 @@ terminalEncoding = newAttr
   terminalGetEncoding
   terminalSetEncoding
 
--- | Specifies the font used for rendering all text displayed by the terminal, overriding any fonts set using gtk_widget_modify_font(). 
--- The terminal will immediately attempt to load the desired font, retrieve its metrics, and attempt to resize itself to keep the same number of rows and columns.
+-- | Specifies the font used for rendering all text displayed by the terminal, overriding any fonts set using 'widgetModifyFont'.
+-- The terminal will immediately attempt to load the desired font, retrieve its metrics, 
+-- and attempt to resize itself to keep the same number of rows and columns.
 --
 -- * Available since Vte version 0.19.1
 --
@@ -1356,7 +1343,7 @@ terminalFontDesc = newAttr
   terminalGetFont
   terminalSetFont
 
--- | The terminal's so-called icon title, or NULL if no icon title has been set.
+-- | The terminal's so-called icon title, or empty if no icon title has been set.
 --
 -- Default value: \"\"
 --
@@ -1459,7 +1446,7 @@ terminalWindowTitle = readAttrFromStringProperty "window-title"
 -- | When the user double-clicks to start selection, the terminal will extend the selection on word boundaries. 
 -- It will treat characters the word-chars characters as parts of words, and all other characters as word separators. 
 -- Ranges of characters can be specified by separating them with a hyphen.
--- As a special case, when setting this to NULL or the empty string, the terminal will treat all graphic non-punctuation non-space characters as word
+-- As a special case, when setting this to the empty string, the terminal will treat all graphic non-punctuation non-space characters as word
 -- characters.
 -- 
 -- Defalut value: \"\"
@@ -1514,12 +1501,13 @@ deiconifyWindow = Signal (connect_NONE__NONE "deiconify-window")
 emulationChanged :: TerminalClass self => Signal self (IO ())
 emulationChanged = Signal (connect_NONE__NONE "emulation-changed")
 
--- | Emitted whenever the terminal's current encoding has changed, either as a result of receiving a control sequence which toggled between the local and UTF-8 encodings, or at the parent application's request.
+-- | Emitted whenever the terminal's current encoding has changed, 
+-- either as a result of receiving a control sequence which toggled between the local and UTF-8 encodings, or at the parent application's request.
 encodingChanged :: TerminalClass self => Signal self (IO ())
 encodingChanged = Signal (connect_NONE__NONE "encoding-changed")
 
 -- | Emitted when the terminal receives an end-of-file from a child which is running in the terminal. 
--- This signal is frequently (but not always) emitted with a "child-exited" signal.
+-- This signal is frequently (but not always) emitted with a 'childExited' signal.
 eof :: TerminalClass self => Signal self (IO ())
 eof = Signal (connect_NONE__NONE "eof")
 
@@ -1572,7 +1560,8 @@ selectionChanged :: TerminalClass self => Signal self (IO ())
 selectionChanged = Signal (connect_NONE__NONE "selection-changed")
 
 -- | Set the scroll adjustments for the terminal. 
--- Usually scrolled containers like 'ScrolledWindow' will emit this signal to connect two instances of 'Scrollbar' to the scroll directions of the 'Terminal'.
+-- Usually scrolled containers like 'ScrolledWindow' will emit this 
+-- signal to connect two instances of 'Scrollbar' to the scroll directions of the 'Terminal'.
 setScrollAdjustments :: TerminalClass self => Signal self (Adjustment -> Adjustment -> IO ())
 setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
 
@@ -1580,19 +1569,23 @@ setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustmen
 statusLineChanged :: TerminalClass self => Signal self (IO ())
 statusLineChanged = Signal (connect_NONE__NONE "status-line-changed")
 
--- | An internal signal used for communication between the terminal and its accessibility peer. May not be emitted under certain circumstances.
+-- | An internal signal used for communication between the terminal and its accessibility peer. 
+-- May not be emitted under certain circumstances.
 textDeleted :: TerminalClass self => Signal self (IO ())
 textDeleted = Signal (connect_NONE__NONE "text-deleted")
 
--- | An internal signal used for communication between the terminal and its accessibility peer. May not be emitted under certain circumstances.
+-- | An internal signal used for communication between the terminal and its accessibility peer. 
+-- May not be emitted under certain circumstances.
 textInserted :: TerminalClass self => Signal self (IO ())
 textInserted = Signal (connect_NONE__NONE "text-inserted")
 
--- | An internal signal used for communication between the terminal and its accessibility peer. May not be emitted under certain circumstances.
+-- | An internal signal used for communication between the terminal and its accessibility peer. 
+-- May not be emitted under certain circumstances.
 textModified :: TerminalClass self => Signal self (IO ())
 textModified = Signal (connect_NONE__NONE "text-modified")
 
--- | An internal signal used for communication between the terminal and its accessibility peer. May not be emitted under certain circumstances.
+-- | An internal signal used for communication between the terminal and its accessibility peer. 
+-- May not be emitted under certain circumstances.
 textScrolled :: TerminalClass self => Signal self (Int -> IO ())
 textScrolled = Signal (connect_INT__NONE "text-scrolled")
 
