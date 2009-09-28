@@ -171,9 +171,10 @@ dragContextAction = newAttr (liftM toEnum . dragContextGetAction)
                             (\o -> dragContextSetAction o . fromEnum)
 
 -- %hash c:4ff5 d:af3f
+
 -- | Sets a widget as a potential drop destination.
 --
--- *  The 'DestDefaults' flags specify what actions GTK+ should take on behalf
+-- * The 'DestDefaults' flags specify what actions Gtk should take on behalf
 --   of a widget for drops onto that widget. The given actions and any targets
 --   set through 'dragDestSetTargetList' only are used if 'DestDefaultMotion'
 --   or 'DestDefaultDrop' are given.
@@ -182,11 +183,12 @@ dragContextAction = newAttr (liftM toEnum . dragContextGetAction)
 --   as described in the documentation for 'dragMotion'. The default
 --   behaviors described by flags make some assumptions, that can conflict
 --   with your own signal handlers. For instance 'DestDefaultDrop' causes
---   invokations of 'dragStatus' in the handler of 'dragMotion", and
---   invokations of 'dragFinish' in 'dragDataReceived'. Especially the
+--   invocations of 'dragStatus' in the handler of 'dragMotion', and
+--   invocations of 'dragFinish' in 'dragDataReceived'. Especially the
 --   latter is dramatic, when your own 'dragMotion' handler calls
 --   'dragGetData' to inspect the dragged data.
 --
+
 dragDestSet :: WidgetClass widget => widget -> [DestDefaults] -> [DragAction] -> IO ()
 dragDestSet widget flags actions =
   {# call gtk_drag_dest_set #}

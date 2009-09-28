@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A VTE widget for terminal
+-- A terminal widget
 -- 
 -----------------------------------------------------------------------------
 -- 
@@ -30,7 +30,6 @@ module Graphics.UI.Gtk.Vte.Vte (
 -- * Types
    Terminal,
    VteSelect,
-   SelectionFunc,
    VteChar(..),
 
 -- * Enums
@@ -190,12 +189,10 @@ import Control.Monad		(liftM, unless)
 import Data.Char
 import Data.Word
 
-import System.Posix.Types
 import System.Glib.Attributes
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Properties
-import System.Glib.GList
 import System.Glib.GError
 import System.Glib.Flags                        (Flags, fromFlags) 
 import Graphics.UI.Gtk.General.Structs          (Color(..))
@@ -203,6 +200,8 @@ import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Pango.Font
 import Graphics.UI.Gtk.Vte.Structs
 
+{#import Graphics.UI.Gtk.General.Clipboard#}    (selectionPrimary,
+                                                 selectionClipboard)
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Vte.Types#}
@@ -214,8 +213,10 @@ import Graphics.UI.Gtk.Vte.Structs
 
 --------------------
 -- Types
--- | A predicate that states which characters are of interest. 
--- The predicate @p c r@ should return @True@ if the character at column @c@ and row @r@ should be extracted.
+
+-- | A predicate that states which characters are of interest. The predicate
+--   @p c r@ where @p :: VteSelect@, should return @True@ if the character at
+--   column @c@ and row @r@ should be extracted.
 type VteSelect =
     Int
  -> Int 
@@ -238,6 +239,7 @@ data VteChar = VteChar {
 
 --------------------
 -- Utils
+
 -- | Utils function to transform 'VteAttributes' to 'VteChar'.
 attrToChar :: Char -> VteAttributes -> VteChar
 attrToChar ch (VteAttributes r c f b u s) = VteChar r c ch f b u s
@@ -248,7 +250,8 @@ foreign import ccall "wrapper" mkVteSelectionFunc ::
   
 --------------------
 -- Enums
--- | Values for "what should happen when the user hits backspace/delete".  
+
+-- | Values for what should happen when the user presses backspace\/delete.  
 -- Use 'EraseAuto' unless the user can cause them to be overridden.
 {#enum VteTerminalEraseBinding as TerminalEraseBinding {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
@@ -258,12 +261,18 @@ foreign import ccall "wrapper" mkVteSelectionFunc ::
 -- | Values for the cursor shape setting.
 {#enum VteTerminalCursorShape as TerminalCursorShape {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
--- | Flags determining how the regular expression is to be interpreted.
+-- | Flags determining how the regular expression is to be interpreted. See
+--   <http://library.gnome.org/devel/glib/stable/glib-Perl-compatible-regular-expressions.html#GRegexCompileFlags>
+--   for an explanation of these flags.
+--
 {#enum GRegexCompileFlags as RegexCompileFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
 instance Flags RegexCompileFlags
 
 -- | Flags determining how the string is matched against the regular
--- expression.
+--   expression. See
+--   <http://library.gnome.org/devel/glib/stable/glib-Perl-compatible-regular-expressions.html#GRegexMatchFlags>
+--   for an explanation of these flags.
+--
 {#enum GRegexMatchFlags as RegexMatchFlags {underscoreToCase} deriving (Bounded,Eq,Show) #}
 instance Flags RegexMatchFlags
 
@@ -359,25 +368,25 @@ terminalGetPty terminal =
     liftM fromIntegral $ 
     {#call terminal_get_pty#} (toTerminal terminal)
 
--- | Interprets data as if it were data received from a child process. 
--- This can either be used to drive the terminal without a child process, or just to mess with your users.
+-- | Interprets data as if it were data received from a child process. This
+-- can either be used to drive the terminal without a child process, or just
+-- to mess with your users.
 terminalFeed :: 
     TerminalClass self => self   
  -> String   -- ^ @string@ - a string in the terminal's current encoding 
- -> Int   -- ^ @len@ - the length of the string                    
  -> IO ()
-terminalFeed terminal string len =
-    withUTFString string $ \strPtr ->
+terminalFeed terminal string =
+    withUTFStringLen string $ \(strPtr, len) ->
     {#call terminal_feed#} (toTerminal terminal) strPtr (fromIntegral len)
 
--- | Sends a block of UTF-8 text to the child as if it were entered by the user at the keyboard.
+-- | Sends a block of UTF-8 text to the child as if it were entered by the
+-- user at the keyboard.
 terminalFeedChild :: 
     TerminalClass self => self   
  -> String   -- ^ @string@ - data to send to the child                                
- -> Int   -- ^ @len@ - length of text in bytes, or -1 if text is NUL-terminated 
  -> IO ()
-terminalFeedChild terminal string len =
-    withUTFString string $ \strPtr ->
+terminalFeedChild terminal string =
+    withUTFStringLen string $ \(strPtr, len) ->
     {#call terminal_feed_child#} (toTerminal terminal) strPtr (fromIntegral len)
 
 -- | Sends a block of binary data to the child.
@@ -386,12 +395,11 @@ terminalFeedChild terminal string len =
 --
 terminalFeedChildBinary :: 
     TerminalClass self => self   
- -> String   -- ^ @string@ - data to send to the child 
- -> Int   -- ^ @len@ - length of data            
+ -> [Word8]   -- ^ @data@ - data to send to the child 
  -> IO ()
-terminalFeedChildBinary terminal string len =
-    withUTFString string $ \strPtr ->
-    {#call terminal_feed_child_binary#} (toTerminal terminal) strPtr (fromIntegral len)
+terminalFeedChildBinary terminal string =
+    withArrayLen string $ \len strPtr ->
+    {#call terminal_feed_child_binary#} (toTerminal terminal) (castPtr strPtr) (fromIntegral len)
     
 -- | Gets the exit status of the command started by 'terminalForkCommand'. 
 --
@@ -420,26 +428,32 @@ terminalSelectNone :: TerminalClass self => self -> IO ()
 terminalSelectNone terminal =
     {#call terminal_select_none#} (toTerminal terminal)
 
--- | Places the selected text in the terminal in the 'SelectionClipboard' selection.
+-- | Places the selected text in the terminal in the 'selectionClipboard'
+-- selection.
 terminalCopyClipboard :: TerminalClass self => self -> IO ()
 terminalCopyClipboard terminal = 
     {#call terminal_copy_clipboard#} (toTerminal terminal)
   
--- | Sends the contents of the 'SelectionClipboard' selection to the terminal's child. 
--- If necessary, the data is converted from UTF-8 to the terminal's current encoding. 
--- It's called on paste menu item, or when user presses Shift+Insert.
+-- | Sends the contents of the 'selectionClipboard' selection to the
+-- terminal's child. If necessary, the data is converted from UTF-8 to the
+-- terminal's current encoding. It's called on paste menu item, or when user
+-- presses Shift+Insert.
 terminalPasteClipboard :: TerminalClass self => self -> IO ()
 terminalPasteClipboard terminal =
     {#call terminal_paste_clipboard#} (toTerminal terminal)
 
--- | Places the selected text in the terminal in the 'SelectionPrimary' selection.
+-- | Places the selected text in the terminal in the
+-- 'selectionPrimary' selection.
 terminalCopyPrimary :: TerminalClass self => self -> IO ()
 terminalCopyPrimary terminal =
     {#call terminal_copy_primary#} (toTerminal terminal)
 
--- | Sends the contents of the 'SelectionPrimary' selection to the terminal's child. 
--- If necessary, the data is converted from UTF-8 to the terminal's current encoding. 
--- The terminal will call also paste the 'SelectionPrimary' selection when the user clicks with the the second mouse button.
+-- | Sends the contents of the
+-- 'selectionPrimary' selection to the
+-- terminal's child. If necessary, the data is converted from UTF-8 to the
+-- terminal's current encoding. The terminal will call also paste the
+-- 'SelectionPrimary' selection when the user clicks with the the second mouse
+-- button.
 terminalPastePrimary :: TerminalClass self => self -> IO ()
 terminalPastePrimary terminal =
     {#call terminal_paste_primary#} (toTerminal terminal)
@@ -457,7 +471,7 @@ terminalSetSize terminal columns rows =
     (fromIntegral columns)
     (fromIntegral rows)
     
--- | Controls whether or not the terminal will beep when the child outputs the "bl" sequence.
+-- | Controls whether or not the terminal will beep when the child outputs the \"bl\" sequence.
 terminalSetAudibleBell :: 
     TerminalClass self => self   
  -> Bool   -- ^ @isAudible@ - @True@ if the terminal should beep 
@@ -465,7 +479,7 @@ terminalSetAudibleBell ::
 terminalSetAudibleBell terminal isAudible =
     {#call terminal_set_audible_bell#} (toTerminal terminal) (fromBool isAudible)
     
--- | Checks whether or not the terminal will beep when the child outputs the "bl" sequence.
+-- | Checks whether or not the terminal will beep when the child outputs the \"bl\" sequence.
 terminalGetAudibleBell :: 
     TerminalClass self => self   
  -> IO Bool   -- ^ return @True@ if audible bell is enabled, @False@ if not 
@@ -473,7 +487,7 @@ terminalGetAudibleBell terminal =
     liftM toBool $
     {#call terminal_get_audible_bell#} (toTerminal terminal)
     
--- | Controls whether or not the terminal will present a visible bell to the user when the child outputs the "bl" sequence. 
+-- | Controls whether or not the terminal will present a visible bell to the user when the child outputs the \"bl\" sequence. 
 -- The terminal will clear itself to the default foreground color and then repaint itself.
 terminalSetVisibleBell :: 
     TerminalClass self => self   
@@ -482,7 +496,7 @@ terminalSetVisibleBell ::
 terminalSetVisibleBell terminal isVisible =
     {#call terminal_set_visible_bell#} (toTerminal terminal) (fromBool isVisible)
     
--- | Checks whether or not the terminal will present a visible bell to the user when the child outputs the "bl" sequence. 
+-- | Checks whether or not the terminal will present a visible bell to the user when the child outputs the \"bl\" sequence. 
 -- The terminal will clear itself to the default foreground color and then repaint itself.
 terminalGetVisibleBell :: 
     TerminalClass self => self   
@@ -631,10 +645,12 @@ terminalSetOpacity terminal opacity =
 -- If specified by 'terminalSetBackgroundSaturation' the terminal will tint its in-memory copy of the image before applying it to the terminal.
 terminalSetBackgroundImage :: 
     TerminalClass self => self
- -> Pixbuf   -- ^ @image@ - a 'Pixbuf' to use, or @Nothing@ to cancel 
+ -> Maybe Pixbuf   -- ^ @image@ - a 'Pixbuf' to use, or @Nothing@ to use the default background
  -> IO ()
-terminalSetBackgroundImage terminal image =
+terminalSetBackgroundImage terminal (Just image) =
     {#call terminal_set_background_image#} (toTerminal terminal) image
+terminalSetBackgroundImage terminal Nothing =
+    {#call terminal_set_background_image#} (toTerminal terminal) (mkPixbuf nullForeignPtr)
     
 -- | Sets a background image for the widget. 
 -- If specified by 'terminalSetBackgroundSaturation', the terminal will tint its in-memory copy of the image before applying it to the terminal.
@@ -937,11 +953,11 @@ terminalGetTextRange terminal sRow sCol eRow eCol mCB = do
   {#call unsafe g_array_free#} gArrPtr 1
   return (zipWith attrToChar str attrs)
 
--- | Reads the location of the insertion cursor and returns it. The row coordinate is absolute.
+-- | Reads the location of the insertion cursor and returns it. The row
+-- coordinate is absolute.
 terminalGetCursorPosition :: 
     TerminalClass self => self
- -> IO (Int   -- ^ return column of cursor
-      ,Int)  -- ^ return row of cursor
+ -> IO (Int, Int)  -- ^ @(column,row)@ the position of the cursor
 terminalGetCursorPosition terminal = do
     alloca $ \cPtr ->
         alloca $ \rPtr -> do
@@ -950,15 +966,18 @@ terminalGetCursorPosition terminal = do
             row <- peek rPtr
             return (fromIntegral column,fromIntegral row)
 
--- | Clears the list of regular expressions the terminal uses to highlight text when the user moves the mouse cursor.
+-- | Clears the list of regular expressions the terminal uses to highlight
+-- text when the user moves the mouse cursor.
 terminalMatchClearAll :: TerminalClass self => self -> IO ()
 terminalMatchClearAll terminal =
     {#call terminal_match_clear_all#} (toTerminal terminal)
     
--- | Adds the regular expression regex to the list of matching expressions. 
--- When the user moves the mouse cursor over a section of displayed text which matches this expression, the text will be highlighted.
+-- | Adds the regular expression to the list of matching expressions.
+-- When the user moves the mouse cursor over a section of displayed text which
+-- matches this expression, the text will be highlighted.
 --
--- NOTE: see http://library.gnome.org/devel/glib/stable/glib-regex-syntax.html for details about GRegex.
+-- See <http://library.gnome.org/devel/glib/stable/glib-regex-syntax.html> for
+-- details about the accepted syntex.
 --
 -- * Available since Vte version 0.17.1
 --
@@ -984,22 +1003,30 @@ terminalMatchRemove ::
 terminalMatchRemove terminal tag =
     {#call terminal_match_remove#} (toTerminal terminal) (fromIntegral tag)
 
--- | Checks if the text in and around the specified position matches any of the regular expressions previously set using 'terminalMatchAddRegex'. 
--- If a match exists, the text string is returned and if tag is not @Nothing@, 
--- the number associated with the matched regular expression will be stored in tag.
--- If more than one regular expression has been set with 'terminalMatchAddRegex', then expressions are checked in the order in which they were added.
+-- | Checks if the text in and around the specified position matches any of
+-- the regular expressions previously registered using
+-- 'terminalMatchAddRegex'. If a match exists, the matching string is returned
+-- together with the number associated with the matched regular expression. If
+-- more than one regular expression matches, the expressions that was
+-- registered first will be returned.
+--
 terminalMatchCheck :: 
     TerminalClass self => self
  -> Int   -- ^ @column@ - the text column                                                                                             
  -> Int   -- ^ @row@ - the text row                                                                                                
- -> IO (String   -- ^ return a string which matches one of the previously set regular expressions, and which must be freed by the caller.
-      ,Int)   -- ^ return pointer to an integer
-terminalMatchCheck terminal column row = do
-      alloca $ \tagPtr ->
-          {#call terminal_match_check#} (toTerminal terminal) (fromIntegral column) (fromIntegral row) tagPtr >>= peekCString
-          >>= \str -> do
-            tag <- peek tagPtr
-            return (str,fromIntegral tag)
+ -> IO (Maybe (String, Int))
+ -- ^ @Just (str, tag)@ - the string that matched one of the previously set
+ -- regular expressions together with the number @tag@ that was returned by
+ -- 'terminalMatchAddRegex'
+terminalMatchCheck terminal column row = alloca $ \tagPtr -> do
+  strPtr <- {#call terminal_match_check#} (toTerminal terminal)
+    (fromIntegral column) (fromIntegral row) tagPtr
+  if strPtr==nullPtr then return Nothing else do
+  str <- peekCString strPtr
+  {#call unsafe g_free#} (castPtr strPtr)
+  if tagPtr==nullPtr then return Nothing else do
+  tag <- peek tagPtr
+  return (Just (str,fromIntegral tag))
 
 -- | Sets which cursor the terminal will use if the pointer is over the pattern specified by tag. 
 -- The terminal keeps a reference to cursor.
@@ -1089,7 +1116,7 @@ terminalGetEncoding terminal =
 -- and define a means for applications to move the cursor to the status line and back.
 terminalGetStatusLine :: 
     TerminalClass self => self
- -> IO String   -- ^ return the current contents of the terminal's status line. For terminals like "xterm", this will usually be the empty string. The string must not be modified or freed by the caller.
+ -> IO String   -- ^ The current content of the terminal's status line. For terminals like "xterm", this will usually be the empty string.
 terminalGetStatusLine terminal =
     {#call terminal_get_status_line#} (toTerminal terminal) >>= peekCString
     
@@ -1099,12 +1126,11 @@ terminalGetStatusLine terminal =
 -- The values returned in xpad and ypad are the total padding used in each direction, and do not need to be doubled.
 terminalGetPadding :: 
     TerminalClass self => self
- -> IO (Int   -- ^ return address in which to store left/right-edge padding  
-      ,Int)   -- ^ return address in which to store top/bottom-edge ypadding 
+ -> IO (Int, Int)   -- ^ @(lr,tb)@ - the left\/right-edge and top\/bottom-edge padding 
 terminalGetPadding terminal =
     alloca $ \xPtr ->
         alloca $ \yPtr -> do
-            {#call  terminal_get_padding#} (toTerminal terminal) xPtr yPtr
+            {#call terminal_get_padding#} (toTerminal terminal) xPtr yPtr
             xpad <- peek xPtr
             ypad <- peek yPtr
             return (fromIntegral xpad,fromIntegral ypad)
@@ -1176,7 +1202,7 @@ terminalAllowBold = newAttr
   terminalGetAllowBold
   terminalSetAllowBold
 
--- | Controls whether or not the terminal will beep when the child outputs the "bl" sequence.
+-- | Controls whether or not the terminal will beep when the child outputs the \"bl\" sequence.
 --
 -- Default value: @True@
 --
@@ -1206,9 +1232,9 @@ terminalBackgroundImageFile =
 --
 -- * Available since Vte version 0.19.1
 --
-terminalBackgroundImagePixbuf :: TerminalClass self => Attr self Pixbuf
+terminalBackgroundImagePixbuf :: TerminalClass self => Attr self (Maybe Pixbuf)
 terminalBackgroundImagePixbuf =
-  newAttrFromObjectProperty "background-image-pixbuf" 
+  newAttrFromMaybeObjectProperty "background-image-pixbuf" 
   {#call pure gdk_pixbuf_get_type#}
 
 -- | Sets the opacity of the terminal background, were 0.0 means completely transparent and 1.0 means completely opaque.
@@ -1409,10 +1435,12 @@ terminalScrollOnOutput :: TerminalClass self => Attr self Bool
 terminalScrollOnOutput =
   newAttrFromBoolProperty "scroll-on-output"
 
--- | The length of the scrollback buffer used by the terminal. 
--- The size of the scrollback buffer will be set to the larger of this value and the number of visible rows the widget can display, 
--- so 0 can safely be used to disable scrollback. Note that this setting only affects the normal screen buffer. 
--- For terminal types which have an alternate screen buffer, no scrollback is allowed on the alternate screen buffer.
+-- | The length of the scrollback buffer used by the terminal. The size of the
+-- scrollback buffer will be set to the larger of this value and the number of
+-- visible rows the widget can display, so 0 can safely be used to disable
+-- scrollback. Note that this setting only affects the normal screen buffer.
+-- For terminal types which have an alternate screen buffer, no scrollback is
+-- allowed on the alternate screen buffer.
 --
 -- Default value: 100
 --
@@ -1422,7 +1450,7 @@ terminalScrollbackLines :: TerminalClass self => Attr self Int
 terminalScrollbackLines =
   newAttrFromUIntProperty "scrollback-lines"
 
--- | Controls whether the terminal will present a visible bell to the user when the child outputs the "bl" sequence. 
+-- | Controls whether the terminal will present a visible bell to the user when the child outputs the \"bl\" sequence. 
 -- The terminal will clear itself to the default foreground color and then repaint itself.
 --
 -- Default value: @False@
