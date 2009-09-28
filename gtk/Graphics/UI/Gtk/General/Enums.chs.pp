@@ -35,6 +35,7 @@ module Graphics.UI.Gtk.General.Enums (
   CornerType(..),
   DeleteType(..),
   DestDefaults(..),
+  DragResult(..),
   DirectionType(..),
   Justification(..),
 #ifndef DISABLE_DEPRECATED
@@ -171,6 +172,25 @@ data Click = SingleClick
 {#enum DestDefaults {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
 instance Flags DestDefaults
+
+-- | Gives an indication why a drag operation failed. The value can by
+-- obtained by connecting to the 'Graphics.UI.Gtk.General.Drag.dragFailed'
+-- signal.
+--
+-- * 'DragResultSuccess': The drag operation was successful
+--
+-- * 'DragResultNoTarget': No suitable drag target
+--
+-- * 'DragResultUserCancelled': The user cancelled the drag operation
+--
+-- * 'DragResultTimeoutExpired': The drag operation timed out
+--
+-- * 'DragResultGrabBroken': The pointer or keyboard grab used for the drag
+--   operation was broken
+--
+-- * 'DragResultError': The drag operation failed due to some unspecified error
+--
+{#enum DragResult {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
 -- | Editing direction
 --

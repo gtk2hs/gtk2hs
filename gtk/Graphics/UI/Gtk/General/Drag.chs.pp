@@ -62,6 +62,7 @@ module Graphics.UI.Gtk.General.Drag (
   DragAction(..),
   DestDefaults(..),
   DragProtocol(..),
+  DragResult(..),
   castToDragContext,
   toDragContext,
   
@@ -138,7 +139,8 @@ import Graphics.UI.Gtk.General.StockItems ( StockId )
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 {#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
 import Graphics.UI.Gtk.Gdk.Enums ( DragAction(..) )
-import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..) )
+import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..),
+                                       DragResult(..) )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
 import Graphics.UI.Gtk.General.Structs ( Point, 
   dragContextGetActions, dragContextSetActions,
@@ -685,7 +687,16 @@ dragEnd :: WidgetClass self => Signal self (DragContext -> IO ())
 dragEnd = Signal (connect_OBJECT__NONE "drag_end")
 
 #if GTK_CHECK_VERSION(2,12,0)
-dragFailed = error "dragFailed: not defined yet"
+-- | The 'dragFailed' signal is emitted on the drag source when a drag has
+-- failed. The signal handler may hook custom code to handle a failed DND
+-- operation based on the type of error, it returns @True@ is the failure has
+-- been already handled (not showing the default \"drag operation failed\"
+-- animation), otherwise it returns @False@.
+--
+-- * Available since Gtk+ 2.12.0.
+--
+dragFailed :: WidgetClass self => Signal self (DragContext -> DragResult -> IO Bool)
+dragFailed = Signal (connect_OBJECT_ENUM__BOOL "drag_failed")
 #endif
 
 -- %hash c:4a85 d:6122
