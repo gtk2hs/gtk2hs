@@ -1153,6 +1153,9 @@ libHSvte_a_SOURCES =	        \
 	vte/Graphics/UI/Gtk/Vte/Structs.hsc		\
 	vte/Graphics/UI/Gtk/Vte/Vte.chs
 
+libHSvte_a_LIBADD  =                           \
+	vte/Graphics/UI/Gtk/Vte/Vte_stub.o
+
 htmldoc_HSFILES_HIDDEN += $(libHSvte_a_GENERATEDSOURCES:.chs=.hs)
 
 vte_Graphics_UI_Gtk_Vte_Types_hs_HCFLAGS	= -fglasgow-exts 
