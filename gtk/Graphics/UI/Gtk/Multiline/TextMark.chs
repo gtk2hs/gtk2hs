@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) TextMark TextBuffer
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2002-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -65,6 +66,9 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   toTextMark,
   MarkName,
 
+-- * Constructors
+  textMarkNew,
+
 -- * Methods
   textMarkSetVisible,
   textMarkGetVisible,
@@ -88,6 +92,27 @@ import System.Glib.GObject		(makeNewGObject)
 {# context lib="gtk" prefix="gtk" #}
 
 type MarkName = String
+
+--------------------
+-- Constructors
+-- | Creates a text mark. 
+-- Add it to a buffer using 'textBufferAddMark'. 
+-- If name is NULL, the mark is anonymous; otherwise, the mark can be retrieved by name using 'textBufferGetMark'. 
+-- If a mark has left gravity, and text is inserted at the mark's current location, 
+-- the mark will be moved to the left of the newly-inserted text. 
+-- If the mark has right gravity (left_gravity = FALSE), the mark will end up on the right of newly-inserted text. 
+-- The standard left-to-right cursor is a mark with right gravity (when you type, the cursor stays on the right side of the text you're typing).
+--
+textMarkNew :: 
+  Maybe MarkName  -- ^ @markName@ - name for mark, or @Nothing@
+ -> Bool  -- ^ @leftGravity@ - whether the mark has left gravity
+ -> IO TextMark
+textMarkNew  markName leftGravity =
+  makeNewGObject mkTextMark $
+  maybeWith withUTFString markName $ \markNamePtr ->
+  {# call text_mark_new #}
+    markNamePtr
+    (fromBool leftGravity)
 
 --------------------
 -- Methods

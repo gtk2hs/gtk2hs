@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget TextView
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2002-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -19,7 +20,9 @@
 --
 -- TODO
 --
--- If PangoTabArray is bound: do textViewSetTabs and textViewGetTabs
+-- If PangoTabArray is bound: 
+--    Fucntions: textViewSetTabs and textViewGetTabs
+--    Properties: textViewTabs
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -140,6 +143,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewPixelsBelowLines,
   textViewPixelsInsideWrap,
   textViewEditable,
+  textViewImModule,
   textViewWrapMode,
   textViewJustification,
   textViewLeftMargin,
@@ -153,6 +157,8 @@ module Graphics.UI.Gtk.Multiline.TextView (
 #endif
 
 -- * Signals
+  onBackspace,
+  afterBackspace,
   onCopyClipboard,
   afterCopyClipboard,
   onCutClipboard,
@@ -163,6 +169,8 @@ module Graphics.UI.Gtk.Multiline.TextView (
   afterInsertAtCursor,
   onMoveCursor,
   afterMoveCursor,
+  onMoveViewport,
+  afterMoveViewport,
   onMoveFocus,
   afterMoveFocus,
   onPageHorizontally,
@@ -175,6 +183,8 @@ module Graphics.UI.Gtk.Multiline.TextView (
   afterSetAnchor,
   onSetScrollAdjustments,
   afterSetScrollAdjustments,
+  onToggleCursorVisible,
+  afterToggleCursorVisible,
   onToggleOverwrite,
   afterToggleOverwrite
   ) where
@@ -183,6 +193,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
+import System.Glib.Properties           (newAttrFromStringProperty)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -192,7 +203,8 @@ import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
 import Graphics.UI.Gtk.General.Enums	(TextWindowType(..), DeleteType(..),
 					 DirectionType(..), Justification(..),
-					 MovementStep(..), WrapMode(..))
+					 MovementStep(..), WrapMode(..),
+                                         ScrollStep (..))
 import System.Glib.GList		(fromGList)
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
@@ -1053,6 +1065,16 @@ textViewEditable = newAttr
   textViewGetEditable
   textViewSetEditable
 
+-- | Which IM (input method) module should be used for this entry. See GtkIMContext.
+-- Setting this to a non-empty value overrides the system-wide IM module setting. 
+-- See the GtkSettings "gtk-im-module" property.
+--
+-- Default value: \"\"
+--
+textViewImModule :: TextViewClass self => Attr self String
+textViewImModule = 
+  newAttrFromStringProperty "im-module"
+
 -- | Whether to wrap lines never, at word boundaries, or at character
 -- boundaries.
 --
@@ -1144,6 +1166,16 @@ textViewAcceptsTab = newAttr
 --------------------
 -- Signals
 
+-- | The ::backspace signal is a keybinding signal which gets emitted when the user asks for it.
+--
+-- The default bindings for this signal are Backspace and Shift-Backspace.
+--
+onBackspace, afterBackspace :: TextViewClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onBackspace = connect_NONE__NONE "on_backspace" False
+afterBackspace = connect_NONE__NONE "on_backspace" True
+
 -- | Copying to the clipboard.
 --
 -- * This signal is emitted when a selection is copied to the clipboard. 
@@ -1210,6 +1242,15 @@ onMoveCursor, afterMoveCursor :: TextViewClass self => self
  -> IO (ConnectId self)
 onMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" False
 afterMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" True
+
+-- | The ::move-viewport signal is a keybinding signal which can be bound to key combinations to allow the user to move the viewport, i.e. change what part of the text view is visible in a containing scrolled window.
+-- There are no default bindings for this signal.
+-- 
+onMoveViewport, afterMoveViewport :: TextViewClass self => self
+ -> (ScrollStep -> Int -> IO ())
+ -> IO (ConnectId self)
+onMoveViewport = connect_ENUM_INT__NONE "move_viewport" False
+afterMoveViewport = connect_ENUM_INT__NONE "move_viewport" True
 
 -- | Moving the focus.
 --
@@ -1286,6 +1327,15 @@ onSetScrollAdjustments =
   connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" False
 afterSetScrollAdjustments = 
   connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" True
+
+-- | The ::toggle-cursor-visible signal is a keybinding signal which gets emitted to toggle the visibility of the cursor.
+-- The default binding for this signal is F7.
+--
+onToggleCursorVisible, afterToggleCursorVisible :: TextViewClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onToggleCursorVisible = connect_NONE__NONE "toggle_cursor_visible" False
+afterToggleCursorVisible = connect_NONE__NONE "toggle_cursor_visible" True
 
 -- | Insert\/Overwrite mode has changed.
 --

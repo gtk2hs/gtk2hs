@@ -1,11 +1,12 @@
 --  -*-haskell-*-
 --  GIMP Toolkit (GTK) Enumerations
 --
---  Author : Axel Simon, Manuel Chakravarty
+--  Author : Axel Simon, Manuel Chakravarty, Andy Stewart
 --
 --  Created: 13 January 1999
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -55,6 +56,7 @@ module Graphics.UI.Gtk.General.Enums (
   ReliefStyle(..),
   ResizeMode(..),
   ScrollType(..),
+  ScrollStep (..),
   SelectionMode(..),
   ShadowType(..),
   SortType(..),
@@ -304,6 +306,10 @@ fromPacking PackNatural = (False,False)
 -- | Scrolling type
 --
 {#enum ScrollType {underscoreToCase} deriving (Eq,Show)#}
+
+-- | Scrolling step
+--
+{#enum ScrollStep {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Mode in which selections can be performed
 --

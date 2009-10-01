@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) TextBuffer
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2001-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -17,34 +18,23 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO
---
--- The functionality of inserting widgets (child anchors) is not implemented
---   since there will probably some changes before the final release. The
---   following functions are not bound:
---     gtk_text_buffer_insert_child_anchor
---     gtk_text_buffer_create_child_anchor
---     gtk_text_buffer_get_iter_at_anchor
---     onInsertChildAnchor
---     
--- Check 'textBufferGetInsert', in case there is no cursor in 
---   the editor,
---   is there a mark called \"insert\"? If not, the function needs to return
---   Maybe TextMark. The same holds for 
---   'textBufferGetSelectionBound'.
---
--- If Clipboards are fully bound, then these functions need to be bound as well:
---     gtk_text_buffer_add_selection_clipboard
---     gtk_text_buffer_remove_selection_clipboard
---
 -- NOTES
 --
--- The following convenience functions are omitted: 
+-- Below `variadic` functions can't support by FFI:
 --     gtk_text_buffer_insert_with_tags
 --     gtk_text_buffer_insert_with_tags_by_name
 --     gtk_text_buffer_create_tag
---     gtk_text_buffer_get_bounds
---     gtk_text_buffer_get_selection_bounds
+-- But above functions is not essential, we can use other functions do same work.
+-- Example:
+--
+--     gtk_text_buffer_insert_with_tags equivalent to calling textBufferInsert,
+--     then textBufferApplyTag on the inserted text.
+-- 
+--     gtk_text_buffer_insert_with_tags_by_name same as gtk_text_buffer_insert_with_tags,
+--     just use textTagName handle tag name.     
+--
+--     gtk_text_buffer_create_tag Equivalent to calling textTagNew
+--     and then adding the tag to the buffer's tag table. 
 --
 -- The following functions do not make sense due to Haskell's wide character
 --   representation of Unicode:
@@ -100,6 +90,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferGetSlice,
   textBufferInsertPixbuf,
   textBufferCreateMark,
+  textBufferAddMark,
   textBufferMoveMark,
   textBufferMoveMarkByName,
   textBufferDeleteMark,
@@ -142,6 +133,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferCopyClipboard,
   textBufferCutClipboard,
 #endif
+  textBufferAddSelectionClipboard,
+  textBufferRemoveSelectionClipboard,
 
 -- * Attributes
   textBufferTagTable,
@@ -163,6 +156,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterEndUserAction,
   onInsertPixbuf,
   afterInsertPixbuf,
+  onInsertChildAnchor,
+  afterInsertChildAnchor,
   onBufferInsertText,
   afterBufferInsertText,
   onMarkDeleted,
@@ -171,6 +166,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterMarkSet,
   onModifiedChanged,
   afterModifiedChanged,
+  onPasteDone,
+  afterPasteDone,
   onRemoveTag,
   afterRemoveTag
   ) where
@@ -478,6 +475,19 @@ textBufferCreateMark self markName where_ leftGravity =
     where_
     (fromBool leftGravity)
 
+-- | Adds the mark at position where. 
+-- The mark must not be added to another buffer, 
+-- and if its name is not empty then there must not be another mark in the buffer nwith the same name.
+--
+-- Emits the "mark-set" signal as notification of the mark's initial placement.
+--
+textBufferAddMark :: TextBufferClass self => self
+ -> TextMark  -- ^ @mark@ the mark to add
+ -> TextIter  -- ^ @iter@ location to place mark
+ -> IO ()
+textBufferAddMark self mark iter =
+  {# call text_buffer_add_mark #} (toTextBuffer self) (toTextMark mark) iter
+
 -- | Moves @mark@ to the new location @where@. Emits the \"mark_set\" signal
 -- as notification of the move.
 --
@@ -728,7 +738,6 @@ textBufferGetIterAtMark self mark = do
     (toTextMark mark)
   return iter
 
-
 -- | Create an iterator at the first position in the text buffer. This is
 -- the same as using 'textBufferGetIterAtOffset' to get the iter at character
 -- offset 0.
@@ -951,15 +960,15 @@ textBufferGetIterAtChildAnchor self iter anchor =
 -- buffer lies within the range @[start,end)@.
 --
 textBufferGetBounds :: TextBufferClass self => self
- -> TextIter -- ^ @start@ - iterator to initialize with first position in the
-             -- buffer
- -> TextIter -- ^ @end@ - iterator to initialize with the end iterator
- -> IO ()
-textBufferGetBounds self start end =
-  {# call gtk_text_buffer_get_bounds #}
+ -> IO (TextIter, TextIter) -- ^  return the first and last iterators in the buffer
+textBufferGetBounds self = do
+  start <- makeEmptyTextIter
+  end   <- makeEmptyTextIter
+  {#call unsafe text_buffer_get_bounds #}
     (toTextBuffer self)
     start
     end
+  return (start, end)
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Pastes the contents of a clipboard at the given @location@.
@@ -1014,6 +1023,23 @@ textBufferCutClipboard self clipboard defaultEditable =
     clipboard
     (fromBool defaultEditable)
 #endif
+
+-- | Adds clipboard to the list of clipboards in which the selection contents of buffer are available. 
+-- In most cases, clipboard will be the 'Clipboard' of type 'SelectionPrimary' for a view of buffer.
+--
+textBufferAddSelectionClipboard :: TextBufferClass self => self
+ -> Clipboard  -- ^ @clipboard@ - 	the 'Clipboard' object to add
+ -> IO ()
+textBufferAddSelectionClipboard self clipboard =
+  {# call text_buffer_add_selection_clipboard #} (toTextBuffer self) clipboard
+
+-- | Removes a 'Clipboard' added with 'textBufferAddSelectionClipboard'.
+--
+textBufferRemoveSelectionClipboard :: TextBufferClass self => self
+ -> Clipboard  -- ^ @clipboard@ -        the 'Clipboard' object to remove
+ -> IO ()
+textBufferRemoveSelectionClipboard self clipboard =  
+  {# call text_buffer_remove_selection_clipboard #} (toTextBuffer self) clipboard
 
 --------------------
 -- Attributes
@@ -1095,13 +1121,6 @@ onEndUserAction, afterEndUserAction :: TextBufferClass self => self
 onEndUserAction = connect_NONE__NONE "end_user_action" False
 afterEndUserAction = connect_NONE__NONE "end_user_action" True
 
--- | A widgets is inserted into the buffer.
---onInsertChildAnchor :: TextBufferClass self =>
--- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> self -> 
---  IO (ConnectId self)
---onInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
---  mkTextIterCopy
-
 -- | A 'Pixbuf' is inserted into the
 -- buffer.
 --
@@ -1110,6 +1129,18 @@ onInsertPixbuf, afterInsertPixbuf :: TextBufferClass self => self
  -> IO (ConnectId self)
 onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy False
 afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy True
+
+-- | The insert-child-anchor signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'. 
+-- Insertion actually occurs in the default handler.
+--
+-- Note that if your handler runs before the default handler it must not invalidate the location iter (or has to revalidate it). 
+-- The default signal handler revalidates it to be placed after the inserted anchor.
+--
+onInsertChildAnchor, afterInsertChildAnchor :: TextBufferClass self => self
+ -> (TextIter -> TextChildAnchor -> IO ())
+ -> IO (ConnectId self)
+onInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy False
+afterInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy True
 
 -- | Some text was inserted.
 --
@@ -1150,6 +1181,15 @@ onModifiedChanged, afterModifiedChanged :: TextBufferClass self => self
  -> IO (ConnectId self)
 onModifiedChanged = connect_NONE__NONE "modified_changed" False
 afterModifiedChanged = connect_NONE__NONE "modified_changed" True
+
+-- | The paste-done signal is emitted after paste operation has been completed. 
+-- This is useful to properly scroll the view to the end of the pasted text. 
+-- See 'textBufferPasteClipboard' for more details.
+onPasteDone, afterPasteDone :: TextBufferClass self => self
+ -> (Clipboard -> IO ())
+ -> IO (ConnectId self)
+onPasteDone = connect_OBJECT__NONE "paste_done" False
+afterPasteDone = connect_OBJECT__NONE "paste_done" True
 
 -- | A 'TextTag' was removed.
 --

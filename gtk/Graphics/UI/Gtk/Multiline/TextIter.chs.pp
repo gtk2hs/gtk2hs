@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) TextIter TextBuffer
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2002-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -25,22 +26,7 @@
 --     gtk_text_iter_set_line_index
 --     gtk_text_iter_set_visible_line_index
 --
--- The functions gtk_text_iter_in_range and gtk_text_iter_order are not bound
---   because they are only convenience functions which can replaced by calls
---   to textIterCompare.
---
 -- All offsets are counted from 0.
---
--- TODO
---
--- Bind the following functions when we are sure about anchors 
---   (see 'TextBuffer'):
---     gtk_text_iter_get_anchor
---
--- Bind TextAttribute functions when I am clear how to model them. 
---     gtk_text_iter_get_attribute
---
--- Forward exceptions in the two callback functions.
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -69,9 +55,9 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterGetVisibleSlice,
   textIterGetVisibleText,
   textIterGetPixbuf,
+  textIterGetChildAnchor,
   textIterGetMarks,
   textIterGetToggledTags,
-  -- textIterGetChildAnchor,
   textIterBeginsTag,
   textIterEndsTag,
   textIterTogglesTag,
@@ -89,6 +75,8 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterInsideSentence,
   textIterIsCursorPosition,
   textIterGetCharsInLine,
+  textIterGetAttributes,
+  textIterGetLanguage,
   textIterIsEnd,
   textIterIsStart,
   textIterForwardChar,
@@ -125,12 +113,22 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterBackwardSearch,
   textIterEqual,
   textIterCompare,
+  textIterInRange,
+  textIterOrder,
 #if GTK_CHECK_VERSION(2,8,0)
   textIterForwardVisibleLine,
   textIterBackwardVisibleLine,
   textIterForwardVisibleLines,
   textIterBackwardVisibleLines,
 #endif
+  textIterForwardVisibleWordEnds,
+  textIterBackwardVisibleWordStarts,
+  textIterForwardVisibleWordEnd,
+  textIterBackwardVisibleWordStart,
+  textIterForwardVisibleCursorPosition,
+  textIterBackwardVisibleCursorPosition,
+  textIterForwardVisibleCursorPositions,
+  textIterBackwardVisibleCursorPositions,
 
 -- * Attributes
   textIterVisibleLineOffset,
@@ -152,6 +150,8 @@ import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 {#import Graphics.UI.Gtk.Multiline.Types#}
+{#import Graphics.UI.Gtk.Multiline.TextTag#}
+{#import Graphics.UI.Gtk.Pango.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -263,6 +263,16 @@ textIterGetPixbuf it = do
   pbPtr <- {#call unsafe text_iter_get_pixbuf#} it
   if pbPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkPixbuf (return pbPtr)
+
+-- | If the location at iter contains a child anchor, 
+-- the anchor is returned (with no new reference count added). 
+-- Otherwise, @Nothing@ is returned.
+--
+textIterGetChildAnchor :: TextIter -> IO (Maybe TextChildAnchor)
+textIterGetChildAnchor it = do
+  tcaPtr <- {#call unsafe text_iter_get_child_anchor#} it
+  if tcaPtr == nullPtr then return Nothing else liftM Just $
+    makeNewGObject mkTextChildAnchor (return tcaPtr)
 
 -- | Returns a list of all 'TextMark' at this location. Because marks are not
 -- iterable (they don't take up any \"space\" in the buffer, they are just
@@ -456,15 +466,22 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- | Get the text attributes at the iterator.
+-- | Computes the effect of any tags applied to this spot in the text. 
+-- The values parameter should be initialized to the default settings you wish to use if no tags are in effect. 
+-- You'd typically obtain the defaults from 'textViewGetDefaultAttributes'. 
+-- 'textIterGetAttributes' will modify values, applying the effects of any tags present at iter. 
+-- If any tags affected values, the function returns @True@.
 --
--- * The @ta@ argument gives the default values if no specific 
---   attributes are set at that specific location.
---
--- * The function returns @Nothing@ if the text at the iterator has 
---   the same attributes.
-textIterGetAttributes = error "textIterGetAttributes: not implemented"
+textIterGetAttributes :: TextIter -> TextAttributes -> IO Bool
+textIterGetAttributes ti ta = liftM toBool $
+  {#call unsafe text_iter_get_attributes#} ti ta
 
+-- | A convenience wrapper around 'textIterGetAttributes', which returns the language in effect at iter. 
+-- If no tags affecting language apply to iter, the return value is identical to that of 'getDefaultLanguage'.
+--
+textIterGetLanguage :: TextIter -> IO Language
+textIterGetLanguage ti = liftM Language $
+  {#call unsafe text_iter_get_language#} ti
 
 -- | Determine if 'TextIter' is at the end of
 -- the buffer.
@@ -926,6 +943,94 @@ textIterBackwardVisibleLines self count =
     (fromIntegral count)
 #endif
 
+-- | Calls 'textIterForwardVisibleWordEnd' up to count times.
+--
+textIterForwardVisibleWordEnds :: TextIter 
+ -> Int   -- ^ @couter@ - number of times to move                        
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterForwardVisibleWordEnds self count = 
+  liftM toBool $
+  {# call text_iter_forward_visible_word_ends #}
+    self
+    (fromIntegral count)
+
+-- | Calls 'textIterBackwardVisibleWordStart' up to count times.
+--
+textIterBackwardVisibleWordStarts :: TextIter 
+ -> Int   -- ^ @couter@ - number of times to move                        
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleWordStarts self count =
+  liftM toBool $
+  {# call text_iter_backward_visible_word_starts #}
+    self
+    (fromIntegral count)
+
+-- | Moves forward to the next visible word end. 
+-- (If iter is currently on a word end, moves forward to the next one after that.) 
+-- Word breaks are determined by Pango and should be correct for nearly any language 
+-- (if not, the correct fix would be to the Pango word break algorithms).
+--
+textIterForwardVisibleWordEnd :: TextIter
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterForwardVisibleWordEnd self =
+  liftM toBool $
+  {# call text_iter_forward_visible_word_end #}
+    self
+
+-- | Moves backward to the previous visible word start. 
+-- (If iter is currently on a word start, moves backward to the next one after that.) 
+-- Word breaks are determined by Pango and should be correct for nearly any language 
+-- (if not, the correct fix would be to the Pango word break algorithms).
+-- 
+textIterBackwardVisibleWordStart :: TextIter
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleWordStart self =
+  liftM toBool $
+  {# call text_iter_backward_visible_word_start #}
+    self
+
+-- | Moves iter forward to the next visible cursor position. 
+-- See 'textIterForwardCursorPosition' for details.
+--
+textIterForwardVisibleCursorPosition :: TextIter
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterForwardVisibleCursorPosition self =
+  liftM toBool $
+  {# call text_iter_forward_visible_cursor_position #}
+    self
+
+-- | Moves iter forward to the previous visible cursor position. 
+-- See 'textIterBackwardCursorPosition' for details.
+-- 
+textIterBackwardVisibleCursorPosition :: TextIter
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleCursorPosition self =
+  liftM toBool $
+  {# call text_iter_backward_visible_cursor_position #}
+    self
+
+-- | Moves up to count visible cursor positions. 
+-- See 'textIterForwardCursorPosition' for details.
+textIterForwardVisibleCursorPositions :: TextIter
+ -> Int   -- ^ @couter@ - number of times to move                        
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterForwardVisibleCursorPositions self count =
+  liftM toBool $
+  {# call text_iter_forward_visible_cursor_positions #}
+    self
+    (fromIntegral count)
+
+-- | Moves up to count visible cursor positions. 
+-- See 'textIterBackwardCursorPosition' for details.
+--
+textIterBackwardVisibleCursorPositions :: TextIter 
+ -> Int   -- ^ @couter@ - number of times to move                        
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleCursorPositions self count =
+  liftM toBool $
+  {# call text_iter_backward_visible_cursor_positions #}
+    self
+    (fromIntegral count)
 
 -- | Compare two 'TextIter' for equality.
 --
@@ -942,7 +1047,24 @@ textIterCompare ti2 ti1 = do
     0	   -> EQ
     1	   -> GT
 
+-- | Checks whether iter falls in the range [start, end). 
+-- start and end must be in ascending order.
+--
+textIterInRange :: TextIter 
+ -> TextIter -- ^ @start@ start of range
+ -> TextIter -- ^ @end@ end of range
+ -> IO Bool  -- ^ @True@ if iter is in the range
+textIterInRange ti start end = liftM toBool $
+  {# call unsafe text_iter_in_range #} ti start end
 
+-- | Swaps the value of first and second if second comes before first in the buffer. 
+-- That is, ensures that first and second are in sequence. 
+-- Most text buffer functions that take a range call this automatically on your behalf, so there's no real reason to call it yourself in those cases. 
+-- There are some exceptions, such as 'textIterInRange', that expect a pre-sorted range.
+--
+textIterOrder :: TextIter -> TextIter -> IO ()
+textIterOrder first second = 
+  {# call text_iter_order #} first second
 
 --------------------
 -- Attributes
