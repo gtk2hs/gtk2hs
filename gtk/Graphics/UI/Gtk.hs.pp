@@ -289,7 +289,7 @@ import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
 		onSetScrollAdjustments, afterCopyClipboard, onCopyClipboard,
 		afterCutClipboard, onCutClipboard, afterInsertAtCursor,
 		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
-		afterToggleOverwrite, onToggleOverwrite)
+		afterToggleOverwrite, onToggleOverwrite, setScrollAdjustments)
 -- tree and list widget
 import Graphics.UI.Gtk.ModelView.CellLayout
 import Graphics.UI.Gtk.ModelView.CellRenderer

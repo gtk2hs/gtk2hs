@@ -1,12 +1,11 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) TextMark TextBuffer
 --
---  Author : Axel Simon, Andy Stewart
+--  Author : Axel Simon
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2002-2005 Axel Simon
---  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public

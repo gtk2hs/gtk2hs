@@ -1,12 +1,11 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget TextView
 --
---  Author : Axel Simon, Andy Stewart
+--  Author : Axel Simon
 --
 --  Created: 23 February 2002
 --
 --  Copyright (C) 2002-2005 Axel Simon
---  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -157,6 +156,24 @@ module Graphics.UI.Gtk.Multiline.TextView (
 #endif
 
 -- * Signals
+  backspace,
+  copyClipboard,
+  cutClipboard,
+  deleteFromCursor,
+  insertAtCursor,
+  moveCursor,
+  moveViewport,
+  moveFocus,
+  pageHorizontally,
+  pasteClipboard,
+  populatePopup,
+  setAnchor,
+  setScrollAdjustments,
+  toggleCursorVisible,
+  toggleOverwrite,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onBackspace,
   afterBackspace,
   onCopyClipboard,
@@ -187,6 +204,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   afterToggleCursorVisible,
   onToggleOverwrite,
   afterToggleOverwrite
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -1165,6 +1183,55 @@ textViewAcceptsTab = newAttr
 
 --------------------
 -- Signals
+backspace :: TextBufferClass self => Signal self (IO ())
+backspace = Signal (connect_NONE__NONE "on_backspace")
+
+copyClipboard :: TextBufferClass self => Signal self (IO ())
+copyClipboard = Signal (connect_NONE__NONE "copy_clipboard")
+
+cutClipboard :: TextBufferClass self => Signal self (IO ())
+cutClipboard = Signal (connect_NONE__NONE "cut_clipboard")
+
+deleteFromCursor :: TextBufferClass self => Signal self (DeleteType -> Int -> IO ())
+deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete_from_cursor")
+
+insertAtCursor :: TextBufferClass self => Signal self (String -> IO ())
+insertAtCursor = Signal (connect_STRING__NONE "insert_at_cursor")
+
+moveCursor :: TextBufferClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
+moveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move_cursor")
+
+moveViewport :: TextBufferClass self => Signal self (ScrollStep -> Int -> IO ())
+moveViewport = Signal (connect_ENUM_INT__NONE "move_viewport")
+
+moveFocus :: TextBufferClass self => Signal self (DirectionType -> IO ())
+moveFocus = Signal (connect_ENUM__NONE "move_focus")
+
+pageHorizontally :: TextBufferClass self => Signal self (Int -> Bool -> IO ())
+pageHorizontally = Signal (connect_INT_BOOL__NONE "page_horizontally")
+
+pasteClipboard :: TextBufferClass self => Signal self (IO ())
+pasteClipboard = Signal (connect_NONE__NONE "paste_clipboard")
+
+populatePopup :: TextBufferClass self => Signal self (Menu -> IO ())
+populatePopup = Signal (connect_OBJECT__NONE "populate_popup")
+
+setAnchor :: TextBufferClass self => Signal self (IO ())
+setAnchor = Signal (connect_NONE__NONE "set_anchor")
+
+setScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
+
+toggleCursorVisible :: TextBufferClass self => Signal self (IO ())
+toggleCursorVisible = Signal (connect_NONE__NONE "toggle_cursor_visible")
+
+toggleOverwrite :: TextBufferClass self => Signal self (IO ())
+toggleOverwrite = Signal (connect_NONE__NONE "toggle_overwrite")
+
+--------------------
+-- Deprecated Signals and Events
+
+#ifndef DISABLE_DEPRECATED
 
 -- | The ::backspace signal is a keybinding signal which gets emitted when the user asks for it.
 --
@@ -1350,3 +1417,5 @@ onToggleOverwrite, afterToggleOverwrite :: TextViewClass self => self
  -> IO (ConnectId self)
 onToggleOverwrite = connect_NONE__NONE "toggle_overwrite" False
 afterToggleOverwrite = connect_NONE__NONE "toggle_overwrite" True
+
+#endif

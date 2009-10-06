@@ -1,12 +1,11 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget TextTag
 --
---  Author : Duncan Coutts, Andy Stewart
+--  Author : Duncan Coutts
 --
 --  Created: 4 August 2004
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
---  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -70,7 +69,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   textAttributesNew,
   textAttributesCopy,
   textAttributesCopyValues,
-  makeNewTextAttributes,  --internal
+  makeNewTextAttributes, -- internal
 
 -- * Attributes
   textTagName,
@@ -142,7 +141,12 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   textTagPriority,
 
 -- * Signals
+  event,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onTextTagEvent
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -240,6 +244,8 @@ textAttributesCopyValues :: TextAttributes -> TextAttributes -> IO ()
 textAttributesCopyValues src dest =
   {# call text_attributes_copy_values #} src dest
 
+-- | This function is use internal for transform TextAttributes.
+-- Don't expoert this function.
 makeNewTextAttributes :: Ptr TextAttributes -> IO TextAttributes
 makeNewTextAttributes ptr =
   liftM TextAttributes $ newForeignPtr ptr text_attributes_unref
@@ -731,6 +737,20 @@ textTagPriority = newAttr
   textTagGetPriority
   textTagSetPriority
 
+--------------------
+-- Signals
+-- | An event has occurred that affects the given tag.
+--
+-- * Adding an event handler to the tag makes it possible to react on
+--   e.g. mouse clicks to implement hyperlinking.
+--
+event :: TextTagClass self => Signal self (Event -> TextIter -> IO Bool)
+event = Signal (connect_BOXED_BOXED__BOOL "event" marshalEvent mkTextIterCopy)
+
+--------------------
+-- Deprecated Signals and Events
+
+#ifndef DISABLE_DEPRECATED
 
 -- | An event has occurred that affects the given tag.
 --
@@ -742,3 +762,5 @@ onTextTagEvent :: TextTagClass t => t -> (Event -> TextIter -> IO ()) ->
 onTextTagEvent tt act =
   connect_PTR_BOXED_BOXED__BOOL "event" marshalEvent mkTextIterCopy False tt
     (\_ event iter -> act event iter >> return False)
+
+#endif

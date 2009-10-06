@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Window
 --
---  Author : Manuel M. T. Chakravarty, Axel Simon
+--  Author : Manuel M. T. Chakravarty, Axel Simon, Andy Stewart
 --
 --  Created: 27 April 2001
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -58,8 +59,6 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetTitle,
   windowSetResizable,
   windowGetResizable,
---  windowAddAccelGroup, 
---  windowRemoveAccelGroup,
   windowActivateFocus,
   windowActivateDefault,
   windowSetModal,
@@ -83,9 +82,14 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetFocus,
   windowSetFocus,
   windowSetDefault,
--- windowAddMnemonic,
--- windowRemoveMnemonic,
--- windowSetMnemonicModifier,
+  windowGetDefaultWidget,
+  windowAddMnemonic,
+  windowRemoveMnemonic,
+  windowMnemonicActivate,
+  windowSetMnemonicModifier,
+  windowGetMnemonicModifier,
+  -- windowActivateKey,
+  -- windowPropagateKeyEvent,
   windowPresent,
   windowDeiconify,
   windowIconify,
@@ -111,11 +115,15 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetFocusOnMap,
   windowGetFocusOnMap,
 #endif
+  windowSetStartupId,
   windowSetDecorated,
   windowGetDecorated,
--- windowSetDecorationsHint,
+  windowSetDeletable,
+  windowGetDeletable,
   windowSetFrameDimensions,
--- windowSetFunctionHint,
+  windowGetFrameDimensions,
+  windowSetHasFrame,
+  windowGetHasFrame,
   windowSetRole,
   windowGetRole,
   windowStick,
@@ -123,11 +131,18 @@ module Graphics.UI.Gtk.Windows.Window (
   windowAddAccelGroup,
   windowRemoveAccelGroup,
   windowSetIcon,
+  windowSetIconList,
+  windowGetIconList,
+  windowSetDefaultIconList,
+  windowGetDefaultIconList,
 #if GTK_CHECK_VERSION(2,6,0)
   windowSetIconName,
   windowGetIconName,
   windowSetDefaultIconName,
 #endif
+  windowSetDefaultIcon,
+  windowSetDefaultIconFromFile,
+  windowGetDefaultIconName,
   windowSetGravity,
   windowGetGravity,
 #if GTK_CHECK_VERSION(2,2,0)
@@ -142,6 +157,8 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetPosition,
   windowGetSize,
   windowMove,
+  windowParseGeometry,
+  windowReshowWithInitialSize,
   windowResize,
 #if GTK_CHECK_VERSION(2,2,0)
   windowSetIconFromFile,
@@ -153,6 +170,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetUrgencyHint,
 #endif
   windowSetGeometryHints,
+  windowSetOpacity,
+  windowGetOpacity,
+  windowGetGroup,
 
 -- * Attributes
   windowTitle,
@@ -161,11 +181,16 @@ module Graphics.UI.Gtk.Windows.Window (
   windowAllowGrow,
   windowResizable,
   windowModal,
+  windowOpacity,
+  windowRole,
+  windowStartupId,
   windowWindowPosition,
   windowDefaultWidth,
   windowDefaultHeight,
+  windowDeletable,
   windowDestroyWithParent,
   windowIcon,
+  windowIconName,
 #if GTK_CHECK_VERSION(2,2,0)
   windowScreen,
 #endif
@@ -187,13 +212,23 @@ module Graphics.UI.Gtk.Windows.Window (
   windowDecorated,
   windowGravity,
 #endif
+  windowToplevelFocus,
   windowTransientFor,
 
 -- * Signals
+  activateDefault,
+  activateFocus,
+  frameEvent,
+  keysChanged,
+  setFocus,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onFrameEvent,
   afterFrameEvent,
   onSetFocus,
   afterSetFocus
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -203,13 +238,14 @@ import System.Glib.UTFString
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
+import System.Glib.GList                (fromGList, toGList)
 import System.Glib.GObject		(makeNewGObject)
-import System.Glib.GList		(fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent, MouseButton,
+{#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
+import Graphics.UI.Gtk.Gdk.Events	(Event, EventKey, marshalEvent, MouseButton,
 					TimeStamp)
 import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..),
 					Gravity(..))
@@ -381,6 +417,81 @@ windowSetDefaultSize self height width =
     (fromIntegral height)
     (fromIntegral width)
 
+-- | Adds a mnemonic to this window.
+--
+windowAddMnemonic :: (WindowClass self, WidgetClass widget) => self
+ -> Int  -- ^ @keyval@ - the mnemonic
+ -> widget  -- ^ @target@ - the widget that gets activated by the mnemonic 
+ -> IO ()
+windowAddMnemonic self keyval target =
+  {# call window_add_mnemonic #}
+    (toWindow self)
+    (fromIntegral keyval)
+    (toWidget target)
+
+-- | Removes a mnemonic from this window.
+--
+windowRemoveMnemonic :: (WindowClass self, WidgetClass widget) => self
+ -> Int -- ^ @keyval@ - the mnemonic                                   
+ -> widget  -- ^ @target@ - the widget that gets activated by the mnemonic 
+ -> IO ()
+windowRemoveMnemonic self keyval target =
+  {# call window_remove_mnemonic #} 
+    (toWindow self)
+    (fromIntegral keyval)
+    (toWidget target)
+
+-- | Activates the targets associated with the mnemonic.
+windowMnemonicActivate :: WindowClass self => self
+ -> Int  -- ^ @keyval@ - the mnemonic                    
+ -> Modifier  -- ^ @modifier@ - the modifiers                   
+ -> IO Bool  -- ^ return @True@ if the activation is done. 
+windowMnemonicActivate self keyval modifier = liftM toBool $  
+  {# call window_mnemonic_activate #}
+    (toWindow self)
+    (fromIntegral keyval)
+    (fromIntegral (fromEnum modifier))
+
+-- | Sets the mnemonic modifier for this window.
+windowSetMnemonicModifier :: WindowClass self => self
+ -> Modifier  -- ^ @modifier@ - the modifier mask used to activate mnemonics on this window. 
+ -> IO ()
+windowSetMnemonicModifier self modifier =
+  {# call window_set_mnemonic_modifier #}
+    (toWindow self)
+    (fromIntegral (fromEnum modifier))
+
+-- | Returns the mnemonic modifier for this window. See 'windowSetMnemonicModifier'.
+windowGetMnemonicModifier :: WindowClass self => self
+ -> IO Modifier  -- ^ return the modifier mask used to activate mnemonics on this window. 
+windowGetMnemonicModifier self = liftM (toEnum.fromIntegral) $
+  {# call window_get_mnemonic_modifier #} 
+    (toWindow self)
+
+-- | Activates mnemonics and accelerators for this GtkWindow. 
+-- This is normally called by the default ::key_press_event handler for toplevel windows, 
+-- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
+-- 
+-- windowActivateKey :: WindowClass self => self
+--  -> EventKey  -- ^ @event@ - 'EventKey'
+--  -> IO Bool   -- ^ return @True@ if a mnemonic or accelerator was found and activated. 
+-- windowActivateKey self event = liftM toBool $
+--   {# call window_activate_key #}
+--     (toWindow self)
+--     event
+
+-- | Propagate a key press or release event to the focus widget and up the focus container chain until a widget handles event. 
+-- This is normally called by the default ::key_press_event and ::key_release_event handlers for toplevel windows, 
+-- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
+--
+-- windowPropagateKeyEvent :: WindowClass self => self
+--  -> EventKey  -- ^ @event@ - 'EventKey'
+--  -> IO Bool   -- ^ return @True@ if a widget in the focus chain handled the event. 
+-- windowPropagateKeyEvent self event = liftM toBool $
+--   {# call window_propagate_key_event #}
+--     (toWindow self)
+--     event
+
 -- | Gets the default size of the window. A value of -1 for the width or
 -- height indicates that a default size has not been explicitly set for that
 -- dimension, so the \"natural\" size of the window will be used.
@@ -522,6 +633,17 @@ windowSetFocus self focus =
   {# call unsafe gtk_window_set_focus #}
     (toWindow self)
     (maybe (Widget nullForeignPtr) toWidget focus)
+
+-- | Returns the default widget for window. See 'windowSetDefault' for more details.
+-- 
+-- * Available since Gtk+ version 2.14
+--
+windowGetDefaultWidget :: WindowClass self => self
+ -> IO Widget
+windowGetDefaultWidget self = 
+  makeNewObject mkWidget $
+  {# call window_get_default_widget #}
+    (toWindow self)
 
 -- | The default widget is the widget that's activated when the user presses
 -- | Enter in a dialog (for example). This function sets or unsets the default
@@ -816,6 +938,23 @@ windowGetFocusOnMap self =
     (toWindow self)
 #endif
 
+-- | Startup notification identifiers are used by desktop environment to track application startup, 
+-- to provide user feedback and other features. This function changes the corresponding property on the underlying GdkWindow. 
+-- Normally, startup identifier is managed automatically and you should only use this function in special cases like transferring focus from other processes. You should use this function before calling gtk_window_present() or any equivalent function generating a window map event.
+--
+-- This function is only useful on X11, not with other GTK+ targets.
+--
+-- * Available since Gtk+ version 2.12
+--
+windowSetStartupId :: WindowClass self => self
+ -> String
+ -> IO ()
+windowSetStartupId self startupId =
+  withUTFString startupId $ \idPtr ->
+  {# call window_set_startup_id #}
+    (toWindow self)
+    idPtr
+
 -- | By default, windows are decorated with a title bar, resize controls, etc.
 -- Some window managers allow Gtk+ to disable these decorations, creating a
 -- borderless window. If you set the decorated property to @False@ using this
@@ -843,6 +982,34 @@ windowGetDecorated self =
   {# call gtk_window_get_decorated #}
     (toWindow self)
 
+-- | By default, windows have a close button in the window frame. 
+-- Some window managers allow GTK+ to disable this button. 
+-- If you set the deletable property to  @False@ using this function, GTK+ will do its best to convince the window manager not to show a close button. 
+-- Depending on the system, this function may not have any effect when called on a window that is already visible, 
+-- so you should call it before calling gtk_window_show().
+--
+-- On Windows, this function always works, since there's no window manager policy involved.
+--
+-- * Available since Gtk+ version 2.10
+--
+windowSetDeletable :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to decorate the window as deletable 
+ -> IO ()
+windowSetDeletable self setting =
+  {# call window_set_deletable #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Returns whether the window has been set to have a close button via 'windowSetDeletable'.
+--
+-- * Available since Gtk+ version 2.10
+--
+windowGetDeletable :: WindowClass self => self
+ -> IO Bool  -- ^ return @True@ if the window has been set to have a close button 
+windowGetDeletable self = liftM toBool $  
+  {# call window_get_deletable #}
+    (toWindow self)
+
 -- | (Note: this is a special-purpose function intended for the framebuffer
 -- port; see 'windowSetHasFrame'. It will have no effect on the window border
 -- drawn by the window manager, which is the normal case when using the X
@@ -864,6 +1031,56 @@ windowSetFrameDimensions self left top right bottom =
     (fromIntegral top)
     (fromIntegral right)
     (fromIntegral bottom)
+
+-- | (Note: this is a special-purpose function intended for the framebuffer port; see 'windowSetHasFrame'. 
+-- It will not return the size of the window border drawn by the window manager, 
+-- which is the normal case when using a windowing system. 
+-- See 'drawWindowGetFrameExtents' to get the standard window border extents.)
+--
+-- Retrieves the dimensions of the frame window for this toplevel. See 'windowSetHasFrame', 'windowSetFrameDimensions'.
+--
+windowGetFrameDimensions :: WindowClass self => self
+ -> IO (Maybe (Int
+             ,Int
+             ,Int
+             ,Int))  -- ^ return @(left, top, right, bottom)@ is location to store size frame. @left@ is width of the frame at the left, @top@ is height of the frame at the top, @right@ is width of the frame at the right, @bottom@ is height of the frame at the bottom.
+windowGetFrameDimensions self = 
+  alloca $ \lPtr -> alloca $ \tPtr -> alloca $ \rPtr -> alloca $ \bPtr -> 
+    do
+      {# call window_get_frame_dimensions #} (toWindow self) lPtr tPtr rPtr bPtr
+      if lPtr == nullPtr || tPtr == nullPtr || rPtr == nullPtr || bPtr == nullPtr
+         then return Nothing
+         else do
+           lv <- peek lPtr
+           tv <- peek tPtr
+           rv <- peek rPtr
+           bv <- peek bPtr
+           return (Just (fromIntegral lv, fromIntegral tv, fromIntegral rv, fromIntegral bv))
+
+-- | (Note: this is a special-purpose function for the framebuffer port, that causes GTK+ to draw its own window border. 
+-- For most applications, you want  'windowSetDecorated' instead, which tells the window manager whether to draw the window border.)
+--
+-- If this function is called on a window with setting of @True@, before it is realized or showed, it will have a "frame" window around window->window,
+-- accessible in window->frame. Using the signal frame_event you can receive all events targeted at the frame.
+--
+-- This function is used by the linux-fb port to implement managed windows, 
+-- but it could conceivably be used by X-programs that want to do their own window decorations.
+--
+windowSetHasFrame :: WindowClass self => self 
+ -> Bool  -- ^ @setting@ - a boolean   
+ -> IO ()
+windowSetHasFrame self setting =
+  {# call window_set_has_frame #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Accessor for whether the window has a frame window exterior to window->window. Gets the value set by 'windowSetHasFrame'.
+--
+windowGetHasFrame :: WindowClass self => self
+ -> IO Bool  -- ^ return @True@ if a frame has been added to the window via 'windowSetHasFrame'.
+windowGetHasFrame self = liftM toBool $
+  {# call window_get_has_frame #}
+    (toWindow self)
 
 -- | This function is only useful on X11, not with other Gtk+ targets.
 --
@@ -988,6 +1205,63 @@ windowGetIcon self =
   {# call gtk_window_get_icon #}
     (toWindow self)
 
+-- | Sets up the icon representing a GtkWindow. The icon is used when the window is minimized (also known as iconified). 
+-- Some window managers or desktop environments may also place it in the window frame, or display it in other contexts.
+--
+-- 'windowSetIconList' allows you to pass in the same icon in several hand-drawn sizes. 
+-- The list should contain the natural sizes your icon is available in; that is, don't scale the image before passing it to GTK+. 
+-- Scaling is postponed until the last minute, when the desired final size is known, to allow best quality.
+--
+-- By passing several sizes, you may improve the final image quality of the icon, by reducing or eliminating automatic image scaling.
+--
+-- Recommended sizes to provide: 16x16, 32x32, 48x48 at minimum, and larger images (64x64, 128x128) if you have them.
+--
+-- See also 'windowSetDefaultIconList' to set the icon for all windows in your application in one go.
+--
+-- Note that transient windows (those who have been set transient for another window using 'windowSetTransientFor' will inherit their icon from their
+-- transient parent. 
+-- So there's no need to explicitly set the icon on transient windows.
+--
+windowSetIconList :: WindowClass self => self
+ -> [Pixbuf]
+ -> IO ()
+windowSetIconList self list =
+  withForeignPtrs (map unPixbuf list) $ \ptrList -> do
+  glist <- toGList ptrList
+  {# call window_set_icon_list #}
+     (toWindow self)
+     glist
+    
+-- | Retrieves the list of icons set by 'windowSetIconList'. 
+-- The list is copied, but the reference count on each member won't be incremented.
+--
+windowGetIconList :: WindowClass self => self  
+ -> IO [Pixbuf]
+windowGetIconList self = do
+  glist <- {# call window_get_icon_list #} (toWindow self)
+  ptrList <- fromGList glist
+  mapM (makeNewGObject mkPixbuf . return) ptrList
+
+-- | Sets an icon list to be used as fallback for windows that haven't had 'windowSetIconList' called on them to set up a window-specific icon list. 
+-- This function allows you to set up the icon for all windows in your app at once.
+--
+-- See 'windowSetIconList' for more details.
+--
+windowSetDefaultIconList :: [Pixbuf] -> IO ()
+windowSetDefaultIconList list = 
+  withForeignPtrs (map unPixbuf list) $ \ptrList -> do
+  glist <- toGList ptrList
+  {# call window_set_default_icon_list #} glist
+
+-- | Gets the value set by 'windowSetDefaultIconList'. 
+-- The list is a copy and should be freed with 'listFree', but the pixbufs in the list have not had their reference count incremented.
+--
+windowGetDefaultIconList :: IO [Pixbuf]
+windowGetDefaultIconList = do
+  glist <- {# call window_get_default_icon_list #}
+  ptrList <- fromGList glist
+  mapM (makeNewGObject mkPixbuf . return) ptrList
+
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Sets the icon for the window from a named themed icon. See the docs for
 -- 'IconTheme' for more details.
@@ -1035,6 +1309,38 @@ windowSetDefaultIconName name =
   {# call gtk_window_set_default_icon_name #}
     namePtr
 #endif
+
+-- | Sets an icon to be used as fallback for windows that haven't had 'windowSetIcon' called on them from a pixbuf.
+--
+-- * Available since Gtk+ version 2.4
+--
+windowSetDefaultIcon :: Maybe Pixbuf -> IO ()
+windowSetDefaultIcon (Just icon) =
+  {# call window_set_default_icon #} icon
+windowSetDefaultIcon Nothing =
+  {# call window_set_default_icon #} (mkPixbuf nullForeignPtr)
+
+-- | Sets an icon to be used as fallback for windows that haven't had 'windowSetIconList' called on them from a file on disk. 
+windowSetDefaultIconFromFile :: 
+   String 
+ -> GError 
+ -> IO Bool
+windowSetDefaultIconFromFile filename error = liftM toBool $
+  withUTFString filename $ \filePtr -> 
+  with error $ \gErrorPtr -> 
+  {# call window_set_default_icon_from_file #}
+    filePtr
+    (castPtr gErrorPtr)
+
+-- | Returns the fallback icon name for windows that has been set with 'windowSetDefaultIconName'. 
+-- The returned string is owned by GTK+ and should not be modified. 
+-- It is only valid until the next call to 'windowSetDefaultIconName'.
+--
+-- * Available since Gtk+ version 2.16
+--
+windowGetDefaultIconName :: IO String
+windowGetDefaultIconName = 
+  {# call window_get_default_icon_name #} >>= peekCString
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Sets the 'Screen' where the @window@ is displayed; if the window is
@@ -1169,6 +1475,34 @@ windowMove self x y =
     (toWindow self)
     (fromIntegral x)
     (fromIntegral y)
+
+-- | Parses a standard X Window System geometry string - see the manual page for X (type 'man X') for details on this. 
+-- 'windowParseGeometry' does work on all GTK+ ports including Win32 but is primarily intended for an X environment.
+--
+-- If either a size or a position can be extracted from the geometry string, 
+-- 'windowParseGeometry' returns @True@ and calls gtk_window_set_default_size() and/or gtk_window_move() to resize/move the window.
+--
+-- If 'windowParseGeometry' returns @True@, 
+-- it will also set the 'HintUserPos' and/or 'HintUserSize' hints indicating to the window manager that the size/position of the window was user-specified
+-- This causes most window managers to honor the geometry.
+--
+-- Note that for 'windowParseGeometry' to work as expected, it has to be called when the window has its "final" size, i.e. 
+-- after calling 'widgetShowAll' on the contents and 'windowSetGeometryHints' on the window.
+--
+windowParseGeometry :: WindowClass self => self
+ -> String
+ -> IO Bool
+windowParseGeometry self geometry = liftM toBool $
+  withUTFString geometry $ \geometryPtr -> 
+  {# call window_parse_geometry #}
+     (toWindow self)
+     geometryPtr
+
+-- | Hides window, then reshows it, resetting the default size and position of the window. Used by GUI builders only.
+--
+windowReshowWithInitialSize :: WindowClass self => self -> IO ()
+windowReshowWithInitialSize self =
+  {# call window_reshow_with_initial_size #} (toWindow self)
 
 -- | Resizes the window as if the user had done so, obeying geometry
 -- constraints. The default geometry constraint is that windows may not be
@@ -1491,6 +1825,41 @@ windowSetGeometryHints self geometryWidget
     (fromIntegral $ minSizeFlag .|. maxSizeFlag .|. baseSizeFlag
                  .|. incSizeFlag .|. aspectFlag)
 
+-- | Request the windowing system to make window partially transparent, with opacity 0 being fully transparent and 1 fully opaque. 
+-- (Values of the opacity parameter are clamped to the [0,1] range.) 
+-- On X11 this has any effect only on X screens with a compositing manager running. See gtk_widget_is_composited().
+-- On Windows it should work always.
+--
+-- Note that setting a window's opacity after the window has been shown causes it to flicker once on Windows.
+-- 
+-- * Available since Gtk+ version 2.12
+--
+windowSetOpacity :: WindowClass self => self
+ -> Double  -- ^ @opacity@ - desired opacity, between 0 and 1 
+ -> IO ()
+windowSetOpacity self opacity =
+  {#call window_set_opacity #} (toWindow self) (realToFrac opacity)
+
+-- | Fetches the requested opacity for this window. See 'windowSetOpacity'.
+--
+-- * Available since Gtk+ version 2.12
+--
+windowGetOpacity :: WindowClass self => self 
+ -> IO Double  -- ^ return the requested opacity for this window. 
+windowGetOpacity self = liftM realToFrac $
+ {#call window_get_opacity#} (toWindow self)
+
+-- | Returns the group for window or the default group, if window is @Nothing@ or if window does not have an explicit window group.
+-- 
+-- * Available since Gtk+ version 2.10
+--
+windowGetGroup :: WindowClass self => Maybe self
+ -> IO WindowGroup  -- ^ return the 'WindowGroup' for a window or the default group 
+windowGetGroup self = 
+  makeNewGObject mkWindowGroup $
+  {# call window_get_group #} (maybe (Window nullForeignPtr) toWindow self)
+  
+
 {# enum GdkWindowHints {underscoreToCase} #}
 
 --------------------
@@ -1545,6 +1914,33 @@ windowModal = newAttr
   windowGetModal
   windowSetModal
 
+-- | The requested opacity of the window. See 'windowSetOpacity' for more details about window opacity.
+--
+-- Allowed values: [0,1]
+--
+-- Default values: 1
+--
+-- * Available since Gtk+ version 2.12
+--
+windowOpacity :: WindowClass self => Attr self Double
+windowOpacity = newAttrFromDoubleProperty "opacity"
+
+-- | Unique identifier for the window to be used when restoring a session.
+--
+-- Default value: "\\"
+--
+windowRole :: WindowClass self => Attr self String
+windowRole = newAttrFromStringProperty "role"
+
+-- | The :startup-id is a write-only property for setting window's startup notification identifier. See 'windowSetStartupId' for more details.
+--
+-- Default value: "\\"
+--
+-- * Available since Gtk+ version 2.12
+--
+windowStartupId :: WindowClass self => Attr self String
+windowStartupId = newAttrFromStringProperty "startup-id"
+
 -- | The initial position of the window.
 --
 -- Default value: 'WinPosNone'
@@ -1571,6 +1967,15 @@ windowDefaultWidth = newAttrFromIntProperty "default-width"
 windowDefaultHeight :: WindowClass self => Attr self Int
 windowDefaultHeight = newAttrFromIntProperty "default-height"
 
+-- | Whether the window frame should have a close button.
+--
+-- Default values: @True@
+--
+-- * Available since Gtk+ version 2.10
+--
+windowDeletable :: WindowClass self => Attr self Bool
+windowDeletable = newAttrFromBoolProperty "deletable"
+
 -- | If this window should be destroyed when the parent is destroyed.
 --
 -- Default value: @False@
@@ -1586,6 +1991,16 @@ windowIcon :: WindowClass self => Attr self Pixbuf
 windowIcon = newAttr
   windowGetIcon
   windowSetIcon
+
+-- | The :icon-name property specifies the name of the themed icon to use as the window icon. See GtkIconTheme for more details.
+--
+-- Default values: "\\"
+--
+-- * Available since Gtk+ version 2.6
+--
+--
+windowIconName :: WindowClass self => Attr self String
+windowIconName = newAttrFromStringProperty "icon-name"
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | The screen where this window will be displayed.
@@ -1680,6 +2095,17 @@ windowGravity = newAttr
   windowSetGravity
 #endif
 
+-- | Whether the input focus is within this GtkWindow.
+--
+-- Note: If add `window` before `HasToplevelFocus` (has-toplevel-focus attribute)
+-- will conflicts with fucntion `windowHasToplevelFocus`, so we named this attribute 
+-- to `windowToplevelFocus`.
+--
+-- Default values: @False@
+--
+windowToplevelFocus :: WindowClass self => Attr self Bool
+windowToplevelFocus = newAttrFromBoolProperty "has-toplevel-focus"
+
 -- | \'transientFor\' property. See 'windowGetTransientFor' and
 -- 'windowSetTransientFor'
 --
@@ -1690,7 +2116,31 @@ windowTransientFor = newAttr
 
 --------------------
 -- Signals
+-- | The ::activate-default signal is a keybinding signal which gets emitted when the user activates the default widget of window.
+activateDefault :: WindowClass self => Signal self (IO ())
+activateDefault = Signal (connect_NONE__NONE "activate_default")
 
+-- | The ::activate-default signal is a keybinding signal which gets emitted when the user activates the currently focused widget of window.
+activateFocus :: WindowClass self => Signal self (IO ())
+activateFocus = Signal (connect_NONE__NONE "activate_focus")
+
+-- | 
+-- 
+frameEvent :: WindowClass self => Signal self (Event -> IO Bool)
+frameEvent = Signal (connect_BOXED__BOOL "frame_event" marshalEvent)
+
+-- | The ::keys-changed signal gets emitted when the set of accelerators or mnemonics that are associated with window changes.
+--
+keysChanged :: WindowClass self => Signal self (IO ())
+keysChanged = Signal (connect_NONE__NONE "keys_changed")
+
+-- | 
+--
+setFocus :: WindowClass self => Signal self (Widget -> IO ())
+setFocus = Signal (connect_OBJECT__NONE "set_focus")
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
 -- | 
 --
 onFrameEvent, afterFrameEvent :: WindowClass self => self
@@ -1706,3 +2156,5 @@ onSetFocus, afterSetFocus :: (WindowClass self, WidgetClass foc) => self
  -> IO (ConnectId self)
 onSetFocus = connect_OBJECT__NONE "set_focus" False
 afterSetFocus = connect_OBJECT__NONE "set_focus" True
+
+#endif

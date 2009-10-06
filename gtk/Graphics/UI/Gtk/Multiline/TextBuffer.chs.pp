@@ -144,6 +144,22 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferModified,
 
 -- * Signals
+  applyTag,
+  beginUserAction,
+  bufferChanged,
+  deleteRange,
+  endUserAction,
+  insertPixbuf,
+  insertChildAnchor,
+  bufferInsertText,
+  markDeleted,
+  markSet,
+  modifiedChanged,
+  pasteDone,
+  removeTag,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onApplyTag,
   afterApplyTag,
   onBeginUserAction,
@@ -170,6 +186,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterPasteDone,
   onRemoveTag,
   afterRemoveTag
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -1071,6 +1088,50 @@ textBufferModified = newAttr
 --------------------
 -- Signals
 
+applyTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ()) 
+applyTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "apply-tag" mkTextIterCopy mkTextIterCopy)
+
+beginUserAction :: TextBufferClass self => Signal self (IO ())
+beginUserAction = Signal (connect_NONE__NONE "begin_user_action")
+
+bufferChanged :: TextBufferClass self => Signal self (IO ())
+bufferChanged = Signal (connect_NONE__NONE "changed")
+
+deleteRange :: TextBufferClass self => Signal self (TextIter -> TextIter -> IO ())
+deleteRange = Signal (connect_BOXED_BOXED__NONE "delete_range" mkTextIterCopy mkTextIterCopy)
+
+endUserAction :: TextBufferClass self => Signal self (IO ())
+endUserAction = Signal (connect_NONE__NONE "end_user_action")
+
+insertPixbuf :: TextBufferClass self => Signal self (TextIter -> Pixbuf -> IO ())
+insertPixbuf = Signal (connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy)
+
+insertChildAnchor :: TextBufferClass self => Signal self (TextIter -> TextChildAnchor -> IO ())
+insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy)
+
+bufferInsertText :: TextBufferClass self => Signal self (TextIter -> String -> IO ())
+bufferInsertText = Signal (connect_BOXED_STRING__NONE "insert_text" mkTextIterCopy)
+
+markDeleted :: TextBufferClass self => Signal self (TextMark -> IO ())
+markDeleted = Signal (connect_OBJECT__NONE "mark_deleted")
+
+markSet :: TextBufferClass self => Signal self (TextIter -> TextMark -> IO ())
+markSet = Signal (connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy)
+
+modifiedChanged :: TextBufferClass self => Signal self (IO ())
+modifiedChanged = Signal (connect_NONE__NONE "modified_changed")
+
+pasteDone :: TextBufferClass self => Signal self (Clipboard -> IO ())
+pasteDone = Signal (connect_OBJECT__NONE "paste_done")
+
+removeTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ())
+removeTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "remove_tag" mkTextIterCopy mkTextIterCopy)
+
+--------------------
+-- Deprecated Signals and Events
+
+#ifndef DISABLE_DEPRECATED
+
 -- | A 'TextTag' was applied to a region of text.
 --
 onApplyTag, afterApplyTag :: TextBufferClass self => self
@@ -1201,3 +1262,4 @@ onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag"
 afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
   mkTextIterCopy mkTextIterCopy True
 
+#endif

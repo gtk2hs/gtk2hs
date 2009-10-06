@@ -1,12 +1,11 @@
 --  -*-haskell-*-
 --  GIMP Toolkit (GTK) Enumerations
 --
---  Author : Axel Simon, Manuel Chakravarty, Andy Stewart
+--  Author : Axel Simon, Manuel Chakravarty
 --
 --  Created: 13 January 1999
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
---  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
