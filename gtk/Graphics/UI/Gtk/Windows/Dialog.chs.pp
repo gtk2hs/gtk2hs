@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Dialog
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -23,6 +24,9 @@
 -- Portability : portable (depends on GHC)
 --
 -- Create popup windows
+-- 
+-- NOTE: 
+--     Now FFI haven't support variadic function `gtk_dialog_set_alternative_button_order`
 --
 module Graphics.UI.Gtk.Windows.Dialog (
 -- * Detail
@@ -110,13 +114,26 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogSetDefaultResponse,
   dialogSetHasSeparator,
   dialogSetResponseSensitive,
+  dialogGetResponseForWidget,
+  alternativeDialogButtonOrder,
+  dialogSetAlternativeButtonOrderFromArray,
 
 -- * Attributes
   dialogHasSeparator,
+  dialogActionAreaBorder,
+  dialogButtonSpacing,
+  dialogContentAreaBorder,
+  dialogContentAreaSpacing,
 
 -- * Signals
+  close,
+  response,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onResponse,
   afterResponse,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -124,6 +141,7 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -277,6 +295,50 @@ dialogSetResponseSensitive self responseId setting =
     (fromResponse responseId)
     (fromBool setting)
 
+-- | Gets the response id of a widget in the action area of a dialog.
+dialogGetResponseForWidget :: (DialogClass self, WidgetClass widget) => self
+ -> widget  -- ^ @widget@ - a widget in the action area of dialog                                                     
+ -> IO Int  -- ^ return the response id of widget, or 'ResponseNone' if widget doesn't have a response id set. 
+dialogGetResponseForWidget self widget = liftM fromIntegral $
+  {# call dialog_get_response_for_widget #}
+    (toDialog self)
+    (toWidget widget)
+
+-- | Returns @True@ if dialogs are expected to use an alternative button order on the screen screen. 
+-- See 'dialogSetAlternativeButtonOrder' for more details about alternative button order.
+--
+-- If you need to use this function, you should probably connect to the 'alternativeButtonOrder' signal on the GtkSettings object associated to  screen, in order to be notified if the button order setting changes.
+--
+-- * Available since Gtk+ version 2.6
+--
+alternativeDialogButtonOrder :: 
+   Maybe Screen  -- ^ @screen@ - a 'Screen', or @Nothing@ to use the default screen      
+ -> IO Bool   -- ^ return Whether the alternative button order should be used 
+alternativeDialogButtonOrder (Just screen) = liftM toBool $
+  {# call alternative_dialog_button_order #} screen
+alternativeDialogButtonOrder Nothing = liftM toBool $
+  {# call alternative_dialog_button_order #} (mkScreen nullForeignPtr)
+
+-- | Sets an alternative button order. 
+-- If the 'alternativeButtonOrder' setting is set to @True@, the dialog buttons are reordered according to the order of the response ids in new_order.
+--
+-- See 'dialogSetAlternativeButtonOrder' for more information.
+--
+-- This function is for use by language bindings.
+--
+-- * Available since Gtk+ version 2.6
+--
+dialogSetAlternativeButtonOrderFromArray :: DialogClass self => self
+ -> Int  -- ^ @nParams@ - the number of response ids in new_order      
+ -> [Int]  -- ^ @newOrder@ - an array of response ids of dialog's buttons 
+ -> IO ()
+dialogSetAlternativeButtonOrderFromArray self nParams newOrder = 
+  withArray (map fromIntegral newOrder) $ \newOrderPtr ->
+  {# call dialog_set_alternative_button_order_from_array #}
+    (toDialog self)
+    (fromIntegral nParams)
+    newOrderPtr
+
 --------------------
 -- Attributes
 
@@ -289,9 +351,55 @@ dialogHasSeparator = newAttr
   dialogGetHasSeparator
   dialogSetHasSeparator
 
+-- | Width of border around the button area at the bottom of the dialog.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 5
+--
+dialogActionAreaBorder :: DialogClass self => ReadAttr self Int
+dialogActionAreaBorder = readAttrFromIntProperty "action-area-border"
+
+-- | Spacing between buttons.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 6
+--
+dialogButtonSpacing :: DialogClass self => ReadAttr self Int
+dialogButtonSpacing = readAttrFromIntProperty "button-spacing"
+
+-- | Width of border around the main dialog area.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 2
+--
+dialogContentAreaBorder :: DialogClass self => ReadAttr self Int
+dialogContentAreaBorder = readAttrFromIntProperty "content-area-border"
+
+-- | The default spacing used between elements of the content area of the dialog, 
+-- as returned by 'dialogSetContentArea', unless 'boxSetSpacing' was called on that widget directly.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+-- * Available since Gtk+ version 2.16
+--
+dialogContentAreaSpacing :: DialogClass self => ReadAttr self Int
+dialogContentAreaSpacing = readAttrFromIntProperty "content-area-spacing"
+
 --------------------
 -- Signals
+close :: DialogClass self => Signal self (IO ())
+close = Signal (connect_NONE__NONE "close")
 
+response :: DialogClass self => Signal self (Int -> IO ())
+response = Signal (connect_INT__NONE "response")
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
 -- | Emitted when an action widget is clicked, the dialog receives a delete
 -- event, or the application programmer calls 'dialogResponse'. On a delete
 -- event, the response ID is 'ResponseNone'. Otherwise, it depends on which
@@ -302,3 +410,4 @@ onResponse, afterResponse :: DialogClass self => self
  -> IO (ConnectId self)
 onResponse dia act = connect_INT__NONE "response" False dia (act . toResponse)
 afterResponse dia act = connect_INT__NONE "response" True dia (act . toResponse)
+#endif

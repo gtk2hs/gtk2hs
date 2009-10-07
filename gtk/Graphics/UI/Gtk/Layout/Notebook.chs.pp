@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Notebook
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 15 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -19,8 +20,20 @@
 --
 -- TODO
 --
--- The signals focus-tab and select-page are not bound because it is unclear
---   what they mean. As far as I can see they are not emitted anywhere.
+-- Functions:
+--    gtk_notebook_set_group
+--    gtk_notebook_get_group
+--    gtk_notebook_set_window_creation_hook
+-- Attributes:
+--    group
+-- Signals:
+--    createWindow
+--    focusTab
+--    switchPage
+--
+-- NOTE
+--
+--    Don't binding `group-id` attribute, even set/get_group_id functions is deprecated)
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -55,6 +68,7 @@ module Graphics.UI.Gtk.Layout.Notebook (
 -- * Types
   Notebook,
   NotebookClass,
+  NotebookPage,
   castToNotebook,
   toNotebook,
 
@@ -108,6 +122,10 @@ module Graphics.UI.Gtk.Layout.Notebook (
 #endif
   notebookSetTabLabel,
   notebookSetTabLabelText,
+  notebookSetTabReorderable,
+  notebookGetTabReorderable,
+  notebookSetTabDetachable,
+  notebookGetTabDetachable,
 
 -- * Attributes
   notebookPage,
@@ -128,10 +146,34 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookChildPosition,
   notebookChildTabPacking,
   notebookChildTabPackType,
+  notebookChildDetachable,
+  notebookChildReorderable,
+  notebookChildTabExpand,
+  notebookChildTabFill,
+
+-- * Style Attributes
+  notebookStyleArrowSpacing,
+  notebookStyleHasBackwardStepper,
+  notebookStyleHasForwardStepper,
+  notebookStyleHasSecondaryBackwardStepper,
+  notebookStyleHasSecondaryForwardStepper,
+  notebookStyleTabCurvature,
+  notebookStyleTabOverlap,
 
 -- * Signals
+  changeCurrentPage,
+  moveFocusOut,
+  pageAdded,
+  pageRemoved,
+  pageReordered,
+  reorderTab,
+  selectPage,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onSwitchPage,
   afterSwitchPage
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -147,9 +189,11 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.Display.Label	(labelNew)
 import Graphics.UI.Gtk.General.Enums	(Packing(..), toPacking, fromPacking,
-                                         PackType(..), PositionType(..))
+                                         PackType(..), PositionType(..), DirectionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
+
+{#pointer *GtkNotebookPage as NotebookPage foreign newtype #}
 
 --------------------
 -- Constructors
@@ -871,6 +915,65 @@ notebookSetTabLabelText self child tabText =
     (toWidget child)
     tabTextPtr
 
+-- | Sets whether the notebook tab can be reordered via drag and drop or not.
+--
+-- * Available since Gtk version 2.10
+--
+notebookSetTabReorderable :: (NotebookClass self, WidgetClass child) => self
+ -> child   -- ^ @child@ - a child page
+ -> Bool   -- ^ @reorderable@ - whether the tab is reorderable or not. 
+ -> IO ()
+notebookSetTabReorderable self child reorderable =
+  {# call notebook_set_tab_reorderable #}
+    (toNotebook self)
+    (toWidget child)
+    (fromBool reorderable)
+
+-- | Gets whether the tab can be reordered via drag and drop or not.
+--
+-- * Available since Gtk version 2.10
+--
+notebookGetTabReorderable :: (NotebookClass self, WidgetClass child) => self
+ -> child  -- ^ @child@ - the child page
+ -> IO Bool  -- ^ return @True@ if the tab is reorderable. 
+notebookGetTabReorderable self child = liftM toBool $
+  {# call notebook_get_tab_reorderable #}
+    (toNotebook self)
+    (toWidget child)
+
+-- | Sets whether the tab can be detached from notebook to another notebook or widget.
+--
+-- Note that 2 notebooks must share a common group identificator (see gtk_notebook_set_group_id()) to allow automatic tabs interchange between them.
+--
+-- If you want a widget to interact with a notebook through DnD (i.e.: accept dragged tabs from it) it must be set as a drop destination and accept the target "GTK_NOTEBOOK_TAB". 
+-- The notebook will fill the selection with a GtkWidget** pointing to the child widget that corresponds to the dropped tab.
+--
+-- If you want a notebook to accept drags from other widgets, you will have to set your own DnD code to do it.
+--
+-- * Available since Gtk version 2.10
+--
+notebookSetTabDetachable :: (NotebookClass self, WidgetClass child) => self
+ -> child  -- ^ @child@ - the child page
+ -> Bool  -- ^ @detachable@ - whether the tab is detachable or not 
+ -> IO ()
+notebookSetTabDetachable self child detachable =
+  {# call notebook_set_tab_detachable #}
+    (toNotebook self)
+    (toWidget child)
+    (fromBool detachable)
+
+-- | Returns whether the tab contents can be detached from notebook.
+--
+-- * Available since Gtk version 2.10
+--
+notebookGetTabDetachable :: (NotebookClass self, WidgetClass child) => self
+ -> child  -- ^ @child@ - the child page
+ -> IO Bool  -- ^ return @True@ if the tab is detachable. 
+notebookGetTabDetachable self child = liftM toBool $ 
+  {# call notebook_get_tab_detachable #}
+    (toNotebook self)
+    (toWidget child)
+
 --------------------
 -- Attributes
 
@@ -1014,8 +1117,141 @@ notebookChildTabPackType :: (NotebookClass self, WidgetClass child) => child -> 
 notebookChildTabPackType = newAttrFromContainerChildEnumProperty "tab-pack"
                          {# call pure unsafe gtk_pack_type_get_type #}
 
+-- | Whether the tab is detachable.
+--
+-- Default value: @False@
+--
+notebookChildDetachable :: NotebookClass self => Attr self Bool
+notebookChildDetachable = newAttrFromBoolProperty "detachable"
+
+-- | Whether the tab is reorderable by user action or not.
+--
+-- Default value: @False@
+--
+notebookChildReorderable :: NotebookClass self => Attr self Bool
+notebookChildReorderable = newAttrFromBoolProperty "reorderable"
+
+-- | Whether to expand the child's tab or not.
+--
+-- Default value : @False@
+--
+notebookChildTabExpand :: NotebookClass self => Attr self Bool
+notebookChildTabExpand = newAttrFromBoolProperty "tab-expand"
+
+-- | Whether the child's tab should fill the allocated area or not.
+--
+-- Default value : @False@
+--
+notebookChildTabFill :: NotebookClass self => Attr self Bool
+notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
+
+-- | The "arrow-spacing" property defines the spacing between the scroll arrows and the tabs.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+-- * Available since Gtk version 2.10
+--
+notebookStyleArrowSpacing :: NotebookClass self => ReadAttr self Bool
+notebookStyleArrowSpacing = readAttrFromBoolProperty "arrow-spacing"
+
+-- | The "has-backward-stepper" property determines whether the standard backward arrow button is displayed.
+--
+-- Default value: @True@
+--
+-- * Available since Gtk version 2.4
+--
+notebookStyleHasBackwardStepper :: NotebookClass self => ReadAttr self Bool
+notebookStyleHasBackwardStepper = readAttrFromBoolProperty "has-backward-stepper"
+
+-- | The "has-forward-stepper" property determines whether the standard forward arrow button is displayed.
+--
+-- Default value : @True@
+--
+-- * Available since Gtk version 2.4
+--
+notebookStyleHasForwardStepper :: NotebookClass self => ReadAttr self Bool
+notebookStyleHasForwardStepper = readAttrFromBoolProperty "has-forward-stepper"
+
+-- | The "has-secondary-backward-stepper" property determines whether a second backward arrow button is displayed on the opposite end of the tab area.
+--
+-- Default value: @False@
+--
+-- * Available since Gtk version 2.4
+--
+notebookStyleHasSecondaryBackwardStepper :: NotebookClass self => ReadAttr self Bool
+notebookStyleHasSecondaryBackwardStepper = readAttrFromBoolProperty "has-secondary-backward-stepper"
+
+-- | The "has-secondary-forward-stepper" property determines whether a second forward arrow button is displayed on the opposite end of the tab area.
+--
+-- Default value: @False@
+--
+-- * Available since Gtk version 2.4
+--
+notebookStyleHasSecondaryForwardStepper :: NotebookClass self => ReadAttr self Bool
+notebookStyleHasSecondaryForwardStepper = readAttrFromBoolProperty "has-secondary-forward-stepper"
+
+-- | The "tab-curvature" property defines size of tab curvature.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 1
+--
+-- * Available since Gtk version 2.10
+--
+notebookStyleTabCurvature :: NotebookClass self => ReadAttr self Int
+notebookStyleTabCurvature = readAttrFromIntProperty "tab-curvature"
+
+-- | The "tab-overlap" property defines size of tab overlap area.
+--
+-- Default value: 2
+--
+-- * Available since Gtk version 2.10
+--
+notebookStyleTabOverlap :: NotebookClass self => ReadAttr self Int
+notebookStyleTabOverlap = readAttrFromIntProperty "tab-overlap"
+
 --------------------
 -- Signals
+
+-- | 
+--
+changeCurrentPage :: NotebookClass self => Signal self (Int -> IO Bool)
+changeCurrentPage = Signal (connect_INT__BOOL "change_current_page")
+
+-- |
+--
+moveFocusOut :: NotebookClass self => Signal self (DirectionType -> IO ())
+moveFocusOut = Signal (connect_ENUM__NONE "move_focus_out")
+
+-- | The 'pageAdded' signal is emitted in the notebook right after a page is added to the notebook.
+--
+pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
+pageAdded = Signal (connect_OBJECT_INT__NONE "page_added")
+
+-- | The 'pageRemoved' signal is emitted in the notebook right after a page is removed from the notebook.
+--
+pageRemoved :: NotebookClass self => Signal self (Widget -> Int -> IO ())
+pageRemoved = Signal (connect_OBJECT_INT__NONE "page_removed")
+
+-- | The 'pageReordered' signal is emitted in the notebook right after a page has been reordered.
+--
+pageReordered :: NotebookClass self => Signal self (Widget -> Int -> IO ())
+pageReordered = Signal (connect_OBJECT_INT__NONE "page_reordered")
+
+-- |
+--
+reorderTab :: NotebookClass self => Signal self (DirectionType -> Bool -> IO Bool)
+reorderTab = Signal (connect_ENUM_BOOL__BOOL "reorder_tab")
+
+-- |
+--
+selectPage :: NotebookClass self => Signal self (Bool -> IO Bool)
+selectPage = Signal (connect_BOOL__BOOL "select_page")
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
 
 -- | This signal is emitted when a new page is
 -- selected.
@@ -1028,3 +1264,5 @@ onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
 afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
 			 (const $ return ()) True nb 
 			 (\_ page -> fun (fromIntegral page))
+
+#endif

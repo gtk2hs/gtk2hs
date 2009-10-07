@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Label
 --
---  Author : Manuel M. T. Chakravarty, Axel Simon
+--  Author : Manuel M. T. Chakravarty, Axel Simon, Andy Stewart
 --
 --  Created: 2 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2009 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -135,7 +136,8 @@ module Graphics.UI.Gtk.Display.Label (
   labelGetUseUnderline,
   labelGetText,
   labelGetLabel,
---  labelSetAttributes,
+  labelSetAttributes,
+  labelGetAttributes,
   labelSetPattern,
   Justification(..),
   labelSetJustify,
@@ -143,6 +145,8 @@ module Graphics.UI.Gtk.Display.Label (
   labelGetLayout,
   labelSetLineWrap,
   labelGetLineWrap,
+  labelSetLineWrapMode,
+  labelGetLineWrapMode,
   labelSetSelectable,
   labelGetSelectable,
   labelSelectRegion,
@@ -167,8 +171,11 @@ module Graphics.UI.Gtk.Display.Label (
   labelUseUnderline,
   labelJustify,
   labelWrap,
+  labelWrapMode,
   labelSelectable,
   labelMnemonicWidget,
+  labelMnemonicKeyval,
+  labelPattern,
   labelCursorPosition,
   labelSelectionBound,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -176,6 +183,7 @@ module Graphics.UI.Gtk.Display.Label (
   labelWidthChars,
   labelSingleLineMode,
   labelAngle,
+  labelAttributes,
   labelMaxWidthChars,
 #endif
   labelLineWrap,
@@ -189,8 +197,11 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
+import Graphics.UI.Gtk.Pango.Layout
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+{#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Types#}
+import Graphics.UI.Gtk.Pango.Attributes ( withAttrList, fromAttrList)
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
@@ -268,11 +279,33 @@ labelSetLabel self str =
     (toLabel self)
     strPtr
 
-{-
--- | Set the text attributes.
+-- | Sets a PangoAttrList; the attributes in the list are applied to the label text.
 --
--- labelSetAttributes :: LabelClass l => PangoAttrList -> IO ()
--}
+-- Note
+--
+-- The attributes set with this function will be applied and merged with any other attributes previously effected by way of the "use-underline" or "use-markup" properties. While it is not recommended to mix markup strings with manually set attributes, if you must; know that the attributes will be applied to the label after the markup string is parsed.
+--
+labelSetAttributes :: LabelClass self => self 
+ -> [PangoAttribute]   -- ^ @attr@ 'PangoAttribute'
+ -> IO ()
+labelSetAttributes self attrs = do
+  txt <- labelGetText self
+  ps <- makeNewPangoString txt
+  withAttrList ps attrs $ \alPtr ->
+    {#call unsafe label_set_attributes #} (toLabel self) alPtr
+
+-- | Gets the attribute list that was set on the label using 'labelSetAttributes', if any. 
+-- This function does not reflect attributes that come from the labels markup (see 'labelSetMarkup'). 
+-- If you want to get the effective attributes for the label, use 'layoutGetAttributes' ('labelGetLayout' (label)).
+--
+labelGetAttributes :: LabelClass self => self
+ -> IO [PangoAttribute]          -- ^ return the attribute list, or Emtpy if none was set. 
+labelGetAttributes self = do
+  txt <- labelGetText self
+  (PangoString correct _ _ ) <- makeNewPangoString txt
+  attrListPtr <- {# call unsafe label_get_attributes #} (toLabel self)
+  attr <- fromAttrList correct attrListPtr
+  return $ concat attr
 
 -- | Parses @str@ which is marked up with the Pango text markup language,
 -- as defined in "Graphics.UI.Gtk.Pango.Markup",
@@ -371,6 +404,29 @@ labelGetLineWrap :: LabelClass self => self
 labelGetLineWrap self =
   liftM toBool $
   {# call unsafe label_get_line_wrap #}
+    (toLabel self)
+
+-- | If line wrapping is on (see 'labelSetLineWrap') this controls how the line wrapping is done. 
+-- The default is 'WrapWholeWords' which means wrap on word boundaries.
+--
+-- * Available since Gtk+ version 2.10
+--
+labelSetLineWrapMode :: LabelClass self => self
+ -> LayoutWrapMode  -- ^ @wrapMode@ - the line wrapping mode 
+ -> IO ()
+labelSetLineWrapMode self wrapMode =
+  {# call label_set_line_wrap_mode #}
+    (toLabel self)
+    (fromIntegral (fromEnum wrapMode))
+
+-- | Returns line wrap mode used by the label. See 'labelSetLineWrapMode'.
+--
+-- * Available since Gtk+ version 2.10
+--
+labelGetLineWrapMode :: LabelClass self => self
+ -> IO LayoutWrapMode  -- ^ return the line wrapping mode
+labelGetLineWrapMode self = liftM (toEnum . fromIntegral) $  
+  {# call label_get_line_wrap_mode #}
     (toLabel self)
 
 -- | Obtains the coordinates where the label will draw the 'PangoLayout'
@@ -718,7 +774,7 @@ labelUseUnderline = newAttr
 
 -- | The alignment of the lines in the text of the label relative to each
 -- other. This does NOT affect the alignment of the label within its
--- allocation. See 'Misc'::xalign for that.
+-- allocation. 
 --
 -- Default value: 'JustifyLeft'
 --
@@ -733,6 +789,17 @@ labelJustify = newAttr
 --
 labelWrap :: LabelClass self => Attr self Bool
 labelWrap = newAttrFromBoolProperty "wrap"
+
+-- | If line wrapping is on (see the "wrap" property) this controls how the line wrapping is done. 
+-- The default is 'WrapWholeWords', which means wrap on word boundaries.
+--
+-- Default value: 'WrapWholeWords'
+--
+-- * Available since Gtk+ version 2.10
+--
+labelWrapMode :: LabelClass self => Attr self LayoutWrapMode
+labelWrapMode = newAttrFromEnumProperty "wrap-mode"
+                {# call pure unsafe gtk_label_get_type #}
 
 -- | Whether the label text can be selected with the mouse.
 --
@@ -749,6 +816,20 @@ labelMnemonicWidget :: (LabelClass self, WidgetClass widget) => ReadWriteAttr se
 labelMnemonicWidget = newAttr
   labelGetMnemonicWidget
   labelSetMnemonicWidget
+
+-- | The mnemonic accelerator key for this label.
+--
+-- Default value: 16777215
+--
+labelMnemonicKeyval :: LabelClass self => ReadAttr self Int
+labelMnemonicKeyval = readAttrFromIntProperty "mnemonic-keyval"
+
+-- | A string with _ characters in positions correspond to characters in the text to underline.
+--
+-- Default value: "\\"
+--
+labelPattern :: LabelClass self => WriteAttr self String
+labelPattern = writeAttrFromStringProperty "pattern"
 
 -- | The current position of the insertion cursor in chars.
 --
@@ -828,6 +909,12 @@ labelAngle :: LabelClass self => Attr self Double
 labelAngle = newAttr
   labelGetAngle
   labelSetAngle
+
+-- | A list of style attributes to apply to the text of the label.
+labelAttributes :: LabelClass self => Attr self [PangoAttribute]
+labelAttributes = newAttr
+  labelGetAttributes
+  labelSetAttributes
 
 -- | The desired maximum width of the label, in characters. If this property
 -- is set to -1, the width will be calculated automatically, otherwise the

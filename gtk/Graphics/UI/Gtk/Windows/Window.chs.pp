@@ -469,7 +469,7 @@ windowGetMnemonicModifier self = liftM (toEnum.fromIntegral) $
     (toWindow self)
 
 -- | Activates mnemonics and accelerators for this GtkWindow. 
--- This is normally called by the default ::key_press_event handler for toplevel windows, 
+-- This is normally called by the default 'keyPressEvent' handler for toplevel windows, 
 -- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
 -- 
 -- windowActivateKey :: WindowClass self => self
@@ -481,7 +481,7 @@ windowGetMnemonicModifier self = liftM (toEnum.fromIntegral) $
 --     event
 
 -- | Propagate a key press or release event to the focus widget and up the focus container chain until a widget handles event. 
--- This is normally called by the default ::key_press_event and ::key_release_event handlers for toplevel windows, 
+-- This is normally called by the default 'keyPressEvent' and 'keyReleaseEvent' handlers for toplevel windows, 
 -- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
 --
 -- windowPropagateKeyEvent :: WindowClass self => self
@@ -1233,7 +1233,6 @@ windowSetIconList self list =
      glist
     
 -- | Retrieves the list of icons set by 'windowSetIconList'. 
--- The list is copied, but the reference count on each member won't be incremented.
 --
 windowGetIconList :: WindowClass self => self  
  -> IO [Pixbuf]
@@ -1254,7 +1253,6 @@ windowSetDefaultIconList list =
   {# call window_set_default_icon_list #} glist
 
 -- | Gets the value set by 'windowSetDefaultIconList'. 
--- The list is a copy and should be freed with 'listFree', but the pixbufs in the list have not had their reference count incremented.
 --
 windowGetDefaultIconList :: IO [Pixbuf]
 windowGetDefaultIconList = do
@@ -2116,11 +2114,11 @@ windowTransientFor = newAttr
 
 --------------------
 -- Signals
--- | The ::activate-default signal is a keybinding signal which gets emitted when the user activates the default widget of window.
+-- | The 'activateDefault' signal is a keybinding signal which gets emitted when the user activates the default widget of window.
 activateDefault :: WindowClass self => Signal self (IO ())
 activateDefault = Signal (connect_NONE__NONE "activate_default")
 
--- | The ::activate-default signal is a keybinding signal which gets emitted when the user activates the currently focused widget of window.
+-- | The 'activateDefault' signal is a keybinding signal which gets emitted when the user activates the currently focused widget of window.
 activateFocus :: WindowClass self => Signal self (IO ())
 activateFocus = Signal (connect_NONE__NONE "activate_focus")
 
@@ -2129,7 +2127,7 @@ activateFocus = Signal (connect_NONE__NONE "activate_focus")
 frameEvent :: WindowClass self => Signal self (Event -> IO Bool)
 frameEvent = Signal (connect_BOXED__BOOL "frame_event" marshalEvent)
 
--- | The ::keys-changed signal gets emitted when the set of accelerators or mnemonics that are associated with window changes.
+-- | The 'keysChanged' signal gets emitted when the set of accelerators or mnemonics that are associated with window changes.
 --
 keysChanged :: WindowClass self => Signal self (IO ())
 keysChanged = Signal (connect_NONE__NONE "keys_changed")
