@@ -776,6 +776,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/MessageDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
+	gtk/Graphics/UI/Gtk/Windows/Invisible.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
 	gtk/Graphics/UI/Gtk/Gdk/Cursor.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\

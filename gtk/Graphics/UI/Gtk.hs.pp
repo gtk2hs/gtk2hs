@@ -67,6 +67,7 @@ module Graphics.UI.Gtk (
 #endif
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
+  module Graphics.UI.Gtk.Windows.Invisible,
   module Graphics.UI.Gtk.Windows.Dialog,
   module Graphics.UI.Gtk.Windows.AboutDialog,
   module Graphics.UI.Gtk.Windows.MessageDialog,
@@ -252,6 +253,7 @@ import Graphics.UI.Gtk.Cairo
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
+import Graphics.UI.Gtk.Windows.Invisible
 import Graphics.UI.Gtk.Windows.AboutDialog
 import Graphics.UI.Gtk.Windows.MessageDialog
 import Graphics.UI.Gtk.Windows.WindowGroup

@@ -1145,7 +1145,7 @@ notebookChildTabExpand = newAttrFromBoolProperty "tab-expand"
 notebookChildTabFill :: NotebookClass self => Attr self Bool
 notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
 
--- | The "arrow-spacing" property defines the spacing between the scroll arrows and the tabs.
+-- | The 'notebookStyleArrowSpacing" property defines the spacing between the scroll arrows and the tabs.
 --
 -- Allowed values: >= 0
 --
@@ -1156,7 +1156,7 @@ notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
 notebookStyleArrowSpacing :: NotebookClass self => ReadAttr self Bool
 notebookStyleArrowSpacing = readAttrFromBoolProperty "arrow-spacing"
 
--- | The "has-backward-stepper" property determines whether the standard backward arrow button is displayed.
+-- | The 'notebookStyleHasBackwardStepper' property determines whether the standard backward arrow button is displayed.
 --
 -- Default value: @True@
 --
@@ -1165,7 +1165,7 @@ notebookStyleArrowSpacing = readAttrFromBoolProperty "arrow-spacing"
 notebookStyleHasBackwardStepper :: NotebookClass self => ReadAttr self Bool
 notebookStyleHasBackwardStepper = readAttrFromBoolProperty "has-backward-stepper"
 
--- | The "has-forward-stepper" property determines whether the standard forward arrow button is displayed.
+-- | The 'notebookStyleHasForwardStepper' property determines whether the standard forward arrow button is displayed.
 --
 -- Default value : @True@
 --
@@ -1174,7 +1174,7 @@ notebookStyleHasBackwardStepper = readAttrFromBoolProperty "has-backward-stepper
 notebookStyleHasForwardStepper :: NotebookClass self => ReadAttr self Bool
 notebookStyleHasForwardStepper = readAttrFromBoolProperty "has-forward-stepper"
 
--- | The "has-secondary-backward-stepper" property determines whether a second backward arrow button is displayed on the opposite end of the tab area.
+-- | The 'notebookStyleHasSecondaryBackwardStepper' property determines whether a second backward arrow button is displayed on the opposite end of the tab area.
 --
 -- Default value: @False@
 --
@@ -1183,7 +1183,7 @@ notebookStyleHasForwardStepper = readAttrFromBoolProperty "has-forward-stepper"
 notebookStyleHasSecondaryBackwardStepper :: NotebookClass self => ReadAttr self Bool
 notebookStyleHasSecondaryBackwardStepper = readAttrFromBoolProperty "has-secondary-backward-stepper"
 
--- | The "has-secondary-forward-stepper" property determines whether a second forward arrow button is displayed on the opposite end of the tab area.
+-- | The 'notebookStyleHasSecondaryForwardStepper' property determines whether a second forward arrow button is displayed on the opposite end of the tab area.
 --
 -- Default value: @False@
 --
@@ -1192,7 +1192,7 @@ notebookStyleHasSecondaryBackwardStepper = readAttrFromBoolProperty "has-seconda
 notebookStyleHasSecondaryForwardStepper :: NotebookClass self => ReadAttr self Bool
 notebookStyleHasSecondaryForwardStepper = readAttrFromBoolProperty "has-secondary-forward-stepper"
 
--- | The "tab-curvature" property defines size of tab curvature.
+-- | The 'notebookStyleTabCurvature' property defines size of tab curvature.
 --
 -- Allowed values: >= 0
 --
@@ -1203,7 +1203,7 @@ notebookStyleHasSecondaryForwardStepper = readAttrFromBoolProperty "has-secondar
 notebookStyleTabCurvature :: NotebookClass self => ReadAttr self Int
 notebookStyleTabCurvature = readAttrFromIntProperty "tab-curvature"
 
--- | The "tab-overlap" property defines size of tab overlap area.
+-- | The 'notebookStyleTabOverlap' property defines size of tab overlap area.
 --
 -- Default value: 2
 --
