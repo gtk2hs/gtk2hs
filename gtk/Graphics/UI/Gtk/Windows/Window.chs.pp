@@ -528,6 +528,10 @@ windowSetPosition self position =
 -- On Windows, this function will and put the child window on top of the
 -- parent, much as the window manager would have done on X.
 --
+-- Note that if you want to show a window @self@ on top of a full-screen window @parent@, you need to
+-- turn the @self@ window into a dialog (using 'windowSetTypeHint' with 'WindowTypeHintDialog'). 
+-- Otherwise the @parent@ window will always cover the @self@ window.
+--
 windowSetTransientFor :: (WindowClass self, WindowClass parent) => self
  -> parent -- ^ @parent@ - parent window
  -> IO ()
