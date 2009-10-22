@@ -58,14 +58,8 @@ module Graphics.UI.Gtk.Gdk.Screen (
   screenGetDefault,
   screenGetSystemColormap,
 --  screenGetSystemVisual,
-  screenGetRGBColormap,
---  screenGetRGBVisual,
-#if GTK_CHECK_VERSION(2,8,0)
-  screenGetRGBAColormap,
---  screenGetRGBAVisual,
 #if GTK_CHECK_VERSION(2,10,0)
   screenIsComposited,
-#endif
 #endif
   screenGetRootWindow,
   screenGetDisplay,
@@ -76,22 +70,26 @@ module Graphics.UI.Gtk.Gdk.Screen (
   screenGetHeightMm,
   screenGetWidthMM,
   screenGetHeightMM,
---  screenListVisuals,
---  screenGetToplevelWindows,
+  screenListVisuals,
+  screenGetToplevelWindows,
   screenMakeDisplayName,
   screenGetNMonitors,
---  screenGetMonitorGeometry,
+  screenGetMonitorGeometry,
   screenGetMonitorAtPoint,
   screenGetMonitorAtWindow,
---  screenBroadcastClientMessage,
+#if GTK_CHECK_VERSION(2,14,0)
+  screenGetMonitorHeightMm,
+  screenGetMonitorWidthMm,
+  screenGetMonitorPlugName,
+#endif
 --  screenGetSetting,
 #if GTK_CHECK_VERSION(2,10,0)
   screenGetActiveWindow,
---  screenGetWindowStack,
+  screenGetWindowStack,
 #endif
 
 -- * Attributes
---  screenFontOptions,
+  screenFontOptions,
   screenResolution,
   screenDefaultColormap,
 
@@ -99,6 +97,9 @@ module Graphics.UI.Gtk.Gdk.Screen (
   screenSizeChanged,
 #if GTK_CHECK_VERSION(2,10,0)
   screenCompositedChanged,
+#if GTK_CHECK_VERSION(2,14,0)
+  screenMonitorsChanged,
+#endif
 #endif
 
 #endif
@@ -111,8 +112,12 @@ import System.Glib.UTFString
 import System.Glib.Signals
 import System.Glib.Attributes
 import System.Glib.Properties
+import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
+import Graphics.Rendering.Cairo.Types ( FontOptions(..), mkFontOptions, 
+                                        withFontOptions)
+import Graphics.UI.Gtk.General.Structs ( Rectangle(..) )
 
 {# context lib="gdk" prefix="gdk" #}
 
@@ -130,12 +135,14 @@ screenGetDefault =
   maybeNull (makeNewGObject mkScreen) $
   {# call gdk_screen_get_default #}
 
+#ifndef DISABLE_DEPRECATED
 screenGetDefaultColormap :: Screen
  -> IO Colormap -- ^ returns the default 'Colormap'.
 screenGetDefaultColormap self =
   makeNewGObject mkColormap $
   {# call gdk_screen_get_default_colormap #}
     self
+{-# DEPRECATED screenGetDefaultColormap "instead of 'screenGetDefaultColormap obj' use 'get obj screenDefaultColormap'" #-}
 
 screenSetDefaultColormap :: Screen
  -> Colormap -- ^ @colormap@ - a 'Colormap'
@@ -144,6 +151,8 @@ screenSetDefaultColormap self colormap =
   {# call gdk_screen_set_default_colormap #}
     self
     colormap
+{-# DEPRECATED screenSetDefaultColormap "instead of 'screenSetDefaultColormap obj value' use 'set obj [ screenDefaultColormap := value ]'" #-}
+#endif
 
 -- | Gets the system's default colormap for @screen@
 --
@@ -154,9 +163,8 @@ screenGetSystemColormap self =
   {# call gdk_screen_get_system_colormap #}
     self
 
-{-
 -- | Get the system's default visual for @screen@. This is the visual for the
--- root window of the display. The return value should not be freed.
+-- root window of the display.
 --
 screenGetSystemVisual :: Screen
  -> IO Visual -- ^ returns the system visual
@@ -164,70 +172,6 @@ screenGetSystemVisual self =
   makeNewGObject mkVisual $
   {# call gdk_screen_get_system_visual #}
     self
--}
-
--- | Gets the preferred colormap for rendering image data on @screen@. Not a
--- very useful function; historically, GDK could only render RGB image data to
--- one colormap and visual, but in the current version it can render to any
--- colormap and visual. So there's no need to call this function.
---
-screenGetRGBColormap :: Screen
- -> IO Colormap -- ^ returns the preferred colormap
-screenGetRGBColormap self =
-  makeNewGObject mkColormap $
-  {# call gdk_screen_get_rgb_colormap #}
-    self
-
-{-
--- | Gets a \"preferred visual\" chosen by GdkRGB for rendering image data on
--- @screen@. In previous versions of GDK, this was the only visual GdkRGB could
--- use for rendering. In current versions, it's simply the visual GdkRGB would
--- have chosen as the optimal one in those previous versions. GdkRGB can now
--- render to drawables with any visual.
---
-screenGetRGBVisual :: Screen
- -> IO Visual -- ^ returns The 'Visual' chosen by GdkRGB.
-screenGetRGBVisual self =
-  makeNewGObject mkVisual $
-  {# call gdk_screen_get_rgb_visual #}
-    self
--}
-
-#if GTK_CHECK_VERSION(2,8,0)
--- | Gets a colormap to use for creating windows or pixmaps with an alpha
--- channel. The windowing system on which Gtk+ is running may not support this
--- capability, in which case @Nothing@ will be returned. Even if a
--- non-@Nothing@ value is returned, its possible that the window's alpha
--- channel won't be honored when displaying the window on the screen: in
--- particular, for X an appropriate windowing manager and compositing manager
--- must be running to provide appropriate display.
---
--- * Available since Gdk version 2.8
---
-screenGetRGBAColormap :: Screen
- -> IO (Maybe Colormap) -- ^ returns a colormap to use for windows with an
-                        -- alpha channel or @Nothing@ if the capability is not
-                        -- available.
-screenGetRGBAColormap self =
-  maybeNull (makeNewGObject mkColormap) $
-  {# call gdk_screen_get_rgba_colormap #}
-    self
-
-{-
--- | Gets a visual to use for creating windows or pixmaps with an alpha
--- channel. See the docs for 'screenGetRGBAColormap' for caveats.
---
--- * Available since Gdk version 2.8
---
-screenGetRGBAVisual :: Screen
- -> IO Visual -- ^ returns a visual to use for windows with an alpha channel
-              -- or {@NULL@, FIXME: this should probably be converted to a
-              -- Maybe data type} if the capability is not available.
-screenGetRGBAVisual self =
-  makeNewGObject mkVisual $
-  {# call gdk_screen_get_rgba_visual #}
-    self
--}
 
 #if GTK_CHECK_VERSION(2,10,0)
 -- | Returns whether windows with an RGBA visual can reasonably be expected to
@@ -246,7 +190,6 @@ screenIsComposited self =
   liftM toBool $
   {# call gdk_screen_is_composited #}
     self
-#endif
 #endif
 
 -- | Gets the root window of @screen@.
@@ -318,46 +261,39 @@ screenGetHeightMM self =
     self
 
 screenGetHeightMm = screenGetHeightMM
-{-
+
 -- | Lists the available visuals for the specified @screen@. A visual
 -- describes a hardware image data format. For example, a visual might support
 -- 24-bit color, or 8-bit color, and might expect pixels to be in a certain
 -- format.
 --
--- Call 'gListFree' on the return value when you\'re finished with it.
---
 screenListVisuals :: Screen
- -> IO [{- element type -}] -- ^ returns a list of visuals; the list must be
-                            -- freed, but not its contents
+ -> IO [Visual] -- ^ returns a list of visuals
 screenListVisuals self =
   {# call gdk_screen_list_visuals #}
     self
   >>= fromGList
-  >>= mapM (\elemPtr -> {-marshal elem-})
+  >>= mapM (makeNewGObject mkVisual . return)
 
 
 -- | Obtains a list of all toplevel windows known to GDK on the screen
 -- @screen@. A toplevel window is a child of the root window (see
 -- 'getDefaultRootWindow').
 --
--- The returned list should be freed with 'gListFree', but its elements need
--- not be freed.
---
 screenGetToplevelWindows :: Screen
- -> IO [{- element type -}] -- ^ returns list of toplevel windows, free with
-                            -- 'gListFree'
+ -> IO [DrawWindow] -- ^ returns list of toplevel windows
 screenGetToplevelWindows self =
   {# call gdk_screen_get_toplevel_windows #}
     self
   >>= fromGList
-  >>= mapM (\elemPtr -> {-marshal elem-})
--}
+  >>= mapM (makeNewGObject mkDrawWindow . return)
+
 
 -- | Determines the name to pass to 'displayOpen' to get a 'Display' with this
 -- screen as the default screen.
 --
 screenMakeDisplayName :: Screen
- -> IO String -- ^ returns a newly allocated string, free with 'gFree'
+ -> IO String -- ^ returns a newly allocated string
 screenMakeDisplayName self =
   {# call gdk_screen_make_display_name #}
     self
@@ -372,8 +308,7 @@ screenGetNMonitors self =
   {# call gdk_screen_get_n_monitors #}
     self
 
-{-
--- | Retrieves the {GdkRectangle, FIXME: boxed type} representing the size and
+-- | Retrieves the 'Rectangle' representing the size and
 -- position of the individual monitor within the entire screen area.
 --
 -- Note that the size of the entire screen area can be retrieved via
@@ -381,15 +316,14 @@ screenGetNMonitors self =
 --
 screenGetMonitorGeometry :: Screen
  -> Int               -- ^ @monitorNum@ - the monitor number.
- -> {-GdkRectangle*-} -- ^ @dest@ - a {GdkRectangle, FIXME: boxed type} to be
-                      -- filled with the monitor geometry
- -> IO ()
-screenGetMonitorGeometry self monitorNum dest =
+ -> IO Rectangle
+screenGetMonitorGeometry self monitorNum =
+  alloca $ \rPtr -> do
   {# call gdk_screen_get_monitor_geometry #}
     self
     (fromIntegral monitorNum)
-    {-dest-}
--}
+    (castPtr rPtr)
+  peek rPtr
 
 -- | Returns the monitor number in which the point (@x@,@y@) is located.
 --
@@ -420,27 +354,50 @@ screenGetMonitorAtWindow self window =
     self
     window
 
-{-
--- | On X11, sends an X ClientMessage event to all toplevel windows on
--- @screen@.
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Gets the height in millimeters of the specified monitor.
 --
--- Toplevel windows are determined by checking for the WM_STATE property, as
--- described in the Inter-Client Communication Conventions Manual (ICCCM). If
--- no windows are found with the WM_STATE property set, the message is sent to
--- all children of the root window.
+-- * Available since Gdk version 2.14
 --
--- On Windows, broadcasts a message registered with the name
--- GDK_WIN32_CLIENT_MESSAGE to all top-level windows. The amount of data is
--- limited to one long, i.e. four bytes.
---
-screenBroadcastClientMessage :: Screen
- -> {-GdkEvent*-} -- ^ @event@ - the {GdkEvent, FIXME: unknown type\/value}.
- -> IO ()
-screenBroadcastClientMessage self event =
-  {# call gdk_screen_broadcast_client_message #}
+screenGetMonitorHeightMm :: Screen
+ -> Int    -- ^ @monitorNum@ - number of the monitor
+ -> IO Int -- ^ returns the height of the monitor, or -1 if not available
+screenGetMonitorHeightMm self monitorNum =
+  liftM fromIntegral $
+  {# call gdk_screen_get_monitor_height_mm #}
     self
-    {-event-}
+    (fromIntegral monitorNum)
 
+-- | Gets the width in millimeters of the specified monitor, if available.
+--
+-- * Available since Gdk version 2.14
+--
+screenGetMonitorWidthMm :: Screen
+ -> Int    -- ^ @monitorNum@ - number of the monitor
+ -> IO Int -- ^ returns the width of the monitor, or -1 if not available
+screenGetMonitorWidthMm self monitorNum =
+  liftM fromIntegral $
+  {# call gdk_screen_get_monitor_width_mm #}
+    self
+    (fromIntegral monitorNum)
+
+-- | Returns the output name of the specified monitor. Usually something like
+-- VGA, DVI, or TV, not the actual product name of the display device.
+--
+-- * Available since Gdk version 2.14
+--
+screenGetMonitorPlugName :: Screen
+ -> Int       -- ^ @monitorNum@ - number of the monitor
+ -> IO (Maybe String) -- ^ returns a newly-allocated string containing the name of the
+              -- monitor, or @Nothing@ if the name cannot be determined
+screenGetMonitorPlugName self monitorNum =
+  maybeNull readUTFString $
+    {# call gdk_screen_get_monitor_plug_name #}
+    self
+    (fromIntegral monitorNum)
+#endif
+
+{-
 -- | Retrieves a desktop-wide setting such as double-click time for the
 -- 'Screen'@screen@.
 --
@@ -459,6 +416,22 @@ screenGetSetting self name value =
     namePtr
     {-value-}
 -}
+
+-- these are only used for the attributes
+screenGetFontOptions :: Screen
+ -> IO (Maybe FontOptions)
+screenGetFontOptions self = do
+  fPtr <- {# call gdk_screen_get_font_options #} self
+  if fPtr==nullPtr then return Nothing else liftM Just $ mkFontOptions (castPtr fPtr)
+
+screenSetFontOptions :: Screen
+ -> Maybe FontOptions
+ -> IO ()
+screenSetFontOptions self Nothing =
+  {# call gdk_screen_set_font_options #} self nullPtr
+screenSetFontOptions self (Just options) =
+  withFontOptions options $ \fPtr ->
+    {# call gdk_screen_set_font_options #} self (castPtr fPtr)
 
 #if GTK_CHECK_VERSION(2,10,0)
 -- | Returns the screen's currently active window.
@@ -482,48 +455,37 @@ screenGetActiveWindow self =
     self
 #endif
 
-{-
--- | Returns a {GList, FIXME: struct type} of 'DrawWindow's representing the
+-- | Returns a list of 'DrawWindow's representing the
 -- current window stack.
 --
 -- On X11, this is done by inspecting the _NET_CLIENT_LIST_STACKING property
 -- on the root window, as described in the Extended Window Manager Hints. If
 -- the window manager does not support the _NET_CLIENT_LIST_STACKING hint, this
--- function returns {@NULL@, FIXME: this should probably be converted to a
--- Maybe data type}.
+-- function returns @Nothing@.
 --
--- On other platforms, this function may return {@NULL@, FIXME: this should
--- probably be converted to a Maybe data type}, depending on whether it is
+-- On other platforms, this function may return @Nothing@, depending on whether it is
 -- implementable on that platform.
---
--- The returned list is newly allocated and owns references to the windows
--- it contains, so it should be freed using 'gListFree' and its windows unrefed
--- using 'gObjectUnref' when no longer needed.
 --
 -- * Available since Gdk version 2.10
 --
 screenGetWindowStack :: Screen
- -> IO [{- element type -}] -- ^ returns a list of 'DrawWindow's for the
-                            -- current window stack, or {@NULL@, FIXME: this
-                            -- should probably be converted to a Maybe data
-                            -- type}.
-screenGetWindowStack self =
-  {# call gdk_screen_get_window_stack #}
-    self
-  >>= fromGList
-  >>= mapM (\elemPtr -> {-marshal elem-})
+ -> IO (Maybe [DrawWindow]) -- ^ returns a list of 'DrawWindow's for the
+                            -- current window stack, or @Nothing@.
+screenGetWindowStack self = do
+  lPtr <- {# call gdk_screen_get_window_stack #} self
+  if lPtr==nullPtr then return Nothing else liftM Just $ do
+  fromGList lPtr >>= mapM (constructNewGObject mkDrawWindow . return)
 #endif
--}
 
 --------------------
 -- Attributes
 
-{-
 -- | The default font options for the screen.
 --
-screenFontOptions :: Attr Screen {-gpointer-}
-screenFontOptions = newAttrFrom{-gpointer-}Property "font-options"
--}
+screenFontOptions :: Attr Screen (Maybe FontOptions)
+screenFontOptions = newAttr
+  screenGetFontOptions
+  screenSetFontOptions
 
 -- | The resolution for fonts on the screen.
 --
@@ -558,4 +520,17 @@ screenSizeChanged = Signal (connect_NONE__NONE "size_changed")
 --
 screenCompositedChanged :: ScreenClass self => Signal self (IO ())
 screenCompositedChanged = Signal (connect_NONE__NONE "composited_changed")
+
+#if GTK_CHECK_VERSION(2,14,0)
+-- | The 'screenMonitorsChanged' signal is emitted when the number, size or
+-- position of the monitors attached to the screen change.
+--
+-- Only for X for now. Future implementations for Win32 and OS X may be a
+-- possibility.
+--
+-- * Available since Gdk version 2.14
+--
+screenMonitorsChanged :: ScreenClass self => Signal self (IO ())
+screenMonitorsChanged = Signal (connect_NONE__NONE "monitors-changed")
+#endif
 #endif
