@@ -299,6 +299,7 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
     "emphasis"   -> DocEmphasis text
     "literal"    -> DocLiteral text
     "arg"        -> DocArg text
+    "section"    -> DocOtherXRef text
     _other -> error $ "extractDocParaSpan: other tag " ++ tag
 
 extractDocParaSpan other@(Xml.CRef (Xml.RefEntity _entity)) = DocText (Xml.verbatim other)

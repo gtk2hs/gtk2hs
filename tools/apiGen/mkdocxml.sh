@@ -5,8 +5,8 @@
 # the format-docs.xsl program which munges the DocBook into the format
 # accepted by the ApiGen program.
 
-echo '<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-     "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+echo '<!DOCTYPE  refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+     "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
      <!ENTITY gdk-pixbuf "<application>gdk-pixbuf</application>">
      <!ENTITY nbsp        "&#x00A0;">
      <!ENTITY mdash       "&#x2014;">
@@ -15,6 +15,11 @@ echo '<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
      <!ENTITY num "&#x0023;">
      <!ENTITY lt  "&#38;#60;">
      <!ENTITY gt  "&#x003E;">
+     <!ENTITY ast "&#x002A;">
+     <!ENTITY sol "&#x002F;">
+     <!ENTITY commat "&#x0040;">
+     <!ENTITY ldquo "&#x201C;" ><!--=double quotation mark, left-->
+     <!ENTITY rdquo "&#x201D;" ><!--=double quotation mark, right-->
      ]>'
 echo "<apidoc>"
 
@@ -25,9 +30,13 @@ case $1 in
 
   *)	for DOC in $(find $@ -name '*.xml')
 	do
-		echo "<book filename=\"$(basename $DOC)\">"
-		cat $DOC
-		echo "</book>"
+		if `grep -q "<refentry" $DOC`; then
+                        NUM=`grep -m1 -n "<refentry" $DOC | sed "s/\([0-9]*\):.*/\1/"`;
+                        echo "<book filename=\"$(basename $DOC)\">"
+		        tail -n+$NUM $DOC
+                        #echo $DOC from line $NUM;
+		        echo "</book>"
+                fi;
 	done;;
 esac
 

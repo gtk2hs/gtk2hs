@@ -726,6 +726,14 @@ excludeConstructOnlyAttrs module_ =
                             attribute_readable = False
                           }
                         } =  True
+        -- this is a bad hack to prevent a wonky attribute from spoiling the translation
+        isConstructOnly Decl {
+                          decl_body = AttributeProp {
+                            attribute_constructonly = False,
+                            attribute_readable = False,
+                            attribute_writeable = False
+                          }
+                        } =  True
         isConstructOnly _ = False
 
 

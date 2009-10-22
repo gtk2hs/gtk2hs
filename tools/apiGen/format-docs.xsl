@@ -115,7 +115,7 @@
     </object-hierarchy>
   </module-info>
   <!-- Function documentation -->
-  <xsl:for-each select="refentry/refsect1[@role='details']/refsect2[title/anchor/@role='function']">
+  <xsl:for-each select="refentry/refsect1[@role='details']/refsect2[@role='function']">
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
       <since>
