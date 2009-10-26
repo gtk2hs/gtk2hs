@@ -219,7 +219,7 @@ selectionOwnerSet :: WidgetClass widget => Maybe widget -> SelectionTag ->
 selectionOwnerSet widget (Atom selection) time =
   liftM toBool $
   {#call unsafe gtk_selection_owner_set #}
-    (maybe (mkWidget nullForeignPtr) toWidget widget)
+    (maybe (Widget nullForeignPtr) toWidget widget)
     selection
     (fromIntegral time)
 
@@ -232,7 +232,7 @@ selectionOwnerSetForDisplay display widget (Atom selection) time =
  liftM toBool $
   {#call unsafe gtk_selection_owner_set_for_display #}
     display
-    (maybe (mkWidget nullForeignPtr) toWidget widget)
+    (maybe (Widget nullForeignPtr) toWidget widget)
     selection
     (fromIntegral time)
 

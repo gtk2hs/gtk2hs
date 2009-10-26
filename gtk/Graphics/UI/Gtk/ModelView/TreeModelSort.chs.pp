@@ -79,7 +79,7 @@ import System.Glib.GObject			(constructNewGObject,
 instance TreeModelClass (TypedTreeModelSort a)
 instance TreeModelSortClass (TypedTreeModelSort a)
 instance GObjectClass (TypedTreeModelSort a) where
-  toGObject (TypedTreeModelSort tm) = mkGObject (castForeignPtr tm)
+  toGObject (TypedTreeModelSort tm) = GObject (castForeignPtr tm)
   unsafeCastGObject = TypedTreeModelSort . castForeignPtr . unGObject
 instance TreeSortableClass TreeModelSort
 instance TreeSortableClass (TypedTreeModelSort row)

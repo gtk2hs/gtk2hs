@@ -450,7 +450,7 @@ treeViewMoveColumnFirst self which =
   {# call tree_view_move_column_after #}
     (toTreeView self)
     which
-    (mkTreeViewColumn nullForeignPtr)
+    (TreeViewColumn nullForeignPtr)
 
 -- | Set location of hierarchy controls.
 --
@@ -600,7 +600,7 @@ treeViewSetCursor self path Nothing =
   {# call tree_view_set_cursor #}
     (toTreeView self)
     path
-    (mkTreeViewColumn nullForeignPtr)
+    (TreeViewColumn nullForeignPtr)
     (fromBool False)
 treeViewSetCursor self path (Just (focusColumn, startEditing)) =
   withTreePath path $ \path ->

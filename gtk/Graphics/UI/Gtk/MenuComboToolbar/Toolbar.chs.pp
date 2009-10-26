@@ -283,7 +283,7 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
   makeNewObject mkToggleButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
     {#call unsafe toolbar_insert_element#} (toToolbar self) 
-    toolbarChildToggleButton (mkWidget nullForeignPtr) lblPtr 
+    toolbarChildToggleButton (Widget nullForeignPtr) lblPtr 
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
 
 -- | Append a new 'ToggleButton' to the 'Toolbar'.
@@ -344,7 +344,7 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
   makeNewObject mkRadioButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
     {#call unsafe toolbar_insert_element#} (toToolbar self) 
-    toolbarChildRadioButton (maybe (mkWidget nullForeignPtr) toWidget rb) 
+    toolbarChildRadioButton (maybe (Widget nullForeignPtr) toWidget rb) 
       lblPtr  textPtr privPtr (toWidget image) nullFunPtr nullPtr
       (fromIntegral pos)
 

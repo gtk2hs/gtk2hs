@@ -165,16 +165,16 @@ menuReorderChild self child position =
 --
 menuPopup :: MenuClass self => self -- ^ The menu to be shown.
   -> Maybe (MouseButton, TimeStamp)
-  -- ^ The mouse button from the 'Graphics.UI.Gtk.Gdk.Events.Button' event and
-  -- the time of the event. These values are used to match the corresponding
-  -- release of the button. If this context menu is shown by programmatic
-  -- means, supply @Nothing@.
+  -- ^ The mouse button returned by 'Graphics.UI.Gtk.Gdk.EventM.eventButton' and
+  -- the time of the event returned by 'Graphics.UI.Gtk.Gdk.eventTime'. These
+  -- values are used to match the corresponding release of the button. If this
+  -- context menu is shown by programmatic means, supply @Nothing@.
   -> IO ()
 menuPopup self (Just (b,t)) =
   {# call menu_popup #}
     (toMenu self)
-    (mkWidget nullForeignPtr)
-    (mkWidget nullForeignPtr)
+    (Widget nullForeignPtr)
+    (Widget nullForeignPtr)
     nullFunPtr
     nullPtr
     ((fromIntegral . fromEnum) b)
@@ -183,8 +183,8 @@ menuPopup self Nothing = do
   t <- {# call unsafe get_current_event_time #}
   {# call menu_popup #}
     (toMenu self)
-    (mkWidget nullForeignPtr)
-    (mkWidget nullForeignPtr)
+    (Widget nullForeignPtr)
+    (Widget nullForeignPtr)
     nullFunPtr nullPtr 0 t
 
 -- | Set the 'AccelGroup' which holds global accelerators for the menu. This

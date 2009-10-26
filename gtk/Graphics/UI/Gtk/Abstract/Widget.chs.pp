@@ -1016,7 +1016,7 @@ widgetSetStyle :: WidgetClass self => self
 widgetSetStyle self style =
   {# call gtk_widget_set_style #}
     (toWidget self)
-    (fromMaybe (mkStyle nullForeignPtr) style)
+    (fromMaybe (Style nullForeignPtr) style)
 
 -- | Retrieve the 'Style' associated with the widget.
 --
@@ -1133,7 +1133,7 @@ widgetShapeCombineMask :: WidgetClass self => self
  -> Int    -- ^ @offsetY@ - Y position of shape mask with respect to @window@.
  -> IO ()
 widgetShapeCombineMask self shapeMask offsetX offsetY =
-  case (fromMaybe (mkPixmap nullForeignPtr) shapeMask) of
+  case (fromMaybe (Pixmap nullForeignPtr) shapeMask) of
     Pixmap fPtr -> withForeignPtr fPtr $ \bitmapPtr ->
       {# call gtk_widget_shape_combine_mask #}
         (toWidget self)
@@ -1156,7 +1156,7 @@ widgetInputShapeCombineMask :: WidgetClass self => self
  -> Int    -- ^ @offsetY@ - Y position of shape mask with respect to @window@.
  -> IO ()
 widgetInputShapeCombineMask self shapeMask offsetX offsetY =
-  case (fromMaybe (mkPixmap nullForeignPtr) shapeMask) of
+  case (fromMaybe (Pixmap nullForeignPtr) shapeMask) of
     Pixmap fPtr -> withForeignPtr fPtr $ \bitmapPtr ->
       {# call gtk_widget_input_shape_combine_mask #}
         (toWidget self)
@@ -1615,8 +1615,8 @@ widgetSetScrollAdjustments self hadjustment vadjustment =
   liftM toBool $
   {# call gtk_widget_set_scroll_adjustments #}
     (toWidget self)
-    (fromMaybe (mkAdjustment nullForeignPtr) hadjustment)
-    (fromMaybe (mkAdjustment nullForeignPtr) vadjustment)
+    (fromMaybe (Adjustment nullForeignPtr) hadjustment)
+    (fromMaybe (Adjustment nullForeignPtr) vadjustment)
 
 -- | Computes the intersection of a widget's area and @region@, returning
 -- the intersection. The result may be empty, use

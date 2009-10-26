@@ -84,7 +84,7 @@ pixmapNew :: DrawableClass drawable
 pixmapNew mbDrawable width height depth =
     constructNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
-      (maybe (mkDrawable nullForeignPtr) toDrawable mbDrawable)
+      (maybe (Drawable nullForeignPtr) toDrawable mbDrawable)
       (fromIntegral width) (fromIntegral height)
       (fromIntegral $ fromMaybe (negate 1) depth)
 #else
@@ -98,7 +98,7 @@ pixmapNew ::
 pixmapNew mbDrawWindow width height depth =
     constructNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
-      (maybe (mkDrawWindow nullForeignPtr) toDrawWindow mbDrawWindow)
+      (maybe (DrawWindow nullForeignPtr) toDrawWindow mbDrawWindow)
       (fromIntegral width) (fromIntegral height)
       (fromIntegral $ fromMaybe (negate 1) depth)
 #endif

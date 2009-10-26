@@ -131,7 +131,7 @@ colorButtonSetColor self color =
     (toColorButton self)
     (castPtr colorPtr)
 
--- | Sets @color@ to be the current color in the 'ColorButton' widget.
+-- | Returns the current color value.
 --
 colorButtonGetColor :: ColorButtonClass self => self -> IO Color
 colorButtonGetColor self =

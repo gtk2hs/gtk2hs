@@ -99,7 +99,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -}
 
 -- We compile this module using -#includ"gtk/wingtk.h" to bypass the win32 abi
--- check however we do not compile users programs with this headder so if
+-- check however we do not compile users programs with this header so if
 -- initGUI was ever inlined in a users program, then that program would not
 -- bypass the abi check and would fail on startup. So to stop that we must
 -- prevent initGUI from being inlined.

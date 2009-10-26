@@ -56,7 +56,8 @@ import Data.IORef                               (IORef, newIORef, readIORef, wri
 import Data.Maybe                               (fromMaybe)
 import System.Glib.FFI			hiding	(maybeNull)
 import System.Glib.Flags			(Flags, fromFlags)
-import System.Glib.GObject			(makeNewGObject)
+{#import System.Glib.GObject#}			(GObjectClass(..), GObject(..), unGObject,
+                                                 makeNewGObject, objectUnref)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData)
@@ -98,7 +99,7 @@ newtype CustomStore private row = CustomStore (ForeignPtr (CustomStore private r
 
 instance TreeModelClass (CustomStore private row)
 instance GObjectClass (CustomStore private row) where
-  toGObject (CustomStore tm) = mkGObject (castForeignPtr tm)
+  toGObject (CustomStore tm) = GObject (castForeignPtr tm)
   unsafeCastGObject = CustomStore . castForeignPtr . unGObject
 
 -- | Type synonym for viewing the store as a set of columns.
@@ -238,7 +239,7 @@ customStoreNew priv con tmIface mDragSource mDragDest = do
         customTreeDragSourceIface = fromMaybe dummyDragSource mDragSource,
         customTreeDragDestIface = fromMaybe dummyDragDest mDragDest }
   privPtr <- newStablePtr priv
-  liftM con $ makeNewGObject CustomStore $
+  liftM con $ makeNewGObject (CustomStore, objectUnref) $
     gtk2hs_store_new implPtr privPtr
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"

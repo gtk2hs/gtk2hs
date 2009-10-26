@@ -136,7 +136,7 @@ pointerGrab window owner_events event_mask mbConfine_to mbCursor time =
     (toDrawWindow window)
     (fromBool owner_events)
     (fromIntegral $ fromFlags event_mask)
-    (maybe (mkDrawWindow nullForeignPtr) toDrawWindow mbConfine_to)
+    (maybe (DrawWindow nullForeignPtr) toDrawWindow mbConfine_to)
     (maybe (Cursor nullForeignPtr) id mbCursor)
     (fromIntegral time)
 

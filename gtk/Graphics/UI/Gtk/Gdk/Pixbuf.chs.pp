@@ -706,6 +706,6 @@ pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)
 pixbufGetFromDrawable d (Rectangle x y width height) =
   maybeNull (constructNewGObject mkPixbuf) $
   {#call unsafe pixbuf_get_from_drawable#} 
-    (mkPixbuf nullForeignPtr) (toDrawable d) (mkColormap nullForeignPtr)
+    (Pixbuf nullForeignPtr) (toDrawable d) (Colormap nullForeignPtr)
     (fromIntegral x) (fromIntegral y) 0 0
     (fromIntegral width) (fromIntegral height)

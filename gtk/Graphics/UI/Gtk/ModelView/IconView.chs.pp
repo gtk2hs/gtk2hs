@@ -627,7 +627,7 @@ iconViewSetCursor self (Left path) startEditing =
   {# call gtk_icon_view_set_cursor #}
     (toIconView self)
     path
-    (mkCellRenderer nullForeignPtr)
+    (CellRenderer nullForeignPtr)
     (fromBool startEditing)
 iconViewSetCursor self (Right cell) startEditing =
   {# call gtk_icon_view_set_cursor #}

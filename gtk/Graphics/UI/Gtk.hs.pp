@@ -214,6 +214,7 @@ module Graphics.UI.Gtk (
   -- * Non-widgets
   module System.Glib.Signals,
   module System.Glib.Attributes,
+  module System.Glib.GObject,
 
   -- * Pango text layout modules
   module Graphics.UI.Gtk.Pango.Context,
@@ -416,7 +417,18 @@ import System.Glib.Signals
 					 signalUnblock)
 -}
 import System.Glib.Attributes
-
+import System.Glib.GObject (
+  GObject,
+  GObjectClass,
+  toGObject,
+  castToGObject,
+  quarkFromString,
+  objectCreateAttribute,
+  objectSetAttribute,
+  objectGetAttributeUnsafe,
+  isA
+  )
+  
 -- pango modules
 import Graphics.UI.Gtk.Pango.Context
 import Graphics.UI.Gtk.Pango.Markup

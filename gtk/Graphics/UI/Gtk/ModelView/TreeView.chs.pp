@@ -486,7 +486,7 @@ treeViewMoveColumnFirst self which =
   {# call tree_view_move_column_after #}
     (toTreeView self)
     which
-    (mkTreeViewColumn nullForeignPtr)
+    (TreeViewColumn nullForeignPtr)
 
 -- | Set location of hierarchy controls.
 --
@@ -639,7 +639,7 @@ treeViewSetCursor self path Nothing =
   {# call tree_view_set_cursor #}
     (toTreeView self)
     path
-    (mkTreeViewColumn nullForeignPtr)
+    (TreeViewColumn nullForeignPtr)
     (fromBool False)
 treeViewSetCursor self path (Just (focusColumn, startEditing)) =
   withTreePath path $ \path ->
@@ -1298,7 +1298,7 @@ treeViewSetSearchEntry self (Just entry) =
 treeViewSetSearchEntry self Nothing =
   {# call gtk_tree_view_set_search_entry #}
     (toTreeView self)
-    (mkEntry nullForeignPtr)
+    (Entry nullForeignPtr)
 #endif
 
 #if GTK_CHECK_VERSION(2,6,0)

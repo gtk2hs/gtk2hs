@@ -83,4 +83,4 @@ vScrollbarNew adjustment =
 -- new one will be created instead.
 --
 vScrollbarNewDefaults :: IO VScrollbar
-vScrollbarNewDefaults = vScrollbarNew (mkAdjustment nullForeignPtr)
+vScrollbarNewDefaults = vScrollbarNew (Adjustment nullForeignPtr)

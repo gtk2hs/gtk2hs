@@ -83,4 +83,4 @@ hScrollbarNew adjustment =
 -- new one will be created instead.
 --
 hScrollbarNewDefaults :: IO HScrollbar
-hScrollbarNewDefaults = hScrollbarNew (mkAdjustment nullForeignPtr)
+hScrollbarNewDefaults = hScrollbarNew (Adjustment nullForeignPtr)

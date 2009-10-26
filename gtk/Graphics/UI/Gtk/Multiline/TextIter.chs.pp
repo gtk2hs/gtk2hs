@@ -314,7 +314,7 @@ textIterBeginsTag :: TextIter -> Maybe TextTag -> IO Bool
 textIterBeginsTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_begins_tag#} ti tt
 textIterBeginsTag ti Nothing = liftM toBool $
-  {#call unsafe text_iter_begins_tag#} ti (mkTextTag nullForeignPtr)
+  {#call unsafe text_iter_begins_tag#} ti (TextTag nullForeignPtr)
 
 -- | Returns @True@ if @tag@ is toggled off at exactly this point. If @tag@ is
 -- @Notihng@,
@@ -326,7 +326,7 @@ textIterEndsTag :: TextIter -> Maybe TextTag -> IO Bool
 textIterEndsTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_ends_tag#} ti tt
 textIterEndsTag ti Nothing = liftM toBool $
-  {#call unsafe text_iter_ends_tag#} ti (mkTextTag nullForeignPtr)
+  {#call unsafe text_iter_ends_tag#} ti (TextTag nullForeignPtr)
 
 -- | Query if the 'TextIter' is at the
 -- beginning or the end of a 'TextTag'. This is equivalent to 
@@ -338,7 +338,7 @@ textIterTogglesTag :: TextIter -> Maybe TextTag -> IO Bool
 textIterTogglesTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_toggles_tag#} ti tt
 textIterTogglesTag ti Nothing = liftM toBool $
-  {#call unsafe text_iter_toggles_tag#} ti (mkTextTag nullForeignPtr)
+  {#call unsafe text_iter_toggles_tag#} ti (TextTag nullForeignPtr)
 
 -- | Check if 'TextIter' is within a range
 -- tagged with tag.
@@ -347,7 +347,7 @@ textIterHasTag :: TextIter -> Maybe TextTag -> IO Bool
 textIterHasTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_has_tag#} ti tt
 textIterHasTag ti Nothing = liftM toBool $
-  {#call unsafe text_iter_has_tag#} ti (mkTextTag nullForeignPtr)
+  {#call unsafe text_iter_has_tag#} ti (TextTag nullForeignPtr)
 
 -- | Returns a list of tags that apply to @iter@, in ascending order of
 -- priority (highest-priority tags are last).
@@ -775,7 +775,7 @@ textIterForwardToLineEnd ti = liftM toBool $
 textIterForwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterForwardToTagToggle ti tt = liftM toBool $
   {#call unsafe text_iter_forward_to_tag_toggle#} ti 
-    (fromMaybe (mkTextTag nullForeignPtr) tt)
+    (fromMaybe (TextTag nullForeignPtr) tt)
 
 -- | Moves 'TextIter' backward to
 -- the next change of a 'TextTag'.
@@ -787,7 +787,7 @@ textIterForwardToTagToggle ti tt = liftM toBool $
 textIterBackwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterBackwardToTagToggle ti tt = liftM toBool $
   {#call unsafe text_iter_backward_to_tag_toggle#} ti 
-    (fromMaybe (mkTextTag nullForeignPtr) tt)
+    (fromMaybe (TextTag nullForeignPtr) tt)
 
 -- Setup a callback for a predicate function.
 --

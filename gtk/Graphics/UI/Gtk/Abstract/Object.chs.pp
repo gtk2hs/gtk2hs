@@ -102,8 +102,8 @@ foreign import ccall unsafe "gtk_object_sink"
 -- * The constr argument is the contructor of the specific object.
 --
 makeNewObject :: ObjectClass obj => 
-  (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
-makeNewObject constr generator = do
+  (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
+makeNewObject (constr, objectUnref) generator = do
   objPtr <- generator
   when (objPtr == nullPtr) (fail "makeNewObject: object is NULL")
 #if GLIB_CHECK_VERSION(2,10,0)
