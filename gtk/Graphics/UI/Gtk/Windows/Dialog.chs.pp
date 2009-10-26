@@ -317,7 +317,7 @@ alternativeDialogButtonOrder ::
 alternativeDialogButtonOrder (Just screen) = liftM toBool $
   {# call alternative_dialog_button_order #} screen
 alternativeDialogButtonOrder Nothing = liftM toBool $
-  {# call alternative_dialog_button_order #} (mkScreen nullForeignPtr)
+  {# call alternative_dialog_button_order #} (Screen nullForeignPtr)
 
 -- | Sets an alternative button order. 
 -- If the 'alternativeButtonOrder' setting is set to @True@, the dialog buttons are reordered according to the order of the response ids in new_order.

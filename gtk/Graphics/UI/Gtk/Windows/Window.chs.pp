@@ -1320,7 +1320,7 @@ windowSetDefaultIcon :: Maybe Pixbuf -> IO ()
 windowSetDefaultIcon (Just icon) =
   {# call window_set_default_icon #} icon
 windowSetDefaultIcon Nothing =
-  {# call window_set_default_icon #} (mkPixbuf nullForeignPtr)
+  {# call window_set_default_icon #} (Pixbuf nullForeignPtr)
 
 -- | Sets an icon to be used as fallback for windows that haven't had 'windowSetIconList' called on them from a file on disk. 
 windowSetDefaultIconFromFile :: 

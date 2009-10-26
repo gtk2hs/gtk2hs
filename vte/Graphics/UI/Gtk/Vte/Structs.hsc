@@ -1,4 +1,3 @@
-{-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) marshalling of structures for VTE
 --
@@ -19,8 +18,6 @@
 --  Lesser General Public License for more details.
 --
 --
--- #hide
-
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional

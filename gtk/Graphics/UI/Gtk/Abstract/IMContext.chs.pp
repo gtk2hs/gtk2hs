@@ -96,7 +96,7 @@ imContextSetClientWindow :: IMContextClass self => self
 imContextSetClientWindow self window =
   {# call im_context_set_client_window #}
     (toIMContext self)
-    (fromMaybe (mkDrawWindow nullForeignPtr) window)
+    (fromMaybe (DrawWindow nullForeignPtr) window)
 
 -- | Retrieve the current preedit string for the input context, and a list of
 -- attributes to apply to the string. This string should be displayed inserted

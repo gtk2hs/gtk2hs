@@ -650,7 +650,7 @@ terminalSetBackgroundImage ::
 terminalSetBackgroundImage terminal (Just image) =
     {#call terminal_set_background_image#} (toTerminal terminal) image
 terminalSetBackgroundImage terminal Nothing =
-    {#call terminal_set_background_image#} (toTerminal terminal) (mkPixbuf nullForeignPtr)
+    {#call terminal_set_background_image#} (toTerminal terminal) (Pixbuf nullForeignPtr)
     
 -- | Sets a background image for the widget. 
 -- If specified by 'terminalSetBackgroundSaturation', the terminal will tint its in-memory copy of the image before applying it to the terminal.

@@ -10,6 +10,9 @@ else
 FFI = -fffi
 endif
 
+htmldoc_HSFILES_HIDDEN =
+htmldoc_HSFILES_EXCLUDE =
+
 EXTRA_DIST = \
 	template-hsc-gtk2hs.h			\
 	tools/callbackGen/Signal.chs.template	\
@@ -300,7 +303,7 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/MainLoop.chs.pp	\
 	glib/System/Glib/GDateTime.chs.pp
 
-htmldoc_HSFILES_HIDDEN =				\
+htmldoc_HSFILES_HIDDEN +=				\
 	glib/System/Glib/FFI.hs			\
 	glib/System/Glib/Types.hs
 
@@ -1129,15 +1132,19 @@ libHSvte_a_GENERATEDSOURCES =	\
 
 nodist_libHSvte_a_SOURCES = $(libHSvte_a_GENERATEDSOURCES)
 
-libHSvte_a_SOURCES =	        \
+libHSvte_a_SOURCES =	        			\
 	vte/Graphics/UI/Gtk/Vte/VteCharAttrFields.c 	\
 	vte/Graphics/UI/Gtk/Vte/Structs.hsc		\
 	vte/Graphics/UI/Gtk/Vte/Vte.chs
 
-libHSvte_a_LIBADD  =                           \
+libHSvte_a_LIBADD =					\
 	vte/Graphics/UI/Gtk/Vte/Vte_stub.o
 
 htmldoc_HSFILES_HIDDEN += $(libHSvte_a_GENERATEDSOURCES:.chs=.hs)
+
+htmldoc_HSFILES_EXCLUDE +=				\
+	vte/Graphics/UI/Gtk/Vte/Structs.hs
+			
 
 vte_Graphics_UI_Gtk_Vte_Types_hs_HCFLAGS	= -fglasgow-exts 
 
@@ -1149,7 +1156,9 @@ vte/Graphics/UI/Gtk/Vte/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list 
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 		      $@ --tag=vte --lib=vte --prefix=vte \
                       --modname=Graphics.UI.Gtk.Vte.Types \
-		      --parentname=Graphics.UI.Gtk.Types)
+		      --forward=*System.Glib.GObject \
+		      --forward=*Graphics.UI.Gtk.Types)
+
 
 libHSvte_a_ALLSOURCES = $(libHSvte_a_SOURCES) $(nodist_libHSvte_a_SOURCES)
 
@@ -1837,9 +1846,10 @@ libHScairo_a_SOURCES =							\
 cairo_Graphics_Rendering_Cairo_Internal_hs_HCFLAGS = -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN += 							\
-	cairo/Graphics/Rendering/Cairo/Types.hs
-htmldoc_HSFILES_EXCLUDE =							\
 	cairo/Graphics/Rendering/Cairo/Internal.hs			\
+	cairo/Graphics/Rendering/Cairo/Types.hs
+
+htmldoc_HSFILES_EXCLUDE +=							\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Patterns.hs	\
@@ -2494,6 +2504,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Core/Init.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Object.chs.pp		\
+	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniObject.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Element.chs.pp		\
@@ -2551,12 +2562,14 @@ gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
+	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs		\
 	gstreamer/Media/Streaming/GStreamer/Net/Types.hs
+
 
 libHSgstreamer_a_ALLSOURCES			 = $(libHSgstreamer_a_SOURCES) $(nodist_libHSgstreamer_a_SOURCES)
 
