@@ -83,7 +83,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 sourceBufferNew :: Maybe TextTagTable -> IO SourceBuffer
 sourceBufferNew tt = constructNewGObject mkSourceBuffer $
   {#call unsafe source_buffer_new#} 
-  (fromMaybe (mkTextTagTable nullForeignPtr) tt)
+  (fromMaybe (TextTagTable nullForeignPtr) tt)
 
 -- | Create a new 'SourceBuffer'
 -- with a 'SourceLanguage'.

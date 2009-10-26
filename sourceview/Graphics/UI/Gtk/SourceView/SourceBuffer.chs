@@ -84,7 +84,7 @@ import Graphics.UI.Gtk.SourceView.SourceMarker
 sourceBufferNew :: Maybe SourceTagTable -> IO SourceBuffer
 sourceBufferNew tt = constructNewGObject mkSourceBuffer $
   {#call unsafe source_buffer_new#} 
-  (fromMaybe (mkSourceTagTable nullForeignPtr) tt)
+  (fromMaybe (SourceTagTable nullForeignPtr) tt)
 
 -- | Create a new 'SourceBuffer'
 -- with a 'SourceLanguage'.

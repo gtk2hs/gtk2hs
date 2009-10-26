@@ -34,7 +34,7 @@ import Control.Monad (liftM, sequence)
 import Data.Maybe (catMaybes)
 
 import System.Glib.FFI
-{#import System.Glib.GObject#}              (constructNewGObject)
+{#import System.Glib.GObject#}              (objectNew, constructNewGObject)
 import System.Glib.GType (GType)
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GValue (GValue, valueInit, allocaGValue)
