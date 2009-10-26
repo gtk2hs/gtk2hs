@@ -105,6 +105,7 @@ import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GError
 import System.Glib.UTFString
+import System.Glib.GObject
 
 import System.GIO.Base
 {#import System.GIO.Types#}
