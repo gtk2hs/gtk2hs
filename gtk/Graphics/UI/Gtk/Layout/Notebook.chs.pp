@@ -27,9 +27,7 @@
 -- Attributes:
 --    group
 -- Signals:
---    createWindow
 --    focusTab
---    switchPage
 --
 -- NOTE
 --
@@ -1229,28 +1227,23 @@ switchPage = Signal (\after obj act ->
 --
 -- * Available since Gtk+ version 2.10
 --
-pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
-pageAdded = Signal (connect_OBJECT_INT__NONE "page_added")
+pageReordered :: NotebookClass self => Signal self (Widget -> Int -> IO ())
+pageReordered = Signal (connect_OBJECT_INT__NONE "page_reordered")
 
 -- | The 'pageRemoved' signal is emitted in the notebook right after a page is removed from the notebook.
+--
+-- * Available since Gtk+ version 2.10
 --
 pageRemoved :: NotebookClass self => Signal self (Widget -> Int -> IO ())
 pageRemoved = Signal (connect_OBJECT_INT__NONE "page_removed")
 
--- | The 'pageReordered' signal is emitted in the notebook right after a page has been reordered.
+-- | The 'pageAdded' signal is emitted in the notebook right after a page is added to the notebook.
 --
-pageReordered :: NotebookClass self => Signal self (Widget -> Int -> IO ())
-pageReordered = Signal (connect_OBJECT_INT__NONE "page_reordered")
-
--- |
+-- * Available since Gtk+ version 2.10
 --
-reorderTab :: NotebookClass self => Signal self (DirectionType -> Bool -> IO Bool)
-reorderTab = Signal (connect_ENUM_BOOL__BOOL "reorder_tab")
-
--- |
---
-selectPage :: NotebookClass self => Signal self (Bool -> IO Bool)
-selectPage = Signal (connect_BOOL__BOOL "select_page")
+pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
+pageAdded = Signal (connect_OBJECT_INT__NONE "page_added")
+#endif
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
