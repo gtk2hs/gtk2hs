@@ -33,14 +33,13 @@
 -- changing all modules that simply pass mk... to objectNew.
 --
 module @MODULE_NAME@ (
-@MODULE_EXPORTS@@FORWARD_EXPORTS@
+@MODULE_EXPORTS@
   ) where
 
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
 import Foreign.C.Types    (CULong, CUInt)
 import System.Glib.GType	(GType, typeInstanceIsA)
-@IMPORT_PARENT@
-@FORWARD_IMPORTS@
+@MODULE_IMPORTS@
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
 
 -- The usage of foreignPtrToPtr should be safe as the evaluation will only be

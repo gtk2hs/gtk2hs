@@ -32,11 +32,7 @@ EXTRA_DIST = \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
 	gstreamer/hsgstreamer.h			\
-	gstreamer/hierarchy.list		\
 	gstreamer/mini-hierarchy.list		\
-	gstreamer/gobject-hierarchy.list	\
-	gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
-	gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template \
 	gstreamer/marshal.list 			\
 	gio/marshal.list			\
 	gtksourceview2/marshal.list		\
@@ -467,7 +463,7 @@ gio/System/GIO/Types.chs : \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gio --lib=gio --prefix=g \
 	--modname=System.GIO.Types \
-	--parentname=System.Glib.GObject)
+	--import=*System.Glib.GObject)
 
 gio/System/GIO/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -880,7 +876,7 @@ gtk/Graphics/UI/Gtk/Types.chs : \
         $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
         $@ $(addprefix --tag=,$(CREATE_TYPES)) \
 	--modname=Graphics.UI.Gtk.Types \
-        --parentname=System.Glib.GObject)
+        --forward=*System.Glib.GObject)
 
 gtk/Graphics/UI/Gtk/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -1024,7 +1020,7 @@ glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.l
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 		      $@ --tag=libglade --lib=glade --prefix=glade \
                       --modname=Graphics.UI.Gtk.Glade.Types \
-		      --parentname=Graphics.UI.Gtk.Types)
+		      --import=*Graphics.UI.Gtk.Types)
 
 libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
 
@@ -1290,7 +1286,7 @@ gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
-	--modname=System.Gnome.GConf.Types --parentname=System.Glib.GObject)
+	--modname=System.Gnome.GConf.Types --import=*System.Glib.GObject)
 
 gconf/System/Gnome/GConf/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -1436,7 +1432,7 @@ sourceview/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=sourceview --parentname=Graphics.UI.Gtk.Types \
+	$@ --tag=sourceview --import=*Graphics.UI.Gtk.Types \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
 libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsourceview_a_SOURCES)
@@ -1577,7 +1573,7 @@ gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ $(addprefix --tag=,$(GTKSOURCEVIEW2_CREATE_TYPES)) \
-	--parentname=Graphics.UI.Gtk.Types \
+	--import=*Graphics.UI.Gtk.Types \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
 gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs : \
@@ -1709,7 +1705,7 @@ mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=mozembed --parentname=Graphics.UI.Gtk.Types \
+	$@ --tag=mozembed --import=*Graphics.UI.Gtk.Types \
 	--modname=Graphics.UI.Gtk.MozEmbed.Types)
 
 libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a_SOURCES)
@@ -2096,7 +2092,7 @@ gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs :	\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=gtkglext --parentname=Graphics.UI.Gtk.Types \
+	$@ --tag=gtkglext --import=*Graphics.UI.Gtk.Types \
         --modname=Graphics.UI.Gtk.OpenGL.Types)
 
 libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a_SOURCES)
@@ -2355,7 +2351,7 @@ gnomevfs/System/Gnome/VFS/Hierarchy.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gnomevfs --lib=gnomevfs --prefix=gnome_vfs \
-	--modname=System.Gnome.VFS.Hierarchy --parentname=System.Glib.GObject)
+	--modname=System.Gnome.VFS.Hierarchy --import=*System.Glib.GObject)
 
 gnomevfs/System/Gnome/VFS/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -2499,6 +2495,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Init.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Object.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniObject.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Element.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Pad.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/GhostPad.chs.pp	\
@@ -2572,7 +2569,7 @@ gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :		\
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
 	$@ --tag=gstreamer --lib=gstreamer --prefix=gst			\
 	--modname=Media.Streaming.GStreamer.Core.Hierarchy		\
-	--parentname=System.Glib.GObject)
+	--import=*System.Glib.GObject)
 
 gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :		\
 	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)		\
@@ -2582,8 +2579,9 @@ gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :		\
 	$(srcdir)/gstreamer/mini-hierarchy.list				\
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
 	$@ --tag=default --lib=gstreamer --prefix=gst --root=MiniObject	\
-	--parentname=Media.Streaming.GStreamer.Core.MiniHierarchyBase	\
-	--modname=Media.Streaming.GStreamer.Core.MiniHierarchy)
+	--import=*Media.Streaming.GStreamer.Core.MiniHierarchyBase	\
+	--modname=Media.Streaming.GStreamer.Core.MiniHierarchy		\
+	--destructor=miniObjectUnref)
 
 gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : 			\
 	$(srcdir)/tools/callbackGen/Signal.chs.template 		\

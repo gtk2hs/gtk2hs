@@ -52,6 +52,7 @@ pFreshLine ps input = pFL ps input
     pFL ps ('\t':rem)		= pFL (ps {col=col ps+8}) rem
     pFL ps all@('G':'t':'k':rem)= pGetObject ps all rem
     pFL ps all@('G':'d':'k':rem)= pGetObject ps all rem
+    pFL ps all@('G':'s':'t':rem)= pGetObject ps all rem
     pFL ps all@('G':'n':'o':'m':'e':rem)= pGetObject ps all rem
     pFL ps []			= []
     pFL ps all			= pGetObject ps all all
@@ -123,9 +124,7 @@ main = do
 			  drop 1 .
 			  dropWhile isAlpha .
 			  reverse
-  let parentName = case map (drop 13) (filter ("--parentname=" `isPrefixOf`) rem) of
-  		     [] -> ""
-		     (parentName:_) -> parentName
+  let extraNames = map (drop 9) (filter ("--import=" `isPrefixOf`) rem)
   let rootObject = case map (drop 7) (filter ("--root=" `isPrefixOf`) rem) of
                      [] -> "GObject"
                      (rootObject:_) -> rootObject
@@ -147,7 +146,8 @@ main = do
   let (objs', specialQueries) = unzip $
 				 pFreshLine (freshParserState tags) content
       objs = map (map snd) objs'
-
+  let showImport ('*':m ) = ss "{#import " .ss m .ss "#}" . indent 0
+      showImport m = ss "import " . ss m . indent 0
   -----------------------------------------------------------------------------
   -- Write the result file by substituting values into the template file
   --
@@ -155,12 +155,8 @@ main = do
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
-        "MODULE_EXPORTS" -> generateExports rootObject parentName forwardNames objs
-	"IMPORT_PARENT"  -> if null parentName
-	                      then id
-	                      else ss "{#import " .ss parentName .ss "#}"
-        "FORWARD_IMPORTS"->
-          foldl (.) id [ ss "import " . ss m . indent 0 | m <- forwardNames ]
+        "MODULE_EXPORTS" -> generateExports rootObject (map (dropWhile ((==) '*')) forwardNames) objs
+	"MODULE_IMPORTS" -> foldl (.) id (map showImport (extraNames++forwardNames))
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
 	"DECLARATIONS"   -> generateDeclarations rootObject destrFun prefix objs specialQueries
@@ -172,9 +168,9 @@ main = do
 usage = do
  putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
 	\TypeGenerator <hierFile> <templateFile> <outFile> {--tag=<tag>}\n\
-	\              {--lib=<lib>} {--prefix=<prefix>}\n\
-	\              {--modname=<modName>} {--parentname=<parentName>}\n\
-	\              {--forward=<fwdName>} {--destructor=<destrName>}\n\
+	\              [--lib=<lib>] [--prefix=<prefix>]\n\
+	\              [--modname=<modName>] {--import=<*><importName>}\n\
+	\              {--forward=<*><fwdName>} [--destructor=<destrName>]\n\
 	\where\n\
 	\  <hierFile>      a list of all possible objects, the hierarchy is\n\
 	\                  taken from the indentation\n\
@@ -188,9 +184,11 @@ usage = do
 	\                  declaration (the default is \"gtk\")\n\
 	\  <modName>       specify module name if it does not match the\n\
 	\                  file name, eg a hierarchical module name\n\
-	\  <parentName>    specify the name of the module that defines any\n\
-	\                  parent classes eg Hierarchy (default is none)\n\
+	\  <importName>    additionally import this module without\n\
+	\                  re-exporting it\n\
 	\  <fwdName>       specify a number of modules that are imported\n\
+	\  <*>             use an asterix as prefix if the import should\n\
+	\                  be a .chs import statement\n\
 	\                  as well as exported from the generated module\n\
 	\  <destrName>     specify a non-standard C function pointer that\n\
 	\                  is called to destroy the objects\n"
@@ -202,11 +200,8 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generateExports :: String -> String -> [String] -> [[String]] -> ShowS
-generateExports rootObject parent forwardNames objs =
-  (if null parent
-     then ss ""
-     else ss "  module " .ss parent. ss ",").
+generateExports :: String -> [String] -> [[String]] -> ShowS
+generateExports rootObject forwardNames objs =
   drop 1.
   foldl (\s1 s2 -> s1.ss ",".indent 1.ss "module ".s2) id
     (map ss forwardNames).

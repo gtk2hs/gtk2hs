@@ -30,27 +30,25 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Core.MiniHierarchyBase (
-  module System.Glib.GObject,
+  miniObjectUnref,
   MiniObject(..),
   MiniObjectClass(..),
   mkMiniObject,
   unMiniObject,
   isMiniObject,
   castToMiniObject,
-  mkCastToMiniObject,
-  mkIsMiniObject,
   ) where
 
 import System.Glib.FFI
 import System.Glib.GType
-import System.Glib.GObject
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
 {# pointer *GstMiniObject as MiniObject foreign newtype #}
 
-mkMiniObject = MiniObject
+mkMiniObject = (MiniObject, miniObjectUnref)
 unMiniObject (MiniObject o) = o
+
 
 isMiniObject :: MiniObjectClass obj
              => obj
@@ -68,27 +66,9 @@ instance MiniObjectClass MiniObject where
 castToMiniObject :: MiniObjectClass obj
                  => obj
                  -> MiniObject
-castToMiniObject = mkMiniObject . castForeignPtr . unMiniObject . toMiniObject
+castToMiniObject = toMiniObject
 
--- The usage of foreignPtrToPtr should be safe as the evaluation will only be
--- forced if the object is used afterwards
+-- | Decrease the reference counter of an object
 --
-mkCastToMiniObject :: (MiniObjectClass obj, MiniObjectClass obj')
-                   => GType
-                   -> String
-                   -> (obj -> obj')
-mkCastToMiniObject gtype objTypeName obj =
-  case toMiniObject obj of
-    gobj@(MiniObject objFPtr)
-      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> unsafeCastMiniObject gobj
-      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
-
-mkIsMiniObject :: MiniObjectClass obj
-               => GType
-               -> obj
-               -> Bool
-mkIsMiniObject gType obj =
-    unsafePerformIO $
-        withForeignPtr (unMiniObject $ toMiniObject obj) $ \objPtr ->
-            return $ typeInstanceIsA (castPtr objPtr) gType
+foreign import ccall unsafe "&gst_mini_object_unref"
+  miniObjectUnref :: FinalizerPtr a
