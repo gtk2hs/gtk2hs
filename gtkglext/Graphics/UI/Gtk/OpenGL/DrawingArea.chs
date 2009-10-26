@@ -137,6 +137,6 @@ widgetSetGLCapability widget glconfig shareList direct renderType =
   {# call gtk_widget_set_gl_capability #}
     (toWidget widget)
     (toGLConfig glconfig)
-    (maybe (mkGLContext nullForeignPtr) toGLContext shareList)
+    (maybe (GLContext nullForeignPtr) toGLContext shareList)
     (fromBool direct)
     ((fromIntegral . fromEnum) renderType)

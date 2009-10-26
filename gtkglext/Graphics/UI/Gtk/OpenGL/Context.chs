@@ -84,7 +84,7 @@ glContextNew gldrawable shareList direct renderType =
   makeNewGObject mkGLContext $
   {# call gdk_gl_context_new #}
     (toGLDrawable gldrawable)
-    (maybe (mkGLContext nullForeignPtr) toGLContext shareList)
+    (maybe (GLContext nullForeignPtr) toGLContext shareList)
     (fromBool direct)
     ((fromIntegral.fromEnum) renderType)
 
