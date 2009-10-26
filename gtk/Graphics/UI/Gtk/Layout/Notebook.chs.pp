@@ -161,13 +161,10 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookStyleTabOverlap,
 
 -- * Signals
-  changeCurrentPage,
-  moveFocusOut,
+  switchPage,
   pageAdded,
   pageRemoved,
   pageReordered,
-  reorderTab,
-  selectPage,
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -1058,8 +1055,13 @@ notebookEnablePopup = newAttrFromBoolProperty "enable-popup"
 notebookHomogeneous :: NotebookClass self => Attr self Bool
 notebookHomogeneous = newAttrFromBoolProperty "homogeneous"
 
--- | \'currentPage\' property. See 'notebookGetCurrentPage' and
--- 'notebookSetCurrentPage'
+-- | Switches to the page number @pageNum@.
+--
+-- Note that due to historical reasons, 'Notebook' refuses to switch to a
+-- page unless the child widget is visible. Therefore, it is recommended to
+-- show child widgets before adding them to a notebook.
+--
+-- Returns the page number of the current page.
 --
 notebookCurrentPage :: NotebookClass self => Attr self Int
 notebookCurrentPage = newAttr
@@ -1145,7 +1147,7 @@ notebookChildTabExpand = newAttrFromBoolProperty "tab-expand"
 notebookChildTabFill :: NotebookClass self => Attr self Bool
 notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
 
--- | The 'notebookStyleArrowSpacing" property defines the spacing between the scroll arrows and the tabs.
+-- | The 'notebookStyleArrowSpacing' property defines the spacing between the scroll arrows and the tabs.
 --
 -- Allowed values: >= 0
 --
@@ -1215,17 +1217,17 @@ notebookStyleTabOverlap = readAttrFromIntProperty "tab-overlap"
 --------------------
 -- Signals
 
--- | 
+-- | Emitted when the user or a function changes the current page.
 --
-changeCurrentPage :: NotebookClass self => Signal self (Int -> IO Bool)
-changeCurrentPage = Signal (connect_INT__BOOL "change_current_page")
+switchPage :: NotebookClass self => Signal self (Int -> IO ())
+switchPage = Signal (\after obj act ->
+                     connect_PTR_WORD__NONE "switch-page" after obj
+                     (\_ page -> act (fromIntegral page)))
 
--- |
+#if GTK_CHECK_VERSION(2,10,0)
+-- | The 'pageReordered' signal is emitted in the notebook right after a page has been reordered.
 --
-moveFocusOut :: NotebookClass self => Signal self (DirectionType -> IO ())
-moveFocusOut = Signal (connect_ENUM__NONE "move_focus_out")
-
--- | The 'pageAdded' signal is emitted in the notebook right after a page is added to the notebook.
+-- * Available since Gtk+ version 2.10
 --
 pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
 pageAdded = Signal (connect_OBJECT_INT__NONE "page_added")

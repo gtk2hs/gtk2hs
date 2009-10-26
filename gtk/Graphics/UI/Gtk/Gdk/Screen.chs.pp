@@ -390,11 +390,12 @@ screenGetMonitorPlugName :: Screen
  -> Int       -- ^ @monitorNum@ - number of the monitor
  -> IO (Maybe String) -- ^ returns a newly-allocated string containing the name of the
               -- monitor, or @Nothing@ if the name cannot be determined
-screenGetMonitorPlugName self monitorNum =
-  maybeNull readUTFString $
+screenGetMonitorPlugName self monitorNum = do
+  sPtr <-
     {# call gdk_screen_get_monitor_plug_name #}
     self
     (fromIntegral monitorNum)
+  if sPtr==nullPtr then return Nothing else liftM Just $ readUTFString sPtr
 #endif
 
 {-
@@ -513,7 +514,7 @@ screenSizeChanged :: ScreenClass self => Signal self (IO ())
 screenSizeChanged = Signal (connect_NONE__NONE "size_changed")
 
 #if GTK_CHECK_VERSION(2,10,0)
--- | The ::composited_changed signal is emitted when the composited status of
+-- | The 'screenCompositedChanged' signal is emitted when the composited status of
 -- the screen changes
 --
 -- * Available since Gdk version 2.10

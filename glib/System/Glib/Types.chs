@@ -42,7 +42,7 @@ import System.Glib.FFI
 
 {# context lib="glib" prefix="g" #}
 
-{#pointer *GObject foreign newtype #}
+{#pointer *GObject foreign newtype #} deriving (Eq)
 
 mkGObject = (GObject, objectUnref)
 unGObject (GObject o) = o

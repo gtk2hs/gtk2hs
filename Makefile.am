@@ -771,6 +771,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Screen.chs.pp				\
+	gtk/Graphics/UI/Gtk/Gdk/Display.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
 	gtk/Graphics/UI/Gtk/Pango/Font.chs.pp				\
@@ -787,6 +788,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs.pp				\
+	gtk/Graphics/UI/Gtk/General/RcStyle.chs.pp			\
 	gtk/Graphics/UI/Gtk/General/Selection.chs.pp \
 	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
 	gtk/Graphics/UI/Gtk/General/DNDTypes.chs

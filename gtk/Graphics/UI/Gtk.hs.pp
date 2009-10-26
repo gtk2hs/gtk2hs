@@ -47,6 +47,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.Drag,
   module Graphics.UI.Gtk.Gdk.Keys,
   module Graphics.UI.Gtk.General.Style,
+  module Graphics.UI.Gtk.General.RcStyle,
   module Graphics.UI.Gtk.General.Clipboard,
 
   -- * Drawing and other Low-Level Operations
@@ -60,6 +61,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Screen,
+  module Graphics.UI.Gtk.Gdk.Display,
   module Graphics.UI.Gtk.Gdk.Gdk,
 #ifdef ENABLE_CAIRO
   -- ** cairo integration
@@ -235,6 +237,7 @@ import Graphics.UI.Gtk.General.Clipboard
 -- drawing
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style
+import Graphics.UI.Gtk.General.RcStyle
 import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
@@ -246,6 +249,7 @@ import Graphics.UI.Gtk.Gdk.Events		hiding (marshExposeRect,
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Screen
+import Graphics.UI.Gtk.Gdk.Display
 import Graphics.UI.Gtk.Gdk.Gdk
 #ifdef ENABLE_CAIRO
 -- cairo integration
