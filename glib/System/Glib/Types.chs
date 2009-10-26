@@ -35,15 +35,16 @@ module System.Glib.Types (
   toGObject,
   unsafeCastGObject,
   castToGObject,
+  objectUnref
   ) where
 
-import Foreign (ForeignPtr)
+import System.Glib.FFI
 
 {# context lib="glib" prefix="g" #}
 
 {#pointer *GObject foreign newtype #}
 
-mkGObject = GObject
+mkGObject = (GObject, objectUnref)
 unGObject (GObject o) = o
 
 class GObjectClass o where
@@ -60,3 +61,9 @@ instance GObjectClass GObject where
 
 castToGObject :: GObjectClass obj => obj -> obj
 castToGObject = id
+
+-- | Decrease the reference counter of an object
+--
+foreign import ccall unsafe "&g_object_unref"
+  objectUnref :: FinalizerPtr a
+

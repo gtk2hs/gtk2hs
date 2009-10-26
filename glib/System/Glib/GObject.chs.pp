@@ -34,7 +34,6 @@ module System.Glib.GObject (
   -- writing bindings to GObject-style C libraries.
   objectNew,
   objectRef,
-  objectUnref,
 #if GLIB_CHECK_VERSION(2,10,0)
   objectRefSink,
 #endif
@@ -103,11 +102,6 @@ objectRef obj = do
   {#call unsafe object_ref#} (castPtr obj)
   return ()
 
--- | Decrease the reference counter of an object
---
-foreign import ccall unsafe "&g_object_unref"
-  objectUnref :: FinalizerPtr a
-
 -- | This function wraps any object that does not derive from Object.
 -- It should be used whenever a function returns a pointer to an existing
 -- 'GObject' (as opposed to a function that constructs a new object).
@@ -116,10 +110,11 @@ foreign import ccall unsafe "&g_object_unref"
 --
 makeNewGObject ::
     GObjectClass obj
- => (ForeignPtr obj -> obj) -- ^ constructor for the Haskell object
+ => (ForeignPtr obj -> obj, FinalizerPtr obj)
+    -- ^ constructor for the Haskell object and finalizer C function
  -> IO (Ptr obj)            -- ^ action which yields a pointer to the C object
  -> IO obj
-makeNewGObject constr generator = do
+makeNewGObject (constr, objectUnref) generator = do
   objPtr <- generator
   when (objPtr == nullPtr) (fail "makeNewGObject: object is NULL")
   objectRef objPtr
@@ -136,8 +131,8 @@ foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
 -- count of one, hence don't need ref'ing.
 --
 constructNewGObject :: GObjectClass obj => 
-  (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
-constructNewGObject constr generator = do
+  (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
+constructNewGObject (constr, objectUnref) generator = do
   objPtr <- generator
 #if GLIB_CHECK_VERSION(2,10,0)
   -- change the exisiting floating reference into a proper reference;
