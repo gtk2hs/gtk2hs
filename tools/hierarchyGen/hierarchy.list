@@ -27,6 +27,8 @@
         GdkColormap
 	GdkScreen		if gtk-2.2
 	GdkDisplay		if gtk-2.2
+	GdkVisual
+	GdkDevice
         GtkSettings
         GtkTextBuffer
             GtkSourceBuffer	if sourceview
