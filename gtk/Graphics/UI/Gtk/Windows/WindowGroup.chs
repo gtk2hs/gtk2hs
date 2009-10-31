@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
 
 import System.Glib.FFI
 import System.Glib.GObject              (constructNewGObject)
-import System.Glib.GList                (fromGList, toGList)
+import System.Glib.GList                (fromGList)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

@@ -32,6 +32,8 @@ module System.Glib.GList (
   readGList,
   fromGList,
   toGList,
+  withGList,
+
   GSList,
   readGSList,
   fromGSList,
@@ -131,6 +133,11 @@ toGSList xs = makeList nullPtr xs
       newHead <- {#call unsafe slist_prepend#} current (castPtr x)
       makeList newHead xs
     makeList current [] = return current
+
+-- Temporarily allocate a list of something
+--
+withGList :: [Ptr a] -> (GSList -> IO b) -> IO b
+withGList xs = bracket (toGList xs) {# call unsafe g_list_free #}
 
 -- Temporarily allocate a list of something
 --

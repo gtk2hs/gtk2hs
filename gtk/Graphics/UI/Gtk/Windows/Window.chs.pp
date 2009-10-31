@@ -238,7 +238,7 @@ import System.Glib.UTFString
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GList                (fromGList, toGList)
+import System.Glib.GList                (fromGList, withGList)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
@@ -1230,8 +1230,8 @@ windowSetIconList :: WindowClass self => self
  -> [Pixbuf]
  -> IO ()
 windowSetIconList self list =
-  withForeignPtrs (map unPixbuf list) $ \ptrList -> do
-  glist <- toGList ptrList
+  withForeignPtrs (map unPixbuf list) $ \ptrList ->
+  withGList ptrList $ \glist ->
   {# call window_set_icon_list #}
      (toWindow self)
      glist
@@ -1252,8 +1252,8 @@ windowGetIconList self = do
 --
 windowSetDefaultIconList :: [Pixbuf] -> IO ()
 windowSetDefaultIconList list = 
-  withForeignPtrs (map unPixbuf list) $ \ptrList -> do
-  glist <- toGList ptrList
+  withForeignPtrs (map unPixbuf list) $ \ptrList ->
+  withGList ptrList $ \glist ->
   {# call window_set_default_icon_list #} glist
 
 -- | Gets the value set by 'windowSetDefaultIconList'. 

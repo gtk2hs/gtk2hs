@@ -202,7 +202,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import System.Glib.GList		(fromGList, toGList)
+import System.Glib.GList		(fromGList, withGList)
 import Graphics.UI.Gtk.General.Enums	(ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -312,8 +312,8 @@ containerSetFocusChain :: ContainerClass self => self
  -> [Widget] -- ^ @focusableWidgets@ - the new focus chain.
  -> IO ()
 containerSetFocusChain self chain =
-  withForeignPtrs (map unWidget chain) $ \wPtrs -> do
-  glist <- toGList wPtrs
+  withForeignPtrs (map unWidget chain) $ \wPtrs ->
+  withGList wPtrs $ \glist ->
   {# call container_set_focus_chain #}
     (toContainer self)
     glist

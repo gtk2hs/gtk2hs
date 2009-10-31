@@ -56,7 +56,6 @@ import System.Glib.UTFString
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GList                (fromGList, toGList)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums
