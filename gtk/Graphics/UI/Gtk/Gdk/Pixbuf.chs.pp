@@ -193,9 +193,9 @@ pixbufGetBitsPerSample pb = liftM fromIntegral $
 --   @pbData <- (pixbufGetPixels pb :: IO (PixbufData Int Word8))@
 --
 -- * If modifying an image through Haskell\'s array interface is not
---   fast enough, it is possible to use 'Data.Array.Base.unsafeRead' and
---   'Data.Array.Base.unsafeWrite' which have the same type signatures
---   as 'Data.Array.MArray.readArray' and 'Data.Array.MArray.writeArray'.
+--   fast enough, it is possible to use 'unsafeRead' and
+--   'unsafeWrite' which have the same type signatures
+--   as 'readArray' and 'writeArray'.
 --   Note that these are internal
 --   functions that might change with GHC.
 --

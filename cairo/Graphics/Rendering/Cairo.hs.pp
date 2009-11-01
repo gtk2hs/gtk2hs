@@ -1,3 +1,6 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Cairo
@@ -167,14 +170,20 @@ module Graphics.Rendering.Cairo (
 
   -- ** Image surfaces
   , withImageSurface
+#if CAIRO_CHECK_VERSION(1,6,0)
+  , formatStrideForWidth
+#endif
   , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
 #if CAIRO_CHECK_VERSION(1,2,0)
+  , imageSurfaceGetFormat
   , imageSurfaceGetStride
 #if  __GLASGOW_HASKELL__ >= 606
   , imageSurfaceGetData
 #endif
+  , SurfaceData
+  , imageSurfaceGetPixels
 #endif
 
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
@@ -241,13 +250,27 @@ module Graphics.Rendering.Cairo (
 
   ) where
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Control.Monad.Reader (ReaderT(runReaderT), ask, MonadIO, liftIO)
 import Control.Exception (bracket)
-import Foreign.Ptr (castPtr)
+import Foreign.Ptr (Ptr, nullPtr, castPtr)
+import Foreign.Storable (Storable(..))
+import Foreign.ForeignPtr ( touchForeignPtr )
 #if __GLASGOW_HASKELL__ >= 606
 import qualified Data.ByteString as BS
 #endif
+import Data.Ix
+-- internal module of GHC
+import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
+#if __GLASGOW_HASKELL__ < 605
+			 HasBounds, bounds
+#else
+			 getBounds
+#endif
+#if __GLASGOW_HASKELL__ >= 608
+			 ,getNumElements
+#endif
+                       )
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
@@ -1526,6 +1549,18 @@ surfaceSetDeviceOffset ::
   -> m ()
 surfaceSetDeviceOffset a b c = liftIO $ Internal.surfaceSetDeviceOffset a b c
 
+#if CAIRO_CHECK_VERSION(1,6,0)
+-- | This function provides a stride value that will respect all alignment
+--   requirements of the accelerated image-rendering code within cairo.
+--
+formatStrideForWidth ::
+     Format -- ^ format of pixels in the surface to create
+  -> Int    -- ^ width of the surface, in pixels
+  -> Int    -- ^ the stride (number of bytes necessary to store one line) 
+            --   or @-1@ if the format is invalid or the width is too large
+formatStrideForWidth = Internal.formatStrideForWidth
+#endif
+
 -- | Creates an image surface of the specified format and dimensions.
 -- The initial contents of the surface is undefined; you must explicitely
 -- clear the buffer, using, for example, 'rectangle' and 'fill' if you want it
@@ -1583,6 +1618,12 @@ imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 imageSurfaceGetStride :: MonadIO m => Surface -> m Int
 imageSurfaceGetStride = liftIO . Internal.imageSurfaceGetStride
 
+
+-- | Get the format of the surface.
+--
+imageSurfaceGetFormat :: MonadIO m => Surface -> m Format
+imageSurfaceGetFormat a = liftIO $ Internal.imageSurfaceGetFormat a
+
 #if __GLASGOW_HASKELL__ >= 606
 -- | Return a ByteString of the image data for a surface. In order to remain
 --   safe the returned ByteString is a copy of the data. This is a little
@@ -1599,6 +1640,111 @@ imageSurfaceGetData a = do
   BS.packCStringLen (castPtr ptr, height * stride)
 #endif
 #endif
+
+
+-- | Retrieve the internal array of raw image data.
+--
+-- * Image data in an image surface is stored in memory in uncompressed,
+--   packed format. Rows in the image are stored top to bottom, and in each
+--   row pixels are stored from left to right. There may be padding at the end
+--   of a row. The value returned by 'imageSurfaceGetStride' indicates the
+--   number of bytes between rows.
+--
+-- * The returned array is a flat representation of a three dimensional array:
+--   x-coordiante, y-coordinate and several channels for each color. The
+--   format depends on the 'Format' of the surface:
+--
+--   'FormatARGB32': each pixel is 32 bits with alpha in the upper 8 bits,
+--    followed by 8 bits for red, green and blue. Pre-multiplied alpha is used.
+--    (That is, 50% transparent red is 0x80800000, not 0x80ff0000.)
+--
+--   'FormatRGB24': each pixel is 32 bits with the upper 8 bits being unused,
+--    followed by 8 bits for red, green and blue.
+--
+--   'FormatA8': each pixel is 8 bits holding an alpha value
+--
+--   'FormatA1': each pixel is one bit where pixels are packed into 32 bit
+--   quantities. The ordering depends on the endianes of the platform. On a
+--   big-endian machine, the first pixel is in the uppermost bit, on a
+--   little-endian machine the first pixel is in the least-significant bit.
+--
+-- * To read or write a specific pixel use the formula:
+--   @p = y * (rowstride `div` 4) + x@ for the pixel and force the array to
+--   have 32-bit words or integers.
+--
+-- * Calling this function without explicitly giving it a type will often lead
+--   to a compiler error since the type parameter @e@ is underspecified. If
+--   this happens the function can be explicitly typed:
+--   @surData <- (imageSurfaceGetPixels pb :: IO (SurfaceData Int Word32))@
+--
+-- * If modifying an image through Haskell\'s array interface is not fast
+--   enough, it is possible to use 'unsafeRead' and 'unsafeWrite' which have
+--   the same type signatures as 'readArray' and 'writeArray'. Note that these
+--   are internal functions that might change with GHC.
+--
+-- * After each write access to the array, you need to inform Cairo that
+--   about the area that has changed using 'surfaceMarkDirty'.
+--
+-- * The function will return an error if the surface is not an image
+--   surface of if 'surfaceFinish' has been called on the surface.
+-- 
+imageSurfaceGetPixels :: Storable e => Surface -> IO (SurfaceData Int e)
+imageSurfaceGetPixels pb = do
+  pixPtr_ <- Internal.imageSurfaceGetData pb
+  when (pixPtr_==nullPtr) $ do
+    fail "imageSurfaceGetPixels: image surface not available"
+  fmt <- imageSurfaceGetFormat pb
+  let bits = case fmt of
+               FormatARGB32 -> 32
+               FormatRGB24 -> 32
+               FormatA8 -> 8
+               FormatA1 -> 1
+  h <- imageSurfaceGetHeight pb
+  r <- imageSurfaceGetStride pb
+  let pixPtr = castPtr pixPtr_
+  let bytes = h*((r*bits)+7) `div` 8
+  return (mkSurfaceData pb pixPtr bytes)
+
+-- | An array that stores the raw pixel data of an image 'Surface'.
+--
+data Ix i => SurfaceData i e = SurfaceData !Surface
+                          {-# UNPACK #-} !(Ptr e)
+                                         !(i,i)
+                          {-# UNPACK #-} !Int
+
+mkSurfaceData :: Storable e => Surface -> Ptr e -> Int -> SurfaceData Int e
+mkSurfaceData pb (ptr :: Ptr e) size =
+  SurfaceData pb ptr (0, count) count
+  where count = fromIntegral (size `div` sizeOf (undefined :: e))
+
+#if __GLASGOW_HASKELL__ < 605
+instance HasBounds SurfaceData where
+  bounds (SurfaceData pb ptr bd cnt) = bd
+#endif
+
+-- | 'SurfaceData' is a mutable array.
+instance Storable e => MArray SurfaceData e IO where
+  newArray (l,u) e = error "Graphics.Rendering.Cairo.newArray: not implemented"
+  newArray_ (l,u)  = error "Graphics.Rendering.Cairo.newArray_: not implemented"
+  {-# INLINE unsafeRead #-}
+  unsafeRead (SurfaceData (Surface pb) pixPtr _ _) idx = do
+      e <- peekElemOff pixPtr idx
+      touchForeignPtr pb
+      return e
+  {-# INLINE unsafeWrite #-}
+  unsafeWrite (SurfaceData (Surface pb) pixPtr _ _) idx elem = do
+      pokeElemOff pixPtr idx elem
+      touchForeignPtr pb
+#if __GLASGOW_HASKELL__ >= 605
+  {-# INLINE getBounds #-}
+  getBounds (SurfaceData _ _ bd _) = return bd
+#endif
+#if __GLASGOW_HASKELL__ >= 608
+  {-# INLINE getNumElements #-}
+  getNumElements (SurfaceData _ _ _ count) = return count
+#endif
+
+
 #endif
 
 #ifdef ENABLE_CAIRO_PDF_SURFACE
