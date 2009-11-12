@@ -116,7 +116,6 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.ModelView.TreeModel,
   module Graphics.UI.Gtk.ModelView.TreeModelSort,
   module Graphics.UI.Gtk.ModelView.TreeSortable,
-  module Graphics.UI.Gtk.ModelView.TreeModelFilter,
   module Graphics.UI.Gtk.ModelView.TreeRowReference,
   module Graphics.UI.Gtk.ModelView.TreeSelection,
   module Graphics.UI.Gtk.ModelView.TreeStore,
@@ -315,7 +314,6 @@ import Graphics.UI.Gtk.ModelView.TreeDrag
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeModelSort
 import Graphics.UI.Gtk.ModelView.TreeSortable
-import Graphics.UI.Gtk.ModelView.TreeModelFilter
 import Graphics.UI.Gtk.ModelView.TreeRowReference
 import Graphics.UI.Gtk.ModelView.TreeSelection
 import Graphics.UI.Gtk.ModelView.TreeStore
