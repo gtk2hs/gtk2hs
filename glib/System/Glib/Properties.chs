@@ -83,6 +83,7 @@ module System.Glib.Properties (
   newAttrFromBoxedStorableProperty,
   newAttrFromObjectProperty,
   writeAttrFromObjectProperty,
+  readAttrFromObjectProperty,
   newAttrFromMaybeObjectProperty,
   
   -- TODO: do not export these once we dump the old TreeList API:
@@ -330,3 +331,7 @@ newAttrFromMaybeObjectProperty propName gtype =
 writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj gobj'
 writeAttrFromObjectProperty propName gtype =
   writeAttr (objectSetPropertyGObject gtype propName)
+
+readAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> ReadAttr gobj gobj'
+readAttrFromObjectProperty propName gtype =
+  readAttr (objectGetPropertyGObject gtype propName)
