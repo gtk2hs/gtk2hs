@@ -33,7 +33,7 @@ module Graphics.UI.Gtk.Multiline.TextMark (
 --
 -- A 'TextMark' is like a bookmark in a text buffer; it preserves a position
 -- in the text. You can convert the mark to an iterator using
--- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferGetIterAtMark'. Unlike
+-- 'textBufferGetIterAtMark'. Unlike
 -- iterators, marks remain valid across buffer mutations, because their
 -- behavior is defined when text is inserted or deleted. When text containing
 -- a mark is deleted, the mark remains in the position originally occupied by
@@ -42,14 +42,14 @@ module Graphics.UI.Gtk.Multiline.TextMark (
 -- mark with right gravity will be moved to the end.
 --
 -- Marks can be deleted from the buffer at any time with
--- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferDeleteMark'. Once deleted
+-- 'textBufferDeleteMark'. Once deleted
 -- from the buffer, a mark is essentially useless.
 --
 -- Marks optionally have names; these can be convenient to avoid passing the
 -- 'TextMark' object around.
 --
 -- Marks are typically created using the
--- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferCreateMark' function.
+-- 'textBufferCreateMark' function.
 
 -- * Class Hierarchy
 -- |
@@ -66,7 +66,9 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   MarkName,
 
 -- * Constructors
+#if GTK_CHECK_VERSION(2,12,0)
   textMarkNew,
+#endif
 
 -- * Methods
   textMarkSetVisible,
@@ -85,22 +87,30 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
+-- | The name of a mark.
 type MarkName = String
 
 --------------------
 -- Constructors
--- | Creates a text mark. 
--- Add it to a buffer using 'textBufferAddMark'. 
--- If name is NULL, the mark is anonymous; otherwise, the mark can be retrieved by name using 'textBufferGetMark'. 
--- If a mark has left gravity, and text is inserted at the mark's current location, 
--- the mark will be moved to the left of the newly-inserted text. 
--- If the mark has right gravity (left_gravity = FALSE), the mark will end up on the right of newly-inserted text. 
--- The standard left-to-right cursor is a mark with right gravity (when you type, the cursor stays on the right side of the text you're typing).
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Creates a text mark. Add it to a buffer using 'textBufferAddMark'. If
+-- @name@ is @Nothing@, the mark is anonymous; otherwise, the mark can be retrieved by
+-- this name
+-- using 'textBufferGetMark'. If a mark has left gravity, and text is inserted
+-- at the mark's current location, the mark will be moved to the left of the
+-- newly-inserted text. If the mark has right gravity (@leftGravity@ =
+-- @False@), the mark will end up on the right of newly-inserted text. The
+-- standard left-to-right cursor is a mark with right gravity (when you type,
+-- the cursor stays on the right side of the text you\'re typing).
+--
+-- * Available since Gtk+ version 2.12
 --
 textMarkNew :: 
   Maybe MarkName  -- ^ @markName@ - name for mark, or @Nothing@
@@ -112,6 +122,7 @@ textMarkNew  markName leftGravity =
   {# call text_mark_new #}
     markNamePtr
     (fromBool leftGravity)
+#endif
 
 --------------------
 -- Methods
@@ -136,7 +147,7 @@ textMarkGetVisible self =
     (toTextMark self)
 
 -- | Returns @True@ if the mark has been removed from its buffer with
--- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferDeleteMark'. Marks can't
+-- 'textBufferDeleteMark'. Marks can't
 -- be used once deleted.
 --
 textMarkGetDeleted :: TextMarkClass self => self -> IO Bool
@@ -176,9 +187,20 @@ textMarkGetLeftGravity self =
 --------------------
 -- Attributes
 
--- | \'visible\' property. See 'textMarkGetVisible' and 'textMarkSetVisible'
+-- | Retreives the name of a mark.
+--
+textMarkName :: TextMarkClass self => ReadAttr self (Maybe MarkName)
+textMarkName = readAttrFromMaybeStringProperty "name"
+
+-- | The \'visible\' property. See 'textMarkGetVisible' and 'textMarkSetVisible'
 --
 textMarkVisible :: TextMarkClass self => Attr self Bool
 textMarkVisible = newAttr
   textMarkGetVisible
   textMarkSetVisible
+
+-- | Determines whether the mark keeps to the left when text is inserted at its position.
+--
+textMarkLeftGravity :: TextMarkClass self => ReadAttr self Bool
+textMarkLeftGravity = readAttrFromBoolProperty "left-gravity"
+

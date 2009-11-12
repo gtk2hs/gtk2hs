@@ -82,7 +82,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetFocus,
   windowSetFocus,
   windowSetDefault,
+#if GTK_CHECK_VERSION(2,14,0)
   windowGetDefaultWidget,
+#endif
   windowAddMnemonic,
   windowRemoveMnemonic,
   windowMnemonicActivate,
@@ -115,7 +117,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetFocusOnMap,
   windowGetFocusOnMap,
 #endif
+#if GTK_CHECK_VERSION(2,12,0)
   windowSetStartupId,
+#endif
   windowSetDecorated,
   windowGetDecorated,
   windowSetDeletable,
@@ -141,8 +145,12 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetDefaultIconName,
 #endif
   windowSetDefaultIcon,
+#if GTK_CHECK_VERSION(2,2,0)
   windowSetDefaultIconFromFile,
+#if GTK_CHECK_VERSION(2,16,0)
   windowGetDefaultIconName,
+#endif
+#endif
   windowSetGravity,
   windowGetGravity,
 #if GTK_CHECK_VERSION(2,2,0)
@@ -170,8 +178,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetUrgencyHint,
 #endif
   windowSetGeometryHints,
+#if GTK_CHECK_VERSION(2,12,0)
   windowSetOpacity,
   windowGetOpacity,
+#endif
   windowGetGroup,
 
 -- * Attributes
@@ -181,7 +191,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowAllowGrow,
   windowResizable,
   windowModal,
+#if GTK_CHECK_VERSION(2,12,0)
   windowOpacity,
+#endif
   windowRole,
   windowStartupId,
   windowWindowPosition,
@@ -638,6 +650,7 @@ windowSetFocus self focus =
     (toWindow self)
     (maybe (Widget nullForeignPtr) toWidget focus)
 
+#if GTK_CHECK_VERSION(2,14,0)
 -- | Returns the default widget for window. See 'windowSetDefault' for more details.
 -- 
 -- * Available since Gtk+ version 2.14
@@ -648,6 +661,7 @@ windowGetDefaultWidget self =
   makeNewObject mkWidget $
   {# call window_get_default_widget #}
     (toWindow self)
+#endif
 
 -- | The default widget is the widget that's activated when the user presses
 -- | Enter in a dialog (for example). This function sets or unsets the default
@@ -942,9 +956,10 @@ windowGetFocusOnMap self =
     (toWindow self)
 #endif
 
+#if GTK_CHECK_VERSION(2,12,0)
 -- | Startup notification identifiers are used by desktop environment to track application startup, 
 -- to provide user feedback and other features. This function changes the corresponding property on the underlying GdkWindow. 
--- Normally, startup identifier is managed automatically and you should only use this function in special cases like transferring focus from other processes. You should use this function before calling gtk_window_present() or any equivalent function generating a window map event.
+-- Normally, startup identifier is managed automatically and you should only use this function in special cases like transferring focus from other processes. You should use this function before calling 'windowPresent' or any equivalent function generating a window map event.
 --
 -- This function is only useful on X11, not with other GTK+ targets.
 --
@@ -958,6 +973,7 @@ windowSetStartupId self startupId =
   {# call window_set_startup_id #}
     (toWindow self)
     idPtr
+#endif
 
 -- | By default, windows are decorated with a title bar, resize controls, etc.
 -- Some window managers allow Gtk+ to disable these decorations, creating a
@@ -1322,27 +1338,38 @@ windowSetDefaultIcon (Just icon) =
 windowSetDefaultIcon Nothing =
   {# call window_set_default_icon #} (Pixbuf nullForeignPtr)
 
--- | Sets an icon to be used as fallback for windows that haven't had 'windowSetIconList' called on them from a file on disk. 
-windowSetDefaultIconFromFile :: 
-   String 
- -> GError 
- -> IO Bool
-windowSetDefaultIconFromFile filename error = liftM toBool $
-  withUTFString filename $ \filePtr -> 
-  with error $ \gErrorPtr -> 
-  {# call window_set_default_icon_from_file #}
-    filePtr
-    (castPtr gErrorPtr)
 
--- | Returns the fallback icon name for windows that has been set with 'windowSetDefaultIconName'. 
--- The returned string is owned by GTK+ and should not be modified. 
--- It is only valid until the next call to 'windowSetDefaultIconName'.
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Sets an icon to be used as fallback for windows that haven't had
+-- 'windowSetIconList' called on them from a file on disk. May throw a 'GError' if
+--  the file cannot be loaded.
+--
+-- * Available since Gtk+ version 2.2
+--
+windowSetDefaultIconFromFile ::
+    String  -- ^ @filename@ - location of icon file
+ -> IO Bool -- ^ returns @True@ if setting the icon succeeded.
+windowSetDefaultIconFromFile filename =
+  liftM toBool $
+  propagateGError $ \errPtr ->
+  withUTFString filename $ \filenamePtr ->
+  {# call gtk_window_set_default_icon_from_file #}
+    filenamePtr
+    errPtr
+#endif
+
+#if GTK_CHECK_VERSION(2,16,0)
+-- | Returns the fallback icon name for windows that has been set with
+-- 'windowSetDefaultIconName'.
 --
 -- * Available since Gtk+ version 2.16
 --
-windowGetDefaultIconName :: IO String
-windowGetDefaultIconName = 
-  {# call window_get_default_icon_name #} >>= peekCString
+windowGetDefaultIconName ::
+    IO String -- ^ returns the fallback icon name for windows
+windowGetDefaultIconName =
+  {# call window_get_default_icon_name #}
+  >>= peekUTFString
+#endif
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Sets the 'Screen' where the @window@ is displayed; if the window is
@@ -1827,12 +1854,14 @@ windowSetGeometryHints self geometryWidget
     (fromIntegral $ minSizeFlag .|. maxSizeFlag .|. baseSizeFlag
                  .|. incSizeFlag .|. aspectFlag)
 
+#if GTK_CHECK_VERSION(2,12,0)
 -- | Request the windowing system to make window partially transparent, with opacity 0 being fully transparent and 1 fully opaque. 
 -- (Values of the opacity parameter are clamped to the [0,1] range.) 
--- On X11 this has any effect only on X screens with a compositing manager running. See gtk_widget_is_composited().
--- On Windows it should work always.
+-- On X11 this has any effect only on X screens with a compositing manager running.
+-- See 'widgetIsComposited'. On Windows it should work always.
 --
--- Note that setting a window's opacity after the window has been shown causes it to flicker once on Windows.
+-- Note that setting a window's opacity after the window has been shown causes it to
+-- flicker once on Windows.
 -- 
 -- * Available since Gtk+ version 2.12
 --
@@ -1850,6 +1879,7 @@ windowGetOpacity :: WindowClass self => self
  -> IO Double  -- ^ return the requested opacity for this window. 
 windowGetOpacity self = liftM realToFrac $
  {#call window_get_opacity#} (toWindow self)
+#endif
 
 -- | Returns the group for window or the default group, if window is @Nothing@ or if window does not have an explicit window group.
 -- 
@@ -1916,6 +1946,7 @@ windowModal = newAttr
   windowGetModal
   windowSetModal
 
+#if GTK_CHECK_VERSION(2,12,0)
 -- | The requested opacity of the window. See 'windowSetOpacity' for more details about window opacity.
 --
 -- Allowed values: [0,1]
@@ -1926,6 +1957,7 @@ windowModal = newAttr
 --
 windowOpacity :: WindowClass self => Attr self Double
 windowOpacity = newAttrFromDoubleProperty "opacity"
+#endif
 
 -- | Unique identifier for the window to be used when restoring a session.
 --

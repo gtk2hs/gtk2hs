@@ -74,8 +74,9 @@ module System.Glib.Properties (
   newAttrFromStringProperty,
   readAttrFromStringProperty,
   writeAttrFromStringProperty,
-  writeAttrFromMaybeStringProperty,
   newAttrFromMaybeStringProperty,
+  readAttrFromMaybeStringProperty,
+  writeAttrFromMaybeStringProperty,
   newAttrFromBoxedOpaqueProperty,
   readAttrFromBoxedOpaqueProperty,
   writeAttrFromBoxedOpaqueProperty,
@@ -290,13 +291,17 @@ writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj Str
 writeAttrFromStringProperty propName =
   writeAttr (objectSetPropertyString propName)
 
-writeAttrFromMaybeStringProperty :: GObjectClass gobj => String -> WriteAttr gobj (Maybe String)
-writeAttrFromMaybeStringProperty propName =
-  writeAttr (objectSetPropertyMaybeString propName)
-
 newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
 newAttrFromMaybeStringProperty propName =
   newAttr (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
+
+readAttrFromMaybeStringProperty :: GObjectClass gobj => String -> ReadAttr gobj (Maybe String)
+readAttrFromMaybeStringProperty propName =
+  readAttr (objectGetPropertyMaybeString propName)
+
+writeAttrFromMaybeStringProperty :: GObjectClass gobj => String -> WriteAttr gobj (Maybe String)
+writeAttrFromMaybeStringProperty propName =
+  writeAttr (objectSetPropertyMaybeString propName)
 
 newAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> Attr gobj boxed
 newAttrFromBoxedOpaqueProperty peek with propName gtype =

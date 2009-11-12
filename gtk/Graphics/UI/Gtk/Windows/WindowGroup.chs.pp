@@ -45,7 +45,9 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
 -- * Methods
   windowGroupAddWindow,
   windowGroupRemoveWindow,
+#if GTK_CHECK_VERSION(2,14,0)
   windowGroupListWindows,
+#endif
   ) where
 
 import System.Glib.FFI
@@ -90,13 +92,16 @@ windowGroupRemoveWindow self window =
     (toWindowGroup self)
     (toWindow window)
 
--- | Returns a list of the GtkWindows that belong to window_group.
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Returns a list of the 'Window's that belong to @windowGroup@.
 -- 
 -- * Available since Gtk+ version 2.14
 --
-windowGroupListWindows :: WindowGroupClass self => self
- -> IO [Pixbuf]  -- ^ return A newly-allocated list of windows inside the group. 
+windowGroupListWindows :: WindowGroupClass self
+  => self -- ^ @windowGroup@ - the window group
+ -> IO [Window]  -- ^ returns the list of windows inside this group
 windowGroupListWindows self = do
   glist <- {# call window_group_list_windows #} (toWindowGroup self)
   ptrList <- fromGList glist
-  mapM (makeNewGObject mkPixbuf . return) ptrList
+  mapM (makeNewGObject mkWindow . return) ptrList
+#endif

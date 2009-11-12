@@ -90,7 +90,9 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferGetSlice,
   textBufferInsertPixbuf,
   textBufferCreateMark,
+#if GTK_CHECK_VERSION(2,12,0)
   textBufferAddMark,
+#endif
   textBufferMoveMark,
   textBufferMoveMarkByName,
   textBufferDeleteMark,
@@ -492,11 +494,11 @@ textBufferCreateMark self markName where_ leftGravity =
     where_
     (fromBool leftGravity)
 
--- | Adds the mark at position where. 
--- The mark must not be added to another buffer, 
--- and if its name is not empty then there must not be another mark in the buffer nwith the same name.
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Adds the mark at position given by the 'TextIter'. 
+-- The mark may not be added to any other buffer.
 --
--- Emits the "mark-set" signal as notification of the mark's initial placement.
+-- Emits the 'markSet' signal as notification of the mark's initial placement.
 --
 textBufferAddMark :: TextBufferClass self => self
  -> TextMark  -- ^ @mark@ the mark to add
@@ -504,8 +506,9 @@ textBufferAddMark :: TextBufferClass self => self
  -> IO ()
 textBufferAddMark self mark iter =
   {# call text_buffer_add_mark #} (toTextBuffer self) (toTextMark mark) iter
+#endif
 
--- | Moves @mark@ to the new location @where@. Emits the \"mark_set\" signal
+-- | Moves @mark@ to the new location @where@. Emits the 'markSet' signal
 -- as notification of the move.
 --
 textBufferMoveMark :: (TextBufferClass self, TextMarkClass mark) => self
@@ -1063,7 +1066,8 @@ textBufferRemoveSelectionClipboard self clipboard =
 
 -- | Text Tag Table.
 --
-textBufferTagTable :: (TextBufferClass self, TextTagTableClass textTagTable) => ReadWriteAttr self TextTagTable textTagTable
+textBufferTagTable :: (TextBufferClass self, TextTagTableClass textTagTable)
+ => ReadWriteAttr self TextTagTable textTagTable
 textBufferTagTable = newAttrFromObjectProperty "tag-table"
   {# call pure unsafe gtk_text_tag_table_get_type #}
 
@@ -1077,7 +1081,7 @@ textBufferText :: TextBufferClass self => Attr self String
 textBufferText = newAttrFromStringProperty "text"
 #endif
 
--- | \'modified\' property. See 'textBufferGetModified' and
+-- | The \'modified\' property. See 'textBufferGetModified' and
 -- 'textBufferSetModified'
 --
 textBufferModified :: TextBufferClass self => Attr self Bool

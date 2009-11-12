@@ -62,7 +62,9 @@ module Graphics.UI.Gtk.General.Drag (
   DragAction(..),
   DestDefaults(..),
   DragProtocol(..),
+#if GTK_CHECK_VERSION(2,12,0)
   DragResult(..),
+#endif
   castToDragContext,
   toDragContext,
   
@@ -139,8 +141,12 @@ import Graphics.UI.Gtk.General.StockItems ( StockId )
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 {#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
 import Graphics.UI.Gtk.Gdk.Enums ( DragAction(..) )
-import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..),
-                                       DragResult(..) )
+import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..)
+#if GTK_CHECK_VERSION(2,12,0)
+
+                                     , DragResult(..)
+#endif
+                                     )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
 import Graphics.UI.Gtk.General.Structs ( Point, 
   dragContextGetActions, dragContextSetActions,

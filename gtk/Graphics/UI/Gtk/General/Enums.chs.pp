@@ -35,7 +35,9 @@ module Graphics.UI.Gtk.General.Enums (
   CornerType(..),
   DeleteType(..),
   DestDefaults(..),
+#if GTK_CHECK_VERSION(2,12,0)
   DragResult(..),
+#endif
   DirectionType(..),
   Justification(..),
 #ifndef DISABLE_DEPRECATED
@@ -174,9 +176,9 @@ data Click = SingleClick
 
 instance Flags DestDefaults
 
+#if GTK_CHECK_VERSION(2,12,0)
 -- | Gives an indication why a drag operation failed. The value can by
--- obtained by connecting to the 'Graphics.UI.Gtk.General.Drag.dragFailed'
--- signal.
+-- obtained by connecting to the 'dragFailed' signal.
 --
 -- * 'DragResultSuccess': The drag operation was successful
 --
@@ -192,6 +194,7 @@ instance Flags DestDefaults
 -- * 'DragResultError': The drag operation failed due to some unspecified error
 --
 {#enum DragResult {underscoreToCase} deriving (Bounded,Eq,Show)#}
+#endif
 
 -- | Editing direction
 --

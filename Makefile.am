@@ -692,7 +692,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
 	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp			\
-	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs			\
 	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp			\
@@ -760,7 +760,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Windows/MessageDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Invisible.chs.pp			\
-	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Cursor.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/GC.chs.pp				\
