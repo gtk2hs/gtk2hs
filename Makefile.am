@@ -748,6 +748,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeDrag.chs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModelSort.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeModelFilter.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSortable.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeStore.hs			\
@@ -841,6 +842,7 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
         gtk/Graphics/UI/Gtk/ModelView/TreeModel_stub.o			\
+        gtk/Graphics/UI/Gtk/ModelView/TreeModelFilter_stub.o		\
         gtk/Graphics/UI/Gtk/ModelView/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/ModelView/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSortable_stub.o		\
@@ -859,13 +861,6 @@ libHSgtk_a_LIBADD +=							\
 	gtk/Graphics/UI/Gtk/TreeList/IconView_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/IconView_stub.o			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o
-endif
-
-if ENABLE_CAIRO
-if HAVE_GTK_VERSION_2_8
-libHSgtk_a_LIBADD +=							\
-	gtk/Graphics/UI/Gtk/Cairo_stub.o                
-endif
 endif
 
 if !USE_GCLOSUE_SIGNALS_IMPL
@@ -1810,7 +1805,7 @@ libHScairo_a_NAME		= cairo
 libHScairo_a_CONFIG		= cairo/cairo.package.conf
 libHScairo_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
-libHScairo_a_EXTERNALDEPS	+= bytestring-$(PKG_BYTESTRING_VERSION)
+libHScairo_a_EXTERNALDEPS	+= bytestring-$(PKG_BYTESTRING_VERSION) array-$(PKG_ARRAY_VERSION)
 endif
 libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo/cairo-gtk2hs.h
@@ -2564,6 +2559,7 @@ gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
+	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
@@ -2838,7 +2834,6 @@ htmldoc_haddock_files =								  \
 		$(subst /,-,$(HSFILE:.uncpp=))))				  \
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
 	docs/reference/plus.gif docs/reference/minus.gif			  \
-	docs/reference/haddock.js						  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock
 
@@ -2855,6 +2850,7 @@ htmldoc_haddock_files +=							  \
 	docs/reference/index-frames.html
 else
 htmldoc_haddock_files +=							  \
+	docs/reference/haddock.js						  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
 		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
 endif
