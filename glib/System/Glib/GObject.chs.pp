@@ -69,7 +69,7 @@ import System.Glib.UTFString
 import System.Glib.GValue (GValue)
 import System.Glib.GType  (GType, typeInstanceIsA)
 import System.Glib.GParameter
-import System.Glib.Attributes (newAttr, Attr)
+import System.Glib.Attributes (newNamedAttr, Attr)
 import Foreign.StablePtr
 import Control.Concurrent.MVar ( MVar, newMVar, modifyMVar )
 
@@ -202,9 +202,10 @@ quarkFromString name = withUTFString name {#call unsafe quark_from_string#}
 objectCreateAttribute :: GObjectClass o => IO (Attr o (Maybe a))
 objectCreateAttribute = do
   cnt <- modifyMVar uniqueCnt (\cnt -> return (cnt+1, cnt))
-  attr <- quarkFromString ("Gtk2HsAttr"++show cnt)
-  return (newAttr (objectGetAttributeUnsafe attr)
-	          (objectSetAttribute attr)) 
+  let propName = "Gtk2HsAttr"++show cnt
+  attr <- quarkFromString propName
+  return (newNamedAttr propName (objectGetAttributeUnsafe attr)
+	                        (objectSetAttribute attr)) 
 
 -- | Set the value of an association.
 --

@@ -69,6 +69,9 @@ module System.Glib.Attributes (
   set,
   
   -- * Internal attribute constructors
+  newNamedAttr,
+  readNamedAttr,
+  writeNamedAttr,
   newAttr,
   readAttr,
   writeAttr,
@@ -86,21 +89,34 @@ type ReadAttr o a = ReadWriteAttr o a ()
 type WriteAttr o b = ReadWriteAttr o () b
 
 -- | A generalised attribute with independent get and set types.
-data ReadWriteAttr o a b = Attr !(o -> IO a) !(o -> b -> IO ())
+data ReadWriteAttr o a b = Attr String !(o -> IO a) !(o -> b -> IO ())
 
+instance Show (ReadWriteAttr o a b) where
+  show (Attr str _ _) = str
+
+-- | Create a new attribute with a getter and setter function.
+newNamedAttr :: String -> (o -> IO a) -> (o -> b -> IO ()) -> ReadWriteAttr o a b
+newNamedAttr prop getter setter = Attr prop getter setter
+
+-- | Create a new read-only attribute.
+readNamedAttr :: String -> (o -> IO a) -> ReadAttr o a
+readNamedAttr prop getter = Attr prop getter (\_ _ -> return ())
+
+-- | Create a new write-only attribute.
+writeNamedAttr :: String -> (o -> b -> IO ()) -> WriteAttr o b
+writeNamedAttr prop setter = Attr prop (\_ -> return ()) setter
 
 -- | Create a new attribute with a getter and setter function.
 newAttr :: (o -> IO a) -> (o -> b -> IO ()) -> ReadWriteAttr o a b
-newAttr getter setter = Attr getter setter
+newAttr getter setter = Attr "unnamed attribute" getter setter
 
 -- | Create a new read-only attribute.
 readAttr :: (o -> IO a) -> ReadAttr o a
-readAttr getter = Attr getter (\_ _ -> return ())
+readAttr getter = Attr "unnamed attribute" getter (\_ _ -> return ())
 
 -- | Create a new write-only attribute.
 writeAttr :: (o -> b -> IO ()) -> WriteAttr o b
-writeAttr setter = Attr (\_ -> return ()) setter
-
+writeAttr setter = Attr "unnamed attribute" (\_ -> return ()) setter
 
 -- | A set or update operation on an attribute.
 data AttrOp o
@@ -129,14 +145,14 @@ data AttrOp o
 set :: o -> [AttrOp o] -> IO ()
 set obj = mapM_ app
  where
-   app (Attr getter setter :=  x) = setter obj x
-   app (Attr getter setter :~  f) = getter obj >>= \v -> setter obj (f v)
-   app (Attr getter setter :=> x) =                x >>= setter obj
-   app (Attr getter setter :~> f) = getter obj >>= f >>= setter obj
+   app (Attr _ getter setter :=  x) = setter obj x
+   app (Attr _ getter setter :~  f) = getter obj >>= \v -> setter obj (f v)
+   app (Attr _ getter setter :=> x) =                x >>= setter obj
+   app (Attr _ getter setter :~> f) = getter obj >>= f >>= setter obj
 
-   app (Attr getter setter ::= f) = setter obj (f obj)
-   app (Attr getter setter ::~ f) = getter obj >>= \v -> setter obj (f obj v)
+   app (Attr _ getter setter ::= f) = setter obj (f obj)
+   app (Attr _ getter setter ::~ f) = getter obj >>= \v -> setter obj (f obj v)
 
 -- | Get an Attr of an object.
 get :: o -> ReadWriteAttr o a b -> IO a
-get o (Attr getter setter) = getter o
+get o (Attr _ getter setter) = getter o

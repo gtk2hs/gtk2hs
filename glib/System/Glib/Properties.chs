@@ -101,7 +101,7 @@ import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GType
 import System.Glib.GValueTypes
 import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
-				newAttr, readAttr, writeAttr)
+				newNamedAttr, readNamedAttr, writeNamedAttr)
 
 {# context lib="glib" prefix="g" #}
 
@@ -230,108 +230,108 @@ objectGetPropertyMaybeGObject gtype = objectGetPropertyInternal gtype valueGetMa
 
 newAttrFromIntProperty :: GObjectClass gobj => String -> Attr gobj Int
 newAttrFromIntProperty propName =
-  newAttr (objectGetPropertyInt propName) (objectSetPropertyInt propName)
+  newNamedAttr propName (objectGetPropertyInt propName) (objectSetPropertyInt propName)
 
 readAttrFromIntProperty :: GObjectClass gobj => String -> ReadAttr gobj Int
 readAttrFromIntProperty propName =
-  readAttr (objectGetPropertyInt propName)
+  readNamedAttr propName (objectGetPropertyInt propName)
 
 newAttrFromUIntProperty :: GObjectClass gobj => String -> Attr gobj Int
 newAttrFromUIntProperty propName =
-  newAttr (objectGetPropertyUInt propName) (objectSetPropertyUInt propName)
+  newNamedAttr propName (objectGetPropertyUInt propName) (objectSetPropertyUInt propName)
 
 newAttrFromCharProperty :: GObjectClass gobj => String -> Attr gobj Char
 newAttrFromCharProperty propName =
-  newAttr (objectGetPropertyChar propName) (objectSetPropertyChar propName)
+  newNamedAttr propName (objectGetPropertyChar propName) (objectSetPropertyChar propName)
 
 writeAttrFromUIntProperty :: GObjectClass gobj => String -> WriteAttr gobj Int
 writeAttrFromUIntProperty propName =
-  writeAttr (objectSetPropertyUInt propName)
+  writeNamedAttr propName (objectSetPropertyUInt propName)
 
 newAttrFromBoolProperty :: GObjectClass gobj => String -> Attr gobj Bool
 newAttrFromBoolProperty propName =
-  newAttr (objectGetPropertyBool propName) (objectSetPropertyBool propName)
+  newNamedAttr propName (objectGetPropertyBool propName) (objectSetPropertyBool propName)
 
 readAttrFromBoolProperty :: GObjectClass gobj => String -> ReadAttr gobj Bool
 readAttrFromBoolProperty propName =
-  readAttr (objectGetPropertyBool propName)
+  readNamedAttr propName (objectGetPropertyBool propName)
 
 newAttrFromFloatProperty :: GObjectClass gobj => String -> Attr gobj Float
 newAttrFromFloatProperty propName =
-  newAttr (objectGetPropertyFloat propName) (objectSetPropertyFloat propName)
+  newNamedAttr propName (objectGetPropertyFloat propName) (objectSetPropertyFloat propName)
 
 newAttrFromDoubleProperty :: GObjectClass gobj => String -> Attr gobj Double
 newAttrFromDoubleProperty propName =
-  newAttr (objectGetPropertyDouble propName) (objectSetPropertyDouble propName)
+  newNamedAttr propName (objectGetPropertyDouble propName) (objectSetPropertyDouble propName)
 
 newAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> Attr gobj enum
 newAttrFromEnumProperty propName gtype =
-  newAttr (objectGetPropertyEnum gtype propName) (objectSetPropertyEnum gtype propName)
+  newNamedAttr propName (objectGetPropertyEnum gtype propName) (objectSetPropertyEnum gtype propName)
 
 readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> ReadAttr gobj enum
 readAttrFromEnumProperty propName gtype =
-  readAttr (objectGetPropertyEnum gtype propName)
+  readNamedAttr propName (objectGetPropertyEnum gtype propName)
 
 writeAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> WriteAttr gobj enum
 writeAttrFromEnumProperty propName gtype =
-  writeAttr (objectSetPropertyEnum gtype propName)
+  writeNamedAttr propName (objectSetPropertyEnum gtype propName)
 
 newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> GType -> Attr gobj [flag]
 newAttrFromFlagsProperty propName gtype =
-  newAttr (objectGetPropertyFlags gtype propName) (objectSetPropertyFlags gtype propName)
+  newNamedAttr propName (objectGetPropertyFlags gtype propName) (objectSetPropertyFlags gtype propName)
 
 newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
 newAttrFromStringProperty propName =
-  newAttr (objectGetPropertyString propName) (objectSetPropertyString propName)
+  newNamedAttr propName (objectGetPropertyString propName) (objectSetPropertyString propName)
 
 readAttrFromStringProperty :: GObjectClass gobj => String -> ReadAttr gobj String
 readAttrFromStringProperty propName =
-  readAttr (objectGetPropertyString propName)
+  readNamedAttr propName (objectGetPropertyString propName)
 
 writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj String
 writeAttrFromStringProperty propName =
-  writeAttr (objectSetPropertyString propName)
+  writeNamedAttr propName (objectSetPropertyString propName)
 
 newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
 newAttrFromMaybeStringProperty propName =
-  newAttr (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
+  newNamedAttr propName (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
 
 readAttrFromMaybeStringProperty :: GObjectClass gobj => String -> ReadAttr gobj (Maybe String)
 readAttrFromMaybeStringProperty propName =
-  readAttr (objectGetPropertyMaybeString propName)
+  readNamedAttr propName (objectGetPropertyMaybeString propName)
 
 writeAttrFromMaybeStringProperty :: GObjectClass gobj => String -> WriteAttr gobj (Maybe String)
 writeAttrFromMaybeStringProperty propName =
-  writeAttr (objectSetPropertyMaybeString propName)
+  writeNamedAttr propName (objectSetPropertyMaybeString propName)
 
 newAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> Attr gobj boxed
 newAttrFromBoxedOpaqueProperty peek with propName gtype =
-  newAttr (objectGetPropertyBoxedOpaque peek gtype propName) (objectSetPropertyBoxedOpaque with gtype propName)
+  newNamedAttr propName (objectGetPropertyBoxedOpaque peek gtype propName) (objectSetPropertyBoxedOpaque with gtype propName)
 
 readAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> String -> GType -> ReadAttr gobj boxed
 readAttrFromBoxedOpaqueProperty peek propName gtype =
-  readAttr (objectGetPropertyBoxedOpaque peek gtype propName)
+  readNamedAttr propName (objectGetPropertyBoxedOpaque peek gtype propName)
 
 writeAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> WriteAttr gobj boxed
 writeAttrFromBoxedOpaqueProperty with propName gtype =
-  writeAttr (objectSetPropertyBoxedOpaque with gtype propName)
+  writeNamedAttr propName (objectSetPropertyBoxedOpaque with gtype propName)
 
 newAttrFromBoxedStorableProperty :: (GObjectClass gobj, Storable boxed) => String -> GType -> Attr gobj boxed
 newAttrFromBoxedStorableProperty propName gtype =
-  newAttr (objectGetPropertyBoxedStorable gtype propName) (objectSetPropertyBoxedStorable gtype propName)
+  newNamedAttr propName (objectGetPropertyBoxedStorable gtype propName) (objectSetPropertyBoxedStorable gtype propName)
 
 newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj gobj' gobj''
 newAttrFromObjectProperty propName gtype =
-  newAttr (objectGetPropertyGObject gtype propName) (objectSetPropertyGObject gtype propName)
+  newNamedAttr propName (objectGetPropertyGObject gtype propName) (objectSetPropertyGObject gtype propName)
 
 newAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj (Maybe gobj') (Maybe gobj'')
 newAttrFromMaybeObjectProperty propName gtype =
-  newAttr (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
+  newNamedAttr propName (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
  
 writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj gobj'
 writeAttrFromObjectProperty propName gtype =
-  writeAttr (objectSetPropertyGObject gtype propName)
+  writeNamedAttr propName (objectSetPropertyGObject gtype propName)
 
 readAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> ReadAttr gobj gobj'
 readAttrFromObjectProperty propName gtype =
-  readAttr (objectGetPropertyGObject gtype propName)
+  readNamedAttr propName (objectGetPropertyGObject gtype propName)

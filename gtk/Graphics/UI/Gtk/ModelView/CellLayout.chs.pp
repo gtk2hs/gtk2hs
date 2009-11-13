@@ -57,9 +57,13 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
   cellLayoutPackEnd,
   cellLayoutReorder,
   cellLayoutClear,
+  cellLayoutClearAttributes,
+#if GTK_CHECK_VERSION(2,12,0)
+  cellLayoutGetCells,
+#endif
+  cellLayoutAddColumnAttribute,
   cellLayoutSetAttributes,
   cellLayoutSetAttributeFunc,
-  cellLayoutClearAttributes
 #endif
   ) where
 
@@ -142,6 +146,41 @@ cellLayoutClear :: CellLayoutClass self => self -> IO ()
 cellLayoutClear self =
   {# call gtk_cell_layout_clear #}
     (toCellLayout self)
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Returns the cell renderers which have been added to @cellLayout@.
+--
+-- * Available since Gtk+ version 2.12
+--
+cellLayoutGetCells :: CellLayoutClass self => self
+ -> IO [CellRenderer] -- ^ returns a list of cell renderers
+cellLayoutGetCells self =
+  {# call gtk_cell_layout_get_cells #}
+    (toCellLayout self)
+  >>= fromGList
+  >>= mapM (makeNewGObject mkCellRenderer . return)
+#endif
+
+-- | Adds an attribute mapping to the renderer @cell@. The @column@ is
+-- the 'ColumnId' of the model to get a value from, and the @attribute@ is the
+-- parameter on @cell@ to be set from the value. So for example if column 2 of
+-- the model contains strings, you could have the \"text\" attribute of a
+-- 'CellRendererText' get its values from column 2.
+--
+cellLayoutAddColumnAttribute :: (CellLayoutClass self, CellRendererClass cell) => self
+ -> cell   -- ^ @cell@ - A 'CellRenderer'.
+ -> ReadWriteAttr cell a v  -- ^ @attribute@ - An attribute of a renderer.
+ -> ColumnId row v    -- ^ @column@ - The virtual column of the model from which to 
+                      -- retrieve the attribute.
+ -> IO ()
+cellLayoutAddColumnAttribute self cell attr column =
+  withCString (show attr) $ \attributePtr ->
+  {# call gtk_cell_layout_add_attribute #}
+    (toCellLayout self)
+    (toCellRenderer cell)
+    attributePtr
+    (fromIntegral (columnIdToNumber column))
+
 
 -- | Specify how a row of the @model@ defines the
 -- attributes of the 'CellRenderer' @cell@. This is a convenience wrapper
