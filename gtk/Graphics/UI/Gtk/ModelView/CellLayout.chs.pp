@@ -68,6 +68,7 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
   ) where
 
 import System.Glib.FFI
+import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.GObject (mkFunPtrDestroyNotify)
 import System.Glib.GType

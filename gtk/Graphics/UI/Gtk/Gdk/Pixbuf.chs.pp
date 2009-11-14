@@ -23,7 +23,6 @@
 -- functions: gdk_pixbuf_composite_color_simple and
 -- gdk_pixbuf_composite_color. Moreover, do: pixbuf_saturate_and_pixelate
 --
--- the animation functions
 --
 -- pixbuf loader
 --
@@ -43,7 +42,7 @@
 --   and height, and the rowstride or number of bytes between rows.
 --
 -- * This module contains functions to scale and crop
---   'Pixbuf's and to scale and crop a 'Pixbuf' and 
+--   'Pixbuf's and to scale and crop a 'Pixbuf' and
 --   compose the result with an existing image.
 --
 -- * 'Pixbuf's can be displayed on screen by either creating an 'Image' that
@@ -117,6 +116,7 @@ import Control.Monad (liftM)
 import Data.Ix
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.GDateTime
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
@@ -260,7 +260,7 @@ instance GErrorClass PixbufError where
 --   error codes in 'PixbufError'.
 --
 pixbufNewFromFile :: FilePath -> IO Pixbuf
-pixbufNewFromFile fname = 
+pixbufNewFromFile fname =
   constructNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
      withUTFString fname $ \strPtr ->
@@ -315,7 +315,7 @@ pixbufNewFromFileAtSize filename width height =
 --
 -- * Available since Gtk+ version 2.6
 --
-pixbufNewFromFileAtScale :: 
+pixbufNewFromFileAtScale ::
      String -- ^ the name of the file
   -> Int -- ^ target width
   -> Int -- ^ target height
@@ -392,7 +392,7 @@ pixbufSave pb fname iType options =
 --
 pixbufNew :: Colorspace -> Bool -> Int -> Int -> Int -> IO Pixbuf
 pixbufNew colorspace hasAlpha bitsPerSample width height =
-  constructNewGObject mkPixbuf $ 
+  constructNewGObject mkPixbuf $
     {#call pixbuf_new#} ((fromIntegral . fromEnum) colorspace)
       (fromBool hasAlpha) (fromIntegral bitsPerSample) (fromIntegral width)
       (fromIntegral height)
@@ -420,7 +420,7 @@ data InlineImage = InlineImage
 --   include images in the final binary program. The method used by this
 --   function uses a binary representation and therefore needs less space
 --   in the final executable. Save the image you want to include as
---   @png@ and run: 
+--   @png@ and run:
 --
 -- > @echo #include "my_image.h" > my_image.c
 -- > gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
@@ -526,8 +526,8 @@ pixbufScaleSimple ::
   -> InterpType -- ^ interpolation type
   -> IO Pixbuf
 pixbufScaleSimple pb width height interp =
-    constructNewGObject mkPixbuf $ liftM castPtr $ 
-	{#call pixbuf_scale_simple#} (toPixbuf pb) 
+    constructNewGObject mkPixbuf $ liftM castPtr $
+	{#call pixbuf_scale_simple#} (toPixbuf pb)
 	(fromIntegral width) (fromIntegral height)
 	(fromIntegral $ fromEnum interp)
 
@@ -705,7 +705,7 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
 pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)
 pixbufGetFromDrawable d (Rectangle x y width height) =
   maybeNull (constructNewGObject mkPixbuf) $
-  {#call unsafe pixbuf_get_from_drawable#} 
+  {#call unsafe pixbuf_get_from_drawable#}
     (Pixbuf nullForeignPtr) (toDrawable d) (Colormap nullForeignPtr)
     (fromIntegral x) (fromIntegral y) 0 0
     (fromIntegral width) (fromIntegral height)

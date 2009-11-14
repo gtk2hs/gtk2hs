@@ -95,6 +95,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- * Constructors
   imageNewFromFile,
   imageNewFromPixbuf,
+  imageNewFromAnimation,
   imageNewFromStock,
   imageNew,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -104,6 +105,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- * Methods
   imageGetPixbuf,
   imageSetFromPixbuf,
+  imageSetFromAnimation,
   imageSetFromFile,
   imageSetFromStock,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -121,6 +123,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- * Attributes
   imagePixbuf,
   imagePixmap,
+  imageAnimation,
   imageImage,
   imageMask,
   imageFile,
@@ -159,7 +162,7 @@ import Graphics.UI.Gtk.General.Structs	(IconSize(..))
 -- images, you can request any storage type (call any of the "get" functions),
 -- but they will all return @Nothing@.
 --
-{# enum ImageType {underscoreToCase} #}
+{# enum ImageType {underscoreToCase} deriving (Show, Eq) #}
 
 --------------------
 -- Constructors
@@ -204,10 +207,17 @@ imageNewFromPixbuf pixbuf =
   {# call unsafe image_new_from_pixbuf #}
     pixbuf
 
+
+imageNewFromAnimation :: (PixbufAnimationClass animation) => animation -> IO Image
+imageNewFromAnimation pba = makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
+  {# call unsafe image_new_from_animation #} (toPixbufAnimation pba)
+
+
 -- | Creates a 'Image' displaying a stock icon. If the stock icon name isn't
 -- known, the image will be empty.
 --
-imageNewFromStock :: 
+imageNewFromStock ::
     StockId  -- ^ @stockId@ - a stock icon name
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO Image
@@ -234,7 +244,7 @@ imageNew =
 --
 -- * Available since Gtk+ version 2.6
 --
-imageNewFromIconName :: 
+imageNewFromIconName ::
     String   -- ^ @iconName@ - an icon name
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO Image
@@ -267,6 +277,13 @@ imageSetFromPixbuf self pixbuf =
   {# call unsafe gtk_image_set_from_pixbuf #}
     self
     pixbuf
+
+
+imageSetFromAnimation :: (PixbufAnimationClass animation) => Image -> animation -> IO ()
+imageSetFromAnimation self pba =
+  {# call unsafe gtk_image_set_from_animation #}
+    self
+    (toPixbufAnimation pba)
 
 -- | See 'imageNewFromFile' for details.
 --
@@ -353,6 +370,11 @@ imageClear self =
 --
 imagePixbuf :: PixbufClass pixbuf => ReadWriteAttr Image Pixbuf pixbuf
 imagePixbuf = newAttrFromObjectProperty "pixbuf"
+  {# call pure unsafe gdk_pixbuf_get_type #}
+
+
+imageAnimation :: (PixbufClass pixbuf, PixbufAnimationClass animation)  => ReadWriteAttr Image animation pixbuf
+imageAnimation = newAttrFromObjectProperty "pixbuf-animation"
   {# call pure unsafe gdk_pixbuf_get_type #}
 
 -- | A 'Pixmap' to display.

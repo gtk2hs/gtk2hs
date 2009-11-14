@@ -770,6 +770,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
+	gtk/Graphics/UI/Gtk/Gdk/PixbufAnimation.chs.pp	    \
 	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Screen.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Display.chs.pp				\
