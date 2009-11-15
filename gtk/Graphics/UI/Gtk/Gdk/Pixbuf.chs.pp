@@ -594,8 +594,8 @@ pixbufComposite ::
 pixbufComposite src dest destX destY destWidth destHeight
   offsetX offsetY scaleX scaleY interp alpha =
   {#call unsafe pixbuf_composite#} src dest
-  (fromIntegral destX) (fromIntegral destY) (fromIntegral destHeight)
-  (fromIntegral destWidth) (realToFrac offsetX) (realToFrac offsetY)
+  (fromIntegral destX) (fromIntegral destY) (fromIntegral destWidth)
+  (fromIntegral destHeight) (realToFrac offsetX) (realToFrac offsetY)
   (realToFrac scaleX) (realToFrac scaleY)
   ((fromIntegral . fromEnum) interp) (fromIntegral alpha)
 
