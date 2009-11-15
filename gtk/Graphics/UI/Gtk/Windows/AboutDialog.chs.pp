@@ -43,6 +43,17 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 -- artists properties are recognized by looking for @\<user\@host>@, URLs are
 -- recognized by looking for @http:\/\/url@, with @url@ extending to the next
 -- space, tab or line break.
+-- Since 2.18 'AboutDialog' provides default website and email hooks that
+-- use 'showURI'.
+--
+-- Note that Gtk+ sets a default title of @_(\"About %s\")@ on the dialog
+-- window (where %s is replaced by the name of the application, but in order to
+-- ensure proper translation of the title, applications should set the title
+-- property explicitly when constructing a 'AboutDialog', as shown in the
+-- following example:
+--
+-- Note that prior to Gtk+ 2.12, the 'aboutDialogProgramName' property was called
+-- 'aboutDialogName'. Both names may be used in Gtk2Hs.
 
 -- * Class Hierarchy
 -- |
@@ -68,6 +79,34 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogNew,
 
 -- * Methods
+  aboutDialogSetEmailHook,
+  aboutDialogSetUrlHook,
+
+-- * Attributes
+  aboutDialogProgramName,
+  aboutDialogName,
+  aboutDialogVersion,
+  aboutDialogCopyright,
+  aboutDialogComments,
+  aboutDialogLicense,
+  aboutDialogWebsite,
+  aboutDialogWebsiteLabel,
+  aboutDialogAuthors,
+  aboutDialogDocumenters,
+  aboutDialogArtists,
+  aboutDialogTranslatorCredits,
+  aboutDialogLogo,
+  aboutDialogLogoIconName,
+#if GTK_CHECK_VERSION(2,8,0)
+  aboutDialogWrapLicense,
+#endif
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+#if GTK_CHECK_VERSION(2,12,0)
+  aboutDialogGetProgramName,
+  aboutDialogSetProgramName,
+#endif
   aboutDialogGetName,
   aboutDialogSetName,
   aboutDialogGetVersion,
@@ -94,30 +133,11 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogSetLogo,
   aboutDialogGetLogoIconName,
   aboutDialogSetLogoIconName,
-  aboutDialogSetEmailHook,
-  aboutDialogSetUrlHook,
 #if GTK_CHECK_VERSION(2,8,0)
   aboutDialogGetWrapLicense,
   aboutDialogSetWrapLicense,
 #endif
-
--- * Attributes
-  aboutDialogName,
-  aboutDialogVersion,
-  aboutDialogCopyright,
-  aboutDialogComments,
-  aboutDialogLicense,
-  aboutDialogWebsite,
-  aboutDialogWebsiteLabel,
-  aboutDialogAuthors,
-  aboutDialogDocumenters,
-  aboutDialogArtists,
-  aboutDialogTranslatorCredits,
-  aboutDialogLogo,
-  aboutDialogLogoIconName,
 #endif
-#if GTK_CHECK_VERSION(2,8,0)
-  aboutDialogWrapLicense,
 #endif
   ) where
 
@@ -127,6 +147,7 @@ import Data.Maybe	(fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject      	(makeNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -480,32 +501,35 @@ aboutDialogSetWrapLicense self wrapLicense =
 -- 'gGetApplicationName'.
 --
 aboutDialogName :: AboutDialogClass self => Attr self String
-aboutDialogName = newAttr
-  aboutDialogGetName
-  aboutDialogSetName
+aboutDialogName = newAttrFromStringProperty "name"
+
+-- | The name of the program. If this is not set, it defaults to
+-- 'gGetApplicationName'.
+--
+#if GTK_CHECK_VERSION(2,12,0)
+aboutDialogProgramName :: AboutDialogClass self => Attr self String
+aboutDialogProgramName = newAttrFromStringProperty "program-name"
+#else
+aboutDialogProgramName :: AboutDialogClass self => Attr self String
+aboutDialogProgramName = newAttrFromStringProperty "name"
+#endif
 
 -- | The version of the program.
 --
 aboutDialogVersion :: AboutDialogClass self => Attr self String
-aboutDialogVersion = newAttr
-  aboutDialogGetVersion
-  aboutDialogSetVersion
+aboutDialogVersion = newAttrFromStringProperty "version"
 
 -- | Copyright information for the program.
 --
 aboutDialogCopyright :: AboutDialogClass self => Attr self String
-aboutDialogCopyright = newAttr
-  aboutDialogGetCopyright
-  aboutDialogSetCopyright
+aboutDialogCopyright = newAttrFromStringProperty "copyright"
 
 -- | Comments about the program. This string is displayed in a label in the
 -- main dialog, thus it should be a short explanation of the main purpose of
 -- the program, not a detailed list of features.
 --
 aboutDialogComments :: AboutDialogClass self => Attr self String
-aboutDialogComments = newAttr
-  aboutDialogGetComments
-  aboutDialogSetComments
+aboutDialogComments = newAttrFromStringProperty "comments"
 
 -- | The license of the program. This string is displayed in a text view in a
 -- secondary dialog, therefore it is fine to use a long multi-paragraph text.
@@ -516,25 +540,19 @@ aboutDialogComments = newAttr
 -- Default value: @Nothing@
 --
 aboutDialogLicense :: AboutDialogClass self => Attr self (Maybe String)
-aboutDialogLicense = newAttr
-  aboutDialogGetLicense
-  aboutDialogSetLicense
+aboutDialogLicense = newAttrFromMaybeStringProperty "license"
 
 -- | The URL for the link to the website of the program. This should be a
 -- string starting with \"http:\/\/.
 --
 aboutDialogWebsite :: AboutDialogClass self => Attr self String
-aboutDialogWebsite = newAttr
-  aboutDialogGetWebsite
-  aboutDialogSetWebsite
+aboutDialogWebsite = newAttrFromStringProperty "website"
 
 -- | The label for the link to the website of the program. If this is not set,
 -- it defaults to the URL specified in the website property.
 --
 aboutDialogWebsiteLabel :: AboutDialogClass self => Attr self String
-aboutDialogWebsiteLabel = newAttr
-  aboutDialogGetWebsiteLabel
-  aboutDialogSetWebsiteLabel
+aboutDialogWebsiteLabel = newAttrFromStringProperty "website-label"
 
 -- | The authors of the program. Each string may
 -- contain email addresses and URLs, which will be displayed as links, see the
@@ -568,9 +586,7 @@ aboutDialogArtists = newAttr
 -- links, see the introduction for more details.
 --
 aboutDialogTranslatorCredits :: AboutDialogClass self => Attr self String
-aboutDialogTranslatorCredits = newAttr
-  aboutDialogGetTranslatorCredits
-  aboutDialogSetTranslatorCredits
+aboutDialogTranslatorCredits = newAttrFromStringProperty "translator-credits"
 
 -- | A logo for the about box. If this is not set, it defaults to
 -- 'windowGetDefaultIconList'.
@@ -597,7 +613,5 @@ aboutDialogLogoIconName = newAttr
 -- Default value: @False@
 --
 aboutDialogWrapLicense :: AboutDialogClass self => Attr self Bool
-aboutDialogWrapLicense = newAttr
-  aboutDialogGetWrapLicense
-  aboutDialogSetWrapLicense
+aboutDialogWrapLicense = newAttrFromBoolProperty "wrap-license"
 #endif
