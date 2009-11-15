@@ -41,6 +41,9 @@
 	GtkRcStyle
         GdkDragContext
         GdkPixbuf
+	GdkPixbufAnimation
+	    GdkPixbufSimpleAnim
+	GdkPixbufAnimationIter
         GtkTextChildAnchor
         GtkTextMark
 	    GtkSourceMarker	if sourceview
