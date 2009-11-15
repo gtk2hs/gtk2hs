@@ -138,7 +138,7 @@ treeModelFilterNew childModel root =
 -- | Sets the visible function used when filtering the rows to be @func@.
 -- The function should return @True@ if the given row should be visible and
 -- @False@ otherwise. The passed-in iterator is an iterator of the child
--- model, not of the 'TreeModelFilter' model that is passed as the first
+-- model, not of the 'TreeModelFilter' model that is passed in as the first
 -- argument to this function.
 --
 -- If the condition calculated by the function changes over time (e.g.

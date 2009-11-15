@@ -64,6 +64,7 @@ module Graphics.UI.Gtk.General.Structs (
   widgetGetDrawWindow,
   widgetGetSize,
   layoutGetDrawWindow,
+  windowGetFrame,
   styleGetForeground,
   styleGetBackground,
   styleGetLight,
@@ -718,6 +719,18 @@ layoutGetDrawWindow :: Layout -> IO DrawWindow
 layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
   withForeignPtr (unLayout lay) $
   \lay' -> liftM castPtr $ #{peek GtkLayout, bin_window} lay'
+
+-- Window related methods
+
+-- | Retrieves the frame 'DrawWindow' that contains a 'Window'.
+--
+windowGetFrame :: WindowClass widget => widget -> IO (Maybe DrawWindow)
+windowGetFrame da =
+  withForeignPtr (unWidget.toWidget $ da) $ \da' -> do
+  drawWindowPtr <- #{peek GtkWindow, frame} da'
+  if drawWindowPtr == nullPtr
+    then return Nothing
+    else liftM Just $ makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
 
 -- Styles related methods
 

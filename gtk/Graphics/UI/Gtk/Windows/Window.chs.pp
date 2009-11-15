@@ -55,32 +55,17 @@ module Graphics.UI.Gtk.Windows.Window (
   windowNewPopup,
 
 -- * Methods
-  windowSetTitle,
-  windowGetTitle,
-  windowSetResizable,
-  windowGetResizable,
   windowActivateFocus,
   windowActivateDefault,
-  windowSetModal,
-  windowGetModal,
   windowSetDefaultSize,
   windowGetDefaultSize,
-#ifndef DISABLE_DEPRECATED
-  windowSetPolicy,
-#endif
   windowSetPosition,
   WindowPosition(..),
-  windowSetTransientFor,
-  windowGetTransientFor,
-  windowSetDestroyWithParent,
-  windowGetDestroyWithParent,
 #if GTK_CHECK_VERSION(2,4,0)
   windowIsActive,
   windowHasToplevelFocus,
 #endif
   windowListToplevels,
-  windowGetFocus,
-  windowSetFocus,
   windowSetDefault,
 #if GTK_CHECK_VERSION(2,14,0)
   windowGetDefaultWidget,
@@ -88,10 +73,8 @@ module Graphics.UI.Gtk.Windows.Window (
   windowAddMnemonic,
   windowRemoveMnemonic,
   windowMnemonicActivate,
-  windowSetMnemonicModifier,
-  windowGetMnemonicModifier,
-  -- windowActivateKey,
-  -- windowPropagateKeyEvent,
+  windowActivateKey,
+  windowPropagateKeyEvent,
   windowPresent,
   windowDeiconify,
   windowIconify,
@@ -100,53 +83,29 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,2,0)
   windowFullscreen,
   windowUnfullscreen,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   windowSetKeepAbove,
   windowSetKeepBelow,
 #endif
-  windowSetSkipTaskbarHint,
-  windowGetSkipTaskbarHint,
-  windowSetSkipPagerHint,
-  windowGetSkipPagerHint,
-#endif
-#if GTK_CHECK_VERSION(2,4,0)
-  windowSetAcceptFocus,
-  windowGetAcceptFocus,
-#endif
-#if GTK_CHECK_VERSION(2,6,0)
-  windowSetFocusOnMap,
-  windowGetFocusOnMap,
-#endif
 #if GTK_CHECK_VERSION(2,12,0)
   windowSetStartupId,
 #endif
-  windowSetDecorated,
-  windowGetDecorated,
-  windowSetDeletable,
-  windowGetDeletable,
+  windowGetFrame,
   windowSetFrameDimensions,
   windowGetFrameDimensions,
-  windowSetHasFrame,
-  windowGetHasFrame,
-  windowSetRole,
-  windowGetRole,
   windowStick,
   windowUnstick,
   windowAddAccelGroup,
   windowRemoveAccelGroup,
-  windowSetIcon,
-  windowSetIconList,
-  windowGetIconList,
   windowSetDefaultIconList,
   windowGetDefaultIconList,
-#if GTK_CHECK_VERSION(2,6,0)
-  windowSetIconName,
-  windowGetIconName,
-  windowSetDefaultIconName,
-#endif
+#if GTK_CHECK_VERSION(2,4,0)
   windowSetDefaultIcon,
+#endif
 #if GTK_CHECK_VERSION(2,2,0)
   windowSetDefaultIconFromFile,
+  windowSetDefaultIconName,
 #if GTK_CHECK_VERSION(2,16,0)
   windowGetDefaultIconName,
 #endif
@@ -174,15 +133,11 @@ module Graphics.UI.Gtk.Windows.Window (
 #endif
 #if GTK_CHECK_VERSION(2,8,0)
   windowPresentWithTime,
-  windowSetUrgencyHint,
-  windowGetUrgencyHint,
 #endif
   windowSetGeometryHints,
-#if GTK_CHECK_VERSION(2,12,0)
-  windowSetOpacity,
-  windowGetOpacity,
-#endif
+#if GTK_CHECK_VERSION(2,10,0)
   windowGetGroup,
+#endif
 
 -- * Attributes
   windowTitle,
@@ -195,7 +150,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowOpacity,
 #endif
   windowRole,
+#if GTK_CHECK_VERSION(2,12,0)
   windowStartupId,
+#endif
   windowWindowPosition,
   windowDefaultWidth,
   windowDefaultHeight,
@@ -226,6 +183,10 @@ module Graphics.UI.Gtk.Windows.Window (
 #endif
   windowToplevelFocus,
   windowTransientFor,
+  windowFocus,
+  windowHasFrame,
+  windowIconList,
+  windowMnemonicModifier,
 
 -- * Signals
   activateDefault,
@@ -236,8 +197,60 @@ module Graphics.UI.Gtk.Windows.Window (
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
-  onFrameEvent,
-  afterFrameEvent,
+  windowSetTitle,
+  windowGetTitle,
+  windowSetResizable,
+  windowGetResizable,
+  windowSetModal,
+  windowGetModal,
+  windowSetPolicy,
+  windowSetTransientFor,
+  windowGetTransientFor,
+  windowSetDestroyWithParent,
+  windowGetDestroyWithParent,
+  windowGetFocus,
+  windowSetFocus,
+  windowSetMnemonicModifier,
+  windowGetMnemonicModifier,
+#if GTK_CHECK_VERSION(2,2,0)
+  windowSetSkipTaskbarHint,
+  windowGetSkipTaskbarHint,
+  windowSetSkipPagerHint,
+  windowGetSkipPagerHint,
+#if GTK_CHECK_VERSION(2,4,0)
+  windowSetAcceptFocus,
+  windowGetAcceptFocus,
+#if GTK_CHECK_VERSION(2,6,0)
+  windowSetFocusOnMap,
+  windowGetFocusOnMap,
+#endif
+#endif
+#endif
+  windowSetDecorated,
+  windowGetDecorated,
+#if GTK_CHECK_VERSION(2,10,0)
+  windowSetDeletable,
+  windowGetDeletable,
+#endif
+  windowSetHasFrame,
+  windowGetHasFrame,
+  windowSetRole,
+  windowGetRole,
+  windowSetIcon,
+  windowSetIconList,
+  windowGetIconList,
+#if GTK_CHECK_VERSION(2,6,0)
+  windowSetIconName,
+  windowGetIconName,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  windowSetUrgencyHint,
+  windowGetUrgencyHint,
+#if GTK_CHECK_VERSION(2,12,0)
+  windowSetOpacity,
+  windowGetOpacity,
+#endif
+#endif
   onSetFocus,
   afterSetFocus
 #endif
@@ -247,6 +260,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Flags
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
@@ -254,11 +268,13 @@ import System.Glib.GList                (fromGList, withGList)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
+import Graphics.UI.Gtk.General.Structs  (windowGetFrame)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
-import Graphics.UI.Gtk.Gdk.Events	(Event, EventKey, marshalEvent, MouseButton,
-					TimeStamp)
+import Graphics.UI.Gtk.Gdk.EventM	(EventM, EAny, EKey, MouseButton, TimeStamp)
+import Control.Monad.Reader             ( runReaderT, ask )
+import Control.Monad.Trans              ( liftIO )
 import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..),
 					Gravity(..))
 
@@ -456,27 +472,27 @@ windowRemoveMnemonic self keyval target =
 -- | Activates the targets associated with the mnemonic.
 windowMnemonicActivate :: WindowClass self => self
  -> Int  -- ^ @keyval@ - the mnemonic                    
- -> Modifier  -- ^ @modifier@ - the modifiers                   
+ -> [Modifier]  -- ^ @modifier@ - the modifiers                   
  -> IO Bool  -- ^ return @True@ if the activation is done. 
 windowMnemonicActivate self keyval modifier = liftM toBool $  
   {# call window_mnemonic_activate #}
     (toWindow self)
     (fromIntegral keyval)
-    (fromIntegral (fromEnum modifier))
+    (fromIntegral (fromFlags modifier))
 
 -- | Sets the mnemonic modifier for this window.
 windowSetMnemonicModifier :: WindowClass self => self
- -> Modifier  -- ^ @modifier@ - the modifier mask used to activate mnemonics on this window. 
+ -> [Modifier]  -- ^ @modifier@ - the modifier mask used to activate mnemonics on this window. 
  -> IO ()
 windowSetMnemonicModifier self modifier =
   {# call window_set_mnemonic_modifier #}
     (toWindow self)
-    (fromIntegral (fromEnum modifier))
+    (fromIntegral (fromFlags modifier))
 
 -- | Returns the mnemonic modifier for this window. See 'windowSetMnemonicModifier'.
 windowGetMnemonicModifier :: WindowClass self => self
- -> IO Modifier  -- ^ return the modifier mask used to activate mnemonics on this window. 
-windowGetMnemonicModifier self = liftM (toEnum.fromIntegral) $
+ -> IO [Modifier]  -- ^ return the modifier mask used to activate mnemonics on this window. 
+windowGetMnemonicModifier self = liftM (toFlags . fromIntegral) $
   {# call window_get_mnemonic_modifier #} 
     (toWindow self)
 
@@ -484,25 +500,28 @@ windowGetMnemonicModifier self = liftM (toEnum.fromIntegral) $
 -- This is normally called by the default 'keyPressEvent' handler for toplevel windows, 
 -- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
 -- 
--- windowActivateKey :: WindowClass self => self
---  -> EventKey  -- ^ @event@ - 'EventKey'
---  -> IO Bool   -- ^ return @True@ if a mnemonic or accelerator was found and activated. 
--- windowActivateKey self event = liftM toBool $
---   {# call window_activate_key #}
---     (toWindow self)
---     event
+windowActivateKey :: WindowClass self => self -> EventM EKey Bool
+  -- ^ return @True@ if a mnemonic or accelerator was found and activated. 
+windowActivateKey self = do
+  ptr <- ask
+  liftIO $ liftM toBool $
+    {# call window_activate_key #}
+      (toWindow self)
+      (castPtr ptr)
 
 -- | Propagate a key press or release event to the focus widget and up the focus container chain until a widget handles event. 
 -- This is normally called by the default 'keyPressEvent' and 'keyReleaseEvent' handlers for toplevel windows, 
 -- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
 --
--- windowPropagateKeyEvent :: WindowClass self => self
---  -> EventKey  -- ^ @event@ - 'EventKey'
---  -> IO Bool   -- ^ return @True@ if a widget in the focus chain handled the event. 
--- windowPropagateKeyEvent self event = liftM toBool $
---   {# call window_propagate_key_event #}
---     (toWindow self)
---     event
+windowPropagateKeyEvent :: WindowClass self => self
+  -> EventM EKey Bool
+  -- ^ return @True@ if a widget in the focus chain handled the event. 
+windowPropagateKeyEvent self = do
+  ptr <- ask
+  liftIO $ liftM toBool $
+    {# call window_propagate_key_event #}
+      (toWindow self)
+      (castPtr ptr)
 
 -- | Gets the default size of the window. A value of -1 for the width or
 -- height indicates that a default size has not been explicitly set for that
@@ -1052,39 +1071,42 @@ windowSetFrameDimensions self left top right bottom =
     (fromIntegral right)
     (fromIntegral bottom)
 
--- | (Note: this is a special-purpose function intended for the framebuffer port; see 'windowSetHasFrame'. 
+-- |  Retrieves the dimensions of the frame window for this toplevel. See 
+--    'windowSetHasFrame', 'windowSetFrameDimensions'.
+--
+-- (Note: this is a special-purpose function intended for the framebuffer port;
+-- see 'windowSetHasFrame'. 
 -- It will not return the size of the window border drawn by the window manager, 
 -- which is the normal case when using a windowing system. 
 -- See 'drawWindowGetFrameExtents' to get the standard window border extents.)
 --
--- Retrieves the dimensions of the frame window for this toplevel. See 'windowSetHasFrame', 'windowSetFrameDimensions'.
+--
 --
 windowGetFrameDimensions :: WindowClass self => self
- -> IO (Maybe (Int
-             ,Int
-             ,Int
-             ,Int))  -- ^ return @(left, top, right, bottom)@ is location to store size frame. @left@ is width of the frame at the left, @top@ is height of the frame at the top, @right@ is width of the frame at the right, @bottom@ is height of the frame at the bottom.
+ -> IO (Int, Int, Int, Int)
+ -- ^ return @(left, top, right, bottom)@ is location to store size frame. @left@ is
+ -- width of the frame at the left, @top@ is height of the frame at the top, @right@
+ -- is width of the frame at the right, @bottom@ is height of the frame at the bottom.
 windowGetFrameDimensions self = 
-  alloca $ \lPtr -> alloca $ \tPtr -> alloca $ \rPtr -> alloca $ \bPtr -> 
-    do
-      {# call window_get_frame_dimensions #} (toWindow self) lPtr tPtr rPtr bPtr
-      if lPtr == nullPtr || tPtr == nullPtr || rPtr == nullPtr || bPtr == nullPtr
-         then return Nothing
-         else do
-           lv <- peek lPtr
-           tv <- peek tPtr
-           rv <- peek rPtr
-           bv <- peek bPtr
-           return (Just (fromIntegral lv, fromIntegral tv, fromIntegral rv, fromIntegral bv))
+  alloca $ \lPtr -> alloca $ \tPtr -> alloca $ \rPtr -> alloca $ \bPtr -> do
+    {# call window_get_frame_dimensions #} (toWindow self) lPtr tPtr rPtr bPtr
+    lv <- peek lPtr
+    tv <- peek tPtr
+    rv <- peek rPtr
+    bv <- peek bPtr
+    return (fromIntegral lv, fromIntegral tv, fromIntegral rv, fromIntegral bv)
 
--- | (Note: this is a special-purpose function for the framebuffer port, that causes GTK+ to draw its own window border. 
+-- | If this function is called on a window with setting of @True@, before it is realized
+-- or showed, it will have a "frame" window around its 'DrawWindow',
+-- accessible using 'windowGetFrame'. Using the signal 'windowFrameEvent' you can
+-- receive all events targeted at the frame.
+--
+-- (Note: this is a special-purpose function for the framebuffer port, that causes GTK+ to draw its own window border. 
 -- For most applications, you want  'windowSetDecorated' instead, which tells the window manager whether to draw the window border.)
 --
--- If this function is called on a window with setting of @True@, before it is realized or showed, it will have a "frame" window around window->window,
--- accessible in window->frame. Using the signal frame_event you can receive all events targeted at the frame.
---
 -- This function is used by the linux-fb port to implement managed windows, 
--- but it could conceivably be used by X-programs that want to do their own window decorations.
+-- but it could conceivably be used by X-programs that want to do their own window
+-- decorations.
 --
 windowSetHasFrame :: WindowClass self => self 
  -> Bool  -- ^ @setting@ - a boolean   
@@ -1328,6 +1350,7 @@ windowSetDefaultIconName name =
     namePtr
 #endif
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Sets an icon to be used as fallback for windows that haven't had 'windowSetIcon' called on them from a pixbuf.
 --
 -- * Available since Gtk+ version 2.4
@@ -1337,7 +1360,7 @@ windowSetDefaultIcon (Just icon) =
   {# call window_set_default_icon #} icon
 windowSetDefaultIcon Nothing =
   {# call window_set_default_icon #} (Pixbuf nullForeignPtr)
-
+#endif
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Sets an icon to be used as fallback for windows that haven't had
@@ -1881,6 +1904,7 @@ windowGetOpacity self = liftM realToFrac $
  {#call window_get_opacity#} (toWindow self)
 #endif
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | Returns the group for window or the default group, if window is @Nothing@ or if window does not have an explicit window group.
 -- 
 -- * Available since Gtk+ version 2.10
@@ -1890,7 +1914,7 @@ windowGetGroup :: WindowClass self => Maybe self
 windowGetGroup self = 
   makeNewGObject mkWindowGroup $
   {# call window_get_group #} (maybe (Window nullForeignPtr) toWindow self)
-  
+#endif  
 
 {# enum GdkWindowHints {underscoreToCase} #}
 
@@ -1959,6 +1983,66 @@ windowOpacity :: WindowClass self => Attr self Double
 windowOpacity = newAttrFromDoubleProperty "opacity"
 #endif
 
+-- | If @focus@ is not the current focus widget, and is focusable, sets it as
+-- the focus widget for the window. If @focus@ is @Nothing@, unsets the focus widget for
+-- this window. To set the focus to a particular widget in the toplevel, it is
+-- usually more convenient to use 'widgetGrabFocus' instead of this function.
+--
+windowFocus :: WindowClass self => Attr self (Maybe Widget)
+windowFocus = newAttr
+  windowGetFocus
+  windowSetFocus
+
+-- | (Note: this is a special-purpose function for the framebuffer port, that
+-- causes Gtk+ to draw its own window border. For most applications, you want
+-- 'windowSetDecorated' instead, which tells the window manager whether to draw
+-- the window border.)
+--
+-- If this function is called on a window with setting of @True@, before it
+-- is realized or showed, it will have a \"frame\" window around
+-- its 'DrawWindow', accessible using 'windowGetFrame'. Using the signal
+-- 'windowFrameEvent' you can receive all events targeted at the frame.
+--
+-- This function is used by the linux-fb port to implement managed windows,
+-- but it could conceivably be used by X-programs that want to do their own
+-- window decorations.
+--
+windowHasFrame :: WindowClass self => Attr self Bool
+windowHasFrame = newAttr
+  windowGetHasFrame
+  windowSetHasFrame
+
+-- | Sets up the icon representing a 'Window'. The icon is used when the
+-- window is minimized (also known as iconified). Some window managers or
+-- desktop environments may also place it in the window frame, or display it in
+-- other contexts.
+--
+-- By passing several sizes, you may improve the final image quality of the
+-- icon, by reducing or eliminating automatic image scaling.
+--
+-- Recommended sizes to provide: 16x16, 32x32, 48x48 at minimum, and larger
+-- images (64x64, 128x128) if you have them.
+--
+-- See also 'windowSetDefaultIconList' to set the icon for all windows in
+-- your application in one go.
+--
+-- Note that transient windows (those who have been set transient for
+-- another window using 'windowSetTransientFor') will inherit their icon from
+-- their transient parent. So there's no need to explicitly set the icon on
+-- transient windows.
+--
+windowIconList :: WindowClass self => Attr self [Pixbuf]
+windowIconList = newAttr
+  windowGetIconList
+  windowSetIconList
+
+-- | The mnemonic modifier for this window.
+--
+windowMnemonicModifier :: WindowClass self => Attr self [Modifier]
+windowMnemonicModifier = newAttr
+  windowGetMnemonicModifier
+  windowSetMnemonicModifier
+
 -- | Unique identifier for the window to be used when restoring a session.
 --
 -- Default value: "\\"
@@ -1966,7 +2050,8 @@ windowOpacity = newAttrFromDoubleProperty "opacity"
 windowRole :: WindowClass self => Attr self String
 windowRole = newAttrFromStringProperty "role"
 
--- | The :startup-id is a write-only property for setting window's startup notification identifier. See 'windowSetStartupId' for more details.
+#if GTK_CHECK_VERSION(2,12,0)
+-- | The 'windowStartupId' is a write-only property for setting window's startup notification identifier.
 --
 -- Default value: "\\"
 --
@@ -1974,6 +2059,7 @@ windowRole = newAttrFromStringProperty "role"
 --
 windowStartupId :: WindowClass self => Attr self String
 windowStartupId = newAttrFromStringProperty "startup-id"
+#endif
 
 -- | The initial position of the window.
 --
@@ -2026,7 +2112,7 @@ windowIcon = newAttr
   windowGetIcon
   windowSetIcon
 
--- | The :icon-name property specifies the name of the themed icon to use as the window icon. See GtkIconTheme for more details.
+-- | The 'windowIconName' property specifies the name of the themed icon to use as the window icon. See 'IconTheme' for more details.
 --
 -- Default values: "\\"
 --
@@ -2158,32 +2244,25 @@ activateDefault = Signal (connect_NONE__NONE "activate_default")
 activateFocus :: WindowClass self => Signal self (IO ())
 activateFocus = Signal (connect_NONE__NONE "activate_focus")
 
--- | 
+-- | Observe events that are emitted on the frame of this window.
 -- 
-frameEvent :: WindowClass self => Signal self (Event -> IO Bool)
-frameEvent = Signal (connect_BOXED__BOOL "frame_event" marshalEvent)
+frameEvent :: WindowClass self => Signal self (EventM EAny Bool)
+frameEvent = Signal (\after obj fun ->
+                     connect_PTR__BOOL "frame_event" after obj (runReaderT fun))
 
 -- | The 'keysChanged' signal gets emitted when the set of accelerators or mnemonics that are associated with window changes.
 --
 keysChanged :: WindowClass self => Signal self (IO ())
 keysChanged = Signal (connect_NONE__NONE "keys_changed")
 
--- | 
+-- | Observe a change in input focus.
 --
 setFocus :: WindowClass self => Signal self (Widget -> IO ())
 setFocus = Signal (connect_OBJECT__NONE "set_focus")
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
--- | 
---
-onFrameEvent, afterFrameEvent :: WindowClass self => self
- -> (Event -> IO Bool)
- -> IO (ConnectId self)
-onFrameEvent = connect_BOXED__BOOL "frame_event" marshalEvent False
-afterFrameEvent = connect_BOXED__BOOL "frame_event" marshalEvent True
-
--- | 
+-- | Observe a change in input focus.
 --
 onSetFocus, afterSetFocus :: (WindowClass self, WidgetClass foc) => self
  -> (foc -> IO ())
