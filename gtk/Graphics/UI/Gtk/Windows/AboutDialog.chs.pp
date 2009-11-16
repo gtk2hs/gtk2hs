@@ -103,10 +103,6 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
-#if GTK_CHECK_VERSION(2,12,0)
-  aboutDialogGetProgramName,
-  aboutDialogSetProgramName,
-#endif
   aboutDialogGetName,
   aboutDialogSetName,
   aboutDialogGetVersion,
@@ -174,7 +170,11 @@ aboutDialogNew =
 aboutDialogGetName :: AboutDialogClass self => self
  -> IO String -- ^ returns The program name.
 aboutDialogGetName self =
+#if GTK_CHECK_VERSION(2,12,0)
+  {# call gtk_about_dialog_get_program_name #}
+#else
   {# call gtk_about_dialog_get_name #}
+#endif
     (toAboutDialog self)
   >>= peekUTFString
 
@@ -186,7 +186,11 @@ aboutDialogSetName :: AboutDialogClass self => self
  -> IO ()
 aboutDialogSetName self name =
   withUTFString name $ \namePtr ->
+#if GTK_CHECK_VERSION(2,12,0)
+  {# call gtk_about_dialog_set_program_name #}
+#else
   {# call gtk_about_dialog_set_name #}
+#endif
     (toAboutDialog self)
     namePtr
 
