@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Plug
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2009      Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -56,13 +57,29 @@ module Graphics.UI.Gtk.Embedding.Plug (
 
 -- * Constructors
   plugNew,
+#if GTK_CHECK_VERSION(2,2,0)
+  plugNewForDisplay,
+#endif
 
 -- * Methods
   plugGetId,
+#if GTK_CHECK_VERSION(2,14,0)
+  plugGetEmbedded,
+  plugGetSocketWindow,
+#endif
+
+-- * Attributes
+  plugAttrEmbedded,
+  plugAttrSocketWindow,
 
 -- * Signals
+  plugEmbedded,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onEmbedded,
   afterEmbedded,
+#endif
 #endif
   ) where
 
@@ -70,6 +87,8 @@ import Control.Monad	(liftM)
 import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -102,6 +121,24 @@ plugNew socketId =
   {# call unsafe plug_new #}
     (fromNativeWindowId (fromMaybe nativeWindowIdNone socketId))
 
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Create a new plug widget inside the 'Socket' identified by socket_id.
+--
+-- * Available since Gtk+ version 2.2
+--
+plugNewForDisplay ::
+    Display             -- ^ @display@ - the 'Display' on which @socketId@ is
+                        -- displayed
+ -> Maybe NativeWindowId -- ^ @socketId@ - the XID of the socket's window.
+ -> IO Plug
+plugNewForDisplay display socketId =
+  makeNewObject mkPlug $
+  liftM (castPtr :: Ptr Widget -> Ptr Plug) $
+  {# call gtk_plug_new_for_display #}
+    display
+    (fromNativeWindowId (fromMaybe nativeWindowIdNone socketId))
+#endif
+
 --------------------
 -- Methods
 
@@ -116,15 +153,75 @@ plugGetId self =
   {# call unsafe plug_get_id #}
     (toPlug self)
 
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Determines whether the plug is embedded in a socket.
+--
+-- * Available since Gtk+ version 2.14
+--
+plugGetEmbedded :: PlugClass self => self
+ -> IO Bool -- ^ returns @True@ if the plug is embedded in a socket
+plugGetEmbedded self =
+  liftM toBool $
+  {# call gtk_plug_get_embedded #}
+    (toPlug self)
+
+-- | Retrieves the socket the plug is embedded in.
+--
+-- * Available since Gtk+ version 2.14
+--
+plugGetSocketWindow :: PlugClass self => self
+ -> IO DrawWindow -- ^ returns the window of the socket, or {@NULL@, FIXME:
+                  -- this should probably be converted to a Maybe data type}
+plugGetSocketWindow self =
+  makeNewGObject mkDrawWindow $
+  {# call gtk_plug_get_socket_window #}
+    (toPlug self)
+#endif
+
+--------------------
+-- Attributes
+
+-- | @True@ if the plug is embedded in a socket.
+--
+-- Default value: FALSE
+-- 
+-- * Available since Gtk+ version 2.12
+--
+plugAttrEmbedded :: PlugClass self => ReadAttr self Bool
+plugAttrEmbedded = readAttrFromBoolProperty "embedded"
+
+-- | The window of the socket the plug is embedded in.
+--
+-- * Available since Gtk+ version 2.14
+-- 
+plugAttrSocketWindow :: PlugClass self => ReadAttr self DrawWindow
+plugAttrSocketWindow = readAttrFromObjectProperty "socket-window"
+                       {# call pure unsafe gdk_window_object_get_type #}
+
 --------------------
 -- Signals
 
--- | This plug received another application.
+-- | Gets emitted when the plug becomes embedded in a socket and when the
+-- embedding ends.
 --
-onEmbedded, afterEmbedded :: PlugClass self => self
+plugEmbedded :: PlugClass self => Signal self (IO ())
+plugEmbedded = Signal (connect_NONE__NONE "embedded")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+onEmbedded :: PlugClass self => self
  -> IO ()
  -> IO (ConnectId self)
 onEmbedded = connect_NONE__NONE "embedded" False
+{-# DEPRECATED onEmbedded "instead of 'onEmbedded obj' use 'on obj plugEmbedded'" #-}
+
+afterEmbedded :: PlugClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 afterEmbedded = connect_NONE__NONE "embedded" True
+{-# DEPRECATED afterEmbedded "instead of 'afterEmbedded obj' use 'after obj plugEmbedded'" #-}
+#endif
 
 #endif

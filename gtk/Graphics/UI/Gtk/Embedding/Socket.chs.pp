@@ -1,11 +1,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Socket
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2009      Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -95,18 +96,29 @@ module Graphics.UI.Gtk.Embedding.Socket (
   socketHasPlug,
   socketAddId,
   socketGetId,
+#if GTK_CHECK_VERSION(2,14,0)
+  socketGetPlugWindow,
+#endif
 
 -- * Signals
+  socketPlugAdded,
+  socketPlugRemoved,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onPlugAdded,
   afterPlugAdded,
   onPlugRemoved,
   afterPlugRemoved,
+#endif
 #endif
   ) where
 
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -170,23 +182,64 @@ socketGetId self =
   {# call unsafe socket_get_id #}
     (toSocket self)
 
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Retrieves the window of the plug. Use this to check if the plug has been
+-- created inside of the socket.
+--
+-- * Available since Gtk+ version 2.14
+--
+socketGetPlugWindow :: SocketClass self => self
+ -> IO DrawWindow -- ^ returns the window of the plug if available, or
+                  -- {@NULL@, FIXME: this should probably be converted to a
+                  -- Maybe data type}
+socketGetPlugWindow self =
+  makeNewGObject mkDrawWindow $
+  {# call gtk_socket_get_plug_window #}
+    (toSocket self)
+#endif
+
 --------------------
 -- Signals
 
 -- | This signal is emitted when a client is successfully added to the socket.
 --
-onPlugAdded, afterPlugAdded :: SocketClass self => self
+socketPlugAdded :: SocketClass self => Signal self (IO ())
+socketPlugAdded = Signal (connect_NONE__NONE "plug-added")
+
+-- | This signal is emitted when a client is removed from the socket. The
+-- default action is to destroy the 'Socket' widget, so if you want to reuse it
+-- you must add a signal handler that returns @True@.
+--
+socketPlugRemoved :: SocketClass self => Signal self (IO Bool)
+socketPlugRemoved = Signal (connect_NONE__BOOL "plug-removed")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+onPlugAdded :: SocketClass self => self
  -> IO ()
  -> IO (ConnectId self)
 onPlugAdded = connect_NONE__NONE "plug-added" False
-afterPlugAdded = connect_NONE__NONE "plug-added" True
+{-# DEPRECATED onPlugAdded "instead of 'onPlugAdded obj' use 'on obj socketPlugAdded'" #-}
 
--- | This signal is emitted when a client is removed from the socket.
---
-onPlugRemoved, afterPlugRemoved :: SocketClass self => self
+afterPlugAdded :: SocketClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onPlugRemoved = connect_NONE__NONE "plug-removed" False
-afterPlugRemoved = connect_NONE__NONE "plug-removed" True
+afterPlugAdded = connect_NONE__NONE "plug-added" True
+{-# DEPRECATED afterPlugAdded "instead of 'afterPlugAdded obj' use 'after obj socketPlugAdded'" #-}
+
+onPlugRemoved :: SocketClass self => self
+ -> IO Bool
+ -> IO (ConnectId self)
+onPlugRemoved = connect_NONE__BOOL "plug-removed" False
+{-# DEPRECATED onPlugRemoved "instead of 'onPlugRemoved obj' use 'on obj socketPlugRemoved'" #-}
+
+afterPlugRemoved :: SocketClass self => self
+ -> IO Bool
+ -> IO (ConnectId self)
+afterPlugRemoved = connect_NONE__BOOL "plug-removed" True
+{-# DEPRECATED afterPlugRemoved "instead of 'afterPlugRemoved obj' use 'after obj socketPlugRemoved'" #-}
+#endif
 
 #endif
