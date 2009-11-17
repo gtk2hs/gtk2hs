@@ -170,10 +170,9 @@ plugGetEmbedded self =
 -- * Available since Gtk+ version 2.14
 --
 plugGetSocketWindow :: PlugClass self => self
- -> IO DrawWindow -- ^ returns the window of the socket, or {@NULL@, FIXME:
-                  -- this should probably be converted to a Maybe data type}
+ -> IO (Maybe DrawWindow) -- ^ returns the window of the socket
 plugGetSocketWindow self =
-  makeNewGObject mkDrawWindow $
+  maybeNull (makeNewGObject mkDrawWindow) $
   {# call gtk_plug_get_socket_window #}
     (toPlug self)
 #endif
@@ -183,7 +182,7 @@ plugGetSocketWindow self =
 
 -- | @True@ if the plug is embedded in a socket.
 --
--- Default value: FALSE
+-- Default value: @False@
 -- 
 -- * Available since Gtk+ version 2.12
 --
@@ -194,8 +193,8 @@ plugAttrEmbedded = readAttrFromBoolProperty "embedded"
 --
 -- * Available since Gtk+ version 2.14
 -- 
-plugAttrSocketWindow :: PlugClass self => ReadAttr self DrawWindow
-plugAttrSocketWindow = readAttrFromObjectProperty "socket-window"
+plugAttrSocketWindow :: PlugClass self => ReadAttr self (Maybe DrawWindow)
+plugAttrSocketWindow = readAttrFromMaybeObjectProperty "socket-window"
                        {# call pure unsafe gdk_window_object_get_type #}
 
 --------------------
@@ -206,22 +205,5 @@ plugAttrSocketWindow = readAttrFromObjectProperty "socket-window"
 --
 plugEmbedded :: PlugClass self => Signal self (IO ())
 plugEmbedded = Signal (connect_NONE__NONE "embedded")
-
---------------------
--- Deprecated Signals
-
-#ifndef DISABLE_DEPRECATED
-onEmbedded :: PlugClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onEmbedded = connect_NONE__NONE "embedded" False
-{-# DEPRECATED onEmbedded "instead of 'onEmbedded obj' use 'on obj plugEmbedded'" #-}
-
-afterEmbedded :: PlugClass self => self
- -> IO ()
- -> IO (ConnectId self)
-afterEmbedded = connect_NONE__NONE "embedded" True
-{-# DEPRECATED afterEmbedded "instead of 'afterEmbedded obj' use 'after obj plugEmbedded'" #-}
-#endif
 
 #endif
