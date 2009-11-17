@@ -85,6 +85,8 @@ module System.Glib.Properties (
   writeAttrFromObjectProperty,
   readAttrFromObjectProperty,
   newAttrFromMaybeObjectProperty,
+  writeAttrFromMaybeObjectProperty,
+  readAttrFromMaybeObjectProperty,
   
   -- TODO: do not export these once we dump the old TreeList API:
   objectGetPropertyInternal,
@@ -324,10 +326,6 @@ newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClas
 newAttrFromObjectProperty propName gtype =
   newNamedAttr propName (objectGetPropertyGObject gtype propName) (objectSetPropertyGObject gtype propName)
 
-newAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj (Maybe gobj') (Maybe gobj'')
-newAttrFromMaybeObjectProperty propName gtype =
-  newNamedAttr propName (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
- 
 writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj gobj'
 writeAttrFromObjectProperty propName gtype =
   writeNamedAttr propName (objectSetPropertyGObject gtype propName)
@@ -335,3 +333,15 @@ writeAttrFromObjectProperty propName gtype =
 readAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> ReadAttr gobj gobj'
 readAttrFromObjectProperty propName gtype =
   readNamedAttr propName (objectGetPropertyGObject gtype propName)
+
+newAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj (Maybe gobj') (Maybe gobj'')
+newAttrFromMaybeObjectProperty propName gtype =
+  newNamedAttr propName (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
+ 
+writeAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj (Maybe gobj')
+writeAttrFromMaybeObjectProperty propName gtype =
+  writeNamedAttr propName (objectSetPropertyMaybeGObject gtype propName)
+
+readAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> ReadAttr gobj (Maybe gobj')
+readAttrFromMaybeObjectProperty propName gtype =
+  readNamedAttr propName (objectGetPropertyMaybeGObject gtype propName)

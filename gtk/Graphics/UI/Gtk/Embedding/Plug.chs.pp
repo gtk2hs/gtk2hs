@@ -74,12 +74,6 @@ module Graphics.UI.Gtk.Embedding.Plug (
 
 -- * Signals
   plugEmbedded,
-
--- * Deprecated
-#ifndef DISABLE_DEPRECATED
-  onEmbedded,
-  afterEmbedded,
-#endif
 #endif
   ) where
 

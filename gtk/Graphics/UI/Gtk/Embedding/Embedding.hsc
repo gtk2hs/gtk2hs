@@ -22,11 +22,6 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- TODO
---
--- * NativeWindowId is a CUInt for c2hs and a Word32 for hsc2hs. I used
---   fromIntegral to make it work, but it doesn't feel right.
---
 module Graphics.UI.Gtk.Embedding.Embedding (
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   socketHasPlug,
