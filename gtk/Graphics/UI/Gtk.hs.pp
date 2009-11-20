@@ -218,6 +218,7 @@ module Graphics.UI.Gtk (
   module System.Glib.Signals,
   module System.Glib.Attributes,
   module System.Glib.GObject,
+  module Graphics.UI.Gtk.Builder,
 
   -- * Pango text layout modules
   module Graphics.UI.Gtk.Pango.Context,
@@ -434,6 +435,7 @@ import System.Glib.GObject (
   objectGetAttributeUnsafe,
   isA
   )
+import Graphics.UI.Gtk.Builder
   
 -- pango modules
 import Graphics.UI.Gtk.Pango.Context

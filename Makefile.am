@@ -789,6 +789,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/EventM.hsc				\
 	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
+	gtk/Graphics/UI/Gtk/Builder.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs.pp				\
 	gtk/Graphics/UI/Gtk/General/RcStyle.chs.pp			\
