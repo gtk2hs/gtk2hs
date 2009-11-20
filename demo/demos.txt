@@ -48,6 +48,8 @@ gstreamer: Seems to try to play a sound file (Vorbis)
 TODO (install gstreamer and try again)
     Could not find module `Media.Streaming.GStreamer'
 
+gtkbuilder: same as ./glade, but with GtkBuilder
+
 hello: just a button HelloWorld that quit program (which is full of comments)
 
 mozembed: Probably show a web page inside a window?
