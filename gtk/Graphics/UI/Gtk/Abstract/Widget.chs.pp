@@ -2455,7 +2455,8 @@ deleteEvent = Signal (eventM "delete_event" [])
 -- | The 'destroyEvent' signal is emitted when a 'DrawWindow' is destroyed.
 -- You rarely get this signal, because most widgets disconnect themselves from
 -- their window before they destroy it, so no widget owns the window at
--- destroy time.
+-- destroy time. However, you might want to connect to the 'objectDestroy'
+-- signal of 'Object'.
 --
 destroyEvent :: WidgetClass self => Signal self (EventM EAny Bool)
 destroyEvent = Signal (eventM "destroy_event" [])

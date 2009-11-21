@@ -34,9 +34,6 @@ module Graphics.UI.Gtk.Entry.Editable (
 -- signals that an application can connect to to modify the behavior of a
 -- widget.
 --
--- As an example of the latter usage, by connecting the following handler to
--- \"insert_text\", an application can convert all entry into a widget into
--- uppercase.
 
 -- * Class Hierarchy
 -- |
@@ -100,7 +97,7 @@ import System.Glib.Attributes
 -- characters from @startPos@ to the end of the text.
 --
 -- Calling this function with @start@=1 and @end@=4 it will mark \"ask\" in
--- the string \"Haskell\". (FIXME: verify)
+-- the string \"Haskell\".
 --
 editableSelectRegion :: EditableClass self => self
  -> Int   -- ^ @start@ - the starting position.
