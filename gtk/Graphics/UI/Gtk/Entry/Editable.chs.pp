@@ -336,18 +336,18 @@ onInsertText obj handler =
   (\strPtr strLen posPtr -> do
     str <- if strLen<0 then peekUTFString strPtr
 	   else peekUTFStringLen (strPtr, strLen)
-    pos <- peek posPtr
-    pos' <- handler str pos
-    poke posPtr pos'
+    pos <- peek (posPtr :: Ptr {#type gint#})
+    pos' <- handler str (fromIntegral pos)
+    poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
   )
 afterInsertText obj handler =
   connect_PTR_INT_PTR__NONE "insert_text" True obj
   (\strPtr strLen posPtr -> do
     str <- if strLen<0 then peekUTFString strPtr
 	   else peekUTFStringLen (strPtr, strLen)
-    pos <- peek posPtr
-    pos' <- handler str pos
-    poke posPtr pos'
+    pos <- peek (posPtr :: Ptr {#type gint#})
+    pos' <- handler str (fromIntegral pos)
+    poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
   )
 
 -- | Stop the current signal that inserts text.
