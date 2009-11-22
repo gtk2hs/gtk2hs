@@ -793,9 +793,11 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs.pp				\
 	gtk/Graphics/UI/Gtk/General/RcStyle.chs.pp			\
-	gtk/Graphics/UI/Gtk/General/Selection.chs.pp \
-	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
-	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
+	gtk/Graphics/UI/Gtk/General/Selection.chs.pp                    \
+	gtk/Graphics/UI/Gtk/General/Drag.chs.pp                         \
+	gtk/Graphics/UI/Gtk/General/DNDTypes.chs                        \
+        gtk/Graphics/UI/Gtk/General/Threading.hs
+
 gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.o: gtk/Graphics/UI/Gtk/ModelView/CustomStore.o
 
 if ENABLE_CAIRO
@@ -817,7 +819,8 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/ModelView/Sequence.hs		\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs \
-	gtk/Graphics/UI/Gtk/General/DNDTypes.hs
+	gtk/Graphics/UI/Gtk/General/DNDTypes.hs                 \
+        gtk/Graphics/UI/Gtk/General/Threading.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
@@ -879,7 +882,8 @@ gtk/Graphics/UI/Gtk/Types.chs : \
         $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
         $@ $(addprefix --tag=,$(CREATE_TYPES)) \
 	--modname=Graphics.UI.Gtk.Types \
-        --forward=*System.Glib.GObject)
+        --forward=*System.Glib.GObject --destructor=objectUnrefFromMainloop \
+        --forward=Graphics.UI.Gtk.General.Threading )
 
 gtk/Graphics/UI/Gtk/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \
@@ -1022,7 +1026,8 @@ glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.l
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 		      $@ --tag=libglade --lib=glade --prefix=glade \
-                      --modname=Graphics.UI.Gtk.Glade.Types \
+		      --modname=Graphics.UI.Gtk.Glade.Types \
+		      --destructor=objectUnrefFromMainloop \
 		      --import=*Graphics.UI.Gtk.Types)
 
 libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
@@ -1157,6 +1162,7 @@ vte/Graphics/UI/Gtk/Vte/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list 
 		      $@ --tag=vte --lib=vte --prefix=vte \
                       --modname=Graphics.UI.Gtk.Vte.Types \
 		      --forward=*System.Glib.GObject \
+		      --destructor=objectUnrefFromMainloop \
 		      --forward=*Graphics.UI.Gtk.Types)
 
 
@@ -1442,6 +1448,7 @@ sourceview/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=sourceview --import=*Graphics.UI.Gtk.Types \
+	--destructor=objectUnrefFromMainloop \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
 libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsourceview_a_SOURCES)
@@ -1583,6 +1590,7 @@ gtksourceview2/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ $(addprefix --tag=,$(GTKSOURCEVIEW2_CREATE_TYPES)) \
 	--import=*Graphics.UI.Gtk.Types \
+	--destructor=objectUnrefFromMainloop \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
 gtksourceview2/Graphics/UI/Gtk/SourceView/Signals.chs : \
@@ -1715,6 +1723,7 @@ mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=mozembed --import=*Graphics.UI.Gtk.Types \
+	--destructor=objectUnrefFromMainloop \
 	--modname=Graphics.UI.Gtk.MozEmbed.Types)
 
 libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a_SOURCES)
@@ -2103,6 +2112,7 @@ gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gtkglext --import=*Graphics.UI.Gtk.Types \
+	--destructor=objectUnrefFromMainloop \
         --modname=Graphics.UI.Gtk.OpenGL.Types)
 
 libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a_SOURCES)
