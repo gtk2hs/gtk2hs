@@ -240,10 +240,16 @@ foreign import ccall "wrapper"
 -- the following mess is necessary to clean up the FunPtr after
 -- busSetSyncHandler.  gstreamer doesn't give us a nice way to do this
 -- (such as a DestroyNotify pointer in the argument list)
-weakNotifyQuark, funPtrQuark :: Quark
-weakNotifyQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerWeakNotify"
+-- Note: I've removed this magic since GWeakNotify had to moved out of
+-- GObject since GObject can be finalized directly from the Haskell GC
+-- which can (and will in the case below) callbacks into Haskell that
+-- will make the program abort. We're leaking the function closure instead.
+--weakNotifyQuark,
+funPtrQuark :: Quark
+--weakNotifyQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerWeakNotify"
 funPtrQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerFunPtr"
 
+{-
 getWeakNotify :: BusClass busT
               => busT
               -> IO (Maybe GWeakNotify)
@@ -254,6 +260,7 @@ setWeakNotify :: BusClass busT
               -> Maybe GWeakNotify
               -> IO ()
 setWeakNotify = objectSetAttribute weakNotifyQuark
+-}
 
 getFunPtr :: BusClass busT
           => busT
@@ -271,11 +278,13 @@ unsetSyncHandler :: BusClass busT
                  -> IO ()
 unsetSyncHandler bus = do
   {# call bus_set_sync_handler #} (toBus bus) nullFunPtr nullPtr
+{-
   oldWeakNotifyM <- getWeakNotify bus
   case oldWeakNotifyM of
     Just oldWeakNotify -> objectWeakunref bus oldWeakNotify
     Nothing            -> return ()
   setWeakNotify bus Nothing
+-}
   oldFunPtrM <- getFunPtr bus
   case oldFunPtrM of
     Just oldFunPtr -> freeHaskellFunPtr oldFunPtr
@@ -301,8 +310,10 @@ busSetSyncHandler bus busSyncHandlerM = do
       Just busSyncHandler ->
           do funPtr <- marshalBusSyncHandler busSyncHandler
              setFunPtr bus $ Just funPtr
+{-             
              weakNotify <- objectWeakref bus $ freeHaskellFunPtr funPtr
              setWeakNotify bus $ Just weakNotify
+-}
              {# call bus_set_sync_handler #} (toBus bus) funPtr nullPtr
       Nothing ->
           return ()
