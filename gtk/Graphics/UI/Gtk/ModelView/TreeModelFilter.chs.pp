@@ -159,7 +159,7 @@ treeModelFilterSetVisibleFunc self (Just func) = do
     liftM fromBool $ func ti
   destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_tree_model_filter_set_visible_func #}
-    (toTreeModelFilter self) funcPtr nullPtr destroyPtr
+    (toTreeModelFilter self) funcPtr (castFunPtrToPtr funcPtr) destroyPtr
 
 {#pointer TreeModelFilterVisibleFunc #}
 

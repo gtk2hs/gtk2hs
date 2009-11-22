@@ -499,7 +499,7 @@ comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
 	return (extract value)
   desPtr <- mkFunPtrDestroyNotify funPtr
   {# call gtk_combo_box_set_row_separator_func #}
-    (toComboBox self) funPtr nullPtr desPtr
+    (toComboBox self) funPtr (castFunPtrToPtr funPtr) desPtr
 
 {#pointer TreeViewRowSeparatorFunc#}
 

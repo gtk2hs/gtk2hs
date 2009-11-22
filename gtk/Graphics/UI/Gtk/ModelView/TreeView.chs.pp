@@ -558,7 +558,7 @@ treeViewSetColumnDragFunction self (Just pred) = do
   {# call tree_view_set_column_drag_function #}
     (toTreeView self)
     fPtr
-    nullPtr dPtr
+    (castFunPtrToPtr fPtr) dPtr
 
 {#pointer TreeViewColumnDropFunc#}
 
@@ -1071,7 +1071,7 @@ treeViewSetSearchEqualFunc self (Just pred) = do
     liftM (fromBool . not) $ pred key iter)
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
-    nullPtr dPtr
+    (castFunPtrToPtr fPtr) dPtr
   {# call tree_view_set_search_column #} (toTreeView self) 0
 treeViewSetSearchEqualFunc self Nothing = do
   {# call tree_view_set_search_equal_func #} (toTreeView self)
@@ -1323,7 +1323,7 @@ treeViewSetRowSeparatorFunc self (Just func) = do
     liftM fromBool $ func ti
   destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_tree_view_set_row_separator_func #}
-    (toTreeView self) funcPtr nullPtr destroyPtr
+    (toTreeView self) funcPtr (castFunPtrToPtr funcPtr) destroyPtr
 
 {#pointer TreeViewRowSeparatorFunc #}
 

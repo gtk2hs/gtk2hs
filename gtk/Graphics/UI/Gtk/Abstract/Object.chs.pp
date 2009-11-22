@@ -60,6 +60,11 @@ module Graphics.UI.Gtk.Abstract.Object (
 -- * Methods
   makeNewObject,
 
+-- * Weak references
+  GWeakNotify,
+  objectWeakref,
+  objectWeakunref,
+
 -- * Signals
   objectDestroy
   ) where
@@ -75,6 +80,7 @@ import System.Glib.GObject      (objectRef)
 #endif
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Data.IORef
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -114,6 +120,30 @@ makeNewObject (constr, objectUnref) generator = do
 #endif
   obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
+
+{#pointer GWeakNotify#}
+
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
+
+-- | Attach a callback that will be called after the
+-- destroy hooks have been called
+--
+objectWeakref :: ObjectClass o => o -> IO () -> IO GWeakNotify
+objectWeakref obj uFun = do
+  funPtrContainer <- newIORef nullFunPtr
+  uFunPtr <- mkDestructor $ do
+    uFun
+    funPtr <- readIORef funPtrContainer
+    freeHaskellFunPtr funPtr
+  writeIORef funPtrContainer uFunPtr
+  {#call unsafe g_object_weak_ref#} (toGObject obj) uFunPtr nullPtr
+  return uFunPtr
+
+-- | Detach a weak destroy callback function
+--
+objectWeakunref :: ObjectClass o => o -> GWeakNotify -> IO ()
+objectWeakunref obj fun = 
+  {#call unsafe g_object_weak_unref#} (toGObject obj) fun nullPtr
 
 
 --------------------

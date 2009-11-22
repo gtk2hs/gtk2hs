@@ -153,7 +153,7 @@ treeSelectionSetSelectFunction ts fun = do
   {# call tree_selection_set_select_function #}
     (toTreeSelection ts)
     fPtr
-    nullPtr
+    (castFunPtrToPtr fPtr)
     dPtr
 
 -- | Callback type for a function that is called everytime the selection

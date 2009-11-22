@@ -445,7 +445,7 @@ aboutDialogSetEmailHook func = do
   destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_email_hook #}
     funcPtr
-    nullPtr
+    (castFunPtrToPtr funcPtr)
     destroyPtr
   return ()
 
@@ -464,7 +464,7 @@ aboutDialogSetUrlHook func = do
   destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_url_hook #}
     funcPtr
-    nullPtr
+    (castFunPtrToPtr funcPtr)
     destroyPtr
   return ()
 

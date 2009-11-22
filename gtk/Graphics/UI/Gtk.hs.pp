@@ -404,7 +404,15 @@ import Graphics.UI.Gtk.Abstract.Container
 import Graphics.UI.Gtk.Abstract.Bin
 import Graphics.UI.Gtk.Abstract.Misc
 import Graphics.UI.Gtk.Abstract.IMContext
-import Graphics.UI.Gtk.Abstract.Object
+import Graphics.UI.Gtk.Abstract.Object (
+  Object,
+  ObjectClass,
+  castToObject,
+  toObject,
+  GWeakNotify,
+  objectWeakref,
+  objectWeakunref,
+  objectDestroy )
 import Graphics.UI.Gtk.Abstract.Paned
 import Graphics.UI.Gtk.Abstract.Range
 import Graphics.UI.Gtk.Abstract.Scale

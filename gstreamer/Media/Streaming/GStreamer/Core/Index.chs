@@ -140,7 +140,8 @@ indexSetFilter :: IndexClass index
 indexSetFilter index filter =
     do cFilter <- marshalIndexFilter filter
        destroyNotify <- mkFunPtrDestroyNotify cFilter
-       {# call index_set_filter_full #} (toIndex index) cFilter nullPtr destroyNotify
+       {# call index_set_filter_full #} (toIndex index) cFilter
+	 (castFunPtrToPtr cFilter) destroyNotify
 
 indexGetWriterId :: IndexClass index
                  => index

@@ -114,7 +114,7 @@ timeoutAddFull fun pri msec = do
     (fromIntegral pri)
     (fromIntegral msec)
     funPtr
-    nullPtr
+    (castFunPtrToPtr funPtr)
     dPtr
 
 -- | Remove a previously added timeout handler by its 'HandlerId'.
@@ -133,7 +133,7 @@ idleAdd :: IO Bool -> Priority -> IO HandlerId
 idleAdd fun pri = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
   {#call unsafe idle_add_full#} (fromIntegral pri) funPtr
-    nullPtr dPtr
+    (castFunPtrToPtr funPtr) dPtr
 
 -- | Remove a previously added idle handler by its 'HandlerId'.
 --
@@ -186,7 +186,7 @@ inputAdd fd conds pri fun = do
     (fromIntegral pri)
     ((fromIntegral . fromFlags) conds)
     funPtr
-    nullPtr
+    (castFunPtrToPtr funPtr)
     dPtr
 
 inputRemove :: HandlerId -> IO ()

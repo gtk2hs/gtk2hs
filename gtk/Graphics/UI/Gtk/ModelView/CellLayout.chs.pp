@@ -235,7 +235,7 @@ cellLayoutSetAttributeFunc self cell model func = do
       else func iter
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
-    (toCellRenderer cell) fPtr nullPtr destroy
+    (toCellRenderer cell) fPtr (castFunPtrToPtr fPtr) destroy
 
 {#pointer CellLayoutDataFunc#}
 

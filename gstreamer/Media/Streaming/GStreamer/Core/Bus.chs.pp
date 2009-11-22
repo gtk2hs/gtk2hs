@@ -365,7 +365,7 @@ busAddWatch bus priority func =
                (toBus bus)
                (fromIntegral priority)
                busFuncPtr
-               nullPtr
+               (castFunPtrToPtr busFuncPtr)
                destroyNotify
 
 -- | Instructs GStreamer to stop emitting the 'busSyncMessage' signal

@@ -124,6 +124,11 @@ listStoreNewDND xs mDSource mDDest = do
     } mDSource mDDest
 
 
+-- | Convert a 'TreeIter' to an an index into the 'ListStore'. Note that this
+--   function merely extracts the second element of the 'TreeIter'.
+listStoreIterToIndex :: TreeIter -> Int
+listStoreIterToIndex (TreeIter _ n _ _) = fromIntegral n
+
 -- | Default drag functions for 'Graphics.UI.Gtk.ModelView.ListStore'. These
 -- functions allow the rows of the model to serve as drag source. Any row is
 -- allowed to be dragged and the data set in the 'SelectionDataM' object is

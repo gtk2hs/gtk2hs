@@ -309,7 +309,7 @@ stopDeleteText (ConnectId _ obj) =
 --   signal, modify the text the way you want and then call
 --   'editableInsertText'. To avoid that this signal handler is called
 --   recursively, you need to temporarily block it using
---   'System.Glib.Signals.signalBlock'. After the default signal
+--   'signalBlock'. After the default signal
 --   handler has inserted your modified text, it is important that you
 --   prevent the default handler from being executed again when this signal
 --   handler returns. To stop the current signal, use 'stopInsertText'.

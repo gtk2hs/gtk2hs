@@ -262,9 +262,7 @@ foreign import ccall "wrapper" mkClipboardGetFunc ::
 
 -- For reasons unknown, the two surrounding clipboard functions use a
 -- non-standard finaliser. It might be that it is of interest to the user
--- when data is not needed anymore, thus we provide an IO action. Anyway,
--- this function is copy and paste of the mkFunPtrDestroyNotify function
--- in GObject.
+-- when data is not needed anymore, thus we provide an IO action.
 mkFunPtrClearFunc :: IO () -> FunPtr a ->
   IO (FunPtr (Ptr Clipboard -> Ptr () -> IO ()))
 mkFunPtrClearFunc clearFunc hPtr = do

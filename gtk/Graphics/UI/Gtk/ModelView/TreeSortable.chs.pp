@@ -164,7 +164,7 @@ treeSortableSetSortFunc self sortColumnId sortFunc = do
   {# call tree_sortable_set_sort_func #}
     (toTreeSortable self)
     (fromIntegral sortColumnId)
-    fPtr nullPtr dPtr
+    fPtr (castFunPtrToPtr fPtr) dPtr
 
 orderToGInt :: Ordering -> {#type gint#}
 orderToGInt LT = -1
@@ -195,7 +195,7 @@ treeSortableSetDefaultSortFunc self sortFunc = do
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_sortable_set_default_sort_func #}
     (toTreeSortable self)
-    fPtr nullPtr dPtr
+    fPtr (castFunPtrToPtr fPtr) dPtr
 
 -- %hash c:78ec d:d949
 -- | Emits a 'sortColumnChanged' signal on the model.

@@ -237,7 +237,7 @@ entryCompletionSetMatchFunc ec handler = do
                                liftM fromBool $ handler key iter)
   dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_entry_completion_set_match_func #} ec
-    (castFunPtr hPtr) nullPtr dPtr
+    (castFunPtr hPtr) (castFunPtrToPtr hPtr) dPtr
 
 -------------------------------------------------
 -- Callback stuff for entryCompletionSetMatchFunc

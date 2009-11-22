@@ -188,7 +188,7 @@ fileFilterAddCustom self needed func = do
     self
     ((fromIntegral . fromFlags) needed)
     hPtr
-    nullPtr
+    (castFunPtrToPtr hPtr)
     dPtr
 
 {#pointer GDestroyNotify#}

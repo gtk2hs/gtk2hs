@@ -366,7 +366,7 @@ actionGroupSetTranslateFunc self func = do
   {# call gtk_action_group_set_translate_func #}
     self
     funcPtr
-    nullPtr
+    (castFunPtrToPtr funcPtr)
     notifyPtr
 
 {#pointer TranslateFunc#}
