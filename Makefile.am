@@ -302,7 +302,7 @@ libHSglib_a_SOURCES =	        		\
         glib/System/Glib/Flags.hs		\
 	glib/System/Glib/MainLoop.chs.pp	\
 	glib/System/Glib/GDateTime.chs.pp	\
-	glib/System/Glib/Utils.chs.pp
+	glib/System/Glib/Utils.chs
 
 htmldoc_HSFILES_HIDDEN +=				\
 	glib/System/Glib/FFI.hs			\
