@@ -36,8 +36,9 @@ module Graphics.UI.Gtk.ModelView.ListStore (
 -- * Implementation of Interfaces
   listStoreDefaultDragSourceIface,
   listStoreDefaultDragDestIface,
-  
+
 -- * Methods
+  listStoreIterToIndex,
   listStoreGetValue,
   listStoreSetValue,
   listStoreToList,
