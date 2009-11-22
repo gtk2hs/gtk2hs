@@ -47,11 +47,6 @@ module System.Glib.GObject (
   DestroyNotify,
   mkFunPtrDestroyNotify,
 
-  -- ** Weak references
-  GWeakNotify,
-  objectWeakref,
-  objectWeakunref,
-
   -- ** User-Defined Attributes
   Quark,
   quarkFromString,
@@ -148,38 +143,9 @@ constructNewGObject (constr, objectUnref) generator = do
 -- pointer which when called from C land will free the given Haskell function
 -- pointer (and itself).
 mkFunPtrDestroyNotify :: FunPtr a -> IO DestroyNotify
-mkFunPtrDestroyNotify hPtr = do
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestroyNotifyPtr $ do
-    freeHaskellFunPtr hPtr
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-  writeIORef dRef dPtr
-  return dPtr
+mkFunPtrDestroyNotify hPtr = return freeCallbackFunPtr
 
-{#pointer GWeakNotify#}
-
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
-
--- | Attach a callback that will be called after the
--- destroy hooks have been called
---
-objectWeakref :: GObjectClass o => o -> IO () -> IO GWeakNotify
-objectWeakref obj uFun = do
-  funPtrContainer <- newIORef nullFunPtr
-  uFunPtr <- mkDestructor $ do
-    uFun
-    funPtr <- readIORef funPtrContainer
-    freeHaskellFunPtr funPtr
-  writeIORef funPtrContainer uFunPtr
-  {#call unsafe object_weak_ref#} (toGObject obj) uFunPtr nullPtr
-  return uFunPtr
-
--- | Detach a weak destroy callback function
---
-objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
-objectWeakunref obj fun = 
-  {#call unsafe object_weak_unref#} (toGObject obj) fun nullPtr
+foreign import ccall unsafe "&freeHaskellFunctionPtr" freeCallbackFunPtr :: DestroyNotify
 
 
 type Quark = {#type GQuark#}
