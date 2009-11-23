@@ -10,15 +10,12 @@ import System.Environment
 import System.Directory
 import System.FilePath ((</>))
 import Control.Monad
-
-import Event
-import Key
+import Control.Monad.Trans
 
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.Vte.Vte
-
-import qualified Graphics.UI.Gtk.Gdk.Events as E
+import Graphics.UI.Gtk.Gdk.EventM
 
 data PlugType = PlugEditor
               | PlugTerminal
@@ -39,42 +36,13 @@ main = do
 
     -- Entry plug main when have two arguments.
     2 -> do
-      let typeArg = read (head args) :: PlugType -- get Plug type
-          idArg   = toNativeWindowId $ read (last args) :: NativeWindowId -- get GtkSocket id
+      let pType = read (head args) :: PlugType -- get Plug type
+          id    = toNativeWindowId $ read (last args) :: NativeWindowId -- get GtkSocket id
 
-      case typeArg of
-        PlugEditor   -> editorPlugMain idArg   -- entry eidtor plug main
-        PlugTerminal -> terminalPlugMain idArg -- entry terminal plug main
-
+      plugMain id pType
     -- Otherwise just output error and exit.
     _ -> putStrLn "Wrong program arguments."
   
--- | Handle key press.
-handleKeyPress :: E.Event -> Notebook -> IO Bool
-handleKeyPress ev notebook = 
-    case eventTransform ev of
-      Nothing -> return False
-      Just e  -> 
-          case eventGetName e of
-            "M-m" -> forkPlugProcess notebook PlugEditor "Editor" >> return True
-            "M-n" -> forkPlugProcess notebook PlugTerminal "Terminal" >> return True
-            _     -> return False
-
--- | Fork plug process.
-forkPlugProcess :: Notebook -> PlugType -> String -> IO ()
-forkPlugProcess notebook plugType tabName = do
-  -- Create new GtkSocket.
-  socket <- socketNew
-  widgetShow socket                          -- must show before add GtkSocekt to container
-  notebookAppendPage notebook socket tabName -- add to GtkSocekt notebook
-  id <- socketGetId socket                    -- get GtkSocket id
-
-  -- Fork process to add GtkPlug into GtkSocekt. 
-  forkProcess (do
-                path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
-                executeFile path False [show plugType, show $ fromNativeWindowId id] Nothing)
-  return ()
-
 -- | GtkSocekt main.
 socketMain :: IO ()  
 socketMain = do
@@ -92,30 +60,36 @@ socketMain = do
   window `containerAdd` notebook
 
   -- Handle key press.
-  window `onKeyPress` (\event -> handleKeyPress event notebook)
+  window `on` keyPressEvent $ tryEvent $ do
+    keyModifier <- eventModifier
+    keyName     <- eventKeyName
+    liftIO $ when (keyModifier == [Alt]) $ 
+      case keyName of
+        "m" -> forkPlugProcess notebook PlugEditor "Editor"     -- create editor GtkPlug
+        "n" -> forkPlugProcess notebook PlugTerminal "Terminal" -- create terminal GtkPlug
 
   widgetShowAll window
 
   mainGUI
 
--- | Editor plug main.
-editorPlugMain :: NativeWindowId -> IO ()
-editorPlugMain id = do
-  -- Create editor.
-  textView <- textViewNew
-  textBuffer <- textViewGetBuffer textView
-  textBufferSetText textBuffer $ show id
+-- | GtkPlug main.
+plugMain :: NativeWindowId -> PlugType -> IO ()
+plugMain id PlugEditor   = plugWrap id =<< createEditor
+plugMain id PlugTerminal = plugWrap id =<< createTerminal
 
-  plugWrap id textView
+-- | Fork plug process.
+forkPlugProcess :: Notebook -> PlugType -> String -> IO ()
+forkPlugProcess notebook plugType tabName = do
+  -- Create new GtkSocket.
+  socket <- socketNew
+  widgetShow socket                          -- must show before add GtkSocekt to container
+  notebookAppendPage notebook socket tabName -- add to GtkSocekt notebook
+  id <- socketGetId socket                    -- get GtkSocket id
 
--- | Terminal plug main.
-terminalPlugMain :: NativeWindowId -> IO ()
-terminalPlugMain id = do
-  -- Create terminal.
-  terminal <- terminalNew
-  terminalForkCommand terminal Nothing Nothing Nothing Nothing False False False
-
-  plugWrap id terminal
+  -- Fork process to add GtkPlug into GtkSocekt. 
+  path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
+  forkProcess (executeFile path False [show plugType, show $ fromNativeWindowId id] Nothing)
+  return ()
 
 -- | Plug wrap function.
 plugWrap :: WidgetClass widget => NativeWindowId -> widget -> IO ()
@@ -137,3 +111,13 @@ plugWrap id widget = do
 
   mainGUI
 
+-- Create editor widget.
+createEditor :: IO TextView
+createEditor = textViewNew
+  
+-- Create terminal widget.
+createTerminal :: IO Terminal  
+createTerminal = do
+  terminal <- terminalNew
+  terminalForkCommand terminal Nothing Nothing Nothing Nothing False False False
+  return terminal

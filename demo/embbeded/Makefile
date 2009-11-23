@@ -1,6 +1,5 @@
-
 PROG  = Embedded
-SOURCES = Embedded.hs Event.hs Key.hs
+SOURCES = Embedded.hs
 
 $(PROG) : $(SOURCES)
 	$(HC) --make $< -o $@ $(HCFLAGS) -XForeignFunctionInterface
