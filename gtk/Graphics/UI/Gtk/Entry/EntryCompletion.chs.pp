@@ -141,7 +141,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject		(constructNewGObject,
-					 makeNewGObject, mkFunPtrDestroyNotify)
+					 makeNewGObject, destroyFunPtr)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -235,9 +235,8 @@ entryCompletionSetMatchFunc ec handler = do
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
                                iter <- peek iterPtr
                                liftM fromBool $ handler key iter)
-  dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_entry_completion_set_match_func #} ec
-    (castFunPtr hPtr) (castFunPtrToPtr hPtr) dPtr
+    (castFunPtr hPtr) (castFunPtrToPtr hPtr) destroyFunPtr
 
 -------------------------------------------------
 -- Callback stuff for entryCompletionSetMatchFunc

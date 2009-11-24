@@ -45,7 +45,8 @@ module System.Glib.GObject (
 
   -- ** Callback support
   DestroyNotify,
-  mkFunPtrDestroyNotify,
+  destroyFunPtr,
+  destroyStablePtr,
 
   -- ** User-Defined Attributes
   Quark,
@@ -139,14 +140,9 @@ constructNewGObject (constr, objectUnref) generator = do
 
 -- | Many methods in classes derived from GObject take a callback function and
 -- a destructor function which is called to free that callback function when
--- it is no longer required. This function constructs a DestroyNotify function
--- pointer which when called from C land will free the given Haskell function
--- pointer (and itself).
-mkFunPtrDestroyNotify :: FunPtr a -> IO DestroyNotify
-mkFunPtrDestroyNotify hPtr = return freeCallbackFunPtr
-
-foreign import ccall unsafe "&freeHaskellFunctionPtr" freeCallbackFunPtr :: DestroyNotify
-
+-- it is no longer required. This constants is an address of a functions in
+-- C land that will free a function pointer.
+foreign import ccall unsafe "&freeHaskellFunctionPtr" destroyFunPtr :: DestroyNotify
 
 type Quark = {#type GQuark#}
 
@@ -173,6 +169,9 @@ objectCreateAttribute = do
   return (newNamedAttr propName (objectGetAttributeUnsafe attr)
 	                        (objectSetAttribute attr)) 
 
+-- | The address of a function freeing a 'StablePtr'. See 'destroyFunPtr'.
+foreign import ccall unsafe "&hs_free_stable_ptr" destroyStablePtr :: DestroyNotify
+
 -- | Set the value of an association.
 --
 objectSetAttribute :: GObjectClass o => Quark -> o -> Maybe a -> IO ()
@@ -180,14 +179,8 @@ objectSetAttribute attr obj Nothing = do
   {#call object_set_qdata#} (toGObject obj) attr nullPtr
 objectSetAttribute attr obj (Just val) = do
   sPtr <- newStablePtr val
-  funPtrContainer <- newIORef nullFunPtr
-  destrFunPtr <- mkDestroyNotifyPtr $ do
-    freeStablePtr sPtr
-    funPtr <- readIORef funPtrContainer
-    freeHaskellFunPtr funPtr
-  writeIORef funPtrContainer destrFunPtr
   {#call object_set_qdata_full#} (toGObject obj) attr (castStablePtrToPtr sPtr)
-				 destrFunPtr
+				 destroyStablePtr
 
 -- | Get the value of an association.
 --

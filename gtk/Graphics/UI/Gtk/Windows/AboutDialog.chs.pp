@@ -144,7 +144,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject      	(makeNewGObject, mkFunPtrDestroyNotify)
+import System.Glib.GObject      	(makeNewGObject, destroyFunPtr)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -442,11 +442,10 @@ aboutDialogSetEmailHook func = do
     link <- peekUTFString linkPtr
     func link
     )
-  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_email_hook #}
     funcPtr
     (castFunPtrToPtr funcPtr)
-    destroyPtr
+    destroyFunPtr
   return ()
 
 -- | Installs a global function to be called whenever the user activates a URL
@@ -461,11 +460,10 @@ aboutDialogSetUrlHook func = do
     link <- peekUTFString linkPtr
     func link
     )
-  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_url_hook #}
     funcPtr
     (castFunPtrToPtr funcPtr)
-    destroyPtr
+    destroyFunPtr
   return ()
 
 {# pointer AboutDialogActivateLinkFunc #}

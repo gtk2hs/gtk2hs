@@ -106,7 +106,7 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.GList                (fromGList)
 import System.Glib.Attributes
-import System.Glib.GObject		(mkFunPtrDestroyNotify)
+import System.Glib.GObject		(destroyFunPtr)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -153,12 +153,11 @@ treeSelectionSetSelectFunction ts fun = do
     path <- peekTreePath (castPtr tp)
     liftM fromBool $ fun path
     )
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_selection_set_select_function #}
     (toTreeSelection ts)
     fPtr
-    nullPtr
-    dPtr
+    (castFunPtrToPtr fPtr)
+    destroyFunPtr
 
 -- | Callback type for a function that is called everytime the selection
 -- changes. This function is set with 'treeSelectionSetSelectFunction'.

@@ -108,9 +108,11 @@ module Graphics.UI.Gtk.General.Clipboard (
   clipboardGetDisplay,
 #endif
   clipboardSetWithData,
+{-
   clipboardSetWithOwner,
   clipboardGetOwner,
   clipboardClear,
+-}
   clipboardSetText,
 #if GTK_CHECK_VERSION(2,6,0)
   clipboardSetImage,
@@ -221,6 +223,22 @@ clipboardGetDisplay self =
     (toClipboard self)
 #endif
 
+-- The memory management of the ClipboardGetFunc and ClipboardClearFunc sucks badly
+-- in that there is no consistent way in which the latter could free the function
+-- closure of the former, since it is *not* called when the data of the same
+-- object is changed. What we do is that we store the function pointers as attributes
+-- of the Clipboard. Overwriting or finalizing these attributes will call their
+-- destructors and thereby free them. Thus, by setting these attributes each time we
+-- install new data functions, we cuningly finalized the previous closures. Hooray.
+
+{-# NOINLINE getFuncQuark #-} 
+getFuncQuark :: Quark
+getFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardGetFuncClosure"
+
+{-# NOINLINE clearFuncQuark #-} 
+clearFuncQuark :: Quark
+clearFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardClearFuncClosure"
+
 -- %hash c:c65a d:b402
 -- | Virtually sets the contents of the specified clipboard by providing a
 -- list of supported formats for the clipboard data and a function to call to
@@ -233,50 +251,40 @@ clipboardSetWithData :: ClipboardClass self => self
  -> (InfoId -> SelectionDataM ())
                               -- ^ @getFunc@ - function to call to get the
                               -- actual clipboard data, should call
-                              -- 'Graphics.UI.Gtk.General.Selection.selectionDataSet'.
+                              -- 'selectionDataSet'.
  -> IO ()                     -- ^ @clearFunc@ - when the clipboard contents
                               -- are set again, this function will be called,
                               -- and @getFunc@ will not be subsequently called.
  -> IO Bool                   -- ^ returns @True@ if setting the clipboard
-                              -- data succeeded. If setting the clipboard data
-                              -- failed the provided callback functions will be
-                              -- ignored.
+                              -- data succeeded.
 clipboardSetWithData self targets getFunc clearFunc = do
   gFunPtr <- mkClipboardGetFunc
     (\_ sPtr info -> runReaderT (getFunc info) sPtr >> return ())
-  dFunPtr <- mkFunPtrClearFunc clearFunc gFunPtr
-  withTargetEntries targets $ \nTargets targets ->
+  cFunPtr <- mkClipboardClearFunc
+    (\_ _ -> clearFunc)
+  res <- withTargetEntries targets $ \nTargets targets ->
     liftM toBool $
     {# call gtk_clipboard_set_with_data #}
       (toClipboard self)
       targets
       (fromIntegral nTargets)
       gFunPtr
-      dFunPtr
+      cFunPtr
       nullPtr
+  {#call unsafe g_object_set_qdata_full#} (toGObject self) getFuncQuark
+     (castFunPtrToPtr gFunPtr) destroyFunPtr
+  {#call unsafe g_object_set_qdata_full#} (toGObject self) clearFuncQuark
+     (castFunPtrToPtr cFunPtr) destroyFunPtr
+  return res
 
 {#pointer ClipboardGetFunc#}
+{#pointer ClipboardClearFunc#}
 
 foreign import ccall "wrapper" mkClipboardGetFunc ::
   (Ptr Clipboard -> Ptr () -> {#type guint#} -> IO ()) -> IO ClipboardGetFunc
 
--- For reasons unknown, the two surrounding clipboard functions use a
--- non-standard finaliser. It might be that it is of interest to the user
--- when data is not needed anymore, thus we provide an IO action.
-mkFunPtrClearFunc :: IO () -> FunPtr a ->
-  IO (FunPtr (Ptr Clipboard -> Ptr () -> IO ()))
-mkFunPtrClearFunc clearFunc hPtr = do
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkClearFuncPtr $ do
-    clearFunc
-    freeHaskellFunPtr hPtr
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-  writeIORef dRef dPtr
-  return dPtr
-
-foreign import ccall "wrapper" mkClearFuncPtr :: IO () -> 
-  IO (FunPtr (Ptr Clipboard -> Ptr () -> IO ()))
+foreign import ccall "wrapper" mkClipboardClearFunc ::
+  (Ptr Clipboard -> Ptr () -> IO ()) -> IO ClipboardClearFunc
 
 -- %hash c:e778 d:7b3f
 -- | Virtually sets the contents of the specified clipboard by providing a
@@ -284,8 +292,7 @@ foreign import ccall "wrapper" mkClearFuncPtr :: IO () ->
 -- get the actual data when it is requested.
 --
 -- The difference between this function and 'clipboardSetWithData' is that
--- a 'GObject' is passed in. If this function is called repeatedly with
--- the same 'GObject' then the @clearFunc@ is not called each time.
+-- a 'GObject' is passed in.
 --
 clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
  -> [(TargetTag, InfoId)]     -- ^ @targets@ - a list containing information
@@ -294,7 +301,7 @@ clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
  -> (InfoId -> SelectionDataM ())
                               -- ^ @getFunc@ - function to call to get the
                               -- actual clipboard data, should call
-                              -- 'Graphics.UI.Gtk.General.Selection.selectionDataSet'.
+                              -- 'selectionDataSet'.
  -> IO ()                     -- ^ @clearFunc@ - when the clipboard contents
                               -- are set again, this function will be called,
                               -- and @getFunc@ will not be subsequently called.
@@ -306,16 +313,22 @@ clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
 clipboardSetWithOwner self targets getFunc clearFunc owner = do
   gFunPtr <- mkClipboardGetFunc
     (\_ sPtr info -> runReaderT (getFunc info) sPtr >> return ())
-  dFunPtr <- mkFunPtrClearFunc clearFunc gFunPtr
-  withTargetEntries targets $ \nTargets targets ->
+  cFunPtr <- mkClipboardClearFunc
+    (\_ _ -> clearFunc)
+  res <- withTargetEntries targets $ \nTargets targets ->
     liftM toBool $
     {# call gtk_clipboard_set_with_owner #}
       (toClipboard self)
       targets
       (fromIntegral nTargets)
       gFunPtr
-      dFunPtr
+      cFunPtr
       (toGObject owner)
+  {#call unsafe g_object_set_qdata_full#} (toGObject self) getFuncQuark
+     (castFunPtrToPtr gFunPtr) destroyFunPtr
+  {#call unsafe g_object_set_qdata_full#} (toGObject self) clearFuncQuark
+     (castFunPtrToPtr cFunPtr) destroyFunPtr
+  return res
 
 -- %hash c:dba2 d:efc2
 -- | If the clipboard contents callbacks were set with
@@ -330,7 +343,6 @@ clipboardGetOwner self =
   maybeNull (makeNewGObject mkGObject) $
   {# call gtk_clipboard_get_owner #}
     (toClipboard self)
-
 
 -- %hash c:d6f8 d:486
 -- | Clears the contents of the clipboard. Generally this should only be
@@ -386,7 +398,7 @@ clipboardRequestContents :: ClipboardClass self => self
  -> SelectionDataM ()            -- ^ @callback@ - A function to call when the
                                  -- results are received (or the retrieval
                                  -- fails). If the retrieval fails,
-                                 -- 'Graphics.UI.Gtk.General.Selection.selectionDataIsValid' returns @False@.
+                                 -- 'selectionDataIsValid' returns @False@.
  -> IO ()
 clipboardRequestContents self (Atom target) callback = do
   cbRef <- newIORef nullFunPtr
@@ -425,19 +437,16 @@ clipboardRequestText :: ClipboardClass self => self
                                      -- way or the other.)
  -> IO ()
 clipboardRequestText self callback = do
-  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTextReceivedFunc
     (\_ sPtr -> do
-      cbPtr <- readIORef cbRef
-      freeHaskellFunPtr cbPtr
       mStr <- if sPtr==nullPtr then return Nothing else
         liftM Just $ peekUTFString sPtr
       callback mStr)
-  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_text #}
     (toClipboard self)
     cbPtr
     nullPtr
+  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardTextReceivedFunc#}
 
@@ -464,18 +473,15 @@ clipboardRequestImage :: ClipboardClass self => self
                                       -- called one way or the other.)
  -> IO ()
 clipboardRequestImage self callback = do
-  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardImageReceivedFunc
     (\_ sPtr -> do
-      cbPtr <- readIORef cbRef
-      freeHaskellFunPtr cbPtr
       mPixbuf <- maybeNull (makeNewGObject mkPixbuf) (return sPtr)
       callback mPixbuf)
-  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_image #}
     (toClipboard self)
     cbPtr
     nullPtr
+  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardImageReceivedFunc#}
 
@@ -501,19 +507,16 @@ clipboardRequestTargets :: ClipboardClass self => self
                                         -- be called one way or the other.)
  -> IO ()
 clipboardRequestTargets self callback = do
-  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTargetsReceivedFunc
     (\_ tPtr len -> do
-      cbPtr <- readIORef cbRef
-      freeHaskellFunPtr cbPtr
       mTargets <- if tPtr==nullPtr then return Nothing else
         liftM (Just . map Atom) $ peekArray (fromIntegral len) tPtr
       callback mTargets)
-  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_targets #}
     (toClipboard self)
     cbPtr
     nullPtr
+  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardTargetsReceivedFunc#}
 
@@ -540,21 +543,18 @@ clipboardRequestRichText :: (ClipboardClass self, TextBufferClass buffer) => sel
                                          -- called one way or the other.)
  -> IO ()
 clipboardRequestRichText self buffer callback = do
-  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardRichTextReceivedFunc
     (\_ tPtr sPtr len -> do
-      cbPtr <- readIORef cbRef
-      freeHaskellFunPtr cbPtr
       mRes <- if sPtr==nullPtr then return Nothing else liftM Just $ do
         str <- peekUTFStringLen (sPtr,fromIntegral len)
         return (Atom tPtr, str)
       callback mRes)
-  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_rich_text #}
     (toClipboard self)
     (toTextBuffer buffer)
     cbPtr
     nullPtr
+  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardRichTextReceivedFunc#}
 

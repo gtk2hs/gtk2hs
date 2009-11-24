@@ -70,7 +70,7 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
 import System.Glib.FFI
 import System.Glib.GList
 import System.Glib.Attributes
-import System.Glib.GObject (mkFunPtrDestroyNotify)
+import System.Glib.GObject (destroyFunPtr)
 import System.Glib.GType
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
@@ -233,9 +233,8 @@ cellLayoutSetAttributeFunc self cell model func = do
       error ("cellLayoutSetAttributeFunc: attempt to set attributes of "++
 	     "a different CellRenderer.")
       else func iter
-  destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
-    (toCellRenderer cell) fPtr (castFunPtrToPtr fPtr) destroy
+    (toCellRenderer cell) fPtr (castFunPtrToPtr fPtr) destroyFunPtr
 
 {#pointer CellLayoutDataFunc#}
 

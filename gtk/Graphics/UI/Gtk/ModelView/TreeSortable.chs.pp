@@ -92,7 +92,7 @@ import Control.Monad	(liftM, when)
 import System.Glib.FFI
 import System.Glib.Flags		(Flags, toFlags)
 import System.Glib.UTFString
-import System.Glib.GObject		(mkFunPtrDestroyNotify)
+import System.Glib.GObject		(destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.Enums#}	(SortType(..))
 {#import Graphics.UI.Gtk.Signals#}
@@ -160,11 +160,10 @@ treeSortableSetSortFunc self sortColumnId sortFunc = do
     iter1 <- peek iter1Ptr
     iter2 <- peek iter2Ptr
     liftM orderToGInt $ sortFunc iter1 iter2)
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_sortable_set_sort_func #}
     (toTreeSortable self)
     (fromIntegral sortColumnId)
-    fPtr (castFunPtrToPtr fPtr) dPtr
+    fPtr (castFunPtrToPtr fPtr) destroyFunPtr
 
 orderToGInt :: Ordering -> {#type gint#}
 orderToGInt LT = -1
@@ -192,10 +191,9 @@ treeSortableSetDefaultSortFunc self sortFunc = do
     iter1 <- peek iter1Ptr
     iter2 <- peek iter2Ptr
     liftM orderToGInt $ sortFunc iter1 iter2)
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_sortable_set_default_sort_func #}
     (toTreeSortable self)
-    fPtr (castFunPtrToPtr fPtr) dPtr
+    fPtr (castFunPtrToPtr fPtr) destroyFunPtr
 
 -- %hash c:78ec d:d949
 -- | Emits a 'sortColumnChanged' signal on the model.

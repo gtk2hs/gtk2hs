@@ -83,7 +83,7 @@ import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject              (mkFunPtrDestroyNotify)
+import System.Glib.GObject              (DestroyNotify, destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
@@ -183,19 +183,14 @@ fileFilterAddCustom self needed func = do
       displayName <- maybePeek peekUTFString displayNamePtr
       mimeType    <- maybePeek peekUTFString mimeTypePtr
       liftM fromBool $ func filename uri displayName mimeType)
-  dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_file_filter_add_custom #}
     self
     ((fromIntegral . fromFlags) needed)
     hPtr
     (castFunPtrToPtr hPtr)
-    dPtr
-
-{#pointer GDestroyNotify#}
+    destroyFunPtr
 
 {#pointer *GtkFileFilterInfo as GtkFileFilterInfoPtr #}
-
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GDestroyNotify
 
 type GtkFileFilterFunc =
   GtkFileFilterInfoPtr -> --GtkFileFilterInfo *filter_info

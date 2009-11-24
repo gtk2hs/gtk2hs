@@ -196,7 +196,7 @@ import System.Glib.UTFString
 import System.Glib.GList		(fromGList)
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
+import System.Glib.GObject		(makeNewGObject, destroyFunPtr)
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -1027,9 +1027,8 @@ treeViewSetSearchEqualFunc self pred = do
     key <- peekUTFString keyPtr
     iter <- peek iterPtr
     liftM (fromBool.not) $ pred (fromIntegral col) key iter)
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
-    nullPtr dPtr
+    (castFunPtrToPtr fPtr) destroyFunPtr
 
 {#pointer TreeViewSearchEqualFunc#}
 

@@ -64,7 +64,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags
-import System.Glib.GObject	(DestroyNotify, mkFunPtrDestroyNotify)
+import System.Glib.GObject	(DestroyNotify, destroyFunPtr)
 
 {#context lib="glib" prefix ="g"#}
 
@@ -79,8 +79,7 @@ type HandlerId = {#type guint#}
 makeCallback :: IO {#type gint#} -> IO (SourceFunc, DestroyNotify)
 makeCallback fun = do
   funPtr <- mkSourceFunc fun
-  dPtr <- mkFunPtrDestroyNotify funPtr
-  return (funPtr, dPtr)
+  return (funPtr, destroyFunPtr)
 
 -- | Sets a function to be called at regular intervals, with the default
 -- priority 'priorityDefault'. The function is called repeatedly until it
@@ -179,7 +178,6 @@ inputAdd ::
  -> IO HandlerId  -- ^ the event source id
 inputAdd fd conds pri fun = do
   funPtr <- mkIOFunc (\_ _ _ -> liftM fromBool fun)
-  dPtr <- mkFunPtrDestroyNotify funPtr
   channel <- {#call unsafe g_io_channel_unix_new #} (fromIntegral fd)
   {#call unsafe g_io_add_watch_full#}
     (IOChannel channel)
@@ -187,7 +185,7 @@ inputAdd fd conds pri fun = do
     ((fromIntegral . fromFlags) conds)
     funPtr
     (castFunPtrToPtr funPtr)
-    dPtr
+    destroyFunPtr
 
 inputRemove :: HandlerId -> IO ()
 inputRemove id = {#call source_remove#} id >> return ()

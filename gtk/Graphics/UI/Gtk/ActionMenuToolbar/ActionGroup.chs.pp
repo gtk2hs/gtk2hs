@@ -113,7 +113,7 @@ import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject,
-					 makeNewGObject, mkFunPtrDestroyNotify)
+					 makeNewGObject, destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
 
 import Graphics.UI.Gtk.ActionMenuToolbar.Action
@@ -362,12 +362,11 @@ actionGroupSetTranslateFunc self func = do
                str <- peekUTFString strPtr
                translatedStr <- func str
                newUTFString translatedStr
-  notifyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_action_group_set_translate_func #}
     self
     funcPtr
     (castFunPtrToPtr funcPtr)
-    notifyPtr
+    destroyFunPtr
 
 {#pointer TranslateFunc#}
 

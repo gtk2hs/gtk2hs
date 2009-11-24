@@ -156,7 +156,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject,
-					 mkFunPtrDestroyNotify,
+					 destroyFunPtr,
 					 Quark, objectSetAttribute, objectGetAttributeUnsafe )
 {#import Graphics.UI.Gtk.Types#} hiding (ListStore)
 {#import Graphics.UI.Gtk.ModelView.Types#} (TypedTreeModelClass,
@@ -497,9 +497,8 @@ comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
 	iter <- peek iterPtr
 	value <- customStoreGetRow model iter
 	return (extract value)
-  desPtr <- mkFunPtrDestroyNotify funPtr
   {# call gtk_combo_box_set_row_separator_func #}
-    (toComboBox self) funPtr (castFunPtrToPtr funPtr) desPtr
+    (toComboBox self) funPtr (castFunPtrToPtr funPtr) destroyFunPtr
 
 {#pointer TreeViewRowSeparatorFunc#}
 

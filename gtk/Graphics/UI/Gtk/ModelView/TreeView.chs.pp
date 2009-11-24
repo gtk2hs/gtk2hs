@@ -247,7 +247,7 @@ import System.Glib.Flags
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, constructNewGObject,
-					 mkFunPtrDestroyNotify)
+					 destroyFunPtr)
 import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
@@ -554,11 +554,10 @@ treeViewSetColumnDragFunction self (Just pred) = do
       makeNewObject mkTreeViewColumn (return next)
     res <- pred target' prev' next'
     return (fromBool res)
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_column_drag_function #}
     (toTreeView self)
     fPtr
-    (castFunPtrToPtr fPtr) dPtr
+    (castFunPtrToPtr fPtr) destroyFunPtr
 
 {#pointer TreeViewColumnDropFunc#}
 
@@ -1069,9 +1068,8 @@ treeViewSetSearchEqualFunc self (Just pred) = do
     key <- peekUTFString keyPtr
     iter <- peek iterPtr
     liftM (fromBool . not) $ pred key iter)
-  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
-    (castFunPtrToPtr fPtr) dPtr
+    (castFunPtrToPtr fPtr) destroyFunPtr
   {# call tree_view_set_search_column #} (toTreeView self) 0
 treeViewSetSearchEqualFunc self Nothing = do
   {# call tree_view_set_search_equal_func #} (toTreeView self)
@@ -1321,9 +1319,8 @@ treeViewSetRowSeparatorFunc self (Just func) = do
   funcPtr <- mkTreeViewRowSeparatorFunc $ \_ tiPtr _ -> do
     ti <- peekTreeIter tiPtr
     liftM fromBool $ func ti
-  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_tree_view_set_row_separator_func #}
-    (toTreeView self) funcPtr (castFunPtrToPtr funcPtr) destroyPtr
+    (toTreeView self) funcPtr (castFunPtrToPtr funcPtr) destroyFunPtr
 
 {#pointer TreeViewRowSeparatorFunc #}
 

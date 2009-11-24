@@ -157,9 +157,8 @@ treeModelFilterSetVisibleFunc self (Just func) = do
   funcPtr <- mkTreeModelFilterVisibleFunc $ \_ tiPtr _ -> do
     ti <- peekTreeIter tiPtr
     liftM fromBool $ func ti
-  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_tree_model_filter_set_visible_func #}
-    (toTreeModelFilter self) funcPtr (castFunPtrToPtr funcPtr) destroyPtr
+    (toTreeModelFilter self) funcPtr (castFunPtrToPtr funcPtr) destroyFunPtr
 
 {#pointer TreeModelFilterVisibleFunc #}
 
