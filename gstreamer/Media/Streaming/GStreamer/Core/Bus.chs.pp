@@ -237,59 +237,10 @@ foreign import ccall "wrapper"
     makeBusSyncHandler :: CBusSyncHandler
                        -> IO {# type GstBusSyncHandler #}
 
--- the following mess is necessary to clean up the FunPtr after
--- busSetSyncHandler.  gstreamer doesn't give us a nice way to do this
--- (such as a DestroyNotify pointer in the argument list)
--- Note: I've removed this magic since GWeakNotify had to moved out of
--- GObject since GObject can be finalized directly from the Haskell GC
--- which can (and will in the case below) callbacks into Haskell that
--- will make the program abort. We're leaking the function closure instead.
---weakNotifyQuark,
+-- See Graphics.UI.Gtk.General.Clipboard.clipboardSetWithData for an
+-- explanation of this hack.
 funPtrQuark :: Quark
---weakNotifyQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerWeakNotify"
 funPtrQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerFunPtr"
-
-{-
-getWeakNotify :: BusClass busT
-              => busT
-              -> IO (Maybe GWeakNotify)
-getWeakNotify = objectGetAttributeUnsafe weakNotifyQuark
-
-setWeakNotify :: BusClass busT
-              => busT
-              -> Maybe GWeakNotify
-              -> IO ()
-setWeakNotify = objectSetAttribute weakNotifyQuark
--}
-
-getFunPtr :: BusClass busT
-          => busT
-          -> IO (Maybe {# type GstBusSyncHandler #})
-getFunPtr = objectGetAttributeUnsafe funPtrQuark
-
-setFunPtr :: BusClass busT
-          => busT
-          -> Maybe {# type GstBusSyncHandler #}
-          -> IO ()
-setFunPtr = objectSetAttribute funPtrQuark
-
-unsetSyncHandler :: BusClass busT
-                 => busT
-                 -> IO ()
-unsetSyncHandler bus = do
-  {# call bus_set_sync_handler #} (toBus bus) nullFunPtr nullPtr
-{-
-  oldWeakNotifyM <- getWeakNotify bus
-  case oldWeakNotifyM of
-    Just oldWeakNotify -> objectWeakunref bus oldWeakNotify
-    Nothing            -> return ()
-  setWeakNotify bus Nothing
--}
-  oldFunPtrM <- getFunPtr bus
-  case oldFunPtrM of
-    Just oldFunPtr -> freeHaskellFunPtr oldFunPtr
-    Nothing        -> return ()
-  setFunPtr bus Nothing
 
 -- | Set the synchronous message handler on the bus. The function will
 --   be called every time a new message is posted to the bus. Note
@@ -303,29 +254,23 @@ busSetSyncHandler :: BusClass busT
                   => busT                 -- ^ @bus@ - a 'Bus'
                   -> Maybe BusSyncHandler -- ^ @busSyncHandlerM@ - the new 'BusSyncHandler'
                   -> IO ()
-busSetSyncHandler bus busSyncHandlerM = do
-  objectWithLock bus $ do
-    unsetSyncHandler bus
-    case busSyncHandlerM of
-      Just busSyncHandler ->
-          do funPtr <- marshalBusSyncHandler busSyncHandler
-             setFunPtr bus $ Just funPtr
-{-             
-             weakNotify <- objectWeakref bus $ freeHaskellFunPtr funPtr
-             setWeakNotify bus $ Just weakNotify
--}
-             {# call bus_set_sync_handler #} (toBus bus) funPtr nullPtr
-      Nothing ->
-          return ()
+busSetSyncHandler bus Nothing = objectWithLock bus $ do
+  {#call bus_set_sync_handler #} (toBus bus) nullFunPtr nullPtr
+  {#call unsafe g_object_set_qdata#} (toGObject bus) funPtrQuark nullPtr
+busSetSyncHandler bus (Just busSyncHandler) = objectWithLock bus $ do
+  funPtr <- marshalBusSyncHandler busSyncHandler  
+  {#call bus_set_sync_handler #} (toBus bus) funPtr nullPtr
+  {#call unsafe g_object_set_qdata_full#} (toGObject bus) funPtrQuark
+    (castFunPtrToPtr funPtr) destroyFunPtr
 
 -- | Use a synchronous message handler that converts all messages to signals.
 busUseSyncSignalHandler :: BusClass busT
                         => busT  -- ^ @bus@ - a 'Bus'
                         -> IO ()
-busUseSyncSignalHandler bus = do
-  objectWithLock bus $ do
-    unsetSyncHandler bus
-    {# call bus_set_sync_handler #} (toBus bus) cBusSyncSignalHandlerPtr nullPtr
+busUseSyncSignalHandler bus = objectWithLock bus $ do
+  {# call bus_set_sync_handler #} (toBus bus) cBusSyncSignalHandlerPtr nullPtr
+  {#call unsafe g_object_set_qdata#} (toGObject bus) funPtrQuark nullPtr
+
 foreign import ccall unsafe "&gst_bus_sync_signal_handler"
     cBusSyncSignalHandlerPtr :: {# type GstBusSyncHandler #}
 
@@ -370,14 +315,13 @@ busAddWatch :: BusClass busT
             -> IO HandlerId -- ^ the event source ID
 busAddWatch bus priority func =
     do busFuncPtr <- marshalBusFunc func
-       destroyNotify <- mkFunPtrDestroyNotify busFuncPtr
        liftM fromIntegral $
            {# call bus_add_watch_full #}
                (toBus bus)
                (fromIntegral priority)
                busFuncPtr
                (castFunPtrToPtr busFuncPtr)
-               destroyNotify
+               destroyFunPtr
 
 -- | Instructs GStreamer to stop emitting the 'busSyncMessage' signal
 --   for this bus. See 'busEnableSyncMessageEmission' for more

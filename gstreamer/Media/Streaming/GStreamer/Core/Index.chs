@@ -58,7 +58,7 @@ import System.Glib.Flags
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.Signals#}
-{#import System.Glib.GObject#} (mkFunPtrDestroyNotify)
+{#import System.Glib.GObject#} (destroyFunPtr)
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -139,9 +139,8 @@ indexSetFilter :: IndexClass index
                -> IO ()
 indexSetFilter index filter =
     do cFilter <- marshalIndexFilter filter
-       destroyNotify <- mkFunPtrDestroyNotify cFilter
        {# call index_set_filter_full #} (toIndex index) cFilter
-	 (castFunPtrToPtr cFilter) destroyNotify
+	 (castFunPtrToPtr cFilter) destroyFunPtr
 
 indexGetWriterId :: IndexClass index
                  => index
