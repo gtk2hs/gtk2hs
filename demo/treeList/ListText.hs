@@ -64,13 +64,7 @@ main = do
 
   -- to annoy the user: don't allow any columns to be dropped at the far right
   treeViewSetColumnDragFunction view $ Just $ \_ rCol _ -> do
-    putStrLn ("querying reorderability")
     return (rCol /= Nothing)
-
-  view `on` cursorChanged $ do
-    putStrLn "Cursor changed"
-    mapM_ (const windowNew) [0..10]
-
 
   treeViewSetSearchEqualFunc view $ Just $ \str (TreeIter _ n _ _) -> do
     row <- listStoreGetValue model (fromIntegral n)
