@@ -2,7 +2,7 @@ PROG  = Embedded
 SOURCES = Embedded.hs
 
 $(PROG) : $(SOURCES)
-	$(HC) --make $< -o $@ $(HCFLAGS) -XForeignFunctionInterface
+	$(HC) --make $< -o $@ $(HCFLAGS)
 
 clean:
 	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

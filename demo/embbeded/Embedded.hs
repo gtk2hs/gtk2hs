@@ -1,7 +1,7 @@
 -- Use GtkSocket and GtkPlug for cross-process embedded.
--- Just startup program, press 'Alt-m' to new editor, press `Alt-n` to new terminal.
--- And those plug widget (editor, terminal) running in child-process, 
--- so program won't crash when child-process throw un-catch exception.
+-- Just startup program, press 'm' to create tab with new button.
+-- Click button for hang to simulate plug hanging process, 
+-- but socket process still running, can switch to other tab. 
 
 module Main where
 
@@ -11,15 +11,11 @@ import System.Directory
 import System.FilePath ((</>))
 import Control.Monad
 import Control.Monad.Trans
+import Control.Concurrent
 
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.General.Structs
-import Graphics.UI.Gtk.Vte.Vte
 import Graphics.UI.Gtk.Gdk.EventM
-
-data PlugType = PlugEditor
-              | PlugTerminal
-              deriving (Eq, Ord, Show, Read)
 
 -- | Main.
 main :: IO ()
@@ -30,29 +26,20 @@ main = do
   -- Get program arguments.
   args <- getArgs
 
-  case length args of
-    -- Entry socket main when no arguments.
-    0 -> socketMain 
-
+  case args of
     -- Entry plug main when have two arguments.
-    2 -> do
-      let pType = read (head args) :: PlugType -- get Plug type
-          id    = toNativeWindowId $ read (last args) :: NativeWindowId -- get GtkSocket id
-
-      plugMain id pType
-    -- Otherwise just output error and exit.
-    _ -> putStrLn "Wrong program arguments."
+    [id] -> plugMain (toNativeWindowId $ read id :: NativeWindowId) -- get GtkSocket id
+    -- Othersise entry socket main when no arguments.
+    _ -> socketMain 
   
 -- | GtkSocekt main.
 socketMain :: IO ()  
 socketMain = do
-  -- Output message.
-  pid <- getProcessID
-  putStrLn $ "Running in socket process : " ++ show pid
-
   -- Create top-level window.
   window <- windowNew
-  windowFullscreen window
+  windowSetPosition window WinPosCenter
+  windowSetDefaultSize window 600 400
+  windowSetTitle window "Press `m` to new tab, press `q` exit."
   window `onDestroy` mainQuit
 
   -- Create notebook to contain GtkSocekt.
@@ -61,63 +48,38 @@ socketMain = do
 
   -- Handle key press.
   window `on` keyPressEvent $ tryEvent $ do
-    keyModifier <- eventModifier
-    keyName     <- eventKeyName
-    liftIO $ when (keyModifier == [Alt]) $ 
+    keyName <- eventKeyName
+    liftIO $ 
       case keyName of
-        "m" -> forkPlugProcess notebook PlugEditor "Editor"     -- create editor GtkPlug
-        "n" -> forkPlugProcess notebook PlugTerminal "Terminal" -- create terminal GtkPlug
+        "m" -> do
+               -- Create new GtkSocket.
+               socket <- socketNew
+               widgetShow socket                          -- must show before add GtkSocekt to container
+               notebookAppendPage notebook socket "Tab"   -- add to GtkSocekt notebook
+               id <- socketGetId socket                    -- get GtkSocket id
+
+               -- Fork process to add GtkPlug into GtkSocekt. 
+               path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
+               forkProcess (executeFile path False [show $ fromNativeWindowId id] Nothing)
+               return ()
+        "q" -> mainQuit          -- quit
 
   widgetShowAll window
 
   mainGUI
 
 -- | GtkPlug main.
-plugMain :: NativeWindowId -> PlugType -> IO ()
-plugMain id PlugEditor   = plugWrap id =<< createEditor
-plugMain id PlugTerminal = plugWrap id =<< createTerminal
-
--- | Fork plug process.
-forkPlugProcess :: Notebook -> PlugType -> String -> IO ()
-forkPlugProcess notebook plugType tabName = do
-  -- Create new GtkSocket.
-  socket <- socketNew
-  widgetShow socket                          -- must show before add GtkSocekt to container
-  notebookAppendPage notebook socket tabName -- add to GtkSocekt notebook
-  id <- socketGetId socket                    -- get GtkSocket id
-
-  -- Fork process to add GtkPlug into GtkSocekt. 
-  path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
-  forkProcess (executeFile path False [show plugType, show $ fromNativeWindowId id] Nothing)
-  return ()
-
--- | Plug wrap function.
-plugWrap :: WidgetClass widget => NativeWindowId -> widget -> IO ()
-plugWrap id widget = do
-  -- Output message.
-  pid <- getProcessID
-  putStrLn $ "Running in plug process : " ++ show pid
-
-  -- Create GtkPlug with GtkSocekt id.
+plugMain :: NativeWindowId -> IO ()
+plugMain id = do
   plug <- plugNew $ Just id
   plug `onDestroy` mainQuit
   
-  -- Add widget to GtkPlug.
-  scrolledWindow <- scrolledWindowNew Nothing Nothing
-  scrolledWindow `containerAdd` widget
-  plug `containerAdd` scrolledWindow
+  button <- buttonNewWithLabel "Click me to hang."
+  plug `containerAdd` button
 
-  widgetShowAll plug  
-
-  mainGUI
-
--- Create editor widget.
-createEditor :: IO TextView
-createEditor = textViewNew
+  -- Simulate a plugin hanging to see if it blocks the outer process.
+  button `onClicked` threadDelay 5000000
   
--- Create terminal widget.
-createTerminal :: IO Terminal  
-createTerminal = do
-  terminal <- terminalNew
-  terminalForkCommand terminal Nothing Nothing Nothing Nothing False False False
-  return terminal
+  widgetShowAll plug
+  
+  mainGUI
