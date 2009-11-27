@@ -696,20 +696,25 @@ layoutMoveCursorVisually (PangoLayout psRef plr) strong index dir = do
 	    if idx==maxBound then CursorPosNextPara else
 	    CursorPos (ofsFromUTF (fromIntegral idx) uc) (fromIntegral trail))
 
--- | Compute the physical size of the layout.
+-- | Computes the logical and ink extents of the 'PangoLayout'.
 --
--- * Computes the ink and the logical size of the 'Layout'. The
---   logical extend is used for positioning, the ink size is the smallest
---   bounding box that includes all character pixels. The ink size can be
---   smaller or larger that the logical layout.
+-- Logical extents are usually what you want for positioning things. Note that
+-- both extents may have non-zero x and y. You may want to use those to offset
+-- where you render the layout. Not doing that is a very typical bug that
+-- shows up as right-to-left layouts not being correctly positioned in a
+-- layout with a set width.
 --
-layoutGetExtents :: PangoLayout -> IO (PangoRectangle, PangoRectangle)
+-- Layout coordinates begin at the top left corner of the layout.
+--
+layoutGetExtents :: PangoLayout
+                 -> IO (PangoRectangle, PangoRectangle) -- ^ @(ink, logical)@
 layoutGetExtents (PangoLayout _ pl) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_get_extents#} pl (castPtr logPtr) (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  alloca $ \inkPtr ->
+  alloca $ \logPtr -> do
+  {#call unsafe layout_get_extents#} pl (castPtr inkPtr) (castPtr logPtr)
+  log <- peek inkPtr
+  ink <- peek logPtr
+  return (fromRect ink, fromRect log)
 
 
 -- | Compute the physical size of the layout.
