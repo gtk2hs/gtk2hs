@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -cpp #-}
 --  Compiler Toolkit: Compiler I/O 
 --
 --  Author : Manuel M T Chakravarty
@@ -73,6 +75,9 @@ where
 import IO
 import Directory
 import System
+#if __GLASGOW_HASKELL__ >= 612
+import System.IO (hSetEncoding, latin1)
+#endif
 
 import FileOps	 (fileFindIn, mktemp)
 import StateBase (PreCST, liftIO)
@@ -82,7 +87,12 @@ import StateBase (PreCST, liftIO)
 -- -------------
 
 openFileCIO     :: FilePath -> IOMode -> PreCST e s Handle
-openFileCIO p m  = liftIO (openFile p m)
+openFileCIO p m  = liftIO $ do
+  hnd <- openFile p m
+#if __GLASGOW_HASKELL__ >= 612
+  hSetEncoding hnd latin1
+#endif
+  return hnd
 
 hCloseCIO   :: Handle -> PreCST e s ()
 hCloseCIO h  = liftIO (hClose h)
@@ -103,10 +113,15 @@ hPutStrLnCIO     :: Handle -> String -> PreCST e s ()
 hPutStrLnCIO h s  = liftIO (hPutStrLn h s)
 
 writeFileCIO		    :: FilePath -> String -> PreCST e s ()
-writeFileCIO fname contents  = liftIO (writeFile fname contents)
+writeFileCIO fname contents  = do
+  hnd <- openFileCIO fname WriteMode
+  hPutStrCIO hnd contents
+  hCloseCIO hnd
 
 readFileCIO       :: FilePath -> PreCST e s String
-readFileCIO fname  = liftIO (readFile fname)
+readFileCIO fname  = do
+  hnd <- openFileCIO fname ReadMode
+  liftIO (hGetContents hnd)
 
 printCIO   :: Show a => a -> PreCST e s ()
 printCIO a  = liftIO (print a)
