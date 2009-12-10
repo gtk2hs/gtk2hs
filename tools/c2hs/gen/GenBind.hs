@@ -729,10 +729,12 @@ callImport hook isPure isUns mLock ideLexeme hsLexeme cdecl pos =
 --
 foreignImport :: String -> String -> String -> Bool -> ExtType -> String
 foreignImport header ident hsIdent isUnsafe ty  =
-  "foreign import ccall " ++ safety ++ " \"" ++ header ++ " " ++ ident ++ 
+  "foreign import ccall " ++ safety ++ " \"" ++ entity ++
   "\"\n  " ++ hsIdent ++ " :: " ++ showExtType ty ++ "\n"
   where
     safety = if isUnsafe then "unsafe" else "safe"
+    entity | null header = ident
+           | otherwise   = header ++ " " ++ ident
 
 -- produce a Haskell function definition for a fun hook
 --
