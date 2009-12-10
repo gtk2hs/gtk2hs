@@ -120,7 +120,7 @@ size CULongPT        = Storable.sizeOf (undefined :: CULong)
 size CULLongPT       = Storable.sizeOf (undefined :: CLLong)
 size CFloatPT        = Storable.sizeOf (undefined :: CFloat)
 size CDoublePT       = Storable.sizeOf (undefined :: CDouble)
-size CLDoublePT      = Storable.sizeOf (undefined :: CLDouble)
+--size CLDoublePT      = Storable.sizeOf (undefined :: CLDouble)
 size (CSFieldPT bs)  = -bs
 size (CUFieldPT bs)  = -bs
 
@@ -145,7 +145,7 @@ alignment CULongPT        = Storable.alignment (undefined :: CULong)
 alignment CULLongPT       = Storable.alignment (undefined :: CULLong)
 alignment CFloatPT        = Storable.alignment (undefined :: CFloat)
 alignment CDoublePT       = Storable.alignment (undefined :: CDouble)
-alignment CLDoublePT      = Storable.alignment (undefined :: CLDouble)
+--alignment CLDoublePT      = Storable.alignment (undefined :: CLDouble)
 alignment (CSFieldPT bs)  = fieldAlignment bs
 alignment (CUFieldPT bs)  = fieldAlignment bs
 
