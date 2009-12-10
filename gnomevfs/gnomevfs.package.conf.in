@@ -1,5 +1,6 @@
 name: gnomevfs
 version: @PACKAGE_VERSION@
+id: gnomevfs-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LGPLv3
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -13,5 +14,5 @@ hs-libraries: HSgnomevfs
 extra-libraries: @GNOMEVFS_LIBS_CQ@
 include-dirs: @GNOMEVFS_CFLAGS_CQ@
 includes: libgnomevfs/gnome-vfs.h libgnomevfs/gnome-vfs-mime.h
-depends: glib-@PACKAGE_VERSION@ mtl-@PKG_MTL_VERSION@ @GNOMEVFS_SPLITBASE_DEPENDS@
+depends: glib-@PACKAGE_VERSION@ @PKG_MTL_ID@ @GNOMEVFS_SPLITBASE_DEPENDS@
 ld-options: @GNOMEVFS_LIBEXTRA_CQ@

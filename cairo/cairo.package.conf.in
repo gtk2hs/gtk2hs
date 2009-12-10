@@ -1,5 +1,6 @@
 name: cairo
 version: @PACKAGE_VERSION@
+id: cairo-@PACKAGE_VERSION@
 license: BSD3
 license-file: cairo/COPYRIGHT
 copyright: (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
@@ -15,5 +16,5 @@ hs-libraries: HScairo
 extra-libraries: @CAIRO_LIBS_CQ@
 include-dirs: @CAIRO_CFLAGS_CQ@
 includes: @CAIRO_HEADERS@
-depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @CAIRO_SPLITBASE_DEPENDS@
+depends: @PKG_BASE_ID@ @PKG_MTL_ID@ glib-@PACKAGE_VERSION@ @CAIRO_SPLITBASE_DEPENDS@
 ld-options: @CAIRO_LIBEXTRA_CQ@

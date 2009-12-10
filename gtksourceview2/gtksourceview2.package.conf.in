@@ -1,5 +1,6 @@
 name: gtksourceview2
 version: @PACKAGE_VERSION@
+id: gtksourceview2-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -22,5 +23,5 @@ includes: gtksourceview/gtksourcebuffer.h,
           gtksourceview/gtksourcestyleschememanager.h,
           gtksourceview/gtksourceview.h,
           gtksourceview/gtksourceview-typebuiltins.h
-depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
+depends: @PKG_BASE_ID@ gtk-@PACKAGE_VERSION@
 ld-options: @GTKSOURCEVIEW2_LIBEXTRA_CQ@

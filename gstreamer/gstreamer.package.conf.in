@@ -1,5 +1,6 @@
 name: gstreamer
 version: @PACKAGE_VERSION@
+id: gstreamer-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -13,5 +14,5 @@ hs-libraries: HSgstreamer
 extra-libraries: @GSTREAMER_LIBS_CQ@
 include-dirs: @GSTREAMER_CFLAGS_CQ@
 includes: gst/gst.h
-depends: glib-@PACKAGE_VERSION@ mtl-@PKG_MTL_VERSION@ @GSTREAMER_SPLITBASE_DEPENDS@
+depends: glib-@PACKAGE_VERSION@ @PKG_MTL_ID@ @GSTREAMER_SPLITBASE_DEPENDS@
 ld-options: @GSTREAMER_LIBEXTRA_CQ@

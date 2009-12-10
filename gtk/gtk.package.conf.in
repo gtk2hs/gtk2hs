@@ -1,5 +1,6 @@
 name: gtk
 version: @PACKAGE_VERSION@
+id: gtk-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -13,5 +14,5 @@ hs-libraries: HSgtk
 extra-libraries: @GTK_LIBS_CQ@
 include-dirs: @GTK_CFLAGS_CQ@
 includes: gtk/gtk.h
-depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @GTK_SPLITBASE_DEPENDS@
+depends: @PKG_BASE_ID@ @PKG_MTL_ID@ glib-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @GTK_SPLITBASE_DEPENDS@
 ld-options: @GTK_LIBEXTRA_CQ@

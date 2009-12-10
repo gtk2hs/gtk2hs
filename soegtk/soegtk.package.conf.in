@@ -1,5 +1,6 @@
 name: soegtk
 version: @PACKAGE_VERSION@
+id: soegtk-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -10,4 +11,4 @@ exposed-modules: Graphics.SOE.Gtk
 import-dirs: "${pkglibdir}/imports/soegtk"
 library-dirs: @GTK_LIBDIR_CQ@
 hs-libraries: HSsoegtk
-depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ gtk-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @SOEGTK_SPLITBASE_DEPENDS@
+depends: @PKG_BASE_ID@ @PKG_MTL_ID@ gtk-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @SOEGTK_SPLITBASE_DEPENDS@

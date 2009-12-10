@@ -1,5 +1,6 @@
 name: glib
 version: @PACKAGE_VERSION@
+id: glib-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -13,5 +14,5 @@ hs-libraries: HSglib
 extra-libraries: @GLIB_LIBS_CQ@
 include-dirs: @GLIB_CFLAGS_CQ@, "${pkglibdir}/include"
 includes: glib.h, glib-object.h
-depends: base-@PKG_BASE_VERSION@
+depends: @PKG_BASE_ID@
 ld-options: @GLIB_LIBEXTRA_CQ@

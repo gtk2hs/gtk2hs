@@ -1,5 +1,6 @@
 name: gtkglext
 version: @PACKAGE_VERSION@
+id: gtkglext-@PACKAGE_VERSION@
 license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
@@ -13,5 +14,5 @@ hs-libraries: HSgtkglext
 extra-libraries: @GTKGLEXT_LIBS_CQ@
 include-dirs: @GTKGLEXT_CFLAGS_CQ@
 includes: gtk/gtkgl.h
-depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
+depends: @PKG_BASE_ID@ gtk-@PACKAGE_VERSION@
 ld-options: @GTKGLEXT_LIBEXTRA_CQ@

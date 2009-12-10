@@ -1,5 +1,6 @@
 name: svgcairo
 version: @PACKAGE_VERSION@
+id: svgcairo-@PACKAGE_VERSION@
 license: BSD3
 license-file: cairo/COPYRIGHT
 copyright: (c) Duncan Coutts 2005, (c) Paolo Martini 2005
@@ -15,5 +16,5 @@ hs-libraries: HSsvgcairo
 extra-libraries: @SVGCAIRO_LIBS_CQ@
 include-dirs: @SVGCAIRO_CFLAGS_CQ@
 includes: librsvg/rsvg-cairo.h, librsvg/rsvg.h
-depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ cairo-@PACKAGE_VERSION@
+depends: @PKG_BASE_ID@ @PKG_MTL_ID@ glib-@PACKAGE_VERSION@ cairo-@PACKAGE_VERSION@
 ld-options: @SVGCAIRO_LIBEXTRA_CQ@

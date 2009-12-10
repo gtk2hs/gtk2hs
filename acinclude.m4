@@ -98,8 +98,14 @@ if test "$USERPKGCONF" = "yes"; then
 fi
 if echo "${C}" | ${GREP} $1 > /dev/null 2> /dev/null
 then
-	$2=$(for pkg in ${C} ; do echo "${pkg}" | sed -e 's/^[[A-Za-z0-9-]]*-\([[0-9.]]*\)$/\1/' ; done | sort -r -n | head -n1)
-	AC_MSG_RESULT([yes, version $$2])
+	VER=$(for pkg in ${C} ; do echo "${pkg}" | sed -e 's/^[[A-Za-z0-9-]]*-\([[0-9.]]*\)$/\1/' ; done | sort -r -n | head -n1)
+	$2=${VER}
+	if test "${GHC_VERSION_612}" = "yes"; then
+		$3=$(${GHCPKG} field $1-${VER} id | cut -d' ' -f2)
+	else
+		$3=$1-${VER}
+	fi
+	AC_MSG_RESULT([yes, version ${VER}])
 else
 	AC_MSG_ERROR([
 Missing GHC package "$1". Install "$1" and re-run ./configure
