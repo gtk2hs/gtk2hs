@@ -29,21 +29,20 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 -- 
 -- | The 'DrawingArea' widget is used for creating custom user interface
 -- elements. It's essentially a blank widget; you can draw on
--- the 'Drawable' returned by 'drawingAreaGetWindow'.
+-- the 'Drawable' returned by 'drawingAreaGetDrawWindow'.
 --
 -- After creating a drawing area, the application may want to connect to:
 --
--- * Mouse and button press signals to respond to input from the user. (Use
--- 'widgetAddEvents' to enable events you wish to receive.)
+-- * Mouse and button press signals to respond to input from the user.
 --
--- * The \"realize\" signal to take any necessary actions when the widget is
+-- * The 'realize' signal to take any necessary actions when the widget is
 -- instantiated on a particular display. (Create GDK resources in response to
 -- this signal.)
 --
--- * The \"configure_event\" signal to take any necessary actions when the
+-- * The 'configureEvent' signal to take any necessary actions when the
 -- widget changes size.
 --
--- * The \"expose_event\" signal to handle redrawing the contents of the
+-- * The 'exposeEvent' signal to handle redrawing the contents of the
 -- widget.
 --
 -- Expose events are normally delivered when a drawing area first comes
@@ -54,11 +53,11 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 -- expose event for the invalid region.
 --
 -- The available routines for drawing are documented on the GDK Drawing
--- Primitives page. See also 'pixbufRenderToDrawable' for drawing a 'Pixbuf'.
+-- Primitives page.
 --
 -- To receive mouse events on a drawing area, you will need to enable them
 -- with 'widgetAddEvents'. To receive keyboard events, you will need to set the
--- 'CanFocus' flag on the drawing area, and should probably draw some
+-- 'widgetCanFocus' attribute on the drawing area, and should probably draw some
 -- user-visible indication that the drawing area is focused.
 
 -- * Class Hierarchy
@@ -90,6 +89,8 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs	(widgetGetDrawWindow, widgetGetSize)
+-- to make haddock happy:
+import Graphics.UI.Gtk.Abstract.Widget
 
 {# context lib="gtk" prefix="gtk" #}
 
