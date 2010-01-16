@@ -18,8 +18,9 @@ echo '<!DOCTYPE  refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
      <!ENTITY ast "&#x002A;">
      <!ENTITY sol "&#x002F;">
      <!ENTITY commat "&#x0040;">
-     <!ENTITY ldquo "&#x201C;" ><!--=double quotation mark, left-->
-     <!ENTITY rdquo "&#x201D;" ><!--=double quotation mark, right-->
+     <!ENTITY sol  "&#x2F;">
+     <!ENTITY ldquo  "&#x6C;">
+     <!ENTITY rdquo  "&#x72;">
      ]>'
 echo "<apidoc>"
 

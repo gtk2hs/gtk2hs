@@ -154,13 +154,15 @@ data Misc =
 -- extract functions to convert the api xml file to the internal representation
 -------------------------------------------------------------------------------
 extractAPI :: Xml.Document -> API
-extractAPI (Xml.Document _ _ (Xml.Elem "api" [] namespaces) _) =
+extractAPI (Xml.Document _ _ (Xml.Elem "apidoc" [] namespaces) _) =
   catMaybes (map extractNameSpace (concatMap (Xml.foldXml white) namespaces))
   where
   -- remove empty CString constructors from the whole document
   white :: Xml.CFilter
   white (Xml.CString False str) | all isSpace str = []
   white elem = [elem]
+extractAPI (Xml.Document _ _ (Xml.Elem notApi [] namespaces) _) =
+  error $ "extractAPI: expected `apidoc` top-element, but found "++notApi
 extractAPI _other = error $ "extractAPI: other"
 
 extractNameSpace :: Xml.Content -> Maybe NameSpace
