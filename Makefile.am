@@ -1133,6 +1133,9 @@ libHSvte_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(VTE_CFLAG
 
 libHSvte_a_SOURCESDIRS	= vte
 
+libHSvte_a_LIBADD  =                           \
+	vte/Graphics/UI/Gtk/Vte/Vte_stub.o
+ 
 libHSvte_a_GENERATEDSOURCES =	\
 	vte/Graphics/UI/Gtk/Vte/Types.chs
 
