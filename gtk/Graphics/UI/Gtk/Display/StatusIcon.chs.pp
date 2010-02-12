@@ -448,9 +448,9 @@ statusIconGetGeometry self =
          (toStatusIcon self) nullPtr (castPtr recPtr) orPtr) >>= \b ->
         if b 
           then do
-            rec <- peek recPtr
+            rec_ <- peek recPtr
             or <- peek orPtr
-            return $ Just (rec,toEnum $ fromIntegral or)
+            return $ Just (rec_,toEnum $ fromIntegral or)
         else return Nothing
 
 
