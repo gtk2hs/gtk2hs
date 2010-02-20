@@ -110,7 +110,10 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufAddAlpha,
   pixbufCopyArea,
   pixbufFill,
-  pixbufGetFromDrawable
+  pixbufGetFromDrawable,
+
+  pixbufRenderThresholdAlpha,
+  pixbufRenderPixmapAndMaskForColormap
   ) where
 
 import Control.Monad (liftM)
@@ -124,6 +127,7 @@ import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 				propagateGError)
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
+import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap, Pixmap)
 
 {# context prefix="gdk" #}
 
@@ -710,3 +714,68 @@ pixbufGetFromDrawable d (Rectangle x y width height) =
     (Pixbuf nullForeignPtr) (toDrawable d) (Colormap nullForeignPtr)
     (fromIntegral x) (fromIntegral y) 0 0
     (fromIntegral width) (fromIntegral height)
+
+
+
+-- | Takes the opacity values in a rectangular portion of a pixbuf and
+-- thresholds them to produce a bi-level alpha mask that can be used
+-- as a clipping mask for a drawable.
+pixbufRenderThresholdAlpha ::
+    Pixbuf -- ^ A pixbuf.
+ -> Bitmap -- ^ Bitmap where the bilevel mask will be painted to.
+ -> Int  -- ^ Source X coordinate.
+ -> Int  -- ^ source Y coordinate.
+ -> Int -- ^ Destination X coordinate.
+ -> Int -- ^ Destination Y coordinate.
+ -> Int -- ^ Width of region to threshold, or -1 to use pixbuf width
+ -> Int -- ^ Height of region to threshold, or -1 to use pixbuf height
+ -> Int -- ^ Opacity values below this will be painted as zero; all other values will be painted as one.
+ -> IO ()
+pixbufRenderThresholdAlpha src dest srcX srcY destX destY w h at =
+  withForeignPtr (unPixmap dest) $ \destPtr ->
+  {#call unsafe pixbuf_render_threshold_alpha#} src
+                                                (castPtr destPtr)
+                                                (fromIntegral srcX)
+                                                (fromIntegral srcY)
+                                                (fromIntegral destX)
+                                                (fromIntegral destY)
+                                                (fromIntegral w)
+                                                (fromIntegral h)
+                                                (fromIntegral at)
+
+
+
+
+
+-- | Creates a pixmap and a mask bitmap which are returned and renders
+-- a pixbuf and its corresponding thresholded alpha mask to them. This
+-- is merely a convenience function; applications that need to render
+-- pixbufs with dither offsets or to given drawables should use
+-- 'Graphics.UI.Gtk.Gdk.Drawable.drawPixbuf', and
+-- 'pixbufRenderThresholdAlpha'.
+--
+-- The pixmap that is created uses the 'Colormap' specified by
+-- colormap. This colormap must match the colormap of the window where
+-- the pixmap will eventually be used or an error will result.
+--
+-- If the pixbuf does not have an alpha channel, then the returned
+-- mask will be @Nothing@.
+--
+pixbufRenderPixmapAndMaskForColormap ::
+    Pixbuf                    -- ^ A pixbuf.
+ -> Colormap                  -- ^ A Colormap
+ -> Int                       -- ^ Threshold value for opacity values
+ -> IO (Pixmap, Maybe Bitmap) -- ^ (Created pixmap, created mask)
+pixbufRenderPixmapAndMaskForColormap pixbuf colormap threshold =
+  alloca $ \pmRetPtr ->
+    alloca $ \bmRetPtr -> do
+      {#call unsafe pixbuf_render_pixmap_and_mask_for_colormap#} pixbuf
+                                                                 colormap
+                                                                 (castPtr pmRetPtr) -- seems to reject Pixmap**, so cast
+                                                                 (castPtr bmRetPtr)
+                                                                 (fromIntegral threshold)
+      pm <- constructNewGObject mkPixmap (peek pmRetPtr :: IO (Ptr Pixmap))
+      bm <- maybeNull (constructNewGObject mkPixmap) (peek bmRetPtr :: IO (Ptr Bitmap))
+      return (pm, bm)
+
+
