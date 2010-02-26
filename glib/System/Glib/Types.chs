@@ -49,9 +49,9 @@ unGObject (GObject o) = o
 
 class GObjectClass o where
   -- | Safe upcast.
-  toGObject         :: GObjectClass o => o -> GObject
+  toGObject         :: o -> GObject
   -- | Unchecked downcast.
-  unsafeCastGObject :: GObjectClass o => GObject -> o
+  unsafeCastGObject :: GObject -> o
   {-# INLINE toGObject #-}
   {-# INLINE unsafeCastGObject #-}
 

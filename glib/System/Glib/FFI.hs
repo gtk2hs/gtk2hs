@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) FFI extras and version dependencies
 --

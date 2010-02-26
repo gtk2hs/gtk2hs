@@ -34,6 +34,8 @@ import Foreign.C
 
 import System.Glib.GValue
 
+#include<glib-object.h>
+
 --newtype GParameter = GParameter (String, GenericValue)
 newtype GParameter = GParameter (String, GValue)
 

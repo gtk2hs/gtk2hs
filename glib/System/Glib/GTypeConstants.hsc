@@ -39,6 +39,8 @@ module System.Glib.GTypeConstants (
 
 import System.Glib.GType	(GType)
 
+#include<glib-object.h>
+
 invalid, none, uint, int, uint64, int64, uchar, char, bool, enum, flags,
  pointer, float, double, string, object, boxed :: GType
 

@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, ScopedTypeVariables, DeriveDataTypeable #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) GError API
 --

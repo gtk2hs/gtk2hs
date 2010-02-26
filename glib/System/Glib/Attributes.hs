@@ -1,3 +1,4 @@
+{-# LANGUAGE ExistentialQuantification #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Attributes interface
 --

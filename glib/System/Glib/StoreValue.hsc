@@ -41,6 +41,8 @@ import Control.Exception
                           (throw, Exception(AssertionFailed))
 #endif
 
+#include<glib-object.h>
+
 import System.Glib.FFI
 import System.Glib.GValue	(GValue, valueInit, valueGetType)
 import System.Glib.GValueTypes

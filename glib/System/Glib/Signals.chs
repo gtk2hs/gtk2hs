@@ -54,6 +54,9 @@ module System.Glib.Signals (
 
 import System.Glib.FFI
 {#import System.Glib.GObject#}
+#ifndef USE_GCLOSUE_SIGNALS_IMPL
+import Data.IORef
+#endif
 
 {#context lib="glib" prefix="g" #}
 
