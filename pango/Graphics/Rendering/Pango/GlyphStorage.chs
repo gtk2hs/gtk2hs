@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Glyph Storage of Pango
@@ -28,29 +29,29 @@
 --
 -- 
 --
-module Graphics.UI.Gtk.Pango.GlyphStorage (
+module Graphics.Rendering.Pango.GlyphStorage (
   glyphItemExtents,
   glyphItemExtentsRange,
   glyphItemIndexToX,
   glyphItemXToIndex,
   glyphItemGetLogicalWidths,
-#if PANGO_CHECK_VERSION(1,2,0)
+#if PANGO_VERSION_CHECK(1,2,0)
   glyphItemSplit
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#} (Font(..))
+{#import Graphics.Rendering.Pango.Types#} (Font(..))
 import System.Glib.UTFString
-{#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.Pango.Structs
+{#import Graphics.Rendering.Pango.BasicTypes#}
+import Graphics.Rendering.Pango.Structs
 #ifdef HAVE_NEW_CONTROL_EXCEPTION
 import Control.OldException ( Exception(ArrayException),
-			      ArrayException(IndexOutOfBounds) )
+                              ArrayException(IndexOutOfBounds) )
 #else
 import Control.Exception ( Exception(ArrayException),
-			   ArrayException(IndexOutOfBounds) )
+                           ArrayException(IndexOutOfBounds) )
 #endif
 import Control.Exception (throwIO)
 
@@ -75,7 +76,7 @@ glyphItemExtents (GlyphItem pi self) = do
     (castPtr logPtr) (castPtr inkPtr)
   log <- peek logPtr
   ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  return (log, ink)
 
 -- | Ask for bounding rectangles for a sub-range of a glyph sequence.
 --
@@ -84,7 +85,7 @@ glyphItemExtents (GlyphItem pi self) = do
 --   were called on the sub-string.
 --
 glyphItemExtentsRange :: GlyphItem -> Int -> Int -> 
-			   IO (PangoRectangle, PangoRectangle)
+                           IO (PangoRectangle, PangoRectangle)
 
 glyphItemExtentsRange (GlyphItem pi@(PangoItem (PangoString uc _ _) _) self)
   start end = do
@@ -95,7 +96,7 @@ glyphItemExtentsRange (GlyphItem pi@(PangoItem (PangoString uc _ _) _) self)
     font (castPtr logPtr) (castPtr inkPtr)
   log <- peek logPtr
   ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  return (log, ink)
 
 -- | Get the horizontal position of a character.
 --
@@ -103,10 +104,10 @@ glyphItemExtentsRange (GlyphItem pi@(PangoItem (PangoString uc _ _) _) self)
 --   portions.
 --
 glyphItemIndexToX :: GlyphItem -- ^ the rendered string
-		    -> Int -- ^ the index into the string
-		    -> Bool -- ^ return the beginning (@False@) or the end 
-			    -- of the character
-		    -> IO Double
+                    -> Int -- ^ the index into the string
+                    -> Bool -- ^ return the beginning (@False@) or the end 
+                            -- of the character
+                    -> IO Double
 glyphItemIndexToX (GlyphItem (PangoItem ps pir) gs) pos beg =
   withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr -> 
   withPangoString ps $ \uc l strPtr -> do
@@ -158,7 +159,7 @@ glyphItemGetLogicalWidths (GlyphItem (PangoItem ps pir) gs) mDir = do
       elems <- peekArray (fromIntegral logLen) arrPtr
       return (map intToPu elems)
 
-#if PANGO_CHECK_VERSION(1,2,0)
+#if PANGO_VERSION_CHECK(1,2,0)
 -- | Split a 'GlyphItem' at the given index.
 --
 -- * The given 'GlyphItem' is split at the given index. The index must be
@@ -180,13 +181,13 @@ glyphItemSplit (GlyphItem (PangoItem ps pir) gs) pos = do
         (fromIntegral (ofsToUTF pos uc))
     if giPtr2==nullPtr then 
        throwIO (ArrayException (IndexOutOfBounds
-	 ("Graphics.UI.Gtk.Pango.GlyphStorage."++
-	  "glyphItemSplit: cannot split item at index "++show pos))) else do
+         ("Graphics.Rendering.Pango.GlyphStorage."++
+          "glyphItemSplit: cannot split item at index "++show pos))) else do
       pirPtr2 <- {#get PangoGlyphItem.item#} giPtr2
       gsrPtr2 <- {#get PangoGlyphItem.glyphs#} giPtr2
       {#call unsafe g_free#} giPtr2
       pir2 <- makeNewPangoItemRaw pirPtr2
       gsr2 <- makeNewGlyphStringRaw gsrPtr2
       return (GlyphItem (PangoItem ps pir2) gsr2,
-	      GlyphItem (PangoItem ps pir1) gsr1)
+              GlyphItem (PangoItem ps pir1) gsr1)
 #endif

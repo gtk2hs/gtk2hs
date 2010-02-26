@@ -1,0 +1,86 @@
+Name:           pango
+Version:        0.12.0
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Axel Simon, Duncan Coutts
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6
+Stability:      stable
+homepage:       www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/report
+package-url:    http://hackage.haskell.org/package/pango
+Synopsis:       Binding to the Pango text rendering engine.
+Description:    This package provides a wrapper around the Pango C library that
+                allows high-quality rendering of Unicode text. It can be used
+                either with Cairo to output text in PDF, PS or other
+                documents or with Gtk+ to display text on-screen.
+Category:       Graphics
+Tested-With:    GHC == 6.10.4
+extra-source-files: template-hsc-gtk2hs.h
+
+x-Types-File:   Graphics/Rendering/Pango/Types.chs
+x-Types-ModName: Graphics.Rendering.Pango.Types
+x-Types-Forward:  *System.Glib.GObject
+
+Flag new-exception
+  Description:  Enable build with a base library that contains the new exception library.
+
+Flag pango_1_2
+  Description:  Build data types for Pango version 1.2.
+
+Flag pango_1_4
+  Description:  Build data types for Pango version 1.4.
+
+Flag pango_1_6
+  Description:  Build data types for Pango version 1.6.
+
+Library
+        if flag(new-exception)
+          build-depends:  base >= 4, process, directory, array, containers,
+                          pretty, haskell98, glib >= 0.12.0, cairo >= 0.12.0
+          cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
+        else
+          build-depends:  base < 4, process, directory, array, containers,
+                          pretty, haskell98, glib >= 0.12.0, cairo >= 0.12.0
+        exposed-modules: Graphics.Rendering.Pango.Font
+                         Graphics.Rendering.Pango.Enums
+                         Graphics.Rendering.Pango.GlyphStorage
+                         Graphics.Rendering.Pango.Context
+                         Graphics.Rendering.Pango.Layout
+                         Graphics.Rendering.Pango.Rendering
+                         Graphics.Rendering.Pango.Types
+                         Graphics.Rendering.Pango.Markup
+        other-modules:   Graphics.Rendering.Pango.Attributes
+                         Graphics.Rendering.Pango.Description
+                         Graphics.Rendering.Pango.BasicTypes
+                         Graphics.Rendering.Pango.Structs
+        extensions:     ForeignFunctionInterface
+        x-c2hs-Header:  hspango.h
+        install-includes: hspango.h
+        includes:       hspango.h
+        include-dirs:   .
+        if flag(pango_1_6)
+          x-Types-Tag:   pango pango-1.2 pango-1.4
+          pkgconfig-depends: pango>=1.6.0
+        else
+          if flag(pango_1_4)
+            x-Types-Tag:   pango pango-1.2 pango-1.4
+            pkgconfig-depends: pango>=1.4.0
+            cpp-options:  -DPANGO_VERSION_MAJOR=1
+                          -DPANGO_VERSION_MINOR=4
+                          -DPANGO_VERSION_MICRO=0
+          else
+            if flag(pango_1_2)
+              x-Types-Tag:   pango pango-1.2
+              pkgconfig-depends: pango>=1.2.0
+              cpp-options:  -DPANGO_VERSION_MAJOR=1
+                            -DPANGO_VERSION_MINOR=2
+                            -DPANGO_VERSION_MICRO=0
+            else
+              x-Types-Tag:   pango
+              pkgconfig-depends: pango>=1.0.0
+              cpp-options:  -DPANGO_VERSION_MAJOR=1
+                            -DPANGO_VERSION_MINOR=0
+                            -DPANGO_VERSION_MICRO=0

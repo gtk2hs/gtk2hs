@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) - pango text attributes
@@ -27,7 +28,7 @@
 --
 -- Defines text attributes.
 --
-module Graphics.UI.Gtk.Pango.Attributes (
+module Graphics.Rendering.Pango.Attributes (
   withAttrList,
   parseMarkup,
   fromAttrList,
@@ -38,9 +39,8 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GError
 import System.Glib.GList
-import Graphics.UI.Gtk.General.Structs  (Color(..))
-import Graphics.UI.Gtk.Pango.Structs
-{#import Graphics.UI.Gtk.Pango.Types#}
+import Graphics.Rendering.Pango.Structs
+{#import Graphics.Rendering.Pango.BasicTypes#}
 import Data.List ( sortBy )
 import Data.Char ( ord, chr )
 import Control.Monad ( liftM )
@@ -85,7 +85,7 @@ crAttr c AttrStretch { paStart=s, paEnd=e, paStretch = stretch } =
   {#call unsafe attr_stretch_new#} (fromIntegral (fromEnum stretch))
 crAttr c AttrSize { paStart=s, paEnd=e, paSize = pu } =
   setAttrPos c s e $ {#call unsafe attr_size_new#} (puToInt pu)
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
 crAttr c AttrAbsSize { paStart=s, paEnd=e, paSize = pu } =
   setAttrPos c s e $ {#call unsafe attr_size_new_absolute#} (puToInt pu)
 #endif
@@ -100,8 +100,8 @@ crAttr c AttrBackground { paStart=s, paEnd=e, paColor = Color r g b } =
 crAttr c AttrUnderline { paStart=s, paEnd=e, paUnderline = underline } =
   setAttrPos c s e $ do
   {#call unsafe attr_underline_new#} (fromIntegral (fromEnum underline))
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
 crAttr c AttrUnderlineColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_underline_color_new#}
   (fromIntegral r) (fromIntegral g) (fromIntegral b)
@@ -109,35 +109,35 @@ crAttr c AttrUnderlineColor {paStart=s, paEnd=e, paColor = Color r g b } =
 crAttr c AttrStrikethrough { paStart=s, paEnd=e, paStrikethrough = st } =
   setAttrPos c s e $ do
   {#call unsafe attr_strikethrough_new#} (fromIntegral (fromEnum st))
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
 crAttr c AttrStrikethroughColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_strikethrough_color_new#}
   (fromIntegral r) (fromIntegral g) (fromIntegral b)
 #endif
 crAttr c AttrRise { paStart=s, paEnd=e, paRise = pu } =
   setAttrPos c s e $ {#call unsafe attr_rise_new#} (puToInt pu)
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
 crAttr c AttrShape { paStart=s, paEnd=e, paInk = rect1, paLogical = rect2 } =
   setAttrPos c s e $ alloca $ \rect1Ptr -> alloca $ \rect2Ptr -> do
-    poke rect1Ptr (toRect rect1)
-    poke rect2Ptr (toRect rect2)
+    poke rect1Ptr rect1
+    poke rect2Ptr rect2
     {#call unsafe attr_shape_new#} (castPtr rect1Ptr) (castPtr rect2Ptr)
 #endif
 crAttr c AttrScale { paStart=s, paEnd=e, paScale = scale } =
   setAttrPos c s e $ 
   {#call unsafe attr_scale_new#} (realToFrac scale)
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
 crAttr c AttrFallback { paStart=s, paEnd=e, paFallback = fb } =
   setAttrPos c s e $
   {#call unsafe attr_fallback_new#} (fromBool fb)
 #endif
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
 crAttr c AttrLetterSpacing { paStart=s, paEnd=e, paLetterSpacing = pu } =
   setAttrPos c s e $
   {#call unsafe attr_letter_spacing_new#} (puToInt pu)
 #endif
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
 crAttr c AttrGravity { paStart=s, paEnd=e, paGravity = g } =
   setAttrPos c s e $
   {#call unsafe attr_gravity_new#} (fromIntegral (fromEnum g))

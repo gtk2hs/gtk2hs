@@ -32,7 +32,7 @@
 --   characteristics of a font. Each of these fields can be set of left
 --   unspecified.
 --
-module Graphics.UI.Gtk.Pango.Description (
+module Graphics.Rendering.Pango.Description (
   FontDescription,
   fontDescriptionNew,
   fontDescriptionCopy,
@@ -61,10 +61,10 @@ import Control.Monad    (liftM)
 import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
-{#import Graphics.UI.Gtk.Types#} ()
-{#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.Pango.Enums
-import Graphics.UI.Gtk.Pango.Structs ( puToInt, intToPu )
+{#import Graphics.Rendering.Pango.Types#}
+{#import Graphics.Rendering.Pango.Enums#}
+import Graphics.Rendering.Pango.Structs ( puToInt, intToPu )
+import Graphics.Rendering.Pango.BasicTypes
 
 {# context lib="pango" prefix="pango_font_description" #}
 

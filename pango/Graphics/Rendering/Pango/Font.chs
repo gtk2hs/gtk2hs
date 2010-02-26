@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions: Font
 --
@@ -44,39 +45,40 @@
 -- * 'FontFace': A face is a specific font where all characteristics are
 --   fixed except for the size.
 --
--- * 'FontMetrics': Information about the font that will be used to render
---   a specific 'Graphics.UI.Gtk.Pango.Context.Context' or
---   'Graphics.UI.Gtk.Pango.Rendering.PangoItem'.
+-- * 'Font': A font in the underlying rendering system.
 --
-module Graphics.UI.Gtk.Pango.Font (
-  PangoUnit,
+-- * 'FontMetrics': Information about the font that will be used to render
+--   a specific 'Context' or 'PangoItem'.
+--
+module Graphics.Rendering.Pango.Font (
   -- Functions to manage font descriptions.
-  module Graphics.UI.Gtk.Pango.Description,
+  module Graphics.Rendering.Pango.Description,
   -- Font metrics.
   FontMap,
   pangoFontMapListFamilies,
   FontFamily,
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
   pangoFontFamilyIsMonospace,
 #endif
   pangoFontFamilyListFaces,
   FontFace,
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
   pangoFontFaceListSizes,
 #endif
   pangoFontFaceDescribe,
-  FontMetrics(..)
+  Font,
   ) where
 
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-{#import Graphics.UI.Gtk.Types#}
 import System.Glib.GObject		(makeNewGObject)
-{#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.Pango.Description
-import Graphics.UI.Gtk.Pango.Structs
+{#import Graphics.Rendering.Pango.BasicTypes#}
+{#import Graphics.Rendering.Pango.Types#}
+{#import Graphics.Rendering.Pango.Enums#} (FontMetrics)
+import Graphics.Rendering.Pango.Description
+import Graphics.Rendering.Pango.Structs
 
 {# context lib="pango" prefix="pango" #}
 
@@ -101,7 +103,7 @@ instance Show FontFamily where
     strPtr <- {#call unsafe font_family_get_name#} ff
     peekUTFString strPtr
 
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
 -- | Ask if the given family contains monospace fonts.
 --
 -- * A monospace font is a font designed for text display where the
@@ -140,7 +142,7 @@ instance Show FontFace where
     strPtr <- {#call unsafe font_face_get_face_name#} ff
     peekUTFString strPtr
 
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
 -- | Ask for available sizes of this font face.
 --
 -- * List the available sizes for a font. This is only applicable to bitmap

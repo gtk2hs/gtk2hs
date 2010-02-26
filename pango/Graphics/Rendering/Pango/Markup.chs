@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Markup
 --
@@ -55,20 +56,15 @@
 -- The full markup language can be found at
 -- <http://library.gnome.org/devel/pango/stable/PangoMarkupFormat.html>.
 --
-module Graphics.UI.Gtk.Pango.Markup (
-  Markup,
+module Graphics.Rendering.Pango.Markup (
+  Pango.Markup,
   SpanAttribute(..),
   markSpan,
   parseMarkup
   ) where
 
-import Graphics.UI.Gtk.Pango.Types ( Markup, Language,
-#if PANGO_CHECK_VERSION(1,16,0)
-                                     PangoGravity, PangoGravityHint
-#endif
-                                   )
-import qualified Graphics.UI.Gtk.Pango.Enums as Pango
-import Graphics.UI.Gtk.Pango.Attributes ( parseMarkup )
+import qualified Graphics.Rendering.Pango.Enums as Pango
+import Graphics.Rendering.Pango.Attributes ( parseMarkup )
 
 -- | These are all the attributes the 'markSpan' function can express.
 --
@@ -144,14 +140,14 @@ data SpanAttribute
   -- * This hint might help the system rendering a particular piece of text
   --   with different fonts that are more suitable for the given language.
   --
-  | FontLang	Language
+  | FontLang	Pango.Language
 
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
   -- | Gravity of text, use for ratation.
-  | FontGravity PangoGravity
+  | FontGravity Pango.PangoGravity
   
   -- | Intensity of gravity.
-  | FontGravityHint PangoGravityHint
+  | FontGravityHint Pango.PangoGravityHint
 #endif
   
 instance Show SpanAttribute where
@@ -168,7 +164,7 @@ instance Show SpanAttribute where
   showsPrec _ (FontRise r)	 = showString " rise=".shows 
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
   showsPrec _ (FontGravity g) = showString " gravity=".shows g
   showsPrec _ (FontGravityHint h) = showString " gravity_hint".shows h
 #endif

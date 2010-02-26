@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions Context
 --
@@ -42,7 +43,7 @@
 --   an effect on how text is rendered. To reflect such a change in the
 --   rendered text, call 'Graphics.UI.Gtk.Pango.Layout.layoutContextChanged'.
 --
-module Graphics.UI.Gtk.Pango.Context (
+module Graphics.Rendering.Pango.Context (
 -- * Types and Methods for 'PangoContext's
   PangoContext,
   contextListFamilies,
@@ -58,13 +59,13 @@ module Graphics.UI.Gtk.Pango.Context (
   contextGetLanguage,
   contextSetTextDir,
   contextGetTextDir,
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
   contextSetTextGravity,
   contextGetTextGravity,
   contextSetTextGravityHint,
   contextGetTextGravityHint,
 #endif
-#if PANGO_CHECK_VERSION(1,6,0) && GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+#if PANGO_VERSION_CHECK(1,6,0)
   contextGetMatrix,
   contextSetMatrix,
 #endif
@@ -73,15 +74,13 @@ module Graphics.UI.Gtk.Pango.Context (
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Pango.Enums
-import Graphics.UI.Gtk.Pango.Structs
-{#import Graphics.UI.Gtk.Types#}
+import Graphics.Rendering.Pango.Enums
+import Graphics.Rendering.Pango.Structs
 import System.Glib.GObject  (makeNewGObject)
-{#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.Pango.Font ( FontMetrics(..) )
-#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+{#import Graphics.Rendering.Pango.Types#}
+{#import Graphics.Rendering.Pango.BasicTypes#}
+{#import Graphics.Rendering.Pango.Enums#} ( FontMetrics(..) )
 {#import Graphics.Rendering.Cairo.Matrix#}
-#endif
 
 
 {# context lib="pango" prefix="pango" #}
@@ -106,7 +105,7 @@ contextListFamilies c = alloca $ \sizePtr -> alloca $ \ptrPtr -> do
 -- | Query the metrics of the given font implied by the font description.
 --
 contextGetMetrics :: PangoContext -> FontDescription -> Language ->
-		     IO FontMetrics
+                     IO FontMetrics
 contextGetMetrics pc fd l = do
   mPtr <- {#call unsafe context_get_metrics#} pc fd l
   ascent <- {#call unsafe font_metrics_get_ascent#} mPtr
@@ -115,7 +114,7 @@ contextGetMetrics pc fd l = do
       {#call unsafe font_metrics_get_approximate_char_width#} mPtr
   approximate_digit_width <-
       {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
   underline_position <-
       {#call unsafe font_metrics_get_underline_position#} mPtr
   underline_thickness <-
@@ -126,17 +125,17 @@ contextGetMetrics pc fd l = do
       {#call unsafe font_metrics_get_strikethrough_thickness#} mPtr
 #endif
   return (FontMetrics
-	  (intToPu ascent)
-	  (intToPu descent)
-	  (intToPu approximate_char_width)
-	  (intToPu approximate_digit_width)
-#if PANGO_CHECK_VERSION(1,6,0)
-	  (intToPu underline_thickness)
-	  (intToPu underline_position)
-	  (intToPu strikethrough_thickness)
-	  (intToPu strikethrough_position)
+          (intToPu ascent)
+          (intToPu descent)
+          (intToPu approximate_char_width)
+          (intToPu approximate_digit_width)
+#if PANGO_VERSION_CHECK(1,6,0)
+          (intToPu underline_thickness)
+          (intToPu underline_position)
+          (intToPu strikethrough_thickness)
+          (intToPu strikethrough_position)
 #endif
-	 )
+         )
 
 -- | Set the default 'FontDescription' of this context.
 --
@@ -154,7 +153,7 @@ contextGetFontDescription pc = do
 
 foreign import ccall unsafe "pango_font_description_copy"
   pango_font_description_copy :: Ptr FontDescription -> 
-				 IO (Ptr FontDescription)
+                                 IO (Ptr FontDescription)
 
 -- | Set the default 'Language' of this context.
 --
@@ -165,7 +164,7 @@ contextSetLanguage = {#call unsafe context_set_language#}
 --
 contextGetLanguage :: PangoContext -> IO Language
 contextGetLanguage pc = liftM Language $
-			{#call unsafe context_get_language#} pc
+                        {#call unsafe context_get_language#} pc
 
 -- | Set the default text direction of this context.
 --
@@ -177,9 +176,9 @@ contextSetTextDir pc dir =
 --
 contextGetTextDir :: PangoContext -> IO PangoDirection
 contextGetTextDir pc = liftM (toEnum . fromIntegral) $
-		       {#call unsafe context_get_base_dir#} pc
+                       {#call unsafe context_get_base_dir#} pc
 
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
 -- | Set the text gravity of this context. If the given value is
 -- 'PangoGravityAuto' then the gravity is derived from the current rotation
 -- matrix.
@@ -192,7 +191,7 @@ contextSetTextGravity pc gravity =
 --
 contextGetTextGravity :: PangoContext -> IO PangoGravity
 contextGetTextGravity pc = liftM (toEnum . fromIntegral) $
-		       {#call unsafe context_get_base_gravity#} pc
+                       {#call unsafe context_get_base_gravity#} pc
 
 -- | Set the text gravity hint of this context.
 --
@@ -204,10 +203,10 @@ contextSetTextGravityHint pc gravity =
 --
 contextGetTextGravityHint :: PangoContext -> IO PangoGravityHint
 contextGetTextGravityHint pc = liftM (toEnum . fromIntegral) $
-		       {#call unsafe context_get_gravity_hint#} pc
+                       {#call unsafe context_get_gravity_hint#} pc
 #endif
 
-#if PANGO_CHECK_VERSION(1,6,0) && GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+#if PANGO_VERSION_CHECK(1,6,0)
 -- | Gets the transformation matrix that will be applied when rendering with
 -- this context.
 --

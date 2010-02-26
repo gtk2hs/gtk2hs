@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pango text layout functions
 --
@@ -34,7 +35,7 @@
 --   paragraph of text. This interface is the easiest way to render text into
 --   a 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' using Cairo.
 --
-module Graphics.UI.Gtk.Pango.Layout (
+module Graphics.Rendering.Pango.Layout (
   PangoRectangle(..),
   PangoLayout,
   layoutEmpty,
@@ -50,7 +51,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutSetAttributes,
   layoutGetAttributes,
   layoutSetFontDescription,
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
   layoutGetFontDescription,
 #endif
   layoutSetWidth,
@@ -58,7 +59,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   LayoutWrapMode(..),
   layoutSetWrap,
   layoutGetWrap,
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
   EllipsizeMode(..),
   layoutSetEllipsize,
   layoutGetEllipsize,
@@ -69,7 +70,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutGetSpacing,
   layoutSetJustify,
   layoutGetJustify,
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
   layoutSetAutoDir,
   layoutGetAutoDir,
 #endif
@@ -102,7 +103,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutIterAtLastLine,
   layoutIterGetIndex,
   layoutIterGetBaseline,
-#if PANGO_CHECK_VERSION(1,2,0)
+#if PANGO_VERSION_CHECK(1,2,0)
   layoutIterGetItem,
 #endif
   layoutIterGetLine,
@@ -126,15 +127,14 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList                (readGSList)
 import System.Glib.GObject              (constructNewGObject, makeNewGObject)
-{#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Structs	(Rectangle)
-import Graphics.UI.Gtk.Pango.Structs
-{#import Graphics.UI.Gtk.Pango.Types#}
-#if PANGO_CHECK_VERSION(1,6,0)
-{#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))
+import Graphics.Rendering.Pango.Structs
+{#import Graphics.Rendering.Pango.BasicTypes#}
+import Graphics.Rendering.Pango.Types
+#if PANGO_VERSION_CHECK(1,6,0)
+{#import Graphics.Rendering.Pango.Enums#}       (EllipsizeMode(..))
 #endif
-import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
-import Graphics.UI.Gtk.Pango.Attributes ( withAttrList, fromAttrList)
+import Graphics.Rendering.Pango.Rendering  -- for haddock
+import Graphics.Rendering.Pango.Attributes ( withAttrList, fromAttrList)
 import Data.IORef
 #ifdef HAVE_NEW_CONTROL_EXCEPTION
 import Control.OldException ( Exception(ArrayException),
@@ -298,7 +298,7 @@ layoutSetFontDescription (PangoLayout _ (PangoLayoutRaw plr)) Nothing =
   withForeignPtr plr $ \plrPtr ->
   pango_layout_set_font_description plrPtr nullPtr
 
-#if PANGO_CHECK_VERSION(1,8,0)
+#if PANGO_VERSION_CHECK(1,8,0)
 -- | Ask for the specifically set font description of this layout.
 --
 -- * Returns @Nothing@ if this layout uses the font description in the
@@ -384,7 +384,7 @@ layoutGetWrap :: PangoLayout -> IO LayoutWrapMode
 layoutGetWrap (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
   {#call unsafe layout_get_wrap#} pl
 
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
 -- | Set how long lines should be abbreviated.
 --
 layoutSetEllipsize :: PangoLayout -> EllipsizeMode -> IO ()
@@ -452,7 +452,7 @@ layoutGetJustify :: PangoLayout -> IO Bool
 layoutGetJustify (PangoLayout _ pl) = 
   liftM toBool $ {#call unsafe layout_get_justify#} pl
 
-#if PANGO_CHECK_VERSION(1,4,0)
+#if PANGO_VERSION_CHECK(1,4,0)
 -- | Set if the base text direction should be overridden.
 --
 -- * Sets whether to calculate the bidirectional base direction for the
@@ -523,7 +523,7 @@ layoutSetTabs (PangoLayout _ pl) tabs = do
   tabPtr <- {#call unsafe tab_array_new#} len (fromBool False)
   mapM_ (\(idx, (pos, align)) ->
          {#call unsafe tab_array_set_tab#} tabPtr idx
-	    (fromIntegral (fromEnum align)) (puToInt pos)) (zip [0..] tabs)
+            (fromIntegral (fromEnum align)) (puToInt pos)) (zip [0..] tabs)
   {#call unsafe layout_set_tabs#} pl tabPtr
   {#call unsafe tab_array_free#} tabPtr
 
@@ -545,10 +545,10 @@ layoutGetTabs (PangoLayout _ pl) = do
   if tabPtr == nullPtr then return Nothing else liftM Just $ do
     len <- {#call unsafe tab_array_get_size#} tabPtr
     mapM (\idx -> alloca $ \posPtr -> alloca $ \alignPtr -> do
-	  {#call unsafe tab_array_get_tab#} tabPtr idx alignPtr posPtr
-	  align <- peek alignPtr
-	  pos <- peek posPtr
-	  return (intToPu pos, toEnum (fromIntegral align))) [0..len-1]
+          {#call unsafe tab_array_get_tab#} tabPtr idx alignPtr posPtr
+          align <- peek alignPtr
+          pos <- peek posPtr
+          return (intToPu pos, toEnum (fromIntegral align))) [0..len-1]
 
 -- | Honor newlines or not.
 --
@@ -589,8 +589,8 @@ layoutGetSingleParagraphMode (PangoLayout _ pl) =
 --   lies. Zero represents the trailing edge on the grapheme.
 --
 layoutXYToIndex :: PangoLayout -> Double -- ^ the @x@ position
-		-> Double -- ^ the @y@ position
-		-> IO (Bool, Int, Int)
+                -> Double -- ^ the @y@ position
+                -> IO (Bool, Int, Int)
 layoutXYToIndex (PangoLayout psRef pl) x y = 
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
     res <- {#call unsafe layout_xy_to_index#} pl (puToInt x) (puToInt y)
@@ -599,8 +599,8 @@ layoutXYToIndex (PangoLayout psRef pl) x y =
     trail <- peek trailPtr
     (PangoString uc _ _) <- readIORef psRef
     return (toBool res,
-	    ofsFromUTF (fromIntegral idx) uc,
-	    ofsFromUTF (fromIntegral trail) uc)
+            ofsFromUTF (fromIntegral idx) uc,
+            ofsFromUTF (fromIntegral trail) uc)
 
 -- | Return the rectangle of the glyph at the given index.
 --
@@ -616,8 +616,17 @@ layoutIndexToPos (PangoLayout psRef plr) pos = do
   (PangoString uc _ _) <- readIORef psRef
   alloca $ \rectPtr -> do
     {#call unsafe layout_index_to_pos#} plr (fromIntegral (ofsToUTF pos uc))
-					    (castPtr rectPtr)
-    liftM fromRect $ peek rectPtr
+                                            (castPtr rectPtr)
+    peek rectPtr
+
+twoRect :: (Ptr () -> Ptr () -> IO ()) ->
+           IO (PangoRectangle, PangoRectangle)
+twoRect f =
+  alloca $ \inkPtr -> alloca $ \logPtr -> do
+  f (castPtr inkPtr) (castPtr logPtr)
+  ink <- peek inkPtr
+  log <- peek logPtr
+  return (ink, log)
 
 -- | Return a cursor position.
 --
@@ -632,16 +641,10 @@ layoutIndexToPos (PangoLayout psRef plr) pos = do
 --   the second the weak.
 --
 layoutGetCursorPos :: PangoLayout -> Int ->
-		      IO (PangoRectangle, PangoRectangle)
+                      IO (PangoRectangle, PangoRectangle) -- ^ @(strong, weak)@
 layoutGetCursorPos (PangoLayout psRef plr) pos = do
   (PangoString uc _ _) <- readIORef psRef
-  alloca $ \strongPtr -> alloca $ \weakPtr -> do
-    {#call unsafe layout_get_cursor_pos#} plr (fromIntegral (ofsToUTF pos uc))
-      (castPtr strongPtr) (castPtr weakPtr)
-    strong <- peek strongPtr
-    weak <- peek weakPtr
-    return (fromRect strong, fromRect weak)
-
+  twoRect $ {#call unsafe layout_get_cursor_pos#} plr (fromIntegral (ofsToUTF pos uc))
 
 -- | A new cursor position.
 --
@@ -680,10 +683,10 @@ data CursorPos
 --   @idx+trail@ where the visual cursor should be shown.
 --
 layoutMoveCursorVisually :: PangoLayout
-			 -> Bool -- ^ @True@ to create a strong cursor.
-			 -> Int -- ^ The previous position.
-			 -> Bool -- ^ @True@ if the cursor should move right.
-			 -> IO CursorPos
+                         -> Bool -- ^ @True@ to create a strong cursor.
+                         -> Int -- ^ The previous position.
+                         -> Bool -- ^ @True@ if the cursor should move right.
+                         -> IO CursorPos
 layoutMoveCursorVisually (PangoLayout psRef plr) strong index dir = do
   (PangoString uc _ _) <- readIORef psRef
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
@@ -693,8 +696,8 @@ layoutMoveCursorVisually (PangoLayout psRef plr) strong index dir = do
     idx <- peek idxPtr
     trail <- peek trailPtr
     return (if idx==(-1) then CursorPosPrevPara else
-	    if idx==maxBound then CursorPosNextPara else
-	    CursorPos (ofsFromUTF (fromIntegral idx) uc) (fromIntegral trail))
+            if idx==maxBound then CursorPosNextPara else
+            CursorPos (ofsFromUTF (fromIntegral idx) uc) (fromIntegral trail))
 
 -- | Computes the logical and ink extents of the 'PangoLayout'.
 --
@@ -709,27 +712,21 @@ layoutMoveCursorVisually (PangoLayout psRef plr) strong index dir = do
 layoutGetExtents :: PangoLayout
                  -> IO (PangoRectangle, PangoRectangle) -- ^ @(ink, logical)@
 layoutGetExtents (PangoLayout _ pl) =
-  alloca $ \inkPtr ->
-  alloca $ \logPtr -> do
-  {#call unsafe layout_get_extents#} pl (castPtr inkPtr) (castPtr logPtr)
-  log <- peek inkPtr
-  ink <- peek logPtr
-  return (fromRect ink, fromRect log)
-
-
+  twoRect $ {#call unsafe layout_get_extents#} pl
+  
 -- | Compute the physical size of the layout.
 --
 -- * Computes the ink and the logical size of the 'Layout' in device units,
 --   that is, pixels for a screen. Identical to 'layoutGetExtents' and
 --   converting the 'Double's in the 'PangoRectangle' to integers.
 --
-layoutGetPixelExtents :: PangoLayout -> IO (Rectangle, Rectangle)
+layoutGetPixelExtents :: PangoLayout -> IO (Rectangle, Rectangle) -- ^ @(ink, logical)@
 layoutGetPixelExtents (PangoLayout _ pl) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_get_pixel_extents#} pl (castPtr logPtr) (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (log,ink)
+  alloca $ \inkPtr -> alloca $ \logPtr -> do
+  {#call unsafe layout_get_pixel_extents#} pl (castPtr inkPtr) (castPtr logPtr)
+  ink <- peekIntPangoRectangle inkPtr
+  log <- peekIntPangoRectangle logPtr
+  return (ink,log)
 
 -- | Ask for the number of lines in this layout.
 --
@@ -749,7 +746,7 @@ layoutGetLineCount (PangoLayout _ pl) = liftM fromIntegral $
 layoutGetLine :: PangoLayout -> Int -> IO LayoutLine
 layoutGetLine (PangoLayout psRef pl) idx = do
   llPtr <-
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
     -- use the optimised read-only version if available
     {#call unsafe layout_get_line_readonly#}
 #else
@@ -773,7 +770,7 @@ layoutGetLine (PangoLayout psRef pl) idx = do
 layoutGetLines :: PangoLayout -> IO [LayoutLine]
 layoutGetLines (PangoLayout psRef pl) = do
   listPtr <-
-#if PANGO_CHECK_VERSION(1,16,0)
+#if PANGO_VERSION_CHECK(1,16,0)
     -- use the optimised read-only version if available
     {#call unsafe layout_get_lines_readonly#}
 #else
@@ -854,7 +851,7 @@ layoutIterGetBaseline :: LayoutIter -> IO Double
 layoutIterGetBaseline (LayoutIter _ li) = 
   liftM intToPu $ {#call unsafe pango_layout_iter_get_baseline#} li
 
-#if PANGO_CHECK_VERSION(1,2,0)
+#if PANGO_VERSION_CHECK(1,2,0)
 -- | Retrieve the current 'GlyphItem' under the iterator.
 --
 -- * Each 'LayoutLine' contains a list of 'GlyphItem's. This function
@@ -899,22 +896,16 @@ layoutIterGetLine (LayoutIter psRef li) = do
 layoutIterGetCharExtents :: LayoutIter -> IO PangoRectangle
 layoutIterGetCharExtents (LayoutIter _ li) = alloca $ \logPtr -> 
   {#call unsafe layout_iter_get_char_extents#} li (castPtr logPtr) >>
-  liftM fromRect (peek logPtr)
+  peek logPtr
 
 -- | Compute the physical size of the cluster.
 --
 -- * Computes the ink and the logical size of the cluster pointed to by
 --   'LayoutIter'.
 --
-layoutIterGetClusterExtents :: LayoutIter -> IO (PangoRectangle,
-						 PangoRectangle)
+layoutIterGetClusterExtents :: LayoutIter -> IO (PangoRectangle, PangoRectangle) -- ^ @(ink, logical)@
 layoutIterGetClusterExtents (LayoutIter _ li) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_iter_get_cluster_extents#} li (castPtr logPtr)
-    (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  twoRect $ {#call unsafe layout_iter_get_cluster_extents#} li
 
 -- | Compute the physical size of the run.
 --
@@ -923,12 +914,7 @@ layoutIterGetClusterExtents (LayoutIter _ li) =
 --
 layoutIterGetRunExtents :: LayoutIter -> IO (PangoRectangle, PangoRectangle)
 layoutIterGetRunExtents (LayoutIter _ li) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_iter_get_run_extents#} li (castPtr logPtr)
-    (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  twoRect $ {#call unsafe layout_iter_get_run_extents#} li
 
 -- | Retrieve vertical extent of this line.
 --
@@ -964,13 +950,7 @@ layoutIterGetLineYRange (LayoutIter _ li) =
 --
 layoutIterGetLineExtents :: LayoutIter -> IO (PangoRectangle, PangoRectangle)
 layoutIterGetLineExtents (LayoutIter _ li) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_iter_get_line_extents#} li (castPtr logPtr)
-    (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
-
+  twoRect $ {#call unsafe layout_iter_get_line_extents#} li
 
 -- | Compute the physical size of the line.
 --
@@ -979,11 +959,7 @@ layoutIterGetLineExtents (LayoutIter _ li) =
 --
 layoutLineGetExtents :: LayoutLine -> IO (PangoRectangle, PangoRectangle)
 layoutLineGetExtents (LayoutLine _ ll) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_line_get_extents#} ll (castPtr logPtr) (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (fromRect log, fromRect ink)
+  twoRect $ {#call unsafe layout_line_get_extents#} ll
 
 -- | Compute the physical size of the line.
 --
@@ -991,22 +967,21 @@ layoutLineGetExtents (LayoutLine _ ll) =
 --   See 'layoutGetExtents'. The returned values are in device units, that
 --   is, pixels for the screen and points for printers.
 --
-layoutLineGetPixelExtents :: LayoutLine -> IO (Rectangle, Rectangle)
+layoutLineGetPixelExtents :: LayoutLine -> IO (Rectangle, Rectangle) -- ^ (ink, logical)
 layoutLineGetPixelExtents (LayoutLine _ ll) =
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
-  {#call unsafe layout_line_get_pixel_extents#} ll
-    (castPtr logPtr) (castPtr inkPtr)
-  log <- peek logPtr
-  ink <- peek inkPtr
-  return (log,ink)
+  alloca $ \inkPtr -> alloca $ \logPtr -> do
+  {#call unsafe layout_line_get_pixel_extents#} ll (castPtr inkPtr) (castPtr logPtr)
+  ink <- peekIntPangoRectangle inkPtr
+  log <- peekIntPangoRectangle logPtr
+  return (ink,log)
 
 -- | Request the horizontal position of a character.
 --
 layoutLineIndexToX :: LayoutLine
-		   -> Int -- ^ the index into the string
-		   -> Bool -- ^ return the beginning (@False@) or the end 
-			    -- of the character
-		   -> IO Double
+                   -> Int -- ^ the index into the string
+                   -> Bool -- ^ return the beginning (@False@) or the end 
+                            -- of the character
+                   -> IO Double
 layoutLineIndexToX (LayoutLine psRef ll) pos beg =
   alloca $ \intPtr -> do
     (PangoString uc _ _) <- readIORef psRef
@@ -1034,8 +1009,8 @@ layoutLineIndexToX (LayoutLine psRef ll) pos beg =
 --   0 for the trailing edge of the cluster.
 --
 layoutLineXToIndex :: LayoutLine 
-		   -> Double -- ^ The @x@ position.
-		   -> IO (Bool, Int, Int)
+                   -> Double -- ^ The @x@ position.
+                   -> IO (Bool, Int, Int)
 layoutLineXToIndex (LayoutLine psRef ll) pos =
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
     (PangoString uc _ _) <- readIORef psRef
@@ -1044,7 +1019,7 @@ layoutLineXToIndex (LayoutLine psRef ll) pos =
     idx <- peek idxPtr
     trail <- peek trailPtr
     return (toBool inside, ofsFromUTF (fromIntegral idx) uc,
-	    fromIntegral trail)
+            fromIntegral trail)
 
 -- | Retrieve bounding boxes for a given piece of text contained in this
 --   'LayoutLine'.
@@ -1057,21 +1032,21 @@ layoutLineXToIndex (LayoutLine psRef ll) pos =
 --   be indented or not left aligned).
 --
 layoutLineGetXRanges :: LayoutLine -- ^ The line of interest.
-		     -> Int -- ^ The index of the start character
-			    -- (counting from 0). If this value is
-			    -- less than the start index for the line,
-			    -- then the first range will extend all the
-			    -- way to the leading edge of the layout. 
-			    -- Otherwise it will start at the leading
-			    -- edge of the first character.
-		     -> Int -- ^ The index after the last character. 
-			    -- If this value is greater than the end
-			    -- index for the line, then the last range
-			    -- will extend all the way to the trailing
-			    -- edge of the layout. Otherwise, it will end
-			    -- at the trailing edge of the last
-			    -- character.
-		     -> IO [(Double, Double)]
+                     -> Int -- ^ The index of the start character
+                            -- (counting from 0). If this value is
+                            -- less than the start index for the line,
+                            -- then the first range will extend all the
+                            -- way to the leading edge of the layout. 
+                            -- Otherwise it will start at the leading
+                            -- edge of the first character.
+                     -> Int -- ^ The index after the last character. 
+                            -- If this value is greater than the end
+                            -- index for the line, then the last range
+                            -- will extend all the way to the trailing
+                            -- edge of the layout. Otherwise, it will end
+                            -- at the trailing edge of the last
+                            -- character.
+                     -> IO [(Double, Double)]
 layoutLineGetXRanges (LayoutLine psRef ll) start end = do
   PangoString uc _ _ <- readIORef psRef
   alloca $ \arrPtr -> alloca $ \szPtr -> do
@@ -1084,6 +1059,6 @@ layoutLineGetXRanges (LayoutLine psRef ll) start end = do
     elems <- peekArray (2*fromIntegral sz) (castPtr arr:: Ptr {#type gint#})
     {#call unsafe g_free#} (castPtr arr)
     let toRange (s:e:rs) = (intToPu s, intToPu e):toRange rs
-	toRange [] = []
+        toRange [] = []
     return (toRange elems)
 

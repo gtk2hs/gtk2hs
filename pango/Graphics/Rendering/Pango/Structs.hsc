@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp #-}
+{-# LANGUAGE CPP, ScopedTypeVariables #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Structures for Pango
@@ -21,19 +21,30 @@
 --
 -- #hide
 
+#include "hspango.h"
+#include <glib-2.0/glib.h>
+#include "template-hsc-gtk2hs.h"
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
-module Graphics.UI.Gtk.Pango.Structs (
+module Graphics.Rendering.Pango.Structs (
+  Markup,
+  PangoUnit,
+  Color(..),
+  Rectangle(..),
+  PangoRectangle(..),
+  peekIntPangoRectangle,
+
+  PangoDirection(..),
+
   pangoScale,
   puToInt, puToUInt,
   intToPu, uIntToPu,
-  PangoDirection(..),
   pangodirToLevel,
-  fromRect,
-  toRect,
+  PangoAttribute(..),
   setAttrPos,
   pangoItemGetFont,
   pangoItemGetLanguage,
@@ -49,11 +60,103 @@ import Control.Exception
 import System.Glib.FFI
 import System.Glib.UTFString ( peekUTFString, UTFCorrection,
                                ofsToUTF, ofsFromUTF )
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
-import Graphics.UI.Gtk.Types
-import Graphics.UI.Gtk.Pango.Types
-import Graphics.UI.Gtk.General.Structs  (Color(..), Rectangle(..))
+import Graphics.Rendering.Pango.Types
+import Graphics.Rendering.Pango.BasicTypes
+
+-- | Define a synonym for text with embedded markup commands.
+--
+-- * Markup strings are just simple strings. But it's easier to tell if a
+--   method expects text with or without markup.
+--
+type Markup = String
+
+-- A pango unit is an internal euclidian metric, that is, a measure for 
+-- lengths and position.
+--
+-- * Deprecated. Replaced by Double.
+type PangoUnit = Double
+
+-- | Color
+--
+-- * Specifies a color with three integer values for red, green and blue.
+--   All values range from 0 (least intense) to 65535 (highest intensity).
+--
+data Color = Color (#gtk2hs_type guint16) (#gtk2hs_type guint16) (#gtk2hs_type guint16)
+             deriving (Eq,Show)
+
+-- PangoColor is different from GdkColor, but for the Gtk2Hs user we pretend they
+-- are the same. To do this, we need a different marshalling routine for PangoColors.
+
+peekPangoColor :: Ptr Color -> IO Color
+peekPangoColor ptr = do
+    red	   <- #{peek PangoColor, red} ptr
+    green  <- #{peek PangoColor, green} ptr
+    blue   <- #{peek PangoColor, blue} ptr
+    return $ Color red green blue
+
+-- | Rectangle
+--
+-- * Specifies x, y, width and height
+--
+data Rectangle = Rectangle Int Int Int Int deriving (Eq,Show)
+
+-- | Rectangles describing an area in 'Double's.
+--
+-- * Specifies x, y, width and height
+--
+data PangoRectangle = PangoRectangle Double Double Double Double
+		      deriving Show
+
+instance Storable PangoRectangle where
+  sizeOf _ = #{const sizeof(PangoRectangle)}
+  alignment _ = alignment (undefined:: #gtk2hs_type gint)
+  peek ptr = do
+    (Rectangle x_ y_ w_ h_) <- peekIntPangoRectangle ptr
+    return $ PangoRectangle (fromIntegral x_/pangoScale) (fromIntegral y_/pangoScale)
+                            (fromIntegral w_/pangoScale) (fromIntegral h_/pangoScale)
+  poke ptr (PangoRectangle x y w h) = do
+    #{poke PangoRectangle, x} ptr ((truncate (x*pangoScale))::#gtk2hs_type gint)
+    #{poke PangoRectangle, y} ptr ((truncate (y*pangoScale))::#gtk2hs_type gint)
+    #{poke PangoRectangle, width} ptr ((truncate (w*pangoScale))::#gtk2hs_type gint)
+    #{poke PangoRectangle, height} ptr ((truncate (h*pangoScale))::#gtk2hs_type gint)
+
+peekIntPangoRectangle :: Ptr PangoRectangle -> IO Rectangle
+peekIntPangoRectangle ptr = do
+    (x_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, x} ptr
+    (y_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, y} ptr
+    (w_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, width} ptr
+    (h_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, height} ptr
+    return (Rectangle (fromIntegral x_) (fromIntegral y_)
+                      (fromIntegral w_) (fromIntegral h_))
+
+-- | The 'PangoDirection' type represents a direction in the Unicode
+-- bidirectional algorithm.
+--
+-- * The \"weak\" values denote a left-to-right or right-to-left direction
+--   only if there is no character with a strong direction in a paragraph.
+--   An example is a sequence of special, graphical characters which are
+--   neutral with respect to their rendering direction. A fresh
+--   'Graphics.UI.Gtk.Pango.Rendering.PangoContext' is by default weakly
+--   left-to-right.
+--
+-- * Not every value in this enumeration makes sense for every usage
+--   of 'PangoDirection'; for example, the return value of
+--   'unicharDirection' and 'findBaseDir' cannot be 'PangoDirectionWeakLtr'
+--   or 'PangoDirectionWeakRtl', since every character is either neutral or
+--   has a strong direction; on the other hand 'PangoDirectionNeutral'
+--   doesn't make sense to pass to 'log2visGetEmbeddingLevels'.
+--
+data PangoDirection = PangoDirectionLtr
+                    | PangoDirectionRtl
+#if PANGO_VERSION_CHECK(1,4,0)
+                    | PangoDirectionWeakLtr
+                    | PangoDirectionWeakRtl
+                    | PangoDirectionNeutral
+#endif
+                    deriving (Eq,Ord)
+
+
 
 -- Internal unit of measuring sizes.
 --
@@ -72,7 +175,7 @@ puToInt :: Double -> GInt
 puToInt u = truncate (u*pangoScale)
 
 puToUInt :: Double -> GInt
-puToUInt u = let u' = u*pangoScale in if u<0 then 0 else truncate u
+puToUInt u = let u' = u*pangoScale in if u'<0 then 0 else truncate u'
 
 intToPu :: GInt -> Double
 intToPu i = fromIntegral i/pangoScale
@@ -107,21 +210,6 @@ pangodirToLevel PangoDirectionWeakLtr = 1
 pangodirToLevel PangoDirectionWeakRtl = -1
 pangodirToLevel PangoDirectionNeutral = 0
 #endif
-
-
--- Cheating functions: We marshal PangoRectangles as Rectangles.
-fromRect :: Rectangle -> PangoRectangle
-fromRect (Rectangle x y w h) =
-  PangoRectangle (fromIntegral x/pangoScale)
-		 (fromIntegral y/pangoScale)
-		 (fromIntegral w/pangoScale)
-		 (fromIntegral h/pangoScale)
-
-toRect :: PangoRectangle -> Rectangle
-toRect (PangoRectangle x y w h) = Rectangle (truncate (x*pangoScale))
-				            (truncate (y*pangoScale))
-				            (truncate (w*pangoScale))
-				            (truncate (h*pangoScale))
 
 -- | Extract the font used for this 'PangoItem'.
 --
@@ -164,6 +252,110 @@ setAttrPos correct start end act = do
   #{poke PangoAttribute, end_index} atPtr
     (fromIntegral (ofsToUTF end correct) :: #{gtk2hs_type guint})
   return atPtr
+
+-- | Attributes for 'PangoItem's.
+--
+-- * A given attribute is applied from its start position 'paStart' up,
+--   but not including the end position, 'paEnd'.
+--
+data PangoAttribute
+  -- | A hint as to what language this piece of text is written in.
+  = AttrLanguage { paStart :: Int, paEnd :: Int, paLang :: Language }
+  -- | The font family, e.g. "sans serif".
+  | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: String }
+  -- | The slant of the current font.
+  | AttrStyle { paStart :: Int, paEnd :: Int, paStyle :: FontStyle }
+  -- | Weight of font, e.g. 'WeightBold'.
+  | AttrWeight { paStart :: Int, paEnd :: Int, paWeight :: Weight }
+  -- | 'VariantSmallCaps' will display lower case letters as small
+  -- upper case letters (if the font supports this).
+  | AttrVariant { paStart :: Int, paEnd :: Int, paVariant :: Variant }
+  -- | Stretch or condense the width of the letters.
+  | AttrStretch { paStart :: Int, paEnd :: Int, paStretch :: Stretch }
+  -- | Specify the size of the font in points.
+  | AttrSize { paStart :: Int, paEnd :: Int, paSize :: Double }
+#if PANGO_VERSION_CHECK(1,8,0)
+  -- | Specify the size of the font in device units (pixels).
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrAbsSize { paStart :: Int, paEnd :: Int, paSize :: Double }
+#endif
+  -- | Specify several attributes of a font at once. Note that no deep copy
+  --   of the description is made when this attributes is passed to or received
+  --   from functions.
+    | AttrFontDescription { paStart :: Int, paEnd :: Int,
+			  paFontDescription :: FontDescription }
+  -- | Specify the foreground color.
+  | AttrForeground { paStart :: Int, paEnd :: Int, paColor :: Color }
+  -- | Specify the background color.
+  | AttrBackground { paStart :: Int, paEnd :: Int, paColor :: Color }
+  -- | Specify the kind of underline, e.g. 'UnderlineSingle'.
+  | AttrUnderline { paStart :: Int, paEnd :: Int, paUnderline :: Underline }
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
+  -- | Specify the color of an underline.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrUnderlineColor { paStart :: Int, paEnd :: Int, paColor :: Color }
+#endif
+  -- | Specify if this piece of text should have a line through it.
+  | AttrStrikethrough { paStart :: Int, paEnd :: Int, paStrikethrough :: Bool }
+#if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
+ || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
+  -- | Specify the color of the strike through line.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrStrikethroughColor { paStart :: Int, paEnd :: Int, paColor :: Color }
+#endif
+  -- | Displace the text vertically. Positive values move the text upwards.
+  | AttrRise { paStart :: Int, paEnd :: Int, paRise :: Double }
+#if PANGO_VERSION_CHECK(1,8,0)
+  -- | Restrict the amount of what is drawn of the marked shapes.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrShape { paStart :: Int, paEnd :: Int, paInk :: PangoRectangle,
+		paLogical :: PangoRectangle }
+#endif
+  -- | Scale the font up (values greater than one) or shrink the font.
+  | AttrScale { paStart :: Int, paEnd :: Int, paScale :: Double }
+#if PANGO_VERSION_CHECK(1,4,0)
+  -- | Determine if a fall back font should be substituted if no matching
+  -- font is available.
+  | AttrFallback { paStart :: Int, paEnd :: Int, paFallback :: Bool }
+#endif
+#if PANGO_VERSION_CHECK(1,6,0)
+  -- | Add extra space between graphemes of the text.
+  --
+  -- * Available in Pango 1.6.0 and higher.
+  --
+  | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
+			paLetterSpacing :: Double }
+#endif
+#if PANGO_VERSION_CHECK(1,16,0)
+  -- | Sets the gravity field of a font description. The gravity field specifies
+  -- how the glyphs should be rotated. If gravity is 'GravityAuto', this
+  -- actually unsets the gravity mask on the font description.
+  --
+  -- * This function is seldom useful to the user. Gravity should normally be
+  --   set on a 'PangoContext'.
+  --
+  -- * Available in Pango 1.16.0 and higher.
+  --
+  | AttrGravity { paStart :: Int, paEnd :: Int, 
+			paGravity :: PangoGravity }
+
+	-- | Set the way horizontal scripts behave in a vertical context.
+  --
+  -- * Available in Pango 1.16.0 and higher.
+  --
+	| AttrGravityHint  { paStart :: Int, paEnd :: Int, 
+			paGravityHint :: PangoGravityHint }
+#endif
+  deriving Show
 
 -- | Convert a pointer to an attribute to an attribute.
 readAttr :: UTFCorrection -> CPangoAttribute -> IO PangoAttribute
@@ -209,10 +401,10 @@ readAttr correct attrPtr = do
       fd <- makeNewFontDescription fdPtr
       return $ AttrFontDescription b e fd
     #{const PANGO_ATTR_FOREGROUND} -> do
-      col <- #{peek PangoAttrColor, color} attrPtr
+      col <- peekPangoColor (#{ptr PangoAttrColor, color} attrPtr)
       return $ AttrForeground b e col
     #{const PANGO_ATTR_BACKGROUND} -> do
-      col <- #{peek PangoAttrColor, color} attrPtr
+      col <- peekPangoColor (#{ptr PangoAttrColor, color} attrPtr)
       return $ AttrBackground b e col
     #{const PANGO_ATTR_UNDERLINE} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
@@ -220,7 +412,7 @@ readAttr correct attrPtr = do
 #if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
  || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
     #{const PANGO_ATTR_UNDERLINE_COLOR} -> do
-      col <- #{peek PangoAttrColor, color} attrPtr
+      col <- peekPangoColor (#{ptr PangoAttrColor, color} attrPtr)
       return $ AttrUnderlineColor b e col
 #endif
     #{const PANGO_ATTR_STRIKETHROUGH} -> do
@@ -229,7 +421,7 @@ readAttr correct attrPtr = do
 #if  (defined (WIN32) && PANGO_VERSION_CHECK(1,10,0)) \
  || (!defined (WIN32) && PANGO_VERSION_CHECK(1,8,0))
     #{const PANGO_ATTR_STRIKETHROUGH_COLOR} -> do
-      col <- #{peek PangoAttrColor, color} attrPtr
+      col <- peekPangoColor (#{ptr PangoAttrColor, color} attrPtr)
       return $ AttrStrikethroughColor b e col
 #endif
     #{const PANGO_ATTR_RISE} -> do
@@ -239,7 +431,7 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_SHAPE} -> do
       rect1 <- #{peek PangoAttrShape, ink_rect} attrPtr
       rect2 <- #{peek PangoAttrShape, logical_rect} attrPtr
-      return $ AttrShape b e (fromRect rect1) (fromRect rect2)
+      return $ AttrShape b e rect1 rect2
 #endif
     #{const PANGO_ATTR_SCALE} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr

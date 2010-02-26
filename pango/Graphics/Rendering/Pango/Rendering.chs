@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions Rendering
 --
@@ -38,7 +39,7 @@
 --   'GlyphItem's can then be rendered onto the output device with functions
 --   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
 --
-module Graphics.UI.Gtk.Pango.Rendering (
+module Graphics.Rendering.Pango.Rendering (
   -- * 'PangoAttribute': Apply emphasis to parts of an output string.
   PangoAttribute(..),
 
@@ -46,7 +47,9 @@ module Graphics.UI.Gtk.Pango.Rendering (
   PangoItem,
   pangoItemize,
   pangoItemGetFontMetrics,
-
+  pangoItemGetFont,
+  pangoItemGetLanguage,
+  
   -- * 'GlyphItem': Turn text segments into glyph sequences.
   GlyphItem,
   pangoShape,
@@ -55,18 +58,19 @@ module Graphics.UI.Gtk.Pango.Rendering (
   glyphItemIndexToX,
   glyphItemXToIndex,
   glyphItemGetLogicalWidths,
-#if PANGO_CHECK_VERSION(1,2,0)
+#if PANGO_VERSION_CHECK(1,2,0)
   glyphItemSplit
 #endif
   ) where
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Pango.Structs  ( pangoItemRawAnalysis, intToPu,
+import Graphics.Rendering.Pango.Structs  ( pangoItemRawAnalysis, intToPu,
   pangoItemGetFont, pangoItemGetLanguage)
-{#import Graphics.UI.Gtk.Types#}	(PangoContext(..), Font(..))
-{#import Graphics.UI.Gtk.Pango.Types#}
-{#import Graphics.UI.Gtk.Pango.Attributes#}
-import Graphics.UI.Gtk.Pango.GlyphStorage
+{#import Graphics.Rendering.Pango.Types#}       (PangoContext(..), Font(..))
+{#import Graphics.Rendering.Pango.BasicTypes#}
+{#import Graphics.Rendering.Pango.Enums#}
+{#import Graphics.Rendering.Pango.Attributes#}
+import Graphics.Rendering.Pango.GlyphStorage
 {#import System.Glib.GList#}
 
 {# context lib="pango" prefix="pango" #}
@@ -82,7 +86,7 @@ pangoItemize pc str attrs = do
   ps <- makeNewPangoString str
   withAttrList ps attrs $ \alPtr -> do
     glist <- withPangoString ps $ \_ l strPtr ->
-	     {#call unsafe itemize#} pc strPtr 0 l alPtr nullPtr
+             {#call unsafe itemize#} pc strPtr 0 l alPtr nullPtr
     piPtrs <- fromGList glist
     piRaws <- mapM makeNewPangoItemRaw piPtrs
     return (map (PangoItem ps) piRaws)
@@ -102,7 +106,7 @@ pangoItemGetFontMetrics pi = do
       {#call unsafe font_metrics_get_approximate_char_width#} mPtr
   approximate_digit_width <-
       {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_VERSION_CHECK(1,6,0)
   underline_position <-
       {#call unsafe font_metrics_get_underline_position#} mPtr
   underline_thickness <-
@@ -113,17 +117,17 @@ pangoItemGetFontMetrics pi = do
       {#call unsafe font_metrics_get_strikethrough_thickness#} mPtr
 #endif
   return (FontMetrics
-	  (intToPu ascent)
-	  (intToPu descent)
-	  (intToPu approximate_char_width)
-	  (intToPu approximate_digit_width)
-#if PANGO_CHECK_VERSION(1,6,0)
-	  (intToPu underline_position)
-	  (intToPu underline_thickness)
-	  (intToPu strikethrough_position)
-	  (intToPu strikethrough_thickness)
+          (intToPu ascent)
+          (intToPu descent)
+          (intToPu approximate_char_width)
+          (intToPu approximate_digit_width)
+#if PANGO_VERSION_CHECK(1,6,0)
+          (intToPu underline_position)
+          (intToPu underline_thickness)
+          (intToPu strikethrough_position)
+          (intToPu strikethrough_thickness)
 #endif
-	 )
+         )
 
 -- | Turn a 'PangoItem' into a 'GlyphItem'.
 --
