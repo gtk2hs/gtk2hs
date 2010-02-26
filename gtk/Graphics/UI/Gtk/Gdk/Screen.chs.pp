@@ -57,6 +57,9 @@ module Graphics.UI.Gtk.Gdk.Screen (
 -- * Methods
   screenGetDefault,
   screenGetSystemColormap,
+#if GTK_CHECK_VERSION(2,8,0)
+  screenGetRGBAColormap,
+#endif
 --  screenGetSystemVisual,
 #if GTK_CHECK_VERSION(2,10,0)
   screenIsComposited,
@@ -162,6 +165,27 @@ screenGetSystemColormap self =
   makeNewGObject mkColormap $
   {# call gdk_screen_get_system_colormap #}
     self
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Gets a colormap to use for creating windows or pixmaps with an alpha
+-- channel. The windowing system on which Gtk+ is running may not support this
+-- capability, in which case @Nothing@ will be returned. Even if a
+-- non-@Nothing@ value is returned, its possible that the window's alpha
+-- channel won't be honored when displaying the window on the screen: in
+-- particular, for X an appropriate windowing manager and compositing manager
+-- must be running to provide appropriate display.
+--
+-- * Available since Gdk version 2.8
+--
+screenGetRGBAColormap :: Screen
+ -> IO (Maybe Colormap) -- ^ returns a colormap to use for windows with an
+                        -- alpha channel or @Nothing@ if the capability is not
+                       -- available.
+screenGetRGBAColormap self =
+  maybeNull (makeNewGObject mkColormap) $
+  {# call gdk_screen_get_rgba_colormap #}
+    self
+#endif
 
 -- | Get the system's default visual for @screen@. This is the visual for the
 -- root window of the display.
