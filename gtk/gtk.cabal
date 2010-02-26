@@ -1,0 +1,268 @@
+Name:           gtk
+Version:        0.12.0
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Axel Simon, Duncan Coutts and many others
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6.0
+Stability:      provisional
+homepage:       www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/report
+package-url:    http://hackage.haskell.org/package/gtk
+Synopsis:       Binding to the Gtk+ graphical user interface library.
+Description: This is the core library of the Gtk2Hs suite of libraries for Haskell
+             based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
+             for creating graphical user interfaces.
+Category:       Graphics
+Tested-With:    GHC == 6.10.4
+x-Types-File:   Graphics/UI/Gtk/Types.chs
+x-Types-ModName: Graphics.UI.Gtk.Types
+x-Types-Forward:  *System.Glib.GObject Graphics.UI.Gtk.General.Threading
+x-Types-Destructor: objectUnrefFromMainloop
+Extra-Source-Files: wingtk.h
+                    Graphics//UI/Gtk/ModelView/Gtk2HsStore.h
+                    Graphics//UI/Gtk/General/hsgthread.h
+
+Flag gtk_2_2
+  Description:  Build objects for Gtk+ version 2.2.
+
+Flag gtk_2_4
+  Description:  Build objects for Gtk+ version 2.4.
+
+Flag gtk_2_6
+  Description:  Build objects for Gtk+ version 2.6.
+
+Flag gtk_2_10
+  Description:  Build objects for Gtk+ version 2.10.
+
+Flag gtk_2_12
+  Description:  Build objects for Gtk+ version 2.12.
+
+Library
+        build-depends:  base >= 4, array, containers, haskell98,
+                        glib >= 0.12.0, pango >= 0.12.0, cairo >= 0.12.0
+        exposed-modules:
+          Graphics.UI.Gtk
+          Graphics.UI.Gtk.Abstract.Bin
+          Graphics.UI.Gtk.Abstract.Box
+          Graphics.UI.Gtk.Abstract.ButtonBox
+          Graphics.UI.Gtk.Abstract.Container
+          Graphics.UI.Gtk.Abstract.IMContext
+          Graphics.UI.Gtk.Abstract.Misc
+          Graphics.UI.Gtk.Abstract.Object
+          Graphics.UI.Gtk.Abstract.Paned
+          Graphics.UI.Gtk.Abstract.Range
+          Graphics.UI.Gtk.Abstract.Scale
+          Graphics.UI.Gtk.Abstract.Scrollbar
+          Graphics.UI.Gtk.Abstract.Separator
+          Graphics.UI.Gtk.Abstract.Widget
+          Graphics.UI.Gtk.ActionMenuToolbar.Action
+          Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup
+          Graphics.UI.Gtk.ActionMenuToolbar.RadioAction
+          Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction
+          Graphics.UI.Gtk.ActionMenuToolbar.UIManager
+          Graphics.UI.Gtk.Builder
+          Graphics.UI.Gtk.Buttons.Button
+          Graphics.UI.Gtk.Buttons.CheckButton
+          Graphics.UI.Gtk.Buttons.RadioButton
+          Graphics.UI.Gtk.Buttons.ToggleButton
+          Graphics.UI.Gtk.Display.AccelLabel
+          Graphics.UI.Gtk.Display.Image
+          Graphics.UI.Gtk.Display.Label
+          Graphics.UI.Gtk.Display.ProgressBar
+          Graphics.UI.Gtk.Display.Statusbar
+          Graphics.UI.Gtk.Display.StatusIcon
+          Graphics.UI.Gtk.Embedding.Embedding
+          Graphics.UI.Gtk.Embedding.Plug
+          Graphics.UI.Gtk.Embedding.Socket
+          Graphics.UI.Gtk.Entry.Editable
+          Graphics.UI.Gtk.Entry.Entry
+          Graphics.UI.Gtk.Entry.EntryCompletion
+          Graphics.UI.Gtk.Entry.HScale
+          Graphics.UI.Gtk.Entry.SpinButton
+          Graphics.UI.Gtk.Entry.VScale
+          Graphics.UI.Gtk.Gdk.Cursor
+          Graphics.UI.Gtk.Gdk.Display
+          Graphics.UI.Gtk.Gdk.Drawable
+          Graphics.UI.Gtk.Gdk.DrawWindow
+          Graphics.UI.Gtk.Gdk.EventM
+          Graphics.UI.Gtk.Gdk.Events
+          Graphics.UI.Gtk.Gdk.GC
+          Graphics.UI.Gtk.Gdk.Gdk
+          Graphics.UI.Gtk.Gdk.Keys
+          Graphics.UI.Gtk.Gdk.Pixbuf
+          Graphics.UI.Gtk.Gdk.PixbufAnimation
+          Graphics.UI.Gtk.Gdk.Pixmap
+          Graphics.UI.Gtk.Gdk.Region
+          Graphics.UI.Gtk.Gdk.Screen
+          Graphics.UI.Gtk.General.Clipboard
+          Graphics.UI.Gtk.General.Drag
+          Graphics.UI.Gtk.General.General
+          Graphics.UI.Gtk.General.IconFactory
+          Graphics.UI.Gtk.General.RcStyle
+          Graphics.UI.Gtk.General.Selection
+          Graphics.UI.Gtk.General.StockItems
+          Graphics.UI.Gtk.General.Style
+          Graphics.UI.Gtk.Layout.Alignment
+          Graphics.UI.Gtk.Layout.AspectFrame
+          Graphics.UI.Gtk.Layout.Expander
+          Graphics.UI.Gtk.Layout.Fixed
+          Graphics.UI.Gtk.Layout.HBox
+          Graphics.UI.Gtk.Layout.HButtonBox
+          Graphics.UI.Gtk.Layout.HPaned
+          Graphics.UI.Gtk.Layout.Layout
+          Graphics.UI.Gtk.Layout.Notebook
+          Graphics.UI.Gtk.Layout.Table
+          Graphics.UI.Gtk.Layout.VBox
+          Graphics.UI.Gtk.Layout.VButtonBox
+          Graphics.UI.Gtk.Layout.VPaned
+          Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.Combo
+          Graphics.UI.Gtk.MenuComboToolbar.ComboBox
+          Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry
+          Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.Menu
+          Graphics.UI.Gtk.MenuComboToolbar.MenuBar
+          Graphics.UI.Gtk.MenuComboToolbar.MenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.MenuShell
+          Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton
+          Graphics.UI.Gtk.MenuComboToolbar.OptionMenu
+          Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton
+          Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.SeparatorToolItem
+          Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem
+          Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton
+          Graphics.UI.Gtk.MenuComboToolbar.Toolbar
+          Graphics.UI.Gtk.MenuComboToolbar.ToolButton
+          Graphics.UI.Gtk.MenuComboToolbar.ToolItem
+          Graphics.UI.Gtk.Misc.Adjustment
+          Graphics.UI.Gtk.Misc.Arrow
+          Graphics.UI.Gtk.Misc.Calendar
+          Graphics.UI.Gtk.Misc.DrawingArea
+          Graphics.UI.Gtk.Misc.EventBox
+          Graphics.UI.Gtk.Misc.HandleBox
+          Graphics.UI.Gtk.Misc.IMMulticontext
+          Graphics.UI.Gtk.Misc.SizeGroup
+          Graphics.UI.Gtk.Misc.Tooltips
+          Graphics.UI.Gtk.Misc.Viewport
+          Graphics.UI.Gtk.ModelView
+          Graphics.UI.Gtk.ModelView.CellLayout
+          Graphics.UI.Gtk.ModelView.CellRenderer
+          Graphics.UI.Gtk.ModelView.CellRendererCombo
+          Graphics.UI.Gtk.ModelView.CellRendererPixbuf
+          Graphics.UI.Gtk.ModelView.CellRendererProgress
+          Graphics.UI.Gtk.ModelView.CellRendererText
+          Graphics.UI.Gtk.ModelView.CellRendererToggle
+          Graphics.UI.Gtk.ModelView.CellView
+          Graphics.UI.Gtk.ModelView.CustomStore
+          Graphics.UI.Gtk.ModelView.IconView
+          Graphics.UI.Gtk.ModelView.ListStore
+          Graphics.UI.Gtk.ModelView.TreeDrag
+          Graphics.UI.Gtk.ModelView.TreeModel
+          Graphics.UI.Gtk.ModelView.TreeModelFilter
+          Graphics.UI.Gtk.ModelView.TreeModelSort
+          Graphics.UI.Gtk.ModelView.TreeRowReference
+          Graphics.UI.Gtk.ModelView.TreeSelection
+          Graphics.UI.Gtk.ModelView.TreeSortable
+          Graphics.UI.Gtk.ModelView.TreeStore
+          Graphics.UI.Gtk.ModelView.TreeView
+          Graphics.UI.Gtk.ModelView.TreeViewColumn
+          Graphics.UI.Gtk.Multiline.TextBuffer
+          Graphics.UI.Gtk.Multiline.TextIter
+          Graphics.UI.Gtk.Multiline.TextMark
+          Graphics.UI.Gtk.Multiline.TextTag
+          Graphics.UI.Gtk.Multiline.TextTagTable
+          Graphics.UI.Gtk.Multiline.TextView
+          Graphics.UI.Gtk.Ornaments.Frame
+          Graphics.UI.Gtk.Ornaments.HSeparator
+          Graphics.UI.Gtk.Ornaments.VSeparator
+          Graphics.UI.Gtk.Scrolling.HScrollbar
+          Graphics.UI.Gtk.Scrolling.ScrolledWindow
+          Graphics.UI.Gtk.Scrolling.VScrollbar
+          Graphics.UI.Gtk.Selectors.ColorButton
+          Graphics.UI.Gtk.Selectors.ColorSelection
+          Graphics.UI.Gtk.Selectors.ColorSelectionDialog
+          Graphics.UI.Gtk.Selectors.FileChooser
+          Graphics.UI.Gtk.Selectors.FileChooserButton
+          Graphics.UI.Gtk.Selectors.FileChooserDialog
+          Graphics.UI.Gtk.Selectors.FileChooserWidget
+          Graphics.UI.Gtk.Selectors.FileFilter
+          Graphics.UI.Gtk.Selectors.FileSelection
+          Graphics.UI.Gtk.Selectors.FontButton
+          Graphics.UI.Gtk.Selectors.FontSelection
+          Graphics.UI.Gtk.Selectors.FontSelectionDialog
+          Graphics.UI.Gtk.TreeList
+          Graphics.UI.Gtk.TreeList.CellRenderer
+          Graphics.UI.Gtk.TreeList.CellRendererPixbuf
+          Graphics.UI.Gtk.TreeList.CellRendererText
+          Graphics.UI.Gtk.TreeList.CellRendererToggle
+          Graphics.UI.Gtk.TreeList.CellView
+          Graphics.UI.Gtk.TreeList.IconView
+          Graphics.UI.Gtk.TreeList.ListStore
+          Graphics.UI.Gtk.TreeList.TreeIter
+          Graphics.UI.Gtk.TreeList.TreeModel
+          Graphics.UI.Gtk.TreeList.TreeModelSort
+          Graphics.UI.Gtk.TreeList.TreePath
+          Graphics.UI.Gtk.TreeList.TreeRowReference
+          Graphics.UI.Gtk.TreeList.TreeSelection
+          Graphics.UI.Gtk.TreeList.TreeStore
+          Graphics.UI.Gtk.TreeList.TreeView
+          Graphics.UI.Gtk.TreeList.TreeViewColumn
+          Graphics.UI.Gtk.Windows.AboutDialog
+          Graphics.UI.Gtk.Windows.Dialog
+          Graphics.UI.Gtk.Windows.Invisible
+          Graphics.UI.Gtk.Windows.MessageDialog
+          Graphics.UI.Gtk.Windows.Window
+          Graphics.UI.Gtk.Windows.WindowGroup
+        other-modules:
+          Graphics.UI.Gtk.General.Enums
+          Graphics.UI.Gtk.Gdk.Enums
+          Graphics.UI.Gtk.Gdk.PixbufData
+          Graphics.UI.Gtk.General.Structs
+          Graphics.UI.Gtk.ModelView.Types
+          Graphics.UI.Gtk.ModelView.Sequence
+          Graphics.UI.Gtk.Multiline.Types
+          Graphics.UI.Gtk.Abstract.ContainerChildProperties
+          Graphics.UI.Gtk.General.DNDTypes
+          Graphics.UI.Gtk.General.Threading
+          Graphics.UI.Gtk.Types
+          Graphics.UI.Gtk.Signals
+
+        extensions:     ForeignFunctionInterface
+        c-sources: Graphics/UI/Gtk/ModelView/Gtk2HsStore.c
+                   Graphics/UI/Gtk/General/hsgthread.c
+
+        x-Signals-Files:  Graphics/UI/Gtk/Signals.chs
+        x-Signals-Modname: Graphics.UI.Gtk.Signals
+
+        if os(windows)
+          x-c2hs-Header:  wingtk.h
+          include-dirs:   .
+        else
+          x-c2hs-Header:  gtk/gtk.h
+
+        if flag(gtk_2_12)
+          x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12
+          pkgconfig-depends: gtk+-2.0 >= 2.12.0
+        else
+          if flag(gtk_2_10)
+            x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10
+            pkgconfig-depends: gtk+-2.0 >= 2.10.0
+          else
+            if flag(gtk_2_6)
+              x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6
+              pkgconfig-depends: gtk+-2.0 >= 2.6.0
+            else
+              if flag(gtk_2_4)
+                x-Types-Tag:   default gtk-2.2 gtk-2.4
+                pkgconfig-depends: gtk+-2.0 >= 2.4.0
+              else
+                if flag(gtk_2_2)
+                  x-Types-Tag:   default gtk-2.2
+                  pkgconfig-depends: gtk+-2.0 >= 2.2.0
+                else
+                  x-Types-Tag:   default
+                  pkgconfig-depends: gtk+-2.0 >= 2.0.0
