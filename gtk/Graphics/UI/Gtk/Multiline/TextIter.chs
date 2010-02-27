@@ -152,7 +152,7 @@ import System.Glib.GList
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 {#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
-{#import Graphics.UI.Gtk.Pango.Types#}
+{#import Graphics.Rendering.Pango.BasicTypes#}
 
 {# context lib="gtk" prefix="gtk" #}
 

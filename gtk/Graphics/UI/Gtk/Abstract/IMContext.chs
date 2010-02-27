@@ -77,8 +77,8 @@ import System.Glib.UTFString (readUTFString, withUTFString, genUTFOfs,
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.EventM (EventM, EKey)
 import Graphics.UI.Gtk.General.Structs (Rectangle)
-import Graphics.UI.Gtk.Pango.Types (PangoAttribute)
-import Graphics.UI.Gtk.Pango.Attributes (readAttrList)
+import Graphics.Rendering.Pango.Enums (PangoAttribute)
+import Graphics.Rendering.Pango.Attributes (readAttrList)
 
 {# context lib="gtk" prefix="gtk" #}
 

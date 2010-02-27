@@ -405,9 +405,8 @@ import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   )
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 AccelFlags(..), DirectionType(..), Modifier)
-{#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
-					 PangoLayout(PangoLayout),
-					 makeNewPangoString )
+{#import Graphics.Rendering.Pango.BasicTypes#}	(FontDescription(FontDescription),
+					 PangoLayout(PangoLayout), makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
 import Control.Monad.Reader ( runReaderT )
@@ -1394,7 +1393,7 @@ widgetCreatePangoContext self =
 --
 -- If you create and keep a 'PangoLayout' using this context, you must deal
 -- with changes to the context by calling
--- 'Graphics.UI.Gtk.Pango.Layout.layoutContextChanged' on the layout
+-- 'layoutContextChanged' on the layout
 -- in response to the 'onStyleChanged' and 'onDirectionChanged' signals for the
 -- widget.
 --
@@ -1408,7 +1407,7 @@ widgetGetPangoContext self =
 -- | Prepare text for display.
 --
 -- The 'PangoLayout' represents the rendered text. It can be shown on screen
--- by calling 'Graphics.UI.Gtk.Gdk.Drawable.drawLayout'.
+-- by calling 'drawLayout'.
 --
 -- The returned 'PangoLayout' shares the same font information ('PangoContext') as this
 -- widget. If this information changes, the 'PangoLayout' should change. The

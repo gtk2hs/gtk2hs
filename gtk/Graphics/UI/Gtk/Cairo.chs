@@ -37,7 +37,7 @@
 -- All functions in this module are only available in Gtk 2.8 or higher.
 --
 module Graphics.UI.Gtk.Cairo (
-#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+#if GTK_CHECK_VERSION(2,8,0)
   -- * Global Cairo settings.
   cairoFontMapGetDefault,
   cairoFontMapSetResolution,
@@ -72,15 +72,15 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs (Color(..))
 import System.Glib.GObject		(constructNewGObject, makeNewGObject,
   objectRef, objectUnref)
-{#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.Pango.Structs ( pangoItemGetFont )
-import Graphics.UI.Gtk.Pango.Layout ( layoutSetText )
+{#import Graphics.Rendering.Pango.BasicTypes#}
+import Graphics.Rendering.Pango.Structs ( pangoItemGetFont )
+{#import Graphics.Rendering.Pango.Layout#} ( layoutSetText )
 {#import Graphics.UI.Gtk.Gdk.Pixbuf#} ( pixbufGetHasAlpha, pixbufGetNChannels,
   pixbufGetColorSpace, pixbufGetWidth, pixbufGetHeight, pixbufGetRowstride,
   Colorspace(..) )
 import Data.IORef
 
-#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+#if GTK_CHECK_VERSION(2,8,0)
 {#import Graphics.Rendering.Cairo.Types#} as Cairo
 import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
 import qualified Graphics.Rendering.Cairo as Cairo
@@ -93,7 +93,7 @@ import Control.Monad.Reader
 --------------------
 -- Methods
 
-#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+#if GTK_CHECK_VERSION(2,8,0)
 -- | Creates a Cairo context for drawing to a 'Drawable'.
 --
 renderWithDrawable :: DrawableClass drawable =>

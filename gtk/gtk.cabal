@@ -22,8 +22,8 @@ x-Types-ModName: Graphics.UI.Gtk.Types
 x-Types-Forward:  *System.Glib.GObject Graphics.UI.Gtk.General.Threading
 x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: wingtk.h
-                    Graphics//UI/Gtk/ModelView/Gtk2HsStore.h
-                    Graphics//UI/Gtk/General/hsgthread.h
+                    Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
+                    Graphics/UI/Gtk/General/hsgthread.h
 
 Flag gtk_2_2
   Description:  Build objects for Gtk+ version 2.2.
@@ -202,6 +202,7 @@ Library
           Graphics.UI.Gtk.TreeList.CellView
           Graphics.UI.Gtk.TreeList.IconView
           Graphics.UI.Gtk.TreeList.ListStore
+          Graphics.UI.Gtk.TreeList.ListStoreStatic
           Graphics.UI.Gtk.TreeList.TreeIter
           Graphics.UI.Gtk.TreeList.TreeModel
           Graphics.UI.Gtk.TreeList.TreeModelSort
@@ -235,11 +236,12 @@ Library
         c-sources: Graphics/UI/Gtk/ModelView/Gtk2HsStore.c
                    Graphics/UI/Gtk/General/hsgthread.c
 
-        x-Signals-Files:  Graphics/UI/Gtk/Signals.chs
+        x-Signals-File:  Graphics/UI/Gtk/Signals.chs
         x-Signals-Modname: Graphics.UI.Gtk.Signals
 
         if os(windows)
           x-c2hs-Header:  wingtk.h
+          cpp-options:    -DWIN32
           include-dirs:   .
         else
           x-c2hs-Header:  gtk/gtk.h

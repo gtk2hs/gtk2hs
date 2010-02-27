@@ -77,7 +77,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- \<\/>\/& characters must be escaped as @\"&lt;\"@, @\"&gt;\"@, and
 -- @\"&amp;@\". If you pass
 -- text obtained from the user, file, or a network to 'labelSetMarkup', you\'ll
--- want to escape it with 'Graphics.UI.Gtk.Pango.Layout.escapeMarkup'.
+-- want to escape it with 'Graphics.Rendering.Pango.Layout.escapeMarkup'.
 
 -- ** Selectable labels
 -- 
@@ -198,18 +198,17 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
-import Graphics.UI.Gtk.Pango.Layout
+{#import Graphics.Rendering.Pango.Layout#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-{#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Pango.Attributes ( withAttrList, fromAttrList)
+import Graphics.Rendering.Pango.Attributes ( withAttrList, fromAttrList)
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
-import Graphics.UI.Gtk.Pango.Markup
-{#import Graphics.UI.Gtk.Pango.Types#}  (PangoLayout(PangoLayout),
+import Graphics.Rendering.Pango.Markup
+{#import Graphics.Rendering.Pango.BasicTypes#}  (PangoLayout(PangoLayout),
 					 makeNewPangoString )
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode(..))
+import Graphics.Rendering.Pango.Enums	(EllipsizeMode(..))
 #endif
 import Data.IORef ( newIORef )
 
@@ -309,7 +308,7 @@ labelGetAttributes self = do
   return $ concat attr
 
 -- | Parses @str@ which is marked up with the Pango text markup language,
--- as defined in "Graphics.UI.Gtk.Pango.Markup",
+-- as defined in "Graphics.Rendering.Pango.Markup",
 -- setting the label's text and attribute list based on the parse results. If
 -- the @str@ is external data, you may need to escape it.
 --
@@ -323,7 +322,7 @@ labelSetMarkup self str =
     strPtr
 
 -- | Parses @str@ which is marked up with the Pango text markup language,
--- as defined in "Graphics.UI.Gtk.Pango.Markup",
+-- as defined in "Graphics.Rendering.Pango.Markup",
 -- setting the label's text and attribute list based on the parse results. If
 -- characters in @str@ are preceded by an underscore, they are underlined
 -- indicating that they represent a keyboard accelerator called a mnemonic.

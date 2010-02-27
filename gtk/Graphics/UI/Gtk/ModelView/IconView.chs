@@ -151,7 +151,7 @@ import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
-import Graphics.UI.Gtk.Pango.Markup 		(Markup)
+import Graphics.Rendering.Pango.Markup 		(Markup)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -239,7 +239,7 @@ iconViewGetTextColumn self =
 
 -- %hash c:995f d:801c
 -- | Sets the column of the text for entries in the 'IconView' as a markup
--- string (see 'Graphics.UI.Gtk.Pango.Markup'). A text source that is set
+-- string (see 'Graphics.Rendering.Pango.Markup'). A text source that is set
 -- using 'iconViewSetTextSource' is ignored once a markup source is set.
 --
 iconViewSetMarkupColumn :: IconViewClass self => self

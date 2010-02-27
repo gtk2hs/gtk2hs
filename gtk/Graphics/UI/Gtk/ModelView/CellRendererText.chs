@@ -128,10 +128,10 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 import Graphics.UI.Gtk.General.Structs		(Color(..))
-import Graphics.UI.Gtk.Pango.Enums
-{#import Graphics.UI.Gtk.Pango.Types#} ( FontDescription(..),
+import Graphics.Rendering.Pango.Enums
+{#import Graphics.Rendering.Pango.BasicTypes#} ( FontDescription(..),
 					 makeNewFontDescription )
-{#import Graphics.UI.Gtk.Pango.Layout#}	( LayoutAlignment, LayoutWrapMode )
+{#import Graphics.Rendering.Pango.Layout#}	( LayoutAlignment, LayoutWrapMode )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -204,7 +204,7 @@ cellTextEditableSet = newAttrFromBoolProperty "editable-set"
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Specifies the preferred place to ellipsize the string, if the cell
 --   renderer does not have enough room to display the entire string.
---   Setting it to 'Graphics.UI.Gtk.Pango.Enums.EllipsizeNone' turns off
+--   Setting it to 'Graphics.Rendering.Pango.Enums.EllipsizeNone' turns off
 --   ellipsizing. See the 'cellTextWrapWidth' property for another way of
 --   making the text fit into a given width.
 --
@@ -237,7 +237,7 @@ cellTextFamilySet = newAttrFromBoolProperty "family-set"
 cellTextFont :: CellRendererTextClass self => Attr self String
 cellTextFont = newAttrFromStringProperty "font"
 
--- | Font description as a 'Graphics.UI.Gtk.Pango.FontDescription'.
+-- | Font description as a 'Graphics.Rendering.Pango.FontDescription'.
 --
 cellTextFontDesc :: CellRendererTextClass self => Attr self FontDescription
 cellTextFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
@@ -453,7 +453,7 @@ cellTextWrapWidth = newAttrFromIntProperty "wrap-width"
 -- 'CellRenderer', on the other hand, sets the horizontal alignment of the
 -- whole text.
 --
--- Default value: 'Graphics.UI.Gtk.Pango.Layout.AlignLeft'
+-- Default value: 'Graphics.Rendering.Pango.Layout.AlignLeft'
 --
 -- * Available since Gtk+ version 2.10
 --

@@ -22,6 +22,9 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
+#include<gtk/gtk.h>
+
+
 module Graphics.UI.Gtk.Embedding.Embedding (
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   socketHasPlug,
@@ -30,8 +33,6 @@ module Graphics.UI.Gtk.Embedding.Embedding (
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Types
-
-#include<gtk/gtk.h>
 
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | Test if a Plug is connected to the socket.

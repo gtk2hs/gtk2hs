@@ -67,10 +67,9 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Color)
-import Graphics.UI.Gtk.Pango.Structs ( pangoItemGetFont )
+import Graphics.Rendering.Pango.Structs ( pangoItemGetFont, GlyphItem )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)
-{#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))
 
 {# context lib="gtk" prefix="gdk" #}
@@ -258,11 +257,11 @@ drawPolygon d gc filled points =
 -- * This function draws a segment of text. These segements are the result
 --   of itemizing a string into segments with the same characteristics
 --   (font, text direction, etc.) using
---   'Graphics.UI.Gtk.Pango.Rendering.itemize'. Each item is then turned
---   into a shapes by calling 'Graphics.UI.Gtk.Pango.Rendering.shape'.
+--   'Graphics.Rendering.Pango.Rendering.itemize'. Each item is then turned
+--   into a shapes by calling 'Graphics.Rendering.Pango.Rendering.shape'.
 --   These shapes can then be drawn onto screen using this function.
 --   A simpler interface, that also takes care of breaking a paragraph
---   into several lines is a 'Graphics.UI.Gtk.Pango.Layout.LayoutLine'.
+--   into several lines is a 'Graphics.Rendering.Pango.Layout.LayoutLine'.
 --
 drawGlyphs :: DrawableClass d => d -> GC -> Int -> Int -> GlyphItem -> IO ()
 drawGlyphs d gc x y (GlyphItem pi gs) = do

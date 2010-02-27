@@ -56,17 +56,14 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
   module Graphics.UI.Gtk.Gdk.GC,
--- include this if the Events module is definitely deprecated
--- module Graphics.UI.Gtk.Gdk.EventM,
+  module Graphics.UI.Gtk.Gdk.EventM,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Screen,
   module Graphics.UI.Gtk.Gdk.Display,
   module Graphics.UI.Gtk.Gdk.Gdk,
-#ifdef ENABLE_CAIRO
   -- ** cairo integration
   module Graphics.UI.Gtk.Cairo,
-#endif
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Invisible,
@@ -221,12 +218,12 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Builder,
 
   -- * Pango text layout modules
-  module Graphics.UI.Gtk.Pango.Context,
-  module Graphics.UI.Gtk.Pango.Markup,
-  module Graphics.UI.Gtk.Pango.Layout,
-  module Graphics.UI.Gtk.Pango.Rendering,
-  module Graphics.UI.Gtk.Pango.Font,
-  module Graphics.UI.Gtk.Pango.Enums
+  module Graphics.Rendering.Pango.Context,
+  module Graphics.Rendering.Pango.Markup,
+  module Graphics.Rendering.Pango.Layout,
+  module Graphics.Rendering.Pango.Rendering,
+  module Graphics.Rendering.Pango.Font,
+  module Graphics.Rendering.Pango.Enums
   ) where
 
 -- general things, initialization
@@ -245,18 +242,14 @@ import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
 import Graphics.UI.Gtk.Gdk.GC
---import Graphics.UI.Gtk.Gdk.EventM
-import Graphics.UI.Gtk.Gdk.Events		hiding (marshExposeRect,
-							marshalEvent)
+import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Screen
 import Graphics.UI.Gtk.Gdk.Display
 import Graphics.UI.Gtk.Gdk.Gdk
-#ifdef ENABLE_CAIRO
 -- cairo integration
 import Graphics.UI.Gtk.Cairo
-#endif
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
@@ -446,9 +439,9 @@ import System.Glib.GObject (
 import Graphics.UI.Gtk.Builder
   
 -- pango modules
-import Graphics.UI.Gtk.Pango.Context
-import Graphics.UI.Gtk.Pango.Markup
-import Graphics.UI.Gtk.Pango.Layout
-import Graphics.UI.Gtk.Pango.Rendering
-import Graphics.UI.Gtk.Pango.Font
-import Graphics.UI.Gtk.Pango.Enums
+import Graphics.Rendering.Pango.Context
+import Graphics.Rendering.Pango.Markup
+import Graphics.Rendering.Pango.Layout
+import Graphics.Rendering.Pango.Rendering
+import Graphics.Rendering.Pango.Font
+import Graphics.Rendering.Pango.Enums

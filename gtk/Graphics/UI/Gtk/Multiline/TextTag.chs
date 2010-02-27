@@ -158,9 +158,9 @@ import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Pango.Font
-import Graphics.UI.Gtk.Pango.Types      (FontDescription (..), makeNewFontDescription)
-import Graphics.UI.Gtk.Pango.Enums	(FontStyle(..), Variant(..),
+import Graphics.Rendering.Pango.Font
+import Graphics.Rendering.Pango.BasicTypes      (FontDescription (..), makeNewFontDescription)
+import Graphics.Rendering.Pango.Enums	(FontStyle(..), Variant(..),
 					 Stretch(..), Underline(..))
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
 					 Justification(..), WrapMode(..))
@@ -437,8 +437,8 @@ textTagVariant = newAttrFromEnumProperty "variant"
 textTagVariantSet :: TextTagClass self => Attr self Bool
 textTagVariantSet = newAttrFromBoolProperty "variant-set"
 
--- | Font weight as an integer, see predefined values in 'Graphics.UI.Gtk.Pango.Enums.Weight'; for
--- example, 'Graphics.UI.Gtk.Pango.Enums.WeightBold'.
+-- | Font weight as an integer, see predefined values in 'Graphics.Rendering.Pango.Enums.Weight'; for
+-- example, 'Graphics.Rendering.Pango.Enums.WeightBold'.
 --
 -- Allowed values: >= 0
 --

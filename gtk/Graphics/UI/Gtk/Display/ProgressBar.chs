@@ -106,7 +106,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode(..))
+import Graphics.Rendering.Pango.Enums	(EllipsizeMode(..))
 #endif
 
 {# context lib="gtk" prefix="gtk" #}
