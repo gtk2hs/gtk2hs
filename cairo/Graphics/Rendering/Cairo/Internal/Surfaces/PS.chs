@@ -21,7 +21,7 @@ import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
+#ifdef CAIRO_HAS_PS_SURFACE
 
 {#fun ps_surface_create  as psSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 

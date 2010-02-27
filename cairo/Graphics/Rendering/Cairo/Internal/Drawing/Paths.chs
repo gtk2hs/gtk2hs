@@ -15,8 +15,6 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Paths where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
-import System.Glib.UTFString (withUTFString)
-
 import Foreign
 import Foreign.C
 
@@ -31,7 +29,7 @@ import Foreign.C
 {#fun line_to           as lineTo          { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun move_to           as moveTo          { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun rectangle         as rectangle       { unCairo `Cairo', `Double', `Double', `Double', `Double' } -> `()'#}
-{#fun text_path         as textPath        { unCairo `Cairo', withUTFString* `String' } -> `()'#}
+{#fun text_path         as textPath        { unCairo `Cairo', withCString* `String' } -> `()'#}
 {#fun rel_curve_to      as relCurveTo      { unCairo `Cairo', `Double', `Double', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun rel_line_to       as relLineTo       { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun rel_move_to       as relMoveTo       { unCairo `Cairo', `Double', `Double' } -> `()'#}

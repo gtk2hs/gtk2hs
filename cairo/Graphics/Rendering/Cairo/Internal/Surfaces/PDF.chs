@@ -21,7 +21,7 @@ import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_PDF_SURFACE
+#ifdef CAIRO_HAS_PDF_SURFACE
 
 {#fun pdf_surface_create  as pdfSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 

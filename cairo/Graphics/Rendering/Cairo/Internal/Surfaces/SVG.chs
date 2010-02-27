@@ -21,7 +21,7 @@ import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_SVG_SURFACE
+#ifdef CAIRO_HAS_SVG_SURFACE
 
 {#fun svg_surface_create  as svgSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 

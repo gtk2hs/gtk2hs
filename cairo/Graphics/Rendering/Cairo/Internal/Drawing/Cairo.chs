@@ -15,7 +15,8 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Cairo where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
-import System.Glib.FFI
+import Foreign
+import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 

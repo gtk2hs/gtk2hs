@@ -21,7 +21,7 @@ import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
-#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
 
 imageSurfaceCreateFromPNG :: FilePath -> IO Surface
 imageSurfaceCreateFromPNG filename =

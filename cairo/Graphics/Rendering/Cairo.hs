@@ -1,6 +1,24 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables, MultiParamTypeClasses, FlexibleInstances, CPP #-}
+
+-- The following is all rather brittle: We need to pre-process this file with GHC
+-- in order to get the __GLASGOW_HASKELL__ macro (which we should replace with a
+-- version test of the array package). At the same time we need to version of
+-- Cairo and the macros for testing it. We sneakily get the version from the
+-- internal cairo-version.h file but we have to define the testing macros ourselves.
+#include<cairo-version.h>
+#include<cairo-features.h>
+#define CAIRO_VERSION_ENCODE(major, minor, micro) (     \
+          ((major) * 10000)                             \
+        + ((minor) *   100)                             \
+        + ((micro) *     1))
+
+#define CAIRO_VERSION CAIRO_VERSION_ENCODE(     \
+        CAIRO_VERSION_MAJOR,                    \
+        CAIRO_VERSION_MINOR,                    \
+        CAIRO_VERSION_MICRO)
+
+#define CAIRO_CHECK_VERSION(major,minor,micro)    \
+        (CAIRO_VERSION >= CAIRO_VERSION_ENCODE(major,minor,micro))
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Cairo
@@ -186,13 +204,13 @@ module Graphics.Rendering.Cairo (
   , imageSurfaceGetPixels
 #endif
 
-#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
   -- ** PNG support
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
 #endif
 
-#ifdef ENABLE_CAIRO_PDF_SURFACE
+#ifdef CAIRO_HAS_PDF_SURFACE
   -- ** PDF surfaces
   , withPDFSurface
 #if CAIRO_CHECK_VERSION(1,2,0)
@@ -200,7 +218,7 @@ module Graphics.Rendering.Cairo (
 #endif
 #endif
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
+#ifdef CAIRO_HAS_PS_SURFACE
   -- ** PS surfaces
   , withPSSurface
 #if CAIRO_CHECK_VERSION(1,2,0)
@@ -208,7 +226,7 @@ module Graphics.Rendering.Cairo (
 #endif
 #endif
 
-#ifdef ENABLE_CAIRO_SVG_SURFACE
+#ifdef CAIRO_HAS_SVG_SURFACE
   -- ** SVG surfaces
   , withSVGSurface
 #endif
@@ -1747,7 +1765,7 @@ instance Storable e => MArray SurfaceData e IO where
 
 #endif
 
-#ifdef ENABLE_CAIRO_PDF_SURFACE
+#ifdef CAIRO_HAS_PDF_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1782,7 +1800,7 @@ pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
 #endif
 #endif
 
-#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
 -- | Creates a new image surface and initializes the contents to the given PNG
 -- file.
 --
@@ -1808,7 +1826,7 @@ surfaceWriteToPNG surface filename = do
   return ()
 #endif
 
-#ifdef ENABLE_CAIRO_PS_SURFACE
+#ifdef CAIRO_HAS_PS_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1846,7 +1864,7 @@ psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
 #endif
 
 
-#ifdef ENABLE_CAIRO_SVG_SURFACE
+#ifdef CAIRO_HAS_SVG_SURFACE
 -- | Creates a SVG surface of the specified size in points
 -- be written to @filename@.
 --
