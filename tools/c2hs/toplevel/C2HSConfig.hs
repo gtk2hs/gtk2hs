@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --								  -*-haskell-*-
 --  ===========================================================================
 --  C -> Haskell Compiler: configuration
@@ -24,13 +25,12 @@
 --  Configuration options; largely set by `configure'.
 --
 --- TODO ----------------------------------------------------------------------
---
-
+--  
 module C2HSConfig (
   --
   -- programs and paths
   --
-  cpp, cppopts, hpaths, dlsuffix, tmpdir,
+  cpp, cppopts, cppoptsdef, hpaths, dlsuffix, tmpdir,
   --
   -- system-dependent definitions, as the New FFI isn't fully supported on all
   -- systems yet
@@ -45,8 +45,7 @@ module C2HSConfig (
 import Ix    (Ix)
 import Array (Array, array)
 
-import 
- Foreign (Ptr, FunPtr)  -- on an extra line to trick the stupid `mkdependHS'
+import Foreign (Ptr, FunPtr)
 import Foreign  (Storable(sizeOf, alignment), toBool)
 import Foreign.C (CInt)
 
@@ -56,7 +55,12 @@ import Foreign.C (CInt)
 -- C preprocessor executable (EXPORTED)
 --
 cpp :: FilePath
-cpp  = _C2HS_CPP -- used to be: "@CPP@"
+cpp  =
+#ifdef _C2HS_CPP_IS_GCC
+  "gcc"
+#else
+  "cpp"
+#endif
 
 -- C preprocessor options (EXPORTED)
 --
@@ -67,7 +71,19 @@ cpp  = _C2HS_CPP -- used to be: "@CPP@"
 -- * `-P' would suppress `#line' directives
 --
 cppopts :: String
-cppopts  = "-x c"
+cppopts  =
+#ifdef _C2HS_CPP_IS_GCC
+  "-E "++
+#endif
+#ifdef _C2HS_CPP_LANG_SINGLE
+  "-xc"
+#else
+  "-x c"
+#endif
+
+-- C preprocessor option for including only definitions (EXPORTED)
+cppoptsdef :: String
+cppoptsdef = "-imacros"
 
 -- standard system search paths for header files (EXPORTED)
 --

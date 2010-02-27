@@ -125,7 +125,7 @@ saveRootNameSupply =
   case rootSupply of
     NameSupply ref -> do
       val <- readIORef ref
-      writeIORef ref (error "UName: root name supply used after saving")
+      writeIORef ref 0
       return (Name val)
 
 restoreRootNameSupply :: Name -> IO ()
@@ -133,7 +133,7 @@ restoreRootNameSupply (Name val) =
   case rootSupply of
     NameSupply ref -> do
       prev <- readIORef ref
-      when (prev /= 1) (error "UName: root name supply used before restoring")
+      when (prev > 1) (error "UName: root name supply used before restoring")
       writeIORef ref val
 
 
@@ -167,5 +167,7 @@ unsafeNewIntRef i  = unsafePerformIO (newIORef i)
 unsafeReadAndIncIntRef    :: IORef Int -> Int
 unsafeReadAndIncIntRef mv  = unsafePerformIO $ do
 			       v <- readIORef mv
+			       when (v<1) $
+				 error "UName: root name supply used after saving"
 			       writeIORef mv (v + 1)
 			       return v

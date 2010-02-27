@@ -56,7 +56,7 @@ module CIO (-- (verbatim) re-exports
 	    --
 	    putCharCIO, putStrCIO, hPutStrCIO, hPutStrLnCIO, writeFileCIO,
 	    readFileCIO, printCIO, getCharCIO, hFlushCIO,  hPutCharCIO,
-	    hSetBufferingCIO, hGetBufferingCIO, 
+	    hGetContentsCIO, hSetBufferingCIO, hGetBufferingCIO, 
 	    newlineCIO, 
 	    --
 	    -- `Directory'
@@ -122,6 +122,9 @@ readFileCIO       :: FilePath -> PreCST e s String
 readFileCIO fname  = do
   hnd <- openFileCIO fname ReadMode
   liftIO (hGetContents hnd)
+
+hGetContentsCIO :: Handle -> PreCST e s String
+hGetContentsCIO hnd = liftIO (hGetContents hnd)
 
 printCIO   :: Show a => a -> PreCST e s ()
 printCIO a  = liftIO (print a)

@@ -219,13 +219,13 @@
 ## This now became a GObject in version 2:
 	GdkGC				as GC, gdk_gc_get_type
 ## These are Pango structures
-	PangoContext		as PangoContext, pango_context_get_type
-	PangoLayout		as PangoLayoutRaw, pango_layout_get_type
-	PangoFont		as Font, pango_font_get_type
-	PangoFontFamily		as FontFamily, pango_font_family_get_type
-	PangoFontFace		as FontFace, pango_font_face_get_type
-	PangoFontMap		as FontMap, pango_font_face_get_type
-	PangoFontset		as FontSet, pango_fontset_get_type
+	PangoContext		as PangoContext, pango_context_get_type if pango
+	PangoLayout		as PangoLayoutRaw, pango_layout_get_type if pango
+	PangoFont		as Font, pango_font_get_type if pango
+	PangoFontFamily		as FontFamily, pango_font_family_get_type if pango
+	PangoFontFace		as FontFace, pango_font_face_get_type if pango
+	PangoFontMap		as FontMap, pango_font_face_get_type if pango
+	PangoFontset		as FontSet, pango_fontset_get_type if pango
 ## This type is only available for PANGO_ENABLE_BACKEND compiled source
 ##	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
 

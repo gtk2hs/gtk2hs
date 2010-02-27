@@ -237,6 +237,8 @@ data CHSToken = CHSTokArrow   Position		-- `->'
               | CHSTokLine    Position		-- line pragma
 	      | CHSTokC	      Position String	-- verbatim C code
 	      | CHSTokCtrl    Position Char	-- control code
+	      | CHSTokPragma  Position		-- '{-# LANGUAGE' language pragma begin
+	      | CHSTokPragEnd Position		-- '#-}' language pragma end
 
 instance Pos CHSToken where
   posOf (CHSTokArrow   pos  ) = pos
@@ -285,6 +287,8 @@ instance Pos CHSToken where
   posOf (CHSTokCPP     pos _) = pos
   posOf (CHSTokC       pos _) = pos
   posOf (CHSTokCtrl    pos _) = pos
+  posOf (CHSTokPragma  pos  ) = pos
+  posOf (CHSTokPragEnd pos  ) = pos
 
 instance Eq CHSToken where
   (CHSTokArrow    _  ) == (CHSTokArrow    _  ) = True
@@ -333,6 +337,8 @@ instance Eq CHSToken where
   (CHSTokCPP	  _ _) == (CHSTokCPP	  _ _) = True
   (CHSTokC	  _ _) == (CHSTokC	  _ _) = True
   (CHSTokCtrl	  _ _) == (CHSTokCtrl	  _ _) = True
+  (CHSTokPragma   _  ) == (CHSTokPragma   _  ) = True
+  (CHSTokPragEnd  _  ) == (CHSTokPragEnd  _  ) = True
   _		       == _		       = False
 
 instance Show CHSToken where
@@ -382,6 +388,8 @@ instance Show CHSToken where
   showsPrec _ (CHSTokCPP     _ s) = showString s
   showsPrec _ (CHSTokC	     _ s) = showString s
   showsPrec _ (CHSTokCtrl    _ c) = showChar c
+  showsPrec _ (CHSTokPragma  _  ) = showString "{-# LANGUAGE"
+  showsPrec _ (CHSTokPragEnd _  ) = showString "#-}"
 
 
 -- lexer state
@@ -445,11 +453,22 @@ re `lexactionName` action = re `lexmeta` action'
 --
 --
 chslexer :: CHSLexer
-chslexer  =      haskell	-- Haskell code
+chslexer  =      pragma		-- LANGUAGE pragma
+	    >||< haskell	-- Haskell code
 	    >||< nested		-- nested comments
 	    >||< ctrl		-- control code (that has to be preserved)
 	    >||< hook		-- start of a binding hook
 	    >||< cpp		-- a pre-processor directive (or `#c')
+
+-- the LANGUAGE pragma
+pragma :: CHSLexer
+pragma = string "{-# LANGUAGE" `lexmeta` \_ pos s ->
+	 (Just $ Right (CHSTokPragma pos), incPos pos 12, s, Just langLexer)
+
+langLexer :: CHSLexer
+langLexer = whitespace >||< identOrKW >||< symbol >||<
+	    (string "#-}" `lexmeta` \_ pos s ->
+	    (Just $ Right (CHSTokPragEnd pos), incPos pos 3, s, Just chslexer))
 
 -- stream of Haskell code (terminated by a control character or binding hook)
 --

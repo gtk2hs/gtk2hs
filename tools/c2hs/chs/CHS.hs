@@ -89,6 +89,7 @@
 
 module CHS (CHSModule(..), CHSFrag(..), CHSHook(..), CHSTrans(..), CHSParm(..),
 	    CHSArg(..), CHSAccess(..), CHSAPath(..), CHSPtrType(..),
+	    skipToLangPragma, hasCPP,
 	    loadCHS, dumpCHS, hssuffix, chssuffix, loadCHI, dumpCHI,
 	    chisuffix, showCHSParm)
 where 
@@ -96,7 +97,7 @@ where
 -- standard libraries
 import Char	 (isSpace, toUpper, toLower)
 import List	 (intersperse)
-import Monad	 (when)
+import Monad	 (when, unless)
 
 -- Compiler Toolkit
 import Position  (Position(..), Pos(posOf), nopos, isBuiltinPos)
@@ -104,7 +105,7 @@ import Errors	 (interr)
 import Idents    (Ident, identToLexeme, onlyPosIdent)
 
 -- C->Haskell
-import C2HSState (CST, doesFileExistCIO, readFileCIO, writeFileCIO, getId, 
+import C2HSState (CST, nop, doesFileExistCIO, readFileCIO, writeFileCIO, getId, 
 		  getSwitch, chiPathSB, catchExc, throwExc, raiseError, 
 		  fatal, errorsPresent, showErrors, Traces(..), putTraceStr) 
 
@@ -145,6 +146,8 @@ data CHSFrag = CHSVerb String			-- Haskell code
 	     | CHSCond [(Ident,			-- C variable repr. condition
 		         [CHSFrag])]		-- then/elif branches
 		       (Maybe [CHSFrag])	-- else branch
+	     | CHSLang [String]			-- GHC language pragma
+		       Position
 
 instance Pos CHSFrag where
   posOf (CHSVerb _ pos ) = pos
@@ -155,6 +158,7 @@ instance Pos CHSFrag where
   posOf (CHSCond alts _) = case alts of
 			     (_, frag:_):_ -> posOf frag
 			     _             -> nopos
+  posOf (CHSLang _ pos)  = pos
 
 -- a CHS binding hook (EXPORTED)
 --
@@ -308,6 +312,20 @@ instance Read CHSPtrType where
   readsPrec _ _						     = []
 
 
+-- return a modified module description that starts off with a LANGUAGE pragma
+-- if it contains a LANGUAGE pragma at all
+skipToLangPragma :: CHSModule -> Maybe CHSModule
+skipToLangPragma (CHSModule frags) = hLP frags
+  where
+  hLP all@(CHSLang exts _:_) = Just (CHSModule all)
+  hLP (x:xs) = hLP xs
+  hLP [] = Nothing
+
+-- test if the language pragma contains the CPP option
+hasCPP :: CHSModule -> Bool
+hasCPP (CHSModule (CHSLang exts _:_)) = "CPP" `elem` exts
+hasCPP _ = False
+
 -- load and dump a CHS file
 -- ------------------------
 
@@ -315,53 +333,46 @@ hssuffix, chssuffix :: String
 hssuffix  = ".hs"
 chssuffix = ".chs"
 
--- load a CHS module (EXPORTED)
---
--- * the file suffix is automagically appended
+-- parse a CHS module (EXPORTED)
 --
 -- * in case of a syntactical or lexical error, a fatal error is raised;
 --   warnings are returned together with the module
 --
 loadCHS       :: FilePath -> CST s (CHSModule, String)
-loadCHS fname  = do
-		   let fullname = fname ++ chssuffix
+loadCHS fname = do
+   -- parse
+   --
+   traceInfoRead fname
+   contents <- readFileCIO fname 
+   traceInfoParse
+   mod <- parseCHSModule (Position fname 1 1) contents
 
-		   -- read file
-		   --
-		   traceInfoRead fullname
-		   contents <- readFileCIO fullname
-
-		   -- parse
-		   --
-		   traceInfoParse
-		   mod <- parseCHSModule (Position fullname 1 1) contents
-
-		   -- check for errors and finalize
-		   --
-		   errs <- errorsPresent
-		   if errs
-		     then do
-		       traceInfoErr
-		       errmsgs <- showErrors
-		       fatal ("CHS module contains \
-			      \errors:\n\n" ++ errmsgs)   -- fatal error
-		     else do
-		       traceInfoOK
-		       warnmsgs <- showErrors
-		       return (mod, warnmsgs)
-		  where
-		    traceInfoRead fname = putTraceStr tracePhasesSW
-					    ("Attempting to read file `"
-					     ++ fname ++ "'...\n")
-		    traceInfoParse      = putTraceStr tracePhasesSW 
-					    ("...parsing `" 
-					     ++ fname ++ "'...\n")
-		    traceInfoErr        = putTraceStr tracePhasesSW
-					    ("...error(s) detected in `"
-					     ++ fname ++ "'.\n")
-		    traceInfoOK         = putTraceStr tracePhasesSW
-					    ("...successfully loaded `"
-					     ++ fname ++ "'.\n")
+   -- check for errors and finalize
+   --
+   errs <- errorsPresent
+   if errs
+     then do
+       traceInfoErr
+       errmsgs <- showErrors
+       fatal ("CHS module contains \
+	      \errors:\n\n" ++ errmsgs)   -- fatal error
+     else do
+       traceInfoOK
+       warnmsgs <- showErrors
+       return (mod, warnmsgs)
+  where
+    traceInfoRead fname = putTraceStr tracePhasesSW
+			    ("Attempting to read file `"
+			     ++ fname ++ "'...\n")
+    traceInfoParse      = putTraceStr tracePhasesSW 
+			    ("...parsing `" 
+			     ++ fname ++ "'...\n")
+    traceInfoErr        = putTraceStr tracePhasesSW
+			    ("...error(s) detected in `"
+			     ++ fname ++ "'.\n")
+    traceInfoOK         = putTraceStr tracePhasesSW
+			    ("...successfully loaded `"
+			     ++ fname ++ "'.\n")
 
 -- given a file name (no suffix) and a CHS module, the module is printed 
 -- into that file (EXPORTED)
@@ -379,7 +390,8 @@ dumpCHS fname mod pureHaskell  =
     (version, _, _) <- getId
     writeFileCIO (fname ++ suffix) (contents version kind)
   where
-    contents version kind = 
+    contents version kind | hasCPP mod = showCHSModule mod pureHaskell
+			  | otherwise = 
       "-- GENERATED by " ++ version ++ " " ++ kind ++ "\n\
       \-- Edit the ORIGNAL .chs file instead!\n\n"
       ++ showCHSModule mod pureHaskell
@@ -441,6 +453,13 @@ showCHSModule (CHSModule frags) pureHaskell  =
       . showFrags False Emit frags
     showFrags False  _     (CHSCond _    _     : frags) =
       interr "showCHSFrag: Cannot print `CHSCond'!"
+    showFrags pureHs _     (CHSLang exts _     : frags) =
+      let extsNoCPP = filter ((/=) "CPP") exts in
+      if null extsNoCPP then showFrags pureHs Emit frags else
+	showString "{-# LANGUAGE "
+      . showString (concat (intersperse "," extsNoCPP))
+      . showString " #-}\n"
+      . showFrags pureHs Emit frags
     showFrags True   _     _                            =
       interr "showCHSFrag: Illegal hook, cpp directive, or inline C code!"
 
@@ -747,6 +766,7 @@ parseFrags toks  = do
     parseFrags0 (CHSTokSet     pos  :toks) = parseField   pos CHSSet toks
     parseFrags0 (CHSTokClass   pos  :toks) = parseClass   pos        toks
     parseFrags0 (CHSTokPointer pos  :toks) = parsePointer pos        toks
+    parseFrags0 (CHSTokPragma  pos  :toks) = parsePragma  pos	     toks
     parseFrags0 toks			   = syntaxError toks
     --
     -- skip to next Haskell or control token
@@ -975,6 +995,18 @@ parsePointer pos toks =
     norm ide Nothing                   = Nothing
     norm ide (Just ide') | ide == ide' = Nothing
 			 | otherwise   = Just ide'
+
+parsePragma :: Position -> [CHSToken] -> CST s [CHSFrag]
+parsePragma pos toks = do
+  let
+    parseExts exts (CHSTokIdent _ ide:CHSTokComma _:toks) =
+      parseExts (identToLexeme ide:exts) toks
+    parseExts exts (CHSTokIdent _ ide:CHSTokPragEnd _:toks) =
+      return (reverse (identToLexeme ide:exts), toks)
+    parseExts exts toks = syntaxError toks
+  (exts, toks) <- parseExts [] toks
+  frags <- parseFrags toks
+  return (CHSLang exts pos : frags)
 
 parseClass :: Position -> [CHSToken] -> CST s [CHSFrag]
 parseClass pos (CHSTokIdent  _ sclassIde:

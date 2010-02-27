@@ -8,6 +8,8 @@ import Data.List     (isPrefixOf)
 import Control.Monad (when)
 import System.Environment (getArgs)
 import System.Exit   (exitWith, ExitCode(..))
+import System.IO (stderr, hPutStr)
+import Paths_gtk2hs_buildtools (getDataFileName)
 
 -- The current object and its inheritence relationship is defined by all
 -- ancestors and their column position.
@@ -103,12 +105,14 @@ indent c = ss ("\n"++replicate (2*c) ' ')
 
 main = do
   args <- getArgs
-  when (length args<3) usage
+  let showHelp = not (null (filter ("-h" `isPrefixOf`) args++
+                            filter ("--help" `isPrefixOf`) args)) || null args
+  if showHelp then usage else do
 
   -----------------------------------------------------------------------------
   -- Parse command line parameters
   --
-  let (hierFile: templateFile: goalFile: rem) = args
+  let rem = args
   let tags = map (drop 6) (filter ("--tag=" `isPrefixOf`)  rem)
   let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
               [] -> "gtk"
@@ -117,7 +121,7 @@ main = do
                  [] -> "gtk"
                  (prefix:_) -> prefix
   let modName = case map (drop 10) (filter ("--modname=" `isPrefixOf`)  rem) of
-  		  [] -> bareFName goalFile
+  		  [] -> "Hierarchy"
 		  (modName:_) -> modName
         where bareFName = reverse .
       			  takeWhile isAlphaNum .
@@ -133,25 +137,27 @@ main = do
                    [] -> "objectUnref"
                    (destrFun:_) -> destrFun
   -----------------------------------------------------------------------------
-  -- Read in the input files
+  -- Read in the hierarchy and template files
   --
-  content <- if hierFile == "-"
-               then getContents	      -- read stdin
-	       else readFile hierFile
+  hierFile <- case map (drop 12) (filter ("--hierarchy=" `isPrefixOf`) rem) of
+                [] -> getDataFileName "hierarchyGen/hierarchy.list"
+                (hierFile:_) -> return hierFile
+  hierarchy <- readFile hierFile
+  templateFile <- getDataFileName "hierarchyGen/Hierarchy.chs.template"
   template <- readFile templateFile
 
   -----------------------------------------------------------------------------
   -- Parse the contents of the hierarchy file
   --
   let (objs', specialQueries) = unzip $
-				 pFreshLine (freshParserState tags) content
+				 pFreshLine (freshParserState tags) hierarchy
       objs = map (map snd) objs'
   let showImport ('*':m ) = ss "{#import " .ss m .ss "#}" . indent 0
       showImport m = ss "import " . ss m . indent 0
   -----------------------------------------------------------------------------
-  -- Write the result file by substituting values into the template file
+  -- Write the result to stdout after substituting values into the template file
   --
-  writeFile goalFile $
+  putStr $
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
@@ -166,16 +172,12 @@ main = do
 
 
 usage = do
- putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
-	\TypeGenerator <hierFile> <templateFile> <outFile> {--tag=<tag>}\n\
-	\              [--lib=<lib>] [--prefix=<prefix>]\n\
+ hPutStr stderr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
+	\TypeGenerator {--tag=<tag>} [--lib=<lib>] [--prefix=<prefix>]\n\
 	\              [--modname=<modName>] {--import=<*><importName>}\n\
 	\              {--forward=<*><fwdName>} [--destructor=<destrName>]\n\
+	\              [--hierarchy=<hierName>]\n\
 	\where\n\
-	\  <hierFile>      a list of all possible objects, the hierarchy is\n\
-	\                  taken from the indentation\n\
-	\  <templateFile>  is the name and path of the output template file\n\
-	\  <outFile>       is the name and path of the output file\n\
 	\  <tag>           generate entries that have the tag <tag>\n\
 	\                  specify `default' for types without tags\n\
 	\  <lib>           set the lib to use in the c2hs {#context #}\n\
@@ -191,7 +193,11 @@ usage = do
 	\                  be a .chs import statement\n\
 	\                  as well as exported from the generated module\n\
 	\  <destrName>     specify a non-standard C function pointer that\n\
-	\                  is called to destroy the objects\n"
+	\                  is called to destroy the objects\n\
+	\  <hierName>      the name of the file containing the hierarchy list,\n\
+	\                  defaults to the built-in list\n\
+	\\n\
+	\The resulting Haskell module is written to the standard output.\n"
  exitWith $ ExitFailure 1
 
 

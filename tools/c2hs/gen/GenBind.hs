@@ -338,6 +338,7 @@ expandFrags = liftM concat . mapM expandFrag
 expandFrag :: CHSFrag -> GB [CHSFrag]
 expandFrag verb@(CHSVerb _ _     ) = return [verb]
 expandFrag line@(CHSLine _       ) = return [line]
+expandFrag prag@(CHSLang _ _     ) = return [prag]
 expandFrag      (CHSHook h       ) = 
   do
     code <- expandHook h

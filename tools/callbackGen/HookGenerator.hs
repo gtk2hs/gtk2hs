@@ -4,12 +4,12 @@
 -- Haskell functions to connect to these callbacks.
 module Main(main) where
 
-#include "gtk2hs-config.h"
-
 import Data.Char   (showLitChar)
 import Data.List   (nub)
 import System.Environment (getArgs)
 import System.Exit (exitWith, ExitCode(..))
+import System.IO (stderr, hPutStr)
+import Paths_gtk2hs_buildtools (getDataFileName)
 
 -- Define all possible data types the GTK will supply in callbacks.
 --
@@ -428,34 +428,30 @@ mkMarshRet (ret,_) = marshRet ret
 
 
 usage = do
- putStr $ "Program to generate callback hook for Gtk signals. Usage:\n"++
-   "HookGenerator <signatureFile> <templateFile> <outFile> <moduleName>\n"++
+ hPutStr stderr $
+   "Program to generate callback hook for Gtk signals. Usage:\n"++
+   "HookGenerator <moduleName>\n"++
    "where\n"++
-   "  <signatureFile> is gtkmarshal.list from the the source Gtk+ tree\n"++
-   "  <templateFile>  the name and path of the Signal.chs.template file\n"++
-   "  <outFile>       is the name and path of the output file.\n"++
    "  <moduleName>    the module name for <outFile>\n"
  exitWith $ ExitFailure 1
 
 main = do
   args <- getArgs
-  if (length args /= 4) then usage else do
-    let [typesFile, templateFile, outFile, outModuleName] = args
-    generateHooks typesFile templateFile outFile outModuleName
-
-generateHooks :: String -> String -> String -> String -> IO ()
-generateHooks typesFile templateFile outFile outModuleName = do
-    content <- readFile typesFile
-    let sigs = parseSignatures content
-    template <- readFile templateFile
-    writeFile outFile $
-      templateSubstitute template (\var ->
-        case var of
-	  "MODULE_NAME"    -> ss outModuleName
-          "MODULE_EXPORTS" -> genExport sigs
-          "MODULE_BODY"    -> foldl (.) id (map generate sigs)
-          _ -> error var 
-      ) ""
+  if (length args /= 1) then usage else do
+  typesFile <- getDataFileName "callbackGen/gtkmarshal.list"
+  templateFile <- getDataFileName "callbackGen/Signal.chs.template"
+  let [outModuleName] = args
+  content <- readFile typesFile
+  let sigs = parseSignatures content
+  template <- readFile templateFile
+  putStr $
+    templateSubstitute template (\var ->
+      case var of
+        "MODULE_NAME"    -> ss outModuleName
+        "MODULE_EXPORTS" -> genExport sigs
+        "MODULE_BODY"    -> foldl (.) id (map generate sigs)
+        _ -> error var 
+    ) ""
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 

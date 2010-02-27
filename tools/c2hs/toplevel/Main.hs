@@ -31,7 +31,7 @@
 --  Usage:
 --  ------
 --
---    c2hs [ option... ] [header-file] binding-file
+--    c2hs [ option... ] header-file binding-file
 --
 --  The compiler is supposed to emit a Haskell program that expands all hooks
 --  in the given binding file.
@@ -157,16 +157,18 @@ import Binary	  (Binary(..), putBinFileWithDict, getBinFileWithDict)
 import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
 		   ExitCode(..), stderr, IOMode(..), putStrCIO, hPutStrCIO,
 		   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
-		   ioeGetErrorString, ioeGetFileName, removeFileCIO, liftIO,
+		   ioeGetErrorString, ioeGetFileName, doesFileExistCIO,
+		   removeFileCIO, liftIO,
 		   systemCIO, fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
 		   SwitchBoard(..), Traces(..), setTraces,
 		   traceSet, setSwitch, getSwitch, putTraceStr)
 import C	  (AttrC, hsuffix, isuffix, loadAttrC)
-import CHS	  (CHSModule, loadCHS, dumpCHS, hssuffix, chssuffix, dumpCHI)
+import CHS	  (CHSModule, skipToLangPragma, hasCPP, loadCHS, dumpCHS,
+ 		   hssuffix, chssuffix, dumpCHI)
 import GenHeader  (genHeader)
 import GenBind	  (expandHooks)
 import Version    (version, copyright, disclaimer)
-import C2HSConfig (cpp, cppopts, hpaths, tmpdir)
+import C2HSConfig (cpp, cppopts, cppoptsdef, hpaths, tmpdir)
 
 
 -- wrapper running the compiler
@@ -185,7 +187,7 @@ main  = runC2HS (version, copyright, disclaimer) compile
 header :: String -> String -> String -> String
 header version copyright disclaimer  = 
   version ++ "\n" ++ copyright ++ "\n" ++ disclaimer
-  ++ "\n\nUsage: c2hs [ option... ] [header-file] binding-file\n"
+  ++ "\n\nUsage: c2hs [ option... ] header-file binding-file\n"
 
 trailer, errTrailer :: String
 trailer    = "\n\
@@ -292,19 +294,13 @@ compile  =
       ([Help]   , []  , []) -> doExecute [Help]    []
       ([Version], []  , []) -> doExecute [Version] []
       (opts     , args, []) 
-        | properArgs (hasPreCompFlag opts) args -> doExecute opts args
-        | otherwise                             -> raiseErrs [wrongNoOfArgsErr]
-      (_   , _   , errs)    -> raiseErrs errs
+        | properArgs args -> doExecute opts args
+        | otherwise       -> raiseErrs [wrongNoOfArgsErr]
+      (_   , _   , errs)  -> raiseErrs errs
   where
-    properArgs preComp [file]         = suffix file == chssuffix ||
-					suffix file == hsuffix && preComp
-    properArgs preComp [file1, file2] = suffix file1 == hsuffix 
-					&& suffix file2 == chssuffix 
-    properArgs _       _              = False
-    --
-    hasPreCompFlag (PreComp _:fs) = True
-    hasPreCompFlag (f:fs) = hasPreCompFlag fs
-    hasPreCompFlag [] = False
+    properArgs [file1, file2] = suffix file1 == hsuffix 
+				&& suffix file2 == chssuffix 
+    properArgs _              = False
     --
     doExecute opts args = do
 			    execute opts args
@@ -365,21 +361,15 @@ execute opts args | Help `elem` opts = help
 
     preCompFile <- getSwitch preCompSB
 
-    unless (preCompFile==Nothing || null headerFile) $
+    unless (preCompFile==Nothing) $
       preCompileHeader headerFile (fromJust preCompFile)
         `fatalsHandledBy` ioErrorHandler
 
     let bndFileWithoutSuffix  = stripSuffix bndFile
     unless (null bndFile) $ do
       computeOutputName bndFileWithoutSuffix
-      if preCompFile==Nothing
-	then process headerFile bndFileWithoutSuffix
+      process headerFile preCompFile bndFileWithoutSuffix
 	       `fatalsHandledBy` ioErrorHandler
-        else do
-	     containsHeaderInfo <-
-	       processPreComp (fromJust preCompFile) bndFileWithoutSuffix
-	     when containsHeaderInfo $ process headerFile bndFileWithoutSuffix
-	  `fatalsHandledBy` ioErrorHandler
   where
     atMostOne = (foldl (\_ x -> [x]) [])
 
@@ -551,13 +541,42 @@ setLockFun name = setSwitch $ \sb -> sb { lockFunSB = Just name }
 --
 -- * the binding file name has been stripped of the .chs suffix
 --
-process                    :: FilePath -> FilePath -> CST s ()
-process headerFile bndFile  =
+process                    :: FilePath -> Maybe FilePath -> FilePath -> CST s ()
+process headerFile preCompFile bndFileStripped  =
   do
     -- load the Haskell binding module
     --
     (chsMod , warnmsgs) <- loadCHS bndFile
+
     putStrCIO warnmsgs
+
+    -- check if a CPP language pragma is present and, if so, run CPP on the file
+    -- and re-read it
+    chsMod <- case skipToLangPragma chsMod of
+      Nothing -> return chsMod
+      Just chsMod | not (hasCPP chsMod) -> return chsMod
+		  | otherwise -> do
+	outFName <- getSwitch outputSB
+	let outFileBase  = if null outFName then basename bndFile else outFName
+	let ppFile = outFileBase ++ "_pp" ++ chssuffix
+	cpp     <- getSwitch cppSB
+	cppOpts <- getSwitch cppOptsSB
+	let cmd  = unwords [cpp, cppOpts, cppoptsdef, headerFile,
+			    bndFile, ">", ppFile]
+	tracePreproc cmd
+	exitCode <- systemCIO cmd
+	case exitCode of 
+	  ExitFailure _ -> fatal "Error during preprocessing chs file"
+ 	  _		-> nop
+
+        (chsMod , warnmsgs) <- loadCHS ppFile
+
+	keep <- getSwitch keepSB
+	unless keep $
+	  removeFileCIO ppFile
+
+	case skipToLangPragma chsMod of Just chsMod -> return chsMod
+
     traceCHSDump chsMod
     --
     -- extract CPP and inline-C embedded in the .chs file (all CPP and
@@ -566,41 +585,55 @@ process headerFile bndFile  =
     --
     (header, strippedCHSMod, warnmsgs) <- genHeader chsMod
     putStrCIO warnmsgs
-    --
-    -- create new header file, make it #include `headerFile', and emit
-    -- CPP and inline-C of .chs file into the new header
-    --
-    outFName <- getSwitch outputSB
-    let newHeaderFile = outFName ++ hsuffix
-	preprocFile   = basename newHeaderFile ++ isuffix
-    newHeader <- openFileCIO newHeaderFile WriteMode
-    unless (null headerFile) $
-      hPutStrLnCIO newHeader $ "#include \"" ++ headerFile ++ "\""
-    mapM (hPutStrCIO newHeader) header
-    hCloseCIO newHeader
-    setHeader newHeaderFile
-    --
-    -- run C preprocessor over the header
-    --
-    cpp     <- getSwitch cppSB
-    cppOpts <- getSwitch cppOptsSB
-    let cmd  = unwords [cpp, cppOpts, newHeaderFile, ">" ++ preprocFile]
-    tracePreproc cmd
-    exitCode <- systemCIO cmd
-    case exitCode of 
-      ExitFailure _ -> fatal "Error during preprocessing custom header file"
-      _		    -> nop
-    --
-    -- load and analyse the C header file
-    --
-    (cheader, warnmsgs) <- loadAttrC preprocFile
-    putStrCIO warnmsgs
-    --
-    -- remove the custom header and the pre-processed header
-    --
-    keep <- getSwitch keepSB
-    unless keep $
-      removeFileCIO preprocFile
+
+    pcFileExists <- maybe (return False) doesFileExistCIO preCompFile
+
+    cheader <- if null header && pcFileExists then do
+        -- there are no cpp directives in the .chs file, use the precompiled header
+        --
+        traceReadPrecomp (fromJust preCompFile)
+        WithNameSupply cheader <- liftIO $ getBinFileWithDict (fromJust preCompFile)
+        return cheader
+
+      else do
+        --
+        -- create new header file, make it #include `headerFile', and emit
+        -- CPP and inline-C of .chs file into the new header
+        --
+        outFName <- getSwitch outputSB
+        let newHeaderFile = outFName ++ hsuffix
+        let preprocFile   = basename newHeaderFile ++ isuffix
+        newHeader <- openFileCIO newHeaderFile WriteMode
+        unless (null headerFile) $
+          hPutStrLnCIO newHeader $ "#include \"" ++ headerFile ++ "\""
+        mapM (hPutStrCIO newHeader) header
+        hCloseCIO newHeader
+        setHeader newHeaderFile
+        --
+        -- run C preprocessor over the header
+        --
+        cpp     <- getSwitch cppSB
+        cppOpts <- getSwitch cppOptsSB
+        let cmd  = unwords [cpp, cppOpts, newHeaderFile, ">" ++ preprocFile]
+        tracePreproc cmd
+        exitCode <- systemCIO cmd
+        case exitCode of 
+          ExitFailure _ -> fatal "Error during preprocessing custom header file"
+          _             -> nop
+        --
+        -- load and analyse the C header file
+        --
+        (cheader, warnmsgs) <- loadAttrC preprocFile
+        putStrCIO warnmsgs
+        --
+        -- remove the custom header and the pre-processed header
+        --
+        keep <- getSwitch keepSB
+        unless keep $
+          removeFileCIO preprocFile
+
+        return cheader
+
     --
     -- expand binding hooks into plain Haskell
     --
@@ -609,9 +642,15 @@ process headerFile bndFile  =
     --
     -- output the result
     --
-    dumpCHS outFName hsMod True
-    dumpCHI outFName chi		-- different suffix will be appended
+    outFName <- getSwitch outputSB
+    let hsFile  = if null outFName then basename bndFile else outFName
+    dumpCHS hsFile hsMod True
+    dumpCHI hsFile chi		-- different suffix will be appended
+
   where
+    bndFile = bndFileStripped ++ chssuffix
+    traceReadPrecomp fName = putTraceStr tracePhasesSW $
+      "Reading precompiled header file " ++ fName ++ "...\n"
     tracePreproc cmd = putTraceStr tracePhasesSW $
 		         "Invoking cpp as `" ++ cmd ++ "'...\n"
     traceCHSDump mod = do
@@ -628,6 +667,10 @@ preCompileHeader :: FilePath -> FilePath -> CST s ()
 preCompileHeader headerFile preCompFile =
   do
     let preprocFile  = basename headerFile ++ isuffix
+    
+    pcFileExists <- doesFileExistCIO preCompFile
+    unless pcFileExists $ do
+
     hpaths          <- getSwitch hpathsSB
     realHeaderFile  <- headerFile `fileFindInCIO` hpaths
 
@@ -666,52 +709,6 @@ preCompileHeader headerFile preCompFile =
     tracePreproc cmd = putTraceStr tracePhasesSW $
                          "Invoking cpp as `" ++ cmd ++ "'...\n"
 
-processPreComp :: FilePath -> FilePath -> CST s Bool
-processPreComp preCompFile bndFile = do
-    
-    -- load the Haskell binding module
-    --
-    (chsMod , warnmsgs) <- loadCHS bndFile
-    putStrCIO warnmsgs
-    traceCHSDump chsMod
-    --
-    -- extract CPP and inline-C embedded in the .chs file (all CPP and
-    -- inline-C fragments are removed from the .chs tree and conditionals are
-    -- replaced by structured conditionals)
-    --
-    (header, strippedCHSMod, warnmsgs) <- genHeader chsMod
-    if not (null header) then return True else do
-      putStrCIO warnmsgs
-      --
-      -- load and analyse the C header file
-      --
-      WithNameSupply cheader <- liftIO $ getBinFileWithDict preCompFile
-
-      --
-      -- expand binding hooks into plain Haskell
-      --
-      (hsMod, chi, warnmsgs) <- expandHooks cheader strippedCHSMod
-      putStrCIO warnmsgs
-      --
-      -- output the result
-      --
-      outFName <- getSwitch outputSB
-      let hsFile  = if null outFName then basename bndFile else outFName
-      dumpCHS hsFile hsMod True
-      dumpCHI hsFile chi		-- different suffix will be appended
-
-      -- CHS file did not contain C declarations, so return False
-      return False
-  where
-    traceCHSDump mod = do
-			 flag <- traceSet dumpCHSSW
-			 when flag $
-			   (do
-			      putStrCIO ("Reading CHS for `" ++ chsName 
-					 ++ "'...\n")
-			      dumpCHS chsName mod False)
-
-    chsName = basename bndFile ++ ".dump"
 
 -- dummy type so we can save and restore the name supply
 data WithNameSupply a = WithNameSupply a
