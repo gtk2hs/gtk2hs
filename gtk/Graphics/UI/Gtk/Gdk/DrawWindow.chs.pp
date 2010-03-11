@@ -86,7 +86,9 @@ import System.Glib.GObject	(makeNewGObject)
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
+import Graphics.UI.Gtk.Gdk.EventM	(eventRegion)
 import Graphics.UI.Gtk.General.Structs
+import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
 {# context lib="gdk" prefix="gdk" #}
 
@@ -166,7 +168,7 @@ drawWindowClearAreaExpose self x y width height =
 -- drawWindows with the same parent drawWindow appear below @DrawWindow@. This is true
 -- whether or not the drawWindows are visible.
 --
--- If @DrawWindow@ is a toplevel, the drawWindow manager may choose to deny the
+-- If @DrawWindow@ is a toplevel, the window manager may choose to deny the
 -- request to move the drawWindow in the Z-order, 'drawWindowRaise' only requests the
 -- restack, does not guarantee it.
 -- 
@@ -232,13 +234,13 @@ drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
 --
 -- When using GTK+, the widget system automatically places calls to
 -- 'drawWindowBeginPaintRegion' and 'drawWindowEndPaint' around emissions of the
--- expose_event signal. That is, if you\'re writing an expose event handler,
--- you can assume that the exposed area in "EventExpose" has already been
+-- @expose_event@ signal. That is, if you\'re writing an expose event handler,
+-- you can assume that the exposed area in 'eventRegion' has already been
 -- cleared to the window background, is already set as the clip region, and
 -- already has a backing store. Therefore in most cases, application code need
 -- not call 'drawWindowBeginPaintRegion'. (You can disable the automatic calls
 -- around expose events on a widget-by-widget basis by calling
--- 'Graphics.UI.Gtk.Abstract.Widget.widgetSetDoubleBuffered'.)
+-- 'widgetSetDoubleBuffered'.)
 --
 -- If you call this function multiple times before calling the matching
 -- 'drawWindowEndPaint', the backing stores are pushed onto a stack.
@@ -310,7 +312,7 @@ drawWindowInvalidateRegion self region invalidateChildren =
 -- * Transfers ownership of the update area from @DrawWindow@ to the caller of the
 -- function. That is, after calling this function, @DrawWindow@ will no longer have
 -- an invalid\/dirty region; the update area is removed from @DrawWindow@ and
--- handed to you. If a this window has no update area, 'drawWindowGetUpdateArea' returns 'Nothing'.
+-- handed to you. If this window has no update area, 'drawWindowGetUpdateArea' returns 'Nothing'.
 -- 
 drawWindowGetUpdateArea :: DrawWindowClass self => self
  -> IO (Maybe Region) -- ^ returns the update area for @DrawWindow@

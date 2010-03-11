@@ -2465,17 +2465,17 @@ destroyEvent = Signal (eventM "destroy_event" [])
 
 -- | Instructs the widget to redraw.
 --
--- * This event is useful for the 'DrawingArea'. On receiving this signal
---   the content of the passed 'Rectangle' or 'Region' needs to be redrawn.
---   If a client will redraw the whole area and is not interested in the
---   extra information in 'Expose', it is more efficient
---   to use 'exposeEventRect'.
+-- * The 'DrawWindow' that needs to be redrawn is available via
+--   'eventWindow'.
 --
--- * Widgets that are very expensive to re-render, such as an image editor,
---   may prefer to use the 'exposeEvent' which delivers a
---   'Region' in addition to a 'Rectangle'. A 'Region' consists of several
---   rectangles that need redrawing.
+-- * The part that needs to be redrawn is available via 'eventArea' and
+--   'eventRegion'. The options are, in order of efficiency: (a) redraw the
+--   entire window, (b) ask for the 'eventArea' and redraw that rectangle, (c)
+--   ask for the 'eventRegion' and redraw each of those rectangles.
 --
+--   Only the exposed region will be updated; see also
+--   'drawWindowBeginPaintRegion'.
+
 exposeEvent :: WidgetClass self => Signal self (EventM EExpose Bool)
 exposeEvent = Signal (eventM "expose_event" [])
 

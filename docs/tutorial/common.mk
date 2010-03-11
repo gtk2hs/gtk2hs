@@ -45,7 +45,7 @@ $(TOP)/exports : $(hi-files)
 base-url = http://haskell.org/gtk2hs/docs/current/
 
 $(TOOLSDIR)/AddLinks : $(TOOLSDIR)/AddLinks.hs
-	$(HC) $< -o $@
+	$(HC) --make $< -o $@
 
 HC=ghc
 
