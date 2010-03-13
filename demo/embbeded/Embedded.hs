@@ -1,11 +1,22 @@
--- Use GtkSocket and GtkPlug for cross-process embedded.
+-- |Use GtkSocket and GtkPlug for cross-process embedded.
 -- Just startup program, press 'm' to create tab with new button.
 -- Click button for hang to simulate plug hanging process, 
 -- but socket process still running, can switch to other tab. 
+--
+-- Note:
+--
+-- Don't use `forkProcess` in gtk2hs!
+-- Because `forkProcess` haven't any protect when spawn process, 
+-- so you will got two processes *race condition*, when those two
+-- process access same resource will crash your program.
+-- Solution is use `runProcess` or `runCommand` instead, 
+-- Because those functions add MVar to make sure two processes won't
+-- get *race condition* problem.
+--
 
 module Main where
 
-import System.Posix.Process
+import System.Process
 import System.Environment
 import System.Directory
 import System.FilePath ((</>))
@@ -60,7 +71,7 @@ socketMain = do
 
                -- Fork process to add GtkPlug into GtkSocekt. 
                path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
-               forkProcess (executeFile path False [show $ fromNativeWindowId id] Nothing)
+               runCommand $ path ++ " " ++ (show $ fromNativeWindowId id) -- don't use `forkProcess` !
                return ()
         "q" -> mainQuit          -- quit
 
