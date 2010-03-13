@@ -76,9 +76,9 @@ cppopts  =
   "-E "++
 #endif
 #ifdef _C2HS_CPP_LANG_SINGLE
-  "-xc"
+  "-xc -w"
 #else
-  "-x c"
+  "-x c -w"
 #endif
 
 -- C preprocessor option for including only definitions (EXPORTED)
