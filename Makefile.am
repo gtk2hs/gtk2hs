@@ -76,6 +76,9 @@ endif
 if ENABLE_VTE
 pkglib_LIBRARIES += libHSvte.a
 endif
+if ENABLE_WEBKIT
+pkglib_LIBRARIES += libHSwebkit.a
+endif
 if ENABLE_GCONF
 pkglib_LIBRARIES += libHSgconf.a
 endif
@@ -96,9 +99,6 @@ pkglib_LIBRARIES += libHSgnomevfs.a
 endif
 if ENABLE_GSTREAMER
 pkglib_LIBRARIES += libHSgstreamer.a
-endif
-if ENABLE_WEBKIT
-pkglib_LIBRARIES += libHSwebkit.a
 endif
 
 noinst_PROGRAMS = \
@@ -987,7 +987,7 @@ gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.p_o)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_LIBADD:.o=.p_o)
 endif
 
-endif
+endif #ENABLE_GTK
 
 #
 #	glade package
@@ -1138,7 +1138,7 @@ libHSvte_a_SOURCESDIRS	= vte
 
 libHSvte_a_LIBADD  =                           \
 	vte/Graphics/UI/Gtk/Vte/Vte_stub.o
- 
+
 libHSvte_a_GENERATEDSOURCES =	\
 	vte/Graphics/UI/Gtk/Vte/Types.chs
 
@@ -1149,14 +1149,10 @@ libHSvte_a_SOURCES =	        			\
 	vte/Graphics/UI/Gtk/Vte/Structs.hsc		\
 	vte/Graphics/UI/Gtk/Vte/Vte.chs
 
-libHSvte_a_LIBADD =					\
-	vte/Graphics/UI/Gtk/Vte/Vte_stub.o
-
 htmldoc_HSFILES_HIDDEN += $(libHSvte_a_GENERATEDSOURCES:.chs=.hs)
 
 htmldoc_HSFILES_EXCLUDE +=				\
 	vte/Graphics/UI/Gtk/Vte/Structs.hs
-			
 
 vte_Graphics_UI_Gtk_Vte_Types_hs_HCFLAGS	= -fglasgow-exts 
 
@@ -1251,6 +1247,140 @@ vte_MOSTLYCLEANFILES += $(libHSvte_a_LIBADD:.o=.p_o)
 endif
 
 endif #ENABLE_VTE
+
+#
+##	webkit package
+#
+##################################################################################
+
+if ENABLE_WEBKIT
+
+webkit_PKGNAME = libHSwebkit_a
+
+libHSwebkit_a_NAME		= webkit
+libHSwebkit_a_CONFIG		= webkit/webkit.package.conf
+libHSwebkit_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
+libHSwebkit_a_INTERNALDEPS	= gtk glib
+libHSwebkit_a_HEADER 		= webkit/hswebkit.h
+libHSwebkit_a_PRECOMP		= webkit/webkit.precomp
+libHSwebkit_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(WEBKIT_LIBS)
+libHSwebkit_a_HCFLAGS		= $(FFI)
+libHSwebkit_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(WEBKIT_CFLAGS)) 
+libHSwebkit_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(WEBKIT_CFLAGS))
+
+
+libHSwebkit_a_SOURCESDIRS	= webkit
+
+libHSwebkit_a_GENERATEDSOURCES =	\
+	webkit/Graphics/UI/Gtk/WebKit/Types.chs
+
+nodist_libHSwebkit_a_SOURCES = $(libHSwebkit_a_GENERATEDSOURCES)
+
+libHSwebkit_a_SOURCES =	        			\
+         webkit/Graphics/UI/Gtk/WebKit/WebView.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebFrame.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebSettings.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebHistoryItem.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebBackForwardList.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebInspector.chs \
+         webkit/Graphics/UI/Gtk/WebKit/Download.chs \
+         webkit/Graphics/UI/Gtk/WebKit/NetworkRequest.chs \
+         webkit/Graphics/UI/Gtk/WebKit/NetworkResponse.chs 
+
+htmldoc_HSFILES_HIDDEN += $(libHSwebkit_a_GENERATEDSOURCES:.chs=.hs)
+
+webkit_Graphics_UI_Gtk_Webkit_Types_hs_HCFLAGS	= -fglasgow-exts 
+
+webkit/Graphics/UI/Gtk/WebKit/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+		      $@ --tag=webkit --lib=webkit --prefix=webkit \
+                      --modname=Graphics.UI.Gtk.WebKit.Types \
+		      --forward=*System.Glib.GObject \
+		      --destructor=objectUnrefFromMainloop \
+		      --forward=*Graphics.UI.Gtk.Types)
+
+libHSwebkit_a_ALLSOURCES = $(libHSwebkit_a_SOURCES) $(nodist_libHSwebkit_a_SOURCES)
+
+am_libHSwebkit_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSwebkit_a_ALLSOURCES))))
+
+libHSwebkit_a_HSPPFILES  = $(filter %.hs.pp, $(libHSwebkit_a_ALLSOURCES))
+libHSwebkit_a_CHSPPFILES = $(filter %.chs.pp,$(libHSwebkit_a_ALLSOURCES))
+libHSwebkit_a_CHSFILES = \
+  $(filter %.chs,$(libHSwebkit_a_ALLSOURCES:.chs.pp=.chs))
+libHSwebkit_a_CHSFILES_HS = $(libHSwebkit_a_CHSFILES:.chs=.hs)
+libHSwebkit_a_HSCFILES = $(filter %.hsc, $(libHSwebkit_a_ALLSOURCES))
+libHSwebkit_a_HSCFILES_HS = $(libHSwebkit_a_HSCFILES:.hsc=.hs)
+libHSwebkit_a_BUILDSOURCES = \
+	$(libHSwebkit_a_HSPPFILES:.hs.pp=.hs) \
+	$(libHSwebkit_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSwebkit_a_CHSFILES_HS) \
+        $(libHSwebkit_a_HSCFILES_HS) \
+        $(libHSwebkit_a_GENERATEDSOURCES)
+libHSwebkit_a_HSFILES  = \
+	$(filter %.hs,$(libHSwebkit_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSwebkit_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSwebkit_a_HSFILES:.hs=.hi)
+
+webkit_MOSTLYCLEANFILES  = $(am_libHSwebkit_a_OBJECTS)
+webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.hi)
+webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_CHSFILES:.chs=.chi)
+webkit_CLEANFILES  = $(libHSwebkit_a_BUILDSOURCES)
+webkit_CLEANFILES += $(libHSwebkit_a_CHSFILES_HS:.hs=.dep)
+webkit_CLEANFILES += \
+	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
+	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make.c)		\
+	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make.o)
+
+webkit/libHSwebkit_a.deps: $(libHSwebkit_a_HSFILES) | \
+	$(foreach pkg,$(libHSwebkit_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
+$(libHSwebkit_a_CHSFILES:.chs=.dep): \
+	$(foreach pkg,webkit $(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
+$(libHSwebkit_a_CHSFILES_HS): $(libHSwebkit_a_PRECOMP)
+$(libHSwebkit_a_OBJECTS) : \
+	$(foreach pkg,$(libHSwebkit_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
+
+EARLY_DEPS += $(libHSwebkit_a_CHSFILES:.chs=.dep)
+
+ifeq (,$(DONT_USE_DEPS))
+-include $(libHSwebkit_a_CHSFILES:.chs=.dep) webkit/libHSwebkit_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSwebkit_a_AR = $(srcdir)/mk/link-splitobjs.sh
+webkit_CLEANFILES_SPLIT = $(libHSwebkit_a_HSFILES:.hs=_split/)
+else
+libHSwebkit_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSwebkit_a_DEPENDENCIES = HSwebkit.o
+pkglib_DATA += HSwebkit.o
+HSwebkit.o : $(libHSwebkit_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSwebkit_a_OBJECTS) $(libHSwebkit_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSwebkit_a_DEPENDENCIES += libHSwebkit_p.a
+pkglib_DATA += libHSwebkit_p.a
+libHSwebkit_p.a : $(libHSwebkit_a_HSFILES:.hs=.p_o) \
+		$(libHSwebkit_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(DONT_USE_DEPS))
+-include webkit/libHSwebkit_a.p_deps
+ endif
+
+nobase_hi_DATA         += $(libHSwebkit_a_HSFILES:.hs=.p_hi)
+webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.p_hi)
+webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.p_o)
+webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_LIBADD:.o=.p_o)
+endif
+
+endif #ENABLE_WEBKIT
 
 #
 #	gconf package
@@ -2708,140 +2838,7 @@ gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_LIBADD:.o=.p_o)
 
 endif
 
-endif
-
-
-#
-#	webkit package
-#
-#################################################################################
-
-if ENABLE_WEBKIT
-
-webkit_PKGNAME = libHSwebkit_a
-
-libHSwebkit_a_NAME		= webkit
-libHSwebkit_a_CONFIG		= webkit/webkit.package.conf
-libHSwebkit_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
-libHSwebkit_a_INTERNALDEPS	= gtk glib
-libHSwebkit_a_HEADER 		= webkit/hswebkit.h
-libHSwebkit_a_PRECOMP		= webkit/webkit.precomp
-libHSwebkit_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(WEBKIT_LIBS)
-libHSwebkit_a_HCFLAGS		= $(FFI)
-libHSwebkit_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(WEBKIT_CFLAGS)) 
-libHSwebkit_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(WEBKIT_CFLAGS))
-
-
-libHSwebkit_a_SOURCESDIRS	= webkit
-
-libHSwebkit_a_GENERATEDSOURCES =	\
-	webkit/Graphics/UI/Gtk/WebKit/Types.chs
-
-nodist_libHSwebkit_a_SOURCES = $(libHSwebkit_a_GENERATEDSOURCES)
-
-libHSwebkit_a_SOURCES =	        \
-        webkit/Graphics/UI/Gtk/WebKit/WebView.chs \
-        webkit/Graphics/UI/Gtk/WebKit/WebFrame.chs \
-        webkit/Graphics/UI/Gtk/WebKit/WebSettings.chs \
-        webkit/Graphics/UI/Gtk/WebKit/WebHistoryItem.chs \
-        webkit/Graphics/UI/Gtk/WebKit/WebBackForwardList.chs \
-        webkit/Graphics/UI/Gtk/WebKit/WebInspector.chs \
-        webkit/Graphics/UI/Gtk/WebKit/Download.chs \
-        webkit/Graphics/UI/Gtk/WebKit/NetworkRequest.chs \
-        webkit/Graphics/UI/Gtk/WebKit/NetworkResponse.chs 
-
-htmldoc_HSFILES_HIDDEN += $(libHSwebkit_a_GENERATEDSOURCES:.chs=.hs)
-
-webkit_Graphics_UI_Gtk_WebKit_Types_hs_HCFLAGS	= -fglasgow-exts
-
-webkit/Graphics/UI/Gtk/WebKit/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
-		      $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
-		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
-		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
-		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-		      $@ --tag=webkit --lib=webkit --prefix=webkit \
-                      --modname=Graphics.UI.Gtk.WebKit.Types \
-		      --parentname=Graphics.UI.Gtk.Types)
-
-libHSwebkit_a_ALLSOURCES = $(libHSwebkit_a_SOURCES) $(nodist_libHSwebkit_a_SOURCES)
-
-am_libHSwebkit_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSwebkit_a_ALLSOURCES))))
-
-libHSwebkit_a_HSPPFILES  = $(filter %.hs.pp, $(libHSwebkit_a_ALLSOURCES))
-libHSwebkit_a_CHSPPFILES = $(filter %.chs.pp,$(libHSwebkit_a_ALLSOURCES))
-libHSwebkit_a_CHSFILES = \
-  $(filter %.chs,$(libHSwebkit_a_ALLSOURCES:.chs.pp=.chs))
-libHSwebkit_a_CHSFILES_HS = $(libHSwebkit_a_CHSFILES:.chs=.hs)
-libHSwebkit_a_HSCFILES = $(filter %.hsc, $(libHSwebkit_a_ALLSOURCES))
-libHSwebkit_a_HSCFILES_HS = $(libHSwebkit_a_HSCFILES:.hsc=.hs)
-libHSwebkit_a_BUILDSOURCES = \
-	$(libHSwebkit_a_HSPPFILES:.hs.pp=.hs) \
-	$(libHSwebkit_a_CHSPPFILES:.chs.pp=.chs) \
-	$(libHSwebkit_a_CHSFILES_HS) \
-        $(libHSwebkit_a_HSCFILES_HS) \
-        $(libHSwebkit_a_GENERATEDSOURCES)
-libHSwebkit_a_HSFILES  = \
-	$(filter %.hs,$(libHSwebkit_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSwebkit_a_ALLSOURCES))
-
-nobase_hi_DATA += $(libHSwebkit_a_HSFILES:.hs=.hi)
-
-webkit_MOSTLYCLEANFILES  = $(am_libHSwebkit_a_OBJECTS)
-webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.hi)
-webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_CHSFILES:.chs=.chi)
-webkit_CLEANFILES  = $(libHSwebkit_a_BUILDSOURCES)
-webkit_CLEANFILES += $(libHSwebkit_a_CHSFILES_HS:.hs=.dep)
-webkit_CLEANFILES += \
-	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make$(EXEEXT))	\
-	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make.c)		\
-	$(libHSwebkit_a_HSCFILES:.hsc=_hsc_make.o)
-
-webkit/libHSwebkit_a.deps: $(libHSwebkit_a_HSFILES) | \
-	$(foreach pkg,$(libHSwebkit_a_INTERNALDEPS),$(pkg)/libHS$(pkg)_a.deps)
-$(libHSwebkit_a_CHSFILES:.chs=.dep): \
-	$(foreach pkg,webkit $(libHSglib_a_INTERNALDEPS),$(libHS$(pkg)_a_CHSFILES))
-$(libHSwebkit_a_CHSFILES_HS): $(libHSwebkit_a_PRECOMP)
-$(libHSwebkit_a_OBJECTS) : \
-	$(foreach pkg,$(libHSwebkit_a_INTERNALDEPS),$(libHS$(pkg)_a_OBJECTS))
-
-EARLY_DEPS += $(libHSwebkit_a_CHSFILES:.chs=.dep)
-
-ifeq (,$(DONT_USE_DEPS))
--include $(libHSwebkit_a_CHSFILES:.chs=.dep) webkit/libHSwebkit_a.deps
- endif
-
-if ENABLE_SPLITOBJS
-libHSwebkit_a_AR = $(srcdir)/mk/link-splitobjs.sh
-webkit_CLEANFILES_SPLIT = $(libHSwebkit_a_HSFILES:.hs=_split/)
-else
-libHSwebkit_a_AR = $(AR) $(ARFLAGS)
-endif
-
-libHSwebkit_a_DEPENDENCIES = HSwebkit.o
-pkglib_DATA += HSwebkit.o
-HSwebkit.o : $(libHSwebkit_a_OBJECTS)
-	$(LD) -r $(LD_X) -o $@ $(libHSwebkit_a_OBJECTS) $(libHSwebkit_a_LIBADD)
-
-if ENABLE_PROFILING
-libHSwebkit_a_DEPENDENCIES += libHSwebkit_p.a
-pkglib_DATA += libHSwebkit_p.a
-libHSwebkit_p.a : $(libHSwebkit_a_HSFILES:.hs=.p_o) \
-		$(libHSwebkit_a_LIBADD:.o=.p_o)
-	$(AR) $(ARFLAGS) $@ $^
-
-ifeq (,$(DONT_USE_DEPS))
--include webkit/libHSwebkit_a.p_deps
- endif
-
-nobase_hi_DATA         += $(libHSwebkit_a_HSFILES:.hs=.p_hi)
-webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.p_hi)
-webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_HSFILES:.hs=.p_o)
-webkit_MOSTLYCLEANFILES += $(libHSwebkit_a_LIBADD:.o=.p_o)
-endif
-
-endif #ENABLE_WEBKIT
+endif #ENABLE_GSTREAMER
 
 #
 #       inplace package registration

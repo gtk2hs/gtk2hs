@@ -126,9 +126,9 @@ module Graphics.UI.Gtk.WebKit.WebView (
   onLoadFinished,
   onLoadError,
   onTitleChanged,
-  onHoveringOverLink,
+  -- onHoveringOverLink,
 
-  onCreateWebView,
+  -- onCreateWebView,
   onWebViewReady,
   onCloseWebView,
   onDownloadRequested,
@@ -139,6 +139,8 @@ module Graphics.UI.Gtk.WebKit.WebView (
 ) where
 
 import Control.Monad		(liftM)
+
+-- import Data.IORef
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -797,12 +799,12 @@ onTitleChanged =
 -- title - the link's title or @Nothing@ in case of failure.
 --
 -- uri - the URI the link points to or @Nothing@ in case of failure.
-onHoveringOverLink :: WebViewClass self => self -> (Maybe String -> Maybe String -> IO()) -> IO(ConnectId self)
-onHoveringOverLink =
-  connect_BOXED_BOXED__NONE "hovering-over-link" readMString True
-  where
-  readMString strPtr | strPtr==nullPtr = return Nothing
-                     | otherwise = liftM Just $ peekUTFString strPtr
+-- onHoveringOverLink :: WebViewClass self => self -> (Maybe String -> Maybe String -> IO()) -> IO(ConnectId self)
+-- onHoveringOverLink =
+--   connect_BOXED_BOXED__NONE "hovering-over-link" readMString True
+--   where
+--   readMString strPtr | strPtr==nullPtr = return Nothing
+--                      | otherwise = liftM Just $ peekUTFString strPtr
 
 -- | When a 'WebFrame' begins to load, this signal is emitted
 onLoadStarted :: WebViewClass self => self -> (WebFrame -> IO()) -> IO (ConnectId self)
@@ -850,27 +852,27 @@ onLoadError = connect_OBJECT_STRING_BOXED__BOOL "load-error" peek True
 --   in the 'webViewReady' signal or after the 'webViewReady' signal has
 --   been emitted.
 --
-onCreateWebView :: WebViewClass self => self -> (WebFrame -> IO WebView) -> IO (ConnectId self)
-onCreateWebView = \vw act
-    connect_OBJECT__PTR "create-web-view" True vw act'
-  where
-  act' wf = do
-    wv <- act wf
-    -- We need to return a Ptr WebView to the caller of this signal. To
-    -- prevent the garbage collector from freeing the WebView before this
-    -- signal returns, we increment the reference count of the object and
-    -- decrement it as soon as the 'webViewReady' signal is emitted which
-    -- always happens after this signal returns.
-    gObjectRef wv
-    sidRef <- newIORef undefined
-    sid <- onWebViewReady wv $ do
-      gObjectUnref wv
-      sid <- readIORef sidRef
-      signalDisconnect wv sid
-      return False
-    writeIORef sidRef sid
-    return unsafeForeignPtrToPtr (unWebView wv)
-
+-- onCreateWebView :: WebViewClass self => self -> (WebFrame -> IO WebView) -> IO (ConnectId self)
+-- -- onCreateWebView = \vw act
+-- onCreateWebView vw act =
+--     connect_OBJECT__PTR "create-web-view" True vw act'
+--         where
+--           act' wf = do
+--             wv <- act wf
+--             -- We need to return a Ptr WebView to the caller of this signal. To
+--             -- prevent the garbage collector from freeing the WebView before this
+--             -- signal returns, we increment the reference count of the object and
+--             -- decrement it as soon as the 'webViewReady' signal is emitted which
+--             -- always happens after this signal returns.
+--             gObjectRef wv
+--             sidRef <- newIORef undefined
+--             sid <- onWebViewReady wv $ do
+--                       gObjectUnref wv
+--                       sid <- readIORef sidRef
+--                       signalDisconnect wv sid
+--                       return False
+--             writeIORef sidRef sid
+--             return unsafeForeignPtrToPtr (unWebView wv)
 
 -- | Emitted when closing a WebView is requested. 
 --
@@ -894,8 +896,6 @@ onCloseWebView =
 onWebViewReady:: WebViewClass self => self -> (IO Bool) -> IO(ConnectId self)
 onWebViewReady =
     connect_NONE__BOOL "web-view-ready" True
-   
-
 
 -- | Emitted after A new 'Download' is being requested. 
 --
