@@ -1,0 +1,11 @@
+If you use GtkSocket/GtkPlug with multi-processes framework.
+DON'T use function `forkProcess` to spawn process!
+
+Because `forkProcess` just simple call C `fork`, haven't any protection,
+then two processes will got *race condition*,
+you will get X Window error (such as `BadWindow`) when those two processes
+try to access same X resource.
+
+So use `runProcess` or `runCommand` instead.
+Above two functions add MVar lock when spawn processes (call c_runInteractiveProcess)
+to make sure two processes won't get *race condition* problem on X resource.
