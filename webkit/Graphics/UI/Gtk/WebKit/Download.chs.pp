@@ -3,6 +3,7 @@
 --  Module      :  Graphics.UI.Gtk.WebKit.Download
 --  Author 		:  Cjacker Huang
 --  Copyright   :  (c) 2009 Cjacker Huang <jzhuang@redflag-linux.com>
+--  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
 -- 
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -26,12 +27,15 @@ module Graphics.UI.Gtk.WebKit.Download (
 -- * Types
   Download,
 
+-- * Enums
+  DownloadError(..),
+  DownloadStatus(..),
+
 -- * Constructors
   downloadNew,
 
 -- * Methods
   DownloadError(..),
-  DownloadStatus(..),
 
   downloadStart,
   downloadCancel,
@@ -45,6 +49,19 @@ module Graphics.UI.Gtk.WebKit.Download (
   downloadGetCurrentSize,
   downloadGetStatus,
   downloadSetDestinationUri,
+
+-- * Attributes
+  currentSize,
+  destinationUri,
+  networkRequest,
+  networkResponse,
+  progress,
+  status,
+  suggestedFilename,
+  totalSize,
+
+-- * Signals
+  downloadError,
 ) where
 
 import Control.Monad		(liftM)
@@ -53,6 +70,8 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError 
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Gdk.Events
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
@@ -61,6 +80,8 @@ import Graphics.UI.Gtk.Gdk.Events
 {#import System.Glib.GObject#}
 
 {#context lib="webkit" prefix ="webkit"#}
+
+-- * Enums
 
 {#enum DownloadError {underscoreToCase}#}
 {#enum DownloadStatus {underscoreToCase}#}
@@ -179,4 +200,88 @@ downloadGetStatus ::
 downloadGetStatus dl = 
     liftM (toEnum . fromIntegral) $ {#call download_get_status#} (toDownload dl)
 
+-- * Attibutes
 
+-- | The length of the data already downloaded
+--
+-- Default value: 0
+-- 
+-- * Since 1.1.2 
+--
+currentSize :: DownloadClass self => ReadAttr self Int
+currentSize = readAttr downloadGetCurrentSize
+
+-- | The URI of the save location for this download.
+--
+-- Default value: ""
+--
+-- * Since 1.1.2
+destinationUri :: DownloadClass self => Attr self (Maybe String) 
+destinationUri = newAttrFromMaybeStringProperty "destination-uri"
+
+-- | The NetworkRequest instance associated with the download.
+--
+-- * Since 1.1.2
+networkRequest :: DownloadClass self => Attr self NetworkRequest
+networkRequest = 
+  newAttrFromObjectProperty "network-request"
+  {#call pure webkit_network_request_get_type#}
+
+-- | The NetworkResponse instance associated with the download.
+--
+-- * Since 1.1.16
+networkResponse :: DownloadClass self => Attr self NetworkResponse
+networkResponse = 
+  newAttrFromObjectProperty "network-response"
+  {#call pure webkit_network_response_get_type#}
+
+-- | Determines the current progress of the download. 
+-- Notice that, although the progress changes are reported as soon as possible, 
+-- the emission of the notify signal for this property is throttled, for the benefit of download managers. 
+-- If you care about every update, use 'Download' : currentSize.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 1
+--
+-- * Since 1.1.2
+progress :: DownloadClass self => ReadAttr self Double
+progress = readAttr downloadGetProgress
+
+-- | Determines the current status of the download.
+--
+-- Default value: 'DownloadStatusCreated'
+--
+-- * Since 1.1.2
+status :: DownloadClass self => ReadAttr self DownloadStatus
+status = readAttr downloadGetStatus
+
+-- | The file name suggested as default when saving
+--
+-- Default value: ""
+--
+-- * Since 1.1.2
+suggestedFilename :: DownloadClass self => ReadAttr self (Maybe String)
+suggestedFilename = readAttr downloadGetSuggestedFilename
+
+-- | The total size of the file
+--
+-- Default value: 0
+--
+-- * Since 1.1.2
+totalSize :: DownloadClass self => ReadAttr self Int
+totalSize = readAttr downloadGetTotalSize
+
+-- * Signals
+
+-- | Emitted when download is interrupted either by user action or by network errors, 
+-- errorDetail will take any value of 'DownloadError'.
+--
+-- 'download':    the object on which the signal is emitted                  
+-- 'errorCode':   the corresponding error code                               
+-- 'errorDetail': detailed error code for the error, see 'DownloadError' 
+-- 'reason':       a string describing the error                              
+--                                                                          
+-- Since 1.1.2
+downloadError :: DownloadClass self => Signal self (Int -> Int -> String -> IO Bool)
+downloadError = Signal (connect_INT_INT_STRING__BOOL "error")

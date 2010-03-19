@@ -3,6 +3,7 @@
 --  Module      :  Graphics.UI.Gtk.WebKit.WebFrame
 --  Author      :  Cjacker Huang
 --  Copyright   :  (c) 2009 Cjacker Huang <jzhuang@redflag-linux.com>
+--  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
 -- 
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -20,26 +21,42 @@
 -- Portability : portable (depends on GHC)
 --
 -- The content of a 'WebView'
+--
+-- Note:
+-- Functon `webkit_web_frame_get_global_context` can't binding now, 
+-- Because it need `JSGlobalContextRef` exist in JavaScriptCore.
+--
+-- Function `webkit_web_frame_print_full` can't binding now,
+-- Because library `GtkPrintOperation` haven't binding.
+--
 -----------------------------------------------------------------------------
 
 module Graphics.UI.Gtk.WebKit.WebFrame (
 -- * Types
   WebFrame,
+
 -- * Constructors
   webFrameNew,
+
 -- * Methods
- 
   webFrameGetWebView,
   webFrameGetName,
   webFrameGetTitle,
   webFrameGetUri,
   webFrameGetParent,
+  webFrameGetLoadStatus,
   webFrameLoadUri,
   webFrameLoadString,
   webFrameLoadAlternateString,
+  webFrameLoadRequest,
   webFrameStopLoading,
   webFrameReload,
   webFrameFindFrame,
+  webFrameGetDataSource,
+  webFrameGetHorizontalScrollbarPolicy,
+  webFrameGetVerticalScrollbarPolicy,
+  webFrameGetProvisionalDataSource,
+  webFrameGetSecurityOrigin,
   webFramePrint,
 ) where
 
@@ -50,6 +67,7 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError 
 import Graphics.UI.Gtk.Gdk.Events
+import Graphics.UI.Gtk.General.Enums
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
@@ -58,6 +76,9 @@ import Graphics.UI.Gtk.Gdk.Events
 
 {#context lib="webkit" prefix ="webkit"#}
 
+-- * Enums
+
+{#enum LoadStatus {underscoreToCase}#}
 
 ------------------
 -- Constructors
@@ -107,6 +128,17 @@ webFrameGetParent ::
  -> IO (Maybe WebFrame) -- ^ a 'WebFrame' or @Nothing@ in case failed.
 webFrameGetParent webframe = 
     maybeNull (makeNewGObject mkWebFrame) $ {#call web_frame_get_parent#} (toWebFrame webframe)
+
+-- | Determines the current status of the load.
+--
+-- frame :   a WebKitWebView 
+--                          
+-- * Since 1.1.7
+webFrameGetLoadStatus ::
+    WebFrameClass self => self
+ -> IO LoadStatus    
+webFrameGetLoadStatus ls =
+    liftM (toEnum . fromIntegral) $ {#call web_frame_get_load_status#} (toWebFrame ls)
 
 -- | Request loading of the specified URI string.
 webFrameLoadUri :: 
@@ -164,6 +196,17 @@ webFrameLoadAlternateString webframe content baseurl unreachableurl =
           baseurlPtr
           unreachableurlPtr
 
+-- | Connects to a given URI by initiating an asynchronous client request.
+--
+-- Creates a provisional data source that will transition to a committed data source once any data has been received. 
+-- Use 'webFrameStopLoading' to stop the load. 
+-- This function is typically invoked on the main frame.
+webFrameLoadRequest :: 
+   (WebFrameClass self, NetworkRequestClass requ) => self -> requ
+ -> IO ()
+webFrameLoadRequest webframe request =
+  {#call web_frame_load_request#} (toWebFrame webframe) (toNetworkRequest request) 
+
 -- | Stops and pending loads on the given data source and those of its children.
 webFrameStopLoading :: 
     WebFrameClass self => self
@@ -190,6 +233,45 @@ webFrameFindFrame webframe name =
     withCString name $ \namePtr ->
 	maybeNull (makeNewGObject mkWebFrame) $ 
           {#call web_frame_find_frame#} (toWebFrame webframe) namePtr
+
+-- | Returns the committed data source.
+webFrameGetDataSource :: 
+   WebFrameClass self => self
+ -> IO WebDataSource
+webFrameGetDataSource webframe =
+  makeNewGObject mkWebDataSource $ {#call web_frame_get_data_source#} (toWebFrame webframe)
+
+-- | Return the policy of horizontal scrollbar.
+webFrameGetHorizontalScrollbarPolicy :: 
+   WebFrameClass self => self
+ -> IO PolicyType   
+webFrameGetHorizontalScrollbarPolicy webframe = 
+    liftM (toEnum.fromIntegral) $
+    {#call web_frame_get_horizontal_scrollbar_policy#} (toWebFrame webframe)
+  
+-- | Return the policy of vertical scrollbar.
+webFrameGetVerticalScrollbarPolicy :: 
+   WebFrameClass self => self
+ -> IO PolicyType   
+webFrameGetVerticalScrollbarPolicy webframe = 
+    liftM (toEnum.fromIntegral) $
+    {#call web_frame_get_vertical_scrollbar_policy#} (toWebFrame webframe)
+
+-- | You use the 'webFrameLoadRequest' method to initiate a request that creates a provisional data source. 
+-- The provisional data source will transition to a committed data source once any data has been received. 
+-- Use 'webFrameGetDataSource' to get the committed data source.
+webFrameGetProvisionalDataSource :: 
+   WebFrameClass self => self
+ -> IO WebDataSource   
+webFrameGetProvisionalDataSource webframe =
+  makeNewGObject mkWebDataSource $ {#call web_frame_get_provisional_data_source#} (toWebFrame webframe)
+
+-- | Returns the frame's security origin.
+webFrameGetSecurityOrigin ::
+   WebFrameClass self => self
+ -> IO SecurityOrigin   
+webFrameGetSecurityOrigin webframe = 
+  makeNewGObject mkSecurityOrigin $ {#call web_frame_get_security_origin#} (toWebFrame webframe)
 
 -- |Prints the given 'WebFrame'.
 --

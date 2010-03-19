@@ -3,6 +3,7 @@
 --  Module      :  Graphics.UI.Gtk.WebKit.WebView
 --  Author      :  Cjacker Huang
 --  Copyright   :  (c) 2009 Cjacker Huang <jzhuang@redflag-linux.com>
+--  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -19,6 +20,19 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
+-- Note:
+--
+-- Signal `window-object-cleared` can't bidning now, 
+-- because it need JavaScriptCore that haven't binding.
+--
+-- Signal `create-plugin-widget` can't binding now, 
+-- no idea how to binding `GHaskellTable`
+--
+--
+-- TODO:
+--
+--   `webViewGetHitTestResult`
+--
 -- The central class of the WebKit
 -----------------------------------------------------------------------------
 
@@ -26,11 +40,15 @@ module Graphics.UI.Gtk.WebKit.WebView (
 -- * Types
   WebView,
 
--- * Constructors
-  webViewNew,
--- * Methods
+-- * Enums
+  NavigationResponse(..),
+  TargetInfo(..),
   LoadStatus(..),
 
+-- * Constructors
+  webViewNew,
+
+-- * Methods
   webViewLoadUri,
   webViewLoadHtmlString,
   webViewLoadRequest,
@@ -93,16 +111,23 @@ module Graphics.UI.Gtk.WebKit.WebView (
   webViewGetCustomEncoding,
   webViewGetProgress,
 
+  webViewGetCopyTargetList,
+  webViewGetPasteTargetList,
+
   webViewSearchText,
   webViewMarkTextMatches,
   webViewUnMarkTextMatches,
   webViewSetHighlightTextMatches,
+
+  webViewMoveCursor,
 
   webViewGetMainFrame,
   webViewGetFocusedFrame,
 
   webViewSetWebSettings,
   webViewGetWebSettings,
+
+  webViewGetWindowFeatures,
 
 -- * Attributes
   webViewZoomLevel,
@@ -117,45 +142,75 @@ module Graphics.UI.Gtk.WebKit.WebView (
   webViewViewSourceMode,
   webViewTransparent,
   webViewEditable,
-    
+  webViewUri,
+  webViewCopyTargetList,
+  webViewPasteTargetList,
+  webViewWindowFeatures,
  
 -- * Signals
-  onLoadStarted,
-  onLoadCommitted,
-  onProgressChanged,
-  onLoadFinished,
-  onLoadError,
-  onTitleChanged,
-  -- onHoveringOverLink,
-
-  -- onCreateWebView,
-  onWebViewReady,
-  onCloseWebView,
-  onDownloadRequested,
-  onIconLoaded,
-  onRedo,
-  onUndo,
-
+  loadStarted,
+  loadCommitted,
+  progressChanged,
+  loadFinished,
+  loadError,
+  titleChanged,
+  hoveringOverLink,
+  createWebView,
+  webViewReady,
+  closeWebView,
+  consoleMessage,
+  copyClipboard,
+  cutClipboard,
+  pasteClipboard,
+  populatePopup,
+  printRequested,
+  scriptAlert,
+  scriptConfirm,
+  scriptPrompt,
+  statusBarTextChanged,
+  selectAll,
+  selectionChanged,
+  setScrollAdjustments,
+  databaseQuotaExceeded,
+  documentLoadFinished,
+  downloadRequested,
+  iconLoaded,
+  redo,
+  undo,
+  mimeTypePolicyDecisionRequested,
+  moveCursor,
+  navigationPolicyDecisionRequested,
+  newWindowPolicyDecisionRequested,
+  resourceRequestStarting,
 ) where
 
 import Control.Monad		(liftM)
-
--- import Data.IORef
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GError 
 import Graphics.UI.Gtk.Gdk.Events
-
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
+{#import Graphics.UI.Gtk.WebKit.Internal#}
 {#import System.Glib.GObject#}
+{#import Graphics.UI.Gtk.General.DNDTypes#}
+{#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
+{#import Graphics.UI.Gtk.MenuComboToolbar.Menu#}
+{#import Graphics.UI.Gtk.General.Enums#}
 
 {#context lib="webkit" prefix ="webkit"#}
+
+-- * Enums
+
+{#enum NavigationResponse {underscoreToCase}#}
+
+{#enum WebViewTargetInfo as TargetInfo {underscoreToCase}#}
 
 {#enum LoadStatus {underscoreToCase}#}
 
@@ -195,6 +250,13 @@ webViewGetWebSettings ::
  -> IO WebSettings
 webViewGetWebSettings webview = 
     makeNewGObject mkWebSettings $ {#call web_view_get_settings#} (toWebView webview)
+
+-- | Returns the instance of WebKitWebWindowFeatures held by the given WebKitWebView.
+webViewGetWindowFeatures ::
+   WebViewClass self => self
+ -> IO WebWindowFeatures   
+webViewGetWindowFeatures webview =
+  makeNewGObject mkWebWindowFeatures $ {#call web_view_get_window_features#} (toWebView webview)
 
 -- | Return the main 'WebFrame' of the given 'WebView'.
 webViewGetMainFrame :: 
@@ -564,6 +626,15 @@ webViewMarkTextMatches webview text case_sensitive limit =
             (fromBool case_sensitive)
             (fromIntegral limit)
 
+-- | Move the cursor in view as described by step and count.
+webViewMoveCursor ::
+   WebViewClass self => self
+ -> MovementStep
+ -> Int
+ -> IO ()   
+webViewMoveCursor webview step count =
+  {#call web_view_move_cursor#} (toWebView webview) (fromIntegral $ fromEnum step) (fromIntegral count)
+
 -- | Removes highlighting previously set by 'webViewMarkTextMarches'
 webViewUnMarkTextMatches :: 
     WebViewClass self => self
@@ -697,6 +768,26 @@ webViewGetProgress ::
 webViewGetProgress webview =
     liftM realToFrac $ {#call web_view_get_progress#} (toWebView webview)
 
+-- | This function returns the list of targets this 'WebView' can provide for clipboard copying and as DND source. 
+-- The targets in the list are added with values from the 'WebViewTargetInfo' enum, 
+-- using 'targetListAdd' and 'targetListAddTextTargets'.
+webViewGetCopyTargetList ::
+   WebViewClass self => self 
+ -> IO (Maybe TargetList)
+webViewGetCopyTargetList webview = do
+  tlPtr <- {#call web_view_get_copy_target_list#} (toWebView webview)
+  if tlPtr==nullPtr then return Nothing else liftM Just (mkTargetList tlPtr)
+
+-- | This function returns the list of targets this 'WebView' can provide for clipboard pasteing and as DND source. 
+-- The targets in the list are added with values from the 'WebViewTargetInfo' enum, 
+-- using 'targetListAdd' and 'targetListAddTextTargets'.
+webViewGetPasteTargetList ::
+   WebViewClass self => self 
+ -> IO (Maybe TargetList)
+webViewGetPasteTargetList webview = do
+  tlPtr <- {#call web_view_get_paste_target_list#} (toWebView webview)
+  if tlPtr==nullPtr then return Nothing else liftM Just (mkTargetList tlPtr)
+
 -- * Attibutes
 
 -- | Zoom level of the 'WebView' instance
@@ -776,6 +867,26 @@ webViewEditable = newAttr
   webViewGetEditable
   webViewSetEditable
 
+-- | Returns the current URI of the contents displayed by the @web_view.
+--
+-- Default value: Nothing
+webViewUri :: WebViewClass self => ReadAttr self (Maybe String)
+webViewUri = readAttr webViewGetUri
+
+-- | The list of targets this web view supports for clipboard copying.
+webViewCopyTargetList :: WebViewClass self => ReadAttr self (Maybe TargetList)
+webViewCopyTargetList = readAttr webViewGetCopyTargetList
+
+-- | The list of targets this web view supports for clipboard pasteing.
+webViewPasteTargetList :: WebViewClass self => ReadAttr self (Maybe TargetList)
+webViewPasteTargetList = readAttr webViewGetPasteTargetList
+
+-- | An associated 'WebWindowFeatures' instance.
+webViewWindowFeatures :: WebViewClass self => Attr self WebWindowFeatures
+webViewWindowFeatures = 
+  newAttrFromObjectProperty "window-features"
+  {#call pure webkit_web_window_features_get_type#}
+
 -- * Signals
 
 -- | When Document title changed, this signal is emitted.
@@ -787,9 +898,9 @@ webViewEditable = newAttr
 -- webframe - which 'WebFrame' changes the document title.
 --
 -- title - current title string.
-onTitleChanged :: WebViewClass self => self ->( WebFrame -> String -> IO() )-> IO (ConnectId self)
-onTitleChanged = 
-    connect_OBJECT_STRING__NONE "title-changed" True
+titleChanged :: WebViewClass self => Signal self ( WebFrame -> String -> IO() )
+titleChanged = 
+    Signal (connect_OBJECT_STRING__NONE "title-changed")
 
 
 -- | When the cursor is over a link, this signal is emitted.
@@ -799,35 +910,30 @@ onTitleChanged =
 -- title - the link's title or @Nothing@ in case of failure.
 --
 -- uri - the URI the link points to or @Nothing@ in case of failure.
--- onHoveringOverLink :: WebViewClass self => self -> (Maybe String -> Maybe String -> IO()) -> IO(ConnectId self)
--- onHoveringOverLink =
---   connect_BOXED_BOXED__NONE "hovering-over-link" readMString True
---   where
---   readMString strPtr | strPtr==nullPtr = return Nothing
---                      | otherwise = liftM Just $ peekUTFString strPtr
+hoveringOverLink :: WebViewClass self => Signal self (String -> String -> IO())
+hoveringOverLink =
+    Signal (connect_STRING_STRING__NONE "hovering-over-link")
 
 -- | When a 'WebFrame' begins to load, this signal is emitted
-onLoadStarted :: WebViewClass self => self -> (WebFrame -> IO()) -> IO (ConnectId self)
-onLoadStarted = 
-    connect_OBJECT__NONE "load-started" True
+loadStarted :: WebViewClass self => Signal self (WebFrame -> IO())
+loadStarted = Signal (connect_OBJECT__NONE "load-started")
 
 -- | When a 'WebFrame' loaded the first data, this signal is emitted
-onLoadCommitted :: WebViewClass self => self -> (WebFrame -> IO()) -> IO (ConnectId self)
-onLoadCommitted = 
-    connect_OBJECT__NONE "load-committed" True
+loadCommitted :: WebViewClass self => Signal self (WebFrame -> IO())
+loadCommitted = Signal (connect_OBJECT__NONE "load-committed")
 
 
 -- | When the global progress changed, this signal is emitted
 --
 -- the global progress will be passed back to user function
-onProgressChanged :: WebViewClass self => self -> (Int-> IO()) -> IO (ConnectId self)
-onProgressChanged = 
-    connect_INT__NONE "load-progress-changed" True
+progressChanged :: WebViewClass self => Signal self (Int-> IO())
+progressChanged = 
+    Signal (connect_INT__NONE "load-progress-changed")
 
 -- | When loading finished, this signal is emitted
-onLoadFinished :: WebViewClass self => self -> (WebFrame -> IO()) -> IO (ConnectId self)
-onLoadFinished = 
-    connect_OBJECT__NONE "load-finished" True
+loadFinished :: WebViewClass self => Signal self (WebFrame -> IO())
+loadFinished = 
+    Signal (connect_OBJECT__NONE "load-finished")
 
 -- | When An error occurred while loading. 
 --
@@ -838,41 +944,11 @@ onLoadFinished =
 -- if you want to provide your own error page.
 -- 
 -- The URI that triggered the error and the 'GError' will be passed back to user function.
-onLoadError :: WebViewClass self => self -> (WebFrame -> String -> GError -> IO Bool) -> IO (ConnectId self)
-onLoadError = connect_OBJECT_STRING_BOXED__BOOL "load-error" peek True
+loadError :: WebViewClass self => Signal self (WebFrame -> String -> GError -> IO Bool)
+loadError = Signal (connect_OBJECT_STRING_BOXED__BOOL "load-error" peek)
 
-
--- |Emitted when the creation of a new window requested.
--- 
--- * A new 'WebView' instance should be created in the call back or an
---   existing 'WebView' can be returned. In either case, the URL and other
---   details of the returned 'WebView' will be modified once this signal
---   handler returns, thus, you should not modify the 'WebView' in this
---   signal handler. If you need to modify the new 'WebView', you can do so
---   in the 'webViewReady' signal or after the 'webViewReady' signal has
---   been emitted.
---
--- onCreateWebView :: WebViewClass self => self -> (WebFrame -> IO WebView) -> IO (ConnectId self)
--- -- onCreateWebView = \vw act
--- onCreateWebView vw act =
---     connect_OBJECT__PTR "create-web-view" True vw act'
---         where
---           act' wf = do
---             wv <- act wf
---             -- We need to return a Ptr WebView to the caller of this signal. To
---             -- prevent the garbage collector from freeing the WebView before this
---             -- signal returns, we increment the reference count of the object and
---             -- decrement it as soon as the 'webViewReady' signal is emitted which
---             -- always happens after this signal returns.
---             gObjectRef wv
---             sidRef <- newIORef undefined
---             sid <- onWebViewReady wv $ do
---                       gObjectUnref wv
---                       sid <- readIORef sidRef
---                       signalDisconnect wv sid
---                       return False
---             writeIORef sidRef sid
---             return unsafeForeignPtrToPtr (unWebView wv)
+createWebView :: WebViewClass self => Signal self (WebFrame -> IO WebView)
+createWebView = Signal (connect_OBJECT__OBJECTPTR "create-web-view")
 
 -- | Emitted when closing a WebView is requested. 
 --
@@ -882,9 +958,85 @@ onLoadError = connect_OBJECT_STRING_BOXED__BOOL "load-error" peek True
 -- 
 -- User function should return True to stop the handlers from being invoked for the event 
 -- or False to propagate the event furter
-onCloseWebView :: WebViewClass self => self -> (IO Bool) -> IO(ConnectId self)
-onCloseWebView = 
-    connect_NONE__BOOL "close-web-view" True
+closeWebView :: WebViewClass self => Signal self (IO Bool)
+closeWebView = 
+    Signal (connect_NONE__BOOL "close-web-view")
+
+-- | A JavaScript console message was created.
+consoleMessage :: WebViewClass self => Signal self (String -> String -> Int -> String -> IO Bool)
+consoleMessage = Signal (connect_STRING_STRING_INT_STRING__BOOL "console-message")
+
+-- | The 'copyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the clipboard.
+--
+-- The default bindings for this signal are Ctrl-c and Ctrl-Insert.
+copyClipboard :: WebViewClass self => Signal self (IO ())
+copyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
+
+-- | The 'cutClipboard' signal is a keybinding signal which gets emitted to cut the selection to the clipboard.
+--
+-- The default bindings for this signal are Ctrl-x and Shift-Delete.
+cutClipboard :: WebViewClass self => Signal self (IO ())
+cutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
+
+-- | The 'pasteClipboard' signal is a keybinding signal which gets emitted to paste the contents of the clipboard into the Web view.
+--
+-- The default bindings for this signal are Ctrl-v and Shift-Insert.
+pasteClipboard :: WebViewClass self => Signal self (IO ())
+pasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
+
+-- | When a context menu is about to be displayed this signal is emitted.
+populatePopup :: WebViewClass self => Signal self (Menu -> IO ())
+populatePopup = Signal (connect_OBJECT__NONE "populate-popup")
+
+-- | Emitted when printing is requested by the frame, usually because of a javascript call. 
+-- When handling this signal you should call 'webFramePrintFull' or 'webFramePrint' to do the actual printing.
+--
+-- The default handler will present a print dialog and carry a print operation. 
+-- Notice that this means that if you intend to ignore a print
+-- request you must connect to this signal, and return True.
+printRequested :: WebViewClass self => Signal self (WebFrame -> IO Bool)
+printRequested = Signal (connect_OBJECT__BOOL "print-requested")
+
+-- | A JavaScript alert dialog was created.
+scriptAlert :: WebViewClass self => Signal self (WebFrame -> String -> IO Bool)
+scriptAlert = Signal (connect_OBJECT_STRING__BOOL "scriptAlert")
+
+-- | A JavaScript confirm dialog was created, providing Yes and No buttons.
+scriptConfirm :: WebViewClass self => Signal self (WebFrame -> String -> IO Bool)
+scriptConfirm = Signal (connect_OBJECT_STRING__BOOL "script-confirm")
+
+-- | A JavaScript prompt dialog was created, providing an entry to input text.
+scriptPrompt :: WebViewClass self => Signal self (WebFrame -> String -> String -> IO Bool)
+scriptPrompt = Signal (connect_OBJECT_STRING_STRING__BOOL "script-prompt")
+
+-- | When status-bar text changed, this signal will emitted.
+statusBarTextChanged :: WebViewClass self => Signal self (String -> IO ())
+statusBarTextChanged = Signal (connect_STRING__NONE "status-bar-text-changed")
+
+
+
+-- | The 'selectAll' signal is a keybinding signal which gets emitted to select the complete contents of the text view.
+-- 
+-- The default bindings for this signal is Ctrl-a.
+selectAll :: WebViewClass self => Signal self (IO ())
+selectAll = Signal (connect_NONE__NONE "select-all")
+
+-- | When selection changed, this signal is emitted.
+selectionChanged :: WebViewClass self => Signal self (IO ())
+selectionChanged = Signal (connect_NONE__NONE "selection-changed")
+
+-- | When set scroll adjustments, this signal is emitted.
+setScrollAdjustments :: WebViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
+
+-- | The 'databaseQuotaExceeded' signal will be emitted when a Web Database exceeds the quota of its security origin. 
+-- This signal may be used to increase the size of the quota before the originating operation fails.
+databaseQuotaExceeded :: WebViewClass self => Signal self (WebFrame -> WebDatabase -> IO ())
+databaseQuotaExceeded = Signal (connect_OBJECT_OBJECT__NONE "database-quota-exceeded")
+
+-- | When document loading finished, this signal is emitted
+documentLoadFinished :: WebViewClass self => Signal self (WebFrame -> IO ())
+documentLoadFinished = Signal (connect_OBJECT__NONE "document-load-finished")
 
 
 -- | Emitted after new 'WebView' instance had been created in 'onCreateWebView' user function
@@ -893,9 +1045,9 @@ onCloseWebView =
 -- All the information about how the window should look, 
 -- including size,position,whether the location, status and scroll bars should be displayed, 
 -- is ready set.
-onWebViewReady:: WebViewClass self => self -> (IO Bool) -> IO(ConnectId self)
-onWebViewReady =
-    connect_NONE__BOOL "web-view-ready" True
+webViewReady:: WebViewClass self => Signal self (IO Bool)
+webViewReady =
+    Signal (connect_NONE__BOOL "web-view-ready")
 
 -- | Emitted after A new 'Download' is being requested. 
 --
@@ -904,25 +1056,90 @@ onWebViewReady =
 -- Notice that while handling this signal you must set the target URI using 'downloadSetDestinationUri'
 -- 
 -- If you intend to handle downloads yourself, return False in user function.
-onDownloadRequested :: WebViewClass self => self -> (Download -> IO Bool) -> IO(ConnectId self)
-onDownloadRequested =
-    connect_OBJECT__BOOL "download-requested" True
+downloadRequested :: WebViewClass self => Signal self (Download -> IO Bool)
+downloadRequested =
+    Signal (connect_OBJECT__BOOL "download-requested")
 
 -- | Emitted after Icon loaded
-onIconLoaded :: WebViewClass self => self -> (IO ()) -> IO(ConnectId self)
-onIconLoaded =
-    connect_NONE__NONE "icon-loaded" True
+iconLoaded :: WebViewClass self => Signal self (IO ())
+iconLoaded =
+    Signal (connect_NONE__NONE "icon-loaded")
 
 -- | The "redo" signal is a keybinding signal which gets emitted to redo the last editing command.
 --
 -- The default binding for this signal is Ctrl-Shift-z
-onRedo :: WebViewClass self => self -> (IO ()) -> IO(ConnectId self)
-onRedo =
-   connect_NONE__NONE "redo" True
+redo :: WebViewClass self => Signal self (IO ())
+redo =
+   Signal (connect_NONE__NONE "redo")
 
 -- | The "undo" signal is a keybinding signal which gets emitted to undo the last editing command.
 --
 -- The default binding for this signal is Ctrl-z
-onUndo :: WebViewClass self => self -> (IO ()) -> IO(ConnectId self)
-onUndo =
-   connect_NONE__NONE "undo" True 
+undo :: WebViewClass self => Signal self (IO ())
+undo =
+   Signal (connect_NONE__NONE "undo")
+
+-- | Decide whether or not to display the given MIME type. 
+-- If this signal is not handled, the default behavior is to show the content of the
+-- requested URI if WebKit can show this MIME type and the content disposition is not a download; 
+-- if WebKit is not able to show the MIME type nothing happens.
+--
+-- Notice that if you return True, meaning that you handled the signal, 
+-- you are expected to be aware of the "Content-Disposition" header. 
+-- A value of "attachment" usually indicates a download regardless of the MIME type, 
+-- see also soupMessageHeadersGetContentDisposition'
+-- And you must call 'webPolicyDecisionIgnore', 'webPolicyDecisionDownload', or 'webPolicyDecisionUse' 
+-- on the 'webPolicyDecision' object.
+mimeTypePolicyDecisionRequested :: WebViewClass self => Signal self (WebFrame -> NetworkRequest -> String -> WebPolicyDecision -> IO Bool)
+mimeTypePolicyDecisionRequested = Signal (connect_OBJECT_OBJECT_STRING_OBJECT__BOOL "mime-type-policy-decision-requested")
+
+-- | The 'moveCursor' will be emitted to apply the cursor movement described by its parameters to the view.
+moveCursor :: WebViewClass self => Signal self (MovementStep -> Int -> IO Bool)
+moveCursor = Signal (connect_ENUM_INT__BOOL "move-cursor")
+
+-- | Emitted when frame requests a navigation to another page. 
+-- If this signal is not handled, the default behavior is to allow the navigation.
+--
+-- Notice that if you return True, meaning that you handled the signal, 
+-- you are expected to be aware of the "Content-Disposition" header. 
+-- A value of "attachment" usually indicates a download regardless of the MIME type, 
+-- see also soupMessageHeadersGetContentDisposition'
+-- And you must call 'webPolicyDecisionIgnore', 'webPolicyDecisionDownload', or 'webPolicyDecisionUse' 
+-- on the 'webPolicyDecision' object.
+navigationPolicyDecisionRequested :: WebViewClass self => Signal self (WebFrame -> NetworkRequest -> WebNavigationAction -> WebPolicyDecision -> IO Bool)
+navigationPolicyDecisionRequested = Signal (connect_OBJECT_OBJECT_OBJECT_OBJECT__BOOL "navigation-policy-decision-requested")
+
+-- | Emitted when frame requests opening a new window. 
+-- With this signal the browser can use the context of the request to decide about the new window. 
+-- If the request is not handled the default behavior is to allow opening the new window to load the URI, 
+-- which will cause a 'createWebView' signal emission where the browser handles the new window action 
+-- but without information of the context that caused the navigation. 
+-- The following 'navigationPolicyDecisionRequested' emissions will load the page 
+-- after the creation of the new window just with the information of this new navigation context, 
+-- without any information about the action that made this new window to be opened.
+--
+-- Notice that if you return True, meaning that you handled the signal, 
+-- you are expected to be aware of the "Content-Disposition" header. 
+-- A value of "attachment" usually indicates a download regardless of the MIME type, 
+-- see also soupMessageHeadersGetContentDisposition'
+-- And you must call 'webPolicyDecisionIgnore', 'webPolicyDecisionDownload', or 'webPolicyDecisionUse' 
+-- on the 'webPolicyDecision' object.
+newWindowPolicyDecisionRequested :: WebViewClass self => Signal self (WebFrame -> NetworkRequest -> WebNavigationAction -> WebPolicyDecision -> IO Bool)
+newWindowPolicyDecisionRequested = Signal (connect_OBJECT_OBJECT_OBJECT_OBJECT__BOOL "new-window-policy-decision-requested")
+
+-- | Emitted when a request is about to be sent. 
+-- You can modify the request while handling this signal. 
+-- You can set the URI in the 'NetworkRequest' object itself, 
+-- and add/remove/replace headers using the SoupMessage object it carries, 
+-- if it is present. See 'networkRequestGetMessage'. 
+-- Setting the request URI to "about:blank" will effectively cause the request to load nothing, 
+-- and can be used to disable the loading of specific resources.
+--
+-- Notice that information about an eventual redirect is available in response's SoupMessage, 
+-- not in the SoupMessage carried by the request.
+-- If response is NULL, then this is not a redirected request.
+--
+-- The 'WebResource' object will be the same throughout all the lifetime of the resource, 
+-- but the contents may change from inbetween signal emissions.
+resourceRequestStarting :: WebViewClass self => Signal self (WebFrame -> WebResource -> NetworkRequest -> NetworkResponse -> IO ())
+resourceRequestStarting = Signal (connect_OBJECT_OBJECT_OBJECT_OBJECT__NONE "resource-request-starting")

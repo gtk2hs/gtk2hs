@@ -324,3 +324,12 @@
         WebkitWebBackForwardList as WebBackForwardList if webkit
         WebkitWebHistoryItem as WebHistoryItem if webkit
         WebkitWebInspector as WebInspector if webkit
+        WebkitHitTestResult as HitTestResult if webkit
+        WebkitSecurityOrigin as SecurityOrigin if webkit
+        WebkitSoupAuthDialog as SoupAuthDialog if webkit
+        WebkitWebDatabase as WebDatabase if webkit
+        WebkitWebDataSource as WebDataSource if webkit
+        WebkitWebNavigationAction as WebNavigationAction if webkit
+        WebkitWebPolicyDecision as WebPolicyDecision if webkit
+        WebkitWebResource as WebResource if webkit
+        WebkitWebWindowFeatures as WebWindowFeatures if webkit

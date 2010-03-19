@@ -29,6 +29,10 @@ module Graphics.UI.Gtk.WebKit.WebSettings (
 -- * Constructors
   webSettingsNew,
 
+-- * Methods
+  webSettingsCopy,
+  webSettingsGetUserAgent,
+
 -- * Attributes
   webSettingsAutoLoadImages,
   webSettingsAutoShrinkImages,
@@ -63,11 +67,7 @@ module Graphics.UI.Gtk.WebKit.WebSettings (
   webSettingsUserAgent,
   webSettingsUserStylesheetUri,
   webSettingsZoomStep,
--- * Methods
-
-  webSettingsCopy,
-  webSettingsGetUserAgent,
-
+  webSettingsEnableSiteSpecificQuirks,
 ) where
 
 import Control.Monad		(liftM)
@@ -315,3 +315,9 @@ webSettingsUserStylesheetUri = newAttrFromMaybeStringProperty "user-stylesheet-u
 webSettingsZoomStep :: (WebSettingsClass self) => Attr self Float
 webSettingsZoomStep = newAttrFromFloatProperty "zoom-step"
                              
+-- | Enables the site-specific compatibility workarounds.
+--
+-- Default value: False
+webSettingsEnableSiteSpecificQuirks :: WebSettingsClass self => Attr self Bool
+webSettingsEnableSiteSpecificQuirks = newAttrFromBoolProperty "enable-site-specific-quirks"
+

@@ -347,7 +347,7 @@ GTKHS_PKG_CHECK(gtksourceview2, gtksourceview2, GTKSOURCEVIEW2, [gtksourceview-2
 	[build gtksourceview2 package (default=auto)],
 	[GtkSourceView-2.0 requirement not met. Perhaps you need to install gtksourceview-2.0 or gtksourceview-devel-2.0])
 
-GTKHS_PKG_CHECK(webkit, webkit, WEBKIT, [webkit-1.0 >= 1.1.14], [GLIB GTK],
+GTKHS_PKG_CHECK(webkit, webkit, WEBKIT, [webkit-1.0 >= 1.1.15], [GLIB GTK],
     [build webkit package (default=auto)],
     [webkit library requirement not met. Perhaps you need to install webkit or webkit-devel])
 

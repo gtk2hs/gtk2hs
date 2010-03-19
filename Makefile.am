@@ -1285,7 +1285,17 @@ libHSwebkit_a_SOURCES =	        			\
          webkit/Graphics/UI/Gtk/WebKit/WebInspector.chs \
          webkit/Graphics/UI/Gtk/WebKit/Download.chs \
          webkit/Graphics/UI/Gtk/WebKit/NetworkRequest.chs \
-         webkit/Graphics/UI/Gtk/WebKit/NetworkResponse.chs 
+         webkit/Graphics/UI/Gtk/WebKit/NetworkResponse.chs \
+         webkit/Graphics/UI/Gtk/WebKit/HitTestResult.chs \
+         webkit/Graphics/UI/Gtk/WebKit/SecurityOrigin.chs \
+         webkit/Graphics/UI/Gtk/WebKit/SoupAuthDialog.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebDatabase.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebDataSource.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebNavigationAction.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebPolicyDecision.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebResource.chs \
+         webkit/Graphics/UI/Gtk/WebKit/WebWindowFeatures.chs \
+         webkit/Graphics/UI/Gtk/WebKit/Internal.chs
 
 htmldoc_HSFILES_HIDDEN += $(libHSwebkit_a_GENERATEDSOURCES:.chs=.hs)
 
