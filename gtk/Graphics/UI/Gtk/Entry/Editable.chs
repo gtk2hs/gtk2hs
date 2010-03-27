@@ -79,7 +79,7 @@ module Graphics.UI.Gtk.Entry.Editable (
   stopInsertText
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -126,7 +126,7 @@ editableGetSelectionBounds self =
     startPtr
     endPtr
   start <- liftM fromIntegral $ peek startPtr
-  end	<- liftM fromIntegral $ peek endPtr
+  end   <- liftM fromIntegral $ peek endPtr
   return (start,end)
 
 -- | Inserts text at a given position.
@@ -336,7 +336,7 @@ onInsertText obj handler =
   connect_PTR_INT_PTR__NONE "insert_text" False obj
   (\strPtr strLen posPtr -> do
     str <- if strLen<0 then peekUTFString strPtr
-	   else peekUTFStringLen (strPtr, strLen)
+           else peekUTFStringLen (strPtr, strLen)
     pos <- peek (posPtr :: Ptr {#type gint#})
     pos' <- handler str (fromIntegral pos)
     poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
@@ -345,7 +345,7 @@ afterInsertText obj handler =
   connect_PTR_INT_PTR__NONE "insert_text" True obj
   (\strPtr strLen posPtr -> do
     str <- if strLen<0 then peekUTFString strPtr
-	   else peekUTFStringLen (strPtr, strLen)
+           else peekUTFStringLen (strPtr, strLen)
     pos <- peek (posPtr :: Ptr {#type gint#})
     pos' <- handler str (fromIntegral pos)
     poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')

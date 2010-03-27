@@ -1,4 +1,9 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 -- -*-haskell-*-
+
+#include <gtk/gtk.h>
+#include "template-hsc-gtk2hs.h"
+
 --  GIMP Toolkit (GTK) GDK Events
 --
 --  Author : Axel Simon
@@ -80,7 +85,6 @@ import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
 import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
 import Data.Maybe (catMaybes)
 
-#include <gdk/gdk.h>
 
 -- | The time (in milliseconds) when an event happened. This is used mostly
 -- for ordering events and responses to events.

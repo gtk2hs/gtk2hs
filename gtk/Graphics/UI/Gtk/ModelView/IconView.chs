@@ -127,31 +127,31 @@ module Graphics.UI.Gtk.ModelView.IconView (
 #endif
 
 -- * Signals
-  setScrollAdjustments,
+  setIconViewScrollAdjustments,
   itemActivated,
   selectionChanged
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList                        (fromGList)
 import System.Glib.Flags
-import System.Glib.GObject			(makeNewGObject, constructNewGObject)
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import System.Glib.GObject                      (makeNewGObject, constructNewGObject)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 import Graphics.UI.Gtk.Gdk.Enums                (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode)
+{#import Graphics.UI.Gtk.General.Enums#}        (Orientation, SelectionMode)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
-import Graphics.Rendering.Pango.Markup 		(Markup)
+import Graphics.Rendering.Pango.Markup          (Markup)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -656,7 +656,7 @@ iconViewGetCursor self =
   crPtr <- peek crPtrPtr
   path <- fromTreePath pathPtr
   cr <- if crPtr==nullPtr then return Nothing else
-	liftM Just $ makeNewGObject mkCellRenderer (return crPtr)
+        liftM Just $ makeNewGObject mkCellRenderer (return crPtr)
   return (path, cr)
 
 -- %hash c:1c9e d:20c5
@@ -703,8 +703,8 @@ iconViewScrollToPath self path useAlign rowAlign colAlign =
 --
 iconViewGetVisibleRange :: IconViewClass self => self
  -> IO (Maybe (TreePath, TreePath))
-		-- ^ returns the first and last visible path, the return value
-		-- @Nothing@ if every element is visible
+                -- ^ returns the first and last visible path, the return value
+                -- @Nothing@ if every element is visible
 iconViewGetVisibleRange self = alloca $ \fPtrPtr -> alloca $ \lPtrPtr -> do
   success <- liftM toBool $ {# call gtk_icon_view_get_visible_range #}
     (toIconView self)
@@ -979,8 +979,8 @@ iconViewReorderable = newAttrFromBoolProperty "reorderable"
 -- %hash c:4671 d:af3f
 -- | New scroll adjustment have been set for this widget.
 --
-setScrollAdjustments :: IconViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
-setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
+setIconViewScrollAdjustments :: IconViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setIconViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
 
 -- %hash c:4090 d:af3f
 -- | A specific element has been activated (by pressing enter or double clicking).

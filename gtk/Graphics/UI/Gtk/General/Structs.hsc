@@ -1,6 +1,10 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_HADDOCK hide #-}
-{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
+
+#include <gtk/gtk.h>
+#include "template-hsc-gtk2hs.h"
+
 --  GIMP Toolkit (GTK) Structures
 --
 --  Author : Axel Simon
@@ -115,17 +119,10 @@ import Graphics.UI.Gtk.Gdk.Enums	(Function, Fill, SubwindowMode,
 import Graphics.UI.Gtk.General.Enums	(StateType)
 import Graphics.UI.Gtk.General.DNDTypes (InfoId, Atom(Atom) , SelectionTag,
                                          TargetTag, SelectionTypeTag)
+import Graphics.Rendering.Pango.Structs ( Color(..), Rectangle(..) )
 -- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
-
--- | Rectangle
---
--- * for Events
---
--- * Specifies x, y, width and height
---
-data Rectangle = Rectangle Int Int Int Int deriving (Eq,Show)
 
 instance Storable Rectangle where
   sizeOf _ = #{const sizeof(GdkRectangle)}
@@ -143,13 +140,6 @@ instance Storable Rectangle where
     #{poke GdkRectangle, width} ptr ((fromIntegral width)::#gtk2hs_type gint)
     #{poke GdkRectangle, height} ptr ((fromIntegral height)::#gtk2hs_type gint)
 
--- | Color
---
--- * Specifies a color with three integer values for red, green and blue.
---   All values range from 0 (least intense) to 65535 (highest intensity).
---
-data Color = Color (#gtk2hs_type guint16) (#gtk2hs_type guint16) (#gtk2hs_type guint16)
-	     deriving (Eq,Show)
 instance Storable Color where
   sizeOf _ = #{const sizeof(GdkColor)}
   alignment _ = alignment (undefined::#gtk2hs_type guint32)
@@ -357,7 +347,7 @@ pokeGCValues ptr (GCValues {
     readIORef r
   where
     add :: IORef CInt -> CInt -> IO () -> IO ()
-    add r mVal act = handle (const $ return ()) $ do
+    add r mVal act = handle (\(ErrorCall _) -> return ()) $ do
       act
       modifyIORef r (\val -> val+mVal)
 

@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.ModelView.TreeSelection (
 -- separate function.
 --
 -- The 'TreeSelection' object is gotten from a 'TreeView' by calling
--- 'Graphics.UI.Gtk.TreeList.TreeView.treeViewGetSelection'. It can be
+-- 'treeViewGetSelection'. It can be
 -- manipulated to check the selection status of the tree, as well as select
 -- and deselect individual rows. Selection is done completely on the
 -- 'TreeView' side. As a result, multiple views of the same model can

@@ -1,3 +1,4 @@
+{-# LANGUAGE MagicHash #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) CustomStore TreeModel
@@ -25,7 +26,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Common types and classes for the TreeList modules.
+-- Common types and classes for the ModelView modules.
 --
 module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModel(..),

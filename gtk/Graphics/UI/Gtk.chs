@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK)
 --
@@ -55,7 +56,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
-  module Graphics.UI.Gtk.Gdk.GC,
+--  module Graphics.UI.Gtk.Gdk.GC,
   module Graphics.UI.Gtk.Gdk.EventM,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
@@ -241,7 +242,7 @@ import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
-import Graphics.UI.Gtk.Gdk.GC
+--import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
@@ -263,7 +264,7 @@ import Graphics.UI.Gtk.Display.Image
 import Graphics.UI.Gtk.Display.Label
 import Graphics.UI.Gtk.Display.ProgressBar
 import Graphics.UI.Gtk.Display.Statusbar
-#if GTK_CHECK_VERSION(2,10,0)
+#if GTK_CHECK_VERSION(2,10,0) && !DISABLE_DEPRECATED
 import Graphics.UI.Gtk.Display.StatusIcon hiding (onActivate,afterActivate,onPopupMenu,afterPopupMenu)
 #else
 import Graphics.UI.Gtk.Display.StatusIcon
@@ -287,11 +288,14 @@ import Graphics.UI.Gtk.Multiline.TextBuffer
 import Graphics.UI.Gtk.Multiline.TextTag
 import Graphics.UI.Gtk.Multiline.TextTagTable
 import qualified Graphics.UI.Gtk.Multiline.TextView
-import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
+import Graphics.UI.Gtk.Multiline.TextView
+#ifndef DISABLE_DEPRECATED
+        hiding (afterSetScrollAdjustments,
 		onSetScrollAdjustments, afterCopyClipboard, onCopyClipboard,
 		afterCutClipboard, onCutClipboard, afterInsertAtCursor,
 		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
 		afterToggleOverwrite, onToggleOverwrite, setScrollAdjustments)
+#endif
 -- tree and list widget
 import Graphics.UI.Gtk.ModelView.CellLayout
 import Graphics.UI.Gtk.ModelView.CellRenderer

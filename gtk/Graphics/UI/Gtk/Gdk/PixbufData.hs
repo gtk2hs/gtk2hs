@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP, ScopedTypeVariables, FlexibleInstances, MultiParamTypeClasses #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf as Array

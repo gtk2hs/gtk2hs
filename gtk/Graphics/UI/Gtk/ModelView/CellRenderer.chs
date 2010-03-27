@@ -117,7 +117,7 @@ import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Gdk.GC		(Color)
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
 
 {#context lib="gtk" prefix ="gtk"#}
 

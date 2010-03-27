@@ -85,6 +85,7 @@ import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.Dialog
 import System.Glib.GValue		(allocaGValue)
 import System.Glib.GValueTypes		(valueSetMaybeString)
+import System.Glib.Attributes
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -143,9 +144,9 @@ internalFileChooserDialogNew title parent action buttons backend = do
                   objectNew objType [("file-system-backend", backendGValue)]
              else objectNew objType []
   when (isJust title)
-       (dialog `windowSetTitle` fromJust title)
+       (set dialog [windowTitle := fromJust title])
   when (isJust parent)
-       (dialog `windowSetTransientFor` fromJust parent)
+       (set dialog [windowTransientFor := fromJust parent])
   dialog `fileChooserSetAction` action
   mapM_ (\(btnName, btnResponse) ->
           dialogAddButton dialog btnName btnResponse) buttons

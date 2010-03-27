@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, ScopedTypeVariables #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Region
 --

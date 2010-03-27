@@ -4,7 +4,7 @@
 #include <gtk/gtktreemodel.h>
 #include <gtk/gtktreednd.h>
 #include <gtk/gtktreesortable.h>
-#include "CustomStore_stub.h"
+#include "Graphics/UI/Gtk/ModelView/CustomStore_stub.h"
 
 G_BEGIN_DECLS
 

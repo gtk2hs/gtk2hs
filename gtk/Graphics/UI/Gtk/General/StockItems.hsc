@@ -1,4 +1,9 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 -- -*-haskell-*-
+
+#include <gtk/gtk.h>
+#include "template-hsc-gtk2hs.h"
+
 --  GIMP Toolkit (GTK) StockItems
 --
 --  Author : Axel Simon
@@ -156,8 +161,6 @@ import System.Glib.Flags
 import System.Glib.GList	(GSList, fromGSListRev)
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
-
-#include <gtk/gtk.h>
 
 -- |  A synonym for a standard button or icon.
 --

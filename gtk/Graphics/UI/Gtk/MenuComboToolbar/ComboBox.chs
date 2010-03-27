@@ -149,16 +149,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject		(makeNewGObject,
-					 destroyFunPtr,
-					 Quark, objectSetAttribute, objectGetAttributeUnsafe )
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
+import System.Glib.GObject              (makeNewGObject,
+                                         destroyFunPtr,
+                                         Quark, objectSetAttribute, objectGetAttributeUnsafe )
 {#import Graphics.UI.Gtk.Types#} hiding (ListStore)
 {#import Graphics.UI.Gtk.ModelView.Types#} (TypedTreeModelClass,
                                             TreeIter,
@@ -171,9 +171,9 @@ import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew,
   listStoreInsert, listStorePrepend, listStoreAppend, listStoreRemove,
   listStoreGetValue )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
-					      cellLayoutPackStart, cellLayoutClear )
+                                              cellLayoutPackStart, cellLayoutClear )
 import Graphics.UI.Gtk.ModelView.CellRendererText ( cellRendererTextNew, 
-						    cellText)
+                                                    cellText)
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -375,7 +375,7 @@ comboBoxSetColumnSpanColumn self columnSpan =
     ((fromIntegral . columnIdToNumber) columnSpan)
 
 -- %hash c:e719 d:e6a
--- | Returns the index of the currently active item, or -1 if there's no
+-- | Returns the index of the currently active item, or -1 if there is no
 -- active item. If the model is a non-flat treemodel, and the active item is
 -- not an immediate child of the root of the tree, this function returns
 -- @'treePathGetIndices' path !! 0@, where @path@ is the 'TreePath' of the
@@ -484,8 +484,8 @@ comboBoxPopdown self =
 -- * Available since Gtk+ version 2.6
 --
 comboBoxSetRowSeparatorSource :: (ComboBoxClass self,
- 				  TreeModelClass (model row),
-				  TypedTreeModelClass model)
+                                  TreeModelClass (model row),
+                                  TypedTreeModelClass model)
  => self -- ^ the 'ComboBox' widget
  -> Maybe (model row, row -> Bool)
  -- ^ The model and a function to extract a Boolean from it.
@@ -495,9 +495,9 @@ comboBoxSetRowSeparatorSource self Nothing  =
     (toComboBox self) nullFunPtr nullPtr nullFunPtr
 comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
   funPtr <- mkRowSeparatorFunc $ \_ iterPtr -> do
-	iter <- peek iterPtr
-	value <- customStoreGetRow model iter
-	return (extract value)
+        iter <- peek iterPtr
+        value <- customStoreGetRow model iter
+        return (extract value)
   {# call gtk_combo_box_set_row_separator_func #}
     (toComboBox self) funPtr (castFunPtrToPtr funPtr) destroyFunPtr
 

@@ -405,6 +405,7 @@ import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   )
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 AccelFlags(..), DirectionType(..), Modifier)
+{#import Graphics.Rendering.Pango.Types#} 
 {#import Graphics.Rendering.Pango.BasicTypes#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout), makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)

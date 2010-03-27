@@ -83,7 +83,7 @@ module Graphics.UI.Gtk.Misc.Tooltips (
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -161,7 +161,7 @@ tooltipsDataGet w = do
   if tipDataPtr == nullPtr
     then return Nothing
     else do --next line is a hack, tooltips struct member is at offset 0
-	   tooltips <- makeNewObject mkTooltips (return $ castPtr tipDataPtr)
+           tooltips <- makeNewObject mkTooltips (return $ castPtr tipDataPtr)
            tipText  <- {#get TooltipsData->tip_text#} tipDataPtr
                    >>= peekUTFString
            tipPrivate <- {#get TooltipsData->tip_private#} tipDataPtr

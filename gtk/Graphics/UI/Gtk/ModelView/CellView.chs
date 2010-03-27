@@ -75,7 +75,7 @@ import System.Glib.Properties			(writeAttrFromStringProperty)
 {#import System.Glib.GList#}
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
 import Graphics.UI.Gtk.General.Structs		(Color, Requisition)
 
 {# context lib="gtk" prefix="gtk" #}

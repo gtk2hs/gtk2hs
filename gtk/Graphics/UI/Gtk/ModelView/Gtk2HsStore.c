@@ -1,4 +1,4 @@
-#include "Gtk2HsStore.h"
+#include "Graphics/UI/Gtk/ModelView/Gtk2HsStore.h"
 
 /* #define DEBUG */
 

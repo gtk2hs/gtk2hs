@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, ScopedTypeVariables #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Drawable
 --
@@ -67,7 +67,9 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Color)
-import Graphics.Rendering.Pango.Structs ( pangoItemGetFont, GlyphItem )
+import Graphics.Rendering.Pango.Structs
+{#import Graphics.Rendering.Pango.Types#}
+{#import Graphics.Rendering.Pango.BasicTypes#}
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))

@@ -169,7 +169,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   pasteClipboard,
   populatePopup,
   setAnchor,
-  setScrollAdjustments,
+  setTextViewScrollAdjustments,
   toggleCursorVisible,
   toggleOverwrite,
 
@@ -1220,8 +1220,8 @@ populatePopup = Signal (connect_OBJECT__NONE "populate_popup")
 setAnchor :: TextBufferClass self => Signal self (IO ())
 setAnchor = Signal (connect_NONE__NONE "set_anchor")
 
-setScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
-setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
+setTextViewScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setTextViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
 
 toggleCursorVisible :: TextBufferClass self => Signal self (IO ())
 toggleCursorVisible = Signal (connect_NONE__NONE "toggle_cursor_visible")

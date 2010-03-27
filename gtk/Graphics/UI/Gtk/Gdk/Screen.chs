@@ -58,9 +58,6 @@ module Graphics.UI.Gtk.Gdk.Screen (
 -- * Methods
   screenGetDefault,
   screenGetSystemColormap,
-#if GTK_CHECK_VERSION(2,8,0)
-  screenGetRGBAColormap,
-#endif
 --  screenGetSystemVisual,
 #if GTK_CHECK_VERSION(2,10,0)
   screenIsComposited,
@@ -139,7 +136,6 @@ screenGetDefault =
   maybeNull (makeNewGObject mkScreen) $
   {# call gdk_screen_get_default #}
 
-#ifndef DISABLE_DEPRECATED
 screenGetDefaultColormap :: Screen
  -> IO Colormap -- ^ returns the default 'Colormap'.
 screenGetDefaultColormap self =
@@ -156,9 +152,8 @@ screenSetDefaultColormap self colormap =
     self
     colormap
 {-# DEPRECATED screenSetDefaultColormap "instead of 'screenSetDefaultColormap obj value' use 'set obj [ screenDefaultColormap := value ]'" #-}
-#endif
 
--- | Gets the system's default colormap for @screen@
+-- | Gets the system default colormap for @screen@
 --
 screenGetSystemColormap :: Screen
  -> IO Colormap -- ^ returns the default colormap for @screen@.
@@ -166,27 +161,6 @@ screenGetSystemColormap self =
   makeNewGObject mkColormap $
   {# call gdk_screen_get_system_colormap #}
     self
-
-#if GTK_CHECK_VERSION(2,8,0)
--- | Gets a colormap to use for creating windows or pixmaps with an alpha
--- channel. The windowing system on which Gtk+ is running may not support this
--- capability, in which case @Nothing@ will be returned. Even if a
--- non-@Nothing@ value is returned, its possible that the window's alpha
--- channel won't be honored when displaying the window on the screen: in
--- particular, for X an appropriate windowing manager and compositing manager
--- must be running to provide appropriate display.
---
--- * Available since Gdk version 2.8
---
-screenGetRGBAColormap :: Screen
- -> IO (Maybe Colormap) -- ^ returns a colormap to use for windows with an
-                        -- alpha channel or @Nothing@ if the capability is not
-                       -- available.
-screenGetRGBAColormap self =
-  maybeNull (makeNewGObject mkColormap) $
-  {# call gdk_screen_get_rgba_colormap #}
-    self
-#endif
 
 -- | Get the system's default visual for @screen@. This is the visual for the
 -- root window of the display.
@@ -460,7 +434,7 @@ screenSetFontOptions self (Just options) =
     {# call gdk_screen_set_font_options #} self (castPtr fPtr)
 
 #if GTK_CHECK_VERSION(2,10,0)
--- | Returns the screen's currently active window.
+-- | Returns the currently active window of this screen.
 --
 -- On X11, this is done by inspecting the _NET_ACTIVE_WINDOW property on the
 -- root window, as described in the Extended Window Manager Hints. If there is

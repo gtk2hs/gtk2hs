@@ -1,4 +1,9 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 -- -*-haskell-*-
+
+#include <gtk/gtk.h>
+#include "template-hsc-gtk2hs.h"
+
 --  GIMP Toolkit (GTK) GDK Event information in a Monad
 --
 --  Author : Axel Simon
@@ -201,7 +206,6 @@ import Control.Exception (catch, throw,
                           Exception(PatternMatchFail,IOException) )
 #endif
  
-#include <gdk/gdk.h>
 
 -- | A monad providing access to data in an event.
 --

@@ -78,16 +78,15 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowForeignNew
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(toFlags)
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.Flags                (toFlags)
+import System.Glib.GObject      (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
-import Graphics.UI.Gtk.Gdk.EventM	(eventRegion)
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
@@ -188,7 +187,7 @@ drawWindowRaise self =
 --
 -- Note that a widget is raised automatically when it is mapped, thus you
 -- need to call 'drawWindowLower' after
-	-- 'Graphics.UI.Gtk.Abstract.Widget.widgetShow' if the window should
+        -- 'Graphics.UI.Gtk.Abstract.Widget.widgetShow' if the window should
 -- not appear above other windows.
 --
 drawWindowLower :: DrawWindowClass self => self -> IO ()
@@ -496,12 +495,12 @@ drawWindowGetPointer self =
      xPtr yPtr mPtr
   if winPtr==nullPtr then return Nothing else do
   same <- withForeignPtr (unDrawWindow (toDrawWindow self)) $ \dPtr ->
-	  return (winPtr==dPtr)
+          return (winPtr==dPtr)
   x <- peek xPtr
   y <- peek yPtr
   m <- peek mPtr
   return (Just (same, fromIntegral x, fromIntegral y,
-		toFlags (fromIntegral m)))
+                toFlags (fromIntegral m)))
 
 -- | Obtains the current pointer position and modifier state.
 --

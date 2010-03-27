@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 -- * Detail
---	 
+--       
 -- | 'CellRendererCombo' renders text in a cell like
 -- 'Graphics.UI.Gtk.ModelView.CellRendererText' from which it is derived. But
 -- while 'Graphics.UI.Gtk.ModelView.CellRendererText' offers a simple entry to
@@ -70,13 +70,13 @@ module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes			(Attr, WriteAttr, writeAttr)
+import System.Glib.Attributes                   (Attr, WriteAttr, writeAttr)
 import System.Glib.Properties
-import System.Glib.GObject			(constructNewGObject)
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import System.Glib.GObject                      (constructNewGObject)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
@@ -93,8 +93,8 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 cellRendererComboNew :: IO CellRendererCombo
 cellRendererComboNew = do
   makeNewObject mkCellRendererCombo $
-	 liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererCombo) $
-	 {# call gtk_cell_renderer_combo_new #}
+         liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererCombo) $
+         {# call gtk_cell_renderer_combo_new #}
 
 --------------------
 -- Attributes
@@ -116,8 +116,8 @@ cellComboHasEntry = newAttrFromBoolProperty "has-entry"
 --
 cellComboTextModel :: ( TreeModelClass (model row),
                         TypedTreeModelClass model,
-			CellRendererComboClass self) =>
-			WriteAttr self (model row, ColumnId row String)
+                        CellRendererComboClass self) =>
+                        WriteAttr self (model row, ColumnId row String)
 cellComboTextModel = writeAttr setter
   where
   setter cr (model, col) = do

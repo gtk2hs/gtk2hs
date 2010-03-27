@@ -191,24 +191,26 @@ module Graphics.UI.Gtk.Display.Label (
   labelText,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject              (makeNewGObject)
 {#import Graphics.Rendering.Pango.Layout#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.Rendering.Pango.Attributes ( withAttrList, fromAttrList)
-import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
-import Graphics.UI.Gtk.General.Enums	(Justification(..))
+import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
+import Graphics.UI.Gtk.General.Enums    (Justification(..))
 import Graphics.Rendering.Pango.Markup
 {#import Graphics.Rendering.Pango.BasicTypes#}  (PangoLayout(PangoLayout),
-					 makeNewPangoString )
+                                         makeNewPangoString, PangoString(..) )
+import Graphics.Rendering.Pango.Types (mkPangoLayoutRaw, PangoLayoutRaw)
+import Graphics.Rendering.Pango.Enums   (PangoAttribute)
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.Rendering.Pango.Enums	(EllipsizeMode(..))
+import Graphics.Rendering.Pango.Enums   (EllipsizeMode(..))
 #endif
 import Data.IORef ( newIORef )
 
@@ -558,7 +560,7 @@ labelGetSelectionBounds self =
   if isSelection
     then do start <- peek startPtr
             end <- peek endPtr
-	    return $ Just $ (fromIntegral start, fromIntegral end)
+            return $ Just $ (fromIntegral start, fromIntegral end)
     else return Nothing
 
 -- | If the label has been set so that it has an mnemonic key (using i.e.

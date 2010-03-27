@@ -1,4 +1,8 @@
 -- -*-haskell-*-
+
+#include <gtk/gtk.h>
+#include "template-hsc-gtk2hs.h"
+
 --  GIMP Toolkit (GTK) Widget Socket
 --
 --  Author : Axel Simon
@@ -22,9 +26,6 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
-#include<gtk/gtk.h>
-
-
 module Graphics.UI.Gtk.Embedding.Embedding (
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   socketHasPlug,
