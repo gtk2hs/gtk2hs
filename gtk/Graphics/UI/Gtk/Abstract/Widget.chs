@@ -2291,8 +2291,8 @@ stateChanged = Signal (connect_ENUM__NONE "state_changed")
 -- | The parent-set signal is emitted when a new parent has been set on a
 -- widget. The parameter is the new parent.
 --
-parentSet :: WidgetClass self => Signal self (Widget -> IO ())
-parentSet = Signal (connect_OBJECT__NONE "parent_set")
+parentSet :: WidgetClass self => Signal self (Maybe Widget -> IO ())
+parentSet = Signal (connect_MOBJECT__NONE "parent_set")
 
 -- %hash c:7e2b d:4049
 -- | Emitted when there is a change in the hierarchy to which a widget belong.
@@ -2300,8 +2300,8 @@ parentSet = Signal (connect_OBJECT__NONE "parent_set")
 -- 'Window'. This signal is emitted when a widget changes from un-anchored to
 -- anchored or vice-versa.
 --
-hierarchyChanged :: WidgetClass self => Signal self (Widget -> IO ())
-hierarchyChanged = Signal (connect_OBJECT__NONE "hierarchy_changed")
+hierarchyChanged :: WidgetClass self => Signal self (Maybe Widget -> IO ())
+hierarchyChanged = Signal (connect_MOBJECT__NONE "hierarchy_changed")
 
 -- %hash c:5894 d:ba10
 -- | The style-set signal is emitted when a new style has been set on a
