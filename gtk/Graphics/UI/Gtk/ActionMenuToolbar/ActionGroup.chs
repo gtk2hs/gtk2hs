@@ -116,6 +116,7 @@ import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject,
 					 makeNewGObject, destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
+import System.Glib.Signals (on)
 
 import Graphics.UI.Gtk.ActionMenuToolbar.Action
 import Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction
@@ -268,7 +269,7 @@ data ActionEntry = ActionEntry {
 -- | This is a convenience function to create a number of actions and add them
 -- to the action group.
 --
--- The \"activate\" signals of the actions are connected to the callbacks
+-- The 'actionActivated' signals of the actions are connected to the callbacks
 -- and their accel paths are set to @\<Actions>\/group-name\/action-name@.
 --
 actionGroupAddActions :: ActionGroup
@@ -278,7 +279,7 @@ actionGroupAddActions self entries =
   flip mapM_ entries $ \(ActionEntry name label stockId
                         accelerator tooltip callback) -> do
     action <- actionNew name label tooltip stockId
-    onActionActivate action callback
+    action `on` actionActivated $ callback
     actionGroupAddActionWithAccel self action accelerator
 
 -- | A description of an action for an entry that can be toggled.
@@ -295,7 +296,7 @@ data ToggleActionEntry = ToggleActionEntry {
 -- | This is a convenience function to create a number of toggle actions and
 -- add them to the action group.
 --
--- The \"activate\" signals of the actions are connected to the callbacks
+-- The 'actionActivated' signals of the actions are connected to the callbacks
 -- and their accel paths are set to @\<Actions>\/group-name\/action-name@.
 --
 actionGroupAddToggleActions :: ActionGroup
@@ -306,7 +307,7 @@ actionGroupAddToggleActions self entries =
                         accelerator tooltip callback isActive) -> do
     action <- toggleActionNew name label tooltip stockId
     toggleActionSetActive action isActive
-    onActionActivate action callback
+    action `on` actionActivated $ callback
     actionGroupAddActionWithAccel self action accelerator
 
 -- | A description of an action for an entry that provides a multiple choice.
@@ -322,7 +323,7 @@ data RadioActionEntry = RadioActionEntry {
 -- | This is a convenience routine to create a group of radio actions and add
 -- them to the action group.
 --
--- The \"changed\" signal of the first radio action is connected to the
+-- The 'radioActionChanged' signal of the first radio action is connected to the
 -- @onChange@ callback and the accel paths of the actions are set to
 -- @\<Actions>\/group-name\/action-name@.
 --
@@ -346,8 +347,9 @@ actionGroupAddRadioActions self entries value onChange = do
     Nothing (zip [0..] entries)
   case group of
       Nothing -> return ()
-      Just group -> onRadioActionChanged group onChange
-                 >> return ()
+      Just group -> do
+        group `on` radioActionChanged $ onChange
+        return ()
 
 -- | Sets a function to be used for translating the @label@ and @tooltip@ of
 -- 'ActionEntry's added by 'actionGroupAddActions'.

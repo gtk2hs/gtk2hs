@@ -70,8 +70,11 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
   radioActionCurrentValue,
 #endif
 
--- * Deprecated
+-- * Signals
+  radioActionChanged,
+  
 #ifndef DISABLE_DEPRECATED
+-- * Deprecated
   onRadioActionChanged,
   afterRadioActionChanged,
 #endif
@@ -192,6 +195,13 @@ radioActionGroup = newAttr
 radioActionCurrentValue :: RadioActionClass self => Attr self Int
 radioActionCurrentValue = newAttrFromIntProperty "current-value"
 #endif
+
+-- | The 'radioActionChanged' signal is emitted on every member of a radio group when the
+-- active member is changed. The signal gets emitted after the 'actionActivated' signals for the
+-- previous and current active members.
+--
+radioActionChanged :: RadioActionClass self => Signal self (RadioAction -> IO ())
+radioActionChanged = Signal (connect_OBJECT__NONE "changed")
 
 --------------------
 -- Deprecated Signals
