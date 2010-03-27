@@ -86,7 +86,7 @@ import System.Glib.GObject      (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
-import Graphics.UI.Gtk.Gdk.Events	(Modifier)
+import Graphics.UI.Gtk.Gdk.EventM	(Modifier, eventRegion)
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
