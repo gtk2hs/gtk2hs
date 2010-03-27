@@ -44,7 +44,7 @@ module System.Glib.Signals (
   signalStopEmission,
   disconnect,
   GClosure,
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
   connectGeneric,
 #else
   GClosureNotify,
@@ -54,7 +54,7 @@ module System.Glib.Signals (
 
 import System.Glib.FFI
 {#import System.Glib.GObject#}
-#ifndef USE_GCLOSUE_SIGNALS_IMPL
+#ifndef USE_GCLOSURE_SIGNALS_IMPL
 import Data.IORef
 #endif
 
@@ -169,7 +169,7 @@ signalStopEmission obj sigName =
 
 {# pointer *GClosure newtype #}
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 connectGeneric :: GObjectClass obj =>
     SignalName

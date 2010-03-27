@@ -1,5 +1,5 @@
 Name:           glib
-Version:        0.12.0
+Version:        0.10.5
 License:        GPL
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -24,10 +24,9 @@ Flag closure_signals
   
 Library
         build-depends:  base >= 4, containers, haskell98
+        cpp-options:     -DHAVE_NEW_CONTROL_EXCEPTION
         if flag(closure_signals)
-          cpp-options:     -DHAVE_NEW_CONTROL_EXCEPTION -DUSE_GCLOSURE_SIGNALS_IMPL
-        else
-          cpp-options:     -DHAVE_NEW_CONTROL_EXCEPTION
+          cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
         exposed:  False
         exposed-modules:  System.Glib
                           System.Glib.Properties
@@ -51,4 +50,4 @@ Library
                           System.Glib.GParameter
         extensions:     ForeignFunctionInterface
         x-c2hs-Header:  glib-object.h
-        pkgconfig-depends: glib-2.0
+        pkgconfig-depends: glib-2.0, gobject-2.0
