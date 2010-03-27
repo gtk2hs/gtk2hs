@@ -261,7 +261,7 @@ setAttrPos correct start end act = do
 data PangoAttribute
   -- | A hint as to what language this piece of text is written in.
   = AttrLanguage { paStart :: Int, paEnd :: Int, paLang :: Language }
-  -- | The font family, e.g. "sans serif".
+  -- | The font family, e.g. @sans serif@.
   | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: String }
   -- | The slant of the current font.
   | AttrStyle { paStart :: Int, paEnd :: Int, paStyle :: FontStyle }

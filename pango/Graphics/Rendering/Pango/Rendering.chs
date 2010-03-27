@@ -40,9 +40,6 @@
 --   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
 --
 module Graphics.Rendering.Pango.Rendering (
-  -- * 'PangoAttribute': Apply emphasis to parts of an output string.
-  PangoAttribute(..),
-
   -- * 'PangoItem': Partition text into units with similar attributes.
   PangoItem,
   pangoItemize,
