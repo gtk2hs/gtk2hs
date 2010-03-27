@@ -31,7 +31,7 @@
 -- the marshall list mentions OBJECT it refers to an instance of this 
 -- GObject which is automatically wrapped with a ref and unref call.
 -- Structures which are not derived from GObject have to be passed as
--- BOXED which gives the signal connect function a possiblity to do the
+-- BOXED which gives the signal connect function a possibility to do the
 -- conversion into a proper ForeignPtr type. In special cases the signal
 -- connect function use a PTR type which will then be mangled in the
 -- user function directly. The latter is needed if a signal delivers a
@@ -49,7 +49,9 @@ import System.Glib.FFI
 import System.Glib.UTFString   (peekUTFString)
 import System.Glib.GError      (failOnGError)
 {#import System.Glib.Signals#}
-{#import System.Glib.GObject#}
+{#import System.Glib.GObject#} 
+import Graphics.UI.Gtk.General.Threading
+
 
 {#context lib="gtk" prefix="gtk" #}
 

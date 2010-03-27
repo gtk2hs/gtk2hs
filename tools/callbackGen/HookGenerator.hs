@@ -29,6 +29,7 @@ data Types = Tunit		-- ()
 	   | Tboxed  		-- a struct which is passed by value
 	   | Tptr		-- pointer
 	   | Tobject		-- foreign with GObjectClass context
+	   | Tmobject		-- foreign with GObjectClass context using a Maybe type
 	   deriving Eq
 
 type Signature = (Types,[Types])
@@ -98,6 +99,7 @@ scan ('S':'T':'R':'I':'N':'G':xs) = TokType Tstring:scan xs
 scan ('B':'O':'X':'E':'D':xs) = TokType Tboxed:scan xs
 scan ('P':'O':'I':'N':'T':'E':'R':xs) = TokType Tptr:scan xs
 scan ('O':'B':'J':'E':'C':'T':xs) = TokType Tobject:scan xs
+scan ('M':'O':'B':'J':'E':'C':'T':xs) = TokType Tmobject:scan xs
 scan ('N':'O':'N':'E':xs) = TokType Tunit:scan xs
 scan ('B':'O':'O':'L':xs) = TokType Tbool:scan xs
 scan str = error ("Invalid character in input file:\n"++
@@ -135,6 +137,7 @@ identifier Tstring  = ss "STRING"
 identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
 identifier Tobject  = ss "OBJECT"
+identifier Tmobject  = ss "MOBJECT"
 
 #ifdef USE_GCLOSURE_SIGNALS_IMPL
 
@@ -156,6 +159,7 @@ rawtype Tstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
 rawtype Tobject  = ss "Ptr GObject"
+rawtype Tmobject  = ss "Ptr GObject"
 
 
 #else
@@ -178,6 +182,7 @@ rawtype Tstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
 rawtype Tobject  = ss "Ptr GObject"
+rawtype Tmobject  = ss "Ptr GObject"
 
 #endif
 
@@ -199,6 +204,7 @@ usertype Tstring  (c:cs) = (ss "String",cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
 usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
 usertype Tobject  (c:cs) = (sc c.sc '\'',cs)
+usertype Tmobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 
 
 -- type declaration: only consume variables when they are needed
@@ -210,6 +216,7 @@ context :: [Types] -> [Char] -> [ShowS]
 context (Tenum:ts)    (c:cs) = ss "Enum ".sc c: context ts cs
 context (Tflags:ts)   (c:cs) = ss "Flags ".sc c: context ts cs
 context (Tobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
+context (Tmobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (_:ts)	      (c:cs) = context ts cs
 context []	      _	     = []
 
@@ -253,6 +260,7 @@ nameArg Tstring	 c = ss "str".shows c
 nameArg Tboxed   c = ss "box".shows c
 nameArg Tptr     c = ss "ptr".shows c
 nameArg Tobject  c = ss "obj".shows c
+nameArg Tmobject  c = ss "obj".shows c
 
 
 -- describe marshalling between the data passed from the registered function
@@ -277,8 +285,10 @@ marshExec Tstring arg _ body = indent 5. ss "peekUTFString ". arg. ss " >>= \\".
 marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castPtr ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
 marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
-marshExec Tobject arg _ body = indent 5.ss "makeNewGObject mkGObject (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+marshExec Tobject arg _ body = indent 5.ss "makeNewGObject (GObject, objectUnrefFromMainloop) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. ss " (unsafeCastGObject ". arg. ss "\')"
+marshExec Tmobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject, objectUnrefFromMainloop)) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+                               body. ss " (liftM unsafeCastGObject ". arg. ss "\')"
 
 marshRet :: Types -> (ShowS -> ShowS)
 marshRet Tunit	 body = body
@@ -328,8 +338,8 @@ marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
 		      shows n
 marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
 		      indent 4.ss "obj".shows n.
-		      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
-		      indent 5.ss "newForeignPtr obj".shows n.ss " objectUnref"
+		      ss "' <- liftM (unsafeCastGObject. fst mkWidget) $".
+		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkWidget)"
 marshExec _	  _ = id
 
 marshRet :: Types -> ShowS

@@ -17,9 +17,18 @@
 #   STRING      for string types (gchar*)
 #   BOXED       for boxed (anonymous but reference counted) types (GBoxed*)
 #   POINTER     for anonymous pointer types (gpointer)
-#   OBJECT      for GObject or derived types (GObject*)
 #   NONE        deprecated alias for VOID
 #   BOOL        deprecated alias for BOOLEAN
+
+#   WIDGET      for Widget or derived types (Widget*)
+#
+# One discrepancy from Gtk+ is that for signals that may pass NULL for an object
+# reference, the Haskell signal should be passed a 'Maybe GObject'.
+# We therefore have two variants that are marshalled as a maybe type:
+#
+#   OBJECT      for GObject or derived types (GObject*)
+#   MOBJECT      for GObject or derived types (GObject*) that may be NULL
+#
 
 # If you add a new signal type, please check that it actually works!
 # If it is a Boxed type check that the reference counting is right.
@@ -76,6 +85,7 @@ VOID:ENUM,INT,BOOLEAN
 #VOID:INT,INT,BOXED
 #VOID:INT,INT,INT
 VOID:OBJECT
+VOID:MOBJECT
 #VOID:OBJECT,BOOLEAN
 VOID:OBJECT,BOXED,BOXED
 #VOID:OBJECT,BOXED,UINT,UINT
