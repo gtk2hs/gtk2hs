@@ -1,7 +1,7 @@
 Name:           cairo
-Version:        0.12.0
+Version:        0.10.5
 License:        BSD3
-License-file:   COPYING
+License-file:   COPYRIGHT
 Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
 Author:         Axel Simon, Duncan Coutts
 Maintainer:     gtk2hs-users@sourceforge.net
@@ -17,6 +17,7 @@ Description:    Cairo is a library to render high quality vector graphics. There
                 PS, PNG and SVG documents, amongst others.
 Category:       Graphics
 Tested-With:    GHC == 6.10.4
+extra-source-files: cairo-gtk2hs.h
 
 Flag cairo_pdf
   Description: Build the PDF backend of Cairo.
@@ -33,8 +34,10 @@ Library
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types
-        other-modules:
+			  -- this module is only meant to be used by other
+			  -- modules implementing a Cairo interface
                           Graphics.Rendering.Cairo.Internal
+        other-modules:
                           Graphics.Rendering.Cairo.Internal.Drawing.Cairo
                           Graphics.Rendering.Cairo.Internal.Drawing.Paths
                           Graphics.Rendering.Cairo.Internal.Drawing.Patterns

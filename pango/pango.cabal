@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.12.0
+Version:        0.10.5
 License:        GPL
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -19,6 +19,7 @@ Description:    This package provides a wrapper around the Pango C library that
 Category:       Graphics
 Tested-With:    GHC == 6.10.4
 extra-source-files: template-hsc-gtk2hs.h
+                    hspango.h
 
 x-Types-File:   Graphics/Rendering/Pango/Types.chs
 x-Types-ModName: Graphics.Rendering.Pango.Types
@@ -39,26 +40,27 @@ Flag pango_1_6
 Library
         if flag(new-exception)
           build-depends:  base >= 4, process, directory, array, containers,
-                          pretty, haskell98, glib >= 0.12.0, cairo >= 0.12.0
+                          pretty, haskell98, glib >= 0.10.5, cairo >= 0.10.5
           cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
         else
           build-depends:  base < 4, process, directory, array, containers,
-                          pretty, haskell98, glib >= 0.12.0, cairo >= 0.12.0
+                          pretty, haskell98, glib >= 0.10.5, cairo >= 0.10.5
         exposed-modules: Graphics.Rendering.Pango.Font
                          Graphics.Rendering.Pango.Enums
-                         Graphics.Rendering.Pango.GlyphStorage
                          Graphics.Rendering.Pango.Context
                          Graphics.Rendering.Pango.Layout
                          Graphics.Rendering.Pango.Rendering
-                         Graphics.Rendering.Pango.Types
                          Graphics.Rendering.Pango.Markup
-        other-modules:   Graphics.Rendering.Pango.Attributes
-                         Graphics.Rendering.Pango.Description
+                         -- these four modules are only used in code that creates
+                         -- Pango data structures themselves
+                         Graphics.Rendering.Pango.Types
                          Graphics.Rendering.Pango.BasicTypes
                          Graphics.Rendering.Pango.Structs
+                         Graphics.Rendering.Pango.Attributes
+        other-modules:   Graphics.Rendering.Pango.GlyphStorage
+                         Graphics.Rendering.Pango.Description
         extensions:     ForeignFunctionInterface
         x-c2hs-Header:  hspango.h
-        install-includes: hspango.h
         includes:       hspango.h
         include-dirs:   .
         if flag(pango_1_6)
