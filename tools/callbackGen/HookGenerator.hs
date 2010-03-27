@@ -136,7 +136,7 @@ identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
 identifier Tobject  = ss "OBJECT"
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 -- The monomorphic type which is used to export the function signature.
 rawtype :: Types -> ShowS
@@ -258,7 +258,7 @@ nameArg Tobject  c = ss "obj".shows c
 -- describe marshalling between the data passed from the registered function
 -- to the user supplied Haskell function
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 marshExec :: Types -> ShowS -> Int -> (ShowS -> ShowS)
 marshExec Tbool	  arg _ body = body. sc ' '. arg
@@ -377,7 +377,7 @@ mkMarshArg (ret,ts) = zipWith marshArg (ts++[ret]) [1..]
 
 mkArg sig = foldl (.) (sc ' ') $ mkMarshArg sig
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 mkMarshExec :: Signature -> ShowS
 mkMarshExec (ret,ts) = foldl (\body marshaler -> marshaler body) (indent 5.ss "user")
@@ -411,7 +411,7 @@ mkLambdaArgs :: Signature -> ShowS
 mkLambdaArgs (_,ts) = foldl (.) id $ 
 		      zipWith (\a b -> nameArg a b.sc ' ') ts [1..]
 
-#ifndef USE_GCLOSUE_SIGNALS_IMPL
+#ifndef USE_GCLOSURE_SIGNALS_IMPL
 
 mkFuncArgs :: Signature -> ShowS
 mkFuncArgs (_,ts) = foldl (.) id $ 
@@ -470,7 +470,7 @@ genExport sigs = foldl (.) id (map mkId sigs)
   where
     mkId sig = ss "connect_".mkIdentifier sig.sc ','.indent 1
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
+#ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 generate :: Signature -> ShowS
 generate sig = let ident = mkIdentifier sig in

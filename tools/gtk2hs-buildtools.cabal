@@ -31,7 +31,7 @@ Extra-Source-Files:     c2hs/toplevel/c2hs_config.h
 Flag ClosureSignals
         Description:    Use the the GClosure-based signals implementation.
 --        if ! (arch(sparc) || arch(x86_64) || impl(ghc >= 6.4.1))
-        Default:        False
+--        Default:        False
 
 Executable gtk2hsTypeGen
         main-is:        TypeGen.hs
@@ -42,7 +42,7 @@ Executable gtk2hsHookGenerator
         main-is:        HookGenerator.hs
         hs-source-dirs: callbackGen
         if flag(ClosureSignals)
-          cpp-options:  -DUSE_GCLOSUE_SIGNALS_IMPL
+          cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
         other-modules:  Paths_gtk2hs_buildtools
 
 Executable gtk2hsC2hs
