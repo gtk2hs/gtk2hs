@@ -97,7 +97,7 @@ import UNames	  (NameSupply, Name,
 		   rootSupply, splitSupply, names)
 import Map        (Map)
 import qualified  Map as Map (fromList, toList, insert,
-		   Map.findWithDefault, empty)
+		   findWithDefault, empty)
 import Binary     (Binary(..), putByte, getByte)
 
 
