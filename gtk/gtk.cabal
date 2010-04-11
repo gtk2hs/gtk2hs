@@ -242,39 +242,46 @@ Library
           if os(windows)
             x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12
           else
-            x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12 plugNsocket
-          pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.12.0
+            x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12 gtk-2.18 plugNsocket
+          pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.18.0
         else
-          if flag(gtk_2_10)
+          if flag(gtk_2_12)
             if os(windows)
-              x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10
+              x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12
             else
-              x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 plugNsocket
-            pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.10.0
+              x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 gtk-2.12 plugNsocket
+            pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.12.0
           else
-            if flag(gtk_2_6)
+            if flag(gtk_2_10)
               if os(windows)
-                x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6
+                x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10
               else
-                x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 plugNsocket
-              pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.6.0
+                x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 gtk-2.10 plugNsocket
+              pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.10.0
             else
-              if flag(gtk_2_4)
+              if flag(gtk_2_6)
                 if os(windows)
-                  x-Types-Tag:   default gtk-2.2 gtk-2.4
+                  x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6
                 else
-                  x-Types-Tag:   default gtk-2.2 gtk-2.4 plugNsocket
-                pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.4.0
+                  x-Types-Tag:   default gtk-2.2 gtk-2.4 gtk-2.6 plugNsocket
+                pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.6.0
               else
-                if flag(gtk_2_2)
+                if flag(gtk_2_4)
                   if os(windows)
-                    x-Types-Tag:   default gtk-2.2
+                    x-Types-Tag:   default gtk-2.2 gtk-2.4
                   else
-                    x-Types-Tag:   default gtk-2.2 plugNsocket
-                  pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.2.0
+                    x-Types-Tag:   default gtk-2.2 gtk-2.4 plugNsocket
+                  pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.4.0
                 else
-                  if os(windows)
-                    x-Types-Tag:   default
+                  if flag(gtk_2_2)
+                    if os(windows)
+                      x-Types-Tag:   default gtk-2.2
+                    else
+                      x-Types-Tag:   default gtk-2.2 plugNsocket
+                    pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.2.0
                   else
-                    x-Types-Tag:   default plugNsocket
-                  pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.0.0
+                    if os(windows)
+                      x-Types-Tag:   default
+                    else
+                      x-Types-Tag:   default plugNsocket
+                    pkgconfig-depends: glib-2.0, gthread-2.0, gobject-2.0, gtk+-2.0 >= 2.0.0
