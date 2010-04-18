@@ -163,7 +163,7 @@ import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
 		   SwitchBoard(..), Traces(..), setTraces,
 		   traceSet, setSwitch, getSwitch, putTraceStr)
 import C	  (AttrC, hsuffix, isuffix, loadAttrC)
-import CHS	  (CHSModule, skipToLangPragma, hasCPP, loadCHS, dumpCHS,
+import CHS	  (CHSModule, skipToLangPragma, hasCPP, loadCHS, dumpCHS, loadAllCHI,
  		   hssuffix, chssuffix, dumpCHI)
 import GenHeader  (genHeader)
 import GenBind	  (expandHooks)
@@ -544,7 +544,10 @@ setLockFun name = setSwitch $ \sb -> sb { lockFunSB = Just name }
 process                    :: FilePath -> Maybe FilePath -> FilePath -> CST s ()
 process headerFile preCompFile bndFileStripped  =
   do
-    -- load the Haskell binding module
+    -- load the Haskell binding module, any imported module with CHI information is
+    -- only inserted as file name, the content of the CHI modules is inserted below
+    -- using 'loadAllCHI'. This ensures that we don't look for a CHI file that is
+    -- commented out using an #ifdef
     --
     (chsMod , warnmsgs) <- loadCHS bndFile
 
@@ -553,8 +556,8 @@ process headerFile preCompFile bndFileStripped  =
     -- check if a CPP language pragma is present and, if so, run CPP on the file
     -- and re-read it
     chsMod <- case skipToLangPragma chsMod of
-      Nothing -> return chsMod
-      Just chsMod | not (hasCPP chsMod) -> return chsMod
+      Nothing -> loadAllCHI chsMod
+      Just chsMod | not (hasCPP chsMod) -> loadAllCHI chsMod
 		  | otherwise -> do
 	outFName <- getSwitch outputSB
 	let outFileBase  = if null outFName then basename bndFile else outFName
@@ -575,7 +578,7 @@ process headerFile preCompFile bndFileStripped  =
 	unless keep $
 	  removeFileCIO ppFile
 
-	case skipToLangPragma chsMod of Just chsMod -> return chsMod
+	case skipToLangPragma chsMod of Just chsMod -> loadAllCHI chsMod
 
     traceCHSDump chsMod
     --

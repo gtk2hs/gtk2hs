@@ -90,7 +90,7 @@
 module CHS (CHSModule(..), CHSFrag(..), CHSHook(..), CHSTrans(..), CHSParm(..),
 	    CHSArg(..), CHSAccess(..), CHSAPath(..), CHSPtrType(..),
 	    skipToLangPragma, hasCPP,
-	    loadCHS, dumpCHS, hssuffix, chssuffix, loadCHI, dumpCHI,
+	    loadCHS, dumpCHS, hssuffix, chssuffix, loadAllCHI, loadCHI, dumpCHI,
 	    chisuffix, showCHSParm)
 where 
 
@@ -613,6 +613,16 @@ chisuffix  = ".chi"
 versionPrefix :: String
 versionPrefix  = "C->Haskell Interface Version "
 
+-- replace all import names with the content of the CHI file
+loadAllCHI :: CHSModule -> CST s CHSModule
+loadAllCHI (CHSModule frags) = do
+        let checkFrag (CHSHook (CHSImport qual name fName pos)) = do
+                chi <- loadCHI fName
+                return (CHSHook (CHSImport qual name chi pos))
+            checkFrag h = return h
+        frags' <- mapM checkFrag frags
+        return (CHSModule frags')
+
 -- load a CHI file (EXPORTED)
 --
 -- * the file suffix is automagically appended
@@ -801,10 +811,10 @@ parseImport pos toks = do
         let (ide', toks') = rebuildModuleId ide toks
          in return (True , ide', toks')
       _					     -> syntaxError toks
-  chi <- loadCHI . moduleNameToFileName . identToLexeme $ modid
+  let fName = moduleNameToFileName . identToLexeme $ modid
   toks'' <- parseEndHook toks'
   frags <- parseFrags toks''
-  return $ CHSHook (CHSImport qual modid chi pos) : frags
+  return $ CHSHook (CHSImport qual modid fName pos) : frags
 
 -- Qualified module names do not get lexed as a single token so we need to
 -- reconstruct it from a sequence of identifer and dot tokens.
