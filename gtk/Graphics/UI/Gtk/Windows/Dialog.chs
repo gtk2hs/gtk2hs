@@ -116,7 +116,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogSetHasSeparator,
   dialogSetResponseSensitive,
   dialogGetResponseForWidget,
-  alternativeDialogButtonOrder,
+  dialogAlternativeDialogButtonOrder,
   dialogSetAlternativeButtonOrderFromArray,
 
 -- * Attributes
@@ -127,7 +127,6 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogContentAreaSpacing,
 
 -- * Signals
-  close,
   response,
 
 -- * Deprecated
@@ -299,8 +298,8 @@ dialogSetResponseSensitive self responseId setting =
 -- | Gets the response id of a widget in the action area of a dialog.
 dialogGetResponseForWidget :: (DialogClass self, WidgetClass widget) => self
  -> widget  -- ^ @widget@ - a widget in the action area of dialog                                                     
- -> IO Int  -- ^ return the response id of widget, or 'ResponseNone' if widget doesn't have a response id set. 
-dialogGetResponseForWidget self widget = liftM fromIntegral $
+ -> IO ResponseId  -- ^ return the response id of widget, or 'ResponseNone' if widget doesn't have a response id set. 
+dialogGetResponseForWidget self widget = liftM toResponse $
   {# call dialog_get_response_for_widget #}
     (toDialog self)
     (toWidget widget)
@@ -312,16 +311,19 @@ dialogGetResponseForWidget self widget = liftM fromIntegral $
 --
 -- * Available since Gtk+ version 2.6
 --
-alternativeDialogButtonOrder :: 
+dialogAlternativeDialogButtonOrder :: 
    Maybe Screen  -- ^ @screen@ - a 'Screen', or @Nothing@ to use the default screen      
- -> IO Bool   -- ^ return Whether the alternative button order should be used 
-alternativeDialogButtonOrder (Just screen) = liftM toBool $
+ -> IO Bool   -- ^ returns whether the alternative button order should be used 
+dialogAlternativeDialogButtonOrder (Just screen) = liftM toBool $
   {# call alternative_dialog_button_order #} screen
-alternativeDialogButtonOrder Nothing = liftM toBool $
+dialogAlternativeDialogButtonOrder Nothing = liftM toBool $
   {# call alternative_dialog_button_order #} (Screen nullForeignPtr)
 
--- | Sets an alternative button order. 
--- If the 'alternativeButtonOrder' setting is set to @True@, the dialog buttons are reordered according to the order of the response ids in new_order.
+-- | Sets an alternative button order.
+--  
+-- If the 'alternativeButtonOrder' setting is set to @True@, the dialog
+-- buttons are reordered according to the order of the response ids in
+-- @newOrder@.
 --
 -- See 'dialogSetAlternativeButtonOrder' for more information.
 --
@@ -330,14 +332,13 @@ alternativeDialogButtonOrder Nothing = liftM toBool $
 -- * Available since Gtk+ version 2.6
 --
 dialogSetAlternativeButtonOrderFromArray :: DialogClass self => self
- -> Int  -- ^ @nParams@ - the number of response ids in new_order      
- -> [Int]  -- ^ @newOrder@ - an array of response ids of dialog's buttons 
+ -> [ResponseId]  -- ^ @newOrder@ - an array of response ids of dialog's buttons 
  -> IO ()
-dialogSetAlternativeButtonOrderFromArray self nParams newOrder = 
-  withArray (map fromIntegral newOrder) $ \newOrderPtr ->
+dialogSetAlternativeButtonOrderFromArray self newOrder = 
+  withArray (map fromResponse newOrder) $ \newOrderPtr ->
   {# call dialog_set_alternative_button_order_from_array #}
     (toDialog self)
-    (fromIntegral nParams)
+    (fromIntegral (length newOrder))
     newOrderPtr
 
 --------------------
@@ -393,11 +394,15 @@ dialogContentAreaSpacing = readAttrFromIntProperty "content-area-spacing"
 
 --------------------
 -- Signals
-close :: DialogClass self => Signal self (IO ())
-close = Signal (connect_NONE__NONE "close")
 
-response :: DialogClass self => Signal self (Int -> IO ())
-response = Signal (connect_INT__NONE "response")
+-- | Emitted when an action widget is clicked, the dialog receives a delete
+-- event, or the application programmer calls 'dialogResponse'. On a delete
+-- event, the response ID is 'ResponseNone'. Otherwise, it depends on which
+-- action widget was clicked.
+--
+response :: DialogClass self => Signal self (ResponseId -> IO ())
+response = Signal (\after obj fun ->
+                   connect_INT__NONE "response" after obj (\i -> fun (toResponse i)))
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
