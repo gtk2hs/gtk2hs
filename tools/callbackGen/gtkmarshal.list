@@ -121,6 +121,7 @@ VOID:OBJECT,STRING
 # This is for GtkMozEmbed
 BOOLEAN:STRING
 # This makes it possible to catch events on TextTags
+BOOLEAN:OBJECT,POINTER,BOXED
 BOOLEAN:POINTER,BOXED,BOXED
 # This is onInsertText in Editable
 VOID:POINTER,INT,POINTER
