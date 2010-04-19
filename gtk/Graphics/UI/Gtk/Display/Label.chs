@@ -281,11 +281,14 @@ labelSetLabel self str =
     (toLabel self)
     strPtr
 
--- | Sets a PangoAttrList; the attributes in the list are applied to the label text.
+-- | Sets a PangoAttrList; the attributes in the list are applied to the label
+-- text.
 --
--- Note
---
--- The attributes set with this function will be applied and merged with any other attributes previously effected by way of the "use-underline" or "use-markup" properties. While it is not recommended to mix markup strings with manually set attributes, if you must; know that the attributes will be applied to the label after the markup string is parsed.
+-- Note: The attributes set with this function will be applied and merged with
+-- any other attributes previously effected by way of the 'labelUseUnderline' or
+-- 'labelUseMarkup' properties. While it is not recommended to mix markup strings
+-- with manually set attributes, if you must; know that the attributes will be
+-- applied to the label after the markup string is parsed.
 --
 labelSetAttributes :: LabelClass self => self 
  -> [PangoAttribute]   -- ^ @attr@ 'PangoAttribute'
@@ -792,7 +795,7 @@ labelJustify = newAttr
 labelWrap :: LabelClass self => Attr self Bool
 labelWrap = newAttrFromBoolProperty "wrap"
 
--- | If line wrapping is on (see the "wrap" property) this controls how the line wrapping is done. 
+-- | If line wrapping is on (see the 'labelWrap' property) this controls how the line wrapping is done. 
 -- The default is 'WrapWholeWords', which means wrap on word boundaries.
 --
 -- Default value: 'WrapWholeWords'

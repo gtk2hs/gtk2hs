@@ -121,10 +121,12 @@ module Graphics.UI.Gtk.Layout.Notebook (
 #endif
   notebookSetTabLabel,
   notebookSetTabLabelText,
+#if GTK_CHECK_VERSION(2,10,0)
   notebookSetTabReorderable,
   notebookGetTabReorderable,
   notebookSetTabDetachable,
   notebookGetTabDetachable,
+#endif
 
 -- * Attributes
   notebookPage,
@@ -151,13 +153,17 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookChildTabFill,
 
 -- * Style Attributes
+#if GTK_CHECK_VERSION(2,10,0)
   notebookStyleArrowSpacing,
+#endif
   notebookStyleHasBackwardStepper,
   notebookStyleHasForwardStepper,
   notebookStyleHasSecondaryBackwardStepper,
   notebookStyleHasSecondaryForwardStepper,
+#if GTK_CHECK_VERSION(2,10,0)
   notebookStyleTabCurvature,
   notebookStyleTabOverlap,
+#endif
 
 -- * Signals
   switchPage,
@@ -911,6 +917,7 @@ notebookSetTabLabelText self child tabText =
     (toWidget child)
     tabTextPtr
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | Sets whether the notebook tab can be reordered via drag and drop or not.
 --
 -- * Available since Gtk version 2.10
@@ -969,6 +976,7 @@ notebookGetTabDetachable self child = liftM toBool $
   {# call notebook_get_tab_detachable #}
     (toNotebook self)
     (toWidget child)
+#endif
 
 --------------------
 -- Attributes
@@ -1095,7 +1103,7 @@ notebookChildPosition = newAttrFromContainerChildIntProperty "position"
 
 -- | The packing style of the child's tab.
 --
--- Default value: @'PackGrow'@
+-- Default value: 'PackGrow'
 --
 notebookChildTabPacking :: (NotebookClass self, WidgetClass child) => child -> Attr self Packing
 notebookChildTabPacking child = newAttr
@@ -1146,6 +1154,7 @@ notebookChildTabExpand = newAttrFromBoolProperty "tab-expand"
 notebookChildTabFill :: NotebookClass self => Attr self Bool
 notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | The 'notebookStyleArrowSpacing' property defines the spacing between the scroll arrows and the tabs.
 --
 -- Allowed values: >= 0
@@ -1156,6 +1165,7 @@ notebookChildTabFill = newAttrFromBoolProperty "tab-fill"
 --
 notebookStyleArrowSpacing :: NotebookClass self => ReadAttr self Bool
 notebookStyleArrowSpacing = readAttrFromBoolProperty "arrow-spacing"
+#endif
 
 -- | The 'notebookStyleHasBackwardStepper' property determines whether the standard backward arrow button is displayed.
 --
@@ -1193,6 +1203,7 @@ notebookStyleHasSecondaryBackwardStepper = readAttrFromBoolProperty "has-seconda
 notebookStyleHasSecondaryForwardStepper :: NotebookClass self => ReadAttr self Bool
 notebookStyleHasSecondaryForwardStepper = readAttrFromBoolProperty "has-secondary-forward-stepper"
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | The 'notebookStyleTabCurvature' property defines size of tab curvature.
 --
 -- Allowed values: >= 0
@@ -1212,6 +1223,7 @@ notebookStyleTabCurvature = readAttrFromIntProperty "tab-curvature"
 --
 notebookStyleTabOverlap :: NotebookClass self => ReadAttr self Int
 notebookStyleTabOverlap = readAttrFromIntProperty "tab-overlap"
+#endif
 
 --------------------
 -- Signals
@@ -1229,23 +1241,23 @@ switchPage = Signal (\after obj act ->
 -- * Available since Gtk+ version 2.10
 --
 pageReordered :: NotebookClass self => Signal self (Widget -> Int -> IO ())
-pageReordered = Signal (connect_OBJECT_INT__NONE "page_reordered")
+pageReordered = Signal (connect_OBJECT_INT__NONE "page-reordered")
 
 -- | The 'pageRemoved' signal is emitted in the notebook right after a page is removed from the notebook.
 --
 -- * Available since Gtk+ version 2.10
 --
 pageRemoved :: NotebookClass self => Signal self (Widget -> Int -> IO ())
-pageRemoved = Signal (connect_OBJECT_INT__NONE "page_removed")
+pageRemoved = Signal (connect_OBJECT_INT__NONE "page-removed")
 
 -- | The 'pageAdded' signal is emitted in the notebook right after a page is added to the notebook.
 --
 -- * Available since Gtk+ version 2.10
 --
 pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
-pageAdded = Signal (connect_OBJECT_INT__NONE "page_added")
+pageAdded = Signal (connect_OBJECT_INT__NONE "page-added")
 #endif
-
+  
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
 
