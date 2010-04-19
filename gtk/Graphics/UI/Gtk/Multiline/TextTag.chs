@@ -20,7 +20,7 @@
 --
 -- TODO
 -- 
---     Haven't bind `textTagTabs` properties,  need bind PangoTab first (in `pango-tabs.c`)
+--     Didn't bind `textTagTabs` properties, we need to bind PangoTab first (in `pango-tabs.c`)
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -43,7 +43,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
 -- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferCreateTag' is the best way
 -- to create tags.
 --
--- The \"invisible\" property was not implemented for Gtk+ 2.0; it's planned
+-- The 'textTagInvisible' property was not implemented for Gtk+ 2.0; it's planned
 -- to be implemented in future releases.
 
 -- * Class Hierarchy
@@ -142,7 +142,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   textTagPriority,
 
 -- * Signals
-  event,
+  textTagEvent,
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -167,6 +167,8 @@ import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
 import Graphics.UI.Gtk.General.Structs  (Color(..))
 import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
+import Graphics.UI.Gtk.Gdk.EventM (EventM, EAny)
+import Control.Monad.Reader ( runReaderT )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -239,7 +241,6 @@ textAttributesCopy src =
   {#call text_attributes_copy#} src >>= makeNewTextAttributes
 
 -- | Copies the values from src to dest so that dest has the same values as src. 
--- Frees existing values in dest.
 --
 textAttributesCopyValues :: TextAttributes -> TextAttributes -> IO ()
 textAttributesCopyValues src dest =
@@ -740,13 +741,23 @@ textTagPriority = newAttr
 
 --------------------
 -- Signals
+
+-- the following signal only really makes sense if the EventM module provides dynamic upcast
+-- functions since the user must test what kind of event has been delivered.
+
 -- | An event has occurred that affects the given tag.
 --
 -- * Adding an event handler to the tag makes it possible to react on
 --   e.g. mouse clicks to implement hyperlinking.
 --
-event :: TextTagClass self => Signal self (Event -> TextIter -> IO Bool)
-event = Signal (connect_BOXED_BOXED__BOOL "event" marshalEvent mkTextIterCopy)
+-- * The first argument is the object the event was fired from (typically a 'TextView').
+--   The second argument is the iterator indicating where the event happened.
+--
+textTagEvent :: TextTagClass self => Signal self (GObject -> TextIter -> EventM EAny Bool)
+textTagEvent = Signal (\after obj fun ->
+                       connect_OBJECT_PTR_BOXED__BOOL "event" mkTextIterCopy after obj
+                         (\tv eventPtr iter -> runReaderT (fun tv iter) eventPtr)
+                      )
 
 --------------------
 -- Deprecated Signals and Events

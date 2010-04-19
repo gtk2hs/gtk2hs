@@ -175,8 +175,6 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterEndUserAction,
   onInsertPixbuf,
   afterInsertPixbuf,
-  onInsertChildAnchor,
-  afterInsertChildAnchor,
   onBufferInsertText,
   afterBufferInsertText,
   onMarkDeleted,
@@ -185,8 +183,6 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterMarkSet,
   onModifiedChanged,
   afterModifiedChanged,
-  onPasteDone,
-  afterPasteDone,
   onRemoveTag,
   afterRemoveTag
 #endif
@@ -1045,8 +1041,8 @@ textBufferCutClipboard self clipboard defaultEditable =
     (fromBool defaultEditable)
 #endif
 
--- | Adds clipboard to the list of clipboards in which the selection contents of buffer are available. 
--- In most cases, clipboard will be the 'Clipboard' of type 'SelectionPrimary' for a view of buffer.
+-- | Adds clipboard to the list of clipboards in which the selection contents of @self@ are available. 
+-- In most cases, @clipboard@ will be the 'Clipboard' of type 'selectionPrimary' for a view of @self@.
 --
 textBufferAddSelectionClipboard :: TextBufferClass self => self
  -> Clipboard  -- ^ @clipboard@ - 	the 'Clipboard' object to add
@@ -1093,44 +1089,75 @@ textBufferModified = newAttr
 --------------------
 -- Signals
 
+-- | A 'TextTag' was applied to a region of text.
+--
 applyTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ()) 
 applyTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "apply-tag" mkTextIterCopy mkTextIterCopy)
 
+-- | A new atomic user action is started.
+--
+-- * Together with 'endUserAction' these signals can be
+--   used to build an undo stack.
+--
 beginUserAction :: TextBufferClass self => Signal self (IO ())
-beginUserAction = Signal (connect_NONE__NONE "begin_user_action")
+beginUserAction = Signal (connect_NONE__NONE "begin-user-action")
 
+-- | Emitted when the contents of the buffer change.
+--
 bufferChanged :: TextBufferClass self => Signal self (IO ())
 bufferChanged = Signal (connect_NONE__NONE "changed")
 
+-- | A range of text is about to be deleted.
+--
 deleteRange :: TextBufferClass self => Signal self (TextIter -> TextIter -> IO ())
-deleteRange = Signal (connect_BOXED_BOXED__NONE "delete_range" mkTextIterCopy mkTextIterCopy)
+deleteRange = Signal (connect_BOXED_BOXED__NONE "delete-range" mkTextIterCopy mkTextIterCopy)
 
+-- | An atomic action has ended.
+--
+-- * see 'beginUserAction'
+--
 endUserAction :: TextBufferClass self => Signal self (IO ())
-endUserAction = Signal (connect_NONE__NONE "end_user_action")
+endUserAction = Signal (connect_NONE__NONE "end-user-action")
 
+-- | A 'Pixbuf' is inserted into the buffer.
+--
 insertPixbuf :: TextBufferClass self => Signal self (TextIter -> Pixbuf -> IO ())
-insertPixbuf = Signal (connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy)
+insertPixbuf = Signal (connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy)
 
+-- | The 'insertChildAnchor' signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'. 
+-- Insertion actually occurs in the default handler.
+--
 insertChildAnchor :: TextBufferClass self => Signal self (TextIter -> TextChildAnchor -> IO ())
-insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy)
+insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert-child-anchor" mkTextIterCopy)
 
+-- | Some text was inserted.
+--
 bufferInsertText :: TextBufferClass self => Signal self (TextIter -> String -> IO ())
-bufferInsertText = Signal (connect_BOXED_STRING__NONE "insert_text" mkTextIterCopy)
+bufferInsertText = Signal (connect_BOXED_STRING__NONE "insert-text" mkTextIterCopy)
 
+-- | A 'TextMark' within the buffer was deleted.
+--
 markDeleted :: TextBufferClass self => Signal self (TextMark -> IO ())
-markDeleted = Signal (connect_OBJECT__NONE "mark_deleted")
+markDeleted = Signal (connect_OBJECT__NONE "mark-deleted")
 
+-- | A 'TextMark' was inserted into the buffer.
+--
 markSet :: TextBufferClass self => Signal self (TextIter -> TextMark -> IO ())
-markSet = Signal (connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy)
+markSet = Signal (connect_BOXED_OBJECT__NONE "mark-set" mkTextIterCopy)
 
 modifiedChanged :: TextBufferClass self => Signal self (IO ())
-modifiedChanged = Signal (connect_NONE__NONE "modified_changed")
+modifiedChanged = Signal (connect_NONE__NONE "modified-changed")
 
+-- | The 'pasteDone' signal is emitted after paste operation has been completed. 
+-- This is useful to properly scroll the view to the end of the pasted text. 
+-- See 'textBufferPasteClipboard' for more details.
 pasteDone :: TextBufferClass self => Signal self (Clipboard -> IO ())
-pasteDone = Signal (connect_OBJECT__NONE "paste_done")
+pasteDone = Signal (connect_OBJECT__NONE "paste-done")
 
+-- | The textbuffer has changed.
+--
 removeTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ())
-removeTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "remove_tag" mkTextIterCopy mkTextIterCopy)
+removeTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "remove-tag" mkTextIterCopy mkTextIterCopy)
 
 --------------------
 -- Deprecated Signals and Events
@@ -1155,8 +1182,8 @@ afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag"
 onBeginUserAction, afterBeginUserAction :: TextBufferClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onBeginUserAction = connect_NONE__NONE "begin_user_action" False
-afterBeginUserAction = connect_NONE__NONE "begin_user_action" True
+onBeginUserAction = connect_NONE__NONE "begin-user-action" False
+afterBeginUserAction = connect_NONE__NONE "begin-user-action" True
 
 --- renamed from Changed to BufferChanged, since the former conflicts with TreeSelection
 -- | Emitted when the contents of the buffer change.
@@ -1172,9 +1199,9 @@ afterBufferChanged = connect_NONE__NONE "changed" True
 onDeleteRange, afterDeleteRange :: TextBufferClass self => self
  -> (TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
-onDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
+onDeleteRange = connect_BOXED_BOXED__NONE "delete-range"
   mkTextIterCopy mkTextIterCopy False
-afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
+afterDeleteRange = connect_BOXED_BOXED__NONE "delete-range"
   mkTextIterCopy mkTextIterCopy True
 
 -- | An atomic action has ended.
@@ -1184,8 +1211,8 @@ afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
 onEndUserAction, afterEndUserAction :: TextBufferClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onEndUserAction = connect_NONE__NONE "end_user_action" False
-afterEndUserAction = connect_NONE__NONE "end_user_action" True
+onEndUserAction = connect_NONE__NONE "end-user-action" False
+afterEndUserAction = connect_NONE__NONE "end-user-action" True
 
 -- | A 'Pixbuf' is inserted into the
 -- buffer.
@@ -1193,20 +1220,8 @@ afterEndUserAction = connect_NONE__NONE "end_user_action" True
 onInsertPixbuf, afterInsertPixbuf :: TextBufferClass self => self
  -> (TextIter -> Pixbuf -> IO ())
  -> IO (ConnectId self)
-onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy False
-afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy True
-
--- | The insert-child-anchor signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'. 
--- Insertion actually occurs in the default handler.
---
--- Note that if your handler runs before the default handler it must not invalidate the location iter (or has to revalidate it). 
--- The default signal handler revalidates it to be placed after the inserted anchor.
---
-onInsertChildAnchor, afterInsertChildAnchor :: TextBufferClass self => self
- -> (TextIter -> TextChildAnchor -> IO ())
- -> IO (ConnectId self)
-onInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy False
-afterInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor" mkTextIterCopy True
+onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy False
+afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy True
 
 -- | Some text was inserted.
 --
@@ -1214,12 +1229,12 @@ onBufferInsertText, afterBufferInsertText :: TextBufferClass self => self
  -> (TextIter -> String -> IO ())
  -> IO (ConnectId self)
 onBufferInsertText self user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy False self $
+  connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy False self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
 afterBufferInsertText self user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy True self $
+  connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy True self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
@@ -1229,42 +1244,33 @@ afterBufferInsertText self user =
 onMarkDeleted, afterMarkDeleted :: TextBufferClass self => self
  -> (TextMark -> IO ())
  -> IO (ConnectId self)
-onMarkDeleted = connect_OBJECT__NONE "mark_deleted" False
-afterMarkDeleted = connect_OBJECT__NONE "mark_deleted" True
+onMarkDeleted = connect_OBJECT__NONE "mark-deleted" False
+afterMarkDeleted = connect_OBJECT__NONE "mark-deleted" True
 
 -- | A 'TextMark' was inserted into the buffer.
 --
 onMarkSet, afterMarkSet :: TextBufferClass self => self ->
                            (TextIter -> TextMark -> IO ()) ->
                            IO (ConnectId self)
-onMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy False
-afterMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy True
+onMarkSet = connect_BOXED_OBJECT__NONE "mark-set" mkTextIterCopy False
+afterMarkSet = connect_BOXED_OBJECT__NONE "mark-set" mkTextIterCopy True
 
 -- | The textbuffer has changed.
 --
 onModifiedChanged, afterModifiedChanged :: TextBufferClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onModifiedChanged = connect_NONE__NONE "modified_changed" False
-afterModifiedChanged = connect_NONE__NONE "modified_changed" True
-
--- | The paste-done signal is emitted after paste operation has been completed. 
--- This is useful to properly scroll the view to the end of the pasted text. 
--- See 'textBufferPasteClipboard' for more details.
-onPasteDone, afterPasteDone :: TextBufferClass self => self
- -> (Clipboard -> IO ())
- -> IO (ConnectId self)
-onPasteDone = connect_OBJECT__NONE "paste_done" False
-afterPasteDone = connect_OBJECT__NONE "paste_done" True
+onModifiedChanged = connect_NONE__NONE "modified-changed" False
+afterModifiedChanged = connect_NONE__NONE "modified-changed" True
 
 -- | A 'TextTag' was removed.
 --
 onRemoveTag, afterRemoveTag :: TextBufferClass self => self
  -> (TextTag -> TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
-onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
+onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag" 
   mkTextIterCopy mkTextIterCopy False
-afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
+afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag" 
   mkTextIterCopy mkTextIterCopy True
 
 #endif

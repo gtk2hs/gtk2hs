@@ -24,6 +24,12 @@
 --    Fucntions: textViewSetTabs and textViewGetTabs
 --    Properties: textViewTabs
 --
+-- All on... and after... signales hand incorrect names (underscore instead of hypens). Thus
+-- they could not have been used in applications and removing them can't break anything.
+-- Thus, I've removed them. Also, all key-binding singals are now removed as there is
+-- no way to add additional key bindings programatically in a type-safe way, let alone
+-- use these signals.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -157,55 +163,9 @@ module Graphics.UI.Gtk.Multiline.TextView (
 #endif
 
 -- * Signals
-  backspace,
-  copyClipboard,
-  cutClipboard,
-  deleteFromCursor,
-  insertAtCursor,
-  moveCursor,
-  moveViewport,
-  moveFocus,
-  pageHorizontally,
-  pasteClipboard,
   populatePopup,
   setAnchor,
   setTextViewScrollAdjustments,
-  toggleCursorVisible,
-  toggleOverwrite,
-
--- * Deprecated
-#ifndef DISABLE_DEPRECATED
-  onBackspace,
-  afterBackspace,
-  onCopyClipboard,
-  afterCopyClipboard,
-  onCutClipboard,
-  afterCutClipboard,
-  onDeleteFromCursor,
-  afterDeleteFromCursor,
-  onInsertAtCursor,
-  afterInsertAtCursor,
-  onMoveCursor,
-  afterMoveCursor,
-  onMoveViewport,
-  afterMoveViewport,
-  onMoveFocus,
-  afterMoveFocus,
-  onPageHorizontally,
-  afterPageHorizontally,
-  onPasteClipboard,
-  afterPasteClipboard,
-  onPopulatePopup,
-  afterPopulatePopup,
-  onSetAnchor,
-  afterSetAnchor,
-  onSetScrollAdjustments,
-  afterSetScrollAdjustments,
-  onToggleCursorVisible,
-  afterToggleCursorVisible,
-  onToggleOverwrite,
-  afterToggleOverwrite
-#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -1184,194 +1144,18 @@ textViewAcceptsTab = newAttr
 
 --------------------
 -- Signals
-backspace :: TextBufferClass self => Signal self (IO ())
-backspace = Signal (connect_NONE__NONE "on_backspace")
-
-copyClipboard :: TextBufferClass self => Signal self (IO ())
-copyClipboard = Signal (connect_NONE__NONE "copy_clipboard")
-
-cutClipboard :: TextBufferClass self => Signal self (IO ())
-cutClipboard = Signal (connect_NONE__NONE "cut_clipboard")
-
-deleteFromCursor :: TextBufferClass self => Signal self (DeleteType -> Int -> IO ())
-deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete_from_cursor")
-
-insertAtCursor :: TextBufferClass self => Signal self (String -> IO ())
-insertAtCursor = Signal (connect_STRING__NONE "insert_at_cursor")
-
-moveCursor :: TextBufferClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
-moveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move_cursor")
-
-moveViewport :: TextBufferClass self => Signal self (ScrollStep -> Int -> IO ())
-moveViewport = Signal (connect_ENUM_INT__NONE "move_viewport")
-
-moveFocus :: TextBufferClass self => Signal self (DirectionType -> IO ())
-moveFocus = Signal (connect_ENUM__NONE "move_focus")
-
-pageHorizontally :: TextBufferClass self => Signal self (Int -> Bool -> IO ())
-pageHorizontally = Signal (connect_INT_BOOL__NONE "page_horizontally")
-
-pasteClipboard :: TextBufferClass self => Signal self (IO ())
-pasteClipboard = Signal (connect_NONE__NONE "paste_clipboard")
-
-populatePopup :: TextBufferClass self => Signal self (Menu -> IO ())
-populatePopup = Signal (connect_OBJECT__NONE "populate_popup")
-
-setAnchor :: TextBufferClass self => Signal self (IO ())
-setAnchor = Signal (connect_NONE__NONE "set_anchor")
-
-setTextViewScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
-setTextViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
-
-toggleCursorVisible :: TextBufferClass self => Signal self (IO ())
-toggleCursorVisible = Signal (connect_NONE__NONE "toggle_cursor_visible")
-
-toggleOverwrite :: TextBufferClass self => Signal self (IO ())
-toggleOverwrite = Signal (connect_NONE__NONE "toggle_overwrite")
-
---------------------
--- Deprecated Signals and Events
-
-#ifndef DISABLE_DEPRECATED
-
--- | The ::backspace signal is a keybinding signal which gets emitted when the user asks for it.
---
--- The default bindings for this signal are Backspace and Shift-Backspace.
---
-onBackspace, afterBackspace :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onBackspace = connect_NONE__NONE "on_backspace" False
-afterBackspace = connect_NONE__NONE "on_backspace" True
-
--- | Copying to the clipboard.
---
--- * This signal is emitted when a selection is copied to the clipboard. 
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onCopyClipboard, afterCopyClipboard :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onCopyClipboard = connect_NONE__NONE "copy_clipboard" False
-afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
-
--- | Cutting to the clipboard.
---
--- * This signal is emitted when a selection is cut out and copied to the
---   clipboard. The action itself happens when the textview processed this
---   request.
---
-onCutClipboard, afterCutClipboard :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onCutClipboard = connect_NONE__NONE "cut_clipboard" False
-afterCutClipboard = connect_NONE__NONE "cut_clipboard" True
-
--- | Deleting text.
---
--- * The widget will remove the specified number of units in the text where
---   the meaning of units depends on the kind of deletion.
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onDeleteFromCursor, afterDeleteFromCursor :: TextViewClass self => self
- -> (DeleteType -> Int -> IO ())
- -> IO (ConnectId self)
-onDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" False
-afterDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" True
-
--- | Inserting text.
---
--- * The widget will insert the string into the text where the meaning
---   of units depends on the kind of deletion.
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onInsertAtCursor, afterInsertAtCursor :: TextViewClass self => self
- -> (String -> IO ())
- -> IO (ConnectId self)
-onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
-afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
-
--- | Moving the cursor.
---
--- * The signal specifies what kind and how many steps the cursor will do.
---   The flag is set to @True@ if this movement extends a selection.
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onMoveCursor, afterMoveCursor :: TextViewClass self => self
- -> (MovementStep -> Int -> Bool -> IO ())
- -> IO (ConnectId self)
-onMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" False
-afterMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" True
-
--- | The ::move-viewport signal is a keybinding signal which can be bound to key combinations to allow the user to move the viewport, i.e. change what part of the text view is visible in a containing scrolled window.
--- There are no default bindings for this signal.
--- 
-onMoveViewport, afterMoveViewport :: TextViewClass self => self
- -> (ScrollStep -> Int -> IO ())
- -> IO (ConnectId self)
-onMoveViewport = connect_ENUM_INT__NONE "move_viewport" False
-afterMoveViewport = connect_ENUM_INT__NONE "move_viewport" True
-
--- | Moving the focus.
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onMoveFocus, afterMoveFocus :: TextViewClass self => self
- -> (DirectionType -> IO ())
- -> IO (ConnectId self)
-onMoveFocus = connect_ENUM__NONE "move_focus" False
-afterMoveFocus = connect_ENUM__NONE "move_focus" True
-
--- | Page change signals.
---
--- * The signal specifies how many pages the view should move up or down.
---   The flag is set to @True@ if this movement extends a selection.
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
--- * Figure out why this signal is called horizontally, not vertically.
---
-onPageHorizontally, afterPageHorizontally :: TextViewClass self => self
- -> (Int -> Bool -> IO ())
- -> IO (ConnectId self)
-onPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" False
-afterPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" True
-
-
--- | Pasting from the clipboard.
---
--- * This signal is emitted when something is pasted from the clipboard. 
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onPasteClipboard, afterPasteClipboard :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
-afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 
 -- | Add menu entries to context menus.
 --
--- * This signal is emitted if a context menu within the 'TextView'
---   is opened. This signal can be used to add application specific menu
---   items to this popup.
+-- * This signal is emitted if a context menu within the 'TextView' is opened.
+--   This signal can be used to add application specific menu items to this
+--   popup.
 --
-onPopulatePopup, afterPopulatePopup :: TextViewClass self => self
- -> (Menu -> IO ())
- -> IO (ConnectId self)
-onPopulatePopup = connect_OBJECT__NONE "populate_popup" False
-afterPopulatePopup = connect_OBJECT__NONE "populate_popup" True
+-- * If you need to add items to the context menu, connect to this signal and
+--   append your menuitems to the 'Menu'.
+--
+populatePopup :: TextBufferClass self => Signal self (Menu -> IO ())
+populatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 
 -- | Inserting an anchor.
 --
@@ -1380,43 +1164,11 @@ afterPopulatePopup = connect_OBJECT__NONE "populate_popup" True
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
-onSetAnchor, afterSetAnchor :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onSetAnchor = connect_NONE__NONE "set_anchor" False
-afterSetAnchor = connect_NONE__NONE "set_anchor" True
+setAnchor :: TextBufferClass self => Signal self (IO ())
+setAnchor = Signal (connect_NONE__NONE "set-anchor")
 
 -- | The scroll-bars changed.
 --
-onSetScrollAdjustments, afterSetScrollAdjustments :: TextViewClass self => self
- -> (Adjustment -> Adjustment -> IO ())
- -> IO (ConnectId self)
-onSetScrollAdjustments = 
-  connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" False
-afterSetScrollAdjustments = 
-  connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" True
+setTextViewScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setTextViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
 
--- | The ::toggle-cursor-visible signal is a keybinding signal which gets emitted to toggle the visibility of the cursor.
--- The default binding for this signal is F7.
---
-onToggleCursorVisible, afterToggleCursorVisible :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onToggleCursorVisible = connect_NONE__NONE "toggle_cursor_visible" False
-afterToggleCursorVisible = connect_NONE__NONE "toggle_cursor_visible" True
-
--- | Insert\/Overwrite mode has changed.
---
--- * This signal is emitted when the 'TextView' changes from
---   inserting mode to overwriting mode and vice versa. 
---
--- * The action itself happens when the 'TextView' processes this
---   signal.
---
-onToggleOverwrite, afterToggleOverwrite :: TextViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onToggleOverwrite = connect_NONE__NONE "toggle_overwrite" False
-afterToggleOverwrite = connect_NONE__NONE "toggle_overwrite" True
-
-#endif

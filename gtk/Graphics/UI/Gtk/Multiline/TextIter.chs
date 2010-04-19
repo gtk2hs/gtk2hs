@@ -265,7 +265,7 @@ textIterGetPixbuf it = do
   if pbPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkPixbuf (return pbPtr)
 
--- | If the location at iter contains a child anchor, 
+-- | If the location at @iter@ contains a child anchor, 
 -- the anchor is returned (with no new reference count added). 
 -- Otherwise, @Nothing@ is returned.
 --
