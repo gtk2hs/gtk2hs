@@ -289,13 +289,6 @@ import Graphics.UI.Gtk.Multiline.TextTag
 import Graphics.UI.Gtk.Multiline.TextTagTable
 import qualified Graphics.UI.Gtk.Multiline.TextView
 import Graphics.UI.Gtk.Multiline.TextView
-#ifndef DISABLE_DEPRECATED
-        hiding (afterSetScrollAdjustments,
-		onSetScrollAdjustments, afterCopyClipboard, onCopyClipboard,
-		afterCutClipboard, onCutClipboard, afterInsertAtCursor,
-		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
-		afterToggleOverwrite, onToggleOverwrite, setScrollAdjustments)
-#endif
 -- tree and list widget
 import Graphics.UI.Gtk.ModelView.CellLayout
 import Graphics.UI.Gtk.ModelView.CellRenderer
