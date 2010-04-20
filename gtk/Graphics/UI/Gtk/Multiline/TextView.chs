@@ -24,7 +24,7 @@
 --    Fucntions: textViewSetTabs and textViewGetTabs
 --    Properties: textViewTabs
 --
--- All on... and after... signales hand incorrect names (underscore instead of hypens). Thus
+-- All on... and after... signales had incorrect names (underscore instead of hypens). Thus
 -- they could not have been used in applications and removing them can't break anything.
 -- Thus, I've removed them. Also, all key-binding singals are now removed as there is
 -- no way to add additional key bindings programatically in a type-safe way, let alone
