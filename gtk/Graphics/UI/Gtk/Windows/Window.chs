@@ -190,8 +190,6 @@ module Graphics.UI.Gtk.Windows.Window (
   windowMnemonicModifier,
 
 -- * Signals
-  activateDefault,
-  activateFocus,
   frameEvent,
   keysChanged,
   setFocus,
@@ -273,6 +271,7 @@ import Graphics.UI.Gtk.General.Structs  (windowGetFrame)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
+{#import Graphics.UI.Gtk.Gdk.Keys#}     (KeyVal)
 import Graphics.UI.Gtk.Gdk.EventM	(EventM, EAny, EKey, MouseButton, TimeStamp)
 import Control.Monad.Reader             ( runReaderT, ask )
 import Control.Monad.Trans              ( liftIO )
@@ -449,7 +448,7 @@ windowSetDefaultSize self height width =
 -- | Adds a mnemonic to this window.
 --
 windowAddMnemonic :: (WindowClass self, WidgetClass widget) => self
- -> Int  -- ^ @keyval@ - the mnemonic
+ -> KeyVal  -- ^ @keyval@ - the mnemonic
  -> widget  -- ^ @target@ - the widget that gets activated by the mnemonic 
  -> IO ()
 windowAddMnemonic self keyval target =
@@ -461,7 +460,7 @@ windowAddMnemonic self keyval target =
 -- | Removes a mnemonic from this window.
 --
 windowRemoveMnemonic :: (WindowClass self, WidgetClass widget) => self
- -> Int -- ^ @keyval@ - the mnemonic                                   
+ -> KeyVal -- ^ @keyval@ - the mnemonic                                   
  -> widget  -- ^ @target@ - the widget that gets activated by the mnemonic 
  -> IO ()
 windowRemoveMnemonic self keyval target =
@@ -472,7 +471,7 @@ windowRemoveMnemonic self keyval target =
 
 -- | Activates the targets associated with the mnemonic.
 windowMnemonicActivate :: WindowClass self => self
- -> Int  -- ^ @keyval@ - the mnemonic                    
+ -> KeyVal  -- ^ @keyval@ - the mnemonic                    
  -> [Modifier]  -- ^ @modifier@ - the modifiers                   
  -> IO Bool  -- ^ return @True@ if the activation is done. 
 windowMnemonicActivate self keyval modifier = liftM toBool $  
@@ -497,7 +496,7 @@ windowGetMnemonicModifier self = liftM (toFlags . fromIntegral) $
   {# call window_get_mnemonic_modifier #} 
     (toWindow self)
 
--- | Activates mnemonics and accelerators for this GtkWindow. 
+-- | Activates mnemonics and accelerators for this 'Window'. 
 -- This is normally called by the default 'keyPressEvent' handler for toplevel windows, 
 -- however in some cases it may be useful to call this directly when overriding the standard key handling for a toplevel window.
 -- 
@@ -676,19 +675,19 @@ windowSetFocus self focus =
 -- * Available since Gtk+ version 2.14
 --
 windowGetDefaultWidget :: WindowClass self => self
- -> IO Widget
+ -> IO (Maybe Widget)
 windowGetDefaultWidget self = 
-  makeNewObject mkWidget $
+  maybeNull (makeNewObject mkWidget) $
   {# call window_get_default_widget #}
     (toWindow self)
 #endif
 
 -- | The default widget is the widget that's activated when the user presses
--- | Enter in a dialog (for example). This function sets or unsets the default
--- | widget for a Window about. When setting (rather than unsetting) the
--- | default widget it's generally easier to call widgetGrabDefault on the
--- | widget. Before making a widget the default widget, you must set the
--- | 'widgetCanDefault' flag on the widget.
+--   Enter in a dialog (for example). This function sets or unsets the default
+--   widget for a Window about. When setting (rather than unsetting) the
+--   default widget it's generally easier to call widgetGrabDefault on the
+--   widget. Before making a widget the default widget, you must set the
+--   'widgetCanDefault' flag on the widget.
 --
 windowSetDefault :: (WindowClass self, WidgetClass widget) => self
   -> Maybe widget
@@ -723,7 +722,7 @@ windowPresent self =
 -- other entities (e.g. the user or window manager) could iconify it again
 -- before your code which assumes deiconification gets to run.
 --
--- You can track iconification via the \"window_state_event\" signal on
+-- You can track iconification via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowDeiconify :: WindowClass self => self -> IO ()
@@ -741,7 +740,7 @@ windowDeiconify self =
 -- It's permitted to call this function before showing a window, in which
 -- case the window will be iconified before it ever appears onscreen.
 --
--- You can track iconification via the \"window_state_event\" signal on
+-- You can track iconification via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowIconify :: WindowClass self => self -> IO ()
@@ -758,7 +757,7 @@ windowIconify self =
 -- It's permitted to call this function before showing a window, in which
 -- case the window will be maximized when it appears onscreen initially.
 --
--- You can track maximization via the \"window_state_event\" signal on
+-- You can track maximization via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowMaximize :: WindowClass self => self -> IO ()
@@ -772,7 +771,7 @@ windowMaximize self =
 -- requests to unmaximize. But normally the window will end up unmaximized.
 -- Just don't write code that crashes if not.
 --
--- You can track maximization via the \"window_state_event\" signal on
+-- You can track maximization via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowUnmaximize :: WindowClass self => self -> IO ()
@@ -788,7 +787,7 @@ windowUnmaximize self =
 -- the window will end up fullscreen. Just don't write code that crashes if
 -- not.
 --
--- You can track the fullscreen state via the \"window_state_event\" signal
+-- You can track the fullscreen state via the 'windowStateEvent' signal
 -- on 'Widget'.
 --
 -- * Available since Gtk+ version 2.2
@@ -805,7 +804,7 @@ windowFullscreen self =
 -- normally the window will end up restored to its normal state. Just don't
 -- write code that crashes if not.
 --
--- You can track the fullscreen state via the \"window_state_event\" signal
+-- You can track the fullscreen state via the 'windowStateEvent' signal
 -- on 'Widget'.
 --
 -- * Available since Gtk+ version 2.2
@@ -825,7 +824,7 @@ windowUnfullscreen self =
 -- It's permitted to call this function before showing a window, in which
 -- case the window will be kept above when it appears onscreen initially.
 --
--- You can track the above state via the \"window_state_event\" signal on
+-- You can track the above state via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 -- Note that, according to the Extended Window Manager Hints specification,
@@ -851,7 +850,7 @@ windowSetKeepAbove self setting =
 -- It's permitted to call this function before showing a window, in which
 -- case the window will be kept below when it appears onscreen initially.
 --
--- You can track the below state via the \"window_state_event\" signal on
+-- You can track the below state via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 -- Note that, according to the Extended Window Manager Hints specification,
@@ -1022,11 +1021,12 @@ windowGetDecorated self =
   {# call gtk_window_get_decorated #}
     (toWindow self)
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | By default, windows have a close button in the window frame. 
 -- Some window managers allow GTK+ to disable this button. 
 -- If you set the deletable property to  @False@ using this function, GTK+ will do its best to convince the window manager not to show a close button. 
 -- Depending on the system, this function may not have any effect when called on a window that is already visible, 
--- so you should call it before calling gtk_window_show().
+-- so you should call it before calling 'windowShow'.
 --
 -- On Windows, this function always works, since there's no window manager policy involved.
 --
@@ -1049,7 +1049,7 @@ windowGetDeletable :: WindowClass self => self
 windowGetDeletable self = liftM toBool $  
   {# call window_get_deletable #}
     (toWindow self)
-
+#endif
 -- | (Note: this is a special-purpose function intended for the framebuffer
 -- port; see 'windowSetHasFrame'. It will have no effect on the window border
 -- drawn by the window manager, which is the normal case when using the X
@@ -1085,9 +1085,9 @@ windowSetFrameDimensions self left top right bottom =
 --
 windowGetFrameDimensions :: WindowClass self => self
  -> IO (Int, Int, Int, Int)
- -- ^ return @(left, top, right, bottom)@ is location to store size frame. @left@ is
- -- width of the frame at the left, @top@ is height of the frame at the top, @right@
- -- is width of the frame at the right, @bottom@ is height of the frame at the bottom.
+ -- ^ returns @(left, top, right, bottom)@. @left@ is the
+ -- width of the frame at the left, @top@ is the height of the frame at the top, @right@
+ -- is the width of the frame at the right, @bottom@ is the height of the frame at the bottom.
 windowGetFrameDimensions self = 
   alloca $ \lPtr -> alloca $ \tPtr -> alloca $ \rPtr -> alloca $ \bPtr -> do
     {# call window_get_frame_dimensions #} (toWindow self) lPtr tPtr rPtr bPtr
@@ -1167,7 +1167,7 @@ windowGetRole self =
 --
 -- It's permitted to call this function before showing a window.
 --
--- You can track stickiness via the \"window_state_event\" signal on
+-- You can track stickiness via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowStick :: WindowClass self => self -> IO ()
@@ -1181,7 +1181,7 @@ windowStick self =
 -- could stick it again. But normally the window will end up stuck. Just don't
 -- write code that crashes if not.
 --
--- You can track stickiness via the \"window_state_event\" signal on
+-- You can track stickiness via the 'windowStateEvent' signal on
 -- 'Widget'.
 --
 windowUnstick :: WindowClass self => self -> IO ()
@@ -1231,9 +1231,13 @@ windowRemoveAccelGroup self accelGroup =
 -- your application in one go.
 --
 windowSetIcon :: WindowClass self => self
- -> Pixbuf -- ^ @icon@ - icon image
+ -> Maybe Pixbuf -- ^ @icon@ - icon image
  -> IO ()
-windowSetIcon self icon =
+windowSetIcon self (Just icon) =
+  {# call gtk_window_set_icon #}
+    (toWindow self)
+    (Pixbuf nullForeignPtr)
+windowSetIcon self (Just icon) =
   {# call gtk_window_set_icon #}
     (toWindow self)
     icon
@@ -1242,13 +1246,13 @@ windowSetIcon self icon =
 -- 'windowSetIconList', gets the first icon in the icon list).
 --
 windowGetIcon :: WindowClass self => self
- -> IO Pixbuf -- ^ returns icon for window
+ -> IO (Maybe Pixbuf) -- ^ returns icon for window, or @Nothing@ if none was set
 windowGetIcon self =
-  makeNewGObject mkPixbuf $
+  maybeNull (makeNewGObject mkPixbuf) $
   {# call gtk_window_get_icon #}
     (toWindow self)
 
--- | Sets up the icon representing a GtkWindow. The icon is used when the window is minimized (also known as iconified). 
+-- | Sets up the icon representing a 'Window'. The icon is used when the window is minimized (also known as iconified). 
 -- Some window managers or desktop environments may also place it in the window frame, or display it in other contexts.
 --
 -- 'windowSetIconList' allows you to pass in the same icon in several hand-drawn sizes. 
@@ -1878,6 +1882,8 @@ windowSetGeometryHints self geometryWidget
     (fromIntegral $ minSizeFlag .|. maxSizeFlag .|. baseSizeFlag
                  .|. incSizeFlag .|. aspectFlag)
 
+{# enum GdkWindowHints {underscoreToCase} #}
+
 #if GTK_CHECK_VERSION(2,12,0)
 -- | Request the windowing system to make window partially transparent, with opacity 0 being fully transparent and 1 fully opaque. 
 -- (Values of the opacity parameter are clamped to the [0,1] range.) 
@@ -1916,8 +1922,6 @@ windowGetGroup self =
   makeNewGObject mkWindowGroup $
   {# call window_get_group #} (maybe (Window nullForeignPtr) toWindow self)
 #endif  
-
-{# enum GdkWindowHints {underscoreToCase} #}
 
 --------------------
 -- Attributes
@@ -2108,7 +2112,7 @@ windowDestroyWithParent = newAttr
 
 -- | Icon for this window.
 --
-windowIcon :: WindowClass self => Attr self Pixbuf
+windowIcon :: WindowClass self => Attr self (Maybe Pixbuf)
 windowIcon = newAttr
   windowGetIcon
   windowSetIcon
@@ -2237,29 +2241,22 @@ windowTransientFor = newAttr
 
 --------------------
 -- Signals
--- | The 'activateDefault' signal is a keybinding signal which gets emitted when the user activates the default widget of window.
-activateDefault :: WindowClass self => Signal self (IO ())
-activateDefault = Signal (connect_NONE__NONE "activate_default")
-
--- | The 'activateDefault' signal is a keybinding signal which gets emitted when the user activates the currently focused widget of window.
-activateFocus :: WindowClass self => Signal self (IO ())
-activateFocus = Signal (connect_NONE__NONE "activate_focus")
 
 -- | Observe events that are emitted on the frame of this window.
 -- 
 frameEvent :: WindowClass self => Signal self (EventM EAny Bool)
 frameEvent = Signal (\after obj fun ->
-                     connect_PTR__BOOL "frame_event" after obj (runReaderT fun))
+                     connect_PTR__BOOL "frame-event" after obj (runReaderT fun))
 
 -- | The 'keysChanged' signal gets emitted when the set of accelerators or mnemonics that are associated with window changes.
 --
 keysChanged :: WindowClass self => Signal self (IO ())
-keysChanged = Signal (connect_NONE__NONE "keys_changed")
+keysChanged = Signal (connect_NONE__NONE "keys-changed")
 
 -- | Observe a change in input focus.
 --
 setFocus :: WindowClass self => Signal self (Widget -> IO ())
-setFocus = Signal (connect_OBJECT__NONE "set_focus")
+setFocus = Signal (connect_OBJECT__NONE "set-focus")
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -2268,7 +2265,7 @@ setFocus = Signal (connect_OBJECT__NONE "set_focus")
 onSetFocus, afterSetFocus :: (WindowClass self, WidgetClass foc) => self
  -> (foc -> IO ())
  -> IO (ConnectId self)
-onSetFocus = connect_OBJECT__NONE "set_focus" False
-afterSetFocus = connect_OBJECT__NONE "set_focus" True
+onSetFocus = connect_OBJECT__NONE "set-focus" False
+afterSetFocus = connect_OBJECT__NONE "set-focus" True
 
 #endif
