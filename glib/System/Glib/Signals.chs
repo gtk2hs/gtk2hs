@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# CFILES hsgclosure.c #-}
 -- -*-haskell-*-
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
 --

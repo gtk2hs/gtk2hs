@@ -18,15 +18,21 @@ Description:    The GNU Library is a collection of C data structures and utility
                 wrap libraries that are themselves based on GLib.
 Category:       System
 Tested-With:    GHC == 6.10.4
+Extra-Source-Files:
+                System/Glib/hsgclosure.c
+                System/Glib/hsgclosure.h
 
 Flag closure_signals
   Description:  Connect to signals using the Duncan way.
-  
+
+
 Library
         build-depends:  base >= 4, containers, haskell98
         cpp-options:     -DHAVE_NEW_CONTROL_EXCEPTION
         if flag(closure_signals)
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
+          c-sources: System/Glib/hsgclosure.c
+          include-dirs: System/Glib
         exposed:  False
         exposed-modules:  System.Glib
                           System.Glib.Properties
