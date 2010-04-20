@@ -35,10 +35,6 @@ module System.Glib.GValueTypes (
   valueGetUInt64,
   valueSetInt64,
   valueGetInt64,
-  valueSetUChar,
-  valueGetUChar,
-  valueSetChar,
-  valueGetChar,
   valueSetBool,
   valueGetBool,
   valueSetPointer,
@@ -108,31 +104,6 @@ valueGetInt64 :: GValue -> IO Int64
 valueGetInt64 gvalue =
   liftM fromIntegral $
   {# call unsafe value_get_int64 #} gvalue
-
-valueSetUChar :: GValue -> Word8 -> IO ()
-valueSetUChar gvalue value =
-  {# call unsafe value_set_uchar #} gvalue (fromIntegral value)
-
-valueGetUChar :: GValue -> IO Word8
-valueGetUChar gvalue =
-  liftM fromIntegral $ {# call unsafe value_get_uchar #} gvalue
-
---these belong somewhere else, are in new c2hs's C2HS module
-cToEnum :: (Integral i, Enum e) => i -> e
-cToEnum  = toEnum . fromIntegral
-
-cFromEnum :: (Enum e, Integral i) => e -> i
-cFromEnum  = fromIntegral . fromEnum
-
---valueSetChar :: GValue -> {#type gchar#} -> IO ()
-valueSetChar :: GValue -> Char -> IO ()
-valueSetChar gvalue value =
-  {# call unsafe value_set_char #} gvalue (cFromEnum value)
-
---valueGetChar :: GValue -> IO {#type gchar#}
-valueGetChar :: GValue -> IO Char
-valueGetChar gvalue =
-  liftM cToEnum $ {# call unsafe value_get_char #} gvalue
 
 valueSetBool :: GValue -> Bool -> IO ()
 valueSetBool gvalue value =
