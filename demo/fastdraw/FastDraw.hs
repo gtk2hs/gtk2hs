@@ -2,7 +2,7 @@
 
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Gdk.EventM
+import Graphics.UI.Gtk.Gdk.GC
 
 import Data.Array.MArray
 import Data.Word
