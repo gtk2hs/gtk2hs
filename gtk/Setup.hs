@@ -199,24 +199,21 @@ genSynthezisedFiles verb pd lbi = do
 
       genFile :: Program -> [ProgArg] -> FilePath -> IO ()
       genFile prog args outFile = do
-        case lookupProgram prog (withPrograms lbi) of
-          Just confProg -> do
-            res <- rawSystemProgramStdout verb confProg args
-            rewriteFile outFile res
-          Nothing ->
-            warn verb ("Cannot find Gtk2Hs utility program "++programName prog)
+         res <- rawSystemProgramStdoutConf verb prog (withPrograms lbi) args
+         rewriteFile outFile res
 
   case lookup "x-types-file" xList of
     Nothing -> return ()
     Just f -> do
-      notice verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
+      info verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
       genFile typeGenProgram typeOpts f
+
   case (lookup "x-signals-file" xList,
         lookup "x-signals-modname" xList) of
     (Just _, Nothing) -> die "You need to specify the module name (X-Signals-ModName) \
                              \to generate a signal file."
     (Just f, Just mod) -> do
-      notice verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
+      info verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
       genFile signalGenProgram [mod] f
     (_,_) -> return ()
 
