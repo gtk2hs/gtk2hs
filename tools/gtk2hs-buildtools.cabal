@@ -19,7 +19,7 @@ Description:    This package provides a set of helper programs necessary to
                 and a generator for signal declarations that are used
                 to call back from C to Haskell. These tools are not needed
                 to actually run Gtk2Hs programs.
-Category:       GUI
+Category:       Development
 Tested-With:    GHC == 6.10.4
 Data-Files:     callbackGen/Signal.chs.template
                 callbackGen/gtkmarshal.list
