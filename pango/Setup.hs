@@ -44,6 +44,7 @@ import Distribution.Simple.PackageIndex (
   )
 import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                BuildInfo(..),
+                                               allBuildInfo,
                                                Library(..),
                                                libModules)
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
@@ -56,14 +57,16 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
                                            absoluteInstallDirs)
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
-  Program(..), ConfiguredProgram(..), rawSystemProgramConf, c2hsProgram,
+  Program(..), ConfiguredProgram(..),
+  rawSystemProgramConf, rawSystemProgramStdoutConf,
+  c2hsProgram, pkgConfigProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
 import Distribution.Simple.Utils
 import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   defaultCopyFlags, ConfigFlags(configVerbosity),
                                   fromFlag, toFlag)
-import Distribution.Text ( simpleParse )
+import Distribution.Text ( simpleParse, display )
 import System.FilePath
 import System.Directory ( doesFileExist )
 import Distribution.Version (Version(..))
@@ -71,6 +74,7 @@ import Distribution.Verbosity
 import Control.Monad (unless)
 import Data.Maybe (fromMaybe)
 import Data.List (isPrefixOf, nub)
+import Data.Char (isAlpha)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -175,6 +179,9 @@ c2hsLocal = (simpleProgram "gtk2hsC2hs")
 
 genSynthezisedFiles :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 genSynthezisedFiles verb pd lbi = do
+
+  cPkgs <- getPkgConfigPackages verb lbi pd
+
   let xList = maybe [] (customFieldsBI . libBuildInfo) (library pd)
               ++customFieldsPD pd
       typeOpts :: [ProgArg]
@@ -182,6 +189,14 @@ genSynthezisedFiles verb pd lbi = do
                         | (field,content) <- xList,
                           "x-types-" `isPrefixOf` field,
                           field /= "x-types-file"]
+              ++ [ "--tag=" ++ tag
+                 | PackageIdentifier name (Version (major:minor:_) _) <- cPkgs
+                 , let name' = filter isAlpha (display name)
+                 , tag <- name'
+                        : [ name' ++ "-" ++ show major ++ "." ++ show digit
+                          | digit <- [0,2..minor] ]
+                 ]
+
       genFile :: Program -> [ProgArg] -> FilePath -> IO ()
       genFile prog args outFile = do
         case lookupProgram prog (withPrograms lbi) of
@@ -190,6 +205,7 @@ genSynthezisedFiles verb pd lbi = do
             rewriteFile outFile res
           Nothing ->
             warn verb ("Cannot find Gtk2Hs utility program "++programName prog)
+
   case lookup "x-types-file" xList of
     Nothing -> return ()
     Just f -> do
@@ -203,6 +219,22 @@ genSynthezisedFiles verb pd lbi = do
       notice verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
       genFile signalGenProgram [mod] f
     (_,_) -> return ()
+
+--FIXME: Cabal should tell us the selected pkg-config package versions in the
+--       LocalBuildInfo or equivalent.
+--       In the mean time, ask pkg-config again.
+
+getPkgConfigPackages :: Verbosity -> LocalBuildInfo -> PackageDescription -> IO [PackageId]
+getPkgConfigPackages verbosity lbi pkg =
+  sequence
+    [ do version <- pkgconfig ["--modversion", display pkgname]
+         case simpleParse version of
+           Nothing -> die $ "parsing output of pkg-config --modversion failed"
+           Just v  -> return (PackageIdentifier pkgname v)
+    | Dependency pkgname _ <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
+  where
+    pkgconfig = rawSystemProgramStdoutConf verbosity
+                  pkgConfigProgram (withPrograms lbi)
 
 ------------------------------------------------------------------------------
 -- Dependency calculation amongst .chs files.
