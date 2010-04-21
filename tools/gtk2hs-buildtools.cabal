@@ -1,6 +1,6 @@
 Name:   gtk2hs-buildtools
 Version:        0.9
-License:        GPL
+License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts, Manuel Chakravaty
