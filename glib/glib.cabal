@@ -21,6 +21,11 @@ Extra-Source-Files:
                 System/Glib/hsgclosure.c
                 System/Glib/hsgclosure.h
 
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       glib
+
 Flag closure_signals
   Description:  Connect to signals using the Duncan way.
 

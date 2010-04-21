@@ -24,6 +24,11 @@ x-Types-File:   Graphics/Rendering/Pango/Types.chs
 x-Types-ModName: Graphics.Rendering.Pango.Types
 x-Types-Forward:  *System.Glib.GObject
 
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       pango
+
 Flag new-exception
   Description:  Enable build with a base library that contains the new exception library.
 

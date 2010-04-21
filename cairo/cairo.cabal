@@ -18,6 +18,11 @@ Category:       Graphics
 Tested-With:    GHC == 6.10.4
 extra-source-files: cairo-gtk2hs.h
 
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       cairo
+
 Flag cairo_pdf
   Description: Build the PDF backend of Cairo.
   

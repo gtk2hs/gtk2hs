@@ -25,6 +25,11 @@ Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/General/hsgthread.h
                     template-hsc-gtk2hs.h
 
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       gtk
+
 Flag gtk_2_8
   Description:  Build objects for Gtk+ version 2.8.
 

@@ -27,6 +27,11 @@ Data-Files:     callbackGen/Signal.chs.template
                 hierarchyGen/Hierarchy.chs.template
 Extra-Source-Files:     c2hs/toplevel/c2hs_config.h
 
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       tools
+
 Flag ClosureSignals
         Description:    Use the the GClosure-based signals implementation.
 --        if ! (arch(sparc) || arch(x86_64) || impl(ghc >= 6.4.1))
