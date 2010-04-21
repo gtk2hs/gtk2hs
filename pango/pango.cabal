@@ -42,13 +42,16 @@ Flag pango_1_6
   Description:  Build data types for Pango version 1.6.
 
 Library
+        build-depends:  base >= 3 && < 5,
+                        process, directory, array, containers, pretty, haskell98,
+                        glib >= 0.10.5, cairo >= 0.10.5
+
         if flag(new-exception)
-          build-depends:  base >= 4, process, directory, array, containers,
-                          pretty, haskell98, glib >= 0.10.5, cairo >= 0.10.5
+          build-depends:  base >= 4
           cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
         else
-          build-depends:  base < 4, process, directory, array, containers,
-                          pretty, haskell98, glib >= 0.10.5, cairo >= 0.10.5
+          build-depends:  base < 4
+
         exposed-modules: Graphics.Rendering.Pango.Font
                          Graphics.Rendering.Pango.Enums
                          Graphics.Rendering.Pango.Context

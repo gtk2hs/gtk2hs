@@ -31,7 +31,8 @@ Flag closure_signals
 
 
 Library
-        build-depends:  base >= 4, containers, haskell98
+        build-depends:  base >= 4 && < 5,
+                        containers, haskell98
         cpp-options:     -DHAVE_NEW_CONTROL_EXCEPTION
         if flag(closure_signals)
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL

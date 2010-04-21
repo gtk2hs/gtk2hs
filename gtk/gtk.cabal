@@ -57,7 +57,8 @@ Flag deprecated
   Manual:       True
 
 Library
-        build-depends:  base >= 4, array, containers, haskell98, mtl,
+        build-depends:  base >= 4 && < 5,
+                        array, containers, haskell98, mtl,
                         glib >= 0.10.5, pango >= 0.10.5, cairo >= 0.10.5
         exposed-modules:
           Graphics.UI.Gtk
