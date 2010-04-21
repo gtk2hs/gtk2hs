@@ -57,7 +57,7 @@
                     GtkArrow
                     GtkImage
                 GtkContainer
-                    WebkitWebView as WebView            if webkit 
+                    WebKitWebView as WebView, webkit_web_view_get_type            if webkit 
                     GtkBin
                         GtkAlignment
                         GtkFrame
@@ -316,20 +316,20 @@
         GstAdapter                      as Adapter,             gst_adapter_get_type                    if gstreamer
         GstController                   as Controller,          gst_controller_get_type                 if gstreamer
 
-        WebkitWebFrame as WebFrame          if webkit 
-        WebkitWebSettings as WebSettings    if webkit
-        WebkitNetworkRequest as NetworkRequest  if webkit
-        WebkitNetworkResponse as NetworkResponse    if webkit
-        WebkitDownload as Download  if webkit
-        WebkitWebBackForwardList as WebBackForwardList if webkit
-        WebkitWebHistoryItem as WebHistoryItem if webkit
-        WebkitWebInspector as WebInspector if webkit
-        WebkitHitTestResult as HitTestResult if webkit
-        WebkitSecurityOrigin as SecurityOrigin if webkit
-        WebkitSoupAuthDialog as SoupAuthDialog if webkit
-        WebkitWebDatabase as WebDatabase if webkit
-        WebkitWebDataSource as WebDataSource if webkit
-        WebkitWebNavigationAction as WebNavigationAction if webkit
-        WebkitWebPolicyDecision as WebPolicyDecision if webkit
-        WebkitWebResource as WebResource if webkit
-        WebkitWebWindowFeatures as WebWindowFeatures if webkit
+        WebKitWebFrame as WebFrame, webkit_web_frame_get_type          if webkit 
+        WebKitWebSettings as WebSettings, webkit_web_settings_get_type    if webkit
+        WebKitNetworkRequest as NetworkRequest, webkit_network_request_get_type  if webkit
+        WebKitNetworkResponse as NetworkResponse, webkit_network_response_get_type    if webkit
+        WebKitDownload as Download, webkit_download_get_type  if webkit
+        WebKitWebBackForwardList as WebBackForwardList, webkit_web_back_forward_list_get_type if webkit
+        WebKitWebHistoryItem as WebHistoryItem, webkit_web_history_item_get_type if webkit
+        WebKitWebInspector as WebInspector, webkit_web_inspector_get_type if webkit
+        WebKitHitTestResult as HitTestResult, webkit_hit_test_result_get_type if webkit
+        WebKitSecurityOrigin as SecurityOrigin, webkit_security_origin_get_type if webkit
+        WebKitSoupAuthDialog as SoupAuthDialog, webkit_soup_auth_dialog_get_type if webkit
+        WebKitWebDatabase as WebDatabase, webkit_web_database_get_type if webkit
+        WebKitWebDataSource as WebDataSource, webkit_web_data_source_get_type if webkit
+        WebKitWebNavigationAction as WebNavigationAction, webkit_web_navigation_action_get_type if webkit
+        WebKitWebPolicyDecision as WebPolicyDecision, webkit_web_policy_decision_get_type if webkit
+        WebKitWebResource as WebResource, webkit_web_resource_get_type if webkit
+        WebKitWebWindowFeatures as WebWindowFeatures, webkit_web_window_features_get_type if webkit
