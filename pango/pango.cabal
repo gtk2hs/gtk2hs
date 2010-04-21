@@ -44,7 +44,8 @@ Flag pango_1_6
 Library
         build-depends:  base >= 3 && < 5,
                         process, directory, array, containers, pretty, haskell98,
-                        glib >= 0.10.5, cairo >= 0.10.5
+                        glib  >= 0.10.5 && < 0.11,
+                        cairo >= 0.10.5 && < 0.11
 
         if flag(new-exception)
           build-depends:  base >= 4

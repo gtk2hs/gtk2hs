@@ -59,7 +59,9 @@ Flag deprecated
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, haskell98, mtl,
-                        glib >= 0.10.5, pango >= 0.10.5, cairo >= 0.10.5
+                        glib  >= 0.10.5 && < 0.11,
+                        pango >= 0.10.5 && < 0.11,
+                        cairo >= 0.10.5 && < 0.11
         exposed-modules:
           Graphics.UI.Gtk
           Graphics.UI.Gtk.Types
