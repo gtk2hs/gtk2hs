@@ -53,6 +53,8 @@ Library
         else
           build-depends:  base < 4
 
+        build-tools:    gtk2hsC2hs, gtk2hsTypeGen
+
         exposed-modules: Graphics.Rendering.Pango.Font
                          Graphics.Rendering.Pango.Enums
                          Graphics.Rendering.Pango.Context
