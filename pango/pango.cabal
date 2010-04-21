@@ -8,9 +8,8 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.6
 Stability:      stable
-homepage:       www.haskell.org/gtk2hs/
-bug-reports:    http://hackage.haskell.org/trac/gtk2hs/report
-package-url:    http://hackage.haskell.org/package/pango
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the Pango text rendering engine.
 Description:    This package provides a wrapper around the Pango C library that
                 allows high-quality rendering of Unicode text. It can be used

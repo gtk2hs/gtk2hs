@@ -8,9 +8,8 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.6.0
 Stability:      stable
-homepage:       www.haskell.org/gtk2hs/
-bug-reports:    http://hackage.haskell.org/trac/gtk2hs/report
-package-url:    http://hackage.haskell.org/package/glib
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the GLIB library for Gtk2Hs.
 Description:    The GNU Library is a collection of C data structures and utility
                 function for dealing with Unicode. This package only binds as
