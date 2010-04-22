@@ -46,6 +46,7 @@ Library
 
         exposed-modules:
           Graphics.UI.Gtk
+          Graphics.UI.GtkInternals
           Graphics.UI.Gtk.Abstract.Bin
           Graphics.UI.Gtk.Abstract.Box
           Graphics.UI.Gtk.Abstract.ButtonBox
@@ -202,17 +203,18 @@ Library
           Graphics.UI.Gtk.Windows.MessageDialog
           Graphics.UI.Gtk.Windows.Window
           Graphics.UI.Gtk.Windows.WindowGroup
-          Graphics.UI.Gtk.General.Threading
           Graphics.UI.Gtk.General.Enums
-          Graphics.UI.Gtk.General.DNDTypes
-          Graphics.UI.Gtk.Multiline.Types
         other-modules:
           Graphics.UI.Gtk.Gdk.Enums
           Graphics.UI.Gtk.Gdk.PixbufData
           Graphics.UI.Gtk.General.Structs
           Graphics.UI.Gtk.ModelView.Types
           Graphics.UI.Gtk.ModelView.Sequence
+          Graphics.UI.Gtk.Multiline.Types
           Graphics.UI.Gtk.Abstract.ContainerChildProperties
+          Graphics.UI.Gtk.General.DNDTypes
+          Graphics.UI.Gtk.General.Threading
+          Graphics.UI.Gtk.Types
           Graphics.UI.Gtk.Signals
 
         extensions:     ForeignFunctionInterface

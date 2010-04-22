@@ -28,8 +28,10 @@
 --
 module Graphics.UI.GtkInternals (
   module Graphics.UI.Gtk.Types,
-  module Graphics.UI.Gtk.General.DNDTypes
+  module Graphics.UI.Gtk.General.DNDTypes,
+  module Graphics.UI.Gtk.Multiline.Types
   ) where
 
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#} (mkTargetList)
+{#import Graphics.UI.Gtk.Multiline.Types#} 
