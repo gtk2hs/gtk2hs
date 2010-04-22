@@ -47,7 +47,7 @@
         GtkTextChildAnchor
         GtkTextMark
 	    GtkSourceMarker	if sourceview
-            GtkSourceMark       if gtksourceview2-2.2
+            GtkSourceMark       if gtksourceview2
         GtkObject
             GtkWidget
                 GtkMisc
