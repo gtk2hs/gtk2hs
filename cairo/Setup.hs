@@ -43,8 +43,9 @@ import Distribution.Simple.PackageIndex (
 #endif
   )
 import Distribution.PackageDescription as PD ( PackageDescription(..),
+                                               updatePackageDescription,
                                                BuildInfo(..),
-                                               allBuildInfo,
+                                               emptyBuildInfo, allBuildInfo,
                                                Library(..),
                                                libModules)
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
@@ -66,6 +67,7 @@ import Distribution.Simple.Utils
 import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   defaultCopyFlags, ConfigFlags(configVerbosity),
                                   fromFlag, toFlag)
+import Distribution.Simple.BuildPaths ( autogenModulesDir )
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
 import System.Directory ( doesFileExist )
@@ -85,9 +87,11 @@ precompFile = "precompchs.bin"
 main = defaultMainWithHooks simpleUserHooks {
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
     hookedPreProcessors = [("chs", ourC2hs)],
-    postConf = \args cf pd lbi -> 
-      (postConf simpleUserHooks) args cf pd lbi >>
-      genSynthezisedFiles (fromFlag (configVerbosity cf)) pd lbi,
+    confHook = \pd cf ->
+      confHook simpleUserHooks pd cf >>= return . adjustLocalBuildInfo,
+    postConf = \args cf pd lbi -> do
+      genSynthezisedFiles (fromFlag (configVerbosity cf)) pd lbi
+      postConf simpleUserHooks args cf pd lbi,
     buildHook = \pd lbi uh bf -> fixDeps pd >>= \pd ->
                                  (buildHook simpleUserHooks) pd lbi uh bf,
     copyHook = \pd lbi uh flags -> (copyHook simpleUserHooks) pd lbi uh flags >>
@@ -95,6 +99,14 @@ main = defaultMainWithHooks simpleUserHooks {
 		instHook = \pd lbi uh flags -> (instHook simpleUserHooks) pd lbi uh flags >>
       installCHI pd lbi (fromFlag (installVerbosity flags)) NoCopyDest
   }
+
+-- This is a hack for Cabal-1.8, It is not needed in Cabal-1.9.1 or later
+adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
+adjustLocalBuildInfo lbi =
+  let extra = (Just libBi, [])
+      libBi = emptyBuildInfo { includeDirs = [ autogenModulesDir lbi
+                                             , buildDir lbi ] }
+   in lbi { localPkgDescr = updatePackageDescription extra (localPkgDescr lbi) }
 
 ourC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ourC2hs bi lbi = PreProcessor {
