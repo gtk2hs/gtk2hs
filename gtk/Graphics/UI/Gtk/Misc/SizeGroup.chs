@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.Misc.SizeGroup (
 -- * Types
   SizeGroup,
   SizeGroupClass,
-  castToSizeGroup,
+  castToSizeGroup, gTypeSizeGroup,
   toSizeGroup,
 
 -- * Constructors

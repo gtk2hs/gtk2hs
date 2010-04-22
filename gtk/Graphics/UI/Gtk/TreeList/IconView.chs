@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.TreeList.IconView (
 -- * Types
   IconView,
   IconViewClass,
-  castToIconView,
+  castToIconView, gTypeIconView,
   toIconView,
 
 -- * Constructors

@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.Display.ProgressBar (
 -- * Types
   ProgressBar,
   ProgressBarClass,
-  castToProgressBar,
+  castToProgressBar, gTypeProgressBar,
   toProgressBar,
 
 -- * Constructors

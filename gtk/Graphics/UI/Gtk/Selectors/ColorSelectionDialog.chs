@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Selectors.ColorSelectionDialog (
 -- * Types
   ColorSelectionDialog,
   ColorSelectionDialogClass,
-  castToColorSelectionDialog,
+  castToColorSelectionDialog, gTypeColorSelectionDialog,
   toColorSelectionDialog,
 
 -- * Constructors

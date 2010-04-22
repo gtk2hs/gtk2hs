@@ -97,7 +97,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- * Types
   Dialog,
   DialogClass,
-  castToDialog,
+  castToDialog, gTypeDialog,
   toDialog,
 
 -- * Constructors

@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
 -- * Types
   FileFilter,
   FileFilterClass,
-  castToFileFilter,
+  castToFileFilter, gTypeFileFilter,
   toFileFilter,
   FileFilterFlags(..),
 

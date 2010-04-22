@@ -95,7 +95,7 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
 -- * Types
   TreeModel,
   TreeModelClass,
-  castToTreeModel,
+  castToTreeModel, gTypeTreeModel,
   toTreeModel,
   TreeModelFlags(..),
   TreePath,

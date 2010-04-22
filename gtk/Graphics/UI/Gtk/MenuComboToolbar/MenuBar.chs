@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
 -- * Types
   MenuBar,
   MenuBarClass,
-  castToMenuBar,
+  castToMenuBar, gTypeMenuBar,
   toMenuBar,
 #if GTK_CHECK_VERSION(2,8,0)
   PackDirection(..),

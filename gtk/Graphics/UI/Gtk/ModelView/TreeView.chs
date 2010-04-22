@@ -79,7 +79,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 -- * Types
   TreeView,
   TreeViewClass,
-  castToTreeView,
+  castToTreeView, gTypeTreeView,
   toTreeView,
   Point,
   DragAction(..),

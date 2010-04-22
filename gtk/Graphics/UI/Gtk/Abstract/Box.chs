@@ -100,7 +100,7 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- * Types
   Box,
   BoxClass,
-  castToBox,
+  castToBox, gTypeBox,
   toBox,
   Packing(..),
 

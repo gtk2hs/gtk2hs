@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Selectors.FileChooserButton (
 -- * Types
   FileChooserButton,
   FileChooserButtonClass,
-  castToFileChooserButton,
+  castToFileChooserButton, gTypeFileChooserButton,
   toFileChooserButton,
 
 -- * Constructors

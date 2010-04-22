@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
 -- * Types
   TreeSelection,
   TreeSelectionClass,
-  castToTreeSelection,
+  castToTreeSelection, gTypeTreeSelection,
   toTreeSelection,
   SelectionMode(..),
   TreeSelectionCB,

@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Misc.Arrow (
 -- * Types
   Arrow,
   ArrowClass,
-  castToArrow,
+  castToArrow, gTypeArrow,
   toArrow,
   ArrowType(..),
   ShadowType(..),

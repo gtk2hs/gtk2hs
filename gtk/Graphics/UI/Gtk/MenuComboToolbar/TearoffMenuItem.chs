@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem (
 -- * Types
   TearoffMenuItem,
   TearoffMenuItemClass,
-  castToTearoffMenuItem,
+  castToTearoffMenuItem, gTypeTearoffMenuItem,
   toTearoffMenuItem,
 
 -- * Constructors

@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
 -- * Types
   TreeViewColumn,
   TreeViewColumnClass,
-  castToTreeViewColumn,
+  castToTreeViewColumn, gTypeTreeViewColumn,
   toTreeViewColumn,
 
 -- * Constructors

@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.Misc.Tooltips (
 -- * Types
   Tooltips,
   TooltipsClass,
-  castToTooltips,
+  castToTooltips, gTypeTooltips,
   toTooltips,
 
 -- * Constructors

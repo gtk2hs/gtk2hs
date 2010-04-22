@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererToggle (
 -- * Types
   CellRendererToggle,
   CellRendererToggleClass,
-  castToCellRendererToggle,
+  castToCellRendererToggle, gTypeCellRendererToggle,
   toCellRendererToggle,
 
 -- * Constructors

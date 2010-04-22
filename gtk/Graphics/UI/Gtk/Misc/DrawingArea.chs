@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 -- * Types
   DrawingArea,
   DrawingAreaClass,
-  castToDrawingArea,
+  castToDrawingArea, gTypeDrawingArea,
   toDrawingArea,
 
 -- * Constructors

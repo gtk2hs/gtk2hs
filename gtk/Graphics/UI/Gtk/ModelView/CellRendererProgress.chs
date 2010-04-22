@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererProgress (
 -- * Types
   CellRendererProgress,
   CellRendererProgressClass,
-  castToCellRendererProgress,
+  castToCellRendererProgress, gTypeCellRendererProgress,
   toCellRendererProgress,
 
 -- * Constructors

@@ -144,7 +144,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- * Types
   Container,
   ContainerClass,
-  castToContainer,
+  castToContainer, gTypeContainer,
   toContainer,
   ContainerForeachCB,
   ResizeMode(..),

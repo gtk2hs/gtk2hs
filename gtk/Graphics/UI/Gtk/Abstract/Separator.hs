@@ -46,11 +46,8 @@ module Graphics.UI.Gtk.Abstract.Separator (
 -- * Types
   Separator,
   SeparatorClass,
-  castToSeparator,
+  castToSeparator, gTypeSeparator,
   toSeparator,
   ) where
 
-import Graphics.UI.Gtk.Types (Separator, SeparatorClass,
-                              castToSeparator, toSeparator)
-
--- well this widget is very abstract!
+import Graphics.UI.Gtk.Types

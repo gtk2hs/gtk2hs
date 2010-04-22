@@ -37,7 +37,7 @@
 module Graphics.UI.Gtk.Gdk.Drawable (
   Drawable,
   DrawableClass,
-  castToDrawable,
+  castToDrawable, gTypeDrawable,
   toDrawable,
   drawableGetDepth,
   drawableGetSize,

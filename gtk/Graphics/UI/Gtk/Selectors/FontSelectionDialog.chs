@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
 -- * Types
   FontSelectionDialog,
   FontSelectionDialogClass,
-  castToFontSelectionDialog,
+  castToFontSelectionDialog, gTypeFontSelectionDialog,
   toFontSelectionDialog,
 
 -- * Constructors

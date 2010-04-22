@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
 -- * Types
   ActionGroup,
   ActionGroupClass,
-  castToActionGroup,
+  castToActionGroup, gTypeActionGroup,
   toActionGroup,
   ActionEntry(..),
   ToggleActionEntry(..),

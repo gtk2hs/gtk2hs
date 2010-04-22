@@ -70,7 +70,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- * Types
   EntryCompletion,
   EntryCompletionClass,
-  castToEntryCompletion,
+  castToEntryCompletion, gTypeEntryCompletion,
   toEntryCompletion,
 
 -- * Constructors

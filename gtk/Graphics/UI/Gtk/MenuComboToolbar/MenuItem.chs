@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 -- * Types
   MenuItem,
   MenuItemClass,
-  castToMenuItem,
+  castToMenuItem, gTypeMenuItem,
   toMenuItem,
 
 -- * Constructors

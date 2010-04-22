@@ -49,7 +49,7 @@ module Graphics.UI.Gtk.Scrolling.HScrollbar (
 -- * Types
   HScrollbar,
   HScrollbarClass,
-  castToHScrollbar,
+  castToHScrollbar, gTypeHScrollbar,
   toHScrollbar,
 
 -- * Constructors

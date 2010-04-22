@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.ModelView.TreeModelSort (
 -- * Types
   TreeModelSort,
   TreeModelSortClass,
-  castToTreeModelSort,
+  castToTreeModelSort, gTypeTreeModelSort,
   toTreeModelSort,
 
   TypedTreeModelSort,

@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Abstract.Scale (
 -- * Types
   Scale,
   ScaleClass,
-  castToScale,
+  castToScale, gTypeScale,
   toScale,
 
 -- * Methods

@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.Layout.HBox (
 -- * Types
   HBox,
   HBoxClass,
-  castToHBox,
+  castToHBox, gTypeHBox,
   toHBox,
 
 -- * Constructors

@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
 -- * Types
   ImageMenuItem,
   ImageMenuItemClass,
-  castToImageMenuItem,
+  castToImageMenuItem, gTypeImageMenuItem,
   toImageMenuItem,
 
 -- * Constructors

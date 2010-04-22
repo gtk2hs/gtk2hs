@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Ornaments.VSeparator (
 -- * Types
   VSeparator,
   VSeparatorClass,
-  castToVSeparator,
+  castToVSeparator, gTypeVSeparator,
   toVSeparator,
 
 -- * Constructors

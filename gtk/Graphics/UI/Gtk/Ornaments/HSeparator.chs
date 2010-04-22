@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Ornaments.HSeparator (
 -- * Types
   HSeparator,
   HSeparatorClass,
-  castToHSeparator,
+  castToHSeparator, gTypeHSeparator,
   toHSeparator,
 
 -- * Constructors

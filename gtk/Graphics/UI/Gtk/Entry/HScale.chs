@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Entry.HScale (
 -- * Types
   HScale,
   HScaleClass,
-  castToHScale,
+  castToHScale, gTypeHScale,
   toHScale,
 
 -- * Constructors

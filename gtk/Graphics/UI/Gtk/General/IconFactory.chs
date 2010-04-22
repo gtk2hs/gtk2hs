@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.General.IconFactory (
 -- * Types
   IconFactory,
   IconFactoryClass,
-  castToIconFactory,
+  castToIconFactory, gTypeIconFactory,
   toIconFactory,
 
 -- * Constructors

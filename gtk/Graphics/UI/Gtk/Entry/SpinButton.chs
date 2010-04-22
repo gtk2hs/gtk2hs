@@ -49,7 +49,7 @@ module Graphics.UI.Gtk.Entry.SpinButton (
 -- * Types
   SpinButton,
   SpinButtonClass,
-  castToSpinButton,
+  castToSpinButton, gTypeSpinButton,
   toSpinButton,
 
 -- * Constructors

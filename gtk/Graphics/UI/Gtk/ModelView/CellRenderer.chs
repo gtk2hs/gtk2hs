@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Types
   CellRenderer,
   CellRendererClass,
-  castToCellRenderer,
+  castToCellRenderer, gTypeCellRenderer,
   toCellRenderer,
   CellRendererMode,
 

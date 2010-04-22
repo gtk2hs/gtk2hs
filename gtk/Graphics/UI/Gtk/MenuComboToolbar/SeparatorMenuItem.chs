@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem (
 -- * Types
   SeparatorMenuItem,
   SeparatorMenuItemClass,
-  castToSeparatorMenuItem,
+  castToSeparatorMenuItem, gTypeSeparatorMenuItem,
   toSeparatorMenuItem,
 
 -- * Constructors

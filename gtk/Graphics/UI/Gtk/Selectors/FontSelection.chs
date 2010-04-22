@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Selectors.FontSelection (
 -- * Types
   FontSelection,
   FontSelectionClass,
-  castToFontSelection,
+  castToFontSelection, gTypeFontSelection,
   toFontSelection,
 
 -- * Constructors

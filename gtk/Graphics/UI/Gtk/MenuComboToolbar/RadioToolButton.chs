@@ -58,7 +58,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton (
 -- * Types
   RadioToolButton,
   RadioToolButtonClass,
-  castToRadioToolButton,
+  castToRadioToolButton, gTypeRadioToolButton,
   toRadioToolButton,
 
 -- * Constructors

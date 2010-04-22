@@ -86,7 +86,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
 -- * Types
   Socket,
   SocketClass,
-  castToSocket,
+  castToSocket, gTypeSocket,
   toSocket,
   NativeWindowId,
 

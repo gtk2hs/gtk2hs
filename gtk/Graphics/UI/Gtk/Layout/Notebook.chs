@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.Layout.Notebook (
   Notebook,
   NotebookClass,
   NotebookPage,
-  castToNotebook,
+  castToNotebook, gTypeNotebook,
   toNotebook,
 
 -- * Constructors

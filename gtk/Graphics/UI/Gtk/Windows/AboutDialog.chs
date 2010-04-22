@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 -- * Types
   AboutDialog,
   AboutDialogClass,
-  castToAboutDialog,
+  castToAboutDialog, gTypeAboutDialog,
   toAboutDialog,
 
 -- * Constructors

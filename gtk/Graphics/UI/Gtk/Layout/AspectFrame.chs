@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.Layout.AspectFrame (
 -- * Types
   AspectFrame,
   AspectFrameClass,
-  castToAspectFrame,
+  castToAspectFrame, gTypeAspectFrame,
   toAspectFrame,
 
 -- * Constructors

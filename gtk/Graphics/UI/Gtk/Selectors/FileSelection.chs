@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
 -- * Types
   FileSelection,
   FileSelectionClass,
-  castToFileSelection,
+  castToFileSelection, gTypeFileSelection,
   toFileSelection,
 
 -- * Constructors

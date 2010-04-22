@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- * Types
   Widget,
   WidgetClass,
-  castToWidget,
+  castToWidget, gTypeWidget,
   toWidget,
   EventMask(..),
   ExtensionMode(..),

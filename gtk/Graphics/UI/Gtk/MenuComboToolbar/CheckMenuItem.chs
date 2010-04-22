@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 -- * Types
   CheckMenuItem,
   CheckMenuItemClass,
-  castToCheckMenuItem,
+  castToCheckMenuItem, gTypeCheckMenuItem,
   toCheckMenuItem,
 
 -- * Constructors

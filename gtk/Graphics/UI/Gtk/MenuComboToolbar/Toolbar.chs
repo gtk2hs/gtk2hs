@@ -82,7 +82,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- * Types
   Toolbar,
   ToolbarClass,
-  castToToolbar,
+  castToToolbar, gTypeToolbar,
   toToolbar,
   Orientation(..),
   ToolbarStyle(..),

@@ -57,10 +57,9 @@ module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- * Types
   Scrollbar,
   ScrollbarClass,
-  castToScrollbar,
+  castToScrollbar, gTypeScrollbar,
   toScrollbar,
   ) where
 
-import Graphics.UI.Gtk.Types (Scrollbar, ScrollbarClass,
-                              castToScrollbar, toScrollbar)
+import Graphics.UI.Gtk.Types
 

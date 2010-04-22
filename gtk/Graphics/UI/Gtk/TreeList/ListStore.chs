@@ -57,7 +57,7 @@ module Graphics.UI.Gtk.TreeList.ListStore (
 -- * Types
   ListStore,
   ListStoreClass,
-  castToListStore,
+  castToListStore, gTypeListStore,
   toListStore,
   TMType(..),
   GenericValue(..),

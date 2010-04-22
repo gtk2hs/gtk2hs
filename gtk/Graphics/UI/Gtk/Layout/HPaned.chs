@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.Layout.HPaned (
 -- * Types
   HPaned,
   HPanedClass,
-  castToHPaned,
+  castToHPaned, gTypeHPaned,
   toHPaned,
 
 -- * Constructors

@@ -69,7 +69,7 @@ module Graphics.UI.Gtk.Display.Statusbar (
 -- * Types
   Statusbar,
   StatusbarClass,
-  castToStatusbar,
+  castToStatusbar, gTypeStatusbar,
   toStatusbar,
   ContextId,
   MessageId,

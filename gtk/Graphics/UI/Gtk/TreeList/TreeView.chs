@@ -81,7 +81,7 @@ module Graphics.UI.Gtk.TreeList.TreeView (
 -- * Types
   TreeView,
   TreeViewClass,
-  castToTreeView,
+  castToTreeView, gTypeTreeView,
   toTreeView,
   Point,
 

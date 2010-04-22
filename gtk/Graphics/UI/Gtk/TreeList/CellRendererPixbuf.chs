@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
 -- * Types
   CellRendererPixbuf,
   CellRendererPixbufClass,
-  castToCellRendererPixbuf,
+  castToCellRendererPixbuf, gTypeCellRendererPixbuf,
   toCellRendererPixbuf,
 
 -- * Constructors

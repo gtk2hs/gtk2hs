@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 -- * Types
   FileChooserDialog,
   FileChooserDialogClass,
-  castToFileChooserDialog,
+  castToFileChooserDialog, gTypeFileChooserDialog,
   toFileChooserDialog,
 
   -- * Constructors

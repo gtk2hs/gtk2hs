@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.Layout.HButtonBox (
 -- * Types
   HButtonBox,
   HButtonBoxClass,
-  castToHButtonBox,
+  castToHButtonBox, gTypeHButtonBox,
   toHButtonBox,
 
 -- * Constructors

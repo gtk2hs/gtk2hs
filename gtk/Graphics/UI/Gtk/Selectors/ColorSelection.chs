@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Selectors.ColorSelection (
 -- * Types
   ColorSelection,
   ColorSelectionClass,
-  castToColorSelection,
+  castToColorSelection, gTypeColorSelection,
   toColorSelection,
 
 -- * Constructors

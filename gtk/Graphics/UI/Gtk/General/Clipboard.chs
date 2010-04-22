@@ -94,7 +94,7 @@ module Graphics.UI.Gtk.General.Clipboard (
 -- * Types
   Clipboard,
   ClipboardClass,
-  castToClipboard,
+  castToClipboard, gTypeClipboard,
   toClipboard,
 
 -- * Constants

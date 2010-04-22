@@ -89,7 +89,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- * Types
   Image,
   ImageClass,
-  castToImage,
+  castToImage, gTypeImage,
   toImage,
   ImageType(..),
   

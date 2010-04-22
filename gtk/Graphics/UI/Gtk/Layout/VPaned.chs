@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.Layout.VPaned (
 -- * Types
   VPaned,
   VPanedClass,
-  castToVPaned,
+  castToVPaned, gTypeVPaned,
   toVPaned,
 
 -- * Constructors

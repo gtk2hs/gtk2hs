@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.TreeList.CellView (
 -- * Types
   CellView,
   CellViewClass,
-  castToCellView,
+  castToCellView, gTypeCellView,
   toCellView,
 
 -- * Constructors

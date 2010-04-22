@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.Abstract.Paned (
 -- * Types
   Paned,
   PanedClass,
-  castToPaned,
+  castToPaned, gTypePaned,
   toPaned,
 
 -- * Methods

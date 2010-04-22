@@ -114,7 +114,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- * Types
   Label,
   LabelClass,
-  castToLabel,
+  castToLabel, gTypeLabel,
   toLabel,
 
 -- * Constructors

@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Layout.Expander (
 -- * Types
   Expander,
   ExpanderClass,
-  castToExpander,
+  castToExpander, gTypeExpander,
   toExpander,
 
 -- * Constructors

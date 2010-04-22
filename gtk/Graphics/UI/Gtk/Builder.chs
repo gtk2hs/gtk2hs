@@ -74,6 +74,7 @@ module Graphics.UI.Gtk.Builder
     Builder
   , BuilderClass
   , castToBuilder
+  , gTypeBuilder
   , toBuilder
   , BuilderError (..)
 

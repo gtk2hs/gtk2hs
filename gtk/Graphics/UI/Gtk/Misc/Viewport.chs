@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Misc.Viewport (
 -- * Types
   Viewport,
   ViewportClass,
-  castToViewport,
+  castToViewport, gTypeViewport,
   toViewport,
 
 -- * Constructors

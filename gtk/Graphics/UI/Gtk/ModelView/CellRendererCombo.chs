@@ -58,7 +58,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 -- * Types
   CellRendererCombo,
   CellRendererComboClass,
-  castToCellRendererCombo,
+  castToCellRendererCombo, gTypeCellRendererCombo,
   toCellRendererCombo,
 
 -- * Constructors

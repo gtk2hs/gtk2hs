@@ -62,7 +62,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 -- * Types
   Pixbuf,
   PixbufClass,
-  castToPixbuf,
+  castToPixbuf, gTypePixbuf,
   toPixbuf,
   PixbufError(..),
   Colorspace(..),

@@ -59,7 +59,7 @@ module Graphics.UI.Gtk.Layout.Table (
 -- * Types
   Table,
   TableClass,
-  castToTable,
+  castToTable, gTypeTable,
   toTable,
 
 -- * Constructors

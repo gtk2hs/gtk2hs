@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.ModelView.TreeModelFilter (
 -- * Types
   TreeModelFilter,
   TreeModelFilterClass,
-  castToTreeModelFilter,
+  castToTreeModelFilter, gTypeTreeModelFilter,
   toTreeModelFilter,
 
 -- * Constructors

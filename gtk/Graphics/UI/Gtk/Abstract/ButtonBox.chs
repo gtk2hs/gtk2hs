@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
 -- * Types
   ButtonBox,
   ButtonBoxClass,
-  castToButtonBox,
+  castToButtonBox, gTypeButtonBox,
   toButtonBox,
   ButtonBoxStyle(..),
 

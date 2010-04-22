@@ -42,6 +42,7 @@ module System.Glib.GObject (
   constructNewGObject,
   
   -- ** GType queries
+  gTypeGObject,
   isA,
 
   -- ** Callback support
@@ -98,6 +99,11 @@ objectRef :: GObjectClass obj => Ptr obj -> IO ()
 objectRef obj = do
   {#call unsafe object_ref#} (castPtr obj)
   return ()
+
+-- | The type constant to check if an instance is of 'GObject' type.
+gTypeGObject :: GType
+gTypeGObject =
+  {# call fun unsafe g_object_get_type #}
 
 -- | This function wraps any object that does not derive from Object.
 -- It should be used whenever a function returns a pointer to an existing

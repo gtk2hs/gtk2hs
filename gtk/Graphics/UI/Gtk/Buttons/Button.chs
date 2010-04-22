@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Buttons.Button (
 -- * Types
   Button,
   ButtonClass,
-  castToButton,
+  castToButton, gTypeButton,
   toButton,
 
 -- * Constructors

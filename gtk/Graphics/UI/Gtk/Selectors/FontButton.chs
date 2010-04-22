@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.Selectors.FontButton (
 -- * Types
   FontButton,
   FontButtonClass,
-  castToFontButton,
+  castToFontButton, gTypeFontButton,
   toFontButton,
 
 -- * Constructors

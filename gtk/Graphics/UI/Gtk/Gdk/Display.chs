@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Gdk.Display (
 -- * Types
   Display,
   DisplayClass,
-  castToDisplay,
+  castToDisplay, gTypeDisplay,
   toDisplay,
 
 -- * Methods

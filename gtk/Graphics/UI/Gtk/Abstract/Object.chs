@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Abstract.Object (
 -- * Types
   Object,
   ObjectClass,
-  castToObject,
+  castToObject, gTypeObject,
   toObject,
 
 -- * Methods

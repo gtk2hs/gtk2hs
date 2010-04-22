@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Layout.Layout (
 -- * Types
   Layout,
   LayoutClass,
-  castToLayout,
+  castToLayout, gTypeLayout,
   toLayout,
 
 -- * Constructors

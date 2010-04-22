@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
 -- * Types
   TextBuffer,
   TextBufferClass,
-  castToTextBuffer,
+  castToTextBuffer, gTypeTextBuffer,
   toTextBuffer,
 
 -- * Constructors

@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.Embedding.Plug (
 -- * Types
   Plug,
   PlugClass,
-  castToPlug,
+  castToPlug, gTypePlug,
   toPlug,
   NativeWindowId,
 

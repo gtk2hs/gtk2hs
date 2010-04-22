@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
 -- * Types
   RadioAction,
   RadioActionClass,
-  castToRadioAction,
+  castToRadioAction, gTypeRadioAction,
   toRadioAction,
 
 -- * Constructors

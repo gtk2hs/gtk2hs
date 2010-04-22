@@ -61,7 +61,7 @@ module Graphics.UI.Gtk.Misc.HandleBox (
 -- * Types
   HandleBox,
   HandleBoxClass,
-  castToHandleBox,
+  castToHandleBox, gTypeHandleBox,
   toHandleBox,
 
 -- * Constructors

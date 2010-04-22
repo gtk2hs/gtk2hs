@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.Layout.VButtonBox (
 -- * Types
   VButtonBox,
   VButtonBoxClass,
-  castToVButtonBox,
+  castToVButtonBox, gTypeVButtonBox,
   toVButtonBox,
 
 -- * Constructors

@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.Selectors.ColorButton (
 -- * Types
   ColorButton,
   ColorButtonClass,
-  castToColorButton,
+  castToColorButton, gTypeColorButton,
   toColorButton,
 
 -- * Constructors

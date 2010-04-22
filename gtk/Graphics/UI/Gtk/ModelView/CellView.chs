@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.ModelView.CellView (
 -- * Types
   CellView,
   CellViewClass,
-  castToCellView,
+  castToCellView, gTypeCellView,
   toCellView,
 
 -- * Constructors

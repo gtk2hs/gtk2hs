@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
 -- * Types
   Menu,
   MenuClass,
-  castToMenu,
+  castToMenu, gTypeMenu,
   toMenu,
 
 -- * Constructors

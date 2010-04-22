@@ -69,7 +69,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   TextViewClass,
   TextChildAnchor,
   TextChildAnchorClass,
-  castToTextView,
+  castToTextView, gTypeTextView,
   toTextView,
   DeleteType(..),
   DirectionType(..),

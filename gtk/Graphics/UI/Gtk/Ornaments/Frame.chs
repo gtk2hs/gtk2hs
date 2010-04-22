@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Ornaments.Frame (
 -- * Types
   Frame,
   FrameClass,
-  castToFrame,
+  castToFrame, gTypeFrame,
   toFrame,
 
 -- * Constructors

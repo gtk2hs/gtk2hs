@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.Abstract.Range (
 -- * Types
   Range,
   RangeClass,
-  castToRange,
+  castToRange, gTypeRange,
   toRange,
 
 -- * Methods

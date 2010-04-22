@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
 -- * Types
   CellRendererText,
   CellRendererTextClass,
-  castToCellRendererText,
+  castToCellRendererText, gTypeCellRendererText,
   toCellRendererText,
 
 -- * Constructors

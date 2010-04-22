@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
 -- * Types
   WindowGroup,
   WindowGroupClass,
-  castToWindowGroup,
+  castToWindowGroup, gTypeWindowGroup,
   toWindowGroup,
 
 -- * Constructors

@@ -41,7 +41,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
 -- * Types
   TextTagTable,
   TextTagTableClass,
-  castToTextTagTable,
+  castToTextTagTable, gTypeTextTagTable,
   toTextTagTable,
 
 -- * Constructors

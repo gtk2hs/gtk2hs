@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- * Types
   CellRendererText,
   CellRendererTextClass,
-  castToCellRendererText,
+  castToCellRendererText, gTypeCellRendererText,
   toCellRendererText,
 
 -- * Constructors

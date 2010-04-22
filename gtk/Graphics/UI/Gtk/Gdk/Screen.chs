@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.Gdk.Screen (
 -- * Types
   Screen,
   ScreenClass,
-  castToScreen,
+  castToScreen, gTypeScreen,
   toScreen,
 
 -- * Methods

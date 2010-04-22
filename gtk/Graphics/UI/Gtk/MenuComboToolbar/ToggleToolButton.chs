@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton (
 -- * Types
   ToggleToolButton,
   ToggleToolButtonClass,
-  castToToggleToolButton,
+  castToToggleToolButton, gTypeToggleToolButton,
   toToggleToolButton,
 
 -- * Constructors

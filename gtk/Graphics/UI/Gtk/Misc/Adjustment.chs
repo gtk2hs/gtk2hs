@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Misc.Adjustment (
 -- * Types
   Adjustment,
   AdjustmentClass,
-  castToAdjustment,
+  castToAdjustment, gTypeAdjustment,
   toAdjustment,
 
 -- * Constructors

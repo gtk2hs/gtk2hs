@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
 -- * Types
   ToggleAction,
   ToggleActionClass,
-  castToToggleAction,
+  castToToggleAction, gTypeToggleAction,
   toToggleAction,
 
 -- * Constructors

@@ -46,7 +46,6 @@ Library
 
         exposed-modules:
           Graphics.UI.Gtk
-          Graphics.UI.Gtk.Types
           Graphics.UI.Gtk.Abstract.Bin
           Graphics.UI.Gtk.Abstract.Box
           Graphics.UI.Gtk.Abstract.ButtonBox

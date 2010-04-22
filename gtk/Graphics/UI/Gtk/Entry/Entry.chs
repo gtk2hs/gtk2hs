@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Entry.Entry (
 -- * Types
   Entry,
   EntryClass,
-  castToEntry,
+  castToEntry, gTypeEntry,
   toEntry,
 
 -- * Constructors

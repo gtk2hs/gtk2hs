@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 -- * Types
   FileChooserWidget,
   FileChooserWidgetClass,
-  castToFileChooserWidget,
+  castToFileChooserWidget, gTypeFileChooserWidget,
   toFileChooserWidget,
 
 -- * Constructors

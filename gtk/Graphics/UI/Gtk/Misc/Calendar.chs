@@ -57,7 +57,7 @@ module Graphics.UI.Gtk.Misc.Calendar (
 -- * Types
   Calendar,
   CalendarClass,
-  castToCalendar,
+  castToCalendar, gTypeCalendar,
   toCalendar,
   CalendarDisplayOptions(..),
 

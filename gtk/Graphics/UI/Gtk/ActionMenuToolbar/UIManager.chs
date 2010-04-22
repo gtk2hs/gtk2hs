@@ -201,7 +201,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- * Types
   UIManager,
   UIManagerClass,
-  castToUIManager,
+  castToUIManager, gTypeUIManager,
   toUIManager,
   UIManagerItemType(..),
   MergeId,

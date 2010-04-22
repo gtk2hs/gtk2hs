@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Layout.Alignment (
 -- * Types
   Alignment,
   AlignmentClass,
-  castToAlignment,
+  castToAlignment, gTypeAlignment,
   toAlignment,
 
 -- * Constructors

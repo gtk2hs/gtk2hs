@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Entry.VScale (
 -- * Types
   VScale,
   VScaleClass,
-  castToVScale,
+  castToVScale, gTypeVScale,
   toVScale,
 
 -- * Constructors

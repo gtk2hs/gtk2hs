@@ -70,7 +70,7 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
 -- * Types
   CellRenderer,
   CellRendererClass,
-  castToCellRenderer,
+  castToCellRenderer, gTypeCellRenderer,
   toCellRenderer,
   Attribute(..),
 

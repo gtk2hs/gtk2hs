@@ -58,7 +58,7 @@ module Graphics.UI.Gtk.Buttons.ToggleButton (
 -- * Types
   ToggleButton,
   ToggleButtonClass,
-  castToToggleButton,
+  castToToggleButton, gTypeToggleButton,
   toToggleButton,
 
 -- * Constructors

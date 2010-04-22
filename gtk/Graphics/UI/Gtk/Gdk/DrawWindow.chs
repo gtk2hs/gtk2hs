@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
 -- * Types
   DrawWindow,
   DrawWindowClass,
-  castToDrawWindow,
+  castToDrawWindow, gTypeDrawWindow,
   WindowState(..),
   NativeWindowId,
 -- * Methods

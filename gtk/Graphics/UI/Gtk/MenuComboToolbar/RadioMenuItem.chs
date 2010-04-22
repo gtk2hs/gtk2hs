@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
 -- * Types
   RadioMenuItem,
   RadioMenuItemClass,
-  castToRadioMenuItem,
+  castToRadioMenuItem, gTypeRadioMenuItem,
   toRadioMenuItem,
 
 -- * Constructors

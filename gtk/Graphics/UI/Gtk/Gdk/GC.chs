@@ -41,7 +41,7 @@ module Graphics.UI.Gtk.Gdk.GC (
 
   GC,
   GCClass,
-  castToGC,
+  castToGC, gTypeGC,
   gcNew,
   GCValues(GCValues),
   newGCValues,

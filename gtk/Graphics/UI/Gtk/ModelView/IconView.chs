@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.ModelView.IconView (
 -- * Types
   IconView,
   IconViewClass,
-  castToIconView,
+  castToIconView, gTypeIconView,
   toIconView,
 
 -- * Constructors

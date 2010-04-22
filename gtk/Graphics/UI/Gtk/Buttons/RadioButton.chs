@@ -103,7 +103,7 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
 -- * Types
   RadioButton,
   RadioButtonClass,
-  castToRadioButton,
+  castToRadioButton, gTypeRadioButton,
   toRadioButton,
 
 -- * Constructors

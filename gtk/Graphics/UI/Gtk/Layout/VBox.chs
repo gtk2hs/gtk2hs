@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.Layout.VBox (
 -- * Types
   VBox,
   VBoxClass,
-  castToVBox,
+  castToVBox, gTypeVBox,
   toVBox,
 
 -- * Constructors

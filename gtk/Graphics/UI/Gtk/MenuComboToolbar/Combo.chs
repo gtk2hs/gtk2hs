@@ -67,7 +67,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 -- * Types
   Combo,
   ComboClass,
-  castToCombo,
+  castToCombo, gTypeCombo,
   toCombo,
 
 -- * Constructors

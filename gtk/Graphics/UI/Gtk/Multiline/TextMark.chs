@@ -62,7 +62,7 @@ module Graphics.UI.Gtk.Multiline.TextMark (
 -- * Types
   TextMark,
   TextMarkClass,
-  castToTextMark,
+  castToTextMark, gTypeTextMark,
   toTextMark,
   MarkName,
 

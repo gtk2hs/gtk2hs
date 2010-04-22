@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 -- * Types
   ComboBox,
   ComboBoxClass,
-  castToComboBox,
+  castToComboBox, gTypeComboBox,
   toComboBox,
 
 -- * Constructors

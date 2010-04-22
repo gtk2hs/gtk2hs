@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Misc.EventBox (
 -- * Types
   EventBox,
   EventBoxClass,
-  castToEventBox,
+  castToEventBox, gTypeEventBox,
   toEventBox,
 
 -- * Constructors

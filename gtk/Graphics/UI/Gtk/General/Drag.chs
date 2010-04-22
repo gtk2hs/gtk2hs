@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.General.Drag (
 #if GTK_CHECK_VERSION(2,12,0)
   DragResult(..),
 #endif
-  castToDragContext,
+  castToDragContext, gTypeDragContext,
   toDragContext,
   
 -- * Methods

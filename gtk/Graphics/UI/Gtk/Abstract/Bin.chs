@@ -59,7 +59,7 @@ module Graphics.UI.Gtk.Abstract.Bin (
 -- * Types
   Bin,
   BinClass,
-  castToBin,
+  castToBin, gTypeBin,
   toBin,
 
 -- * Methods

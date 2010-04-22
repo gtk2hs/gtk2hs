@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.TreeList.TreeStore (
 -- * Types
   TreeStore,
   TreeStoreClass,
-  castToTreeStore,
+  castToTreeStore, gTypeTreeStore,
   toTreeStore,
   TMType(..),
   GenericValue(..),

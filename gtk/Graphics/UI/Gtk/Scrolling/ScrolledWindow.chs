@@ -76,7 +76,7 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
 -- * Types
   ScrolledWindow,
   ScrolledWindowClass,
-  castToScrolledWindow,
+  castToScrolledWindow, gTypeScrolledWindow,
   toScrolledWindow,
 
 -- * Constructors

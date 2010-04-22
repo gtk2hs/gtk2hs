@@ -62,7 +62,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 -- * Types
   OptionMenu,
   OptionMenuClass,
-  castToOptionMenu,
+  castToOptionMenu, gTypeOptionMenu,
   toOptionMenu,
 
 -- * Constructors

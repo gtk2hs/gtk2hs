@@ -49,7 +49,7 @@ module Graphics.UI.Gtk.Scrolling.VScrollbar (
 -- * Types
   VScrollbar,
   VScrollbarClass,
-  castToVScrollbar,
+  castToVScrollbar, gTypeVScrollbar,
   toVScrollbar,
 
 -- * Constructors

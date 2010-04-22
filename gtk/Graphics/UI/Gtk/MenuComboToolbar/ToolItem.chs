@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 -- * Types
   ToolItem,
   ToolItemClass,
-  castToToolItem,
+  castToToolItem, gTypeToolItem,
   toToolItem,
 
 -- * Constructors

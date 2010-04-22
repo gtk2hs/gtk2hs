@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Abstract.Misc (
 -- * Types
   Misc,
   MiscClass,
-  castToMisc,
+  castToMisc, gTypeMisc,
   toMisc,
 
 -- * Methods

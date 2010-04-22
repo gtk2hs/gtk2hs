@@ -78,7 +78,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
 -- * Types
   Action,
   ActionClass,
-  castToAction,
+  castToAction, gTypeAction,
   toAction,
 
 -- * Constructors

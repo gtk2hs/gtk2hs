@@ -35,17 +35,17 @@ module Graphics.UI.Gtk.Gdk.PixbufAnimation (
 -- * Types
   PixbufAnimation,
   PixbufAnimationClass,
-  castToPixbufAnimation,
+  castToPixbufAnimation, gTypePixbufAnimation,
   toPixbufAnimation,
 
   PixbufAnimationIter,
   PixbufAnimationIterClass,
-  castToPixbufAnimationIter,
+  castToPixbufAnimationIter, gTypePixbufAnimationIter,
   toPixbufAnimationIter,
 
   PixbufSimpleAnim,
   PixbufSimpleAnimClass,
-  castToPixbufSimpleAnim,
+  castToPixbufSimpleAnim, gTypePixbufSimpleAnim,
   toPixbufSimpleAnim,
 
 -- * Constructors

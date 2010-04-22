@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolButton (
 -- * Types
   ToolButton,
   ToolButtonClass,
-  castToToolButton,
+  castToToolButton, gTypeToolButton,
   toToolButton,
 
 -- * Constructors

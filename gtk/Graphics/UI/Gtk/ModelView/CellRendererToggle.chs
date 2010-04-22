@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererToggle (
 -- * Types
   CellRendererToggle,
   CellRendererToggleClass,
-  castToCellRendererToggle,
+  castToCellRendererToggle, gTypeCellRendererToggle,
   toCellRendererToggle,
 
 -- * Constructors

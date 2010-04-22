@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.General.Style (
 -- * Types
   Style,
   StyleClass,
-  castToStyle,
+  castToStyle, gTypeStyle,
   toStyle,
 
 -- * Methods

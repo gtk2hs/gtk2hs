@@ -74,7 +74,7 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- * Types
   Fixed,
   FixedClass,
-  castToFixed,
+  castToFixed, gTypeFixed,
   toFixed,
 
 -- * Constructors

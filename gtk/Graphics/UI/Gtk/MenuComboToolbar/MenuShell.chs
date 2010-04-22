@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
 -- * Types
   MenuShell,
   MenuShellClass,
-  castToMenuShell,
+  castToMenuShell, gTypeMenuShell,
   toMenuShell,
 
 -- * Methods

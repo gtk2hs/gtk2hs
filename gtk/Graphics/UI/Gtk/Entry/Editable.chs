@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.Entry.Editable (
 -- * Types
   Editable,
   EditableClass,
-  castToEditable,
+  castToEditable, gTypeEditable,
   toEditable,
 
 -- * Methods

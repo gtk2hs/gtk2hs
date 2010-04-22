@@ -39,7 +39,7 @@ module Graphics.UI.Gtk.Misc.IMMulticontext (
 -- * Types
   IMMulticontext,
   IMMulticontextClass,
-  castToIMMulticontext,
+  castToIMMulticontext, gTypeIMMulticontext,
   toIMMulticontext,
 
 -- * Constructors

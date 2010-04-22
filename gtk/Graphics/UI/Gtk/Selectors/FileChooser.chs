@@ -127,7 +127,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- * Types
   FileChooser,
   FileChooserClass,
-  castToFileChooser,
+  castToFileChooser, gTypeFileChooser,
   toFileChooser,
   FileChooserAction(..),
   FileChooserError(..),

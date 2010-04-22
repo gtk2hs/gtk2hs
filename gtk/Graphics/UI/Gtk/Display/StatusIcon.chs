@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.Display.StatusIcon (
 -- * Types
   StatusIcon,
   StatusIconClass,
-  castToStatusIcon,
+  castToStatusIcon, gTypeStatusIcon,
   toStatusIcon,
 
 -- * Constructors

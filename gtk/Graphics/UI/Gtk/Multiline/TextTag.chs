@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
 -- * Types
   TextTag,
   TextTagClass,
-  castToTextTag,
+  castToTextTag, gTypeTextTag,
   toTextTag,
   TagName,
 

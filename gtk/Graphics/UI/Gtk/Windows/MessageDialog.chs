@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
 -- * Types
   MessageDialog,
   MessageDialogClass,
-  castToMessageDialog,
+  castToMessageDialog, gTypeMessageDialog,
   toMessageDialog,
   MessageType(..),
   ButtonsType(..),

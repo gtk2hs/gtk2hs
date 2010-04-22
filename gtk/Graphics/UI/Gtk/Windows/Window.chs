@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Windows.Window (
 -- * Types
   Window,
   WindowClass,
-  castToWindow,
+  castToWindow, gTypeWindow,
   toWindow,
   WindowType(..),
   WindowEdge(..),

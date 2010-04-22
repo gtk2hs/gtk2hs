@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.Buttons.CheckButton (
 -- * Types
   CheckButton,
   CheckButtonClass,
-  castToCheckButton,
+  castToCheckButton, gTypeCheckButton,
   toCheckButton,
 
 -- * Constructors

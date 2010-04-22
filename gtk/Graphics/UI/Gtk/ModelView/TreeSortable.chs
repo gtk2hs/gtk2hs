@@ -69,7 +69,7 @@ module Graphics.UI.Gtk.ModelView.TreeSortable (
 -- * Types
   TreeSortable,
   TreeSortableClass,
-  castToTreeSortable,
+  castToTreeSortable, gTypeTreeSortable,
   toTreeSortable,
   SortColumnId,
 

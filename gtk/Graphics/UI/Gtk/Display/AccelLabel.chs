@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.Display.AccelLabel (
 -- * Types
   AccelLabel,
   AccelLabelClass,
-  castToAccelLabel,
+  castToAccelLabel, gTypeAccelLabel,
   toAccelLabel,
 
 -- * Constructors

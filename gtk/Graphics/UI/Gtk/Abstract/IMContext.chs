@@ -40,7 +40,7 @@ module Graphics.UI.Gtk.Abstract.IMContext (
 -- * Types
   IMContext,
   IMContextClass,
-  castToIMContext,
+  castToIMContext, gTypeIMContext,
   toIMContext,
 
 -- * Methods

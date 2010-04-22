@@ -432,7 +432,7 @@ module Graphics.UI.Gtk.General.RcStyle (
 -- * Types
   RcStyle,
   RcStyleClass,
-  castToRcStyle,
+  castToRcStyle, gTypeRcStyle,
   toRcStyle,
 
 -- * Constructors
