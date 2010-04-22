@@ -42,6 +42,7 @@ import Distribution.Simple.PackageIndex (
   lookupPackageId
 #endif
   )
+import Distribution.Package ( PackageId(..) )
 import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                updatePackageDescription,
                                                BuildInfo(..),
@@ -229,6 +230,9 @@ genSynthezisedFiles verb pd lbi = do
       genFile signalGenProgram [mod] f
     (_,_) -> return ()
 
+  let [pangoVersion] = [ v | PackageIdentifier (PackageName "pango") v <- cPkgs ]
+  writePangoVersionHeaderFile verb lbi pangoVersion
+
 --FIXME: Cabal should tell us the selected pkg-config package versions in the
 --       LocalBuildInfo or equivalent.
 --       In the mean time, ask pkg-config again.
@@ -244,6 +248,25 @@ getPkgConfigPackages verbosity lbi pkg =
   where
     pkgconfig = rawSystemProgramStdoutConf verbosity
                   pkgConfigProgram (withPrograms lbi)
+
+------------------------------------------------------------------------------
+-- Generate CPP defines for version of C libs.
+------------------------------------------------------------------------------
+
+writePangoVersionHeaderFile :: Verbosity -> LocalBuildInfo -> Version -> IO ()
+writePangoVersionHeaderFile verbosity lbi (Version (major:minor:micro:_) []) = do
+  createDirectoryIfMissingVerbose verbosity True targetDir
+  rewriteFile targetFile $ unlines
+    [ "#define PANGO_VERSION_MAJOR " ++ show major
+    , "#define PANGO_VERSION_MINOR " ++ show minor
+    , "#define PANGO_VERSION_MICRO " ++ show micro
+    ]
+  where
+    targetDir  = autogenModulesDir lbi
+    targetFile = targetDir </> "hspangoversion.h"
+
+writeVersionHeaderFile _ _ version =
+  die $ "unexpected pango version number: " ++ display version
 
 ------------------------------------------------------------------------------
 -- Dependency calculation amongst .chs files.

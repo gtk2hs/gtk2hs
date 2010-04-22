@@ -9,7 +9,7 @@
 #include<pango/pango.h>
 
 #ifndef PANGO_VERSION_MINOR
-#error "This header file of Pango does not define the version of Pango. In this case it is necessary to define these macros in the cabal file."
+#include "hspangoversion.h"
 #endif
 
 /* This is copied from pango/pango-utils.h */

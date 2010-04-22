@@ -73,22 +73,4 @@ Library
         x-c2hs-Header:  hspango.h
         includes:       hspango.h
         include-dirs:   .
-        if flag(pango_1_6)
-          pkgconfig-depends: pango>=1.6.0
-        else
-          if flag(pango_1_4)
-            pkgconfig-depends: pango>=1.4.0
-            cpp-options:  -DPANGO_VERSION_MAJOR=1
-                          -DPANGO_VERSION_MINOR=4
-                          -DPANGO_VERSION_MICRO=0
-          else
-            if flag(pango_1_2)
-              pkgconfig-depends: pango>=1.2.0
-              cpp-options:  -DPANGO_VERSION_MAJOR=1
-                            -DPANGO_VERSION_MINOR=2
-                            -DPANGO_VERSION_MICRO=0
-            else
-              pkgconfig-depends: pango>=1.0.0
-              cpp-options:  -DPANGO_VERSION_MAJOR=1
-                            -DPANGO_VERSION_MINOR=0
-                            -DPANGO_VERSION_MICRO=0
+        pkgconfig-depends: pango >= 1.0
