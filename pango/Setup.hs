@@ -126,7 +126,8 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
 
   -- c2hs will output files in out dir, removing any leading path of the input file.
   -- Thus, append the dir of the input file to the output dir.
-  let newOutDir = outDir </> takeDirectory outFile
+  let (outFileDir, newOutFile) = splitFileName outFile
+  let newOutDir = outDir </> outFileDir
   -- additional .chi files might be needed that other packages have installed;
   -- we assume that these are installed in the same place as .hi files
   let chiDirs = [ dir |
@@ -141,7 +142,7 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
        map ("--include=" ++) (outDir:chiDirs)
     ++ ["--cppopts=" ++ opt | opt <- getCppOptions bi lbi]
     ++ ["--output-dir=" ++ newOutDir,
-        "--output=" ++ outFile,
+        "--output=" ++ newOutFile,
         "--precomp=" ++ buildDir lbi </> precompFile,
         header, inDir </> inFile]
 
