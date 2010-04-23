@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <glib/gthread.h>
 #include <gdk/gdk.h>
+#include "hsgthread.h"
 
 #undef DEBUG
 
@@ -34,7 +35,7 @@ static GArray* gtk2hs_finalizers;
 gboolean gtk2hs_run_finalizers(gpointer data);
 
 /* Initialize the threads system of Gdk and Gtk. */
-void gtk2hs_threads_initialise () {
+void gtk2hs_threads_initialise (void) {
   static int threads_initialised = 0;
 
   if (!threads_initialised) {

@@ -239,4 +239,4 @@ Library
         if !os(windows)
           x-Types-Tag: plugNsocket
 
-        pkgconfig-depends: gtk+-2.0
+        pkgconfig-depends: gthread-2.0, gtk+-2.0
