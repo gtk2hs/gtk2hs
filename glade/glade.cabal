@@ -1,0 +1,48 @@
+Name:           glade
+Version:        0.10.5
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Manuel M T Chakravarty
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6.0
+Stability:      provisional
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+Synopsis:       Binding to the glade library.
+Description:    This library allows to load externally stored user interfaces into
+                programs. This allows alteration of the interface without recompilation
+                of the program.
+
+Category:       Graphics
+Tested-With:    GHC == 6.12.1
+x-Types-File:   Graphics/UI/Gtk/Glade/Types.chs
+x-Types-ModName: Graphics.UI.Gtk.Glade.Types
+x-Types-Forward: *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
+
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       glade
+
+Library
+        build-depends:  base >= 4, array, containers, haskell98, mtl,
+                        glib >= 0.10.5 && < 0.11, 
+                        pango >= 0.10.5 && < 0.11, 
+                        cairo >= 0.10.5 && < 0.11,
+                        gtk >= 0.10.5 && < 0.11
+						
+        build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
+						
+        exposed-modules:
+          Graphics.UI.Gtk.Glade
+        other-modules:
+          Graphics.UI.Gtk.Glade.Types		  
+
+        extensions:     ForeignFunctionInterface
+		
+        x-c2hs-Header:  glade/glade.h
+        x-Types-Tag: libglade
+        pkgconfig-depends: libglade-2.0 >= 2.0.0

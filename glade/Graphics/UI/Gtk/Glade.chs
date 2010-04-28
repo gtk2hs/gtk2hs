@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- GIMP Toolkit (GTK) Binding for Haskell: binding to Libglade   -*-haskell-*-
 --    for loading XML widget specifications
 --
@@ -61,7 +62,6 @@ import System.Glib.FFI
 import System.Glib.GType
 import Graphics.UI.Gtk.Abstract.Object   (makeNewObject)
 import System.Glib.GObject  (constructNewGObject)
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Glade.Types#}
 import System.Glib.GList
 
