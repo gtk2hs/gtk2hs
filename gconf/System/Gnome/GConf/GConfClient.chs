@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp #-}
+{-# LANGUAGE CPP, FlexibleContexts #-}
 -- -*-haskell-*-
 -- GIMP Toolkit (GTK) GConf API
 --

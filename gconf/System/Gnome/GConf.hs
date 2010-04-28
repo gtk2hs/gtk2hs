@@ -1,4 +1,3 @@
-
 module System.Gnome.GConf (
   module System.Gnome.GConf.GConfClient
   

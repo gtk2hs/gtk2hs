@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP, TypeSynonymInstances, OverlappingInstances, ScopedTypeVariables #-}
 -- String & [a] overlap
 -- -*-haskell-*-
 -- GIMP Toolkit (GTK) GConf API
