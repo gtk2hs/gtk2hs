@@ -14,7 +14,7 @@ import Control.Monad.Trans
 import Control.Concurrent
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.General.Structs
+import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.EventM
 
 -- | Main.

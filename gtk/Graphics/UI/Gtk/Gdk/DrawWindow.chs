@@ -49,6 +49,8 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   castToDrawWindow, gTypeDrawWindow,
   WindowState(..),
   NativeWindowId,
+  toNativeWindowId,
+  fromNativeWindowId,
 -- * Methods
   drawWindowGetState,
   drawWindowClear,

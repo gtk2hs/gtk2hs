@@ -10,7 +10,7 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.General.Structs
+import Graphics.UI.Gtk.Gdk.DrawWindow
 import System.Process
 import System.Environment 
 
