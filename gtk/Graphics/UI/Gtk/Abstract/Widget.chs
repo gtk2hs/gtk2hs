@@ -189,8 +189,11 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #endif
 #endif
   widgetReparent,
+#if GTK_CHECK_VERSION(2,18,0)
   widgetGetCanFocus,
   widgetSetCanFocus,
+  widgetGetAllocation,
+#endif
   widgetGetState,
   widgetGetSavedState,
   widgetGetSize,
@@ -2007,6 +2010,7 @@ widgetReparent self newParent =
     (toWidget self)
     (toWidget newParent)
 
+#if GTK_CHECK_VERSION(2,18,0)
 -- | Set if this widget can receive keyboard input.
 --
 -- * To use the 'onKeyPress' event, the widget must be allowed
@@ -2020,6 +2024,17 @@ widgetSetCanFocus = objectSetPropertyBool "can_focus"
 --
 widgetGetCanFocus :: WidgetClass self => self -> IO Bool
 widgetGetCanFocus = objectGetPropertyBool "can_focus"
+
+-- | Retrieves the widget's allocation.
+--
+-- * Available since Gtk+ version 2.18
+--
+widgetGetAllocation :: WidgetClass self => self -> IO Allocation
+widgetGetAllocation widget =
+  alloca $ \ allocationPtr -> do 
+     {#call widget_get_allocation#} (toWidget widget) (castPtr allocationPtr)
+     peek allocationPtr
+#endif
 
 --------------------
 -- Attributes
