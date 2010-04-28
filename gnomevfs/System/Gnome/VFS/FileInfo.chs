@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -47,7 +48,8 @@ import System.Glib.Flags
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Gnome.VFS.Marshal#}
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 import System.Posix.Types (DeviceID, EpochTime)
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
@@ -225,7 +227,7 @@ instance Storable FileInfo where
                                        (return . fromIntegral)
                                        {# set GnomeVFSFileInfo->link_count #},
 
-#if GTK_CHECK_VERSION(2,14,0)                            
+#if GNOME_VFS_CHECK_VERSION(2,14,0)                            
                             marshaller FileInfoFieldsIds
                                        ids
                                        (0, 0)
@@ -287,7 +289,7 @@ instance Storable FileInfo where
                                         do {# get GnomeVFSFileInfo->mime_type #} ptr >>= (gFree . castPtr)
                                            {# set GnomeVFSFileInfo->mime_type #} ptr str) ]
            
-#if !GTK_CHECK_VERSION(2,14,0)
+#if !GNOME_VFS_CHECK_VERSION(2,14,0)
            case ids of
              Just (uid, gid) ->
                do {# set GnomeVFSFileInfo->uid #} ptr $ fromIntegral uid

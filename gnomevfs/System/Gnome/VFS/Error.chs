@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -46,7 +47,8 @@ import qualified Control.OldException as E
 import qualified Control.Exception as E
 #endif
 import Data.Dynamic
-import System.Gnome.VFS.Types
+-- import System.Gnome.VFS.Types
+import System.Gnome.VFS.BasicTypes
 import Prelude hiding (error)
 
 error :: Result

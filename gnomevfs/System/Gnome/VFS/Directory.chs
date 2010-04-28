@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP, ScopedTypeVariables #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -74,7 +75,8 @@ import System.Glib.UTFString ( withUTFString
                              , newUTFString )
 import System.Glib.FFI
 {#import System.Gnome.VFS.FileInfo#}
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 {#import System.Gnome.VFS.Marshal#}
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
@@ -165,7 +167,7 @@ directoryVisitCallbackMarshal callback =
                  DirectoryVisitStop     -> return $ fromBool False
                  DirectoryVisitContinue -> return $ fromBool True
                  DirectoryVisitRecurse  -> do poke cRecursePtr $ fromBool True
-                                              return $ fromBool True
+                                             return $ fromBool True
     in makeDirectoryVisitFunc cCallback
 foreign import ccall safe "wrapper"
   makeDirectoryVisitFunc :: CDirectoryVisitFunc

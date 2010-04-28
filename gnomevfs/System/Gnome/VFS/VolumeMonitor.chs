@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -63,6 +64,7 @@ import System.Glib.GList (readGList)
 import System.Glib.UTFString
 import System.Gnome.VFS.Marshal
 {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 {#import System.Gnome.VFS.Signals#}
 import System.IO (FilePath)
 

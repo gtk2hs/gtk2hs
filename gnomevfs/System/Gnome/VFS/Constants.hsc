@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
@@ -28,6 +29,8 @@
 --  version 1.2.
 
 -- #hide
+
+#include <libgnomevfs/gnome-vfs-file-info.h>
 
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha

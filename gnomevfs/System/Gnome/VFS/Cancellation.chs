@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -49,7 +50,8 @@ module System.Gnome.VFS.Cancellation (
 
 import Control.Monad      (liftM)
 import System.Glib.FFI
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 import System.Posix.Types (Fd)
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}

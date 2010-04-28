@@ -69,6 +69,7 @@ import System.Glib.UTFString
 import System.Glib.FFI
 {#import System.Gnome.VFS.Marshal#}
 {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
 

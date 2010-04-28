@@ -88,7 +88,8 @@ import qualified Data.ByteString.Internal as BS (fromForeignPtr)
 import Prelude hiding (read, truncate)
 import System.Glib.FFI
 import System.Glib.UTFString (withUTFString, peekUTFString)
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 {#import System.Gnome.VFS.FileInfo#}
 {#import System.Gnome.VFS.Marshal#}
 

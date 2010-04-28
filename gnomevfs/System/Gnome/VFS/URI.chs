@@ -74,7 +74,8 @@ module System.Gnome.VFS.URI (
 
 import Control.Monad (liftM)
 {#import System.Gnome.VFS.Marshal#}
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.GList#}

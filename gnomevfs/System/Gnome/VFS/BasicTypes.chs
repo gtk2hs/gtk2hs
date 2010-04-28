@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, DeriveDataTypeable #-}
 {-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
@@ -33,7 +33,7 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module System.Gnome.VFS.Types (
+module System.Gnome.VFS.BasicTypes (
   
   module System.Gnome.VFS.Constants,
   
@@ -108,7 +108,7 @@ module System.Gnome.VFS.Types (
   MIMEType,
 #endif
   
-  module System.Gnome.VFS.Hierarchy,
+  -- module System.Gnome.VFS.Hierarchy,
   
   DriveID,
   newDrive,
@@ -136,7 +136,8 @@ import System.Glib.Flags
                                 unsafeCastGObject)
 {#import System.Glib.GType#} (GType,
                               typeInstanceIsA)
-{#import System.Gnome.VFS.Hierarchy#}
+-- {#import System.Gnome.VFS.Hierarchy#}
+{#import System.Gnome.VFS.Types#}
 import System.Gnome.VFS.Constants
 
 import System.Posix.Types (DeviceID, EpochTime)

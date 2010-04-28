@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
@@ -53,7 +54,8 @@ import Data.Dynamic
 import System.Glib.FFI
 import System.Glib.Flags (Flags, toFlags, fromFlags)
 import System.Glib.UTFString (peekUTFString)
-{#import System.Gnome.VFS.Types#}
+-- {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.BasicTypes#}
 import System.Gnome.VFS.Error
 import Prelude hiding (error)
 
