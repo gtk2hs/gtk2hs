@@ -1,0 +1,55 @@
+Name:           gio
+Version:        0.10.5
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Peter Gavin, Andy Stewart
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6
+Stability:      stable
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+Synopsis:       Binding to the GIO.
+Description:    GIO is striving to provide a modern, easy-to-use VFS API that sits at the right level in the library stack. 
+                The goal is to overcome the shortcomings of GnomeVFS and provide an API that is 
+                so good that developers prefer it over raw POSIX calls. 
+                Among other things that means using GObject. 
+                It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
+Category:       System
+Tested-With:    GHC == 6.12.1
+
+x-Types-File:   System/GIO/Types.chs
+x-Types-ModName: System.GIO.Types
+x-Types-Forward:  *System.Glib.GObject
+
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       gio
+
+Library
+        build-depends:  base >= 4, array, containers, haskell98, mtl, bytestring,
+                        glib >= 0.10.5 && < 0.11,
+                        gtk  >= 0.10.5 && < 0.11
+						
+        build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
+						
+        exposed-modules:
+          System.GIO
+          System.GIO.Base
+          System.GIO.Async.AsyncResult
+          System.GIO.Async.Cancellable
+          System.GIO.File.FileAttribute
+          System.GIO.File.File
+        other-modules:
+          System.GIO.Types		  
+          System.GIO.Signals		  
+
+        extensions:     ForeignFunctionInterface
+		
+        x-Types-Tag: gio
+        x-c2hs-Header:  gio/gio.h
+        x-Signals-File:  System/GIO/Signals.chs
+        x-Signals-Modname: System.GIO.Signals
+        pkgconfig-depends: gio-2.0 >= 2.16.4

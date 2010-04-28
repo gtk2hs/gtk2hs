@@ -1,3 +1,7 @@
+{-# LANGUAGE CPP #-}
+
+#include <gio/gio.h>
+
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gio -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -26,7 +30,7 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module System.GIO.FileAttribute (
+module System.GIO.File.FileAttribute (
     FileAttributeType (..),
     FileAttributeInfo (..),
     FileAttributeInfoFlags (..),

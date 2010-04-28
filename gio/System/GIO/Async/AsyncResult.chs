@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gio -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -26,7 +27,7 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module System.GIO.AsyncResult (
+module System.GIO.Async.AsyncResult (
     AsyncResult,
     AsyncResultClass,
     AsyncReadyCallback
