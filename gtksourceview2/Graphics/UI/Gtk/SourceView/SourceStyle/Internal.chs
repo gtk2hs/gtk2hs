@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget SourceView

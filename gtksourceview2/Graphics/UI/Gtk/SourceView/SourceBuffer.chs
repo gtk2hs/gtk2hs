@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) SourceBuffer
 --
@@ -65,10 +66,9 @@ import System.Glib.GObject              (constructNewGObject,
 {#import System.Glib.Properties#}
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
-{#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.Multiline.Types#}
+{#import Graphics.UI.Gtk.SourceView.Signals#}
+import Graphics.UI.GtkInternals
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
 
 {#import Graphics.UI.Gtk.SourceView.SourceMark#}

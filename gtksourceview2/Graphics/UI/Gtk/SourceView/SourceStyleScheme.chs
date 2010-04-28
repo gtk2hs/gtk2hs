@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) SourceStyleScheme
 --
@@ -45,7 +46,6 @@ import System.Glib.UTFString
 import System.Glib.GObject	(constructNewGObject)
 import System.Glib.Attributes
 {#import System.Glib.Properties#}
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 import Graphics.UI.Gtk.SourceView.SourceStyle
 {#import Graphics.UI.Gtk.SourceView.SourceStyle.Internal#}

@@ -34,9 +34,7 @@ module Graphics.UI.Gtk.SourceView.SourceLanguageManager (
   sourceLanguageManagerGetSearchPath,
   sourceLanguageManagerGetLanguageIds,
   sourceLanguageManagerGetLanguage,
-#if GTKSOURCEVIEW2_CHECK_VERSION(2,4,0)
   sourceLanguageManagerGuessLanguage
-#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -48,7 +46,7 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.SourceView.Types#}
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.SourceView.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -97,7 +95,6 @@ sourceLanguageManagerGetLanguage slm id = do
     then liftM Just $ makeNewGObject mkSourceLanguage $ return slPtr
     else return Nothing
 
-#if GTKSOURCEVIEW2_CHECK_VERSION(2,4,0)
 -- |
 --
 sourceLanguageManagerGuessLanguage :: SourceLanguageManager -> Maybe String -> Maybe String -> IO (Maybe SourceLanguage)
@@ -109,7 +106,6 @@ sourceLanguageManagerGuessLanguage slm filename contentType =
     if slPtr /= nullPtr
       then liftM Just $ makeNewGObject mkSourceLanguage $ return slPtr
       else return Nothing
-#endif
 
 -- |
 --
