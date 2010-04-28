@@ -39,6 +39,7 @@ Library
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
 						
         exposed-modules:
+          System.Gnome.VFS
           System.Gnome.VFS.Cancellation        
           System.Gnome.VFS.Directory
           System.Gnome.VFS.Drive
