@@ -24,6 +24,9 @@
 --
 -- Support for the threaded RTS of ghc.
 --
+-- This file contains functions that are needed by other library wrappers that build
+-- on Gtk2Hs. An application should not need this function nor include this file.
+--
 module Graphics.UI.Gtk.General.Threading (
   objectUnrefFromMainloop
   ) where
