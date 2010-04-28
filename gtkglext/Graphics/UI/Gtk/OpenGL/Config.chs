@@ -36,14 +36,10 @@ module Graphics.UI.Gtk.OpenGL.Config (
 
 -- * Constructors
   glConfigNew,
-#if GTK_CHECK_VERSION(2,2,0)
   glConfigNewForScreen,
-#endif
 
 -- * Methods
-#if GTK_CHECK_VERSION(2,2,0)
   glConfigGetScreen,
-#endif
   glConfigGetColormap,
 --  glConfigGetVisual,
   glConfigGetDepth,
@@ -64,7 +60,6 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GObject			(makeNewGObject)
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.OpenGL.Types#}
 
 {# context lib="gtkglext" prefix="gdk" #}
@@ -122,7 +117,6 @@ glConfigNew mode =
   {# call gdk_gl_config_new_by_mode #}
     ((fromIntegral . fromFlags) mode)
 
-#if GTK_CHECK_VERSION(2,2,0)
 -- | Returns an OpenGL frame buffer configuration that matchs the specified
 -- display mode.
 --
@@ -135,12 +129,10 @@ glConfigNewForScreen screen mode =
   {# call gdk_gl_config_new_by_mode_for_screen #}
     screen
     ((fromIntegral . fromFlags) mode)
-#endif
 
 --------------------
 -- Methods
 
-#if GTK_CHECK_VERSION(2,2,0)
 -- | Gets the 'Screen' associated with the 'GLConfig'.
 --
 glConfigGetScreen :: GLConfig
@@ -149,7 +141,6 @@ glConfigGetScreen self =
   makeNewGObject mkScreen $
   {# call gdk_gl_config_get_screen #}
     (toGLConfig self)
-#endif
 
 -- | Gets the 'Colormap' that is appropriate for the OpenGL frame buffer
 -- configuration.

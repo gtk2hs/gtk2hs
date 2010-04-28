@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) OpenGL Extension: GLWindow
 --
@@ -50,7 +51,6 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GObject			(makeNewGObject)
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.OpenGL.Types#}
 
 {# context lib="gtkglext" prefix="gdk" #}

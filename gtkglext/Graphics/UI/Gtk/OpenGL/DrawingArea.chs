@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) OpenGL Extension: DrawingArea Widget
 --
@@ -53,7 +54,6 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GObject			(makeNewGObject)
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.OpenGL.Types#}
 import Graphics.UI.Gtk.Misc.DrawingArea		(drawingAreaNew)
 import Graphics.UI.Gtk.OpenGL.Drawable		(glDrawableGLBegin, glDrawableWaitGL, glDrawableGLEnd)
