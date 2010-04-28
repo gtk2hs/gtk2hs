@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  SOE implementation based on Gtk and cairo (or Gdk).
 --  Some code borrowed from SOE implementation based on OpenGL and GLFW by
@@ -97,7 +98,8 @@ import Control.Concurrent.Chan
 
 import qualified System.Time
 import qualified Graphics.UI.Gtk as Gtk
-import qualified Graphics.UI.Gtk.Gdk.Events as Gtk
+import qualified Graphics.UI.Gtk.Gdk.Events as Events
+import qualified Graphics.UI.Gtk.Gdk.GC as GC
 
 #ifdef USE_CAIRO
 import qualified Graphics.UI.Gtk.Cairo as Gtk.Cairo
@@ -183,10 +185,10 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) =
 #ifndef USE_CAIRO
   win <- Gtk.widgetGetDrawWindow canvas
   -- set up the graphics context
-  gc <- Gtk.gcNew win
+  gc <- GC.gcNew win
 #endif
-  Gtk.onExpose canvas $ \Gtk.Expose { Gtk.eventArea = eventArea,
-                                      Gtk.eventRegion = exposeRegion } -> do
+  Gtk.onExpose canvas $ \Events.Expose { Events.eventArea = eventArea,
+                                      Events.eventRegion = exposeRegion } -> do
     Graphic graphic <- readMVar graphicVar
     win <- Gtk.widgetGetDrawWindow canvas
 #ifdef USE_CAIRO
@@ -201,12 +203,12 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) =
       graphic pc
 #else
     --fill backgound with black
-    Gtk.gcSetValues gc Gtk.newGCValues { Gtk.foreground = colorToRGB Black }
+    GC.gcSetValues gc GC.newGCValues { GC.foreground = colorToRGB Black }
     case eventArea of
       Gtk.Rectangle x y width height ->
         Gtk.drawRectangle win gc True x y width height
     --use white default colour
-    Gtk.gcSetValues gc Gtk.newGCValues { Gtk.foreground = colorToRGB White }
+    GC.gcSetValues gc GC.newGCValues { GC.foreground = colorToRGB White }
 
     -- actually do the drawing
     graphic (Gtk.toDrawable win) gc pc
@@ -217,16 +219,16 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) =
                                  Gtk.widgetHide window
                                  return True
                      
-  Gtk.onMotionNotify canvas True $ \Gtk.Motion { Gtk.eventX=x, Gtk.eventY=y} ->
+  Gtk.onMotionNotify canvas True $ \Events.Motion { Events.eventX=x, Events.eventY=y} ->
     writeChan eventsChan MouseMove {
       pt = (round x, round y)
     } >> return True
   
-  let mouseButtonHandler event@Gtk.Button { Gtk.eventX=x, Gtk.eventY=y } = do
+  let mouseButtonHandler event@Events.Button { Events.eventX=x, Events.eventY=y } = do
         writeChan eventsChan Button {
             pt = (round x,round y),
-            isLeft = Gtk.eventButton event == Gtk.LeftButton,
-            isDown = case Gtk.eventClick event of
+            isLeft = Events.eventButton event == Gtk.LeftButton,
+            isDown = case Events.eventClick event of
                        Gtk.ReleaseClick -> False
                        _                -> True
           }
@@ -234,8 +236,8 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) =
   Gtk.onButtonPress canvas mouseButtonHandler
   Gtk.onButtonRelease canvas mouseButtonHandler
 
-  let keyPressHandler Gtk.Key { Gtk.eventKeyChar = Nothing } = return True
-      keyPressHandler Gtk.Key { Gtk.eventKeyChar = Just char, Gtk.eventRelease = release } =
+  let keyPressHandler Events.Key { Events.eventKeyChar = Nothing } = return True
+      keyPressHandler Events.Key { Events.eventKeyChar = Just char, Events.eventRelease = release } =
         writeChan eventsChan Key {
                      char = char,
                      isDown = not release
@@ -517,7 +519,7 @@ combineRegion operator a b =
 -- implementation using the old Gdk API
 --
 
-newtype Graphic = Graphic (Gtk.Drawable -> Gtk.GC -> Gtk.PangoContext -> IO ())
+newtype Graphic = Graphic (Gtk.Drawable -> GC.GC -> Gtk.PangoContext -> IO ())
 
 emptyGraphic :: Graphic
 emptyGraphic = Graphic (\_ _ _ -> return ())
@@ -541,15 +543,15 @@ colorToRGB White   = Gtk.Color 65535 65535 65535
 
 withColor :: Color -> Graphic -> Graphic
 withColor color (Graphic graphic) = Graphic $ \dw gc pc -> do
-  v <- Gtk.gcGetValues gc
-  Gtk.gcSetValues gc Gtk.newGCValues {
-      Gtk.foreground = colorToRGB color,
-      Gtk.lineWidth = 2
+  v <- GC.gcGetValues gc
+  GC.gcSetValues gc GC.newGCValues {
+      GC.foreground = colorToRGB color,
+      GC.lineWidth = 2
     }
   graphic dw gc pc
-  Gtk.gcSetValues gc Gtk.newGCValues {
-      Gtk.foreground = Gtk.foreground v,
-      Gtk.lineWidth  = Gtk.lineWidth v
+  GC.gcSetValues gc GC.newGCValues {
+      GC.foreground = GC.foreground v,
+      GC.lineWidth  = GC.lineWidth v
     }
 
 text :: Point -> String -> Graphic
