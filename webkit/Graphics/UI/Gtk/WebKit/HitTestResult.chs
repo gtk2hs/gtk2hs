@@ -1,6 +1,7 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 -----------------------------------------------------------------------------
---  Module      :  Graphics.UI.Gtk.WebKit.SoupAuthDialog
+--  Module      :  Graphics.UI.Gtk.WebKit.HitTestResult
 --  Author      :  Andy Stewart
 --  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
 --
@@ -22,9 +23,12 @@
 -- Access to the WebKit Web Resource
 -----------------------------------------------------------------------------
 
-module Graphics.UI.Gtk.WebKit.SoupAuthDialog (
+module Graphics.UI.Gtk.WebKit.HitTestResult (
 -- * Types
-  SoupAuthDialog,
+  HitTestResult,
+
+-- * Enums.
+  HitTestResultContext(..),
 ) where
 
 import System.Glib.FFI
@@ -33,8 +37,12 @@ import System.Glib.GError
 import Graphics.UI.Gtk.Gdk.Events
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import System.Glib.GObject#}
 
 {#context lib="webkit" prefix ="webkit"#}
+
+-- * Enums.
+
+{#enum HitTestResultContext {underscoreToCase}#}

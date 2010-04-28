@@ -196,11 +196,11 @@ import System.Glib.GError
 import Graphics.UI.Gtk.Gdk.Events
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import Graphics.UI.Gtk.WebKit.Internal#}
 {#import System.Glib.GObject#}
-{#import Graphics.UI.Gtk.General.DNDTypes#}
+import Graphics.UI.GtkInternals
 {#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
 {#import Graphics.UI.Gtk.MenuComboToolbar.Menu#}
 {#import Graphics.UI.Gtk.General.Enums#}

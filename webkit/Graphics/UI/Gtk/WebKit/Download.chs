@@ -36,8 +36,6 @@ module Graphics.UI.Gtk.WebKit.Download (
   downloadNew,
 
 -- * Methods
-  DownloadError(..),
-
   downloadStart,
   downloadCancel,
   downloadGetUri,
@@ -76,7 +74,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Gdk.Events
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import System.Glib.GObject#}
 

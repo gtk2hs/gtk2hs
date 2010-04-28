@@ -1,6 +1,7 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 -----------------------------------------------------------------------------
---  Module      :  Graphics.UI.Gtk.WebKit.Internal
+--  Module      :  Graphics.UI.Gtk.WebKit.WebPolicyDecision
 --  Author      :  Andy Stewart
 --  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
 --
@@ -19,46 +20,53 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Access to the WebKit Internal
---
--- This module contain some functions for help binding Webkit.
---
+-- Access to the WebKit PolicyDecision
 -----------------------------------------------------------------------------
 
-module Graphics.UI.Gtk.WebKit.Internal (
--- * Methods
--- Below functions just help binding use in internal.
--- Don't call those functions in your code.
-  connect_OBJECT__OBJECTPTR,
-  webViewToWebViewPtr,
+module Graphics.UI.Gtk.WebKit.WebPolicyDecision (
+-- * Types
+  WebPolicyDecision,
+
+-- * Methods  
+  webPolicyDecisionDownload,
+  webPolicyDecisionIgnore,
+  webPolicyDecisionUse,
 ) where
 
+import Control.Monad		(liftM)
+
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError 
 import Graphics.UI.Gtk.Gdk.Events
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import System.Glib.GObject#}
 
 {#context lib="webkit" prefix ="webkit"#}
 
--- | Signal helper functions.
-connect_OBJECT__OBJECTPTR ::
-    (GObjectClass a', GObjectClass obj) => SignalName ->
-    ConnectAfter -> obj ->
-    (a' -> IO WebView) ->
-    IO (ConnectId obj)
-connect_OBJECT__OBJECTPTR signal after obj user =
-    connectGeneric signal after obj action
-        where action :: Ptr GObject -> Ptr GObject -> IO (Ptr WebView)
-              action _ obj1  =
-                  failOnGError $
-                  makeNewGObject mkGObject (return obj1) >>= \obj1' ->
-                  user (unsafeCastGObject obj1') >>= webViewToWebViewPtr
+-- * Methods
 
--- | Internal helper function for convert.
-webViewToWebViewPtr :: WebViewClass self => self -> IO (Ptr WebView)
-webViewToWebViewPtr webview = return $ unsafeForeignPtrToPtr (unWebView (toWebView webview))
+-- | Will send the DOWNLOAD decision to the policy implementer.
+webPolicyDecisionDownload :: 
+   WebPolicyDecisionClass self => self
+ -> IO ()   
+webPolicyDecisionDownload pd =
+  {#call web_policy_decision_download#} (toWebPolicyDecision pd)
+
+-- | Will send the IGNORE decision to the policy implementer.
+webPolicyDecisionIgnore ::
+   WebPolicyDecisionClass self => self  
+ -> IO ()
+webPolicyDecisionIgnore pd =
+  {#call web_policy_decision_ignore#} (toWebPolicyDecision pd)
+
+-- | Will send the USE decision to the policy implementer.
+webPolicyDecisionUse ::
+   WebPolicyDecisionClass self => self
+ -> IO ()
+webPolicyDecisionUse pd =
+  {#call web_policy_decision_use#} (toWebPolicyDecision pd)
