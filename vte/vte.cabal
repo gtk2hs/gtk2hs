@@ -1,0 +1,56 @@
+Name:           vte
+Version:        0.10.5
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Andy Stewart, Axel Simon
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6.0
+Stability:      provisional
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+Synopsis:       Binding to the VTE library.
+Description:    The VTE library inserts terminal capability strings into a trie, and then
+                uses it to determine if data received from a pseudo-terminal is a control
+                sequence or just random data. The sample program "interpret" illustrates
+                more or less what the widget sees after it filters incoming data.
+
+Category:       Graphics
+Tested-With:    GHC == 6.12.1
+x-Types-File:   Graphics/UI/Gtk/Vte/Types.chs
+x-Types-ModName: Graphics.UI.Gtk.Vte.Types
+x-Types-Forward: *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
+Extra-Source-Files: Graphics/UI/Gtk/Vte/VteCharAttrFields.h
+
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       vte
+
+Library
+        build-depends:  base >= 4, array, containers, haskell98, mtl,
+                        glib  >= 0.10.5 && < 0.11, 
+                        pango >= 0.10.5 && < 0.11, 
+                        cairo >= 0.10.5 && < 0.11,
+                        gtk   >= 0.10.5 && < 0.11
+						
+        build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
+		
+        exposed-modules:
+          Graphics.UI.Gtk.Vte.Vte
+        other-modules:
+          Graphics.UI.Gtk.Vte.Structs		
+          Graphics.UI.Gtk.Vte.Types
+          Graphics.UI.Gtk.Vte.Signals		  
+		  
+        extensions:     ForeignFunctionInterface
+        c-sources: Graphics/UI/Gtk/Vte/VteCharAttrFields.c
+
+        x-c2hs-Header:  vte/vte.h
+        include-dirs:   Graphics/UI/Gtk/Vte/
+        x-Signals-File:  Graphics/UI/Gtk/Vte/Signals.chs
+        x-Signals-Modname: Graphics.UI.Gtk.Vte.Signals
+        x-Types-Tag: vte		
+        pkgconfig-depends: vte >= 0.20.5

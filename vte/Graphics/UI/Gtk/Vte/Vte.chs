@@ -196,17 +196,16 @@ import System.Glib.UTFString
 import System.Glib.Properties
 import System.Glib.GError
 import System.Glib.Flags                        (Flags, fromFlags) 
-import Graphics.UI.Gtk.General.Structs          (Color(..))
+import Graphics.UI.Gtk.Abstract.Widget (Color)
 import Graphics.UI.Gtk.Gdk.Cursor
-import Graphics.UI.Gtk.Pango.Font
+import Graphics.Rendering.Pango.BasicTypes (FontDescription(FontDescription), makeNewFontDescription)
 import Graphics.UI.Gtk.Vte.Structs
 
 {#import Graphics.UI.Gtk.General.Clipboard#}    (selectionPrimary,
                                                  selectionClipboard)
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.Vte.Signals#}
 {#import Graphics.UI.Gtk.Vte.Types#}
-{#import Graphics.UI.Gtk.Pango.Types#}
 {#import System.Glib.GObject#}
 {#import System.Glib.GError#}                   (propagateGError)
 
@@ -770,8 +769,8 @@ terminalSetFont ::
     TerminalClass self => self
  -> FontDescription   -- ^ @fontDesc@ - the 'FontDescription' of the desired font. 
  -> IO ()
-terminalSetFont terminal fontDesc =
-    {#call terminal_set_font#} (toTerminal terminal)  fontDesc
+terminalSetFont terminal (FontDescription fontDesc) =
+    {#call terminal_set_font#} (toTerminal terminal) (castPtr $ unsafeForeignPtrToPtr fontDesc)
 
 -- | A convenience function which converts name into a 'FontDescription' and passes it to 'terminalSetFont'.
 terminalSetFontFromString :: 
@@ -788,7 +787,7 @@ terminalGetFont ::
  -> IO FontDescription   -- ^ return a 'FontDescription' describing the font the terminal is currently using to render text. 
 terminalGetFont terminal = do
     fdPtr <- {#call unsafe terminal_get_font#} (toTerminal terminal) 
-    makeNewFontDescription fdPtr 
+    makeNewFontDescription (castPtr fdPtr) 
 
 -- | Checks if the terminal currently contains selected text. 
 -- Note that this is different from determining if the terminal is the owner of any 'GtkClipboard' items.

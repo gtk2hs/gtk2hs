@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP, ForeignFunctionInterface #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) marshalling of structures for VTE
 --
@@ -39,7 +40,7 @@ import Data.Char
 import Data.Word
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs ( Color(..) )
+import Graphics.UI.Gtk.Abstract.Widget (Color)
 
 #include "VteCharAttrFields.h"
 
