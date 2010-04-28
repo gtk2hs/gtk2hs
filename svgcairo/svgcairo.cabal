@@ -1,0 +1,43 @@
+Name:           svgcairo
+Version:        0.10.5
+License:        GPL
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Duncan Coutts
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6.0
+Stability:      provisional
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+Synopsis:       Binding to the GTK+ OpenGL Extension
+Description:    Svgcairo provides the GDK objects to support OpenGL rendering in GTK+,
+                and GtkWidget API add-ons to make GTK+ widgets OpenGL-capable.
+
+Category:       Graphics
+Tested-With:    GHC == 6.12.1
+x-Types-Forward: *System.Glib.GObject *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
+Extra-Source-Files: svgcairo.h
+
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/
+  subdir:       svgcairo
+
+Library
+        build-depends:  base >= 4, array, containers, haskell98, mtl,
+                        glib  >= 0.10.5 && < 0.11, 
+                        pango >= 0.10.5 && < 0.11, 
+                        cairo >= 0.10.5 && < 0.11,
+                        gtk   >= 0.10.5 && < 0.11
+						
+        build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
+		
+        exposed-modules:
+          Graphics.Rendering.Cairo.SVG
+		  
+        extensions:     ForeignFunctionInterface
+		
+        x-c2hs-Header:  svgcairo.h
+        pkgconfig-depends: librsvg-2.0 >= 2.16.0
