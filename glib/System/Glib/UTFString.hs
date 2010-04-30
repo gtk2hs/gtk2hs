@@ -38,6 +38,7 @@ module System.Glib.UTFString (
   withUTFStringArray0,
   peekUTFStringArray,
   peekUTFStringArray0,
+  readUTFStringArray0,
   UTFCorrection,
   genUTFOfs,
   ofsToUTF,
@@ -136,6 +137,16 @@ peekUTFStringArray0 :: Ptr CString -> IO [String]
 peekUTFStringArray0 cStrArr = do
   cStrs <- peekArray0 nullPtr cStrArr
   mapM peekUTFString cStrs
+
+-- Like peekUTFStringArray0 but then free the string array using g_strfreev
+readUTFStringArray0 :: Ptr CString -> IO [String]
+readUTFStringArray0 cStrArr = do
+  cStrs <- peekArray0 nullPtr cStrArr
+  g_strfreev cStrArr
+  mapM peekUTFString cStrs
+
+foreign import ccall unsafe "g_strfreev"
+  g_strfreev :: Ptr a -> IO ()
 
 -- Convert Unicode characters to UTF-8.
 --
