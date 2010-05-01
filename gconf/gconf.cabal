@@ -41,12 +41,9 @@ Library
         other-modules:
           System.Gnome.GConf.GConfValue
           System.Gnome.GConf.Types		  
-          System.Gnome.GConf.Signals		  
 
         extensions:     ForeignFunctionInterface
 		
         x-Types-Tag: gconf
         x-c2hs-Header:  gconf/gconf-client.h
-        x-Signals-File:  System/Gnome/GConf/Signals.chs
-        x-Signals-Modname: System.Gnome.GConf.Signals
         pkgconfig-depends: gconf-2.0 >= 2.0.0
