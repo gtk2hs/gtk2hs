@@ -62,12 +62,9 @@ Library
         other-modules:
           Graphics.UI.Gtk.WebKit.Internal
           Graphics.UI.Gtk.WebKit.Types		  
-          Graphics.UI.Gtk.WebKit.Signals
 
         extensions:     ForeignFunctionInterface
 		
         x-c2hs-Header:  hswebkit.h
         x-Types-Tag: webkit
-        x-Signals-File:  Graphics/UI/Gtk/WebKit/Signals.chs
-        x-Signals-Modname: Graphics.UI.Gtk.WebKit.Signals
         pkgconfig-depends: webkit-1.0 >= 1.1.15

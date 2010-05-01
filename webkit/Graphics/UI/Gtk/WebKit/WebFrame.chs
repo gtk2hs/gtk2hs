@@ -71,7 +71,6 @@ import Graphics.UI.Gtk.Gdk.Events
 import Graphics.UI.Gtk.General.Enums
 
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
-{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import System.Glib.GObject#}
 
