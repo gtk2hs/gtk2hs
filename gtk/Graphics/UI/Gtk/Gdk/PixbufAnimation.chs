@@ -109,8 +109,11 @@ pixbufAnimationNewFromFile fname =
   constructNewGObject mkPixbufAnimation $
   propagateGError $ \errPtrPtr ->
      withUTFString fname $ \strPtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
+     {#call unsafe pixbuf_animation_new_from_file_utf8#} strPtr errPtrPtr
+#else
      {#call unsafe pixbuf_animation_new_from_file#} strPtr errPtrPtr
-
+#endif
 
 -- | Queries the width of the bounding box of a pixbuf animation.
 pixbufAnimationGetWidth :: PixbufAnimation -- ^ An animation.
