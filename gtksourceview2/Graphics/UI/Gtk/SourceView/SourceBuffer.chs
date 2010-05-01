@@ -67,7 +67,6 @@ import System.Glib.GObject              (constructNewGObject,
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.SourceView.Types#}
-{#import Graphics.UI.Gtk.SourceView.Signals#}
 import Graphics.UI.GtkInternals
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
 

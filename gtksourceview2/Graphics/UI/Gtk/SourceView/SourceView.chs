@@ -76,7 +76,6 @@ import System.Glib.FFI
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.SourceView.Types#}
-{#import Graphics.UI.Gtk.SourceView.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -51,12 +51,9 @@ Library
         other-modules:
           Graphics.UI.Gtk.SourceView.SourceStyle.Internal
           Graphics.UI.Gtk.SourceView.Types		  
-          Graphics.UI.Gtk.SourceView.Signals
 		  
         extensions:     ForeignFunctionInterface
 
         x-c2hs-Header:  gtksourceview2.h
         x-Types-Tag: gtksourceview2
-        x-Signals-File:  Graphics/UI/Gtk/SourceView/Signals.chs
-        x-Signals-Modname: Graphics.UI.Gtk.SourceView.Signals
         pkgconfig-depends: gtksourceview-2.0 >= 2.0.2

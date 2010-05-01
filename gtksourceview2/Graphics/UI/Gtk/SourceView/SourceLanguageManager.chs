@@ -46,7 +46,6 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.SourceView.Types#}
-{#import Graphics.UI.Gtk.SourceView.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 
