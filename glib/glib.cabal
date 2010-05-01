@@ -39,11 +39,12 @@ Library
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
           c-sources: System/Glib/hsgclosure.c
           include-dirs: System/Glib
-        exposed:  False
-        exposed-modules:  System.Glib
+		  
+        exposed-modules:  
+                          System.Glib
+                          System.Glib.GError
                           System.Glib.Properties
                           System.Glib.Attributes
-                          System.Glib.GError
                           System.Glib.Signals
                           System.Glib.MainLoop
                           System.Glib.GDateTime
