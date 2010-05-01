@@ -5,7 +5,7 @@
 module Main(main) where
 
 import Data.Char   (showLitChar)
-import Data.List   (nub)
+import Data.List   (nub, isPrefixOf)
 import System.Environment (getArgs)
 import System.Exit (exitWith, ExitCode(..))
 import System.IO (stderr, hPutStr)
@@ -439,18 +439,27 @@ mkMarshRet (ret,_) = marshRet ret
 
 usage = do
  hPutStr stderr $
-   "Program to generate callback hook for Gtk signals. Usage:\n"++
-   "HookGenerator <moduleName>\n"++
+   "Program to generate callback hook for Gtk signals. Usage:\n\n"++
+   "HookGenerator [--template=<template-file>] [--types=<types-file>]--modname=<moduleName> > <outFile>\n"++
    "where\n"++
-   "  <moduleName>    the module name for <outFile>\n"
+   "  <moduleName>    the module name for <outFile>\n"++
+   "  <template-file> a path to the Signal.chs.template file\n"++
+   "  <types-file>    a path to a gtkmarshal.list file\n"
  exitWith $ ExitFailure 1
 
 main = do
   args <- getArgs
-  if (length args /= 1) then usage else do
-  typesFile <- getDataFileName "callbackGen/gtkmarshal.list"
-  templateFile <- getDataFileName "callbackGen/Signal.chs.template"
-  let [outModuleName] = args
+  let showHelp = not (null (filter ("-h" `isPrefixOf`) args++
+                            filter ("--help" `isPrefixOf`) args)) || null args
+  if showHelp then usage else do
+  let outModuleName = case map (drop 10) (filter ("--modname=" `isPrefixOf`)  args) of
+		        (modName:_) -> modName
+  templateFile <- case map (drop 11) (filter ("--template=" `isPrefixOf`)  args) of
+		    [tplName] -> return tplName
+  		    _ -> getDataFileName "callbackGen/Signal.chs.template"
+  typesFile <- case map (drop 11) (filter ("--types=" `isPrefixOf`)  args) of
+		 [typName] -> return typName
+  		 _ -> getDataFileName "callbackGen/gtkmarshal.list"
   content <- readFile typesFile
   let sigs = parseSignatures content
   template <- readFile templateFile
