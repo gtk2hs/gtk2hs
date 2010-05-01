@@ -21,7 +21,7 @@ Tested-With:    GHC == 6.12.1
 
 x-Types-File:   System/GIO/Types.chs
 x-Types-ModName: System.GIO.Types
-x-Types-Forward:  *System.Glib.GObject
+x-Types-Forward:  *System.Glib.GObject Graphics.UI.GtkInternals
 
 Source-Repository head
   type:         darcs
@@ -44,12 +44,9 @@ Library
           System.GIO.File.File
         other-modules:
           System.GIO.Types		  
-          System.GIO.Signals		  
 
         extensions:     ForeignFunctionInterface
 		
         x-Types-Tag: gio
         x-c2hs-Header:  gio/gio.h
-        x-Signals-File:  System/GIO/Signals.chs
-        x-Signals-Modname: System.GIO.Signals
         pkgconfig-depends: gio-2.0 >= 2.16.4

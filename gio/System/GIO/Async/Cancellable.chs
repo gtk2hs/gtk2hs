@@ -48,7 +48,6 @@ import System.Glib.Signals
 
 import System.GIO.Base
 {#import System.GIO.Types#}
-{#import System.GIO.Signals#}
 
 {# context lib = "gio" prefix = "g" #}
 
