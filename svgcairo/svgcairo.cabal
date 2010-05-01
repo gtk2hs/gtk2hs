@@ -16,7 +16,7 @@ Description:    Svgcairo provides the GDK objects to support OpenGL rendering in
 
 Category:       Graphics
 Tested-With:    GHC == 6.12.1
-x-Types-Forward: *System.Glib.GObject *Graphics.UI.GtkInternals
+x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: svgcairo.h
 
