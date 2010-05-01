@@ -239,8 +239,6 @@ Library
         else
           x-c2hs-Header:  gtk/gtk.h
 
-        x-Types-Tag:     default
-        if !os(windows)
-          x-Types-Tag: plugNsocket
+        x-Types-Tag:     default plugNsocket
 
         pkgconfig-depends: gthread-2.0, gtk+-2.0
