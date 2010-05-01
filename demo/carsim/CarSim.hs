@@ -5,7 +5,7 @@
 
 module Main where
 import Data.Maybe
-import Graphics.UI.Gtk hiding (fill)
+import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.Rendering.Cairo
 import Control.Monad
