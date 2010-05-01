@@ -43,14 +43,11 @@ Library
         other-modules:
           Graphics.UI.Gtk.Vte.Structs		
           Graphics.UI.Gtk.Vte.Types
-          Graphics.UI.Gtk.Vte.Signals		  
 		  
         extensions:     ForeignFunctionInterface
         c-sources: Graphics/UI/Gtk/Vte/VteCharAttrFields.c
 
         x-c2hs-Header:  vte/vte.h
         include-dirs:   Graphics/UI/Gtk/Vte/
-        x-Signals-File:  Graphics/UI/Gtk/Vte/Signals.chs
-        x-Signals-Modname: Graphics.UI.Gtk.Vte.Signals
         x-Types-Tag: vte		
         pkgconfig-depends: vte >= 0.20.5
