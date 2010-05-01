@@ -8,7 +8,8 @@
 import IO
 import Maybe
 import List
-import Graphics.UI.Gtk
+import Graphics.UI.Gtk hiding (Cross)
+import Graphics.UI.Gtk.Glade
 import Data.IORef
 import Control.Monad
 
@@ -100,20 +101,31 @@ handleMove gui board player
 
 main = do
   initGUI
-  window <- windowNew
-  window `onDestroy` mainQuit
-  set window [ windowTitle := "Noughty"
-             , windowResizable := False ]
-  label <- labelNew (Just "Player Cross: make your move.")
-  vboxOuter <- vBoxNew False 0
-  vboxInner <- vBoxNew False 5
 
--- Add an initial board to the inner vBox and make the menu bar
-  (squares, images) <- addFieldsTo vboxInner
-  (mb,newGame,quit) <- makeMenuBar
+  -- Extract widgets from the glade xml file
+  Just xml <- xmlNew "noughty.glade"
+
+  window <- xmlGetWidget xml castToWindow "window"
+  window `onDestroy` mainQuit
+
+  newGame <- xmlGetWidget xml castToMenuItem "newGame"
+  quit <- xmlGetWidget xml castToMenuItem "quit"
+
+  squares <- flip mapM [1..9] $ \n -> do
+    square <- xmlGetWidget xml castToButton ("button" ++ show n)
+    -- we set this in the glde file but it doesn't seem to work there.
+    set square [ widgetCanFocus := False ]
+    return square
+
+  images <- flip mapM [1..9] $ \n -> do
+    xmlGetWidget xml castToImage ("image" ++ show n)
+
+  statusbar <- xmlGetWidget xml castToStatusbar "statusbar"
+  ctx <- statusbarGetContextId statusbar "state"
+  statusbarPush statusbar ctx "Player Cross: make your move."
 
   -- Construct the GUI actions that abstracts from the actual widgets
-  gui <- guiActions squares images label
+  gui <- guiActions squares images statusbar ctx
 
   -- Initialize the state
   state <- newIORef State { board = empty, turn = Cross }
@@ -126,17 +138,10 @@ main = do
     onPressed square $ modifyState $ occupy gui i)
     squares [0..8]
 
-  -- Assemble the bits
-  set vboxOuter [ containerChild := mb
-                , containerChild := vboxInner ]
-  set vboxInner [ containerChild := label
-                , containerBorderWidth := 10 ]
-  set window [ containerChild := vboxOuter ]
-
   widgetShowAll window
   mainGUI
 
-guiActions buttons images label = do
+guiActions buttons images statusbar ctx = do
   noughtPic <- pixbufNewFromFile "Nought.png"
   crossPic  <- pixbufNewFromFile "Cross.png"
   return GUI {
@@ -148,49 +153,8 @@ guiActions buttons images label = do
       case player of
         Cross -> set (images !! i) [ imagePixbuf := crossPic ]
         Nought-> set (images !! i) [ imagePixbuf := noughtPic ],
-    setStatus = labelSetText label}
-
-makeMenuBar = do
-  mb <- menuBarNew
-  fileMenu <- menuNew
-  newGame <- menuItemNewWithMnemonic "_New Game"
-  quit <- menuItemNewWithMnemonic "_Quit"
-  file <- menuItemNewWithMnemonic "_Game"
-  menuShellAppend fileMenu newGame
-  menuShellAppend fileMenu quit
-  menuItemSetSubmenu file fileMenu
-  containerAdd mb file
-  return (mb,newGame,quit)
-
-addFieldsTo container = do
-  table <- tableNew 5 5 False
-  buttons@[b0,b1,b2,b3,b4,b5,b6,b7,b8] <- replicateM 9 squareNew
-  images <- replicateM 9 imageNew
-  zipWithM_ containerAdd buttons images
-  tableAttachDefaults table b0 0 1 0 1
-  tableAttachDefaults table b1 2 3 0 1
-  tableAttachDefaults table b2 4 5 0 1
-  tableAttachDefaults table b3 0 1 2 3
-  tableAttachDefaults table b4 2 3 2 3
-  tableAttachDefaults table b5 4 5 2 3
-  tableAttachDefaults table b6 0 1 4 5
-  tableAttachDefaults table b7 2 3 4 5
-  tableAttachDefaults table b8 4 5 4 5
-  vline1 <- vSeparatorNew
-  vline2 <- vSeparatorNew
-  hline1 <- hSeparatorNew
-  hline2 <- hSeparatorNew
-  tableAttachDefaults table vline1 1 2 0 5
-  tableAttachDefaults table vline2 3 4 0 5
-  tableAttachDefaults table hline1 0 5 1 2
-  tableAttachDefaults table hline2 0 5 3 4
-  tableSetRowSpacings table 0
-  tableSetColSpacings table 0
-  containerAdd container table
-  return (buttons, images)
-
-squareNew = do
-  square <- buttonNew
-  widgetSetSizeRequest square 100 100
-  set square [ widgetCanFocus := False, buttonRelief := ReliefNone]
-  return square
+    setStatus = \msg -> do
+            statusbarPop statusbar ctx
+            statusbarPush statusbar ctx msg
+            return ()
+   }
