@@ -87,7 +87,6 @@ import System.Glib.GList            ( fromGList )
 {#import System.Gnome.VFS.Marshal#}
 {#import System.Gnome.VFS.Types#}
 {#import System.Gnome.VFS.BasicTypes#}
-{#import System.Gnome.VFS.Signals#}
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
 

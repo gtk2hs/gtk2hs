@@ -22,7 +22,7 @@ Tested-With:    GHC == 6.12.1
 
 x-Types-File:   System/Gnome/VFS/Types.chs
 x-Types-ModName: System.Gnome.VFS.Types
-x-Types-Forward: *System.Glib.GObject
+x-Types-Forward: *System.Glib.GObject Graphics.UI.GtkInternals
 Extra-Source-Files: hsgnomevfs-2.14.h
                     System/Gnome/VFS/hsfileinfo.h
 
@@ -59,7 +59,6 @@ Library
           System.Gnome.VFS.Types
           System.Gnome.VFS.BasicTypes
           System.Gnome.VFS.Marshal
-          System.Gnome.VFS.Signals		  
           System.Gnome.VFS.Constants		  
 		  
         extensions:     ForeignFunctionInterface
@@ -69,6 +68,4 @@ Library
         x-c2hs-Header:  hsgnomevfs-2.14.h
         include-dirs:   System/Gnome/VFS/
         cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
-        x-Signals-File:  System/Gnome/VFS/Signals.chs
-        x-Signals-Modname: System.Gnome.VFS.Signals
         pkgconfig-depends: gnome-vfs-2.0 >= 2.0.0, gnome-vfs-module-2.0 >= 2.0.0

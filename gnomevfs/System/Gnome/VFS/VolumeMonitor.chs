@@ -65,7 +65,6 @@ import System.Glib.UTFString
 import System.Gnome.VFS.Marshal
 {#import System.Gnome.VFS.Types#}
 {#import System.Gnome.VFS.BasicTypes#}
-{#import System.Gnome.VFS.Signals#}
 import System.IO (FilePath)
 
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
