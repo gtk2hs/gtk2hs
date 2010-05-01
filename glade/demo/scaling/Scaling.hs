@@ -24,6 +24,7 @@ import Data.Array.Base ( unsafeWrite, unsafeRead )
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Glade
 import Graphics.UI.Gtk.ModelView as New 
+import Graphics.UI.Gtk.Gdk.GC (gcNew)
 import CPUTime
 import System.Environment ( getArgs )
 import System.Directory ( doesFileExist )
