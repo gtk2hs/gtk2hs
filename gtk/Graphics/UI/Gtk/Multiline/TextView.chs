@@ -176,7 +176,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   populatePopup,
   selectAll,
   setAnchor,
-  setScrollAdjustments,
+  setTextViewScrollAdjustments,
   toggleCursorVisible,
   toggleOverwrite,
   ) where
@@ -1157,51 +1157,150 @@ textViewAcceptsTab = newAttr
 
 --------------------
 -- Signals
-backspace :: TextBufferClass self => Signal self (IO ())
-backspace = Signal (connect_NONE__NONE "on_backspace")
+-- | The 'backspace' signal is a keybinding signal which gets emitted when the user asks for it.
+--
+-- The default bindings for this signal are Backspace and Shift-Backspace.
+--
+backspace :: TextViewClass self => Signal self (IO ())
+backspace = Signal (connect_NONE__NONE "on-backspace")
 
-copyClipboard :: TextBufferClass self => Signal self (IO ())
-copyClipboard = Signal (connect_NONE__NONE "copy_clipboard")
+-- | Copying to the clipboard.
+--
+-- * This signal is emitted when a selection is copied to the clipboard. 
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+copyClipboard :: TextViewClass self => Signal self (IO ())
+copyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
 
-cutClipboard :: TextBufferClass self => Signal self (IO ())
-cutClipboard = Signal (connect_NONE__NONE "cut_clipboard")
+-- | Cutting to the clipboard.
+--
+-- * This signal is emitted when a selection is cut out and copied to the
+--   clipboard. The action itself happens when the textview processed this
+--   request.
+--
+cutClipboard :: TextViewClass self => Signal self (IO ())
+cutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
 
-deleteFromCursor :: TextBufferClass self => Signal self (DeleteType -> Int -> IO ())
-deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete_from_cursor")
+-- | Deleting text.
+--
+-- * The widget will remove the specified number of units in the text where
+--   the meaning of units depends on the kind of deletion.
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+deleteFromCursor :: TextViewClass self => Signal self (DeleteType -> Int -> IO ())
+deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 
-insertAtCursor :: TextBufferClass self => Signal self (String -> IO ())
-insertAtCursor = Signal (connect_STRING__NONE "insert_at_cursor")
+-- | Inserting text.
+--
+-- * The widget will insert the string into the text where the meaning
+--   of units depends on the kind of deletion.
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+insertAtCursor :: TextViewClass self => Signal self (String -> IO ())
+insertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 
-moveCursor :: TextBufferClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
-moveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move_cursor")
+-- | Moving the cursor.
+--
+-- * The signal specifies what kind and how many steps the cursor will do.
+--   The flag is set to @True@ if this movement extends a selection.
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+moveCursor :: TextViewClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
+moveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
 
-moveViewport :: TextBufferClass self => Signal self (ScrollStep -> Int -> IO ())
-moveViewport = Signal (connect_ENUM_INT__NONE "move_viewport")
+-- | The 'moveViewport' signal is a keybinding signal which can be bound to key combinations 
+-- to allow the user to move the viewport, i.e. 
+-- change what part of the text view is visible in a containing scrolled window.
+-- There are no default bindings for this signal.
+-- 
+moveViewport :: TextViewClass self => Signal self (ScrollStep -> Int -> IO ())
+moveViewport = Signal (connect_ENUM_INT__NONE "move-viewport")
 
-moveFocus :: TextBufferClass self => Signal self (DirectionType -> IO ())
-moveFocus = Signal (connect_ENUM__NONE "move_focus")
+-- | Moving the focus.
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+moveFocus :: TextViewClass self => Signal self (DirectionType -> IO ())
+moveFocus = Signal (connect_ENUM__NONE "move-focus")
 
-pageHorizontally :: TextBufferClass self => Signal self (Int -> Bool -> IO ())
-pageHorizontally = Signal (connect_INT_BOOL__NONE "page_horizontally")
+-- | Page change signals.
+--
+-- * The signal specifies how many pages the view should move up or down.
+--   The flag is set to @True@ if this movement extends a selection.
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+-- * Figure out why this signal is called horizontally, not vertically.
+--
+pageHorizontally :: TextViewClass self => Signal self (Int -> Bool -> IO ())
+pageHorizontally = Signal (connect_INT_BOOL__NONE "page-horizontally")
 
-pasteClipboard :: TextBufferClass self => Signal self (IO ())
-pasteClipboard = Signal (connect_NONE__NONE "paste_clipboard")
+-- | Pasting from the clipboard.
+--
+-- * This signal is emitted when something is pasted from the clipboard. 
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+pasteClipboard :: TextViewClass self => Signal self (IO ())
+pasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
 
-populatePopup :: TextBufferClass self => Signal self (Menu -> IO ())
-populatePopup = Signal (connect_OBJECT__NONE "populate_popup")
+-- | Add menu entries to context menus.
+--
+-- * This signal is emitted if a context menu within the 'TextView'
+--   is opened. This signal can be used to add application specific menu
+--   items to this popup.
+--
+populatePopup :: TextViewClass self => Signal self (Menu -> IO ())
+populatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 
-selectAll :: TextBufferClass self => Signal self (Bool -> IO ())
+-- | Inserting an anchor.
+--
+-- * This signal is emitted when anchor is inserted into the text. 
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+selectAll :: TextViewClass self => Signal self (Bool -> IO ())
 selectAll = Signal (connect_BOOL__NONE "select-all")
 
-setAnchor :: TextBufferClass self => Signal self (IO ())
-setAnchor = Signal (connect_NONE__NONE "set_anchor")
+-- | The scroll-bars changed.
+--
+setAnchor :: TextViewClass self => Signal self (IO ())
+setAnchor = Signal (connect_NONE__NONE "set-anchor")
 
-setScrollAdjustments :: TextBufferClass self => Signal self (Adjustment -> Adjustment -> IO ())
-setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
+-- | The 'setTextViewScrollAdjustments' signal is a keybinding signal which 
+-- gets emitted to toggle the visibility of the cursor.
+-- The default binding for this signal is F7.
+--
+setTextViewScrollAdjustments :: TextViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setTextViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
 
-toggleCursorVisible :: TextBufferClass self => Signal self (IO ())
-toggleCursorVisible = Signal (connect_NONE__NONE "toggle_cursor_visible")
+-- | The 'toggleCursorVisible' signal is a keybinding signal 
+-- which gets emitted to toggle the visibility of the cursor.
+-- The default binding for this signal is F7.
+--
+toggleCursorVisible :: TextViewClass self => Signal self (IO ())
+toggleCursorVisible = Signal (connect_NONE__NONE "toggle-cursor-visible")
 
-toggleOverwrite :: TextBufferClass self => Signal self (IO ())
-toggleOverwrite = Signal (connect_NONE__NONE "toggle_overwrite")
+-- | Insert Overwrite mode has changed.
+--
+-- * This signal is emitted when the 'TextView' changes from
+--   inserting mode to overwriting mode and vice versa. 
+--
+-- * The action itself happens when the 'TextView' processes this
+--   signal.
+--
+toggleOverwrite :: TextViewClass self => Signal self (IO ())
+toggleOverwrite = Signal (connect_NONE__NONE "toggle-overwrite")
 
