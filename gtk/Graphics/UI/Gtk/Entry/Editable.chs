@@ -277,7 +277,14 @@ editableEditable = newAttr
 --------------------
 -- Signals
 
--- | Emitted when the settings of the 'Editable' widget changes.
+-- | The 'onEditableChanged' signal is emitted at the end of a single
+-- user-visible operation on the contents of the 'Editable'.
+--
+-- * For inctance, a paste operation that replaces the contents of the
+--   selection will cause only one signal emission (even though it is
+--   implemented by first deleting the selection, then inserting the new
+--   content, and may cause multiple 'onEditableInserText' signals to be
+--   emitted).
 --
 onEditableChanged, afterEditableChanged :: EditableClass ec => ec -> IO () ->
                                      IO (ConnectId ec)
