@@ -19,6 +19,7 @@ Category:       Graphics
 Tested-With:    GHC == 6.10.4
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
+                    Gtk2HsSetup.hs
 
 x-Types-File:   Graphics/Rendering/Pango/Types.chs
 x-Types-ModName: Graphics.Rendering.Pango.Types

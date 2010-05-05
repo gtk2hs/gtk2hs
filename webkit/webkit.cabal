@@ -25,6 +25,7 @@ x-Types-ModName: Graphics.UI.Gtk.WebKit.Types
 x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: hswebkit.h
+                    Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

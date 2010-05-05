@@ -25,6 +25,7 @@ x-Types-ModName: System.Gnome.VFS.Types
 x-Types-Forward: Graphics.UI.GtkInternals
 Extra-Source-Files: hsgnomevfs-2.14.h
                     System/Gnome/VFS/hsfileinfo.h
+                    Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

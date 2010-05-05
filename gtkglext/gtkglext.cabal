@@ -20,6 +20,7 @@ x-Types-File:   Graphics/UI/Gtk/OpenGL/Types.chs
 x-Types-ModName: Graphics.UI.Gtk.OpenGL.Types
 x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
+Extra-Source-Files: Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

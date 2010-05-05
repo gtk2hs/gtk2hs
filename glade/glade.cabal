@@ -17,10 +17,12 @@ Description:    This library allows to load externally stored user interfaces in
 
 Category:       Graphics
 Tested-With:    GHC == 6.12.1
+
 x-Types-File:   Graphics/UI/Gtk/Glade/Types.chs
 x-Types-ModName: Graphics.UI.Gtk.Glade.Types
 x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
+Extra-Source-Files: Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

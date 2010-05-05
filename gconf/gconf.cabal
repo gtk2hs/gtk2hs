@@ -18,6 +18,7 @@ Description:    GConf is a configuration database system for storing application
                 require it.
 Category:       System
 Tested-With:    GHC == 6.12.1
+Extra-Source-Files: Gtk2HsSetup.hs
 
 x-Types-File:   System/Gnome/GConf/Types.chs
 x-Types-ModName: System.Gnome.GConf.Types

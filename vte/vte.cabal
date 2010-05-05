@@ -23,6 +23,7 @@ x-Types-ModName: Graphics.UI.Gtk.Vte.Types
 x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: Graphics/UI/Gtk/Vte/VteCharAttrFields.h
+                    Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

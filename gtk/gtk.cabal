@@ -25,6 +25,7 @@ Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/General/hsgthread.h
                     template-hsc-gtk2hs.h
                     Graphics/UI/Gtk/Signals.chs.template
+                    Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

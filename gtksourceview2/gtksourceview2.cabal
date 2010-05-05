@@ -22,6 +22,7 @@ x-Types-ModName: Graphics.UI.Gtk.SourceView.Types
 x-Types-Forward: *Graphics.UI.GtkInternals
 x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: gtksourceview2.h
+                    Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs

@@ -22,6 +22,7 @@ Tested-With:    GHC == 6.12.1
 x-Types-File:   System/GIO/Types.chs
 x-Types-ModName: System.GIO.Types
 x-Types-Forward: Graphics.UI.GtkInternals
+Extra-Source-Files: Gtk2HsSetup.hs
 
 Source-Repository head
   type:         darcs
