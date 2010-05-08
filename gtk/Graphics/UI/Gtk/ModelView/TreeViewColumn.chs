@@ -376,22 +376,24 @@ treeViewColumnGetClickable self =
 -- | Set the column's title to this widget.
 --
 treeViewColumnSetWidget :: WidgetClass widget => TreeViewColumn
- -> widget
+ -> Maybe widget
  -> IO ()
 treeViewColumnSetWidget self widget =
   {# call tree_view_column_set_widget #}
     self
-    (toWidget widget)
+    (maybe (Widget nullForeignPtr) toWidget widget)
 
 -- | Retrieve the widget responsible for
 -- showing the column title. In case only a text title was set this will be a
 -- 'Alignment' widget with a 'Label' inside.
 --
-treeViewColumnGetWidget :: TreeViewColumn -> IO Widget
-treeViewColumnGetWidget self =
-  makeNewObject mkWidget $
-  {# call unsafe tree_view_column_get_widget #}
-    self
+treeViewColumnGetWidget :: TreeViewColumn 
+ -> IO (Maybe Widget) -- ^ returns the 'Widget' in the column header, or 'Nothing'
+treeViewColumnGetWidget self = do
+  widgetPtr <- {# call unsafe tree_view_column_get_widget #} self
+  if widgetPtr == nullPtr
+     then return Nothing
+     else liftM Just $ makeNewObject mkWidget (return widgetPtr)
 
 -- | Sets the alignment of the title or custom widget inside the column
 -- header. The alignment determines its location inside the button -- 0.0 for
@@ -683,7 +685,7 @@ treeViewColumnClickable = newAttr
 
 -- | Widget to put in column header button instead of column title.
 --
-treeViewColumnWidget :: WidgetClass widget => ReadWriteAttr TreeViewColumn Widget widget
+treeViewColumnWidget :: WidgetClass widget => ReadWriteAttr TreeViewColumn (Maybe Widget) (Maybe widget)
 treeViewColumnWidget = newAttr
   treeViewColumnGetWidget
   treeViewColumnSetWidget
