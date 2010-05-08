@@ -43,6 +43,7 @@ module Graphics.UI.Gtk (
   -- * General things, initialization
   module Graphics.UI.Gtk.General.General,
   module Graphics.UI.Gtk.General.IconFactory,
+  module Graphics.UI.Gtk.General.IconTheme,
   module Graphics.UI.Gtk.General.StockItems,
   module Graphics.UI.Gtk.General.Selection,
   module Graphics.UI.Gtk.General.Drag,
@@ -230,6 +231,7 @@ module Graphics.UI.Gtk (
 -- general things, initialization
 import Graphics.UI.Gtk.General.General
 import Graphics.UI.Gtk.General.IconFactory
+import Graphics.UI.Gtk.General.IconTheme
 import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Selection
 import Graphics.UI.Gtk.General.Drag

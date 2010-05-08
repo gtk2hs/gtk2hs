@@ -1,8 +1,9 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, TypeSynonymInstances #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>         
 #include "template-hsc-gtk2hs.h"
 
 --  GIMP Toolkit (GTK) Structures
@@ -123,6 +124,17 @@ import Graphics.Rendering.Pango.Structs ( Color(..), Rectangle(..) )
 -- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
+    
+instance Storable Point where           
+  sizeOf _ = #{const sizeof(GdkPoint)}
+  alignment _ = alignment (undefined:: #gtk2hs_type gint)
+  peek ptr = do
+    (x_	     ::#gtk2hs_type gint)	<- #{peek GdkPoint, x} ptr
+    (y_	     ::#gtk2hs_type gint)	<- #{peek GdkPoint, y} ptr
+    return $ (fromIntegral x_, fromIntegral y_) 
+  poke ptr (x, y) = do
+    #{poke GdkPoint, x} ptr ((fromIntegral x)::#gtk2hs_type gint)
+    #{poke GdkPoint, y} ptr ((fromIntegral y)::#gtk2hs_type gint)
 
 instance Storable Rectangle where
   sizeOf _ = #{const sizeof(GdkRectangle)}

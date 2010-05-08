@@ -106,6 +106,7 @@ Library
           Graphics.UI.Gtk.General.Drag
           Graphics.UI.Gtk.General.General
           Graphics.UI.Gtk.General.IconFactory
+          Graphics.UI.Gtk.General.IconTheme
           Graphics.UI.Gtk.General.RcStyle
           Graphics.UI.Gtk.General.Selection
           Graphics.UI.Gtk.General.StockItems
