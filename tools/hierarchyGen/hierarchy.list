@@ -273,6 +273,7 @@
         GCancellable			as Cancellable, g_cancellable_get_type if gio
         GSimpleAsyncResult		as SimpleAsyncResult, g_async_result_get_type if gio
         GFileInfo			as FileInfo, g_file_info_get_type if gio
+		GAppLaunchContext   as AppLaunchContext, g_app_launch_context_get_type if gio
 ## these are actually GInterfaces
         GIcon				as Icon, g_icon_get_type if gio
         GSeekable			as Seekable, g_seekable_get_type if gio
