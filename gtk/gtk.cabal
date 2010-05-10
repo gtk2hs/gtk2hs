@@ -247,6 +247,7 @@ Library
         if os(windows)
           x-c2hs-Header:  wingtk.h
           cpp-options:    -DWIN32
+          extra-libraries: kernel32
         else
           x-c2hs-Header:  gtk/gtk.h
 

@@ -18,6 +18,9 @@
  * Win32 since that API is making use of thread-local storage that is not
  * present if the finalizers, that are run by the GC in a different thread,
  * call back into Win32 without this thread-local storage.
+ *
+ * Also g_static_mutex_lock and g_static_mutex_unlock cause problems ghci
+ * on windows so using a Win32 critical section instead
  */
 
 #include <glib.h>
@@ -25,9 +28,18 @@
 #include <gdk/gdk.h>
 #include "hsgthread.h"
 
+#if defined( WIN32 )
+#include <windows.h>
+#endif
+
 #undef DEBUG
 
-static GStaticMutex gtk2hs_finalizer_mutex;
+#if defined( WIN32 )
+static int mutex_initialised = 0;
+static CRITICAL_SECTION gtk2hs_finalizer_mutex;
+#else
+static GStaticMutex gtk2hs_finalizer_mutex = G_STATIC_MUTEX_INIT;
+#endif
 static GSource* gtk2hs_finalizer_source;
 static guint gtk2hs_finalizer_id;
 static GArray* gtk2hs_finalizers;
@@ -47,7 +59,16 @@ void gtk2hs_threads_initialise (void) {
 
 /* Free an object within the Gtk2Hs lock. */
 void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
+
+#if defined( WIN32 )
+  if (!mutex_initialised) {
+    InitializeCriticalSection( &gtk2hs_finalizer_mutex );
+    mutex_initialised = 1;
+  }
+  EnterCriticalSection( &gtk2hs_finalizer_mutex );
+#else
   g_static_mutex_lock(&gtk2hs_finalizer_mutex);
+#endif
 
 #ifdef DEBUG
   printf("adding finalizer!\n");
@@ -74,7 +95,11 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
   /* Add the object to the list. */
   g_array_append_val(gtk2hs_finalizers, object);
 
+#if defined( WIN32 )
+  LeaveCriticalSection( &gtk2hs_finalizer_mutex );
+#else
   g_static_mutex_unlock(&gtk2hs_finalizer_mutex);
+#endif
 }
 
 /* Run the finalizers that have been accumulated. */
@@ -82,7 +107,15 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   gint index;
   g_assert(gtk2hs_finalizers!=NULL);
 
+#if defined( WIN32 )
+  if (!mutex_initialised) {
+    InitializeCriticalSection( &gtk2hs_finalizer_mutex );
+    mutex_initialised = 1;
+  }
+  EnterCriticalSection( &gtk2hs_finalizer_mutex );
+#else
   g_static_mutex_lock(&gtk2hs_finalizer_mutex);
+#endif
 
 #ifdef DEBUG
   printf("running %i finalizers!\n", gtk2hs_finalizers->len);
@@ -95,7 +128,11 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
 
   gtk2hs_finalizer_id = 0;
 
+#if defined( WIN32 )
+  LeaveCriticalSection( &gtk2hs_finalizer_mutex );
+#else
   g_static_mutex_unlock(&gtk2hs_finalizer_mutex);
+#endif
 
   return FALSE;
 }
