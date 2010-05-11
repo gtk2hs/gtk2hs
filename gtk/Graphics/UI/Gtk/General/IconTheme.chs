@@ -630,15 +630,17 @@ iconInfoGetDisplayName self = do
 -- as a preview of the contents of a text file. See 'iconInfoSetRawCoordinates' for further
 -- information about the coordinate system.
 iconInfoGetEmbeddedRect :: IconInfo 
- -> Rectangle  -- ^ @rectangle@ 'Rectangle' in which to store embedded 
-              -- rectangle coordinates; coordinates are only stored when this function   
- -> IO Bool -- ^ returns   'True' if the icon has an embedded rectangle
-iconInfoGetEmbeddedRect self rectangle =
-  liftM toBool $
-  with rectangle $ \ rectanglePtr -> 
-  {# call gtk_icon_info_get_embedded_rect #}
-    self
-    (castPtr rectanglePtr)
+ -> IO (Maybe Rectangle)  -- ^ @rectangle@ 'Rectangle' in which to store embedded 
+                         -- rectangle coordinates.
+iconInfoGetEmbeddedRect self =
+  alloca $ \rectPtr -> do
+  success <- liftM toBool $
+            {# call gtk_icon_info_get_embedded_rect #}
+            self
+            (castPtr rectPtr)
+  if success
+     then liftM Just $ peek rectPtr
+     else return Nothing
 
 -- | Gets the filename for the icon. If the ''IconLookupUseBuiltin'' flag was passed to
 -- 'iconThemeLookupIcon', there may be no filename if a builtin icon is returned; in this case,
