@@ -77,7 +77,7 @@ import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (unless)
 import Data.Maybe (fromMaybe)
-import Data.List (isPrefixOf, nub)
+import Data.List (isPrefixOf, isSuffixOf, nub)
 import Data.Char (isAlpha)
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -199,11 +199,11 @@ genSynthezisedFiles verb pd lbi = do
 
   let xList = maybe [] (customFieldsBI . libBuildInfo) (library pd)
               ++customFieldsPD pd
-      typeOpts :: [ProgArg]
-      typeOpts = concat [ map (\val -> '-':'-':drop 8 field++'=':val) (words content)
-                        | (field,content) <- xList,
-                          "x-types-" `isPrefixOf` field,
-                          field /= "x-types-file"]
+      typeOpts :: String -> [ProgArg]
+      typeOpts tag = concat [ map (\val -> '-':'-':drop (length tag) field++'=':val) (words content)
+                            | (field,content) <- xList,
+                              tag `isPrefixOf` field,
+                              field /= (tag++"file")]
               ++ [ "--tag=" ++ tag
                  | PackageIdentifier name (Version (major:minor:_) _) <- cPkgs
                  , let name' = filter isAlpha (display name)
@@ -223,11 +223,11 @@ genSynthezisedFiles verb pd lbi = do
          res <- rawSystemProgramStdoutConf verb prog (withPrograms lbi) args
          rewriteFile outFile res
 
-  case lookup "x-types-file" xList of
-    Nothing -> return ()
-    Just f -> do
+  (flip mapM_) (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
+    \(fileTag, f) -> do
+      let tag = reverse (drop 4 (reverse fileTag))
       info verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
-      genFile typeGenProgram typeOpts f
+      genFile typeGenProgram (typeOpts tag) f
 
   case lookup "x-signals-file" xList of
     Nothing -> return ()
