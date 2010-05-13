@@ -38,10 +38,10 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- install their icons, but more additional application themes can be installed as operating system
 -- vendors and users choose.
 -- 
--- Named icons are similar to the Themeable Stock Images(3) facility, and the distinction between the
+-- Named icons are similar to the Themeable Stock Images facility, and the distinction between the
 -- two may be a bit confusing. A few things to keep in mind:
 -- 
---   ● Stock images usually are used in conjunction with Stock Items(3)., such as ''StockOk'' or
+--   ● Stock images usually are used in conjunction with Stock Items, such as ''StockOk'' or
 --     ''StockOpen''. Named icons are easier to set up and therefore are more useful for new icons
 --     that an application wants to add, such as application icons or window icons.
 --    
@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- |   +----IconTheme
 -- @
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,4,0) && HAVE_GIO
 -- * Types
   IconTheme,
   IconThemeClass,
@@ -159,7 +159,7 @@ import Graphics.UI.Gtk.General.Structs (Rectangle, Point)
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,4,0) && HAVE_GIO
 --------------------
 -- Enums
 {#enum IconLookupFlags {underscoreToCase} deriving (Bounded,Eq,Show)#}
