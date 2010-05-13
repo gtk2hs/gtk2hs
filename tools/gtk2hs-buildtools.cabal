@@ -22,7 +22,6 @@ Description:    This package provides a set of helper programs necessary to
 Category:       Development
 Tested-With:    GHC == 6.10.4
 Data-Files:     callbackGen/Signal.chs.template
-                callbackGen/gtkmarshal.list
                 hierarchyGen/hierarchy.list
                 hierarchyGen/Hierarchy.chs.template
 Extra-Source-Files:     c2hs/toplevel/c2hs_config.h

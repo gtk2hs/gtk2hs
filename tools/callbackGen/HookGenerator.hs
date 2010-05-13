@@ -28,6 +28,8 @@ data Types = Tunit		-- ()
 	   | Tstring
 	   | Tboxed  		-- a struct which is passed by value
 	   | Tptr		-- pointer
+	   | Ttobject		-- foreign with WidgetClass context
+	   | Tmtobject		-- foreign with WidgetClass context using a Maybe type
 	   | Tobject		-- foreign with GObjectClass context
 	   | Tmobject		-- foreign with GObjectClass context using a Maybe type
 	   deriving Eq
@@ -98,6 +100,8 @@ scan ('D':'O':'U':'B':'L':'E':xs) = TokType Tdouble:scan xs
 scan ('S':'T':'R':'I':'N':'G':xs) = TokType Tstring:scan xs
 scan ('B':'O':'X':'E':'D':xs) = TokType Tboxed:scan xs
 scan ('P':'O':'I':'N':'T':'E':'R':xs) = TokType Tptr:scan xs
+scan ('T':'O':'B':'J':'E':'C':'T':xs) = TokType Ttobject:scan xs
+scan ('M':'T':'O':'B':'J':'E':'C':'T':xs) = TokType Tmtobject:scan xs
 scan ('O':'B':'J':'E':'C':'T':xs) = TokType Tobject:scan xs
 scan ('M':'O':'B':'J':'E':'C':'T':xs) = TokType Tmobject:scan xs
 scan ('N':'O':'N':'E':xs) = TokType Tunit:scan xs
@@ -136,8 +140,10 @@ identifier Tdouble  = ss "DOUBLE"
 identifier Tstring  = ss "STRING"
 identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
+identifier Ttobject  = ss "OBJECT"
+identifier Tmtobject = ss "MOBJECT"
 identifier Tobject  = ss "OBJECT"
-identifier Tmobject  = ss "MOBJECT"
+identifier Tmobject = ss "MOBJECT"
 
 #ifdef USE_GCLOSURE_SIGNALS_IMPL
 
@@ -158,6 +164,8 @@ rawtype Tdouble  = ss "Double"
 rawtype Tstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
+rawtype Ttobject  = ss "Ptr GObject"
+rawtype Tmtobject  = ss "Ptr GObject"
 rawtype Tobject  = ss "Ptr GObject"
 rawtype Tmobject  = ss "Ptr GObject"
 
@@ -170,7 +178,7 @@ rawtype Tunit    = ss "()"
 rawtype Tbool    = ss "{#type gboolean#}"
 rawtype Tchar    = ss "{#type gchar#}"
 rawtype Tuchar   = ss "{#type guchar#}"
-rawtype Tint	 = ss "{#type gint#}"
+rawtype Tint	   = ss "{#type gint#}"
 rawtype Tuint    = ss "{#type guint#}"
 rawtype Tlong    = ss "{#type glong#}"
 rawtype Tulong   = ss "{#type gulong#}"
@@ -180,9 +188,11 @@ rawtype Tfloat   = ss "{#type gfloat#}"
 rawtype Tdouble  = ss "{#type gdouble#}"
 rawtype Tstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
-rawtype Tptr	 = ss "Ptr ()"
+rawtype Tptr	   = ss "Ptr ()"
+rawtype Ttobject  = ss "Ptr GObject"
+rawtype Tmtobject = ss "Ptr GObject"
 rawtype Tobject  = ss "Ptr GObject"
-rawtype Tmobject  = ss "Ptr GObject"
+rawtype Tmobject = ss "Ptr GObject"
 
 #endif
 
@@ -203,6 +213,8 @@ usertype Tdouble  (c:cs) = (ss "Double",cs)
 usertype Tstring  (c:cs) = (ss "String",cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
 usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
+usertype Ttobject  (c:cs) = (sc c.sc '\'',cs)
+usertype Tmtobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 usertype Tobject  (c:cs) = (sc c.sc '\'',cs)
 usertype Tmobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 
@@ -215,6 +227,8 @@ usertype Tmobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 context :: [Types] -> [Char] -> [ShowS]
 context (Tenum:ts)    (c:cs) = ss "Enum ".sc c: context ts cs
 context (Tflags:ts)   (c:cs) = ss "Flags ".sc c: context ts cs
+context (Ttobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
+context (Tmtobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (_:ts)	      (c:cs) = context ts cs
@@ -259,6 +273,8 @@ nameArg Tdouble	 c = ss "double".shows c
 nameArg Tstring	 c = ss "str".shows c
 nameArg Tboxed   c = ss "box".shows c
 nameArg Tptr     c = ss "ptr".shows c
+nameArg Ttobject  c = ss "obj".shows c
+nameArg Tmtobject  c = ss "obj".shows c
 nameArg Tobject  c = ss "obj".shows c
 nameArg Tmobject  c = ss "obj".shows c
 
@@ -285,9 +301,13 @@ marshExec Tstring arg _ body = indent 5. ss "peekUTFString ". arg. ss " >>= \\".
 marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castPtr ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
 marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
-marshExec Tobject arg _ body = indent 5.ss "makeNewGObject (GObject, objectUnrefFromMainloop) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+marshExec Ttobject arg _ body = indent 5.ss "makeNewGObject (GObject, objectUnrefFromMainloop) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. ss " (unsafeCastGObject ". arg. ss "\')"
-marshExec Tmobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject, objectUnrefFromMainloop)) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+marshExec Tmtobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject, objectUnrefFromMainloop)) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+                               body. ss " (liftM unsafeCastGObject ". arg. ss "\')"
+marshExec Tobject arg _ body = indent 5.ss "makeNewGObject (GObject, objectUnref) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
+                               body. ss " (unsafeCastGObject ". arg. ss "\')"
+marshExec Tmobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject, objectUnref)) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. ss " (liftM unsafeCastGObject ". arg. ss "\')"
 
 marshRet :: Types -> (ShowS -> ShowS)
@@ -336,10 +356,14 @@ marshExec Tboxed  n = indent 4.ss "box".shows n.ss "' <- boxedPre".
 		      shows n.ss " $ castPtr box".shows n
 marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
 		      shows n
+marshExec Ttobject n = indent 4.ss "objectRef obj".shows n.
+		      indent 4.ss "obj".shows n.
+		      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
+		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
 marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
 		      indent 4.ss "obj".shows n.
-		      ss "' <- liftM (unsafeCastGObject. fst mkWidget) $".
-		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkWidget)"
+		      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
+		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
 marshExec _	  _ = id
 
 marshRet :: Types -> ShowS
@@ -414,7 +438,10 @@ mkRawtype (ret,ts) =
   (case ret of
       Tboxed  -> ss "IO (".rawtype ret.sc ')'
       Tptr    -> ss "IO (".rawtype ret.sc ')'
+      Ttobject -> ss "IO (".rawtype ret.sc ')'
+      Tmtobject -> ss "IO (".rawtype ret.sc ')'
       Tobject -> ss "IO (".rawtype ret.sc ')'
+      Tmobject -> ss "IO (".rawtype ret.sc ')'
       _       -> ss "IO ".rawtype ret)
 
 mkLambdaArgs :: Signature -> ShowS
@@ -440,11 +467,13 @@ mkMarshRet (ret,_) = marshRet ret
 usage = do
  hPutStr stderr $
    "Program to generate callback hook for Gtk signals. Usage:\n\n"++
-   "HookGenerator [--template=<template-file>] [--types=<types-file>]--modname=<moduleName> > <outFile>\n"++
+   "HookGenerator [--template=<template-file>] --types=<types-file>\n"++
+   "              [--import=<import>]  --modname=<moduleName> > <outFile>\n"++
    "where\n"++
    "  <moduleName>    the module name for <outFile>\n"++
    "  <template-file> a path to the Signal.chs.template file\n"++
-   "  <types-file>    a path to a gtkmarshal.list file\n"
+   "  <types-file>    a path to a gtkmarshal.list file\n"++
+   "  <import>        a module to be imported into the template file\n"
  exitWith $ ExitFailure 1
 
 main = do
@@ -457,9 +486,10 @@ main = do
   templateFile <- case map (drop 11) (filter ("--template=" `isPrefixOf`)  args) of
 		    [tplName] -> return tplName
   		    _ -> getDataFileName "callbackGen/Signal.chs.template"
-  typesFile <- case map (drop 11) (filter ("--types=" `isPrefixOf`)  args) of
+  typesFile <- case map (drop 8) (filter ("--types=" `isPrefixOf`)  args) of
 		 [typName] -> return typName
-  		 _ -> getDataFileName "callbackGen/gtkmarshal.list"
+  		 _ -> usage
+  let extraImports = map (drop 9) (filter ("--import=" `isPrefixOf`) args)
   content <- readFile typesFile
   let sigs = parseSignatures content
   template <- readFile templateFile
@@ -468,6 +498,7 @@ main = do
       case var of
         "MODULE_NAME"    -> ss outModuleName
         "MODULE_EXPORTS" -> genExport sigs
+        "MODULE_IMPORTS" -> genImports extraImports
         "MODULE_BODY"    -> foldl (.) id (map generate sigs)
         _ -> error var 
     ) ""
@@ -488,6 +519,11 @@ genExport :: Signatures -> ShowS
 genExport sigs = foldl (.) id (map mkId sigs)
   where
     mkId sig = ss "connect_".mkIdentifier sig.sc ','.indent 1
+
+genImports :: [String] -> ShowS
+genImports mods = foldl (.) id (map mkImp mods)
+  where
+    mkImp m = ss "import " . ss m . indent 0
 
 #ifdef USE_GCLOSURE_SIGNALS_IMPL
 

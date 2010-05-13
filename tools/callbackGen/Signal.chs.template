@@ -50,7 +50,7 @@ import System.Glib.UTFString   (peekUTFString)
 import System.Glib.GError      (failOnGError)
 {#import System.Glib.Signals#}
 {#import System.Glib.GObject#} 
-import Graphics.UI.GtkInternals
+@MODULE_IMPORTS@
 
 {#context lib="gtk" prefix="gtk" #}
 
