@@ -37,12 +37,19 @@ Flag deprecated
   Default:      True
   Manual:       True
 
+Flag have-gio
+  Description: Depend on GIO package, thereby enabling certain features.
+  Default:	True
+
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, haskell98, mtl,
                         glib  >= 0.10.5 && < 0.11,
                         pango >= 0.10.5 && < 0.11,
                         cairo >= 0.10.5 && < 0.11
+        if flag(have-gio)
+          build-depends: gio >= 0.10.5 && < 0.11
+          cpp-options:    -DHAVE_GIO
 
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
 
