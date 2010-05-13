@@ -24,8 +24,8 @@ Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h
                     template-hsc-gtk2hs.h
-                    Graphics/UI/Gtk/Signals.chs.template
                     Gtk2HsSetup.hs
+                    marshal.list
 
 Source-Repository head
   type:         darcs
@@ -226,9 +226,11 @@ Library
 
         x-Signals-File:  Graphics/UI/Gtk/Signals.chs
         x-Signals-Modname: Graphics.UI.Gtk.Signals
-        -- the following field is only needed because the gtk package needs a slightly different
-        -- Signals.chs template file to avoid circular imports with GtkInternals
-        x-Signals-Template: Graphics/UI/Gtk/Signals.chs.template
+        x-Signals-Types: marshal.list
+        -- the following field is only needed because the gtk package may have callbacks that
+        -- take 'Widget's as arguments which, in turn, need gObjectUnrefFromMainloop which
+        -- needs to be imported from this module:
+        x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
         cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
         if !flag(deprecated)
