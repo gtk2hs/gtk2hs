@@ -44,7 +44,7 @@ import Control.Monad
 
 import System.Glib.FFI
 import System.Glib.GError
-import System.Glib.Signals
+{#import System.GIO.Signals#}
 
 import System.GIO.Base
 {#import System.GIO.Types#}

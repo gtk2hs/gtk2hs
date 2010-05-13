@@ -18,11 +18,15 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
                 It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
 Category:       System
 Tested-With:    GHC == 6.12.1
+Extra-Source-Files: Gtk2HsSetup.hs
+                    marshal.list
 
 x-Types-File:   System/GIO/Types.chs
+x-Types-Tag:    gio
 x-Types-ModName: System.GIO.Types
-x-Types-Forward: Graphics.UI.GtkInternals
-Extra-Source-Files: Gtk2HsSetup.hs
+x-Types-Import: System.Glib.GObject
+x-Types-Lib:    gio
+x-Types-Prefix: g
 
 Source-Repository head
   type:         darcs
@@ -31,11 +35,9 @@ Source-Repository head
 
 Library
         build-depends:  base >= 4, array, containers, haskell98, mtl, bytestring,
-                        glib >= 0.10.5 && < 0.11,
-                        gtk  >= 0.10.5 && < 0.11
-						
+                        glib >= 0.10.5 && < 0.11
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
-						
+
         exposed-modules:
           System.GIO
           System.GIO.Base
@@ -44,10 +46,13 @@ Library
           System.GIO.File.FileAttribute
           System.GIO.File.File
         other-modules:
+          System.GIO.Signals
           System.GIO.Types		  
 
         extensions:     ForeignFunctionInterface
 		
-        x-Types-Tag: gio
+        x-Signals-File:  System/GIO/Signals.chs
+        x-Signals-Modname: System.GIO.Signals
+        x-Signals-Types: marshal.list
         x-c2hs-Header:  gio/gio.h
         pkgconfig-depends: gio-2.0 >= 2.16.4
