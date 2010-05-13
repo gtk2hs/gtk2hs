@@ -1,0 +1,128 @@
+Name:           gstreamer
+Version:        0.10.5
+License:        LGPL-2.1
+License-file:   COPYING
+Copyright:      (c) 2001-2010 The Gtk2Hs Team
+Author:         Peter Gavin, Axel Simon
+Maintainer:     gtk2hs-users@sourceforge.net
+Build-Type:     Custom
+Cabal-Version:  >= 1.6
+Stability:      stable
+homepage:       http://www.haskell.org/gtk2hs/
+bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+Synopsis:       Binding to the GStreamer open source multimedia framework.
+Description:    This package provides a wrapper around the GStreamer C library. GStreamer is a library
+                for constructing graphs of media-handling components. The applications it supports      
+                range from simple Ogg/Vorbis playback, audio/video streaming to complex audio
+                (mixing) and video (non-linear editing) processing.
+Category:       Media
+Tested-With:    GHC == 6.10.4
+extra-source-files: template-hsc-gtk2hs.h
+                    hsgstreamer.h
+                    hsgstreamer.c
+                    mini-hierarchy.list
+                    hierarchy.list
+                    marshal.list
+                    Gtk2HsSetup.hs
+
+x-Types-Main-File:           Media/Streaming/GStreamer/Core/Hierarchy.chs
+x-Types-Main-ModName:        Media.Streaming.GStreamer.Core.Hierarchy
+x-Types-Main-Forward:        *System.Glib.GObject
+x-Types-Main-Hierarchy:      hierarchy.list
+x-Types-Main-Lib:            gstreamer
+
+-- GStreamer has a second object hierarchy called "Mini". (The name "Mini" in
+-- the tags is arbitrary; any other name would.)
+x-Types-Mini-File:      Media/Streaming/GStreamer/Core/MiniHierarchy.chs
+x-Types-Mini-ModName:   Media.Streaming.GStreamer.Core.MiniHierarchy
+x-Types-Mini-Forward:   *Media.Streaming.GStreamer.Core.MiniHierarchyBase
+x-Types-Mini-Root:      MiniObject
+x-Types-Mini-Prefix:    gst
+x-Types-Mini-Hierarchy: mini-hierarchy.list
+x-Types-Mini-Tag:       default
+x-Types-Mini-Destructor: miniObjectUnref
+x-Types-Mini-Lib:       gstreamer
+
+Source-Repository head
+  type:         darcs
+  location:     http://code.haskell.org/gtk2hs/gstreamer
+
+Library
+        build-depends:  base >= 3 && < 5,
+                        directory, array, haskell98, bytestring,
+                        glib  >= 0.10.5 && < 0.11
+
+        build-tools:    gtk2hsC2hs, gtk2hsTypeGen, gtk2hsHookGenerator
+
+        exposed-modules: 
+                          Media.Streaming.GStreamer.Core.Signals
+                          Media.Streaming.GStreamer.Core.Hierarchy
+                          Media.Streaming.GStreamer.Core.MiniHierarchy
+                          Media.Streaming.GStreamer.Core.Types
+                          Media.Streaming.GStreamer.Core.Constants
+                          Media.Streaming.GStreamer.Core.Init
+                          Media.Streaming.GStreamer.Core.Object
+                          Media.Streaming.GStreamer.Core.HierarchyBase
+                          Media.Streaming.GStreamer.Core.MiniObject
+                          Media.Streaming.GStreamer.Core.MiniHierarchyBase
+                          Media.Streaming.GStreamer.Core.Element
+                          Media.Streaming.GStreamer.Core.Pad
+                          Media.Streaming.GStreamer.Core.GhostPad
+                          Media.Streaming.GStreamer.Core.Bin
+                          Media.Streaming.GStreamer.Core.Format
+                          Media.Streaming.GStreamer.Core.ElementFactory
+                          Media.Streaming.GStreamer.Core.Caps
+                          Media.Streaming.GStreamer.Core.Structure
+                          Media.Streaming.GStreamer.Core.Message
+                          Media.Streaming.GStreamer.Core.Buffer
+                          Media.Streaming.GStreamer.Core.Event
+                          Media.Streaming.GStreamer.Core.Query
+                          Media.Streaming.GStreamer.Core.Bus
+                          Media.Streaming.GStreamer.Core.Clock
+                          Media.Streaming.GStreamer.Core.PadTemplate
+                          Media.Streaming.GStreamer.Core.ImplementsInterface
+                          Media.Streaming.GStreamer.Core.Index
+                          Media.Streaming.GStreamer.Core.IndexFactory
+                          Media.Streaming.GStreamer.Core.Iterator
+                          Media.Streaming.GStreamer.Core.Parse
+                          Media.Streaming.GStreamer.Core.Pipeline
+                          Media.Streaming.GStreamer.Core.Plugin
+                          Media.Streaming.GStreamer.Core.PluginFeature
+                          Media.Streaming.GStreamer.Core.Registry
+                          Media.Streaming.GStreamer.Core.Segment
+                          Media.Streaming.GStreamer.Core.SystemClock
+                          Media.Streaming.GStreamer.Core.TagList
+                          Media.Streaming.GStreamer.Core
+                          Media.Streaming.GStreamer.Base.Constants
+                          Media.Streaming.GStreamer.Base.Types
+                          Media.Streaming.GStreamer.Base.BaseSrc
+                          Media.Streaming.GStreamer.Base.BaseSink
+                          Media.Streaming.GStreamer.Base.BaseTransform
+                          Media.Streaming.GStreamer.Base.PushSrc
+                          Media.Streaming.GStreamer.Base.Adapter
+                          Media.Streaming.GStreamer.Base.CollectPads
+                          Media.Streaming.GStreamer.Base
+                          Media.Streaming.GStreamer.Controller.Types
+                          Media.Streaming.GStreamer.Controller.Controller
+                          Media.Streaming.GStreamer.Net.Types
+                          Media.Streaming.GStreamer.Net.NetClientClock
+                          Media.Streaming.GStreamer.DataProtocol.Constants
+                          Media.Streaming.GStreamer.DataProtocol.DataProtocol
+                          Media.Streaming.GStreamer.Audio.Constants
+                          Media.Streaming.GStreamer.Audio.Types
+                          Media.Streaming.GStreamer.Audio.Audio
+                          Media.Streaming.GStreamer.Audio.AudioClock
+                          Media.Streaming.GStreamer
+        extensions:     ForeignFunctionInterface
+        x-c2hs-Header:  hsgstreamer.h
+        includes:       hsgstreamer.h
+        include-dirs:   .
+        c-sources:      hsgstreamer.c
+        pkgconfig-depends: gstreamer-0.10 >= 0.10,
+                           gstreamer-audio-0.10 >= 0.10,
+                           gstreamer-base-0.10 >= 0.10,
+                           gstreamer-controller-0.10 >= 0.10, 
+                           gstreamer-dataprotocol-0.10 >= 0.10,
+                           gstreamer-net-0.10 >= 0.10,
+                           gstreamer-plugins-base-0.10
+
