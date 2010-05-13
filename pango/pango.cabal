@@ -33,15 +33,6 @@ Source-Repository head
 Flag new-exception
   Description:  Enable build with a base library that contains the new exception library.
 
-Flag pango_1_2
-  Description:  Build data types for Pango version 1.2.
-
-Flag pango_1_4
-  Description:  Build data types for Pango version 1.4.
-
-Flag pango_1_6
-  Description:  Build data types for Pango version 1.6.
-
 Library
         build-depends:  base >= 3 && < 5,
                         process, directory, array, containers, pretty, haskell98,
