@@ -27,6 +27,7 @@ x-Types-ModName: System.GIO.Types
 x-Types-Import: System.Glib.GObject
 x-Types-Lib:    gio
 x-Types-Prefix: g
+Extra-Source-Files: marshal.list
 
 Source-Repository head
   type:         darcs
