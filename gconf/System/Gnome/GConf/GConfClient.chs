@@ -93,6 +93,7 @@ import System.Glib.GList
 import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
 import System.Glib.GObject  (constructNewGObject)
 {#import System.Gnome.GConf.Types#}
+{#import System.Gnome.GConf.Signals#}
 {#import System.Gnome.GConf.GConfValue#}
 
 {# context lib="gconf" prefix ="gconf_client" #}

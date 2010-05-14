@@ -19,10 +19,12 @@ Description:    GConf is a configuration database system for storing application
 Category:       System
 Tested-With:    GHC == 6.12.1
 Extra-Source-Files: Gtk2HsSetup.hs
+                    marshal.list
 
-x-Types-File:   System/Gnome/GConf/Types.chs
+x-Types-File:    System/Gnome/GConf/Types.chs
+x-Types-Tag:     gconf
 x-Types-ModName: System.Gnome.GConf.Types
-x-Types-Forward:  Graphics.UI.GtkInternals
+x-Types-Import:  System.Glib.GObject
 
 Source-Repository head
   type:         darcs
@@ -31,8 +33,7 @@ Source-Repository head
 
 Library
         build-depends:  base >= 4, array, containers, haskell98, mtl,
-                        glib >= 0.10.5 && < 0.11, 
-                        gtk  >= 0.10.5 && < 0.11
+                        glib >= 0.10.5 && < 0.11
 						
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
 						
@@ -42,9 +43,12 @@ Library
         other-modules:
           System.Gnome.GConf.GConfValue
           System.Gnome.GConf.Types		  
+          System.Gnome.GConf.Signals
 
         extensions:     ForeignFunctionInterface
 		
-        x-Types-Tag: gconf
+        x-Signals-File:  System/Gnome/GConf/Signals.chs
+        x-Signals-Modname: System.Gnome.GConf.Signals
+        x-Signals-Types: marshal.list
         x-c2hs-Header:  gconf/gconf-client.h
         pkgconfig-depends: gconf-2.0 >= 2.0.0
