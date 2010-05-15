@@ -49,9 +49,6 @@ module Media.Streaming.GStreamer.Base.BaseTransform (
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Base.Types#}
 import System.Glib.FFI
-#if __GLASGOW_HASKELL__ < 606
-    hiding ( withObject )
-#endif
 import System.Glib.Flags
 import System.Glib.Attributes
 {#import System.Glib.Properties#}

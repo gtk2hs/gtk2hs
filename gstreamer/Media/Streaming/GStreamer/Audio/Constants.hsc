@@ -1,4 +1,8 @@
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gstreamer -*-haskell-*-
+
+#include "hsgstreamer.h"
+#include "template-hsc-gtk2hs.h"
+
 --
 --  Author : Peter Gavin
 --  Created: 1-Apr-2007

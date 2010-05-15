@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, GeneralizedNewtypeDeriving #-}
 {-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gstreamer -*-haskell-*-
 --
@@ -161,9 +161,6 @@ import Control.Monad.Reader
 import Control.Monad.Trans
 import Data.Ratio          ( Ratio )
 import System.Glib.FFI
-#if __GLASGOW_HASKELL__ < 606
-    hiding ( withObject )
-#endif
 import System.Glib.Flags
 {#import System.Glib.GType#}
 {#import System.Glib.GObject#}

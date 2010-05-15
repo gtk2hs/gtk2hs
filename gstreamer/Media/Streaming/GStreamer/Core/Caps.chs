@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, GeneralizedNewtypeDeriving #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gstreamer -*-haskell-*-
 --
 --  Author : Peter Gavin

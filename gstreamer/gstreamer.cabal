@@ -49,7 +49,7 @@ Source-Repository head
 
 Library
         build-depends:  base >= 3 && < 5,
-                        directory, array, haskell98, bytestring,
+                        directory, array, haskell98, bytestring, mtl,
                         glib  >= 0.10.5 && < 0.11
 
         build-tools:    gtk2hsC2hs, gtk2hsTypeGen, gtk2hsHookGenerator
@@ -113,6 +113,9 @@ Library
                           Media.Streaming.GStreamer.Audio.Audio
                           Media.Streaming.GStreamer.Audio.AudioClock
                           Media.Streaming.GStreamer
+        x-Signals-File:   Media/Streaming/GStreamer/Core/Signals.chs
+        x-Signals-Modname: Media.Streaming.GStreamer.Core.Signals
+        x-Signals-Types:  marshal.list
         extensions:     ForeignFunctionInterface
         x-c2hs-Header:  hsgstreamer.h
         includes:       hsgstreamer.h

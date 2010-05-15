@@ -167,9 +167,6 @@ import Control.Monad ( liftM
                      , liftM4)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
-#if __GLASGOW_HASKELL__ < 606
-    hiding ( withObject )
-#endif
 import System.Glib.Attributes ( Attr
                               , newAttr )
 import System.Glib.Properties
