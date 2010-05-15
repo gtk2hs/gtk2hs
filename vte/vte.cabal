@@ -18,12 +18,15 @@ Description:    The VTE library inserts terminal capability strings into a trie,
 
 Category:       Graphics
 Tested-With:    GHC == 6.12.1
-x-Types-File:   Graphics/UI/Gtk/Vte/Types.chs
-x-Types-ModName: Graphics.UI.Gtk.Vte.Types
-x-Types-Forward: *Graphics.UI.GtkInternals
-x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: Graphics/UI/Gtk/Vte/VteCharAttrFields.h
                     Gtk2HsSetup.hs
+                    marshal.list
+
+x-Types-File:       Graphics/UI/Gtk/Vte/Types.chs
+x-Types-Tag:        vte		
+x-Types-ModName:    Graphics.UI.Gtk.Vte.Types
+x-Types-Forward:    *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
 
 Source-Repository head
   type:         darcs
@@ -34,7 +37,6 @@ Library
         build-depends:  base >= 4, array, containers, haskell98, mtl,
                         glib  >= 0.10.5 && < 0.11, 
                         pango >= 0.10.5 && < 0.11, 
-                        cairo >= 0.10.5 && < 0.11,
                         gtk   >= 0.10.5 && < 0.11
 						
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
@@ -44,11 +46,16 @@ Library
         other-modules:
           Graphics.UI.Gtk.Vte.Structs		
           Graphics.UI.Gtk.Vte.Types
+          Graphics.UI.Gtk.Vte.Signals
 		  
         extensions:     ForeignFunctionInterface
         c-sources: Graphics/UI/Gtk/Vte/VteCharAttrFields.c
 
+        x-Signals-File:  Graphics/UI/Gtk/Vte/Signals.chs
+        x-Signals-Modname: Graphics.UI.Gtk.Vte.Signals
+        x-Signals-Types: marshal.list
+        x-Signals-Import: Graphics.UI.GtkInternals
+		
         x-c2hs-Header:  vte/vte.h
         include-dirs:   Graphics/UI/Gtk/Vte/
-        x-Types-Tag: vte		
         pkgconfig-depends: vte >= 0.20.5

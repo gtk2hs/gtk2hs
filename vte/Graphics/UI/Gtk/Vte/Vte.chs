@@ -205,6 +205,7 @@ import Graphics.UI.Gtk.Vte.Structs
                                                  selectionClipboard)
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.Vte.Types#}
+{#import Graphics.UI.Gtk.Vte.Signals#}
 {#import System.Glib.GObject#}
 {#import System.Glib.GError#}                   (propagateGError)
 
