@@ -58,6 +58,7 @@ import Graphics.UI.Gtk.Gdk.Events
 {#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
 {#import Graphics.UI.Gtk.WebKit.Types#}
 {#import Graphics.UI.Gtk.WebKit.Internal#}
+{#import Graphics.UI.Gtk.WebKit.Signals#}
 {#import System.Glib.GObject#}
 
 {#context lib="webkit" prefix ="webkit"#}

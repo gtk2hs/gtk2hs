@@ -20,12 +20,15 @@ Description:    WebKit is a web content engine, derived from KHTML and KJS from 
 
 Category:       Graphics
 Tested-With:    GHC == 6.12.1
-x-Types-File:   Graphics/UI/Gtk/WebKit/Types.chs
-x-Types-ModName: Graphics.UI.Gtk.WebKit.Types
-x-Types-Forward: *Graphics.UI.GtkInternals
-x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: hswebkit.h
                     Gtk2HsSetup.hs
+                    marshal.list
+					
+x-Types-File:       Graphics/UI/Gtk/WebKit/Types.chs
+x-Types-Tag:        webkit
+x-Types-ModName:    Graphics.UI.Gtk.WebKit.Types
+x-Types-Forward:    *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
 
 Source-Repository head
   type:         darcs
@@ -63,9 +66,14 @@ Library
         other-modules:
           Graphics.UI.Gtk.WebKit.Internal
           Graphics.UI.Gtk.WebKit.Types		  
+          Graphics.UI.Gtk.WebKit.Signals
 
         extensions:     ForeignFunctionInterface
 		
+        x-Signals-File:  Graphics/UI/Gtk/WebKit/Signals.chs
+        x-Signals-Modname: Graphics.UI.Gtk.WebKit.Signals
+        x-Signals-Types: marshal.list
+        x-Signals-Import: Graphics.UI.GtkInternals
+		
         x-c2hs-Header:  hswebkit.h
-        x-Types-Tag: webkit
         pkgconfig-depends: webkit-1.0 >= 1.1.15
