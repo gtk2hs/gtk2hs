@@ -43,7 +43,11 @@ import System.IO.Unsafe (unsafePerformIO)
 
 import Foreign.C
 import qualified Foreign hiding (free)
-import Foreign  hiding	(with, newForeignPtr, free)
+import Foreign  hiding	(with, newForeignPtr, free
+#if (__GLASGOW_HASKELL__<606)
+    , withObject
+#endif
+  )
 #if (__GLASGOW_HASKELL__>=610)
 import qualified Foreign.Concurrent
 #endif
