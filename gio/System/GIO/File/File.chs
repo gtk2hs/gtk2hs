@@ -177,7 +177,7 @@ import System.Glib.GError
 import System.Glib.UTFString
 import System.Glib.GObject
 
-import System.GIO.Base
+{#import System.GIO.Base#}
 {#import System.GIO.Types#}
 import System.GIO.File.FileAttribute
 
