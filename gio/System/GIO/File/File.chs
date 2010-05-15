@@ -424,6 +424,8 @@ fileURIScheme file =
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
 fileRead file (Just cancellable) = constructNewGObject mkFileInputStream $
     propagateGError $ {# call file_read #} (toFile file) cancellable
+fileRead file Nothing = constructNewGObject mkFileInputStream $
+    propagateGError $ {# call file_read #} (toFile file) (Cancellable nullForeignPtr)
 
 -- | Asynchronously opens file for reading.
 -- 
