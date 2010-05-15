@@ -64,6 +64,7 @@ import System.Glib.GList (readGList)
 import System.Glib.UTFString
 import System.Gnome.VFS.Marshal
 {#import System.Gnome.VFS.Types#}
+{#import System.Gnome.VFS.Signals#}
 {#import System.Gnome.VFS.BasicTypes#}
 import System.IO (FilePath)
 
