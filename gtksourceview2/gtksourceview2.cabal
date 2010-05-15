@@ -17,12 +17,15 @@ Description:    GtkSourceView is a text widget that extends the standard GTK+ 2.
 
 Category:       Graphics
 Tested-With:    GHC == 6.12.1
-x-Types-File:   Graphics/UI/Gtk/SourceView/Types.chs
-x-Types-ModName: Graphics.UI.Gtk.SourceView.Types
-x-Types-Forward: *Graphics.UI.GtkInternals
-x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: gtksourceview2.h
                     Gtk2HsSetup.hs
+                    marshal.list
+
+x-Types-File:       Graphics/UI/Gtk/SourceView/Types.chs
+x-Types-Tag:        gtksourceview2
+x-Types-ModName:    Graphics.UI.Gtk.SourceView.Types
+x-Types-Forward:    *Graphics.UI.GtkInternals
+x-Types-Destructor: objectUnrefFromMainloop
 
 Source-Repository head
   type:         darcs
@@ -32,8 +35,6 @@ Source-Repository head
 Library
         build-depends:  base >= 4, array, containers, haskell98, mtl,
                         glib  >= 0.10.5 && < 0.11, 
-                        pango >= 0.10.5 && < 0.11, 
-                        cairo >= 0.10.5 && < 0.11,
                         gtk   >= 0.10.5 && < 0.11
 						
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
@@ -52,9 +53,13 @@ Library
         other-modules:
           Graphics.UI.Gtk.SourceView.SourceStyle.Internal
           Graphics.UI.Gtk.SourceView.Types		  
+          Graphics.UI.Gtk.SourceView.Signals
 		  
         extensions:     ForeignFunctionInterface
 
+        x-Signals-File:  Graphics/UI/Gtk/SourceView/Signals.chs
+        x-Signals-Modname: Graphics.UI.Gtk.SourceView.Signals
+        x-Signals-Types: marshal.list
+		
         x-c2hs-Header:  gtksourceview2.h
-        x-Types-Tag: gtksourceview2
         pkgconfig-depends: gtksourceview-2.0 >= 2.0.2

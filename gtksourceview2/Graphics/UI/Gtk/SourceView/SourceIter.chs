@@ -43,7 +43,6 @@ import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.SourceView.Types#}
-import Graphics.UI.GtkInternals
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
 
 {# context lib="gtk" prefix="gtk" #}
