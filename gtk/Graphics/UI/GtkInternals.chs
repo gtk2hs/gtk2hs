@@ -30,10 +30,8 @@ module Graphics.UI.GtkInternals (
   module Graphics.UI.Gtk.Types,
   module Graphics.UI.Gtk.General.DNDTypes,
   module Graphics.UI.Gtk.Multiline.Types,
-  module Graphics.UI.Gtk.Signals,
   ) where
 
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#} (mkTargetList)
 {#import Graphics.UI.Gtk.Multiline.Types#} 
-{#import Graphics.UI.Gtk.Signals#}
