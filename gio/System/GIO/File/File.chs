@@ -377,12 +377,12 @@ fileResolveRelativePath file relativePath =
 
 -- | Checks to see if a file is native to the platform.
 -- 
--- A native file s one expressed in the platform-native filename format, e.g. "C:\Windows" or
--- "/usr/bin/". This does not mean the file is local, as it might be on a locally mounted remote
+-- A native file s one expressed in the platform-native filename format, e.g. \"C:\\Windows\" or
+-- \"/usr/bin/\". This does not mean the file is local, as it might be on a locally mounted remote
 -- filesystem.
 -- 
 -- On some systems non-native files may be available using the native filesystem via a userspace
--- filesystem (FUSE), in these cases this call will return 'False', but 'fileGetPath' will still
+-- filesystem (FUSE), in these cases this call will return @False@, but 'fileGetPath' will still
 -- return a native path.
 -- 
 -- This call does no blocking i/o.
@@ -391,7 +391,7 @@ fileIsNative =
     unsafePerformIO .
         liftM toBool . {# call file_is_native #} . toFile
 
--- | Checks to see if a GFile has a given URI scheme.
+-- | Checks to see if a 'GFile' has a given URI scheme.
 -- 
 -- This call does no blocking i/o.
 fileHasURIScheme :: FileClass file => file -> String -> Bool
@@ -422,11 +422,8 @@ fileURIScheme file =
 -- directory, the GIoErrorIsDirectory error will be returned. Other errors are possible too, and
 -- depend on what kind of filesystem the file is on.
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
-fileRead file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError (g_file_read cFile cCancellable) >>= takeGObject
-    where _ = {# call file_read #}
+fileRead file (Just cancellable) = constructNewGObject mkFileInputStream $
+    propagateGError $ {# call file_read #} (toFile file) cancellable
 
 -- | Asynchronously opens file for reading.
 -- 
@@ -665,26 +662,26 @@ fileReplaceFinish :: FileClass file
 fileReplaceFinish file asyncResult =
     propagateGError ({# call file_replace_finish #} (toFile file) asyncResult) >>= takeGObject
 
--- | Gets the requested information about specified file. The result is a GFileInfo object that contains
+-- | Gets the requested information about specified file. The result is a 'GFileInfo' object that contains
 -- key-value attributes (such as the type or size of the file).
 -- 
 -- The attribute value is a string that specifies the file attributes that should be gathered. It is
 -- not an error if it's not possible to read a particular requested attribute from a file - it just
 -- won't be set. attribute should be a comma-separated list of attribute or attribute wildcards. The
--- wildcard "*" means all attributes, and a wildcard like "standard::*" means all attributes in the
--- standard namespace. An example attribute query be "standard::*,'user'". The standard attributes
--- are available as defines, like GFileAttributeStandardName.
+-- wildcard \"*\" means all attributes, and a wildcard like \"standard::*\" means all attributes in the
+-- standard namespace. An example attribute query be \"standard::*,'user'\". The standard attributes
+-- are available as defines, like 'GFileAttributeStandardName'.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'GIoErrorCancelled' will be
 -- returned.
 -- 
 -- For symlinks, normally the information about the target of the symlink is returned, rather than
--- information about the symlink itself. However if you pass GFileQueryInfoNofollowSymlinks in
+-- information about the symlink itself. However if you pass 'GFileQueryInfoNofollowSymlinks' in
 -- flags the information about the symlink itself will be returned. Also, for symlinks that point to
 -- non-existing files the information about the symlink itself will be returned.
 -- 
--- If the file does not exist, the GIoErrorNotFound error will be returned. Other errors are
+-- If the file does not exist, the 'GIoErrorNotFound' error will be returned. Other errors are
 -- possible too, and depend on what kind of filesystem the file is on.
 fileQueryInfo :: FileClass file
               => file
@@ -700,11 +697,13 @@ fileQueryInfo file attributes flags cancellable =
         takeGObject
     where _ = {# call file_query_info #}
 
--- | Asynchronously gets the requested information about specified file. The result is a GFileInfo object
--- that contains key-value attributes (such as type or size for the file).
--- 
--- For more details, see 'fileQueryInfo' which is the synchronous version of this call.
--- 
+-- | Asynchronously gets the requested information about specified file. The
+-- result is a 'GFileInfo' object that contains key-value attributes (such as
+-- type or size for the file).
+--  
+-- For more details, see 'fileQueryInfo' which is the synchronous version of
+-- this call.
+--  
 -- When the operation is finished, callback will be called. You can then call
 -- 'fileQueryInfoFinish' to get the result of the operation.
 fileQueryInfoAsync :: FileClass file
@@ -919,22 +918,22 @@ fileFindEnclosingMountFinish file asyncResult =
     propagateGError ({# call file_find_enclosing_mount_finish #} (toFile file) asyncResult) >>=
         takeGObject
 
--- | Gets the requested information about the files in a directory. The result is a GFileEnumerator
--- object that will give out GFileInfo objects for all the files in the directory.
+-- | Gets the requested information about the files in a directory. The result is a 'GFileEnumerator'
+-- object that will give out 'GFileInfo' objects for all the files in the directory.
 -- 
 -- The attribute value is a string that specifies the file attributes that should be gathered. It is
 -- not an error if it's not possible to read a particular requested attribute from a file - it just
 -- won't be set. attribute should be a comma-separated list of attribute or attribute wildcards. The
--- wildcard "*" means all attributes, and a wildcard like "standard::*" means all attributes in the
--- standard namespace. An example attribute query be "standard::*,'user'". The standard attributes
--- are available as defines, like GFileAttributeStandardName.
+-- wildcard \"*\" means all attributes, and a wildcard like \"standard::*\" means all attributes in the
+-- standard namespace. An example attribute query be \"standard::*,'user'\". The standard attributes
+-- are available as defines, like 'GFileAttributeStandardName'.
 -- 
--- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- If cancellable is not @Nothing@, then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'GIoErrorCancelled' will be
 -- returned.
 -- 
--- If the file does not exist, the GIoErrorNotFound error will be returned. If the file is not a
--- directory, the GFileErrorNotdir error will be returned. Other errors are possible too.
+-- If the file does not exist, the 'GIoErrorNotFound' error will be returned. If the file is not a
+-- directory, the 'GFileErrorNotdir' error will be returned. Other errors are possible too.
 fileEnumerateChildren :: FileClass file
                       => file
                       -> String
