@@ -138,8 +138,14 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewGetCellArea,
   treeViewGetBackgroundArea,
   treeViewGetVisibleRect,
-  treeViewWidgetToTreeCoords,
-  treeViewTreeToWidgetCoords,
+#if GTK_CHECK_VERSION(2,12,0)
+  treeViewConvertBinWindowToTreeCoords,
+  treeViewConvertBinWindowToWidgetCoords,
+  treeViewConvertTreeToBinWindowCoords,
+  treeViewConvertTreeToWidgetCoords,
+  treeViewConvertWidgetToBinWindowCoords,
+  treeViewConvertWidgetToTreeCoords,
+#endif
   treeViewCreateRowDragIcon,
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
@@ -219,6 +225,9 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
+  treeViewWidgetToTreeCoords,
+  treeViewTreeToWidgetCoords,
+
   onColumnsChanged,
   afterColumnsChanged,
   onCursorChanged,
@@ -942,9 +951,14 @@ treeViewGetVisibleRect self =
     (castPtr (rPtr :: Ptr Rectangle))
   peek rPtr
 
--- | Convert tree to widget pixel coordinates.
---
--- * See module description.
+#ifndef DISABLE_DEPRECATED
+-- | @gtkTreeViewTreeToWidgetCoords@ has been deprecated since version 2.12 and should not be used in
+-- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
+-- @binWindow@ coordinates to coordinates relative to @binWindow@, please see
+-- 'treeViewConvertBinWindowToWidgetCoords'.
+-- 
+-- Converts tree coordinates (coordinates in full scrollable area of the tree) to @binWindow@
+-- coordinates.
 --
 treeViewTreeToWidgetCoords :: TreeViewClass self => self
  -> Point    -- ^ @(tx, ty)@ - tree X and Y coordinates
@@ -962,9 +976,12 @@ treeViewTreeToWidgetCoords self (tx, ty) =
   wy <- peek wyPtr
   return (fromIntegral wx, fromIntegral wy)
 
--- | Convert widget to tree pixel coordinates.
---
--- * See module description.
+-- | @gtkTreeViewWidgetToTreeCoords@ has been deprecated since version 2.12 and should not be used in
+-- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
+-- coordinates relative to the widget to @binWindow@ coordinates, please see
+-- 'treeViewConvertWidgetToBinWindowCoords'.
+-- 
+-- Converts @binWindow@ coordinates to coordinates for the tree (the full scrollable area of the tree).
 --
 treeViewWidgetToTreeCoords :: TreeViewClass self => self
  -> Point    -- ^ @(wx, wy)@ - widget X and Y coordinates
@@ -981,6 +998,112 @@ treeViewWidgetToTreeCoords self (wx, wy) =
   tx <- peek txPtr
   ty <- peek tyPtr
   return (fromIntegral tx, fromIntegral ty)
+#endif
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Converts bin window coordinates to coordinates for the tree (the full scrollable area of the tree).
+treeViewConvertBinWindowToTreeCoords :: TreeViewClass self => self
+ -> Point -- ^ @(bx, by)@ - bin window X and Y coordinates
+ -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates 
+treeViewConvertBinWindowToTreeCoords self (bx, by) =
+  alloca $ \txPtr ->
+  alloca $ \tyPtr -> do
+  {# call unsafe tree_view_convert_bin_window_to_tree_coords #}
+    (toTreeView self)
+    (fromIntegral bx)
+    (fromIntegral by)
+    txPtr
+    tyPtr
+  tx <- peek txPtr
+  ty <- peek tyPtr
+  return (fromIntegral tx, fromIntegral ty)
+
+-- | Converts bin window coordinates (see 'treeViewGetBinWindow' to widget relative coordinates.
+treeViewConvertBinWindowToWidgetCoords :: TreeViewClass self => self
+ -> Point -- ^ @(bx, by)@ - bin window X and Y coordinates
+ -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates 
+treeViewConvertBinWindowToWidgetCoords self (bx, by) =
+  alloca $ \wxPtr ->
+  alloca $ \wyPtr -> do
+  {# call unsafe tree_view_convert_bin_window_to_widget_coords #}
+    (toTreeView self)
+    (fromIntegral bx)
+    (fromIntegral by)
+    wxPtr
+    wyPtr
+  wx <- peek wxPtr
+  wy <- peek wyPtr
+  return (fromIntegral wx, fromIntegral wy)
+
+-- | Converts tree coordinates (coordinates in full scrollable area of the tree) to bin window
+-- coordinates.
+treeViewConvertTreeToBinWindowCoords :: TreeViewClass self => self
+ -> Point -- ^ @(tx, ty)@ - tree X and Y coordinates
+ -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates 
+treeViewConvertTreeToBinWindowCoords self (tx, ty) =
+  alloca $ \bxPtr ->
+  alloca $ \byPtr -> do
+  {# call unsafe tree_view_convert_tree_to_bin_window_coords #}
+    (toTreeView self)
+    (fromIntegral tx)
+    (fromIntegral ty)
+    bxPtr
+    byPtr
+  bx <- peek bxPtr
+  by <- peek byPtr
+  return (fromIntegral bx, fromIntegral by)
+
+-- | Converts tree coordinates (coordinates in full scrollable area of the tree) to widget coordinates.
+treeViewConvertTreeToWidgetCoords :: TreeViewClass self => self
+ -> Point -- ^ @(tx, ty)@ - tree X and Y coordinates
+ -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates 
+treeViewConvertTreeToWidgetCoords self (wx, wy) =
+  alloca $ \bxPtr ->
+  alloca $ \byPtr -> do
+  {# call unsafe tree_view_convert_tree_to_widget_coords #}
+    (toTreeView self)
+    (fromIntegral wx)
+    (fromIntegral wy)
+    bxPtr
+    byPtr
+  bx <- peek bxPtr
+  by <- peek byPtr
+  return (fromIntegral bx, fromIntegral by)
+
+-- | Converts widget coordinates to coordinates for the 'window (see gtkTreeViewGetBinWindow'.
+treeViewConvertWidgetToBinWindowCoords :: TreeViewClass self => self
+ -> Point -- ^ @(wx, wy)@ - widget X and Y coordinates
+ -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates 
+treeViewConvertWidgetToBinWindowCoords self (wx, wy) =
+  alloca $ \bxPtr ->
+  alloca $ \byPtr -> do
+  {# call unsafe tree_view_convert_widget_to_bin_window_coords #}
+    (toTreeView self)
+    (fromIntegral wx)
+    (fromIntegral wy)
+    bxPtr
+    byPtr
+  bx <- peek bxPtr
+  by <- peek byPtr
+  return (fromIntegral bx, fromIntegral by)
+
+-- | Converts widget coordinates to coordinates for the tree (the full scrollable area of the tree).
+treeViewConvertWidgetToTreeCoords :: TreeViewClass self => self
+ -> Point -- ^ @(wx, wy)@ - bin window X and Y coordinates
+ -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates 
+treeViewConvertWidgetToTreeCoords self (wx, wy) =
+  alloca $ \txPtr ->
+  alloca $ \tyPtr -> do
+  {# call unsafe tree_view_convert_widget_to_tree_coords #}
+    (toTreeView self)
+    (fromIntegral wx)
+    (fromIntegral wy)
+    txPtr
+    tyPtr
+  tx <- peek txPtr
+  ty <- peek tyPtr
+  return (fromIntegral tx, fromIntegral ty)
+#endif
 
 -- | Creates a 'Pixmap' representation of the row at the given path. This image
 -- can be used for a drag icon.
