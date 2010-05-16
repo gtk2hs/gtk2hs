@@ -952,12 +952,12 @@ treeViewGetVisibleRect self =
   peek rPtr
 
 #ifndef DISABLE_DEPRECATED
--- | @gtkTreeViewTreeToWidgetCoords@ has been deprecated since version 2.12 and should not be used in
+-- | 'treeViewTreeToWidgetCoords' has been deprecated since version 2.12 and should not be used in
 -- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
--- @binWindow@ coordinates to coordinates relative to @binWindow@, please see
+-- bin window coordinates to coordinates relative to bin window, please see
 -- 'treeViewConvertBinWindowToWidgetCoords'.
 -- 
--- Converts tree coordinates (coordinates in full scrollable area of the tree) to @binWindow@
+-- Converts tree coordinates (coordinates in full scrollable area of the tree) to bin window
 -- coordinates.
 --
 treeViewTreeToWidgetCoords :: TreeViewClass self => self
@@ -976,12 +976,12 @@ treeViewTreeToWidgetCoords self (tx, ty) =
   wy <- peek wyPtr
   return (fromIntegral wx, fromIntegral wy)
 
--- | @gtkTreeViewWidgetToTreeCoords@ has been deprecated since version 2.12 and should not be used in
+-- | 'treeViewWidgetToTreeCoords' has been deprecated since version 2.12 and should not be used in
 -- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
--- coordinates relative to the widget to @binWindow@ coordinates, please see
+-- coordinates relative to the widget to bin window coordinates, please see
 -- 'treeViewConvertWidgetToBinWindowCoords'.
 -- 
--- Converts @binWindow@ coordinates to coordinates for the tree (the full scrollable area of the tree).
+-- Converts bin window coordinates to coordinates for the tree (the full scrollable area of the tree).
 --
 treeViewWidgetToTreeCoords :: TreeViewClass self => self
  -> Point    -- ^ @(wx, wy)@ - widget X and Y coordinates
@@ -1070,7 +1070,7 @@ treeViewConvertTreeToWidgetCoords self (wx, wy) =
   by <- peek byPtr
   return (fromIntegral bx, fromIntegral by)
 
--- | Converts widget coordinates to coordinates for the 'window (see gtkTreeViewGetBinWindow'.
+-- | Converts widget coordinates to coordinates for the window (see 'treeViewGetBinWindow' ).
 treeViewConvertWidgetToBinWindowCoords :: TreeViewClass self => self
  -> Point -- ^ @(wx, wy)@ - widget X and Y coordinates
  -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates 
