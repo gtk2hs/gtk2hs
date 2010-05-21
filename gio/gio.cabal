@@ -45,9 +45,9 @@ Library
           System.GIO.Async.Cancellable
           System.GIO.File.FileAttribute
           System.GIO.File.File
+          System.GIO.Types		  
         other-modules:
           System.GIO.Signals
-          System.GIO.Types		  
 
         extensions:     ForeignFunctionInterface
 		

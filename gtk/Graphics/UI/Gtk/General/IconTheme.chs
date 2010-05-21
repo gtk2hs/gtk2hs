@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- |   +----IconTheme
 -- @
 
-#if GTK_CHECK_VERSION(2,4,0) && HAVE_GIO
+#if GTK_CHECK_VERSION(2,4,0)
 -- * Types
   IconTheme,
   IconThemeClass,
@@ -106,7 +106,7 @@ module Graphics.UI.Gtk.General.IconTheme (
   iconThemeLookupIcon,
 #if GTK_CHECK_VERSION(2,12,0)
   iconThemeChooseIcon,
-#ifdef ENABLE_GIO
+#ifdef HAVE_GIO
 #if GTK_CHECK_VERSION(2,14,0)
   iconThemeLookupByGicon,
 #endif
@@ -153,13 +153,13 @@ import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
 import Graphics.UI.Gtk.General.Structs (Rectangle, Point)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-#ifdef ENABLE_GIO
+#ifdef HAVE_GIO
 {#import System.GIO.Types#}
 #endif
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,4,0) && HAVE_GIO
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Enums
 {#enum IconLookupFlags {underscoreToCase} deriving (Bounded,Eq,Show)#}
@@ -365,7 +365,7 @@ iconThemeChooseIcon self iconNames size flags =
      then return Nothing
      else liftM Just (mkIconInfo (castPtr iiPtr))
 
-#ifdef ENABLE_GIO
+#ifdef HAVE_GIO
 #if GTK_CHECK_VERSION(2,14,0)
 -- | Looks up an icon and returns a structure containing information such as
 -- the filename of the icon. The icon can then be rendered into a pixbuf using
