@@ -24,8 +24,10 @@ The following packages are deprecated:
 * gnomevfs (replaced by gio)
 * mozembed (replaced by webkit)
 
-The GHC Haskell compiler, version 6.10.4 or greater, is required.
+The GHC Haskell compiler, version 6.10.x or greater, is required.
 Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
+ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash,
+so better to avoid it.
 
 These instruuctions are about building Gtk2Hs from source. If you would rather
 install a binary (pre-compiled) package, please check the Gtk2Hs web site:
