@@ -2,34 +2,35 @@ Gtk2Hs: A GUI Library for Haskell based on Gtk+
 
 http://haskell.org/gtk2hs/
 
-Gtk2hs is a set of Haskell packages wrapping the GTK GUI stack:
+Gtk2hs is a set of Haskell packages wrapping the GTK+ GUI stack:
 
-* gtk (GUI toolkit)
-* cairo (graphics library)
-* svgcairo (Cairo SVG loader)
-* pango (text rendering)
-* glade (libglade UI loader)
-* glib (GLib2 library)
-* gio (VFS library)
-* gtkglext (Gtk+ OpenGL extension)
-* gtksourceview2 (source code editor)
-* gconf (GConf2 configuration system)
-* gstreamer (media codec library)
-* vte (terminal emulator)
-* webkit (WebKit rendering engine)
-
-Also gtk2hs-buildtools and the soegtk library are provided.
+* tools				(Tools to build gtk2hs)
+* glib			    (GLib2 library)
+* gio			    (VFS library)
+* cairo			    (Vector graphics library)
+* pango			    (Unicode text rendering)
+* gtk			    (GTK+ GUI toolkit)
+* gconf			    (GConf2 configuration system)
+* glade			    (libglade UI loader)
+* gstreamer		    (Media codec library)
+* gtkglext		    (Gtk+ OpenGL extension)
+* gtksourceview2    (Source code editor)
+* svgcairo		    (Cairo SVG loader)
+* vte			    (Terminal emulator)
+* webkit		    (WebKit rendering engine)
+* soegtk			(Graphics library for book "The Haskell School of Expression")
 
 The following packages are deprecated:
-* gnomevfs (replaced by gio)
-* mozembed (replaced by webkit)
+* gnomevfs		(replaced by gio)
+* mozembed		(replaced by webkit)
+* sourceview	(replaced by gtksourceview2)
 
 The GHC Haskell compiler, version 6.10.x or greater, is required.
 Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
-ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash,
-so better to avoid it.
+ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash
+(http://hackage.haskell.org/trac/ghc/ticket/4038), so better to avoid it.
 
-These instruuctions are about building Gtk2Hs from source. If you would rather
+These instructions are about building Gtk2Hs from source. If you would rather
 install a binary (pre-compiled) package, please check the Gtk2Hs web site:
 your distribution may also provide gtk2hs packages.
 
@@ -95,10 +96,10 @@ You can also build the documentation locally with cabal.
 
 Deinstallation
 -----------------
-Alteratively, you can uninstall by unregistering the packages with ghc-pkg
+Alternatively, you can uninstall by unregistering the packages with ghc-pkg
 and deleting the installed files.  Eg reversing the order in bootstrap.sh:
 
-# for pkg in webkit vte svgcairo soegtk gtksourceview2 gtkglext gstreamer glade gconf gtk pango cairo gio glib gtk2hs-buildtools ; \
+# for pkg in webkit vte svgcairo soegtk gtksourceview2 gtkglext gstreamer glade gconf gtk pango cairo gio glib tools ; \
 > do ghc-pkg unregister $pkg; done
 
 
