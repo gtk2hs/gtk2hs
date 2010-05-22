@@ -148,7 +148,8 @@ import Maybe      (fromJust)
 -- base libraries
 import System.Console.GetOpt     
 		  (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, getOpt)
-import FNameOps   (suffix, basename, dirname, stripSuffix, addPath)
+import FNameOps   (suffix, basename, dirname, stripSuffix, addPath,
+                   splitSearchPath)
 import Errors	  (interr)
 import UNames     (saveRootNameSupply, restoreRootNameSupply)
 import Binary	  (Binary(..), putBinFileWithDict, getBinFileWithDict)
@@ -490,17 +491,8 @@ setKeep  = setSwitch $ \sb -> sb {keepSB = True}
 --
 setInclude :: String -> CST s ()
 setInclude str = do
-  let fp = makePath str ""
+  let fp = splitSearchPath str
   setSwitch $ \sb -> sb {chiPathSB = fp ++ (chiPathSB sb)}
-  where
-    makePath ('\\':r:em)   path = makePath em (path ++ ['\\',r])
-    makePath (' ':rem)	   path = makePath rem path
-    makePath (':':rem)     ""   = makePath rem ""
-    makePath (':':rem)	   path = path : makePath rem ""
-    makePath ('/':':':rem) path = path : makePath rem ""
-    makePath (r:emain)	   path = makePath emain (path ++ [r])
-    makePath ""		   ""   = []
-    makePath ""		   path = [path]
 
 -- set the output file name
 --

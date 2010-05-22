@@ -28,55 +28,46 @@
 --- TODO ----------------------------------------------------------------------
 --
 
-module FNameOps (basename, dirname, stripDirname, suffix, stripSuffix, addPath)
+module FNameOps (basename, dirname, stripDirname, suffix, stripSuffix, addPath,
+                 splitSearchPath)
 where
+
+import System.FilePath
 
 -- strip directory and suffix (EXPORTED)
 --
 --   eg, ../lib/libc.so -> libc
 --
 basename :: FilePath -> FilePath
-basename  = stripSuffix . stripDirname   
+basename  = takeBaseName   
 
 -- strip basename and suffix (EXPORTED)
 --
 --   eg, ../lib/libc.so -> ../lib/
 --
 dirname       :: FilePath -> FilePath
-dirname fname  = let
-		   slashPoss = [pos | ('/', pos) <- zip fname [0..]]
-		 in
-		 take (last' (-1) slashPoss + 1) fname
+dirname = takeDirectory
 
 -- remove dirname (EXPORTED)
 --
 --   eg, ../lib/libc.so -> libc.so
 --
 stripDirname       :: FilePath -> FilePath
-stripDirname fname  = let
-			slashPoss = [pos | ('/', pos) <- zip fname [0..]]
-		      in
-		      drop (last' (-1) slashPoss + 1) fname
+stripDirname = takeFileName
 
 -- get suffix (EXPORTED)
 --
 --   eg, ../lib/libc.so -> .so
 --
 suffix       :: FilePath -> String
-suffix fname  = let
-		  dotPoss = [pos | ('.', pos) <- zip fname [0..]]
-		in
-		drop (last' (length fname) dotPoss) fname
+suffix = takeExtension
 
 -- remove suffix (EXPORTED)
 --
 --   eg, ../lib/libc.so -> ../lib/libc
 --
 stripSuffix       :: FilePath -> FilePath
-stripSuffix fname  = let
-		       dotPoss = [pos | ('.', pos) <- zip fname [0..]]
-		     in
-		     take (last' (length fname) dotPoss) fname
+stripSuffix = dropExtension
 
 -- prepend a path to a file name (EXPORTED)
 --
@@ -84,15 +75,6 @@ stripSuffix fname  = let
 --       ../lib , libc.so -> ../lib/libc.so
 --
 addPath           :: FilePath -> FilePath -> FilePath
-addPath ""   file  = file
-addPath path file  = path ++ (if last path == '/' then "" else "/") ++ file
+addPath = (</>)
 
 
--- auxilliary functions
--- --------------------
-
--- last' x []            = x
--- last' x [y1, ..., yn] = yn
---
-last' :: a -> [a] -> a
-last'  = foldl (flip const)
