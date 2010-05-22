@@ -106,11 +106,6 @@ Executable gtk2hsC2hs
                         c2hs/base/syms
                         c2hs/base/syntax
         c-sources:      c2hs/toplevel/c2hs_config.c
-        if os(darwin)
-          cpp-options:    -D_C2HS_CPP_IS_GCC
-        else
-          if arch(openbsd)
-            cpp-options:  -D_C2HS_CPP_LANG_SINGLE
-          else
-            cpp-options:
+        -- this seems to be the best option for all CPPs across different OSs
+        cpp-options:  -D_C2HS_CPP_LANG_SINGLE
         extensions:     ForeignFunctionInterface
