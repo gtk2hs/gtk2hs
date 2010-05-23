@@ -10,14 +10,14 @@ main = do
   win `onDestroy` mainQuit
 
   -- create the appropriate language
-  lm <- sourceLanguagesManagerNew
-  langM <- sourceLanguagesManagerGetLanguageFromMimeType lm "text/x-haskell"
+  lm <- sourceLanguageManagerNew
+  langM <- sourceLanguageManagerGetLanguage lm "haskell"
   lang <- case langM of
     (Just lang) -> return lang
     Nothing -> do
-      langDirs <- sourceLanguagesManagerGetLangFilesDirs lm
+      langDirs <- sourceLanguageManagerGetSearchPath lm
       error ("please copy haskell.lang to one of the following directories:\n"
-	     ++unlines langDirs)
+        ++unlines langDirs)
 
   -- create a new SourceBuffer object
   buffer <- sourceBufferNewWithLanguage lang
@@ -27,7 +27,7 @@ main = do
   textBufferSetText buffer fileContents
   textBufferSetModified buffer False
 
-  sourceBufferSetHighlight buffer True
+  sourceBufferSetHighlightSyntax buffer True
 
   -- create a new SourceView Widget
   sv <- sourceViewNewWithBuffer buffer
