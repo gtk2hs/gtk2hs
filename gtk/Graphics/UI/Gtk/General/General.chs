@@ -37,7 +37,9 @@ module Graphics.UI.Gtk.General.General (
   unsafeInitGUIForThreadedRTS,
   postGUISync,
   postGUIAsync,
-
+  threadsEnter,
+  threadsLeave,
+  
   -- * Main event loop
   mainGUI,
   mainQuit,
@@ -98,6 +100,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --  return str
 -}
 
+unsafeInitGUIForThreadedRTS = initGUI
+
 -- We compile this module using -#includ"gtk/wingtk.h" to bypass the win32 abi
 -- check however we do not compile users programs with this header so if
 -- initGUI was ever inlined in a users program, then that program would not
@@ -115,33 +119,18 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 -- * Throws: @error \"Cannot initialize GUI.\"@
 --
+--
+-- * If you want to use Gtk2Hs and in a multi-threaded application then it is your obligation
+--   to ensure that all calls to Gtk+ happen on a single OS thread.
+--   If you want to make calls to Gtk2Hs functions from a Haskell thread other
+--   than the one that calls this functions and 'mainGUI' then you will have to
+--   \'post\' your GUI actions to the main GUI thread. You can do this using
+--   'postGUISync' or 'postGUIAsync'. See also 'threadsEnter'.
+--
 initGUI :: IO [String]
 initGUI = do
-  name <- getProgName
-  when (rtsSupportsBoundThreads && name /= "<interactive>") $ fail $ "\n" ++
-    "initGUI: Gtk+ is single threaded and so cannot safely be used from\n" ++
-    "multiple Haskell threads when using GHC's threaded RTS. You can\n" ++
-    "avoid this error by relinking your program without using the\n" ++
-    "'-threaded' flag. If you have to use the threaded RTS and are\n" ++
-    "absolutely sure that you only ever call Gtk+ from a single OS\n" ++
-    "thread then you can use the function: unsafeInitGUIForThreadedRTS\n"
-
-  unsafeInitGUIForThreadedRTS
-
-{-# NOINLINE unsafeInitGUIForThreadedRTS #-}
--- | Same as initGUI except that it prints no warning when used with GHC's
--- threaded RTS.
---
--- If you want to use Gtk2Hs and the threaded RTS then it is your obligation
--- to ensure that all calls to Gtk+ happen on a single OS thread.
--- If you want to make calls to Gtk2Hs functions from a Haskell thread other
--- than the one that calls this functions and 'mainGUI' then you will have to
--- \'post\' your GUI actions to the main GUI thread. You can do this using
--- 'postGUISync' or 'postGUIAsync'.
---
-unsafeInitGUIForThreadedRTS :: IO [String]
-unsafeInitGUIForThreadedRTS = do
   when rtsSupportsBoundThreads initialiseGThreads
+  threadsEnter
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
@@ -183,6 +172,33 @@ postGUIAsync :: IO () -> IO ()
 postGUIAsync action = do
   idleAdd (action >> return False) priorityDefault
   return ()
+
+-- | Acquired the global Gtk lock.
+--
+-- * During normal operation, this lock is held by the thread from which all
+--   interaction with Gtk is performed. When calling 'mainGUI', the thread will
+--   release this global lock before it waits for user interaction. During this
+--   time it is, in principle, possible to use a different OS thread (any other
+--   Haskell thread that is bound to the Gtk OS thread will be blocked anyway)
+--   to interact with Gtk by explicitly acquiring the lock, calling Gtk functions
+--   and releasing the lock. However, the Gtk functions that are called from this
+--   different thread may not trigger any calls to the OS since this will
+--   lead to a crash on Windows (the Win32 API can only be used from a single
+--   thread). Since it is very hard to tell which function only interacts on
+--   Gtk data structures and which function call actual OS functions, it
+--   is best not to use this feature at all. A better way to perform updates
+--   in the background is to spawn a Haskell thread and to perform the update
+--   to Gtk widgets using 'postGUIAsync' or 'postGUISync'. These will execute
+--   their arguments from the main loop, that is, from the OS thread of Gtk,
+--   thereby ensuring that any Gtk and OS function can be called.
+--
+{#fun unsafe gdk_threads_enter as threadsEnter {} -> `()' #}
+
+-- | Release the global Gtk lock.
+--
+-- * The use of this function is not recommended. See 'threadsEnter'.
+--
+{#fun unsafe gdk_threads_leave as threadsLeave {} -> `()' #}
 
 -- | Inquire the number of events pending on the event queue
 --
