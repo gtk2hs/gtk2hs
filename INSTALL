@@ -165,7 +165,7 @@ Although cabal doesn't allow to uninstall files at the moment, you can
 unregister the packages with ghc-pkg and delete the installed files manually.
 Eg reversing the order in bootstrap.sh:
 
-for pkg in webkit vte svgcairo soegtk gtksourceview2 gtkglext gstreamer glade gconf gtk pango cairo gio glib tools ; \
+for pkg in webkit vte svgcairo soegtk gtksourceview2 gtkglext gstreamer glade gconf gtk pango cairo gio glib ; \
 do ghc-pkg unregister $pkg; done
 
 Unregistering packages is usually enough to be able to work with different
