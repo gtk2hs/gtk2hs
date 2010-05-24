@@ -65,4 +65,11 @@ Library
         x-c2hs-Header:  hspango.h
         includes:       hspango.h
         include-dirs:   .
-        pkgconfig-depends: pango >= 1.0
+        -- Pango 1.26 has a mysterious bug that makes it go into an infinite
+        -- loop. Don't allow the user to build against this version.
+        if os(darwin)
+          pkgconfig-depends: pango >= 1.0 && < 1.26.0 || > 1.26.2
+        else
+          pkgconfig-depends: pango >= 1.0
+
+
