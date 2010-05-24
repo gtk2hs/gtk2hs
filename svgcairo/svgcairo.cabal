@@ -41,4 +41,4 @@ Library
         extensions:     ForeignFunctionInterface
 		
         x-c2hs-Header:  svgcairo.h
-        pkgconfig-depends: librsvg-2.0 >= 2.16.0
+        pkgconfig-depends: librsvg-2.0 >= 2.16.0, cairo-svg >= 1.6.0
