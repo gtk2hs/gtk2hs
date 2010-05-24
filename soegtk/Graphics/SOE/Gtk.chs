@@ -84,9 +84,8 @@ module Graphics.SOE.Gtk (
   word32ToInt
   ) where
 
-#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+-- Cairo is always enabled since we're depending on gtk-0.11.0
 #define USE_CAIRO
-#endif
 
 import Data.List (foldl')
 import Data.Ix (Ix)
@@ -106,7 +105,7 @@ import qualified Graphics.UI.Gtk.Cairo as Gtk.Cairo
 import qualified Graphics.Rendering.Cairo as Cairo
 import qualified Graphics.Rendering.Cairo.Matrix as Matrix
 #else
-import qualified System.IO (hPutStrLn, stderr)
+import qualified System.IO
 #endif
 
 -------------------
@@ -155,7 +154,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) =
 
   canvas <- Gtk.drawingAreaNew
   Gtk.containerAdd window canvas
-  Gtk.widgetSetCanFocus canvas True
+  Gtk.set canvas [Gtk.widgetCanFocus Gtk.:= True]
   Gtk.widgetSetRedrawOnAllocate canvas False
   Gtk.widgetSetDoubleBuffered canvas useDoubleBuffer
 

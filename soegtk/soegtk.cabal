@@ -28,7 +28,7 @@ Library
                         glib  >= 0.11 && < 0.12, 
                         cairo >= 0.11 && < 0.12,
                         gtk   >= 0.11 && < 0.12, 
-                        old-time >= 1.0.0.3
+                        old-time >= 1.0.0.2
 						
         exposed-modules:
           Graphics.SOE.Gtk		
