@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.10.5
+Version:        0.11.0
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -36,8 +36,8 @@ Flag new-exception
 Library
         build-depends:  base >= 3 && < 5,
                         process, directory, array, containers, pretty, haskell98,
-                        glib  >= 0.10.5 && < 0.11,
-                        cairo >= 0.10.5 && < 0.11
+                        glib  >= 0.11 && < 0.12,
+                        cairo >= 0.11 && < 0.12
 
         if flag(new-exception)
           build-depends:  base >= 4

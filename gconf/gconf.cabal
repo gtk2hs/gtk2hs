@@ -1,5 +1,5 @@
 Name:           gconf
-Version:        0.10.5
+Version:        0.11.0
 License:        GPL
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -33,7 +33,7 @@ Source-Repository head
 
 Library
         build-depends:  base >= 4, array, containers, haskell98, mtl,
-                        glib >= 0.10.5 && < 0.11
+                        glib >= 0.11 && < 0.12
 						
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
 						
