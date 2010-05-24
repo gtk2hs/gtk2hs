@@ -19,8 +19,10 @@
  * present if the finalizers, that are run by the GC in a different thread,
  * call back into Win32 without this thread-local storage.
  *
- * Also g_static_mutex_lock and g_static_mutex_unlock cause problems ghci
- * on windows so using a Win32 critical section instead
+ * Also g_static_mutex_lock and g_static_mutex_unlock cause linking problems
+ * in ghci on Windows 7 (namely: HSgtk-0.10.5.o: unknown symbol
+ * `__imp__g_threads_got_initialized'), so we use a Win32 critical section
+ * instead.
  */
 
 #include <glib.h>
