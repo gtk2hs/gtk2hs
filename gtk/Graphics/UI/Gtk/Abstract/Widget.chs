@@ -2013,7 +2013,7 @@ widgetReparent self newParent =
 #if GTK_CHECK_VERSION(2,18,0)
 -- | Set if this widget can receive keyboard input.
 --
--- * To use the 'onKeyPress' event, the widget must be allowed
+-- * To use the 'keyPress' event, the widget must be allowed
 --   to get the input focus. Once it has the input focus all keyboard
 --   input is directed to this widget.
 --
