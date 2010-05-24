@@ -43,7 +43,8 @@ Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
 ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash
 (http://hackage.haskell.org/trac/ghc/ticket/4038), so better to avoid it.
 
-These instructions are about building Gtk2Hs from source. Certain Linux distributions might provide binary packages via their packaging system.
+These instructions are about building Gtk2Hs from source. Certain Linux
+distributions might provide binary packages via their packaging system.
 
 
 Building
@@ -54,10 +55,13 @@ So the easiest way to install it is using "cabal-install", eg.:
 
 cabal install gtk
 
-Building the Gtk2Hs packages requires the installation of some build tools.
-Cabal installs these automatically but you need to have ~/.cabal/bin on your
-PATH since otherwise building the libraries will fail, saying that e.g.
-gtk2hsC2hs cannot be found.
+Building the Gtk2Hs packages requires the installation of Gtk2Hs-specific
+build tools. You can install these by issuing:
+
+cabal install gtk2hs-buildtools
+
+Note that you need to have ~/.cabal/bin on your PATH since otherwise building
+the libraries will fail, saying that e.g. gtk2hsC2hs cannot be found.
 
 Building on Windows
 --------------------
