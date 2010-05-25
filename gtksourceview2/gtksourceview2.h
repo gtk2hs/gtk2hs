@@ -1,9 +1,0 @@
-#include <gtksourceview/gtksourcebuffer.h>
-#include <gtksourceview/gtksourceiter.h>
-#include <gtksourceview/gtksourcelanguage.h>
-#include <gtksourceview/gtksourcelanguagemanager.h>
-#include <gtksourceview/gtksourcestyle.h>
-#include <gtksourceview/gtksourcestylescheme.h>
-#include <gtksourceview/gtksourcestyleschememanager.h>
-#include <gtksourceview/gtksourceview.h>
-#include <gtksourceview/gtksourceview-typebuiltins.h>
