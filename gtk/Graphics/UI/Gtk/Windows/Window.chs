@@ -1233,7 +1233,7 @@ windowRemoveAccelGroup self accelGroup =
 windowSetIcon :: WindowClass self => self
  -> Maybe Pixbuf -- ^ @icon@ - icon image
  -> IO ()
-windowSetIcon self (Just icon) =
+windowSetIcon self Nothing =
   {# call gtk_window_set_icon #}
     (toWindow self)
     (Pixbuf nullForeignPtr)
