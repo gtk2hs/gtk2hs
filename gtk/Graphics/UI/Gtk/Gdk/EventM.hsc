@@ -29,9 +29,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Types and accessors to examine information in events. This module is not
--- exposed by default and therefore has to be imported explicitly using:
--- @import Graphics.UI.Gtk.Gdk.EventM@
+-- Types and accessors to examine information in events.
 --
 module Graphics.UI.Gtk.Gdk.EventM (
 -- * Detail

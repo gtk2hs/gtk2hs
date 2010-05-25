@@ -28,7 +28,7 @@
 -- Portability : portable (depends on GHC)
 --
 -- Definiton of a record that contains event information. Deprecated in
--- favor of 'Graphics.UI.Gtk.Gdk.EventM'.
+-- favor of 'Graphics.UI.Gtk.Gdk.EventM' and not exported by Gtk.hs.
 --
 module Graphics.UI.Gtk.Gdk.Events (
   Modifier(..),		-- a mask of control keys
