@@ -212,7 +212,7 @@ currentSize = readAttr downloadGetCurrentSize
 
 -- | The URI of the save location for this download.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 -- * Since 1.1.2
 destinationUri :: DownloadClass self => Attr self (Maybe String) 
@@ -257,7 +257,7 @@ status = readAttr downloadGetStatus
 
 -- | The file name suggested as default when saving
 --
--- Default value: ""
+-- Default value: \"\"
 --
 -- * Since 1.1.2
 suggestedFilename :: DownloadClass self => ReadAttr self (Maybe String)

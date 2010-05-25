@@ -206,7 +206,8 @@ import Graphics.UI.Gtk.Gdk.Events
 
 {#context lib="webkit" prefix ="webkit"#}
 
--- * Enums
+------------------
+-- Enums
 
 {#enum NavigationResponse {underscoreToCase}#}
 
@@ -867,7 +868,7 @@ webViewEditable = newAttr
   webViewGetEditable
   webViewSetEditable
 
--- | Returns the current URI of the contents displayed by the @web_view.
+-- | Returns the current URI of the contents displayed by the @web_view@.
 --
 -- Default value: Nothing
 webViewUri :: WebViewClass self => ReadAttr self (Maybe String)
