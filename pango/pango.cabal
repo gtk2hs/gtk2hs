@@ -66,9 +66,10 @@ Library
         includes:       hspango.h
         include-dirs:   .
         -- Pango 1.26 has a mysterious bug that makes it go into an infinite
-        -- loop. Don't allow the user to build against this version.
+        -- loop. Don't allow the user to build against this version. (Omit the
+        -- >= 1.0 constraint in this case since Cabal 1.6 can't parse it.)
         if os(darwin)
-          pkgconfig-depends: pango >= 1.0 && < 1.26.0 || > 1.26.2
+          pkgconfig-depends: pango < 1.26.0 || > 1.26.2
         else
           pkgconfig-depends: pango >= 1.0
 
