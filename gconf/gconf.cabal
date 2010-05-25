@@ -32,7 +32,7 @@ Source-Repository head
   subdir:       gconf
 
 Library
-        build-depends:  base >= 4, array, containers, haskell98, mtl,
+        build-depends:  base >= 4 && < 5, array, containers, haskell98, mtl,
                         glib >= 0.11 && < 0.12
 						
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
