@@ -1,6 +1,6 @@
 Name:           gio
 Version:        0.11.0
-License:        GPL
+License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Peter Gavin, Andy Stewart
