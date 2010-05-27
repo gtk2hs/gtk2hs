@@ -73,8 +73,8 @@ dependent libraries. Point your browser to
 http://www.gtk.org/download-windows.html
 
 and download one of the "All-in-one bundles". Note that you do *not* need to
-install MinGW nor MSys but it does not hurt if they are installed on your
-system. Install the binaries by unpacking them into a directory without
+install MinGW nor MSys (but it does not hurt if they are installed on your
+system). Install the binaries by unpacking them into a directory without
 spaces. Again, this is very important:
 
 *** Do not install the binaries into a directory with embedded spaces. ***
@@ -94,6 +94,15 @@ tools necessary to build into something like
 C:\Documents and Settings\%user%\Application Data\cabal\bin
 
 Make sure that this path is also in your %PATH% variable!
+
+ghci and Gtk2Hs on Windows
+
+Due to the way cabal registers packages with ghc, it is quite difficult to perform the
+renaming of libraries which is necessary for the binary Windows bundle to work. As a
+consequence, the cabal package can do this renaming only with Cabal 1.8 (shipped with ghc
+6.12). If you use ghc 6.10 or earlier, you need to upgrade your Cabal system to 1.8 if you
+want to build Gtk2Hs with ghci support. Note that it is always possible to build executables
+on Windows.
 
 Building on Mac OS X
 --------------------
