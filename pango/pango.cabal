@@ -25,6 +25,10 @@ x-Types-File:   Graphics/Rendering/Pango/Types.chs
 x-Types-ModName: Graphics.Rendering.Pango.Types
 x-Types-Forward:  *System.Glib.GObject
 
+Data-Dir:		demo
+Data-Files:		Layout.hs
+                Makefile
+				
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
