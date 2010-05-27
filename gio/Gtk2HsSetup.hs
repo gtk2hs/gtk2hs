@@ -455,7 +455,7 @@ instance Ord ModDep where
 -- existance of a .chs module may not depend on some CPP condition.  
 extractDeps :: ModDep -> IO ModDep
 extractDeps md@ModDep { mdLocation = Nothing } = return md
-extractDeps md@ModDep { mdLocation = Just f } = withFileContents f $ \con -> do
+extractDeps md@ModDep { mdLocation = Just f } = withUTF8FileContents f $ \con -> do
   let findImports acc (('{':'#':xs):xxs) = case (dropWhile ((==) ' ') xs) of
         ('i':'m':'p':'o':'r':'t':' ':ys) ->
           case simpleParse (takeWhile ((/=) '#') ys) of
