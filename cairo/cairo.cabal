@@ -19,6 +19,17 @@ Tested-With:    GHC == 6.10.4
 extra-source-files: cairo-gtk2hs.h
                     Gtk2HsSetup.hs
 
+Data-Dir:		demo
+Data-Files:		cairo-clock-icon.png
+                CairoGhci.hs
+                Clock.hs
+                Drawing2.hs
+                Drawing.hs
+                Graph.hs
+                Makefile
+                StarAndRing.hs
+                Text.hs
+				
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
