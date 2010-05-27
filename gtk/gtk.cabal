@@ -27,6 +27,82 @@ Extra-Source-Files: wingtk.h
                     Gtk2HsSetup.hs
                     marshal.list
 
+Data-Dir:		demo
+Data-Files:		actionMenu/ActionMenu.hs
+                actionMenu/Makefile
+                
+                buttonbox/ButtonBox.hs
+                buttonbox/Makefile
+                
+                carsim/CarSim.hs
+                carsim/Makefile
+                
+                concurrent/Makefile
+                concurrent/Progress.hs
+                concurrent/ProgressThreadedRTS.hs
+                
+                embedded/Embedded.hs
+                embedded/Makefile
+                embedded/Notes.txt
+                embedded/Uzbl.hs
+                
+                fastdraw/FastDraw.hs
+                fastdraw/Makefile
+                
+                filechooser/FileChooserDemo.glade
+                filechooser/FileChooserDemo.hs
+                filechooser/Makefile
+                
+                fonts/Fonts.hs
+                fonts/Makefile
+                
+                graphic/Drawing.hs
+                graphic/Makefile
+                
+                gtkbuilder/GtkBuilderTest.hs
+                gtkbuilder/Makefile
+                gtkbuilder/simple.ui
+                
+                hello/Makefile
+                hello/World.hs
+                
+                inputmethod/Layout.hs
+                inputmethod/Makefile
+                
+                menu/ComboDemo.hs
+                menu/Makefile
+                menu/MenuDemo.hs
+                
+                statusicon/Makefile
+                statusicon/StatusIcon.hs
+                
+                treeList/Completion.hs
+                treeList/DirList.hs
+                treeList/FilterDemo.hs
+                treeList/ListDemo.hs
+                treeList/ListDND.hs
+                treeList/ListTest.glade
+                treeList/ListTest.hs
+                treeList/ListText.hs
+                treeList/Makefile
+                treeList/rgb.txt
+                treeList/TreeDemo.hs
+                treeList/TreeSort.hs
+                treeList/TreeTest.glade
+                treeList/TreeTest.hs
+                
+                treeList/resListDND/desktop.png
+                treeList/resListDND/laptop.png
+                treeList/resListDND/laptopSmall.png
+                treeList/resListDND/printer.png
+                treeList/resListDND/server.png
+                treeList/resListDND/tower.png
+                
+                unicode/Arabic.hs
+                unicode/Makefile
+				
+				demos.txt
+				
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
