@@ -66,6 +66,7 @@ import System.Glib.UTFString
 {#import System.Glib.Types#}
 import System.Glib.GValue (GValue)
 import System.Glib.GType  (GType, typeInstanceIsA)
+import System.Glib.GTypeConstants ( object )
 import System.Glib.GParameter
 import System.Glib.Attributes (newNamedAttr, Attr)
 import Foreign.StablePtr
@@ -102,8 +103,7 @@ objectRef obj = do
 
 -- | The type constant to check if an instance is of 'GObject' type.
 gTypeGObject :: GType
-gTypeGObject =
-  {# call fun unsafe g_object_get_type #}
+gTypeGObject = object
 
 -- | This function wraps any object that does not derive from Object.
 -- It should be used whenever a function returns a pointer to an existing
