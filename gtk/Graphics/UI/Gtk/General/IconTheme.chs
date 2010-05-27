@@ -41,15 +41,15 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- Named icons are similar to the Themeable Stock Images facility, and the distinction between the
 -- two may be a bit confusing. A few things to keep in mind:
 -- 
---   ● Stock images usually are used in conjunction with Stock Items, such as ''StockOk'' or
+--   * Stock images usually are used in conjunction with Stock Items, such as ''StockOk'' or
 --     ''StockOpen''. Named icons are easier to set up and therefore are more useful for new icons
 --     that an application wants to add, such as application icons or window icons.
 --    
---   ● Stock images can only be loaded at the symbolic sizes defined by the 'IconSize' enumeration, or
+--   * Stock images can only be loaded at the symbolic sizes defined by the 'IconSize' enumeration, or
 --     by custom sizes defined by 'iconSizeRegister', while named icons are more flexible and any
 --     pixel size can be specified.
 --    
---   ● Because stock images are closely tied to stock items, and thus to actions in the user interface,
+--   * Because stock images are closely tied to stock items, and thus to actions in the user interface,
 --     stock images may come in multiple variants for different widget states or writing directions.
 --    
 -- A good rule of thumb is that if there is a stock image for what you want to use, use it, otherwise
@@ -64,9 +64,8 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- use the standard icon theme for the 'Screen' so that the icon information is shared with other
 -- people looking up icons. In the case where the default screen is being used, looking up an icon can
 -- be as simple as:
---
+
 -- * Class Hierarchy
---
 -- |
 -- @
 -- |  'GObject'
