@@ -24,6 +24,14 @@ Extra-Source-Files: hsgnomevfs-2.14.h
                     Gtk2HsSetup.hs
                     marshal.list
 
+Data-Dir:		demo
+Data-Files:		Makefile
+                TestDir.hs
+                TestDriveVolume.hs
+                TestSync.hs
+                TestVolumeMonitor.hs
+                TestXfer.hs
+				
 x-Types-File:       System/Gnome/VFS/Types.chs
 x-Types-Tag:        gnomevfs
 x-Types-ModName:    System.Gnome.VFS.Types
