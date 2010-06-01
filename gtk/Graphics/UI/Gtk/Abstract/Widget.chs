@@ -368,6 +368,7 @@ import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 import System.Glib.GType      (GType)
 import System.Glib.GList      (GList, fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.Rendering.Pango.Markup
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
@@ -1185,7 +1186,7 @@ widgetInputShapeCombineMask self shapeMask offsetX offsetY =
 -- * Available since Gtk+ version 2.12
 --
 widgetGetTooltipWindow :: WidgetClass self => self
- -> IO Window -- ^ returns The 'Window' of the current tooltip. . transfer none. 
+ -> IO Window -- ^ returns The 'Window' of the current tooltip
 widgetGetTooltipWindow self =
   makeNewObject mkWindow $
   {# call gtk_widget_get_tooltip_window #}
@@ -2284,7 +2285,7 @@ widgetDirection = newAttr
 -- 
 -- * Available since Gtk+ version 2.12
 --
-widgetTooltipMarkup :: WidgetClass self => Attr self (Maybe String)
+widgetTooltipMarkup :: WidgetClass self => Attr self (Maybe Markup)
 widgetTooltipMarkup = newAttrFromMaybeStringProperty "tooltip-markup"
 
 -- | Sets the text of tooltip to be the given string.
