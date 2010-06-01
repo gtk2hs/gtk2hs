@@ -140,6 +140,11 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #if GTK_CHECK_VERSION(2,10,0)
   widgetInputShapeCombineMask,
 #endif
+#if GTK_CHECK_VERSION(2,12,0)
+  widgetGetTooltipWindow,
+  widgetSetTooltipWindow,
+  widgetTriggerTooltipQuery,
+#endif
   widgetPath,
   widgetClassPath,
   widgetGetCompositeName,
@@ -221,6 +226,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetColormap,
   widgetCompositeName,
   widgetDirection,
+  widgetTooltipMarkup,
+  widgetTooltipText,
+  widgetHasTooltip,
 
 -- * Signals
   realize,
@@ -242,6 +250,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   showHelp,
   accelClosuresChanged,
   screenChanged,
+  queryTooltip,
 
 -- * Events
   buttonPressEvent,
@@ -1167,6 +1176,47 @@ widgetInputShapeCombineMask self shapeMask offsetX offsetY =
         (castPtr bitmapPtr)
         (fromIntegral offsetX)
         (fromIntegral offsetY)
+#endif
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Returns the 'Window' of the current tooltip. This can be the 'Window' created by default, or the
+-- custom tooltip window set using 'widgetSetTooltipWindow'.
+-- 
+-- * Available since Gtk+ version 2.12
+--
+widgetGetTooltipWindow :: WidgetClass self => self
+ -> IO Window -- ^ returns The 'Window' of the current tooltip. . transfer none. 
+widgetGetTooltipWindow self =
+  makeNewObject mkWindow $
+  {# call gtk_widget_get_tooltip_window #}
+    (toWidget self)
+
+-- | Replaces the default, usually yellow, window used for displaying tooltips with @customWindow@. GTK+
+-- will take care of showing and hiding @customWindow@ at the right moment, to behave likewise as the
+-- default tooltip window. If @customWindow@ is 'Nothing', the default tooltip window will be used.
+-- 
+-- If the custom window should have the default theming it needs to have the name 'gtk-tooltip', see
+-- 'widgetSetName'.
+--
+-- * Available since Gtk+ version 2.12
+-- 
+widgetSetTooltipWindow :: (WidgetClass self, WindowClass customWindow) => self
+ -> Maybe customWindow -- ^ @customWindow@ a 'Window', or 'Nothing'. allow-none. 
+ -> IO ()
+widgetSetTooltipWindow self customWindow =
+  {# call gtk_widget_set_tooltip_window #}
+    (toWidget self)
+    (maybe (Window nullForeignPtr) toWindow customWindow)
+
+-- | Triggers a tooltip query on the display where the toplevel of @widget@ is
+-- located. See 'tooltipTriggerTooltipQuery' for more information.
+--
+-- * Available since Gtk+ version 2.12
+--
+widgetTriggerTooltipQuery :: WidgetClass self => self -> IO ()
+widgetTriggerTooltipQuery self =
+  {# call gtk_widget_trigger_tooltip_query #}
+    (toWidget self)
 #endif
 
 -- %hash c:7e36 d:616f
@@ -2223,6 +2273,50 @@ widgetDirection = newAttr
   widgetGetDirection
   widgetSetDirection
 
+-- | Sets the text of tooltip to be the given string, which is marked up with the Pango text markup
+-- language. Also see 'tooltipSetMarkup'.
+-- 
+-- This is a convenience property which will take care of getting the tooltip shown if the given string
+-- is not \"\": 'hasTooltip' will automatically be set to 'True' and there will be taken care of
+-- 'queryTooltip' in the default signal handler.
+-- 
+-- Default value: \"\"
+-- 
+-- * Available since Gtk+ version 2.12
+--
+widgetTooltipMarkup :: WidgetClass self => Attr self (Maybe String)
+widgetTooltipMarkup = newAttrFromMaybeStringProperty "tooltip-markup"
+
+-- | Sets the text of tooltip to be the given string.
+-- 
+-- Also see 'tooltipSetText'.
+-- 
+-- This is a convenience property which will take care of getting the tooltip shown if the given string
+-- is not \"\": 'hasTooltip' will automatically be set to 'True' and there will be taken care of
+-- 'queryTooltip' in the default signal handler.
+-- 
+-- Default value: \"\"
+-- 
+-- * Available since Gtk+ version 2.12
+--
+widgetTooltipText :: WidgetClass self => Attr self (Maybe String)
+widgetTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
+
+-- | Enables or disables the emission of 'queryTooltip' on widget. A value of 'True' indicates that widget
+-- can have a tooltip, in this case the widget will be queried using 'queryTooltip' to determine
+-- whether it will provide a tooltip or not.
+-- 
+-- Note that setting this property to 'True' for the first time will change the event masks of the
+-- 'Windows' of this widget to include leave-notify and motion-notify events. This cannot and will not
+-- be undone when the property is set to 'False' again.
+-- 
+-- Default value: 'False'
+-- 
+-- * Available since Gtk+ version 2.12
+--
+widgetHasTooltip :: WidgetClass self => Attr self Bool
+widgetHasTooltip = newAttrFromBoolProperty "has-tooltip"
+
 --------------------
 -- Signals
 
@@ -2374,6 +2468,20 @@ accelClosuresChanged = Signal (connect_NONE__NONE "accel_closures_changed")
 --
 screenChanged :: WidgetClass self => Signal self (Screen -> IO ())
 screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
+
+-- | Emitted when 'hasTooltip' is 'True' and the 'gtkTooltipTimeout' has expired with the cursor
+-- hovering "above" widget; or emitted when widget got focus in keyboard mode.
+-- 
+-- Using the given coordinates, the signal handler should determine whether a tooltip should be shown
+-- for widget. If this is the case 'True' should be returned, 'False' otherwise. Note that if @keyboardMode@
+-- is 'True', the values of x and y are undefined and should not be used.
+-- 
+-- The signal handler is free to manipulate tooltip with the therefore destined function calls.
+--
+-- * Available since Gtk+ version 2.12
+--
+queryTooltip :: WidgetClass self => Signal self (Widget -> Int -> Int -> Bool -> Tooltip -> IO Bool)
+queryTooltip = Signal (connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip")
 
 -- * Events
 --
