@@ -101,6 +101,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject		(constructNewGObject,makeNewGObject)
 import Graphics.UI.Gtk.General.Structs	(IconSize(..), Rectangle)
+import Graphics.Rendering.Pango.Markup
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -113,7 +114,7 @@ import Graphics.UI.Gtk.General.Structs	(IconSize(..), Rectangle)
 -- Pango text markup language. If @markup@ is 'Nothing', the label will be hidden.
 --
 tooltipSetMarkup :: TooltipClass self => self
- -> Maybe String -- ^ @markup@ - a markup string (see Pango markup format) or 'Nothing'
+ -> Maybe Markup -- ^ @markup@ - a markup string (see Pango markup format) or 'Nothing'
  -> IO ()
 tooltipSetMarkup self markup =
   maybeWith withUTFString markup $ \markupPtr ->
