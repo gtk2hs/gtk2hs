@@ -235,6 +235,7 @@ Library
           Graphics.UI.Gtk.Misc.HandleBox
           Graphics.UI.Gtk.Misc.IMMulticontext
           Graphics.UI.Gtk.Misc.SizeGroup
+          Graphics.UI.Gtk.Misc.Tooltip
           Graphics.UI.Gtk.Misc.Tooltips
           Graphics.UI.Gtk.Misc.Viewport
           Graphics.UI.Gtk.ModelView
