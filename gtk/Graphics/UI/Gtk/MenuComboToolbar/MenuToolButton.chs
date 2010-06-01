@@ -66,6 +66,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton (
   menuToolButtonSetMenu,
   menuToolButtonGetMenu,
   menuToolButtonSetArrowTooltip,
+#if GTK_CHECK_VERSION(2,12,0)
+  menuToolButtonSetArrowTooltipText,
+  menuToolButtonSetArrowTooltipMarkup,
+#endif
 
 -- * Attributes
   menuToolButtonMenu,
@@ -85,6 +89,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.StockItems
+import Graphics.Rendering.Pango.Markup
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -162,6 +167,40 @@ menuToolButtonSetArrowTooltip self tooltips tipText tipPrivate =
     tooltips
     tipTextPtr
     tipPrivatePtr
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Sets the tooltip text to be used as tooltip for the arrow button which
+-- pops up the menu. See 'toolItemSetTooltip' for setting a tooltip on the
+-- whole 'MenuToolButton'.
+--
+-- * Available since Gtk+ version 2.12
+--
+menuToolButtonSetArrowTooltipText :: MenuToolButtonClass self => self
+ -> String -- ^ @text@ - text to be used as tooltip text for button's arrow
+           -- button
+ -> IO ()
+menuToolButtonSetArrowTooltipText self text =
+  withUTFString text $ \textPtr ->
+  {# call gtk_menu_tool_button_set_arrow_tooltip_text #}
+    (toMenuToolButton self)
+    textPtr
+
+-- | Sets the tooltip markup text to be used as tooltip for the arrow button
+-- which pops up the menu. See 'toolItemSetTooltip' for setting a tooltip on
+-- the whole 'MenuToolButton'.
+--
+-- * Available since Gtk+ version 2.12
+--
+menuToolButtonSetArrowTooltipMarkup :: MenuToolButtonClass self => self
+ -> Markup -- ^ @markup@ - markup text to be used as tooltip text for button's
+           -- arrow button
+ -> IO ()
+menuToolButtonSetArrowTooltipMarkup self markup =
+  withUTFString markup $ \markupPtr ->
+  {# call gtk_menu_tool_button_set_arrow_tooltip_markup #}
+    (toMenuToolButton self)
+    markupPtr
+#endif
 
 --------------------
 -- Attributes
