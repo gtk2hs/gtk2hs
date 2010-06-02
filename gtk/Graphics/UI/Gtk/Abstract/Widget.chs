@@ -377,6 +377,7 @@ import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
 {#import Graphics.UI.Gtk.Gdk.Pixmap#} (Bitmap)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize(..)
+                                        ,Point
 					,widgetGetState, widgetGetSavedState
 					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
@@ -2474,15 +2475,19 @@ screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
 -- hovering "above" widget; or emitted when widget got focus in keyboard mode.
 -- 
 -- Using the given coordinates, the signal handler should determine whether a tooltip should be shown
--- for widget. If this is the case 'True' should be returned, 'False' otherwise. Note that if @keyboardMode@
--- is 'True', the values of x and y are undefined and should not be used.
+-- for widget. If this is the case 'True' should be returned, 'False' otherwise. 
+-- Note if widget got focus in keyboard mode, 'Point' is 'Nothing'.
 -- 
 -- The signal handler is free to manipulate tooltip with the therefore destined function calls.
 --
 -- * Available since Gtk+ version 2.12
 --
-queryTooltip :: WidgetClass self => Signal self (Widget -> Int -> Int -> Bool -> Tooltip -> IO Bool)
-queryTooltip = Signal (connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip")
+queryTooltip :: WidgetClass self => Signal self (Widget -> Maybe Point -> Tooltip -> IO Bool)
+queryTooltip =
+  Signal (\after model user -> 
+           connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query_tooltip" 
+             after model (\widget x y keyb tooltip -> 
+                              user widget (if keyb then Nothing else Just (x, y)) tooltip))
 
 -- * Events
 --
