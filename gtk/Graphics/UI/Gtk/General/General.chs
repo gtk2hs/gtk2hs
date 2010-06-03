@@ -69,8 +69,9 @@ module Graphics.UI.Gtk.General.General (
   idleRemove,
   inputAdd,
   inputRemove,
-  IOCondition,
-  HandlerId
+  IOCondition(..),
+  HandlerId,
+  FD
   ) where
 
 import System.Environment (getProgName, getArgs)
@@ -81,7 +82,10 @@ import Data.IORef         (IORef, newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.MainLoop
+import qualified System.Glib.MainLoop as ML
+import System.Glib.MainLoop ( Priority, priorityLow, priorityDefaultIdle,
+  priorityHighIdle, priorityDefault, priorityHigh, timeoutRemove, idleRemove,
+  inputRemove, IOCondition(..), HandlerId )
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -173,7 +177,7 @@ postGUIAsync action = do
   idleAdd (action >> return False) priorityDefault
   return ()
 
--- | Acquired the global Gtk lock.
+-- | Acquire the global Gtk lock.
 --
 -- * During normal operation, this lock is held by the thread from which all
 --   interaction with Gtk is performed. When calling 'mainGUI', the thread will
@@ -260,3 +264,75 @@ grabGetCurrent  = do
 --
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
+
+-- | Sets a function to be called at regular intervals, with the default
+-- priority 'priorityDefault'. The function is called repeatedly until it
+-- returns @False@, after which point the timeout function will not be called
+-- again. The first call to the function will be at the end of the first interval.
+--
+-- Note that timeout functions may be delayed, due to the processing of other
+-- event sources. Thus they should not be relied on for precise timing. After
+-- each call to the timeout function, the time of the next timeout is
+-- recalculated based on the current time and the given interval (it does not
+-- try to 'catch up' time lost in delays).
+--
+-- This function differs from 'ML.timeoutAdd' in that the action will
+-- be executed within the global Gtk+ lock. It is therefore possible to
+-- call Gtk+ functions from the action.
+--
+timeoutAdd :: IO Bool -> Int -> IO HandlerId
+timeoutAdd fun msec = timeoutAddFull fun priorityDefault msec
+
+-- | Sets a function to be called at regular intervals, with the given
+-- priority. The function is called repeatedly until it returns @False@, after
+-- which point the timeout function will not be called again. The first call
+-- to the function will be at the end of the first interval.
+--
+-- Note that timeout functions may be delayed, due to the processing of other
+-- event sources. Thus they should not be relied on for precise timing. After
+-- each call to the timeout function, the time of the next timeout is
+-- recalculated based on the current time and the given interval (it does not
+-- try to 'catch up' time lost in delays).
+--
+-- This function differs from 'ML.timeoutAddFull' in that the action will
+-- be executed within the global Gtk+ lock. It is therefore possible to
+-- call Gtk+ functions from the action.
+--
+timeoutAddFull :: IO Bool -> Priority -> Int -> IO HandlerId
+timeoutAddFull fun pri msec =
+  ML.timeoutAddFull (threadsEnter >> fun >>= \r -> threadsLeave >> return r)
+                    pri msec
+
+-- | Add a callback that is called whenever the system is idle.
+--
+-- * A priority can be specified via an integer. This should usually be
+--   'priorityDefaultIdle'.
+--
+-- * If the function returns @False@ it will be removed.
+--
+-- This function differs from 'ML.idleAdd' in that the action will
+-- be executed within the global Gtk+ lock. It is therefore possible to
+-- call Gtk+ functions from the action.
+--
+idleAdd :: IO Bool -> Priority -> IO HandlerId
+idleAdd fun pri =
+  ML.idleAdd (threadsEnter >> fun >>= \r -> threadsLeave >> return r) pri
+
+type FD = Int
+
+-- | Adds the file descriptor into the main event loop with the given priority.
+--
+-- This function differs from 'ML.inputAdd' in that the action will
+-- be executed within the global Gtk+ lock. It is therefore possible to
+-- call Gtk+ functions from the action.
+--
+inputAdd ::
+    FD            -- ^ a file descriptor
+ -> [IOCondition] -- ^ the condition to watch for
+ -> Priority      -- ^ the priority of the event source
+ -> IO Bool       -- ^ the function to call when the condition is satisfied.
+                  --   The function should return False if the event source
+                  --   should be removed.
+ -> IO HandlerId  -- ^ the event source id
+inputAdd fd conds pri fun =
+  ML.inputAdd fd conds pri (threadsEnter >> fun >>= \r -> threadsLeave >> return r)
