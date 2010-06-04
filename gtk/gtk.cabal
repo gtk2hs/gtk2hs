@@ -16,16 +16,19 @@ Description: This is the core library of the Gtk2Hs suite of libraries for Haske
              for creating graphical user interfaces.
 Category:       Graphics
 Tested-With:    GHC == 6.10.4
-x-Types-File:   Graphics/UI/Gtk/Types.chs
-x-Types-ModName: Graphics.UI.Gtk.Types
-x-Types-Forward:  *System.Glib.GObject Graphics.UI.Gtk.General.Threading
-x-Types-Destructor: objectUnrefFromMainloop
 Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h
                     template-hsc-gtk2hs.h
                     Gtk2HsSetup.hs
                     marshal.list
+					hierarchy.list
+					
+x-Types-File:       Graphics/UI/Gtk/Types.chs
+x-Types-ModName:    Graphics.UI.Gtk.Types
+x-Types-Forward:    *System.Glib.GObject Graphics.UI.Gtk.General.Threading
+x-Types-Destructor: objectUnrefFromMainloop
+x-Types-Hierarchy:  hierarchy.list
 
 Data-Dir:		demo
 Data-Files:		actionMenu/ActionMenu.hs
