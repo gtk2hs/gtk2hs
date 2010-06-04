@@ -20,13 +20,15 @@ Category:       System
 Tested-With:    GHC == 6.12.1
 Extra-Source-Files: Gtk2HsSetup.hs
                     marshal.list
+					hierarchy.list
 
-x-Types-File:   System/GIO/Types.chs
-x-Types-Tag:    gio
-x-Types-ModName: System.GIO.Types
-x-Types-Import: System.Glib.GObject
-x-Types-Lib:    gio
-x-Types-Prefix: g
+x-Types-File:      System/GIO/Types.chs
+x-Types-ModName:   System.GIO.Types
+x-Types-Import:    System.Glib.GObject
+x-Types-Lib:       gio
+x-Types-Prefix:    g
+x-Types-Tag:       gio
+x-Types-Hierarchy: hierarchy.list
 
 Source-Repository head
   type:         darcs
