@@ -131,7 +131,7 @@ You must have all the appropriate development packages installed of course
 
 You can get the latest development darcs source tree by running:
 
-~:$ darcs get --lazy http://code/haskell.org/gtk2hs
+~:$ darcs get --lazy http://code.haskell.org/gtk2hs
 
 The easiest way to build everything is to run the script:
 
