@@ -1,0 +1,341 @@
+# This list is the result of a copy-and-paste from the GtkObject hierarchy
+# html documentation. Deprecated widgets are uncommented. Some additional
+# object have been defined at the end of the copied list.
+
+# The Gtk prefix of every object is removed, the other prefixes are
+# kept.  The indentation implies the object hierarchy. In case the
+# type query function cannot be derived from the name or the type name
+# is different, an alternative name and type query function can be
+# specified by appending 'as typename, <query_func>'.  In case this
+# function is not specified, the <name> is converted to
+# gtk_<name'>_get_type where <name'> is <name> where each upperscore
+# letter is converted to an underscore and lowerletter. The underscore
+# is omitted if an upperscore letter preceeded: GtkHButtonBox ->
+# gtk_hbutton_box_get_type. The generation of a type can be
+# conditional by appending 'if <tag>'. Such types are only produces if
+# --tag=<tag> is given on the command line of TypeGenerator.
+
+
+    GObject 
+        GdkDrawable 
+            GdkWindow		as DrawWindow, gdk_window_object_get_type
+#            GdkDrawableImplX11
+#                GdkWindowImplX11
+            GdkPixmap
+            GdkGLPixmap		if gtkglext
+            GdkGLWindow		if gtkglext
+        GdkColormap
+	GdkScreen		if gtk-2.2
+	GdkDisplay		if gtk-2.2
+	GdkVisual
+	GdkDevice
+        GtkSettings
+        GtkTextBuffer
+            GtkSourceBuffer	if sourceview
+            GtkSourceBuffer	if gtksourceview2
+        GtkTextTag
+            GtkSourceTag	if sourceview
+        GtkTextTagTable
+            GtkSourceTagTable	if sourceview
+        GtkStyle
+	GtkRcStyle
+        GdkDragContext
+        GdkPixbuf
+	GdkPixbufAnimation
+	    GdkPixbufSimpleAnim
+	GdkPixbufAnimationIter
+        GtkTextChildAnchor
+        GtkTextMark
+	    GtkSourceMarker	if sourceview
+            GtkSourceMark       if gtksourceview2
+        GtkObject
+            GtkWidget
+                GtkMisc
+                    GtkLabel
+                        GtkAccelLabel
+                        GtkTipsQuery	if deprecated
+                    GtkArrow
+                    GtkImage
+                GtkContainer
+                    WebKitWebView as WebView, webkit_web_view_get_type            if webkit 
+                    GtkBin
+                        GtkAlignment
+                        GtkFrame
+                            GtkAspectFrame
+                        GtkButton
+                            GtkToggleButton
+                                GtkCheckButton
+                                    GtkRadioButton
+                            GtkColorButton		if gtk-2.4
+                            GtkFontButton		if gtk-2.4
+                            GtkOptionMenu		if deprecated
+                        GtkItem
+                            GtkMenuItem
+                                GtkCheckMenuItem
+                                    GtkRadioMenuItem
+                                GtkTearoffMenuItem
+                                GtkImageMenuItem
+                                GtkSeparatorMenuItem
+                            GtkListItem			if deprecated
+#			    GtkTreeItem
+                        GtkWindow
+                            GtkDialog
+			    	GtkAboutDialog		if gtk-2.6
+                                GtkColorSelectionDialog
+                                GtkFileSelection
+				GtkFileChooserDialog	if gtk-2.4
+                                GtkFontSelectionDialog
+                                GtkInputDialog
+                                GtkMessageDialog
+                            GtkPlug	if plugNsocket
+                        GtkEventBox
+                        GtkHandleBox
+                        GtkScrolledWindow
+                        GtkViewport
+			GtkExpander			if gtk-2.4
+			GtkComboBox			if gtk-2.4
+			    GtkComboBoxEntry		if gtk-2.4
+			GtkToolItem			if gtk-2.4
+			    GtkToolButton		if gtk-2.4
+				GtkMenuToolButton	if gtk-2.6
+				GtkToggleToolButton	if gtk-2.4
+				    GtkRadioToolButton	if gtk-2.4
+			    GtkSeparatorToolItem	if gtk-2.4
+			GtkMozEmbed		if mozembed
+			VteTerminal as Terminal if vte
+                    GtkBox
+                        GtkButtonBox
+                            GtkHButtonBox
+                            GtkVButtonBox
+                        GtkVBox
+                            GtkColorSelection
+                            GtkFontSelection
+			    GtkFileChooserWidget	if gtk-2.4
+                        GtkHBox
+                            GtkCombo	if deprecated
+                            GtkFileChooserButton	if gtk-2.6
+                            GtkStatusbar
+                    GtkCList		if deprecated
+                        GtkCTree	if deprecated
+                    GtkFixed
+                    GtkPaned
+                        GtkHPaned
+                        GtkVPaned
+                    GtkIconView		if gtk-2.6
+                    GtkLayout
+                    GtkList		if deprecated
+                    GtkMenuShell
+                        GtkMenu
+                        GtkMenuBar
+                    GtkNotebook
+#                    GtkPacker
+                    GtkSocket		if plugNsocket
+                    GtkTable
+                    GtkTextView
+                        GtkSourceView	if sourceview
+                        GtkSourceView	if gtksourceview2
+                    GtkToolbar
+                    GtkTreeView
+                GtkCalendar
+                GtkCellView		if gtk-2.6
+		GtkDrawingArea
+                GtkEntry
+                    GtkSpinButton
+                GtkRuler
+                    GtkHRuler
+                    GtkVRuler
+                GtkRange
+                    GtkScale
+                        GtkHScale
+                        GtkVScale
+                    GtkScrollbar
+                        GtkHScrollbar
+                        GtkVScrollbar
+                GtkSeparator
+                    GtkHSeparator
+                    GtkVSeparator
+                GtkInvisible
+#                GtkOldEditable
+#                    GtkText
+                GtkPreview		if deprecated
+# Progress is deprecated, ProgressBar contains everything necessary
+#                GtkProgress
+                GtkProgressBar
+            GtkAdjustment
+            GtkIMContext
+                GtkIMMulticontext
+            GtkItemFactory		if deprecated
+            GtkTooltips
+			
+# These object were added by hand because they do not show up in the hierarchy
+# chart.
+# These are derived from GtkObject:
+	    GtkTreeViewColumn
+	    GtkCellRenderer
+		GtkCellRendererPixbuf
+		GtkCellRendererText
+		    GtkCellRendererCombo	if gtk-2.6
+		GtkCellRendererToggle
+		GtkCellRendererProgress	if gtk-2.6
+	    GtkFileFilter		if gtk-2.4
+            GtkBuilder if gtk-2.12
+# These are actually interfaces, but all objects that implement it are at
+# least GObjects.
+	GtkCellLayout			if gtk-2.4
+	GtkTreeSortable			if gtk-2.4
+	GtkTooltip				if gtk-2.12
+# These are derived from GObject:
+  	GtkStatusIcon                   if gtk-2.10
+        GtkTreeSelection
+        GtkTreeModel
+            GtkTreeStore
+            GtkListStore
+	GtkTreeModelSort
+	GtkTreeModelFilter		if gtk-2.4
+	GtkIconFactory
+	GtkIconTheme
+	GtkSizeGroup
+	GtkClipboard			if gtk-2.2
+	GtkAccelGroup
+	GtkAccelMap			if gtk-2.4
+	GtkEntryCompletion		if gtk-2.4
+	GtkAction			if gtk-2.4
+	    GtkToggleAction		if gtk-2.4
+		GtkRadioAction		if gtk-2.4
+	GtkActionGroup			if gtk-2.4
+	GtkUIManager			if gtk-2.4
+	GtkWindowGroup
+        GtkSourceLanguage		if sourceview
+        GtkSourceLanguage		if gtksourceview2
+        GtkSourceLanguagesManager	if sourceview
+        GtkSourceLanguageManager	if gtksourceview2
+	GladeXML			as GladeXML, glade_xml_get_type if libglade
+	GConfClient			as GConf if gconf
+# These ones are actualy interfaces, but interface implementations are GObjects
+	GtkEditable
+	GtkSourceStyle			as SourceStyleObject if gtksourceview2
+	GtkSourceStyleScheme		if sourceview
+	GtkSourceStyleScheme		if gtksourceview2
+	GtkSourceStyleSchemeManager	if gtksourceview2
+	GtkFileChooser			if gtk-2.4
+## This now became a GObject in version 2:
+	GdkGC				as GC, gdk_gc_get_type
+## These are Pango structures
+	PangoContext		as PangoContext, pango_context_get_type if pango
+	PangoLayout		as PangoLayoutRaw, pango_layout_get_type if pango
+	PangoFont		as Font, pango_font_get_type if pango
+	PangoFontFamily		as FontFamily, pango_font_family_get_type if pango
+	PangoFontFace		as FontFace, pango_font_face_get_type if pango
+	PangoFontMap		as FontMap, pango_font_face_get_type if pango
+	PangoFontset		as FontSet, pango_fontset_get_type if pango
+## This type is only available for PANGO_ENABLE_BACKEND compiled source
+##	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
+
+## GtkGlExt classes
+	GdkGLContext		if gtkglext
+	GdkGLConfig		if gtkglext
+	GdkGLDrawable		if gtkglext
+
+## GnomeVFS classes
+	GnomeVFSVolume		as Volume, gnome_vfs_volume_get_type if gnomevfs
+	GnomeVFSDrive		as Drive, gnome_vfs_drive_get_type if gnomevfs
+	GnomeVFSVolumeMonitor	as VolumeMonitor, gnome_vfs_volume_monitor_get_type if gnomevfs
+
+## GIO classes
+# Note on all the "as" clauses: the prefix G is unfortunate since it leads
+# to two consecutive upper case letters which are not translated with an
+# underscore each (e.g. GConf -> gconf, GtkHButtonBox -> gtk_hbutton_box).
+#        GUnixMountMonitor		as UnixMountMonitor, g_unix_mount_monitor_get_type if gio
+        GOutputStream			as OutputStream, g_output_stream_get_type if gio
+            GFilterOutputStream		as FilterOutputStream, g_filter_output_stream_get_type if gio
+                GDataOutputStream	as DataOutputStream, g_data_output_stream_get_type if gio
+                GBufferedOutputStream   as BufferedOutputStream, g_buffered_output_stream_get_type if gio
+#            GUnixOutputStream		as UnixOutputStream, g_unix_output_stream_get_type if gio
+            GFileOutputStream           as FileOutputStream, g_file_output_stream_get_type if gio
+            GMemoryOutputStream		as MemoryOutputStream, g_memory_output_stream_get_type if gio
+        GInputStream			as InputStream, g_input_stream_get_type if gio
+#            GUnixInputStream		as UnixInputStream, g_unix_input_stream_get_type if gio
+            GMemoryInputStream		as MemoryInputStream, g_memory_input_stream_get_type if gio
+            GFilterInputStream		as FilterInputStream, g_filter_input_stream_get_type if gio
+                GBufferedInputStream	as BufferedInputStream, g_buffered_input_stream_get_type if gio
+                    GDataInputStream	as DataInputStream, g_data_input_stream_get_type if gio
+            GFileInputStream		as FileInputStream, g_file_input_stream_get_type if gio
+#        GDesktopAppInfo			as DesktopAppInfo, g_desktop_app_info_get_type if gio
+        GFileMonitor			as FileMonitor, g_file_monitor_get_type if gio
+        GVfs				as Vfs, g_vfs_get_type if gio
+        GMountOperation			as MountOperation, g_mount_operation_get_type if gio
+        GThemedIcon			as ThemedIcon, g_themed_icon_get_type if gio
+        GEmblem			as Emblem, g_emblem_get_type if gio
+        GEmblemedIcon			as EmblemedIcon, g_emblemed_icon_get_type if gio
+        GFileEnumerator			as FileEnumerator, g_file_enumerator_get_type if gio
+        GFilenameCompleter		as FilenameCompleter, g_filename_completer_get_type if gio
+        GFileIcon			as FileIcon, g_file_icon_get_type if gio
+        GVolumeMonitor			as VolumeMonitor, g_volume_monitor_get_type if gio
+        GCancellable			as Cancellable, g_cancellable_get_type if gio
+        GSimpleAsyncResult		as SimpleAsyncResult, g_async_result_get_type if gio
+        GFileInfo			as FileInfo, g_file_info_get_type if gio
+		GAppLaunchContext   as AppLaunchContext, g_app_launch_context_get_type if gio
+## these are actually GInterfaces
+        GIcon				as Icon, g_icon_get_type if gio
+        GSeekable			as Seekable, g_seekable_get_type if gio
+        GAppInfo			as AppInfo, g_app_info_get_type if gio
+        GVolume				as Volume, g_volume_get_type if gio
+        GAsyncResult			as AsyncResult, g_async_result_get_type if gio
+        GLoadableIcon			as LoadableIcon, g_loadable_icon_get_type if gio
+        GDrive				as Drive, g_drive_get_type if gio
+        GFile				noEq as File, g_file_get_type if gio
+        GMount				as Mount, g_mount_get_type if gio
+
+## GStreamer classes
+	GstObject			as Object,		gst_object_get_type			if gstreamer
+	    GstPad			as Pad,			gst_pad_get_type			if gstreamer
+	        GstGhostPad		as GhostPad,		gst_ghost_pad_get_type			if gstreamer
+	    GstPluginFeature		as PluginFeature,	gst_plugin_feature_get_type		if gstreamer
+	        GstElementFactory	as ElementFactory,	gst_element_factory_get_type		if gstreamer
+	        GstTypeFindFactory	as TypeFindFactory,	gst_type_find_factory_get_type		if gstreamer
+	        GstIndexFactory		as IndexFactory,	gst_index_factory_get_type		if gstreamer
+	    GstElement			as Element,		gst_element_get_type			if gstreamer
+	        GstBin			as Bin,			gst_bin_get_type			if gstreamer
+	            GstPipeline		as Pipeline,		gst_pipeline_get_type			if gstreamer
+	        GstImplementsInterface  as ImplementsInterface, gst_implements_interface_get_type	if gstreamer
+	        GstTagSetter            as TagSetter,           gst_tag_setter_get_type			if gstreamer
+                GstBaseSrc              as BaseSrc,             gst_base_src_get_type			if gstreamer
+                    GstPushSrc          as PushSrc,             gst_push_src_get_type                   if gstreamer
+                GstBaseSink             as BaseSink,            gst_base_sink_get_type                  if gstreamer
+                GstBaseTransform        as BaseTransform,       gst_base_transform_get_type             if gstreamer
+	    GstPlugin			as Plugin,		gst_plugin_get_type			if gstreamer
+	    GstRegistry			as Registry,		gst_registry_get_type			if gstreamer
+	    GstBus			as Bus,			gst_bus_get_type			if gstreamer
+	    GstClock			as Clock,		gst_clock_get_type			if gstreamer
+	        GstAudioClock		as AudioClock,		gst_audio_clock_get_type		if gstreamer
+	        GstSystemClock		as SystemClock,		gst_system_clock_get_type		if gstreamer
+                GstNetClientClock       as NetClientClock,      gst_net_client_clock_get_type           if gstreamer
+	    GstIndex			as Index,		gst_index_get_type			if gstreamer
+	    GstPadTemplate		as PadTemplate,		gst_pad_template_get_type		if gstreamer
+	    GstTask			as Task,		gst_task_get_type			if gstreamer
+	    GstXML			as XML,			gst_xml_get_type			if gstreamer
+	    GstChildProxy               as ChildProxy,          gst_child_proxy_get_type		if gstreamer
+            GstCollectPads              as CollectPads,         gst_collect_pads_get_type               if gstreamer
+## these are actually GInterfaces
+	GstURIHandler                   as URIHandler,          gst_uri_handler_get_type		if gstreamer
+        GstAdapter                      as Adapter,             gst_adapter_get_type                    if gstreamer
+        GstController                   as Controller,          gst_controller_get_type                 if gstreamer
+
+        WebKitWebFrame as WebFrame, webkit_web_frame_get_type          if webkit 
+        WebKitWebSettings as WebSettings, webkit_web_settings_get_type    if webkit
+        WebKitNetworkRequest as NetworkRequest, webkit_network_request_get_type  if webkit
+        WebKitNetworkResponse as NetworkResponse, webkit_network_response_get_type    if webkit
+        WebKitDownload as Download, webkit_download_get_type  if webkit
+        WebKitWebBackForwardList as WebBackForwardList, webkit_web_back_forward_list_get_type if webkit
+        WebKitWebHistoryItem as WebHistoryItem, webkit_web_history_item_get_type if webkit
+        WebKitWebInspector as WebInspector, webkit_web_inspector_get_type if webkit
+        WebKitHitTestResult as HitTestResult, webkit_hit_test_result_get_type if webkit
+        WebKitSecurityOrigin as SecurityOrigin, webkit_security_origin_get_type if webkit
+        WebKitSoupAuthDialog as SoupAuthDialog, webkit_soup_auth_dialog_get_type if webkit
+        WebKitWebDatabase as WebDatabase, webkit_web_database_get_type if webkit
+        WebKitWebDataSource as WebDataSource, webkit_web_data_source_get_type if webkit
+        WebKitWebNavigationAction as WebNavigationAction, webkit_web_navigation_action_get_type if webkit
+        WebKitWebPolicyDecision as WebPolicyDecision, webkit_web_policy_decision_get_type if webkit
+        WebKitWebResource as WebResource, webkit_web_resource_get_type if webkit
+        WebKitWebWindowFeatures as WebWindowFeatures, webkit_web_window_features_get_type if webkit
+

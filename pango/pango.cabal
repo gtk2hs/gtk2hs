@@ -20,10 +20,12 @@ Tested-With:    GHC == 6.10.4
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
                     Gtk2HsSetup.hs
+					hierarchy.list
 
-x-Types-File:   Graphics/Rendering/Pango/Types.chs
-x-Types-ModName: Graphics.Rendering.Pango.Types
-x-Types-Forward:  *System.Glib.GObject
+x-Types-File:      Graphics/Rendering/Pango/Types.chs
+x-Types-ModName:   Graphics.Rendering.Pango.Types
+x-Types-Forward:   *System.Glib.GObject
+x-Types-Hierarchy: hierarchy.list
 
 Data-Dir:		demo
 Data-Files:		Layout.hs
