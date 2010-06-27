@@ -405,8 +405,7 @@ clipboardRequestContents self (Atom target) callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardReceivedFunc
     (\_ sPtr -> do
-      cbPtr <- readIORef cbRef
-      freeHaskellFunPtr cbPtr
+      freeHaskellFunPtr =<< readIORef cbRef
       runReaderT callback sPtr
       return ())
   writeIORef cbRef cbPtr
@@ -438,16 +437,18 @@ clipboardRequestText :: ClipboardClass self => self
                                      -- way or the other.)
  -> IO ()
 clipboardRequestText self callback = do
+  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTextReceivedFunc
     (\_ sPtr -> do
+      freeHaskellFunPtr =<< readIORef cbRef
       mStr <- if sPtr==nullPtr then return Nothing else
         liftM Just $ peekUTFString sPtr
       callback mStr)
+  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_text #}
     (toClipboard self)
     cbPtr
     nullPtr
-  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardTextReceivedFunc#}
 
@@ -474,15 +475,17 @@ clipboardRequestImage :: ClipboardClass self => self
                                       -- called one way or the other.)
  -> IO ()
 clipboardRequestImage self callback = do
+  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardImageReceivedFunc
     (\_ sPtr -> do
+      freeHaskellFunPtr =<< readIORef cbRef
       mPixbuf <- maybeNull (makeNewGObject mkPixbuf) (return sPtr)
       callback mPixbuf)
+  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_image #}
     (toClipboard self)
     cbPtr
     nullPtr
-  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardImageReceivedFunc#}
 
@@ -547,18 +550,20 @@ clipboardRequestRichText :: (ClipboardClass self, TextBufferClass buffer) => sel
                                          -- called one way or the other.)
  -> IO ()
 clipboardRequestRichText self buffer callback = do
+  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardRichTextReceivedFunc
     (\_ tPtr sPtr len -> do
+      freeHaskellFunPtr =<< readIORef cbRef
       mRes <- if sPtr==nullPtr then return Nothing else liftM Just $ do
         str <- peekUTFStringLen (sPtr,fromIntegral len)
         return (Atom tPtr, str)
       callback mRes)
+  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_rich_text #}
     (toClipboard self)
     (toTextBuffer buffer)
     cbPtr
     nullPtr
-  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardRichTextReceivedFunc#}
 
