@@ -508,16 +508,19 @@ clipboardRequestTargets :: ClipboardClass self => self
                                         -- be called one way or the other.)
  -> IO ()
 clipboardRequestTargets self callback = do
+  cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTargetsReceivedFunc
     (\_ tPtr len -> do
+      -- We must free Haskell pointer *in* the callback to avoid segfault.
+      freeHaskellFunPtr =<< readIORef cbRef
       mTargets <- if tPtr==nullPtr then return Nothing else
         liftM (Just . map Atom) $ peekArray (fromIntegral len) tPtr
       callback mTargets)
+  writeIORef cbRef cbPtr
   {# call gtk_clipboard_request_targets #}
     (toClipboard self)
     cbPtr
     nullPtr
-  freeHaskellFunPtr cbPtr
 
 {#pointer ClipboardTargetsReceivedFunc#}
 
