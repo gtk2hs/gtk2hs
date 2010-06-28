@@ -43,6 +43,7 @@ module Graphics.UI.Gtk.Gdk.Drawable (
   drawableGetSize,
   drawableGetClipRegion,
   drawableGetVisibleRegion,
+  drawableGetID,
   Point,
   drawPoint,
   drawPoints,
@@ -61,12 +62,13 @@ module Graphics.UI.Gtk.Gdk.Drawable (
   drawLayoutLineWithColors,
   drawLayout,
   drawLayoutWithColors,
-  drawDrawable) where
+  drawDrawable,
+) where
 
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs	(Point, Color)
+import Graphics.UI.Gtk.General.Structs	(Point, Color, drawableGetID)
 import Graphics.Rendering.Pango.Structs
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
