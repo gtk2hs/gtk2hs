@@ -18,57 +18,59 @@ import Text.Printf
 
 main :: IO ()
 main = do
-  initGUI
-
-  putStrLn "Please entry path of multimedia file : "
-  filepath <- getLine
-  
-  mainWindow <- windowNew
-  windowSetDefaultSize mainWindow 800 600
-  windowSetPosition mainWindow WinPosCenter
-
-  mplayer <- mplayerNew 
-  mplayerStick mplayer (toContainer mainWindow) 
-
-  mainWindow `afterShow` do 
-    mplayerRun mplayer filepath
-               
-    mainWindow `onDestroy` do
-      mplayerQuit mplayer
-      mainQuit
-
-    return ()
-
-  widgetShowAll mainWindow
-
-  mainGUI
+  args <- getArgs
+  case args of
+    [filepath] -> do
+        initGUI
+        
+        mainWindow <- windowNew
+        windowSetDefaultSize mainWindow 800 450
+        windowSetPosition mainWindow WinPosCenter
+        
+        mplayer <- mplayerNew 
+        mplayerStick mplayer (toContainer mainWindow) 
+        
+        mainWindow `afterShow` do 
+          mplayerRun mplayer filepath
+                     
+          mainWindow `onDestroy` do
+            mplayerQuit mplayer
+            mainQuit
+        
+          return ()
+        
+        widgetShowAll mainWindow
+        
+        mainGUI
+    _ -> putStrLn "Usage : mplayer file"
 
 data MPlayer =
-    MPlayer {mplayerSocket      :: Socket
+    MPlayer {mplayerWidget      :: DrawingArea
             ,mplayerHandle      :: TVar (Maybe (Handle, Handle, Handle, ProcessHandle))}
                                                      
 mplayerNew :: IO MPlayer
 mplayerNew =
-  MPlayer <$> socketNew
+  MPlayer <$> drawingAreaNew
           <*> newTVarIO Nothing
 
 mplayerStick :: MPlayer -> Container -> IO ()
-mplayerStick (MPlayer {mplayerSocket = socket}) container = do
-  widgetShowAll socket
-  container `containerAdd` socket
+mplayerStick (MPlayer {mplayerWidget = mWidget}) container = do
+  widgetShowAll mWidget
+  container `containerAdd` mWidget
   
 mplayerRun :: MPlayer -> FilePath -> IO ()
-mplayerRun (MPlayer {mplayerSocket = socket
+mplayerRun (MPlayer {mplayerWidget = mWidget
                     ,mplayerHandle = mHandle}) filepath = do
-  socketId <- liftM fromNativeWindowId $ socketGetId socket
-  handle   <- runInteractiveCommand $ printf "mplayer %s -slave -wid %d" filepath (socketId :: Int)
+  drawWindow <- widgetGetDrawWindow mWidget -- you just can get DrawWindow after widget realized
+  wid <- liftM fromNativeWindowId $ drawableGetID drawWindow
+  handle <- runInteractiveCommand $ printf "mplayer %s -slave -wid %d" filepath (wid :: Int)
   writeTVarIO mHandle (Just handle)
     
 mplayerQuit :: MPlayer -> IO ()
 mplayerQuit MPlayer {mplayerHandle = mHandle} = do
   handle <- readTVarIO mHandle
   case handle of
-    Just (inp, _, _, _) -> hPutStr inp "quit\n"
+    Just (inp, _, _, _) -> hPutStrLn inp "quit"
     Nothing -> return ()
 
 -- | The IO version of `writeTVar`.
