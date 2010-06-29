@@ -166,21 +166,21 @@ toUTF (x:xs) | ord x<=0x007F = x:toUTF xs
 fromUTF :: String -> String
 fromUTF [] = []
 fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
-		     | ord x<=0xBF = err
+		     | ord x<=0xBF = err all
 		     | ord x<=0xDF = twoBytes all
 		     | ord x<=0xEF = threeBytes all
-		     | otherwise   = err
+		     | otherwise   = err all
   where
     twoBytes (x1:x2:xs) = chr (((ord x1 .&. 0x1F) `shift` 6) .|.
 			       (ord x2 .&. 0x3F)):fromUTF xs
-    twoBytes _ = error "fromUTF: illegal two byte sequence"
+    twoBytes str = error ("fromUTF: " ++ str ++ " has illegal two byte sequence!")
 
     threeBytes (x1:x2:x3:xs) = chr (((ord x1 .&. 0x0F) `shift` 12) .|.
 				    ((ord x2 .&. 0x3F) `shift` 6) .|.
 				    (ord x3 .&. 0x3F)):fromUTF xs
-    threeBytes _ = error "fromUTF: illegal three byte sequence" 
+    threeBytes str = error ("fromUTF: " ++ str ++ " has illegal three byte sequence!")
     
-    err = error "fromUTF: illegal UTF-8 character"
+    err str = error ("fromUTF: " ++ str ++ " has illegal UTF-8 character!")
 
 -- Offset correction for String to UTF8 mapping.
 --
