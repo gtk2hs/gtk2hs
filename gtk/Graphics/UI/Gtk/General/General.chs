@@ -49,6 +49,7 @@ module Graphics.UI.Gtk.General.General (
   mainLevel,
   mainIteration,
   mainIterationDo,
+  mainDoEvent,
   
   -- * Grab widgets
   grabAdd,
@@ -87,6 +88,9 @@ import System.Glib.MainLoop ( Priority, priorityLow, priorityDefaultIdle,
   priorityHighIdle, priorityDefault, priorityHigh, timeoutRemove, idleRemove,
   inputRemove, IOCondition(..), HandlerId )
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Gdk.EventM (EventM)
+import Control.Monad.Reader (ask)
+import Control.Monad.Trans (liftIO)
 {#import Graphics.UI.Gtk.Types#}
 
 {#context lib="gtk" prefix ="gtk"#}
@@ -246,6 +250,45 @@ mainIteration  = liftM toBool {#call main_iteration#}
 mainIterationDo :: Bool -> IO Bool
 mainIterationDo blocking = 
   liftM toBool $ {#call main_iteration_do#} (fromBool blocking)
+
+-- | Processes a single GDK event. This is public only to allow filtering of events between GDK and
+-- GTK+. You will not usually need to call this function directly.
+-- 
+-- While you should not call this function directly, you might want to know how exactly events are
+-- handled. So here is what this function does with the event:
+-- 
+--  1. Compress enter/leave notify events. If the event passed build an enter/leave pair together with
+--     the next event (peeked from GDK) both events are thrown away. This is to avoid a backlog of
+--     (de-)highlighting widgets crossed by the pointer.
+--    
+--  2. Find the widget which got the event. If the widget can't be determined the event is thrown away
+--     unless it belongs to a INCR transaction. In that case it is passed to
+--     'selectionIncrEvent'.
+--    
+--  3. Then the event is passed on a stack so you can query the currently handled event with
+--  'getCurrentEvent'.
+--    
+--  4. The event is sent to a widget. If a grab is active all events for widgets that are not in the
+--     contained in the grab widget are sent to the latter with a few exceptions:
+--    
+--       * Deletion and destruction events are still sent to the event widget for obvious reasons.
+--        
+--       * Events which directly relate to the visual representation of the event widget.
+--        
+--       * Leave events are delivered to the event widget if there was an enter event delivered to it
+--         before without the paired leave event.
+--        
+--       * Drag events are not redirected because it is unclear what the semantics of that would be.
+--        
+--     Another point of interest might be that all key events are first passed through the key snooper
+--     functions if there are any. Read the description of 'keySnooperInstall' if you need this
+--     feature.
+--    
+--  5. After finishing the delivery the event is popped from the event stack.
+mainDoEvent :: EventM t ()
+mainDoEvent = do
+  ptr <- ask
+  liftIO $ {#call main_do_event #} (castPtr ptr)
 
 -- | add a grab widget
 --
