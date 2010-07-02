@@ -202,6 +202,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetState,
   widgetGetSavedState,
   widgetGetSize,
+  widgetEvent,
 
 -- * Attributes
   widgetName,
@@ -357,7 +358,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
 
 import Control.Monad	(liftM, unless)
 import Data.Maybe	(fromMaybe)
-
+import Control.Monad.Reader (ask)
+import Control.Monad.Trans (liftIO)
 import Data.Bits ((.&.), complement)
 import System.Glib.FFI
 import System.Glib.Flags		(fromFlags, toFlags)
@@ -2087,6 +2089,16 @@ widgetGetAllocation widget =
      {#call widget_get_allocation#} (toWidget widget) (castPtr allocationPtr)
      peek allocationPtr
 #endif
+
+-- | Rarely-used function. This function is used to emit the event signals on a widget (those signals
+-- should never be emitted without using this function to do so). If you want to synthesize an event
+-- though, don't use this function; instead, use 'mainDoEvent' so the event will behave as if it
+-- were in the event queue. Don't synthesize expose events; instead, use 'windowInvalidateRect'
+-- to invalidate a region of the window.
+widgetEvent :: WidgetClass self => self -> EventM t Bool
+widgetEvent widget = do
+  ptr <- ask
+  liftIO $ liftM toBool $ {#call widget_event #} (toWidget widget) (castPtr ptr)
 
 --------------------
 -- Attributes
