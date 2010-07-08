@@ -88,6 +88,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferDeleteInteractive,
   textBufferSetText,
   textBufferGetText,
+  textBufferSetByteString,
+  textBufferGetByteString,
   textBufferGetSlice,
   textBufferInsertPixbuf,
   textBufferCreateMark,
@@ -196,6 +198,9 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject			(constructNewGObject,
 						 makeNewGObject)
+import Data.ByteString (ByteString)
+import Data.ByteString.Internal (c_strlen)
+import Data.ByteString.Unsafe (unsafeUseAsCStringLen, unsafePackCStringFinalizer)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
@@ -424,6 +429,42 @@ textBufferGetText self start end includeHiddenChars =
     end
     (fromBool includeHiddenChars)
   >>= readUTFString
+
+-- | Same as 'textBufferSetText', but use to read *huge* file.
+-- When you read content from huge file, 'ByteString' will save
+-- much memory than 'String'.
+-- NOTE, you need make sure 'ByteString' is a valid UTF-8 
+-- when you call this function.
+--
+-- Below is example code to read huge file.
+--
+--   textBufferSetByteString textBuffer =<< Data.ByteString.readFile "hugeFile"
+--
+textBufferSetByteString :: TextBufferClass self => self
+ -> ByteString -- ^ @text@ - text to insert
+ -> IO ()
+textBufferSetByteString self text =
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_set_text #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
+
+-- | Same as `textBufferGetText`, but use to get *huge* string.
+textBufferGetByteString :: TextBufferClass self => self
+ -> TextIter  -- ^ @start@ - start of a range
+ -> TextIter  -- ^ @end@ - end of a range
+ -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
+ -> IO ByteString
+textBufferGetByteString self start end includeHiddenChars =
+  {# call unsafe text_buffer_get_text #}
+    (toTextBuffer self)
+    start
+    end
+    (fromBool includeHiddenChars)
+  >>= \strPtr -> do
+    strLen <- c_strlen strPtr
+    unsafePackCStringFinalizer (castPtr strPtr) (fromIntegral strLen) ({#call unsafe g_free#} (castPtr strPtr))
 
 -- | Returns the text in the range [@start@,@end@). Excludes undisplayed text
 -- (text marked with tags that set the invisibility attribute) if

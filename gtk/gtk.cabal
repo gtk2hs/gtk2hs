@@ -122,7 +122,7 @@ Flag have-gio
 
 Library
         build-depends:  base >= 4 && < 5,
-                        array, containers, haskell98, mtl,
+                        array, containers, haskell98, mtl, bytestring,
                         glib  >= 0.11 && < 0.12,
                         pango >= 0.11 && < 0.12,
                         cairo >= 0.11 && < 0.12
