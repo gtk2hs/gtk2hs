@@ -90,6 +90,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferGetText,
   textBufferSetByteString,
   textBufferGetByteString,
+  textBufferGetByteStringSlice,
   textBufferGetSlice,
   textBufferInsertPixbuf,
   textBufferCreateMark,
@@ -199,7 +200,6 @@ import System.Glib.Properties
 import System.Glib.GObject			(constructNewGObject,
 						 makeNewGObject)
 import Data.ByteString (ByteString)
-import Data.ByteString.Internal (c_strlen)
 import Data.ByteString.Unsafe (unsafeUseAsCStringLen, unsafePackCStringFinalizer)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -430,42 +430,6 @@ textBufferGetText self start end includeHiddenChars =
     (fromBool includeHiddenChars)
   >>= readUTFString
 
--- | Same as 'textBufferSetText', but use to read *huge* file.
--- When you read content from huge file, 'ByteString' will save
--- much memory than 'String'.
--- NOTE, you need make sure 'ByteString' is a valid UTF-8 
--- when you call this function.
---
--- Below is example code to read huge file.
---
---   textBufferSetByteString textBuffer =<< Data.ByteString.readFile "hugeFile"
---
-textBufferSetByteString :: TextBufferClass self => self
- -> ByteString -- ^ @text@ - text to insert
- -> IO ()
-textBufferSetByteString self text =
-  unsafeUseAsCStringLen text $ \(textPtr, len) ->
-  {# call text_buffer_set_text #}
-    (toTextBuffer self)
-    textPtr
-    (fromIntegral len)
-
--- | Same as `textBufferGetText`, but use to get *huge* string.
-textBufferGetByteString :: TextBufferClass self => self
- -> TextIter  -- ^ @start@ - start of a range
- -> TextIter  -- ^ @end@ - end of a range
- -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
- -> IO ByteString
-textBufferGetByteString self start end includeHiddenChars =
-  {# call unsafe text_buffer_get_text #}
-    (toTextBuffer self)
-    start
-    end
-    (fromBool includeHiddenChars)
-  >>= \strPtr -> do
-    strLen <- c_strlen strPtr
-    unsafePackCStringFinalizer (castPtr strPtr) (fromIntegral strLen) ({#call unsafe g_free#} (castPtr strPtr))
-
 -- | Returns the text in the range [@start@,@end@). Excludes undisplayed text
 -- (text marked with tags that set the invisibility attribute) if
 -- @includeHiddenChars@ is @False@. The returned string includes a
@@ -487,6 +451,61 @@ textBufferGetSlice self start end includeHiddenChars =
     end
     (fromBool includeHiddenChars)
   >>= readUTFString
+
+-- | Deletes current contents of @buffer@, and inserts @text@ instead. Similar
+-- to 'textBufferSetText' but uses 'ByteString' buffers.
+--
+-- * The passed-in buffer must contain a valid UTF-8 encoded string.
+--
+textBufferSetByteString :: TextBufferClass self => self
+ -> ByteString -- ^ @text@ - text to insert
+ -> IO ()
+textBufferSetByteString self text =
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_set_text #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
+
+-- | Returns the text in the range [@start@,@end@). Similar to
+-- `textBufferGetText` but uses 'ByteString' buffers.
+--
+-- * The returned buffer is a UTF-8 encoded string.
+--
+textBufferGetByteString :: TextBufferClass self => self
+ -> TextIter  -- ^ @start@ - start of a range
+ -> TextIter  -- ^ @end@ - end of a range
+ -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
+ -> IO ByteString
+textBufferGetByteString self start end includeHiddenChars = do
+  sPtr <- {# call unsafe text_buffer_get_text #}
+    (toTextBuffer self)
+    start
+    end
+    (fromBool includeHiddenChars)
+  sLen <- lengthArray0 0 sPtr
+  unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+    ({#call unsafe g_free#} (castPtr sPtr))
+
+-- | Returns the text in the range [@start@,@end@). Similar to
+-- `textBufferGetSlice` but uses 'ByteString' buffers.
+--
+-- * The returned buffer is a UTF-8 encoded string.
+--
+textBufferGetByteStringSlice :: TextBufferClass self => self
+ -> TextIter  -- ^ @start@ - start of a range
+ -> TextIter  -- ^ @end@ - end of a range
+ -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
+ -> IO ByteString
+textBufferGetByteStringSlice self start end includeHiddenChars = do
+  sPtr <- {# call unsafe text_buffer_get_slice #}
+    (toTextBuffer self)
+    start
+    end
+    (fromBool includeHiddenChars)
+  sLen <- lengthArray0 0 sPtr
+  unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+    ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Inserts an image into the text buffer at @iter@. The image will be
 -- counted as one character in character counts, and when obtaining the buffer
