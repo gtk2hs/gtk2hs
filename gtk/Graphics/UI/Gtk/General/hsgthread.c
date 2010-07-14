@@ -40,7 +40,7 @@ static int threads_initialised = 0;
 #if defined( WIN32 )
 static CRITICAL_SECTION gtk2hs_finalizer_mutex;
 #else
-static GStaticMutex gtk2hs_finalizer_mutex = G_STATIC_MUTEX_INIT;
+static GStaticMutex gtk2hs_finalizer_mutex;
 #endif
 static GSource* gtk2hs_finalizer_source;
 static guint gtk2hs_finalizer_id;
@@ -52,7 +52,7 @@ gboolean gtk2hs_run_finalizers(gpointer data);
 void gtk2hs_threads_initialise (void) {
 
 #ifdef DEBUG
-  printf("gtk2hs_threads_initizlise: threads_initialised=%i, g_thread_get_initialized=%i\n",
+  printf("gtk2hs_threads_initialise: threads_initialised=%i, g_thread_get_initialized=%i\n",
 		threads_initialised, g_thread_get_initialized());
 #endif
 
@@ -60,9 +60,16 @@ void gtk2hs_threads_initialise (void) {
     threads_initialised = 1;
 #if defined( WIN32 )
     InitializeCriticalSection(&gtk2hs_finalizer_mutex);
+#else
+    g_static_mutex_init(&gtk2hs_finalizer_mutex);
 #endif
     g_thread_init(NULL);
     gdk_threads_init();
+#ifdef DEBUG
+    printf("gtk2hs_threads_initialise: thread lock function=%lx\n",
+		(unsigned long) g_thread_functions_for_glib_use.mutex_lock);
+#endif
+
   }
 }
 
@@ -72,7 +79,10 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
   int mutex_locked = 0;
   if (threads_initialised) {
 #ifdef DEBUG
-  		printf("acquiring lock to add object %x\n", object);
+  		printf("acquiring lock to add a %s object at %lx\n",
+             g_type_name(G_OBJECT_TYPE(object)), (unsigned long) object);
+      printf("value of lock function is %lx\n",
+             (unsigned long) g_thread_functions_for_glib_use.mutex_lock);
 #endif
 #if defined( WIN32 )
     EnterCriticalSection(&gtk2hs_finalizer_mutex);
@@ -116,7 +126,8 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
 
   if (mutex_locked) {
 #ifdef DEBUG
-  		printf("releasing lock to add object %x\n", object);
+  		printf("releasing lock to add a %s object at %lx\n",
+             g_type_name(G_OBJECT_TYPE(object)), (unsigned long) object);
 #endif
 #if defined( WIN32 )
     LeaveCriticalSection(&gtk2hs_finalizer_mutex);
