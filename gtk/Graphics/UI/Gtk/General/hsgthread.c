@@ -51,6 +51,11 @@ gboolean gtk2hs_run_finalizers(gpointer data);
 /* Initialize the threads system of Gdk and Gtk. */
 void gtk2hs_threads_initialise (void) {
 
+#ifdef DEBUG
+  printf("gtk2hs_threads_initizlise: threads_initialised=%i, g_thread_get_initialized=%i\n",
+		threads_initialised, g_thread_get_initialized());
+#endif
+
   if (!threads_initialised) {
     threads_initialised = 1;
 #if defined( WIN32 )
@@ -66,6 +71,9 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
 
   int mutex_locked = 0;
   if (threads_initialised) {
+#ifdef DEBUG
+  		printf("acquiring lock to add object %x\n", object);
+#endif
 #if defined( WIN32 )
     EnterCriticalSection(&gtk2hs_finalizer_mutex);
 #else
@@ -75,7 +83,8 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
   }
 
 #ifdef DEBUG
-  printf("adding finalizer!\n");
+	if (mutex_locked) printf("within mutex: ");
+  printf("adding finalizer to a %s object!\n", g_type_name(G_OBJECT_TYPE(object)));
 #endif
 
   /* Ensure that the idle handler is still installed and that
@@ -84,8 +93,14 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
 
     if (gtk2hs_finalizers == NULL)
       gtk2hs_finalizers = g_array_new(0, 0, sizeof(gpointer));
+#ifdef DEBUG
+  		printf("creating finalizer list.\n");
+#endif
 
     if (gtk2hs_finalizer_source != NULL) {
+#ifdef DEBUG
+  		printf("re-initializing finalizer source.\n");
+#endif
       g_source_destroy(gtk2hs_finalizer_source);
       g_source_unref(gtk2hs_finalizer_source);
     };
@@ -100,6 +115,9 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
   g_array_append_val(gtk2hs_finalizers, object);
 
   if (mutex_locked) {
+#ifdef DEBUG
+  		printf("releasing lock to add object %x\n", object);
+#endif
 #if defined( WIN32 )
     LeaveCriticalSection(&gtk2hs_finalizer_mutex);
 #else
@@ -113,8 +131,13 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   gint index;
   g_assert(gtk2hs_finalizers!=NULL);
 
+	GDK_THREADS_ENTER ();
+	
   int mutex_locked = 0;
   if (threads_initialised) {
+#ifdef DEBUG
+  		printf("acquiring lock to kill objects\n");
+#endif
 #if defined( WIN32 )
     EnterCriticalSection(&gtk2hs_finalizer_mutex);
 #else
@@ -135,12 +158,17 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   gtk2hs_finalizer_id = 0;
 
   if (mutex_locked) {
+#ifdef DEBUG
+  		printf("releasing lock to kill objects\n");
+#endif
 #if defined( WIN32 )
     LeaveCriticalSection(&gtk2hs_finalizer_mutex);
 #else
     g_static_mutex_unlock(&gtk2hs_finalizer_mutex);
 #endif
   }
+
+	GDK_THREADS_LEAVE ();
 
   return FALSE;
 }
