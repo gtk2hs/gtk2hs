@@ -69,6 +69,8 @@ void gtk2hs_threads_initialise (void) {
     printf("gtk2hs_threads_initialise: thread lock function=%lx\n",
 		(unsigned long) g_thread_functions_for_glib_use.mutex_lock);
 #endif
+  /* from here onwards, the Gdk lock is held */
+	GDK_THREADS_ENTER ();
 
   }
 }

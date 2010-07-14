@@ -137,9 +137,8 @@ unsafeInitGUIForThreadedRTS = initGUI
 --
 initGUI :: IO [String]
 initGUI = do
-  threadsLeave
   when rtsSupportsBoundThreads initialiseGThreads
-  threadsEnter
+  -- note: initizliseGThreads calls 'threadsEnter'
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
