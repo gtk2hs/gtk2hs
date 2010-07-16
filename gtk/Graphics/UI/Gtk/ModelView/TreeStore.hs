@@ -43,13 +43,16 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
   treeStoreLookup,
 
   treeStoreSetValue,
---  treeStoreSetTree,
 
   treeStoreInsert,
   treeStoreInsertTree,
+  treeStoreInsertForest,
 
   treeStoreRemove,
   treeStoreClear,
+
+  treeStoreChange,
+  treeStoreChangeM,
   ) where
 
 import Data.Bits
