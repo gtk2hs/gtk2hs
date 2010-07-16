@@ -78,7 +78,8 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowGetPointer,
   drawWindowGetPointerPos,
   drawWindowGetOrigin,
-  drawWindowForeignNew
+  drawWindowForeignNew,
+  drawWindowGetDefaultRootWindow,
   ) where
 
 import Control.Monad    (liftM)
@@ -556,3 +557,10 @@ drawWindowGetOrigin self =
 drawWindowForeignNew :: NativeWindowId -> IO (Maybe DrawWindow)
 drawWindowForeignNew anid = maybeNull (makeNewGObject mkDrawWindow) $
   liftM castPtr $ {#call gdk_window_foreign_new#} (fromNativeWindowId anid)
+
+-- | Obtains the root window (parent all other windows are inside) for the default display and screen.
+drawWindowGetDefaultRootWindow :: 
+  IO DrawWindow -- ^ returns the default root window 
+drawWindowGetDefaultRootWindow =
+  makeNewGObject mkDrawWindow $
+  {#call gdk_get_default_root_window #}
