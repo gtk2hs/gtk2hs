@@ -207,6 +207,7 @@ module Graphics.Rendering.Cairo (
 #ifdef CAIRO_HAS_PNG_FUNCTIONS
   -- ** PNG support
   , withImageSurfaceFromPNG
+  , imageSurfaceCreateFromPNG
   , surfaceWriteToPNG
 #endif
 
@@ -289,6 +290,8 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 			 ,getNumElements
 #endif
                        )
+import Graphics.Rendering.Cairo.Internal (imageSurfaceCreateFromPNG)
+
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
