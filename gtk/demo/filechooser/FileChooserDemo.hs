@@ -35,7 +35,9 @@ main = do
   openFilePreviewButton `onClicked` openFilePreviewDialog mainWindow
 
   quitButton <- xmlGetWidget dialogXml castToButton "quitButton"
-  quitButton `onClicked` mainQuit
+  quitButton `onClicked` (do
+                           widgetDestroy mainWindow
+                           mainQuit)
 
   -- The final step is to display the main window and run the main loop
   widgetShowAll mainWindow

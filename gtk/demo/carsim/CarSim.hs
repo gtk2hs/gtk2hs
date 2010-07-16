@@ -122,6 +122,7 @@ main = do
 
     initGUI
 
+    mainWindow <- windowNew
     drawingArea <- drawingAreaNew
 
     (getTimeStamp,setTimeStamp) <- getCurrentTime >>= getAndSet
@@ -173,7 +174,9 @@ main = do
         onClicked qa $ about
 
         qq <- buttonNewFromStock stockQuit
-        onClicked qq mainQuit
+        onClicked qq (do
+                       widgetDestroy mainWindow
+                       mainQuit)
 
         bb <- hButtonBoxNew
         containerAdd bb qr
@@ -246,7 +249,6 @@ main = do
         boxPackStart hb vb PackGrow 0
         return hb
 
-    mainWindow <- windowNew
     windowSetTitle mainWindow "S.A.R.A.H."
     windowSetDefaultSize mainWindow 400 400
     on mainWindow objectDestroy mainQuit
