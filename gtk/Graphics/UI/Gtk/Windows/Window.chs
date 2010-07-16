@@ -2255,17 +2255,17 @@ keysChanged = Signal (connect_NONE__NONE "keys-changed")
 
 -- | Observe a change in input focus.
 --
-setFocus :: WindowClass self => Signal self (Widget -> IO ())
-setFocus = Signal (connect_OBJECT__NONE "set-focus")
+setFocus :: WindowClass self => Signal self (Maybe Widget -> IO ())
+setFocus = Signal (connect_MOBJECT__NONE "set-focus")
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
 -- | Observe a change in input focus.
 --
 onSetFocus, afterSetFocus :: (WindowClass self, WidgetClass foc) => self
- -> (foc -> IO ())
+ -> (Maybe foc -> IO ())
  -> IO (ConnectId self)
-onSetFocus = connect_OBJECT__NONE "set-focus" False
-afterSetFocus = connect_OBJECT__NONE "set-focus" True
+onSetFocus = connect_MOBJECT__NONE "set-focus" False
+afterSetFocus = connect_MOBJECT__NONE "set-focus" True
 
 #endif

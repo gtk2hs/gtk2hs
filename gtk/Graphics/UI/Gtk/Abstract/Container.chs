@@ -529,8 +529,8 @@ checkResize = Signal (connect_NONE__NONE "check_resize")
 -- %hash c:b3a d:af3f
 -- | A widget in the container received the input focus.
 --
-setFocusChild :: ContainerClass self => Signal self (Widget -> IO ())
-setFocusChild = Signal (connect_OBJECT__NONE "set-focus-child")
+setFocusChild :: ContainerClass self => Signal self (Maybe Widget -> IO ())
+setFocusChild = Signal (connect_MOBJECT__NONE "set-focus-child")
 
 --------------------
 -- Deprecated Signals
@@ -580,15 +580,15 @@ afterCheckResize = connect_NONE__NONE "check_resize" True
 
 -- %hash c:1ac6
 onSetFocusChild :: ContainerClass self => self
- -> (Widget -> IO ())
+ -> (Maybe Widget -> IO ())
  -> IO (ConnectId self)
-onSetFocusChild = connect_OBJECT__NONE "set-focus-child" False
+onSetFocusChild = connect_MOBJECT__NONE "set-focus-child" False
 {-# DEPRECATED onSetFocusChild "instead of 'onSetFocusChild obj' use 'on obj setFocusChild'" #-}
 
 -- %hash c:23e5
 afterSetFocusChild :: ContainerClass self => self
- -> (Widget -> IO ())
+ -> (Maybe Widget -> IO ())
  -> IO (ConnectId self)
-afterSetFocusChild = connect_OBJECT__NONE "set-focus-child" True
+afterSetFocusChild = connect_MOBJECT__NONE "set-focus-child" True
 {-# DEPRECATED afterSetFocusChild "instead of 'afterSetFocusChild obj' use 'after obj setFocusChild'" #-}
 #endif
