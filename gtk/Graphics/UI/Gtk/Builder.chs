@@ -82,8 +82,10 @@ module Graphics.UI.Gtk.Builder
   , builderNew
   , builderAddFromFile
   , builderAddFromString
+#if GTK_CHECK_VERSION(2,14,0)
   , builderAddObjectsFromFile
   , builderAddObjectsFromString
+#endif
 
 -- * Retrieving objects
   , builderGetObject
@@ -144,6 +146,7 @@ builderAddFromString builder str =
     builder strPtr (fromIntegral strLen) errPtrPtr
     >> return ()
 
+#if GTK_CHECK_VERSION(2,14,0)
 -- | Parses a file containing a GtkBuilder UI definition building only
 -- the requested objects and merges them with the current contents of
 -- the 'Builder'.
@@ -185,6 +188,7 @@ builderAddObjectsFromString builder str ids =
   {# call unsafe builder_add_objects_from_string #}
     builder strPtr (fromIntegral strLen) idsPtr errPtrPtr
     >> return ()
+#endif
 
 ---------------------------------------
 -- Retrieving objects
