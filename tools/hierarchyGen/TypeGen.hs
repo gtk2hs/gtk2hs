@@ -23,7 +23,8 @@ type TypeQuery  = (String, TypeInfo)
 data TypeInfo = TypeInfo {
   tiQueryFunction :: String, -- the GTK blah_get_type function
   tiAlternateName :: Maybe String,
-  tiNoEqualInst   :: Bool
+  tiNoEqualInst   :: Bool,
+  tiDefaultDestr  :: Bool
   }
 
 type TypeTable  = [TypeQuery]
@@ -72,18 +73,21 @@ pGetObject ps@ParserState { onlyTags=tags } txt txt' =
     (eqInst,rem') = 
        let r = dropWhile isBlank rem in
        if "noEq" `isPrefixOf` r then (True, drop 4 r) else (False, r)
-    (name,specialQuery,rem'') = case (dropWhile isBlank rem') of
+    (defDestr,rem'') = 
+       let r = dropWhile isBlank rem' in
+       if "noDestr" `isPrefixOf` r then (True, drop 7 r) else (False, r)
+    (name,specialQuery,rem''') = case (dropWhile isBlank rem'') of
       ('a':'s':r) ->
         let (tyName,r') = span isAlphaNum_ (dropWhile isBlank r) in
           case (dropWhile isBlank r') of
 	    (',':r) ->
 	      let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
-	        (tyName, (tyName, TypeInfo origCName (Just tyQuery) eqInst), r')
-	    r -> (tyName, (tyName, TypeInfo origCName Nothing eqInst), r)
-      r -> (origHsName, (origHsName, TypeInfo origCName Nothing eqInst), r)
+	        (tyName, (tyName, TypeInfo origCName (Just tyQuery) eqInst defDestr), r')
+	    r -> (tyName, (tyName, TypeInfo origCName Nothing eqInst defDestr), r)
+      r -> (origHsName, (origHsName, TypeInfo origCName Nothing eqInst defDestr), r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
-    (readTag, rem''') = case (dropWhile isBlank rem'') of
+    (readTag, rem'''') = case (dropWhile isBlank rem''') of
       ('i':'f':r) -> span isTagName (dropWhile isBlank r)
       r -> ("default",r)
 
@@ -289,7 +293,9 @@ makeClass rootObject destr prefix table (name:parents) =
      _ -> id
      ).
   indent 0.
-  indent 0.ss "mk".ss name.ss " = (".ss name.ss ", ".ss destr.ss ")".
+  indent 0.ss "mk".ss name.ss " = (".ss name.ss ", ".
+    (case lookup name table of Just TypeInfo { tiDefaultDestr = False } -> ss destr
+                               Just TypeInfo { tiDefaultDestr = True } -> ss "objectUnref").ss ")".
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
   indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".

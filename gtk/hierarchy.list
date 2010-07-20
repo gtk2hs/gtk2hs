@@ -15,7 +15,12 @@
 # conditional by appending 'if <tag>'. Such types are only produces if
 # --tag=<tag> is given on the command line of TypeGenerator.
 
-
+# Before these conditions, two additional properties may be given:
+# * noDestr	: ignores the destructor given by the --destructor
+#		  command line argument and uses 'objectUnref'
+# * noEq	: do not make this type an instance of Eq; used
+#		  if a different equality instance is manually
+#		  defined later
     GObject 
         GdkDrawable 
             GdkWindow		as DrawWindow, gdk_window_object_get_type
@@ -40,10 +45,10 @@
         GtkStyle
 	GtkRcStyle
         GdkDragContext
-        GdkPixbuf
-	GdkPixbufAnimation
-	    GdkPixbufSimpleAnim
-	GdkPixbufAnimationIter
+        GdkPixbuf		noDestr
+	GdkPixbufAnimation	noDestr
+	    GdkPixbufSimpleAnim	noDestr
+	GdkPixbufAnimationIter	noDestr
         GtkTextChildAnchor
         GtkTextMark
 	    GtkSourceMarker	if sourceview
