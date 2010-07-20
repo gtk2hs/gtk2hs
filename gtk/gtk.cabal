@@ -310,7 +310,7 @@ Library
         extensions:     ForeignFunctionInterface
         c-sources: Graphics/UI/Gtk/ModelView/Gtk2HsStore.c
                    Graphics/UI/Gtk/General/hsgthread.c
-	-- Due to http://hackage.haskell.org/trac/ghc/ticket/781
+	      -- Due to http://hackage.haskell.org/trac/ghc/ticket/781
         -- we need to compile the hsgthread.c module with -fPIC to ensure that a global
         -- variable in GLib that holds the address for the mutex lock and unlock functions
         -- is accessed correctly. This bug only exists on x86-64 platforms.
