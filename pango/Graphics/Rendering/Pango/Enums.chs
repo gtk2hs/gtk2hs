@@ -26,16 +26,11 @@
 -- Enumerations for describing font characteristics.
 --
 module Graphics.Rendering.Pango.Enums (
-  Markup,
   PangoUnit,
   pangoScale,
   Color(..),
   Rectangle(..),
   PangoRectangle(..),
-  Language,
-  emptyLanguage,
-  languageFromString,
-
   FontMetrics(..),
   Size(..),
   FontStyle(..),
@@ -52,6 +47,12 @@ module Graphics.Rendering.Pango.Enums (
   PangoGravity(..),
   PangoGravityHint(..),
 #endif
+
+  -- these will not be exported from this module in the future
+  Markup,
+  Language,
+  emptyLanguage,
+  languageFromString,
   ) where
 
 {#import Graphics.Rendering.Pango.Types#}

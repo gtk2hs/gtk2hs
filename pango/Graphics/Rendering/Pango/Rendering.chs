@@ -37,7 +37,7 @@
 --   where several characters might be turned into legatures or clusters,
 --   e.g. an \"e\" and an accent modifier are turned into a single glyph. These
 --   'GlyphItem's can then be rendered onto the output device with functions
---   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
+--   such as 'Graphics.Rendering.Cairo.cairoShowGlyphString'.
 --
 module Graphics.Rendering.Pango.Rendering (
   -- * 'PangoItem': Partition text into units with similar attributes.

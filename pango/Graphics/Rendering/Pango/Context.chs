@@ -28,8 +28,8 @@
 -- an environment that provides information on available fonts,
 -- internationalization and output capabilities of the medium. Given
 -- such a context, text can be rendered into strings of glyphs (see 
--- 'Graphics.UI.Gtk.Pango.Rendering') or, at a more abstract level, using
--- layouts (see 'Graphics.UI.Gtk.Pango.Layout').
+-- 'Graphics.Rendering.Pango.Rendering') or, at a more abstract level, using
+-- layouts (see 'Graphics.Rendering.Pango.Layout.Layout').
 --
 -- * A 'PangoContext' is a prerequisite for all text rendering functions.
 --   A context can be created from scratch or, more conveniently, by using
@@ -37,15 +37,16 @@
 --   is rendered through Gdk, use
 --   'Graphics.UI.Gtk.Abstract.Widget.widgetCreatePangoContext', if you use
 --   the Cairo rendering engine, a new context can be acquired using
---   'Graphics.UI.Gtk.Cairo.cairoCreateContext'.
+--   'Graphics.Rendering.Cairo.cairoCreateContext'.
 --
 -- * The properties of a 'PangoContext' can be changed which, in turn, has
 --   an effect on how text is rendered. To reflect such a change in the
---   rendered text, call 'Graphics.UI.Gtk.Pango.Layout.layoutContextChanged'.
+--   rendered text, call 'Graphics.Rendering.Pango.Layout.layoutContextChanged'.
 --
 module Graphics.Rendering.Pango.Context (
 -- * Types and Methods for 'PangoContext's
   PangoContext,
+  PangoContextClass,
   contextListFamilies,
 --  contextLoadFont,
 --  contextLoadFontSet,

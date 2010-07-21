@@ -137,7 +137,7 @@ peekIntPangoRectangle ptr = do
 --   only if there is no character with a strong direction in a paragraph.
 --   An example is a sequence of special, graphical characters which are
 --   neutral with respect to their rendering direction. A fresh
---   'Graphics.UI.Gtk.Pango.Rendering.PangoContext' is by default weakly
+--   'Graphics.Rendering.Pango.Rendering.PangoContext' is by default weakly
 --   left-to-right.
 --
 -- * Not every value in this enumeration makes sense for every usage

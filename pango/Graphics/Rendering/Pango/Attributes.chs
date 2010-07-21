@@ -146,7 +146,7 @@ crAttr c AttrGravityHint { paStart=s, paEnd=e, paGravityHint = g } =
   {#call unsafe attr_gravity_hint_new#} (fromIntegral (fromEnum g))
 #endif
 
--- | Parse the marked-up text (see 'Graphics.UI.Gtk.Pango.Markup.Markup'
+-- | Parse the marked-up text (see 'Graphics.Rendering.Pango.Markup.Markup'
 -- format) to create a plain-text string and an attribute list.
 --
 -- * The attribute list is a list of lists of attribute. Each list describes

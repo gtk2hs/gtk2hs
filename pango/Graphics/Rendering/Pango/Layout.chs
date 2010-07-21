@@ -465,7 +465,7 @@ layoutGetJustify (PangoLayout _ pl) =
 --
 -- * When @False@, the choice between left-to-right and right-to-left
 --   layout is done by according to the base direction of the layout's
---   'PangoContext'. (See 'Graphics.UI.Gtk.Pango.Context.contextSetTextDir').
+--   'PangoContext'. (See 'Graphics.Rendering.Pango.Context.contextSetTextDir').
 --
 -- * When the auto-computed direction or a paragraph differs from the base
 --   direction of the context, then the interpretation of
@@ -755,7 +755,7 @@ layoutGetLine (PangoLayout psRef pl) idx = do
       pl (fromIntegral idx)
   if llPtr==nullPtr then 
      throwIO (ArrayException (IndexOutOfBounds
-      ("Graphics.UI.Gtk.Pango.Layout.layoutGetLine: "++
+      ("Graphics.Rendering.Pango.Layout.layoutGetLine: "++
        "no line at index "++show idx))) else do
   ll <- makeNewLayoutLineRaw llPtr
   {#call unsafe layout_line_ref#} ll

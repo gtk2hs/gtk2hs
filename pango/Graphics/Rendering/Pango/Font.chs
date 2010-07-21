@@ -55,18 +55,22 @@ module Graphics.Rendering.Pango.Font (
   module Graphics.Rendering.Pango.Description,
   -- Font metrics.
   FontMap,
+  FontMapClass,
   pangoFontMapListFamilies,
   FontFamily,
+  FontFamilyClass,
 #if PANGO_VERSION_CHECK(1,4,0)
   pangoFontFamilyIsMonospace,
 #endif
   pangoFontFamilyListFaces,
   FontFace,
+  FontFaceClass,
 #if PANGO_VERSION_CHECK(1,4,0)
   pangoFontFaceListSizes,
 #endif
   pangoFontFaceDescribe,
   Font,
+  FontClass,
   ) where
 
 import Control.Monad    (liftM)
@@ -86,7 +90,7 @@ import Graphics.Rendering.Pango.Structs
 -- | Ask for the different font families that a particular back-end supports.
 --
 -- * The 'FontMap' can be acquired by calling
---   'Graphics.UI.Gtk.Cairo.cairoFontMapGetDefault'. 
+--   'Graphics.Rendering.Pango.Cairo.cairoFontMapGetDefault'. 
 --
 pangoFontMapListFamilies :: FontMap -> IO [FontFamily]
 pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
