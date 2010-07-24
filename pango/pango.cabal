@@ -80,5 +80,5 @@ Library
           pkgconfig-depends: pango < 1.26.0 || > 1.26.2
         else
           pkgconfig-depends: pango >= 1.0
-        pkgconfig-depends:  cairo >= 1.2.0
+        pkgconfig-depends:  cairo >= 1.2.0, pangocairo >= 1.10
 
