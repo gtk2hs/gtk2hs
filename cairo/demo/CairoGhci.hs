@@ -2,6 +2,7 @@
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
 import Control.Monad.Trans ( liftIO )
+import Graphics.UI.Gtk.Gdk.Events
 
 run :: Render () -> IO ()
 run act = do
