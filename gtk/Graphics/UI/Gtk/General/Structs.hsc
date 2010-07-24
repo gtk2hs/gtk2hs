@@ -51,12 +51,12 @@ module Graphics.UI.Gtk.General.Structs (
   ResponseId(..),
   fromResponse,
   toResponse,
-  #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   NativeWindowId,
   toNativeWindowId,
   fromNativeWindowId,
   nativeWindowIdNone,
-  #endif
+#endif
   drawableGetID,
 #ifndef DISABLE_DEPRECATED
   toolbarChildButton,
@@ -594,12 +594,12 @@ nativeWindowIdNone = NativeWindowId 0
 #endif
 #endif
 
-#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+#if !defined(WIN32)
 foreign import ccall unsafe "gdk_x11_drawable_get_xid" 
   gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
 #else                                  
 foreign import ccall unsafe "gdk_win32_drawable_get_handle" 
-  gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO CInt
+  gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
 #endif                                                                           
 
 -- | Get 'NativeWindowId' of 'Drawable'.                                  
@@ -607,7 +607,7 @@ drawableGetID :: DrawableClass d => d -> IO NativeWindowId
 drawableGetID d =
   liftM toNativeWindowId $
   (\(Drawable drawable) ->
-#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+#if !defined(WIN32)
      withForeignPtr drawable gdk_x11_drawable_get_xid
 #else                    
      withForeignPtr drawable gdk_win32_drawable_get_handle
