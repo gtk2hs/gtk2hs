@@ -2,7 +2,7 @@
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
 import Control.Monad.Trans ( liftIO )
-import Graphics.UI.Gtk.Gdk.Events
+import Graphics.UI.Gtk.Gdk.EventM
 
 run :: Render () -> IO ()
 run act = do
@@ -12,7 +12,7 @@ run act = do
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   canvas `onSizeRequest` return (Requisition 250 250)
-  canvas `onExpose` updateCanvas canvas act
+  canvas `on` exposeEvent $ tryEvent $ updateCanvas canvas act
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
@@ -22,14 +22,10 @@ run act = do
   -- prompt again.
   flush
 
-  where updateCanvas :: DrawingArea -> Render () -> Event -> IO Bool
-        updateCanvas canvas act (Expose {}) = do
+  where updateCanvas :: DrawingArea -> Render () -> EventM EExpose ()
+        updateCanvas canvas act = liftIO $ do
           win <- widgetGetDrawWindow canvas
           renderWithDrawable win act
-          return True
-        updateCanvas canvas act _ = return False
-
-
 
 setRed :: Render ()
 setRed = do
