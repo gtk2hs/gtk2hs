@@ -3,6 +3,7 @@
 -- use Cairo. See examples in that directory.
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Gdk.EventM
+import Graphics.UI.Gtk.Gdk.GC
 import Control.Monad.Trans ( liftIO )
 
 main = do
