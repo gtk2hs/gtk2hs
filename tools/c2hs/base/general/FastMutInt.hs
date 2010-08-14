@@ -20,7 +20,7 @@ newFastMutInt :: IO FastMutInt
 newFastMutInt = IO $ \s ->
   case newByteArray# size s of { (# s, arr #) ->
   (# s, FastMutInt arr #) }
-  where I# size = SIZEOF_HSINT
+  where !(I# size) = SIZEOF_HSINT
 
 readFastMutInt :: FastMutInt -> IO Int
 readFastMutInt (FastMutInt arr) = IO $ \s ->
