@@ -23,6 +23,11 @@ Gtk2hs is a set of Haskell packages wrapping the GTK+ GUI stack:
 * cairo             (Vector graphics library)
 * pango             (Unicode text rendering)
 * gtk               (GTK+ GUI toolkit)
+
+The following are also available, but are not built by default when installing
+the 'gtk' package. In particular, these might not have a binary library on
+Windows available:
+
 * gconf             (GConf2 configuration system)
 * glade             (libglade UI loader)
 * gstreamer         (Media codec library)
@@ -41,7 +46,7 @@ The following packages are deprecated:
 The GHC Haskell compiler, version 6.10.x or greater, is required.
 Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
 ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash
-(http://hackage.haskell.org/trac/ghc/ticket/4038), so better to avoid it.
+(http://hackage.haskell.org/trac/ghc/ticket/4038), so better avoid it.
 
 These instructions are about building Gtk2Hs from source. Certain Linux
 distributions might provide binary packages via their packaging system.
@@ -97,12 +102,12 @@ Make sure that this path is also in your %PATH% variable!
 
 ghci and Gtk2Hs on Windows
 
-Due to the way cabal registers packages with ghc, it is quite difficult to perform the
-renaming of libraries which is necessary for the binary Windows bundle to work. As a
-consequence, the cabal package can do this renaming only with Cabal 1.8 (shipped with ghc
-6.12). If you use ghc 6.10 or earlier, you need to upgrade your Cabal system to 1.8 if you
-want to build Gtk2Hs with ghci support. Note that it is always possible to build executables
-on Windows.
+Due to the way cabal registers packages with ghc, it is quite difficult to
+perform the renaming of libraries which is necessary for the binary Windows
+bundle to work. As a consequence, the cabal package can do this renaming only
+with Cabal 1.8 (shipped with ghc 6.12). If you use ghc 6.10 or earlier, you
+need to upgrade your Cabal system to 1.8 if you want to build Gtk2Hs with ghci
+support. Note that it is always possible to build executables on Windows.
 
 Building on Mac OS X
 --------------------
