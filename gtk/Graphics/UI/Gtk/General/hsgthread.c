@@ -67,7 +67,7 @@ void gtk2hs_threads_initialise (void) {
     gdk_threads_init();
 
     /* from here onwards, the Gdk lock is held */
-    GDK_THREADS_ENTER ();
+    gdk_threads_enter();
 
   }
 }
@@ -141,7 +141,7 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   gint index;
   g_assert(gtk2hs_finalizers!=NULL);
 
-  GDK_THREADS_ENTER ();
+  gdk_threads_enter();
 	
   int mutex_locked = 0;
   if (threads_initialised) {
@@ -178,7 +178,7 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
 #endif
   }
 
-  GDK_THREADS_LEAVE ();
+  gdk_threads_leave();
 
   return FALSE;
 }
