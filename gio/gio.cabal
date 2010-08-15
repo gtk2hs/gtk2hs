@@ -54,6 +54,7 @@ Library
           System.GIO.Async.Cancellable
           
           System.GIO.File.AppInfo
+          System.GIO.File.ContentType
           System.GIO.File.FileAttribute
           System.GIO.File.File
         other-modules:
