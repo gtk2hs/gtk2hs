@@ -57,6 +57,7 @@ Library
           System.GIO.File.ContentType
           System.GIO.File.FileAttribute
           System.GIO.File.File
+          System.GIO.File.FileEnumerator
         other-modules:
           System.GIO.Signals
 
