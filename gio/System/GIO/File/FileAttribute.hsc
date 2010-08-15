@@ -1,13 +1,11 @@
 {-# LANGUAGE CPP #-}
-
-#include <gio/gio.h>
-
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gio -*-haskell-*-
 --
---  Author : Peter Gavin
+--  Author : Peter Gavin, Andy Stewart
 --  Created: 13-Oct-2008
 --
 --  Copyright (c) 2008 Peter Gavin
+--  Copyright (c) 2010 Andy Stewart
 --
 --  This library is free software: you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public License
@@ -31,9 +29,33 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module System.GIO.File.FileAttribute (
+-- * Details                                      
+-- | File attributes in GIO consist of a list of key-value pairs.
+-- 
+-- Keys are strings that contain a key namespace and a key name, separated by a colon,
+-- e.g. "namespace:keyname". Namespaces are included to sort key-value pairs by namespaces for
+-- relevance. Keys can be retrived using wildcards, e.g. \"standard::*\" will return all of the keys in
+-- the "standard" namespace.
+-- 
+-- Values are stored within the list in 'FileAttributeValue' structures. Values can store different
+-- types, listed in the enum 'FileAttributeType'. Upon creation of a 'FileAttributeValue', the type will
+-- be set to 'FileAttributeTypeInvalid'.
+-- 
+-- The list of possible attributes for a filesystem (pointed to by a 'File') is availible as a
+-- 'FileAttributeInfoList'. This list is queryable by key names as indicated earlier.
+-- 
+-- Classes that implement 'FileIface' will create a 'FileAttributeInfoList' and install default keys and
+-- values for their given file system, architecture, and other possible implementation details (e.g.,
+-- on a UNIX system, a file attribute key will be registered for the user id for a given file).
+                                      
+-- * Types                                      
     FileAttributeType (..),
     FileAttributeInfo (..),
+                      
+-- * Enums                      
     FileAttributeInfoFlags (..),
+                           
+-- * Methods                           
     fileAttributeStandardType,
     fileAttributeStandardIsHidden,
     fileAttributeStandardIsBackup,
@@ -47,6 +69,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeStandardContentType,
     fileAttributeStandardFastContentType,
     fileAttributeStandardSize,
+    fileAttributeStandardAllocatedSize,
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -63,6 +86,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeMountableCanUnmount,
     fileAttributeMountableCanEject,
     fileAttributeMountableUnixDevice,
+    fileAttributeMountableUnixDeviceFile,
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -81,6 +105,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeUnixRDev,
     fileAttributeUnixBlockSize,
     fileAttributeUnixBlocks,
+    fileAttributeDosIsMountpoint,
     fileAttributeDosIsArchive,
     fileAttributeDosIsSystem,
     fileAttributeOwnerUser,
@@ -88,6 +113,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeOwnerGroup,
     fileAttributeThumbnailPath,
     fileAttributeThumbnailingFailed,
+    fileAttributePreviewIcon,
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -99,10 +125,13 @@ module System.GIO.File.FileAttribute (
     fileAttributeStandardDescription,
     ) where
 
+#include <gio/gio.h>
+
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Flags
 
-import System.GIO.Base
+import System.GIO.Enums
 
 data FileAttributeType = FileAttributeTypeInvalid
                        | FileAttributeTypeString
@@ -113,6 +142,7 @@ data FileAttributeType = FileAttributeTypeInvalid
                        | FileAttributeTypeWord64
                        | FileAttributeTypeInt64
                        | FileAttributeTypeObject
+                       | FileAttributeTypeStringList
                          deriving (Eq, Ord, Bounded, Show, Read)
 instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_INVALID}     = FileAttributeTypeInvalid
@@ -124,6 +154,7 @@ instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_UINT64}      = FileAttributeTypeWord64
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_INT64}       = FileAttributeTypeInt64
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_OBJECT}      = FileAttributeTypeObject
+    toEnum #{const G_FILE_ATTRIBUTE_TYPE_STRINGV}     = FileAttributeTypeStringList
     
     fromEnum FileAttributeTypeInvalid    = #{const G_FILE_ATTRIBUTE_TYPE_INVALID}
     fromEnum FileAttributeTypeString     = #{const G_FILE_ATTRIBUTE_TYPE_STRING}
@@ -134,6 +165,7 @@ instance Enum FileAttributeType where
     fromEnum FileAttributeTypeWord64     = #{const G_FILE_ATTRIBUTE_TYPE_UINT64}
     fromEnum FileAttributeTypeInt64      = #{const G_FILE_ATTRIBUTE_TYPE_INT64}
     fromEnum FileAttributeTypeObject     = #{const G_FILE_ATTRIBUTE_TYPE_OBJECT}
+    fromEnum FileAttributeTypeStringList = #{const G_FILE_ATTRIBUTE_TYPE_STRINGV}
 
 data FileAttributeInfo =
     FileAttributeInfo
@@ -146,9 +178,9 @@ instance Storable FileAttributeInfo where
     sizeOf _ = #{size GFileAttributeInfo}
     alignment _ = alignment (undefined :: Ptr ())
     peek ptr = do
-      retName <- #{peek GFileAttributeInfo, name} ptr >>= peekUTFString
-      retType <- (#{peek GFileAttributeInfo, type} ptr :: IO CInt) >>= return . cToEnum
-      retFlags <- (#{peek GFileAttributeInfo, flags} ptr :: IO CInt) >>= return . cToFlags
+      retName <- #{peek GFileAttributeInfo, name} ptr >>= readUTFString
+      retType <- (#{peek GFileAttributeInfo, type} ptr :: IO CInt) >>= return . (toEnum . fromIntegral)
+      retFlags <- (#{peek GFileAttributeInfo, flags} ptr :: IO CInt) >>= return . (toFlags . fromIntegral)
       return $ FileAttributeInfo
                { fileAttributeInfoName = retName
                , fileAttributeInfoType = retType
@@ -169,6 +201,7 @@ fileAttributeStandardType,
     fileAttributeStandardContentType,
     fileAttributeStandardFastContentType,
     fileAttributeStandardSize,
+    fileAttributeStandardAllocatedSize,
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -185,6 +218,7 @@ fileAttributeStandardType,
     fileAttributeMountableCanUnmount,
     fileAttributeMountableCanEject,
     fileAttributeMountableUnixDevice,
+    fileAttributeMountableUnixDeviceFile,
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -203,6 +237,7 @@ fileAttributeStandardType,
     fileAttributeUnixRDev,
     fileAttributeUnixBlockSize,
     fileAttributeUnixBlocks,
+    fileAttributeDosIsMountpoint,
     fileAttributeDosIsArchive,
     fileAttributeDosIsSystem,
     fileAttributeOwnerUser,
@@ -210,6 +245,7 @@ fileAttributeStandardType,
     fileAttributeOwnerGroup,
     fileAttributeThumbnailPath,
     fileAttributeThumbnailingFailed,
+    fileAttributePreviewIcon,                                   
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -233,6 +269,7 @@ fileAttributeStandardIcon            = #{const_str G_FILE_ATTRIBUTE_STANDARD_ICO
 fileAttributeStandardContentType     = #{const_str G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE}
 fileAttributeStandardFastContentType = #{const_str G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE}
 fileAttributeStandardSize            = #{const_str G_FILE_ATTRIBUTE_STANDARD_SIZE}
+fileAttributeStandardAllocatedSize   = #{const_str G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE}
 fileAttributeStandardSymlinkTarget   = #{const_str G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET}
 fileAttributeStandardTargetURI       = #{const_str G_FILE_ATTRIBUTE_STANDARD_TARGET_URI}
 fileAttributeStandardSortOrder       = #{const_str G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER}
@@ -249,6 +286,7 @@ fileAttributeMountableCanMount       = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CA
 fileAttributeMountableCanUnmount     = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT}
 fileAttributeMountableCanEject       = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT}
 fileAttributeMountableUnixDevice     = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE}
+fileAttributeMountableUnixDeviceFile = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE_FILE}
 fileAttributeMountableHalUDI         = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI}
 fileAttributeTimeModified            = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED}
 fileAttributeTimeModifiedUSec        = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC}
@@ -267,6 +305,7 @@ fileAttributeUnixGID                 = #{const_str G_FILE_ATTRIBUTE_UNIX_GID}
 fileAttributeUnixRDev                = #{const_str G_FILE_ATTRIBUTE_UNIX_RDEV}
 fileAttributeUnixBlockSize           = #{const_str G_FILE_ATTRIBUTE_UNIX_BLOCK_SIZE}
 fileAttributeUnixBlocks              = #{const_str G_FILE_ATTRIBUTE_UNIX_BLOCKS}
+fileAttributeDosIsMountpoint         = #{const_str G_FILE_ATTRIBUTE_UNIX_IS_MOUNTPOINT}
 fileAttributeDosIsArchive            = #{const_str G_FILE_ATTRIBUTE_DOS_IS_ARCHIVE}
 fileAttributeDosIsSystem             = #{const_str G_FILE_ATTRIBUTE_DOS_IS_SYSTEM}
 fileAttributeOwnerUser               = #{const_str G_FILE_ATTRIBUTE_OWNER_USER}
@@ -274,6 +313,7 @@ fileAttributeOwnerUserReal           = #{const_str G_FILE_ATTRIBUTE_OWNER_USER_R
 fileAttributeOwnerGroup              = #{const_str G_FILE_ATTRIBUTE_OWNER_GROUP}
 fileAttributeThumbnailPath           = #{const_str G_FILE_ATTRIBUTE_THUMBNAIL_PATH}
 fileAttributeThumbnailingFailed      = #{const_str G_FILE_ATTRIBUTE_THUMBNAILING_FAILED}
+fileAttributePreviewIcon             = #{const_str G_FILE_ATTRIBUTE_PREVIEW_ICON}
 fileAttributeFilesystemSize          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_SIZE}
 fileAttributeFilesystemFree          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_FREE}
 fileAttributeFilesystemType          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_TYPE}
