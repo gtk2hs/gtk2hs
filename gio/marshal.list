@@ -43,3 +43,7 @@
 # If it is a Boxed type check that the reference counting is right.
 
 NONE:NONE 
+NONE:STRING,STRING,STRING,ENUM
+NONE:OBJECT,OBJECT,ENUM
+NONE:ENUM
+NONE:OBJECT
