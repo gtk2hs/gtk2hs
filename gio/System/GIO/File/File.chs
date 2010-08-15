@@ -31,73 +31,99 @@
 module System.GIO.File.File (
 -- * Details
 --
--- | GFile is a high level abstraction for manipulating files on a virtual file system. GFiles are
+-- | 'File' is a high level abstraction for manipulating files on a virtual file system. 'File's are
 -- lightweight, immutable objects that do no I/O upon creation. It is necessary to understand that
--- GFile objects do not represent files, merely an identifier for a file. All file content I/O is
+-- 'File' objects do not represent files, merely an identifier for a file. All file content I/O is
 -- implemented as streaming operations (see GInputStream and GOutputStream).
 -- 
--- To construct a GFile, you can use: 'fileNewForPath' if
+-- To construct a 'File', you can use: 'fileNewForPath' if
 -- you have a URI.  'fileNewForCommandlineArg'
 -- from a utf8 string gotten from 'fileGetParseName'.
 -- 
--- One way to think of a GFile is as an abstraction of a pathname. For normal files the system pathname
--- is what is stored internally, but as GFiles are extensible it could also be something else that
+-- One way to think of a 'File' is as an abstraction of a pathname. For normal files the system pathname
+-- is what is stored internally, but as 'File's are extensible it could also be something else that
 -- corresponds to a pathname in a userspace implementation of a filesystem.
 -- 
--- GFiles make up hierarchies of directories and files that correspond to the files on a
--- filesystem. You can move through the file system with GFile using 'fileGetParent' to get an
+-- 'File's make up hierarchies of directories and files that correspond to the files on a
+-- filesystem. You can move through the file system with 'File' using 'fileGetParent' to get an
 -- identifier for the parent directory, 'fileGetChild' to get a child within a directory,
--- 'fileResolveRelativePath' to resolve a relative path between two GFiles. There can be multiple
+-- 'fileResolveRelativePath' to resolve a relative path between two 'File's. There can be multiple
 -- hierarchies, so you may not end up at the same root if you repeatedly call 'fileGetParent' on
 -- two different files.
 -- 
--- All GFiles have a basename (get with 'fileGetBasename'. These names are byte strings that are
+-- All 'File's have a basename (get with 'fileGetBasename'. These names are byte strings that are
 -- used to identify the file on the filesystem (relative to its parent directory) and there is no
 -- guarantees that they have any particular charset encoding or even make any sense at all. If you want
 -- to use filenames in a user interface you should use the display name that you can get by requesting
--- the GFileAttributeStandardDisplayName attribute with 'fileQueryInfo'. This is guaranteed to
--- be in utf8 and can be used in a user interface. But always store the real basename or the GFile to
+-- the 'FileAttributeStandardDisplayName' attribute with 'fileQueryInfo'. This is guaranteed to
+-- be in utf8 and can be used in a user interface. But always store the real basename or the 'File' to
 -- use to actually access the file, because there is no way to go from a display name to the actual
 -- name.
 -- 
--- Using GFile as an identifier has the same weaknesses as using a path in that there may be multiple
--- aliases for the same file. For instance, hard or soft links may cause two different GFiles to refer
+-- Using 'File' as an identifier has the same weaknesses as using a path in that there may be multiple
+-- aliases for the same file. For instance, hard or soft links may cause two different 'File's to refer
 -- to the same file. Other possible causes for aliases are: case insensitive filesystems, short and
--- long names on Fat/NTFS, or bind mounts in Linux. If you want to check if two GFiles point to the
--- same file you can query for the GFileAttributeIdFile attribute. Note that GFile does some
+-- long names on Fat/NTFS, or bind mounts in Linux. If you want to check if two 'File's point to the
+-- same file you can query for the 'FileAttributeIdFile' attribute. Note that 'File' does some
 -- trivial canonicalization of pathnames passed in, so that trivial differences in the path string used
 -- at creation (duplicated slashes, slash at end of path, "." or ".." path segments, etc) does not
--- create different GFiles.
+-- create different 'File's.
 -- 
--- Many GFile operations have both synchronous and asynchronous versions to suit your
+-- Many 'File' operations have both synchronous and asynchronous versions to suit your
 -- application. Asynchronous versions of synchronous functions simply have _async() appended to their
--- function names. The asynchronous I/O functions call a GAsyncReadyCallback which is then used to
--- finalize the operation, producing a GAsyncResult which is then passed to the function's matching
+-- function names. The asynchronous I/O functions call a 'AsyncReadyCallback' which is then used to
+-- finalize the operation, producing a 'AsyncResult' which is then passed to the function's matching
 -- _finish() operation.
 -- 
--- Some GFile operations do not have synchronous analogs, as they may take a very long time to finish,
+-- Some 'File' operations do not have synchronous analogs, as they may take a very long time to finish,
 -- and blocking may leave an application unusable. Notable cases include: 'fileMountMountable' to
 -- mount a mountable file.  'fileUnmountMountableWithOperation' to unmount a mountable
 -- file. 'fileEjectMountableWithOperation' to eject a mountable file.
 -- 
--- One notable feature of GFiles are entity tags, or "etags" for short. Entity tags are somewhat like a
+-- One notable feature of 'File's are entity tags, or "etags" for short. Entity tags are somewhat like a
 -- more abstract version of the traditional mtime, and can be used to quickly determine if the file has
 -- been modified from the version on the file system. See the HTTP 1.1 specification for HTTP Etag
 -- headers, which are a very similar concept.
 
 -- * Types.
+    File(..),
+    FileClass,
     FileProgressCallback,
     FileReadMoreCallback,
-    FileClass,
+    Offset,
+    FileInputStream,
+    FileInputStreamClass,
+    FileOutputStream,
+    FileOutputStreamClass,
+    InputStream,
+    InputStreamClass,
+    OutputStream,
+    OutputStreamClass,
+    BufferedInputStream,
+    BufferedInputStreamClass,
+    BufferedOutputStream,
+    BufferedOutputStreamClass,
+    MemoryInputStream,
+    MemoryInputStreamClass,
+    MemoryOutputStream,
+    MemoryOutputStreamClass,
+    FilterInputStream,
+    FilterInputStreamClass,
+    FilterOutputStream,
+    FilterOutputStreamClass,
+    DataInputStream,
+    DataInputStreamClass,
+    DataOutputStream,
+    DataOutputStreamClass,
 
 -- * Enums
-    File(..),
-    FileQueryInfoFlags(..),
-    FileCreateFlags(..),
-    FileCopyFlags(..),
-    FileMonitorFlags(..),
-    FilesystemPreviewType(..),
-    FileType(..),
+    FileType (..),
+    FileCopyFlags (..),
+    FileQueryInfoFlags (..),
+    FileCreateFlags (..),
+    FileMonitorFlags (..),
+    MountMountFlags (..),
+    MountUnmountFlags (..),
 
 -- * Methods
     fileFromPath,
@@ -164,83 +190,109 @@ module System.GIO.File.File (
 #endif
     fileMakeSymbolicLink,
     fileQuerySettableAttributes,
-    fileQueryWritableNamespaces
+    fileQueryWritableNamespaces,
+
+    fileSetAttributesFromInfo,
+    fileSetAttributesFromInfoAsync,
+    fileSetAttributesFinish,
+    fileSetAttributeString,
+    fileSetAttributeByteString,
+    fileSetAttributeWord32,
+    fileSetAttributeInt32,
+    fileSetAttributeWord64,
+    fileSetAttributeInt64,
+    fileCopyAttributes,
+
+    fileMonitorDirectory,
+    fileMonitorFile,
+#if GLIB_CHECK_VERSION(2,18,0)
+    fileMonitor,
+#endif
+
+    fileMountMountable,
+    fileMountMountableFinish,
+#if GLIB_CHECK_VERSION(2,22,0)
+    fileUnmountMountableWithOperation,
+    fileUnmountMountableWithOperationFinish,
+    fileEjectMountableWithOperation,
+    fileEjectMountableWithOperationFinish,
+    fileStartMountable,
+    fileStartMountableFinish,
+    fileStopMountable,
+    fileStopMountableFinish,
+    filePollMountable,
+    filePollMountableFinish,
+    fileMountEnclosingVolume,
+    fileMountEnclosingVolumeFinish,
+    fileSupportsThreadContexts,
+#endif
     ) where
 
 import Control.Monad
-import qualified Data.ByteString as BS
 import Data.Typeable
-
+import System.GIO.Enums
+import System.GIO.File.FileAttribute
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GError
-import System.Glib.UTFString
 import System.Glib.GObject
-
+import System.Glib.UTFString
+{#import System.GIO.Async.AsyncResult#}
 {#import System.GIO.Base#}
 {#import System.GIO.Types#}
-import System.GIO.File.FileAttribute
+
+import qualified Data.ByteString as BS
 
 {# context lib = "gio" prefix = "g" #}
 
-{# enum GFileQueryInfoFlags as FileQueryInfoFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
-instance Flags FileQueryInfoFlags
+type Offset = {# type goffset #}
 
-{# enum GFileCreateFlags as FileCreateFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
-instance Flags FileCreateFlags
-
-{# enum GFileCopyFlags as FileCopyFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
-instance Flags FileCopyFlags
-
-{# enum GFileMonitorFlags as FileMonitorFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
-instance Flags FileMonitorFlags
-
-{# enum GFilesystemPreviewType as FilesystemPreviewType {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
-
-{# enum GFileType as FileType {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
+{#pointer GFileProgressCallback #}
 
 type FileProgressCallback = Offset -> Offset -> IO ()
-type CFileProgressCallback = {# type goffset #} -> {# type goffset #} -> Ptr () -> IO ()
-foreign import ccall "wrapper"
-    makeFileProgressCallback :: CFileProgressCallback
-                             -> IO {# type GFileProgressCallback #}
 
-marshalFileProgressCallback :: FileProgressCallback -> IO {# type GFileProgressCallback #}
+foreign import ccall "wrapper" mkFileProgressCallback ::
+     ({#type goffset #} -> {#type goffset #} -> Ptr () -> IO ()) -> IO GFileProgressCallback
+
+marshalFileProgressCallback :: FileProgressCallback -> IO GFileProgressCallback
 marshalFileProgressCallback fileProgressCallback =
-    makeFileProgressCallback cFileProgressCallback
-    where cFileProgressCallback :: CFileProgressCallback
-          cFileProgressCallback cCurrentNumBytes cTotalNumBytes _ = do
-            fileProgressCallback (fromIntegral cCurrentNumBytes)
-                                 (fromIntegral cTotalNumBytes)
+    mkFileProgressCallback $ \ cCurrentNumBytes cTotalNumBytes _ -> do
+      fileProgressCallback 
+        (fromIntegral cCurrentNumBytes)
+        (fromIntegral cTotalNumBytes)
 
 type FileReadMoreCallback = BS.ByteString -> IO Bool
 
--- | Constructs a GFile for a given path. This operation never fails, but the returned object might not
+-- | Constructs a 'File' for a given path. This operation never fails, but the returned object might not
 -- support any I/O operation if path is malformed.
 fileFromPath :: FilePath -> File
 fileFromPath path =
-    unsafePerformIO $ withUTFString path $ \cPath -> {# call file_new_for_path #} cPath >>= takeGObject
+    unsafePerformIO $ constructNewGObject mkFile $ 
+    withUTFString path $ \cPath -> {# call file_new_for_path #} cPath
 
--- | Constructs a GFile for a given URI. This operation never fails, but the returned object might not
+-- | Constructs a 'File' for a given URI. This operation never fails, but the returned object might not
 -- support any I/O operation if uri is malformed or if the uri type is not supported.
 fileFromURI :: String -> File
 fileFromURI uri =
-    unsafePerformIO $ withUTFString uri $ \cURI -> {# call file_new_for_uri #} cURI >>= takeGObject
+    unsafePerformIO $ constructNewGObject mkFile $ 
+    withUTFString uri $ \cURI -> {# call file_new_for_uri #} cURI 
 
--- | Creates a GFile with the given argument from the command line. The value of arg can be either a URI,
+-- | Creates a 'File' with the given argument from the command line. The value of arg can be either a URI,
 -- an absolute path or a relative path resolved relative to the current working directory. This
 -- operation never fails, but the returned object might not support any I/O operation if arg points to
 -- a malformed path.
 fileFromCommandlineArg :: String -> File
 fileFromCommandlineArg arg =
-    unsafePerformIO $ withUTFString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg >>= takeGObject
+    unsafePerformIO $ constructNewGObject mkFile $ 
+    withUTFString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
 
--- | Constructs a GFile with the given 'name (i.e. something given by gFileGetParseName'. This
+-- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
 -- operation never fails, but the returned object might not support any I/O operation if the @parseName@
 -- cannot be parsed.
 fileFromParseName :: String -> File
 fileFromParseName parseName =
-    unsafePerformIO $ withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName >>= takeGObject
+    unsafePerformIO $ constructNewGObject mkFile $ 
+    withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
 --   implement the '(==)' function, that is, comparing two descriptions
@@ -254,22 +306,22 @@ fileEqual file1 file2 =
 instance Eq File where
     (==) = fileEqual
 
--- | Gets the base name (the last component of the path) for a given GFile.
+-- | Gets the base name (the last component of the path) for a given 'File'.
 -- 
 -- If called for the top level of a system (such as the filesystem root or a uri like sftp://host/) it
 -- will return a single directory separator (and on Windows, possibly a drive letter).
 -- 
 -- The base name is a byte string (*not* UTF-8). It has no defined encoding or rules other than it may
 -- not contain zero bytes.  If you want to use filenames in a user interface you should use the display
--- name that you can get by requesting the GFileAttributeStandardDisplayName attribute with
+-- name that you can get by requesting the 'FileAttributeStandardDisplayName' attribute with
 -- 'fileQueryInfo'.
 -- 
 -- This call does no blocking i/o.
 fileBasename :: FileClass file => file -> String
 fileBasename file =
-    unsafePerformIO $ {# call file_get_basename #} (toFile file) >>= readUTFString
+    unsafePerformIO $ {# call file_get_basename #} (toFile file) >>= readCString
 
--- | Gets the local pathname for GFile, if one exists.
+-- | Gets the local pathname for 'File', if one exists.
 -- 
 -- This call does no blocking i/o.
 filePath :: FileClass file => file -> FilePath
@@ -284,9 +336,9 @@ fileURI file =
     unsafePerformIO $ {# call file_get_uri #} (toFile file) >>= readUTFString
 
 -- | Gets the parse name of the file. A parse name is a UTF-8 string that describes the file such that
--- one can get the GFile back using 'fileParseName'.
+-- one can get the 'File' back using 'fileParseName'.
 -- 
--- This is generally used to show the GFile as a nice full-pathname kind of string in a user interface,
+-- This is generally used to show the 'File' as a nice full-pathname kind of string in a user interface,
 -- like in a location entry.
 -- 
 -- For local files with names that can safely be converted to UTF8 the pathname is used, otherwise the
@@ -303,7 +355,8 @@ fileParseName file =
 -- This call does no blocking i/o.
 fileParent :: FileClass file => file -> Maybe File
 fileParent file =
-    unsafePerformIO $ {# call file_get_parent #} (toFile file) >>= maybePeek takeGObject
+    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $ 
+    {# call file_get_parent #} (toFile file) 
 
 #if GLIB_CHECK_VERSION(2,24,0)
 -- | Checks if file has a parent, and optionally, if it is parent.
@@ -321,28 +374,27 @@ fileHasParent file parent =
 
 -- | Gets a child of file with basename equal to name.
 -- 
--- Note that the file with that specific name might not exist, but you can still have a GFile that
+-- Note that the file with that specific name might not exist, but you can still have a 'File' that
 -- points to it. You can use this for instance to create that file.
 -- 
 -- This call does no blocking i/o.
 fileGetChild :: FileClass file => file -> String -> File
 fileGetChild file name =
-    unsafePerformIO $
+    unsafePerformIO $ makeNewGObject mkFile $
         withUTFString name $ \cName ->
-        {# call file_get_child #} (toFile file) cName >>= takeGObject
+        {# call file_get_child #} (toFile file) cName
 
 -- | Gets the child of file for a given 'name (i.e. a UTF8 version of the name)'. If this function
--- fails, it returns 'Nothing' and error will be set. This is very useful when constructing a GFile for a
+-- fails, it returns 'Nothing' and error will be set. This is very useful when constructing a 'File' for a
 -- new file and the user entered the filename in the user interface, for instance when you select a
 -- directory and type a filename in the file selector.
 -- 
 -- This call does no blocking i/o.
 fileGetChildForDisplayName :: FileClass file => file -> String -> Maybe File
 fileGetChildForDisplayName file displayName =
-    unsafePerformIO $
+    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
         withUTFString displayName $ \cDisplayName ->
-        propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName) >>=
-        maybePeek takeGObject
+        propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName)
 
 -- | Checks whether file has the prefix specified by prefix. In other word, if the names of inital
 -- elements of files pathname match prefix. Only full pathname elements are matched, so a path like
@@ -370,19 +422,18 @@ fileGetRelativePath file1 file2 =
 -- This call does no blocking i/o.
 fileResolveRelativePath :: FileClass file => file -> FilePath -> Maybe File
 fileResolveRelativePath file relativePath =
-    unsafePerformIO $
+    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
         withUTFString relativePath $ \cRelativePath ->
-        {# call file_resolve_relative_path #} (toFile file) cRelativePath >>=
-        maybePeek takeGObject
+        {# call file_resolve_relative_path #} (toFile file) cRelativePath
 
 -- | Checks to see if a file is native to the platform.
 -- 
--- A native file s one expressed in the platform-native filename format, e.g. \"C:\\Windows\" or
+-- A native file s one expressed in the platform-native filename format, e.g. \"C:\Windows\" or
 -- \"/usr/bin/\". This does not mean the file is local, as it might be on a locally mounted remote
 -- filesystem.
 -- 
 -- On some systems non-native files may be available using the native filesystem via a userspace
--- filesystem (FUSE), in these cases this call will return @False@, but 'fileGetPath' will still
+-- filesystem (FUSE), in these cases this call will return 'False', but 'fileGetPath' will still
 -- return a native path.
 -- 
 -- This call does no blocking i/o.
@@ -391,7 +442,7 @@ fileIsNative =
     unsafePerformIO .
         liftM toBool . {# call file_is_native #} . toFile
 
--- | Checks to see if a 'GFile' has a given URI scheme.
+-- | Checks to see if a 'File' has a given URI scheme.
 -- 
 -- This call does no blocking i/o.
 fileHasURIScheme :: FileClass file => file -> String -> Bool
@@ -400,7 +451,7 @@ fileHasURIScheme file uriScheme =
         withUTFString uriScheme $ \cURIScheme ->
         liftM toBool $ {# call file_has_uri_scheme #} (toFile file) cURIScheme
 
--- | Gets the URI scheme for a GFile. RFC 3986 decodes the scheme as:
+-- | Gets the URI scheme for a 'File'. RFC 3986 decodes the scheme as:
 -- 
 -- URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 -- 
@@ -411,21 +462,23 @@ fileURIScheme :: FileClass file => file -> String
 fileURIScheme file =
     unsafePerformIO $ {# call file_get_uri_scheme #} (toFile file) >>= readUTFString
 
--- | Opens a file for reading. The result is a GFileInputStream that can be used to read the contents of
+-- | Opens a file for reading. The result is a 'FileInputStream' that can be used to read the contents of
 -- the file.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
--- If the file does not exist, the GIoErrorNotFound error will be returned. If the file is a
--- directory, the GIoErrorIsDirectory error will be returned. Other errors are possible too, and
+-- If the file does not exist, the 'IoErrorNotFound' error will be returned. If the file is a
+-- directory, the 'IoErrorIsDirectory' error will be returned. Other errors are possible too, and
 -- depend on what kind of filesystem the file is on.
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
-fileRead file (Just cancellable) = constructNewGObject mkFileInputStream $
-    propagateGError $ {# call file_read #} (toFile file) cancellable
-fileRead file Nothing = constructNewGObject mkFileInputStream $
-    propagateGError $ {# call file_read #} (toFile file) (Cancellable nullForeignPtr)
+fileRead file cancellable =
+    constructNewGObject mkFileInputStream $
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+            propagateGError (g_file_read cFile cCancellable) 
+    where _ = {# call file_read #}
 
 -- | Asynchronously opens file for reading.
 -- 
@@ -456,21 +509,22 @@ fileReadFinish :: FileClass file
                -> AsyncResult
                -> IO FileInputStream
 fileReadFinish file asyncResult =
-    propagateGError ({# call file_read_finish #} (toFile file) asyncResult) >>= takeGObject
+    constructNewGObject mkFileInputStream $
+    propagateGError ({# call file_read_finish #} (toFile file) asyncResult)
 
 -- | Gets an output stream for appending data to the file. If the file doesn't already exist it is
 -- created.
 -- 
--- By default files created are generally readable by everyone, but if you pass GFileCreatePrivate
+-- By default files created are generally readable by everyone, but if you pass 'FileCreatePrivate'
 -- in flags the file will be made readable only to the current user, to the level that is supported on
 -- the target filesystem.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
--- Some file systems don't allow all file names, and may return an GIoErrorInvalidFilename
--- error. If the file is a directory the GIoErrorIsDirectory error will be returned. Other errors
+-- Some file systems don't allow all file names, and may return an 'IoErrorInvalidFilename'
+-- error. If the file is a directory the 'IoErrorIsDirectory' error will be returned. Other errors
 -- are possible too, and depend on what kind of filesystem the file is on.
 fileAppendTo :: FileClass file
              => file
@@ -478,25 +532,25 @@ fileAppendTo :: FileClass file
              -> Maybe Cancellable
              -> IO FileOutputStream
 fileAppendTo file flags cancellable =
+    makeNewGObject mkFileOutputStream $
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_append_to cFile (cFromFlags flags) cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_append_to cFile ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_append_to #}
 
 -- | Creates a new file and returns an output stream for writing to it. The file must not already exist.
 -- 
--- By default files created are generally readable by everyone, but if you pass GFileCreatePrivate
+-- By default files created are generally readable by everyone, but if you pass 'FileCreatePrivate'
 -- in flags the file will be made readable only to the current user, to the level that is supported on
 -- the target filesystem.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
--- If a file or directory with this name already exists the GIoErrorExists error will be
+-- If a file or directory with this name already exists the 'IoErrorExists' error will be
 -- returned. Some file systems don't allow all file names, and may return an
--- GIoErrorInvalidFilename error, and if the name is to long GIoErrorFilenameTooLong will be
+-- 'IoErrorInvalidFilename' error, and if the name is to long 'IoErrorFilenameTooLong' will be
 -- returned. Other errors are possible too, and depend on what kind of filesystem the file is on.
 fileCreate :: FileClass file
            => file
@@ -504,10 +558,10 @@ fileCreate :: FileClass file
            -> Maybe Cancellable
            -> IO FileOutputStream
 fileCreate file flags cancellable =
+    constructNewGObject mkFileOutputStream $
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_create cFile (cFromFlags flags) cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_create cFile ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_create #}
 
 -- | Returns an output stream for overwriting the file, possibly creating a backup copy of the file
@@ -517,28 +571,28 @@ fileCreate file flags cancellable =
 -- will not affect an already existing copy of the file. For instance, for local files it may write to
 -- a temporary file and then atomically rename over the destination when the stream is closed.
 -- 
--- By default files created are generally readable by everyone, but if you pass GFileCreatePrivate
+-- By default files created are generally readable by everyone, but if you pass 'FileCreatePrivate'
 -- in flags the file will be made readable only to the current user, to the level that is supported on
 -- the target filesystem.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
 -- If you pass in a non-'Nothing' etag value, then this value is compared to the current entity tag of the
--- file, and if they differ an GIoErrorWrongEtag error is returned. This generally means that the
+-- file, and if they differ an 'IoErrorWrongEtag' error is returned. This generally means that the
 -- file has been changed since you last read it. You can get the new etag from
--- 'fileOutputStreamGetEtag' after you've finished writing and closed the GFileOutputStream.
+-- 'fileOutputStreamGetEtag' after you've finished writing and closed the 'FileOutputStream'.
 -- When you load a new file you can use 'fileInputStreamQueryInfo' to get the etag of the file.
 -- 
 -- If @makeBackup@ is 'True', this function will attempt to make a backup of the current file before
--- overwriting it. If this fails a GIoErrorCantCreateBackup error will be returned. If you want to
+-- overwriting it. If this fails a 'IoErrorCantCreateBackup' error will be returned. If you want to
 -- replace anyway, try again with @makeBackup@ set to 'False'.
 -- 
--- If the file is a directory the GIoErrorIsDirectory error will be returned, and if the file is
--- some other form of non-regular file then a GIoErrorNotRegularFile error will be returned. Some
--- file systems don't allow all file names, and may return an GIoErrorInvalidFilename error, and if
--- the name is to long GIoErrorFilenameTooLong will be returned. Other errors are possible too,
+-- If the file is a directory the 'IoErrorIsDirectory' error will be returned, and if the file is
+-- some other form of non-regular file then a 'IoErrorNotRegularFile' error will be returned. Some
+-- file systems don't allow all file names, and may return an 'IoErrorInvalidFilename' error, and if
+-- the name is to long 'IoErrorFilenameTooLong' will be returned. Other errors are possible too,
 -- and depend on what kind of filesystem the file is on.
 fileReplace :: FileClass file
             => file
@@ -548,14 +602,14 @@ fileReplace :: FileClass file
             -> Maybe Cancellable
             -> IO FileOutputStream
 fileReplace file etag makeBackup flags cancellable =
+    makeNewGObject mkFileOutputStream $
     withGObject (toFile file) $ \cFile ->
         maybeWith withUTFString etag $ \cEtag ->
         maybeWith withGObject cancellable $ \cCancellable ->
         propagateGError (g_file_replace cFile
                                         cEtag
                                         (fromBool makeBackup)
-                                        (cFromFlags flags) cCancellable) >>=
-        takeGObject
+                                        ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_replace #}
 
 -- | Asynchronously opens file for appending.
@@ -576,7 +630,7 @@ fileAppendToAsync file flags ioPriority cancellable callback =
         maybeWith withGObject cancellable $ \cCancellable -> do
           cCallback <- marshalAsyncReadyCallback callback
           g_file_append_to_async cFile
-                                 (cFromFlags flags)
+                                 ((fromIntegral . fromFlags) flags)
                                  (fromIntegral ioPriority)
                                  cCancellable
                                  cCallback
@@ -589,7 +643,8 @@ fileAppendToFinish :: FileClass file
                    -> AsyncResult
                    -> IO FileOutputStream
 fileAppendToFinish file asyncResult =
-    propagateGError ({# call file_append_to_finish #} (toFile file) asyncResult) >>= takeGObject
+    constructNewGObject mkFileOutputStream $
+    propagateGError ({# call file_append_to_finish #} (toFile file) asyncResult)
 
 -- | Asynchronously creates a new file and returns an output stream for writing to it. The file must not
 -- already exist.
@@ -610,7 +665,7 @@ fileCreateAsync file flags ioPriority cancellable callback =
         maybeWith withGObject cancellable $ \cCancellable -> do
           cCallback <- marshalAsyncReadyCallback callback
           g_file_create_async cFile
-                              (cFromFlags flags)
+                              ((fromIntegral . fromFlags) flags)
                               (fromIntegral ioPriority)
                               cCancellable
                               cCallback
@@ -623,7 +678,8 @@ fileCreateFinish :: FileClass file
                    -> AsyncResult
                    -> IO FileOutputStream
 fileCreateFinish file asyncResult =
-    propagateGError ({# call file_create_finish #} (toFile file) asyncResult) >>= takeGObject
+    constructNewGObject mkFileOutputStream $
+    propagateGError ({# call file_create_finish #} (toFile file) asyncResult)
 
 -- | Asynchronously overwrites the file, replacing the contents, possibly creating a backup copy of the
 -- file first.
@@ -649,7 +705,7 @@ fileReplaceAsync file etag makeBackup flags ioPriority cancellable callback =
           g_file_replace_async cFile
                                cEtag
                                (fromBool makeBackup)
-                               (cFromFlags flags)
+                               ((fromIntegral . fromFlags) flags)
                                (fromIntegral ioPriority)
                                cCancellable
                                cCallback
@@ -662,9 +718,10 @@ fileReplaceFinish :: FileClass file
                   -> AsyncResult
                   -> IO FileOutputStream
 fileReplaceFinish file asyncResult =
-    propagateGError ({# call file_replace_finish #} (toFile file) asyncResult) >>= takeGObject
+    constructNewGObject mkFileOutputStream $
+    propagateGError ({# call file_replace_finish #} (toFile file) asyncResult)
 
--- | Gets the requested information about specified file. The result is a 'GFileInfo' object that contains
+-- | Gets the requested information about specified file. The result is a 'FileInfo' object that contains
 -- key-value attributes (such as the type or size of the file).
 -- 
 -- The attribute value is a string that specifies the file attributes that should be gathered. It is
@@ -672,18 +729,18 @@ fileReplaceFinish file asyncResult =
 -- won't be set. attribute should be a comma-separated list of attribute or attribute wildcards. The
 -- wildcard \"*\" means all attributes, and a wildcard like \"standard::*\" means all attributes in the
 -- standard namespace. An example attribute query be \"standard::*,'user'\". The standard attributes
--- are available as defines, like 'GFileAttributeStandardName'.
+-- are available as defines, like 'FileAttributeStandardName'.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error 'GIoErrorCancelled' will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
 -- For symlinks, normally the information about the target of the symlink is returned, rather than
--- information about the symlink itself. However if you pass 'GFileQueryInfoNofollowSymlinks' in
+-- information about the symlink itself. However if you pass 'FileQueryInfoNofollowSymlinks' in
 -- flags the information about the symlink itself will be returned. Also, for symlinks that point to
 -- non-existing files the information about the symlink itself will be returned.
 -- 
--- If the file does not exist, the 'GIoErrorNotFound' error will be returned. Other errors are
+-- If the file does not exist, the 'IoErrorNotFound' error will be returned. Other errors are
 -- possible too, and depend on what kind of filesystem the file is on.
 fileQueryInfo :: FileClass file
               => file
@@ -692,20 +749,18 @@ fileQueryInfo :: FileClass file
               -> Maybe Cancellable
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
+    makeNewGObject mkFileInfo $
     withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_info cFile cAttributes (cFromFlags flags) cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_query_info cFile cAttributes ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_query_info #}
 
--- | Asynchronously gets the requested information about specified file. The
--- result is a 'GFileInfo' object that contains key-value attributes (such as
--- type or size for the file).
---  
--- For more details, see 'fileQueryInfo' which is the synchronous version of
--- this call.
---  
+-- | Asynchronously gets the requested information about specified file. The result is a 'FileInfo' object
+-- that contains key-value attributes (such as type or size for the file).
+-- 
+-- For more details, see 'fileQueryInfo' which is the synchronous version of this call.
+-- 
 -- When the operation is finished, callback will be called. You can then call
 -- 'fileQueryInfoFinish' to get the result of the operation.
 fileQueryInfoAsync :: FileClass file
@@ -723,7 +778,7 @@ fileQueryInfoAsync file attributes flags ioPriority cancellable callback =
           cCallback <- marshalAsyncReadyCallback callback
           g_file_query_info_async cFile
                                   cAttributes
-                                  (cFromFlags flags)
+                                  ((fromIntegral . fromFlags) flags)
                                   (fromIntegral ioPriority)
                                   cCancellable
                                   cCallback
@@ -736,7 +791,8 @@ fileQueryInfoFinish :: FileClass file
                     -> AsyncResult
                     -> IO FileInfo
 fileQueryInfoFinish file asyncResult =
-    propagateGError ({#call file_query_info_finish #} (toFile file) asyncResult) >>= takeGObject
+    constructNewGObject mkFileInfo $
+    propagateGError ({#call file_query_info_finish #} (toFile file) asyncResult)
 
 -- | Utility function to check if a particular file exists. This is implemented using 'fileQueryInfo'
 -- and as such does blocking I/O.
@@ -750,7 +806,7 @@ fileQueryInfoFinish file asyncResult =
 -- creating it. There are two racy versions: read it, and on error create it; and: check if it exists,
 -- if not create it. These can both result in two processes creating the file (with perhaps a partially
 -- written file as the result). The correct approach is to always try to create the file with
--- 'fileCreate' which will either atomically create the file or fail with a GIoErrorExists error.
+-- 'fileCreate' which will either atomically create the file or fail with a 'IoErrorExists' error.
 -- 
 -- However, in many cases an existence check is useful in a user interface, for instance to make a menu
 -- item sensitive/ insensitive, so that you don't have to fool users that something is possible and
@@ -759,15 +815,16 @@ fileQueryInfoFinish file asyncResult =
 fileQueryExists :: FileClass file
                 => file
                 -> Maybe Cancellable
-                -> IO Bool
+                -> Bool
 fileQueryExists file cancellable =
+    unsafePerformIO $
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
             liftM toBool $ g_file_query_exists cFile cCancellable
     where _ = {# call file_query_exists #}
 
 #if GLIB_CHECK_VERSION(2,18,0)
--- | Utility function to inspect the GFileType of a file. This is implemented using 'fileQueryInfo'
+-- | Utility function to inspect the 'FileType' of a file. This is implemented using 'fileQueryInfo'
 -- and as such does blocking I/O.
 -- 
 -- The primary use case of this method is to check if a file is a regular file, directory, or symlink.
@@ -775,12 +832,13 @@ fileQueryFileType :: FileClass file
                     => file 
                     -> [FileQueryInfoFlags]
                     -> Maybe Cancellable
-                    -> IO FileType
+                    -> FileType
 fileQueryFileType file flags cancellable = 
-    liftM (toEnum . fromIntegral) $
+    (toEnum . fromIntegral) $
+    unsafePerformIO $ 
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        (g_file_query_file_type cFile (cFromFlags flags) cCancellable)
+        (g_file_query_file_type cFile ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_query_file_type #}
 #endif
 
@@ -790,17 +848,17 @@ fileQueryFileType file flags cancellable =
 -- The attribute value is a string that specifies the file attributes that should be gathered. It is
 -- not an error if it's not possible to read a particular requested attribute from a file - it just
 -- won't be set. attribute should be a comma-separated list of attribute or attribute wildcards. The
--- wildcard "*" means all attributes, and a wildcard like "fs:*" means all attributes in the fs
+-- wildcard \"*\" means all attributes, and a wildcard like "fs:*" means all attributes in the fs
 -- namespace. The standard namespace for filesystem attributes is "fs". Common attributes of interest
 -- are 'FILEAttributeFilesystemSize (The Total Size Of The Filesystem In Bytes)',
--- 'FILEAttributeFilesystemFree (Number Of Bytes Available)', and GFileAttributeFilesystemType
+-- 'FILEAttributeFilesystemFree (Number Of Bytes Available)', and 'FileAttributeFilesystemType'
 -- (type of the filesystem).
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
--- If the file does not exist, the GIoErrorNotFound error will be returned. Other errors are
+-- If the file does not exist, the 'IoErrorNotFound' error will be returned. Other errors are
 -- possible too, and depend on what kind of filesystem the file is on.
 fileQueryFilesystemInfo :: FileClass file
                         => file
@@ -808,15 +866,15 @@ fileQueryFilesystemInfo :: FileClass file
                         -> Maybe Cancellable
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
+    makeNewGObject mkFileInfo $
     withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_filesystem_info cFile cAttributes cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_query_filesystem_info cFile cAttributes cCancellable)
     where _ = {# call file_query_filesystem_info #}
 
 -- | Asynchronously gets the requested information about the filesystem that the specified file is
--- on. The result is a GFileInfo object that contains key-value attributes (such as type or size for
+-- on. The result is a 'FileInfo' object that contains key-value attributes (such as type or size for
 -- the file).
 -- 
 -- For more details, see 'fileQueryFilesystemInfo' which is the synchronous version of this call.
@@ -849,43 +907,43 @@ fileQueryFilesystemInfoFinish :: FileClass file
                               -> AsyncResult
                               -> IO FileInfo
 fileQueryFilesystemInfoFinish file asyncResult =
-    propagateGError ({# call file_query_filesystem_info_finish #} (toFile file) asyncResult) >>=
-        takeGObject
+    constructNewGObject mkFileInfo $
+    propagateGError ({# call file_query_filesystem_info_finish #} (toFile file) asyncResult)
 
--- | Returns the GAppInfo that is registered as the default application to handle the file specified by
+-- | Returns the 'AppInfo' that is registered as the default application to handle the file specified by
 -- file.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileQueryDefaultHandler :: FileClass file
                         => file
                         -> Maybe Cancellable
                         -> IO AppInfo
 fileQueryDefaultHandler file cancellable =
+    makeNewGObject mkAppInfo $
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_default_handler cFile cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_query_default_handler cFile cCancellable)
     where _ = {# call file_query_default_handler #}
 
--- | Gets a GMount for the GFile.
+-- | Gets a 'Mount' for the 'File'.
 -- 
--- If the GFileIface for file does not have a mount (e.g. possibly a remote share), error will be set
--- to GIoErrorNotFound and 'Nothing' will be returned.
+-- If the 'FileIface' for file does not have a mount (e.g. possibly a remote share), error will be set
+-- to 'IoErrorNotFound' and 'Nothing' will be returned.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileFindEnclosingMount :: FileClass file
                        => file
                        -> Maybe Cancellable
                        -> IO Mount
 fileFindEnclosingMount file cancellable =
+    makeNewGObject mkMount $
     withGObject (toFile file) $ \cFile ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_find_enclosing_mount cFile cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_find_enclosing_mount cFile cCancellable)
     where _ = {# call file_find_enclosing_mount #}
 
 -- | Asynchronously gets the mount for the file.
@@ -917,25 +975,25 @@ fileFindEnclosingMountFinish :: FileClass file
                              -> AsyncResult
                              -> IO Mount
 fileFindEnclosingMountFinish file asyncResult =
-    propagateGError ({# call file_find_enclosing_mount_finish #} (toFile file) asyncResult) >>=
-        takeGObject
+    makeNewGObject mkMount $
+    propagateGError ({# call file_find_enclosing_mount_finish #} (toFile file) asyncResult)
 
--- | Gets the requested information about the files in a directory. The result is a 'GFileEnumerator'
--- object that will give out 'GFileInfo' objects for all the files in the directory.
+-- | Gets the requested information about the files in a directory. The result is a 'FileEnumerator'
+-- object that will give out 'FileInfo' objects for all the files in the directory.
 -- 
 -- The attribute value is a string that specifies the file attributes that should be gathered. It is
 -- not an error if it's not possible to read a particular requested attribute from a file - it just
 -- won't be set. attribute should be a comma-separated list of attribute or attribute wildcards. The
 -- wildcard \"*\" means all attributes, and a wildcard like \"standard::*\" means all attributes in the
 -- standard namespace. An example attribute query be \"standard::*,'user'\". The standard attributes
--- are available as defines, like 'GFileAttributeStandardName'.
+-- are available as defines, like 'FileAttributeStandardName'.
 -- 
--- If cancellable is not @Nothing@, then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error 'GIoErrorCancelled' will be
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
--- If the file does not exist, the 'GIoErrorNotFound' error will be returned. If the file is not a
--- directory, the 'GFileErrorNotdir' error will be returned. Other errors are possible too.
+-- If the file does not exist, the 'IoErrorNotFound' error will be returned. If the file is not a
+-- directory, the 'FileErrorNotdir' error will be returned. Other errors are possible too.
 fileEnumerateChildren :: FileClass file
                       => file
                       -> String
@@ -943,15 +1001,15 @@ fileEnumerateChildren :: FileClass file
                       -> Maybe Cancellable
                       -> IO FileEnumerator
 fileEnumerateChildren file attributes flags cancellable =
+    makeNewGObject mkFileEnumerator $
     withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_enumerate_children cFile cAttributes (cFromFlags flags) cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_enumerate_children cFile cAttributes ((fromIntegral . fromFlags) flags) cCancellable)
     where _ = {# call file_enumerate_children #}
 
 -- | Asynchronously gets the requested information about the files in a directory. The result is a
--- GFileEnumerator object that will give out GFileInfo objects for all the files in the directory.
+-- 'FileEnumerator' object that will give out 'FileInfo' objects for all the files in the directory.
 -- 
 -- For more details, see 'fileEnumerateChildren' which is the synchronous version of this call.
 -- 
@@ -972,7 +1030,7 @@ fileEnumerateChildrenAsync file attributes flags ioPriority cancellable callback
           cCallback <- marshalAsyncReadyCallback callback
           g_file_enumerate_children_async cFile
                                           cAttributes
-                                          (cFromFlags flags)
+                                          ((fromIntegral . fromFlags) flags)
                                           (fromIntegral ioPriority)
                                           cCancellable
                                           cCallback
@@ -985,8 +1043,8 @@ fileEnumerateChildrenFinish :: FileClass file
                              -> AsyncResult
                              -> IO FileEnumerator
 fileEnumerateChildrenFinish file asyncResult =
-    propagateGError ({# call file_enumerate_children_finish #} (toFile file) asyncResult) >>=
-        takeGObject
+    constructNewGObject mkFileEnumerator $
+    propagateGError ({# call file_enumerate_children_finish #} (toFile file) asyncResult)
 
 -- | Renames file to the specified display name.
 -- 
@@ -994,13 +1052,13 @@ fileEnumerateChildrenFinish file asyncResult =
 -- possible and the file is renamed to this.
 -- 
 -- If you want to implement a rename operation in the user interface the edit name
--- (GFileAttributeStandardEditName) should be used as the initial value in the rename widget, and
+-- ('FileAttributeStandardEditName') should be used as the initial value in the rename widget, and
 -- then the result after editing should be passed to 'fileSetDisplayName'.
 -- 
 -- On success the resulting converted filename is returned.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileSetDisplayName :: FileClass file
                    => file
@@ -1008,14 +1066,14 @@ fileSetDisplayName :: FileClass file
                    -> Maybe Cancellable
                    -> IO File
 fileSetDisplayName file displayName cancellable =
+    makeNewGObject mkFile $
     withGObject (toFile file) $ \cFile ->
         withUTFString displayName $ \cDisplayName ->
         maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_set_display_name cFile cDisplayName cCancellable) >>=
-        takeGObject
+        propagateGError (g_file_set_display_name cFile cDisplayName cCancellable)
     where _ = {# call file_set_display_name #}
 
--- | Asynchronously sets the display name for a given GFile.
+-- | Asynchronously sets the display name for a given 'File'.
 -- 
 -- For more details, see 'fileSetDisplayName' which is the synchronous version of this call.
 -- 
@@ -1047,13 +1105,13 @@ fileSetDisplayNameFinish :: FileClass file
                          -> AsyncResult
                          -> IO File
 fileSetDisplayNameFinish file asyncResult =
-    propagateGError ({# call file_set_display_name_finish #} (toFile file) asyncResult) >>=
-        takeGObject
+    makeNewGObject mkFile $
+    propagateGError ({# call file_set_display_name_finish #} (toFile file) asyncResult)
 
 -- | Deletes a file. If the file is a directory, it will only be deleted if it is empty.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileDelete :: FileClass file
            => file
@@ -1067,10 +1125,10 @@ fileDelete file cancellable =
 
 -- | Sends file to the "Trashcan", if possible. This is similar to deleting it, but the user can recover
 -- it before emptying the trashcan. Not all file systems support trashing, so this call can return the
--- GIoErrorNotSupported error.
+-- 'IoErrorNotSupported' error.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileTrash :: FileClass file
            => file
@@ -1085,33 +1143,33 @@ fileTrash file cancellable =
 -- | Copies the file source to the location specified by destination. Can not handle recursive copies of
 -- directories.
 -- 
--- If the flag GFileCopyOverwrite is specified an already existing destination file is overwritten.
+-- If the flag 'FileCopyOverwrite' is specified an already existing destination file is overwritten.
 -- 
--- If the flag GFileCopyNofollowSymlinks is specified then symlinks will be copied as symlinks,
+-- If the flag 'FileCopyNofollowSymlinks' is specified then symlinks will be copied as symlinks,
 -- otherwise the target of the source symlink will be copied.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
 -- If @progressCallback@ is not 'Nothing', then the operation can be monitored by setting this to a
--- GFileProgressCallback function.  @progressCallbackData@ will be passed to this function. It is
+-- 'FileProgressCallback' function.  @progressCallbackData@ will be passed to this function. It is
 -- guaranteed that this callback will be called after all data has been transferred with the total
 -- number of bytes copied during the operation.
 -- 
--- If the source file does not exist then the GIoErrorNotFound error is returned, independent on
+-- If the source file does not exist then the 'IoErrorNotFound' error is returned, independent on
 -- the status of the destination.
 -- 
--- If GFileCopyOverwrite is not specified and the target exists, then the error GIoErrorExists is
+-- If 'FileCopyOverwrite' is not specified and the target exists, then the error 'IoErrorExists' is
 -- returned.
 -- 
--- If trying to overwrite a file over a directory the GIoErrorIsDirectory error is returned. If
--- trying to overwrite a directory with a directory the GIoErrorWouldMerge error is returned.
+-- If trying to overwrite a file over a directory the 'IoErrorIsDirectory' error is returned. If
+-- trying to overwrite a directory with a directory the 'IoErrorWouldMerge' error is returned.
 -- 
--- If the source is a directory and the target does not exist, or GFileCopyOverwrite is specified
--- and the target is a file, then the GIoErrorWouldRecurse error is returned.
+-- If the source is a directory and the target does not exist, or 'FileCopyOverwrite' is specified
+-- and the target is a file, then the 'IoErrorWouldRecurse' error is returned.
 -- 
--- If you are interested in copying the GFile object itself (not the on-disk file), see 'fileDup'.
+-- If you are interested in copying the 'File' object itself (not the on-disk file), see 'fileDup'.
 fileCopy :: (FileClass source, FileClass destination)
          => source
          -> destination
@@ -1127,7 +1185,7 @@ fileCopy source destination flags cancellable progressCallback =
           propagateGError $ \cError -> do
             ret <- g_file_copy cSource
                                cDestination
-                               (cFromFlags flags)
+                               ((fromIntegral . fromFlags) flags)
                                cCancellable
                                cProgressCallback
                                nullPtr
@@ -1165,7 +1223,7 @@ fileCopyAsync source destination flags ioPriority cancellable progressCallback c
                          callback sourceObject res
           g_file_copy_async cSource
                             cDestination
-                            (cFromFlags flags)
+                            ((fromIntegral . fromFlags) flags)
                             (fromIntegral ioPriority)
                             cCancellable
                             cProgressCallback
@@ -1187,31 +1245,31 @@ fileCopyFinish file asyncResult =
 -- implementation may support moving directories (for instance on moves inside the same filesystem),
 -- but the fallback code does not.
 -- 
--- If the flag GFileCopyOverwrite is specified an already existing destination file is overwritten.
+-- If the flag 'FileCopyOverwrite' is specified an already existing destination file is overwritten.
 -- 
--- If the flag GFileCopyNofollowSymlinks is specified then symlinks will be copied as symlinks,
+-- If the flag 'FileCopyNofollowSymlinks' is specified then symlinks will be copied as symlinks,
 -- otherwise the target of the source symlink will be copied.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 -- 
 -- If @progressCallback@ is not 'Nothing', then the operation can be monitored by setting this to a
--- GFileProgressCallback function.  @progressCallbackData@ will be passed to this function. It is
+-- 'FileProgressCallback' function.  @progressCallbackData@ will be passed to this function. It is
 -- guaranteed that this callback will be called after all data has been transferred with the total
 -- number of bytes copied during the operation.
 -- 
--- If the source file does not exist then the GIoErrorNotFound error is returned, independent on
+-- If the source file does not exist then the 'IoErrorNotFound' error is returned, independent on
 -- the status of the destination.
 -- 
--- If GFileCopyOverwrite is not specified and the target exists, then the error GIoErrorExists is
+-- If 'FileCopyOverwrite' is not specified and the target exists, then the error 'IoErrorExists' is
 -- returned.
 -- 
--- If trying to overwrite a file over a directory the GIoErrorIsDirectory error is returned. If
--- trying to overwrite a directory with a directory the GIoErrorWouldMerge error is returned.
+-- If trying to overwrite a file over a directory the 'IoErrorIsDirectory' error is returned. If
+-- trying to overwrite a directory with a directory the 'IoErrorWouldMerge' error is returned.
 -- 
--- If the source is a directory and the target does not exist, or GFileCopyOverwrite is specified
--- and the target is a file, then the GIoErrorWouldRecurse error may be returned (if the native
+-- If the source is a directory and the target does not exist, or 'FileCopyOverwrite' is specified
+-- and the target is a file, then the 'IoErrorWouldRecurse' error may be returned (if the native
 -- move operation isn't available).
 fileMove :: (FileClass source, FileClass destination)
          => source
@@ -1228,7 +1286,7 @@ fileMove source destination flags cancellable progressCallback =
           propagateGError $ \cError -> do
             ret <- g_file_move cSource
                                cDestination
-                               (cFromFlags flags)
+                               ((fromIntegral . fromFlags) flags)
                                cCancellable
                                cProgressCallback
                                nullPtr
@@ -1239,16 +1297,16 @@ fileMove source destination flags cancellable progressCallback =
     where _ = {# call file_move #}
 
 -- | Creates a directory. Note that this will only create a child directory of the immediate parent
--- directory of the path or URI given by the GFile. To recursively create directories, see
+-- directory of the path or URI given by the 'File'. To recursively create directories, see
 -- 'fileMakeDirectoryWithParents'. This function will fail if the parent directory does not
--- exist, setting error to GIoErrorNotFound. If the file system doesn't support creating
--- directories, this function will fail, setting error to GIoErrorNotSupported.
+-- exist, setting error to 'IoErrorNotFound'. If the file system doesn't support creating
+-- directories, this function will fail, setting error to 'IoErrorNotSupported'.
 -- 
--- For a local GFile the newly created directory will have the default (current) ownership and
+-- For a local 'File' the newly created directory will have the default (current) ownership and
 -- permissions of the current process.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileMakeDirectory :: FileClass file
                   => file
@@ -1264,13 +1322,13 @@ fileMakeDirectory file cancellable =
 #if GLIB_CHECK_VERSION(2,18,0)
 -- | Creates a directory and any parent directories that may not exist similar to 'mkdir -p'. If the file
 -- system does not support creating directories, this function will fail, setting error to
--- GIoErrorNotSupported.
+-- 'IoErrorNotSupported'.
 -- 
--- For a local GFile the newly created directories will have the default (current) ownership and
+-- For a local 'File' the newly created directories will have the default (current) ownership and
 -- permissions of the current process.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileMakeDirectoryWithParents :: FileClass file
                              => file
@@ -1287,7 +1345,7 @@ fileMakeDirectoryWithParents file cancellable =
 -- | Creates a symbolic link.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileMakeSymbolicLink :: FileClass file
                      => file
@@ -1320,7 +1378,7 @@ takeFileAttributeInfoList ptr =
 -- specific file may not support a specific attribute.
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileQuerySettableAttributes :: FileClass file
                             => file
@@ -1338,7 +1396,7 @@ fileQuerySettableAttributes file cancellable =
 -- this is extended attributes (in the "xattr" namespace).
 -- 
 -- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
--- from another thread. If the operation was cancelled, the error GIoErrorCancelled will be
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
 -- returned.
 fileQueryWritableNamespaces :: FileClass file
                             => file
@@ -1352,3 +1410,567 @@ fileQueryWritableNamespaces file cancellable =
           return infos
     where _ = {# call file_query_writable_namespaces #}
 
+-- | Tries to set all attributes in the 'FileInfo' on the target values, not stopping on the first error.
+-- 
+-- If there is any error during this operation then error will be set to the first error. Error on
+-- particular fields are flagged by setting the "status" field in the attribute value to
+-- 'FileAttributeStatusErrorSetting', which means you can also detect further errors.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributesFromInfo :: FileClass file => file
+ -> FileInfo
+ -> [FileQueryInfoFlags]
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore. 
+ -> IO Bool -- ^ returns     'True' if there was any error, 'False' otherwise. 
+fileSetAttributesFromInfo file fileInfo flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+            propagateGError (g_file_set_attributes_from_info cFile cFileInfo ((fromIntegral . fromFlags) flags) cCancellable)
+    where _ = {# call g_file_set_attributes_from_info #}
+
+-- | Asynchronously sets the attributes of file with info.
+-- 
+-- For more details, see 'fileSetAttributesFromInfo' which is the synchronous version of this
+-- call.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileSetAttributesFinish' to get the result of the operation.
+fileSetAttributesFromInfoAsync :: FileClass file => file
+ -> FileInfo
+ -> [FileQueryInfoFlags]
+ -> Int  -- ^ @ioPriority@ the I/O priority of the request.              
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore. 
+ -> AsyncReadyCallback
+ -> IO () -- ^ returns     'True' if there was any error, 'False' otherwise. 
+fileSetAttributesFromInfoAsync file fileInfo flags ioPriority cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            cCallback <- marshalAsyncReadyCallback callback
+            g_file_set_attributes_async 
+              cFile 
+              cFileInfo 
+              ((fromIntegral . fromFlags) flags) 
+              (fromIntegral ioPriority)
+              cCancellable
+              cCallback
+              (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_set_attributes_async #}
+
+-- | Finishes setting an attribute started in 'fileSetAttributesAsync'.
+fileSetAttributesFinish :: FileClass file
+ => file
+ -> AsyncResult
+ -> FileInfo
+ -> IO Bool -- ^ returns 'True' if the attributes were set correctly, 'False' otherwise. 
+fileSetAttributesFinish file asyncResult fileInfo =
+    liftM toBool $
+    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
+    propagateGError ({# call g_file_set_attributes_finish #} (toFile file) asyncResult cFileInfo)
+
+-- | Sets attribute of type 'FileAttributeTypeString' to value. If attribute is of a different type,
+-- this operation will fail.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeString :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> String -- ^ @value@       a string containing the attribute's value.                   
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeString  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withUTFString attribute $ \ attributePtr -> 
+    withUTFString value $ \ valuePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_string 
+                             cFile 
+                             attributePtr
+                             valuePtr
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_string #}
+
+-- | Sets attribute of type 'FileAttributeTypeByteString' to value. If attribute is of a different
+-- type, this operation will fail, returning 'False'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeByteString :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> String -- ^ @value@       a string containing the attribute's value.                   
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeByteString  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withCString attribute $ \ attributePtr -> 
+    withCString value $ \ valuePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_byte_string 
+                             cFile 
+                             attributePtr
+                             valuePtr
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_byte_string #}
+
+-- | Sets attribute of type 'FileAttributeTypeUint32' to value. If attribute is of a different type,
+-- this operation will fail.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeWord32 :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> Word32 -- ^ @value@       a Word32 containing the attribute's new value.                                  
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeWord32  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withUTFString attribute $ \ attributePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_uint32 
+                             cFile 
+                             attributePtr
+                             (fromIntegral value)
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_uint32 #}
+
+-- | Sets attribute of type 'FileAttributeTypeInt32' to value. If attribute is of a different type,
+-- this operation will fail.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeInt32 :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> Int32 -- ^ @value@       a Int32 containing the attribute's new value.                                  
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeInt32  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withUTFString attribute $ \ attributePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_int32 
+                             cFile 
+                             attributePtr
+                             (fromIntegral value)
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_int32 #}
+
+-- | Sets attribute of type 'FileAttributeTypeUint64' to value. If attribute is of a different type,
+-- this operation will fail.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeWord64 :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> Word64 -- ^ @value@       a Word64 containing the attribute's new value.                                  
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeWord64  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withUTFString attribute $ \ attributePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_uint64 
+                             cFile 
+                             attributePtr
+                             (fromIntegral value)
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_uint64 #}
+
+-- | Sets attribute of type 'FileAttributeTypeInt64' to value. If attribute is of a different type,
+-- this operation will fail.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileSetAttributeInt64 :: FileClass file => file
+ -> String -- ^ @attribute@   a string containing the attribute's name.                    
+ -> Int64 -- ^ @value@       a Int64 containing the attribute's new value.                                  
+ -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
+ -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+fileSetAttributeInt64  file attribute value flags cancellable =
+    liftM toBool $
+    withGObject (toFile file) $ \cFile ->
+    withUTFString attribute $ \ attributePtr -> 
+        maybeWith withGObject cancellable $ \cCancellable -> do
+            propagateGError (g_file_set_attribute_int64 
+                             cFile 
+                             attributePtr
+                             (fromIntegral value)
+                             ((fromIntegral . fromFlags) flags) 
+                             cCancellable)
+    where _ = {# call g_file_set_attribute_int64 #}
+
+-- | Copies the file attributes from source to destination.
+-- 
+-- Normally only a subset of the file attributes are copied, those that are copies in a normal file
+-- copy operation (which for instance does not include e.g. owner). However if 'FileCopyAllMetadata'
+-- is specified in flags, then all the metadata that is possible to copy is copied. This is useful when
+-- implementing move by copy + delete source.
+fileCopyAttributes :: (FileClass source, FileClass destination) 
+ => source -- ^ @source@      a 'File' with attributes.                                         
+ -> destination -- ^ @destination@ a 'File' to copy attributes to.                                   
+ -> [FileCopyFlags] -- ^ @flags@       a set of 'FileCopyFlags'.                                         
+ -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                    
+ -> IO Bool -- ^ returns     'True' if the attributes were copied successfully, 'False' otherwise.
+fileCopyAttributes source destination flags cancellable = 
+    liftM toBool $
+    withGObject (toFile source) $ \cSource ->
+    withGObject (toFile destination) $ \cDestination ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+            propagateGError (g_file_copy_attributes cSource cDestination ((fromIntegral . fromFlags) flags) cCancellable)
+    where _ = {# call g_file_copy_attributes #}
+
+-- | Obtains a directory monitor for the given file. This may fail if directory monitoring is not
+-- supported.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileMonitorDirectory :: FileClass file
+                     => file
+                     -> [FileMonitorFlags]  
+                     -> Maybe Cancellable
+                     -> IO FileMonitor
+fileMonitorDirectory file flags cancellable =
+    constructNewGObject mkFileMonitor $
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_monitor_directory cFile ((fromIntegral . fromFlags) flags) cCancellable)
+    where _ = {# call file_monitor_directory #}
+
+-- | Obtains a file monitor for the given file. If no file notification mechanism exists, then regular
+-- polling of the file is used.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileMonitorFile :: FileClass file
+                     => file
+                     -> [FileMonitorFlags]  
+                     -> Maybe Cancellable
+                     -> IO FileMonitor
+fileMonitorFile file flags cancellable =
+    constructNewGObject mkFileMonitor $
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_monitor_file cFile ((fromIntegral . fromFlags) flags) cCancellable)
+    where _ = {# call file_monitor_file #}
+
+#if GLIB_CHECK_VERSION(2,18,0)
+-- | Obtains a file or directory monitor for the given file, depending on the type of the file.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileMonitor :: FileClass file
+                     => file
+                     -> [FileMonitorFlags]  
+                     -> Maybe Cancellable
+                     -> IO FileMonitor
+fileMonitor file flags cancellable =
+    constructNewGObject mkFileMonitor $
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_monitor cFile ((fromIntegral . fromFlags) flags) cCancellable)
+    where _ = {# call file_monitor #}
+#endif
+
+-- | Mounts a file of type 'FileTypeMountable'. Using @mountOperation@, you can request callbacks when,
+-- for instance, passwords are needed during authentication.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileMountMountableFinish' to get the result of the operation.
+fileMountMountable :: FileClass file => file
+ -> [MountMountFlags] -- ^ @flags@           flags affecting the operation                        
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileMountMountable file flags mountOperation cancellable callback = 
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_mount_mountable cFile
+                             ((fromIntegral . fromFlags) flags)
+                             cMountOperation
+                             cCancellable
+                             cCallback
+                             (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_mount_mountable #}
+
+-- | Finishes a mount operation. See 'fileMountMountable' for details.
+-- 
+-- Finish an asynchronous mount operation that was started with 'fileMountMountable'.
+fileMountMountableFinish :: FileClass file => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
+ -> IO File
+fileMountMountableFinish file result =
+    constructNewGObject mkFile $
+    propagateGError ({#call g_file_mount_mountable_finish#} (toFile file) result)
+
+#if GLIB_CHECK_VERSION(2,22,0)
+-- | Unmounts a file of type 'FileTypeMountable'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileUnmountMountableFinish' to get the result of the operation.
+fileUnmountMountableWithOperation :: FileClass file => file
+ -> [MountUnmountFlags] -- ^ @flags@           flags affecting the operation                        
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileUnmountMountableWithOperation file flags mountOperation cancellable callback = 
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_unmount_mountable_with_operation 
+          cFile
+          ((fromIntegral . fromFlags) flags)
+          cMountOperation
+          cCancellable
+          cCallback
+          (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_unmount_mountable_with_operation #}
+
+-- | Finishes an unmount operation, see 'fileUnmountMountableWithOperation' for details.
+-- 
+-- Finish an asynchronous unmount operation that was started with
+-- 'fileUnmountMountableWithOperation'.
+fileUnmountMountableWithOperationFinish :: FileClass file => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
+ -> IO Bool -- ^ returns 'True', 'False' if operation failed.                       
+fileUnmountMountableWithOperationFinish file result =
+    liftM toBool $
+    propagateGError ({#call g_file_unmount_mountable_with_operation_finish#} (toFile file) result)
+
+-- | Starts an asynchronous eject on a mountable. When this operation has completed, callback will be
+-- called with @userUser@ data, and the operation can be finalized with
+-- 'fileEjectMountableWithOperationFinish'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileEjectMountableWithOperation :: FileClass file => file
+ -> [MountUnmountFlags] -- ^ @flags@           flags affecting the operation                        
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileEjectMountableWithOperation file flags mountOperation cancellable callback = 
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_eject_mountable_with_operation
+          cFile
+          ((fromIntegral . fromFlags) flags)
+          cMountOperation
+          cCancellable
+          cCallback
+          (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_eject_mountable_with_operation #}
+
+-- | Finishes an asynchronous eject operation started by 'fileEjectMountableWithOperation'.
+fileEjectMountableWithOperationFinish :: FileClass file => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
+ -> IO Bool -- ^ returns 'True', 'False' if operation failed.                       
+fileEjectMountableWithOperationFinish file result =
+    liftM toBool $
+    propagateGError ({#call g_file_eject_mountable_with_operation_finish#} (toFile file) result)
+
+-- | Starts a file of type 'FileTypeMountable'. Using @startOperation@, you can request callbacks when,
+-- for instance, passwords are needed during authentication.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileMountMountableFinish' to get the result of the operation.
+fileStartMountable :: FileClass file
+ => file
+ -> [DriveStartFlags] -- ^ @flags@           flags affecting the start operation.                 
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileStartMountable file flags mountOperation cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_start_mountable 
+        cFile
+        ((fromIntegral . fromFlags) flags)
+        cMountOperation
+        cCancellable
+        cCallback
+        (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_start_mountable #}
+
+-- | Finishes a start operation. See 'fileStartMountable' for details.
+-- 
+-- Finish an asynchronous start operation that was started with 'fileStartMountable'.
+fileStartMountableFinish :: FileClass file 
+ => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'.
+ -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+fileStartMountableFinish file result =
+  liftM toBool $
+    propagateGError ({#call g_file_start_mountable_finish #} (toFile file) result)
+
+-- | Stops a file of type 'FileTypeMountable'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileStopMountableFinish' to get the result of the operation.
+fileStopMountable :: FileClass file
+ => file
+ -> [MountUnmountFlags] -- ^ @flags@           flags affecting the stop operation.                 
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileStopMountable file flags mountOperation cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_stop_mountable 
+        cFile
+        ((fromIntegral . fromFlags) flags)
+        cMountOperation
+        cCancellable
+        cCallback
+        (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_stop_mountable #}
+
+-- | Finishes a stop operation. See 'fileStopMountable' for details.
+-- 
+-- Finish an asynchronous stop operation that was stoped with 'fileStopMountable'.
+fileStopMountableFinish :: FileClass file 
+ => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'.
+ -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+fileStopMountableFinish file result =
+  liftM toBool $
+    propagateGError ({#call g_file_stop_mountable_finish #} (toFile file) result)
+
+-- | Polls a file of type 'FileTypeMountable'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+-- 
+-- When the operation is finished, callback will be called. You can then call
+-- 'fileMountMountableFinish' to get the result of the operation.
+filePollMountable :: FileClass file => file
+ -> Maybe Cancellable
+ -> AsyncReadyCallback
+ -> IO ()
+filePollMountable file cancellable callback = 
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_poll_mountable 
+          cFile
+          cCancellable
+          cCallback
+          (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_poll_mountable #}
+
+-- | Finishes a poll operation. See 'filePollMountable' for details.
+-- 
+-- Finish an asynchronous poll operation that was polled with 'filePollMountable'.
+filePollMountableFinish :: FileClass file 
+ => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'.
+ -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+filePollMountableFinish file result =
+  liftM toBool $
+    propagateGError ({#call g_file_poll_mountable_finish #} (toFile file) result)
+#endif
+
+-- | Starts a @mountOperation@, mounting the volume that contains the file location.
+-- 
+-- When this operation has completed, callback will be called with @userUser@ data, and the operation
+-- can be finalized with 'fileMountEnclosingVolumeFinish'.
+-- 
+-- If cancellable is not 'Nothing', then the operation can be cancelled by triggering the cancellable object
+-- from another thread. If the operation was cancelled, the error 'IoErrorCancelled' will be
+-- returned.
+fileMountEnclosingVolume :: FileClass file => file
+ -> [MountMountFlags] -- ^ @flags@           flags affecting the operation                        
+ -> Maybe MountOperation -- ^ @mountOperation@ a 'MountOperation' or 'Nothing' to avoid user interaction. 
+ -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
+ -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
+ -> IO ()
+fileMountEnclosingVolume file flags mountOperation cancellable callback = 
+    withGObject (toFile file) $ \cFile ->
+    maybeWith withGObject mountOperation $ \cMountOperation -> do
+    maybeWith withGObject cancellable $ \cCancellable -> do
+      cCallback <- marshalAsyncReadyCallback callback
+      g_file_mount_enclosing_volume 
+        cFile
+        ((fromIntegral . fromFlags) flags)
+        cMountOperation
+        cCancellable
+        cCallback
+        (castFunPtrToPtr cCallback)
+    where _ = {# call g_file_mount_enclosing_volume #}
+
+-- | Finishes a mount operation started by 'fileMountEnclosingVolume'.
+fileMountEnclosingVolumeFinish :: FileClass file 
+ => file
+ -> AsyncResult -- ^ @result@  a 'AsyncResult'.
+ -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+fileMountEnclosingVolumeFinish file result =
+  liftM toBool $
+    propagateGError ({#call g_file_mount_enclosing_volume_finish #} (toFile file) result)
+
+#if GLIB_CHECK_VERSION(2,22,0)
+-- | Checks if file supports thread-default contexts. If this returns 'False', you cannot perform
+-- asynchronous operations on file in a thread that has a thread-default context.
+fileSupportsThreadContexts :: FileClass file => file
+ -> IO Bool  -- ^ returns Whether or not file supports thread-default contexts. 
+fileSupportsThreadContexts file =
+  liftM toBool $
+  {#call g_file_supports_thread_contexts#} (toFile file)
+#endif 
