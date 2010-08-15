@@ -42,6 +42,7 @@ Library
 
         exposed-modules:
           System.GIO
+          System.GIO.Enums
           System.GIO.Base
           System.GIO.Async.AsyncResult
           System.GIO.Async.Cancellable
