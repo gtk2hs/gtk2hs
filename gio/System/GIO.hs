@@ -29,10 +29,13 @@
 module System.GIO (
     module System.GIO.Async.AsyncResult,
     module System.GIO.Async.Cancellable,
-    module System.GIO.File.File
+
+    module System.GIO.File.File,
+    module System.GIO.File.AppInfo,
     ) where
 
 import System.GIO.Async.AsyncResult
 import System.GIO.Async.Cancellable
-import System.GIO.File.File
 
+import System.GIO.File.File
+import System.GIO.File.AppInfo

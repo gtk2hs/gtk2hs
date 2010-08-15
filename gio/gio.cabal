@@ -48,11 +48,14 @@ Library
           System.GIO
           System.GIO.Enums
           System.GIO.Base
+          System.GIO.Types		  
+          
           System.GIO.Async.AsyncResult
           System.GIO.Async.Cancellable
+          
+          System.GIO.File.AppInfo
           System.GIO.File.FileAttribute
           System.GIO.File.File
-          System.GIO.Types		  
         other-modules:
           System.GIO.Signals
 
