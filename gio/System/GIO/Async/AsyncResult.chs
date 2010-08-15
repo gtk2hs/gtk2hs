@@ -28,13 +28,32 @@
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module System.GIO.Async.AsyncResult (
+-- * Types
     AsyncResult,
     AsyncResultClass,
-    AsyncReadyCallback
+    AsyncReadyCallback,
+
+-- * Methods
+    marshalAsyncReadyCallback,
     ) where
 
+import Control.Monad
 import System.Glib.FFI
-
-import System.GIO.Base
+import System.Glib.GObject
 {#import System.GIO.Types#}
 
+type AsyncReadyCallback = GObject -> AsyncResult -> IO ()
+
+-- | This type just use for bind, don't expose it.
+{#pointer GAsyncReadyCallback#}
+
+foreign import ccall "wrapper" mkAsyncReadyCallback :: 
+    (Ptr GObject -> Ptr AsyncResult -> Ptr () -> IO ()) -> IO GAsyncReadyCallback
+
+marshalAsyncReadyCallback :: AsyncReadyCallback -> IO GAsyncReadyCallback
+marshalAsyncReadyCallback asyncReadyCallback = 
+    mkAsyncReadyCallback $ \ cObject cAsyncResult cCallback -> do
+      object <- (makeNewGObject mkGObject . return) cObject
+      asyncResult <- (makeNewGObject mkAsyncResult . return) cAsyncResult
+      asyncReadyCallback object asyncResult
+      freeHaskellFunPtr (castPtrToFunPtr cCallback)
