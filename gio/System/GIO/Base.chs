@@ -30,32 +30,10 @@
 module System.GIO.Base where
 
 import Control.Monad
-
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GObject
-
 {#import System.GIO.Types#}
-
-type Offset = {# type goffset #}
-
-cToFlags :: (Integral int, Flags flags)
-         => int
-         -> [flags]
-cToFlags = toFlags . fromIntegral
-cFromFlags :: (Integral int, Flags flags)
-           => [flags]
-           -> int
-cFromFlags = fromIntegral . fromFlags
-
-cToEnum :: (Integral int, Enum enum)
-        => int
-        -> enum
-cToEnum = toEnum . fromIntegral
-cFromEnum :: (Integral int, Enum enum)
-           => enum
-           -> int
-cFromEnum = fromIntegral . fromEnum
 
 withGObject :: GObjectClass objectT
             => objectT
@@ -65,40 +43,3 @@ withGObject object action =
     let objectFPtr = unGObject $ toGObject object
     in withForeignPtr (castForeignPtr objectFPtr) action
 
-peekGObject :: GObjectClass obj
-            => Ptr obj
-            -> IO obj
-peekGObject cObject = do
-  do cObjectRef $ castPtr cObject
-     takeGObject cObject
-foreign import ccall unsafe "&g_object_unref"
-  objectFinalizer :: FunPtr (Ptr () -> IO ())
-foreign import ccall unsafe "g_object_ref"
-  cObjectRef :: Ptr ()
-             -> IO (Ptr ())
-
-takeGObject :: GObjectClass obj
-            => Ptr obj
-            -> IO obj
-takeGObject cObject =
-    liftM (unsafeCastGObject . GObject . castForeignPtr) $
-        do newForeignPtr (castPtr cObject) objectFinalizer
-
-type AsyncReadyCallback = GObject -> AsyncResult -> IO ()
-type CAsyncReadyCallback = Ptr GObject -> Ptr AsyncResult -> Ptr () -> IO ()
-foreign import ccall "wrapper"
-    makeAsyncReadyCallback :: CAsyncReadyCallback
-                           -> IO {# type GAsyncReadyCallback #}
-
-marshalAsyncReadyCallback :: AsyncReadyCallback -> IO {# type GAsyncReadyCallback #}
-marshalAsyncReadyCallback asyncReadyCallback =
-    makeAsyncReadyCallback cAsyncReadyCallback
-    where cAsyncReadyCallback :: CAsyncReadyCallback
-          cAsyncReadyCallback cObject cAsyncResult cCallback = do
-            object <- peekGObject cObject
-            asyncResult <- peekGObject cAsyncResult
-            asyncReadyCallback object asyncResult
-            freeHaskellFunPtr (castPtrToFunPtr cCallback)
-
-{# enum GFileAttributeInfoFlags as FileAttributeInfoFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Read, Show) #}
-instance Flags FileAttributeInfoFlags
