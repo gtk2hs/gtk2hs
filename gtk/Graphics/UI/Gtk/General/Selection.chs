@@ -471,7 +471,7 @@ selectionDataTargetsIncludeRichText tb = do
 --
 selectionReceived :: WidgetClass self => Signal self (TimeStamp -> SelectionDataM ())
 selectionReceived = Signal (\after object handler -> do
-    connect_PTR_WORD__NONE "selection_received" after object $ \dataPtr time -> do
+    connect_PTR_WORD__NONE "selection-received" after object $ \dataPtr time -> do
       runReaderT (handler (fromIntegral time)) dataPtr >> return ())
 
 -- %hash c:c3 d:af3f
@@ -482,7 +482,7 @@ selectionReceived = Signal (\after object handler -> do
 selectionGet :: WidgetClass self =>
                 Signal self (InfoId -> TimeStamp -> SelectionDataM ())
 selectionGet = Signal (\after object handler -> do
-    connect_PTR_WORD_WORD__NONE "selection_get" after object $
+    connect_PTR_WORD_WORD__NONE "selection-get" after object $
       \dataPtr info time -> do
       runReaderT (handler (fromIntegral info) (fromIntegral time)) dataPtr >> 
                   return ())

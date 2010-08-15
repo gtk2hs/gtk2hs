@@ -560,7 +560,7 @@ entryCompletionPopupSingleMatch = newAttr
 -- * Available since Gtk+ version 2.6
 --
 insertPrefix :: EntryCompletionClass self => Signal self (String -> IO Bool)
-insertPrefix = Signal (connect_STRING__BOOL "insert_prefix")
+insertPrefix = Signal (connect_STRING__BOOL "insert-prefix")
 #endif
 
 -- %hash c:d50e d:ad7e
@@ -569,13 +569,13 @@ insertPrefix = Signal (connect_STRING__BOOL "insert_prefix")
 -- text column in the row pointed to by @iter@.
 --
 matchSelected :: EntryCompletionClass self => Signal self (TreeModel -> TreeIter -> IO Bool)
-matchSelected = Signal (connect_OBJECT_BOXED__BOOL "match_selected" peekTreeIter)
+matchSelected = Signal (connect_OBJECT_BOXED__BOOL "match-selected" peekTreeIter)
 
 -- %hash c:21ac d:2cbc
 -- | Gets emitted when an action is activated.
 --
 completionActionActivated :: EntryCompletionClass self => Signal self (Int -> IO ())
-completionActionActivated = Signal (connect_INT__NONE "action_activated")
+completionActionActivated = Signal (connect_INT__NONE "action-activated")
 
 #ifndef DISABLE_DEPRECATED
 #if GTK_CHECK_VERSION(2,6,0)

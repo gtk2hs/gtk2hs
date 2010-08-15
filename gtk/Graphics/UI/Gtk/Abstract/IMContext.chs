@@ -275,20 +275,20 @@ imContextDeleteSurrounding self offset nChars =
 -- | This signal is emitted when a new preediting sequence starts.
 --
 imContextPreeditStart :: IMContextClass self => Signal self (IO ())
-imContextPreeditStart = Signal (connect_NONE__NONE "preedit_start")
+imContextPreeditStart = Signal (connect_NONE__NONE "preedit-start")
 
 -- | This signal is emitted when a preediting sequence has been completed or
 -- canceled.
 --
 imContextPreeditEnd :: IMContextClass self => Signal self (IO ())
-imContextPreeditEnd = Signal (connect_NONE__NONE "preedit_end")
+imContextPreeditEnd = Signal (connect_NONE__NONE "preedit-end")
 
 -- | This signal is emitted whenever the preedit sequence currently being
 -- entered has changed. It is also emitted at the end of a preedit sequence,
 -- in which case 'imContextGetPreeditString' returns the empty string.
 --
 imContextPreeditChanged :: IMContextClass self => Signal self (IO ())
-imContextPreeditChanged = Signal (connect_NONE__NONE "preedit_changed")
+imContextPreeditChanged = Signal (connect_NONE__NONE "preedit-changed")
 
 -- | This signal is emitted when a complete input sequence has been
 -- entered by the user. This can be a single character immediately after a
@@ -304,7 +304,7 @@ imContextCommit = Signal (connect_STRING__NONE "commit")
 --
 -- Returns True if the signal was handled.
 imContextRetrieveSurrounding :: IMContextClass self => Signal self (IO Bool)
-imContextRetrieveSurrounding = Signal (connect_NONE__BOOL "retrieve_surrounding")
+imContextRetrieveSurrounding = Signal (connect_NONE__BOOL "retrieve-surrounding")
 
 -- | This signal is emitted when the input method needs to delete all or part
 -- of the context surrounding the cursor. Parameters:
@@ -316,4 +316,4 @@ imContextRetrieveSurrounding = Signal (connect_NONE__BOOL "retrieve_surrounding"
 --
 -- Returns True if the signal was handled.
 imContextDeleteSurrounding' :: IMContextClass self => Signal self (Int -> Int -> IO Bool)
-imContextDeleteSurrounding' = Signal (connect_INT_INT__BOOL "delete_surrounding")
+imContextDeleteSurrounding' = Signal (connect_INT_INT__BOOL "delete-surrounding")

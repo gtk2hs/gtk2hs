@@ -539,7 +539,7 @@ screenDefaultColormap = newAttr
 -- screen changes.
 --
 screenSizeChanged :: ScreenClass self => Signal self (IO ())
-screenSizeChanged = Signal (connect_NONE__NONE "size_changed")
+screenSizeChanged = Signal (connect_NONE__NONE "size-changed")
 
 #if GTK_CHECK_VERSION(2,10,0)
 -- | The 'screenCompositedChanged' signal is emitted when the composited status of
@@ -548,7 +548,7 @@ screenSizeChanged = Signal (connect_NONE__NONE "size_changed")
 -- * Available since Gdk version 2.10
 --
 screenCompositedChanged :: ScreenClass self => Signal self (IO ())
-screenCompositedChanged = Signal (connect_NONE__NONE "composited_changed")
+screenCompositedChanged = Signal (connect_NONE__NONE "composited-changed")
 
 #if GTK_CHECK_VERSION(2,14,0)
 -- | The 'screenMonitorsChanged' signal is emitted when the number, size or

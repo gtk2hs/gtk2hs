@@ -221,13 +221,13 @@ statusbarHasResizeGrip = newAttr
 -- | Is emitted whenever a new message gets pushed onto a statusbar's stack.
 --
 textPushed :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
-textPushed = Signal (\a self user -> connect_WORD_STRING__NONE "text_pushed" a self (\w s -> user (fromIntegral w) s))
+textPushed = Signal (\a self user -> connect_WORD_STRING__NONE "text-pushed" a self (\w s -> user (fromIntegral w) s))
 
 -- %hash c:2614 d:c1d2
 -- | Is emitted whenever a new message is popped off a statusbar's stack.
 --
 textPopped :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
-textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text_popped" a self (\w s -> user (fromIntegral w) s))
+textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text-popped" a self (\w s -> user (fromIntegral w) s))
 
 --------------------
 -- Deprecated Signals

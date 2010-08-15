@@ -371,13 +371,13 @@ rangeValue = newAttr
 -- | Emitted when the range value changes.
 --
 valueChanged :: RangeClass self => Signal self (IO ())
-valueChanged = Signal (connect_NONE__NONE "value_changed")
+valueChanged = Signal (connect_NONE__NONE "value-changed")
 
 -- %hash c:9576 d:af3f
 -- |
 --
 adjustBounds :: RangeClass self => Signal self (Double -> IO ())
-adjustBounds = Signal (connect_DOUBLE__NONE "adjust_bounds")
+adjustBounds = Signal (connect_DOUBLE__NONE "adjust-bounds")
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:a84 d:a60c
@@ -398,7 +398,7 @@ adjustBounds = Signal (connect_DOUBLE__NONE "adjust_bounds")
 -- * Available since Gtk+ version 2.6
 --
 changeValue :: RangeClass self => Signal self (ScrollType -> Double -> IO Bool)
-changeValue = Signal (connect_ENUM_DOUBLE__BOOL "change_value")
+changeValue = Signal (connect_ENUM_DOUBLE__BOOL "change-value")
 #endif
 
 --------------------

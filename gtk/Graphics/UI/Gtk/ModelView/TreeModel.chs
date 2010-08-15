@@ -610,21 +610,21 @@ treeModelRowsReordered self path iter array = do
 -- | This signal is emitted when a row in the model has changed.
 --
 rowChanged :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
-rowChanged = Signal (connect_BOXED_BOXED__NONE "row_changed" peekTreePath peekTreeIter)
+rowChanged = Signal (connect_BOXED_BOXED__NONE "row-changed" peekTreePath peekTreeIter)
 
 -- %hash c:f31a d:3c6b
 -- | This signal is emitted when a new row has been inserted in the model.
 --
 --
 rowInserted :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
-rowInserted = Signal (connect_BOXED_BOXED__NONE "row_inserted" peekTreePath peekTreeIter)
+rowInserted = Signal (connect_BOXED_BOXED__NONE "row-inserted" peekTreePath peekTreeIter)
 
 -- %hash c:7279 d:5ef
 -- | This signal is emitted when a row has gotten the first child row or lost
 -- its last child row.
 --
 rowHasChildToggled :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
-rowHasChildToggled = Signal (connect_BOXED_BOXED__NONE "row_has_child_toggled" peekTreePath peekTreeIter)
+rowHasChildToggled = Signal (connect_BOXED_BOXED__NONE "row-has-child-toggled" peekTreePath peekTreeIter)
 
 -- %hash c:f669 d:367f
 -- | This signal is emitted when a row has been deleted.
@@ -638,7 +638,7 @@ rowHasChildToggled = Signal (connect_BOXED_BOXED__NONE "row_has_child_toggled" p
 -- need to be released in the 'rowDeleted' handler.
 --
 rowDeleted :: TreeModelClass self => Signal self (TreePath -> IO ())
-rowDeleted = Signal (connect_BOXED__NONE "row_deleted" peekTreePath)
+rowDeleted = Signal (connect_BOXED__NONE "row-deleted" peekTreePath)
 
 -- %hash c:46dd d:b2e5
 -- | This signal is emitted when the children of a node in the 'TreeModel'
@@ -651,7 +651,7 @@ rowDeleted = Signal (connect_BOXED__NONE "row_deleted" peekTreePath)
 rowsReordered :: TreeModelClass self =>
                  Signal self (TreePath -> Maybe TreeIter -> [Int] -> IO ())
 rowsReordered = Signal $ \after model user ->
-  connect_BOXED_BOXED_PTR__NONE "rows_reordered" peekTreePath
+  connect_BOXED_BOXED_PTR__NONE "rows-reordered" peekTreePath
     (maybePeek peekTreeIter) after model $ \path iter arrayPtr -> do
       n <- treeModelIterNChildren model iter
       -- hopefully the model is never buggy, otherwise this can segfault

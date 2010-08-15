@@ -532,7 +532,7 @@ statusIconVisible = newAttrFromBoolProperty "visible"
 -- the notification area got resized.
 --
 statusIconSizeChanged :: StatusIconClass self => Signal self (Int -> IO Bool)
-statusIconSizeChanged = Signal (connect_INT__BOOL "size_changed")
+statusIconSizeChanged = Signal (connect_INT__BOOL "size-changed")
 
 -- | Gets emitted when the user activates the status icon. 
 -- If and how status icons can activated is platform-dependent.

@@ -524,7 +524,7 @@ remove = Signal (connect_OBJECT__NONE "remove")
 -- | Emitted when widgets need to be queried again for their preferred size.
 --
 checkResize :: ContainerClass self => Signal self (IO ())
-checkResize = Signal (connect_NONE__NONE "check_resize")
+checkResize = Signal (connect_NONE__NONE "check-resize")
 
 -- %hash c:b3a d:af3f
 -- | A widget in the container received the input focus.

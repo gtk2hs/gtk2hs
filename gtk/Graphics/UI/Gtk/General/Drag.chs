@@ -619,7 +619,7 @@ dragStatus ctxt mAction ts =
 -- drag icon with 'dragSourceSetIcon'.
 --
 dragBegin :: WidgetClass self => Signal self (DragContext -> IO ())
-dragBegin = Signal (connect_OBJECT__NONE "drag_begin")
+dragBegin = Signal (connect_OBJECT__NONE "drag-begin")
 
 -- %hash c:bfef d:a2ff
 -- | The 'dragDataDelete' signal is emitted on the drag source when a drag
@@ -628,7 +628,7 @@ dragBegin = Signal (connect_OBJECT__NONE "drag_begin")
 -- means, depends on the context of the drag operation.
 --
 dragDataDelete :: WidgetClass self => Signal self (DragContext -> IO ())
-dragDataDelete = Signal (connect_OBJECT__NONE "drag_data_delete")
+dragDataDelete = Signal (connect_OBJECT__NONE "drag-data-delete")
 
 -- %hash c:eb9c d:844c
 -- | The ::drag-data-get signal is emitted on the drag source when the
@@ -641,7 +641,7 @@ dragDataDelete = Signal (connect_OBJECT__NONE "drag_data_delete")
 dragDataGet :: WidgetClass self =>
   Signal self (DragContext -> InfoId -> TimeStamp -> SelectionDataM ())
 dragDataGet = Signal (\after object handler -> do
-      connect_OBJECT_PTR_WORD_WORD__NONE "drag_data_get" after object $
+      connect_OBJECT_PTR_WORD_WORD__NONE "drag-data-get" after object $
         \ctxt dataPtr info time -> do
         runReaderT (handler ctxt (fromIntegral info) (fromIntegral time)) dataPtr >> 
                     return ())
@@ -663,7 +663,7 @@ dragDataGet = Signal (\after object handler -> do
 dragDataReceived :: WidgetClass self =>
   Signal self (DragContext -> Point -> InfoId -> TimeStamp -> SelectionDataM ())
 dragDataReceived = Signal (\after object handler -> do
-  connect_OBJECT_INT_INT_PTR_WORD_WORD__NONE "drag_data_received" after object $
+  connect_OBJECT_INT_INT_PTR_WORD_WORD__NONE "drag-data-received" after object $
     \ctxt x y dataPtr info time -> do
     runReaderT (handler ctxt (fromIntegral x, fromIntegral y) (fromIntegral info)
                (fromIntegral time)) dataPtr >> return ())
@@ -682,7 +682,7 @@ dragDataReceived = Signal (\after object handler -> do
 dragDrop :: WidgetClass self =>
   Signal self (DragContext -> Point -> TimeStamp -> IO Bool)
 dragDrop = Signal (\after object handler ->
-  connect_OBJECT_INT_INT_WORD__BOOL "drag_drop" after object $ \ctxt x y time ->
+  connect_OBJECT_INT_INT_WORD__BOOL "drag-drop" after object $ \ctxt x y time ->
     handler ctxt (fromIntegral x, fromIntegral y) (fromIntegral time))
 
 -- %hash c:9d4e d:a5ac
@@ -691,7 +691,7 @@ dragDrop = Signal (\after object handler ->
 -- in 'dragBegin'.
 --
 dragEnd :: WidgetClass self => Signal self (DragContext -> IO ())
-dragEnd = Signal (connect_OBJECT__NONE "drag_end")
+dragEnd = Signal (connect_OBJECT__NONE "drag-end")
 
 #if GTK_CHECK_VERSION(2,12,0)
 -- | The 'dragFailed' signal is emitted on the drag source when a drag has
@@ -703,7 +703,7 @@ dragEnd = Signal (connect_OBJECT__NONE "drag_end")
 -- * Available since Gtk+ 2.12.0.
 --
 dragFailed :: WidgetClass self => Signal self (DragContext -> DragResult -> IO Bool)
-dragFailed = Signal (connect_OBJECT_ENUM__BOOL "drag_failed")
+dragFailed = Signal (connect_OBJECT_ENUM__BOOL "drag-failed")
 #endif
 
 -- %hash c:4a85 d:6122
@@ -713,7 +713,7 @@ dragFailed = Signal (connect_OBJECT_ENUM__BOOL "drag_failed")
 --
 dragLeave :: WidgetClass self => Signal self (DragContext -> TimeStamp -> IO ())
 dragLeave = Signal (\after object handler ->
-  connect_OBJECT_WORD__NONE "drag_leave" after object $ \ctxt time ->
+  connect_OBJECT_WORD__NONE "drag-leave" after object $ \ctxt time ->
     handler ctxt (fromIntegral time))
 
 -- %hash c:53f7 d:176d
@@ -737,6 +737,6 @@ dragLeave = Signal (\after object handler ->
 dragMotion :: WidgetClass self =>
   Signal self (DragContext -> Point -> TimeStamp -> IO Bool)
 dragMotion = Signal (\after object handler -> do
-  connect_OBJECT_INT_INT_WORD__BOOL "drag_motion" after object $ \ctxt x y time ->
+  connect_OBJECT_INT_INT_WORD__BOOL "drag-motion" after object $ \ctxt x y time ->
     handler ctxt (fromIntegral x, fromIntegral y) (fromIntegral time))
 

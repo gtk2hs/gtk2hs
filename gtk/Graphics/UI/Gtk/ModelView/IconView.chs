@@ -980,13 +980,13 @@ iconViewReorderable = newAttrFromBoolProperty "reorderable"
 -- | New scroll adjustment have been set for this widget.
 --
 setIconViewScrollAdjustments :: IconViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
-setIconViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
+setIconViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
 
 -- %hash c:4090 d:af3f
 -- | A specific element has been activated (by pressing enter or double clicking).
 --
 itemActivated :: IconViewClass self => Signal self (TreePath -> IO ())
-itemActivated = Signal (connect_BOXED__NONE "item_activated" (peekTreePath . castPtr))
+itemActivated = Signal (connect_BOXED__NONE "item-activated" (peekTreePath . castPtr))
 
 -- %hash c:6098 d:af3f
 -- | The selected item changed.

@@ -224,4 +224,4 @@ treeSortableHasDefaultSortFunc self =
 -- |
 --
 sortColumnChanged :: TreeSortableClass self => Signal self (IO ())
-sortColumnChanged = Signal (connect_NONE__NONE "sort_column_changed")
+sortColumnChanged = Signal (connect_NONE__NONE "sort-column-changed")

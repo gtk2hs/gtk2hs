@@ -566,14 +566,14 @@ uiManagerUi = readAttrFromStringProperty "ui"
 -- 'uiManagerGetWidget'.
 --
 addWidget :: UIManagerClass self => Signal self (Widget -> IO ())
-addWidget = Signal (connect_OBJECT__NONE "add_widget")
+addWidget = Signal (connect_OBJECT__NONE "add-widget")
 
 -- %hash c:2480 d:366c
 -- | The \"actions-changed\" signal is emitted whenever the set of actions
 -- changes.
 --
 actionsChanged :: UIManagerClass self => Signal self (IO ())
-actionsChanged = Signal (connect_NONE__NONE "actions_changed")
+actionsChanged = Signal (connect_NONE__NONE "actions-changed")
 
 --------------------
 -- Deprecated Signals

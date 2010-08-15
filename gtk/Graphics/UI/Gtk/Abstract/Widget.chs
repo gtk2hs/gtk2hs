@@ -2373,7 +2373,7 @@ unrealize = Signal (connect_NONE__NONE "unrealize")
 --
 sizeRequest :: WidgetClass self => Signal self (IO Requisition)
 sizeRequest = Signal (\after w fun ->
-  connect_PTR__NONE "size_request" after w
+  connect_PTR__NONE "size-request" after w
     (\rqPtr -> fun >>= \req -> unless (rqPtr==nullPtr) $ poke rqPtr req))
 
 -- %hash c:8ec5 d:af3f
@@ -2384,7 +2384,7 @@ sizeRequest = Signal (\after w fun ->
 --   inform the widget about the real size it should occupy.
 --
 sizeAllocate :: WidgetClass self => Signal self (Allocation -> IO ())
-sizeAllocate = Signal (connect_BOXED__NONE "size_allocate" peek)
+sizeAllocate = Signal (connect_BOXED__NONE "size-allocate" peek)
 
 -- %hash c:ae3e d:af3f
 -- | The widget is shown.
@@ -2408,14 +2408,14 @@ focus = Signal (connect_ENUM__BOOL "focus")
 -- | The state of the widget (input focus, insensitive, etc.) has changed.
 --
 stateChanged :: WidgetClass self => Signal self (StateType -> IO ())
-stateChanged = Signal (connect_ENUM__NONE "state_changed")
+stateChanged = Signal (connect_ENUM__NONE "state-changed")
 
 -- %hash c:bef2 d:1d66
 -- | The parent-set signal is emitted when a new parent has been set on a
 -- widget. The parameter is the new parent.
 --
 parentSet :: WidgetClass self => Signal self (Maybe Widget -> IO ())
-parentSet = Signal (connect_MOBJECT__NONE "parent_set")
+parentSet = Signal (connect_MOBJECT__NONE "parent-set")
 
 -- %hash c:7e2b d:4049
 -- | Emitted when there is a change in the hierarchy to which a widget belong.
@@ -2424,7 +2424,7 @@ parentSet = Signal (connect_MOBJECT__NONE "parent_set")
 -- anchored or vice-versa.
 --
 hierarchyChanged :: WidgetClass self => Signal self (Maybe Widget -> IO ())
-hierarchyChanged = Signal (connect_MOBJECT__NONE "hierarchy_changed")
+hierarchyChanged = Signal (connect_MOBJECT__NONE "hierarchy-changed")
 
 -- %hash c:5894 d:ba10
 -- | The style-set signal is emitted when a new style has been set on a
@@ -2432,13 +2432,13 @@ hierarchyChanged = Signal (connect_MOBJECT__NONE "hierarchy_changed")
 -- cause this signal to be emitted.
 --
 styleSet :: WidgetClass self => Signal self (Style -> IO ())
-styleSet = Signal (connect_OBJECT__NONE "style_set")
+styleSet = Signal (connect_OBJECT__NONE "style-set")
 
 -- %hash c:6bb1 d:af3f
 -- | The default direction of text writing has changed.
 --
 directionChanged :: WidgetClass self => Signal self (TextDirection -> IO ())
-directionChanged = Signal (connect_ENUM__NONE "direction_changed")
+directionChanged = Signal (connect_ENUM__NONE "direction-changed")
 
 -- %hash c:c28c d:d116
 -- | The 'grabNotify' signal is emitted when a widget becomes shadowed by a
@@ -2449,7 +2449,7 @@ directionChanged = Signal (connect_ENUM__NONE "direction_changed")
 -- grab stack of its window group is not its ancestor.
 --
 grabNotify :: WidgetClass self => Signal self (Bool -> IO ())
-grabNotify = Signal (connect_BOOL__NONE "grab_notify")
+grabNotify = Signal (connect_BOOL__NONE "grab-notify")
 
 -- %hash c:e06c d:a681
 -- | This signal gets emitted whenever a widget should pop up a
@@ -2459,7 +2459,7 @@ grabNotify = Signal (connect_BOOL__NONE "grab_notify")
 -- creates a menu with clipboard commands.
 --
 popupMenuSignal :: WidgetClass self => Signal self (IO Bool)
-popupMenuSignal = Signal (connect_NONE__BOOL "popup_menu")
+popupMenuSignal = Signal (connect_NONE__BOOL "popup-menu")
 
 -- | Specify what kind of help the user wants.
 {#enum GtkWidgetHelpType as WidgetHelpType {underscoreToCase} deriving (Eq,Show) #}
@@ -2469,19 +2469,19 @@ popupMenuSignal = Signal (connect_NONE__BOOL "popup_menu")
 --   if help has been shown.
 --
 showHelp :: WidgetClass self => Signal self (WidgetHelpType -> IO Bool)
-showHelp = Signal (connect_ENUM__BOOL "show_help")
+showHelp = Signal (connect_ENUM__BOOL "show-help")
 
 -- %hash c:6a8f d:af3f
 -- | The set of keyboard accelerators has changed.
 --
 accelClosuresChanged :: WidgetClass self => Signal self (IO ())
-accelClosuresChanged = Signal (connect_NONE__NONE "accel_closures_changed")
+accelClosuresChanged = Signal (connect_NONE__NONE "accel-closures-changed")
 
 -- %hash c:5ca d:af3f
 -- | The widget moved to a new screen.
 --
 screenChanged :: WidgetClass self => Signal self (Screen -> IO ())
-screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
+screenChanged = Signal (connect_OBJECT__NONE "screen-changed")
 
 -- | Emitted when 'hasTooltip' is 'True' and the 'gtkTooltipTimeout' has expired with the cursor
 -- hovering "above" widget; or emitted when widget got focus in keyboard mode.
@@ -2497,7 +2497,7 @@ screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
 queryTooltip :: WidgetClass self => Signal self (Widget -> Maybe Point -> Tooltip -> IO Bool)
 queryTooltip =
   Signal (\after model user -> 
-           connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query_tooltip" 
+           connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip" 
              after model (\widget x y keyb tooltip -> 
                               user widget (if keyb then Nothing else Just (x, y)) tooltip))
 
