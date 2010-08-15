@@ -30,6 +30,10 @@ x-Types-Prefix:    g
 x-Types-Tag:       gio
 x-Types-Hierarchy: hierarchy.list
 
+Data-Dir:		demo
+Data-Files:		Makefile
+                FileManager.hs
+
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
