@@ -127,17 +127,19 @@ instance Show FontStyle where
 {#enum Weight {underscoreToCase} deriving (Eq)#}
 
 instance Show Weight where
-  showsPrec _ WeightThin	= shows "thin"
   showsPrec _ WeightUltralight	= shows "ultralight"
   showsPrec _ WeightLight	= shows "light"
-  showsPrec _ WeightBook	= shows "book"
   showsPrec _ WeightNormal	= shows "normal"
-  showsPrec _ WeightMedium	= shows "medium"
   showsPrec _ WeightSemibold	= shows "semibold"
   showsPrec _ WeightBold	= shows "bold"
   showsPrec _ WeightUltrabold 	= shows "ultrabold"
   showsPrec _ WeightHeavy	= shows "heavy"
+#if PANGO_VERSION_CHECK(1,24,0)
+  showsPrec _ WeightThin	= shows "thin"
+  showsPrec _ WeightBook	= shows "book"
+  showsPrec _ WeightMedium	= shows "medium"
   showsPrec _ WeightUltraheavy	= shows "ultraheavy"
+#endif
 
 -- | The variant of a font.
 --
