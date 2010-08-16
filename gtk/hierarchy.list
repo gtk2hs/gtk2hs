@@ -144,6 +144,7 @@
                 GtkCalendar
                 GtkCellView		if gtk-2.6
 		GtkDrawingArea
+				GtkSpinner		if gtk-2.20
                 GtkEntry
                     GtkSpinButton
                 GtkRuler

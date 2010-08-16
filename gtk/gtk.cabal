@@ -163,6 +163,7 @@ Library
           Graphics.UI.Gtk.Display.Image
           Graphics.UI.Gtk.Display.Label
           Graphics.UI.Gtk.Display.ProgressBar
+          Graphics.UI.Gtk.Display.Spinner
           Graphics.UI.Gtk.Display.Statusbar
           Graphics.UI.Gtk.Display.StatusIcon
           Graphics.UI.Gtk.Embedding.Embedding
