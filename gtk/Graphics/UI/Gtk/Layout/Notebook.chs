@@ -127,6 +127,10 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookSetTabDetachable,
   notebookGetTabDetachable,
 #endif
+#if GTK_CHECK_VERSION(2,20,0)
+  notebookSetActionWidget,
+  notebookGetActionWidget,
+#endif
 
 -- * Attributes
   notebookPage,
@@ -976,6 +980,40 @@ notebookGetTabDetachable self child = liftM toBool $
   {# call notebook_get_tab_detachable #}
     (toNotebook self)
     (toWidget child)
+#endif
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Sets widget as one of the action widgets. Depending on the pack type the widget will be placed
+-- before or after the tabs. You can use a 'Box' if you need to pack more than one widget on the same
+-- side.
+-- 
+-- Note that action widgets are "internal" children of the notebook and thus not included in the list
+-- returned from 'containerForeach'.
+--
+-- * Available since Gtk version 2.20
+--
+notebookSetActionWidget :: (NotebookClass self, WidgetClass widget) => self
+                        -> widget
+                        -> PackType -- ^ @packType@ pack type of the action widget 
+                        -> IO ()
+notebookSetActionWidget self widget packType =
+  {#call gtk_notebook_set_action_widget #}
+    (toNotebook self)
+    (toWidget widget)
+    ((fromIntegral . fromEnum) packType)
+
+-- | Gets one of the action widgets. See 'notebookSetActionWidget'.
+--
+-- * Available since Gtk version 2.20
+--
+notebookGetActionWidget :: NotebookClass self => self
+                        -> PackType -- ^ @packType@ pack type of the action widget to receive
+                        -> IO (Maybe Widget)
+notebookGetActionWidget self packType =
+    maybeNull (makeNewObject mkWidget) $
+    {#call gtk_notebook_get_action_widget #}
+      (toNotebook self)
+      ((fromIntegral . fromEnum) packType)
 #endif
 
 --------------------
