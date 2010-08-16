@@ -139,6 +139,9 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,10,0)
   windowGetGroup,
 #endif
+#if GTK_CHECK_VERSION(2,20,0)
+  windowGetWindowType,
+#endif
 
 -- * Attributes
   windowTitle,
@@ -188,6 +191,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowHasFrame,
   windowIconList,
   windowMnemonicModifier,
+#if GTK_CHECK_VERSION(2,20,0)
+  windowMnemonicVisible,
+#endif
 
 -- * Signals
   frameEvent,
@@ -1923,6 +1929,19 @@ windowGetGroup self =
   {# call window_get_group #} (maybe (Window nullForeignPtr) toWindow self)
 #endif  
 
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Gets the type of the window. See 'WindowType'.
+--
+-- * Available since Gtk version 2.20
+--
+windowGetWindowType :: WindowClass self => self
+                    -> IO WindowType  -- ^ returns the type of the window 
+windowGetWindowType self =
+  liftM (toEnum . fromIntegral) $
+  {#call gtk_window_get_window_type #}
+    (toWindow self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -2047,6 +2066,11 @@ windowMnemonicModifier :: WindowClass self => Attr self [Modifier]
 windowMnemonicModifier = newAttr
   windowGetMnemonicModifier
   windowSetMnemonicModifier
+
+#if GTK_CHECK_VERSION(2,20,0)
+windowMnemonicVisible :: WindowClass self => Attr self Bool
+windowMnemonicVisible = newAttrFromBoolProperty "mnemonics-visible"
+#endif
 
 -- | Unique identifier for the window to be used when restoring a session.
 --
