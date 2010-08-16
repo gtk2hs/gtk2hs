@@ -53,6 +53,7 @@ module Graphics.UI.Gtk.Misc.Viewport (
 -- * Types
   Viewport,
   ViewportClass,
+  ShadowType(..),
   castToViewport, gTypeViewport,
   toViewport,
 
@@ -64,9 +65,11 @@ module Graphics.UI.Gtk.Misc.Viewport (
   viewportGetVAdjustment,
   viewportSetHAdjustment,
   viewportSetVAdjustment,
-  ShadowType(..),
   viewportSetShadowType,
   viewportGetShadowType,
+#if GTK_CHECK_VERSION(2,20,0)
+  viewportGetBinWindow,
+#endif
 
 -- * Attributes
   viewportHAdjustment,
@@ -153,6 +156,18 @@ viewportGetShadowType self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe viewport_get_shadow_type #}
     (toViewport self)
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Gets the bin window of the 'Viewport'.
+--
+-- * Available since Gtk version 2.20
+--
+viewportGetBinWindow :: ViewportClass self => self -> IO DrawWindow
+viewportGetBinWindow self =
+    makeNewGObject mkDrawWindow $
+    {#call gtk_viewport_get_bin_window #}
+      (toViewport self)
+#endif
 
 --------------------
 -- Attributes
