@@ -2,11 +2,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Entry
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2010 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -20,10 +21,11 @@
 --
 -- TODO
 --
--- A couple of signals are not bound because I could not figure out what
---   they mean. Some of them do not seem to be emitted at all.
--- I removed onInsertAtCursor since it is internal and not emitted. The usable funtions
--- are in Editable.
+-- 'icon-press' and 'icon-release' signals not bind.
+--
+-- NOTE
+--
+-- Don't bind 'insert-at-cursor' signal, it's not default bindings signal. 
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -104,6 +106,19 @@ module Graphics.UI.Gtk.Entry.Entry (
 #endif
 
 -- * Signals
+  entryActivate,
+  entryBackspace,
+  entryCopyClipboard,
+  entryCutClipboard,
+  entryPasteClipboard,
+  entryDeleteFromCursor,
+  entryMoveCursor,
+  entryPopulatePopup,
+  entryPreeditChanged,
+  entryToggleOverwirte,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onEntryActivate,
   afterEntryActivate,
   onCopyClipboard,
@@ -114,6 +129,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   afterPasteClipboard,
   onToggleOverwrite,
   afterToggleOverwrite,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -125,6 +141,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -534,6 +551,88 @@ entryCompletion = newAttr
 --------------------
 -- Signals
 
+-- | A keybinding signal which gets emitted when the user activates the entry.
+-- 
+-- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
+-- control activation programmatically.
+entryActivate :: EntryClass ec => Signal ec (IO ())
+entryActivate = Signal (connect_NONE__NONE "activate")
+
+-- | The 'backspace' signal is a keybinding signal which gets emitted when the user asks for it.
+-- 
+-- The default bindings for this signal are Backspace and Shift-Backspace.
+entryBackspace :: EntryClass ec => Signal ec (IO ())
+entryBackspace = Signal (connect_NONE__NONE "backspace")
+
+-- | The 'copyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
+-- clipboard.
+-- 
+-- The default bindings for this signal are Ctrl-c and Ctrl-Insert.
+entryCopyClipboard :: EntryClass ec => Signal ec (IO ())
+entryCopyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
+
+-- | The 'cutClipboard' signal is a keybinding signal which gets emitted to cut the selection to the
+-- clipboard.
+-- 
+-- The default bindings for this signal are Ctrl-x and Shift-Delete.
+entryCutClipboard :: EntryClass ec => Signal ec (IO ())
+entryCutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
+
+-- | The 'deleteFromCursor' signal is a keybinding signal which gets emitted when the user initiates a
+-- text deletion.
+-- 
+-- If the type is 'DeleteChars', GTK+ deletes the selection if there is one, otherwise it deletes
+-- the requested number of characters.
+-- 
+-- The default bindings for this signal are Delete for deleting a character and Ctrl-Delete for
+-- deleting a word.
+entryDeleteFromCursor :: EntryClass ec => Signal ec (DeleteType -> Int -> IO ())
+entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
+
+-- | The 'moveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
+-- movement. If the cursor is not visible in entry, this signal causes the viewport to be moved
+-- instead.
+-- 
+-- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
+-- control the cursor programmatically.
+-- 
+-- The default bindings for this signal come in two variants, the variant with the Shift modifier
+-- extends the selection, the variant without the Shift modifer does not. There are too many key
+-- combinations to list them all here.
+-- 
+--   * Arrow keys move by individual characters/lines 
+--   * Ctrl-arrow key combinations move by words/paragraphs 
+--   * Home/End keys move to the ends of the buffer
+entryMoveCursor :: EntryClass ec => Signal ec (MovementStep -> Int -> Bool -> IO ())
+entryMoveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
+
+-- | The 'pasteClipboard' signal is a keybinding signal which gets emitted to paste the contents of the
+-- clipboard into the text view.
+-- 
+-- The default bindings for this signal are Ctrl-v and Shift-Insert.
+entryPasteClipboard :: EntryClass ec => Signal ec (IO ())
+entryPasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
+
+-- | The 'populatePopup' signal gets emitted before showing the context menu of the entry.
+-- 
+-- If you need to add items to the context menu, connect to this signal and append your menuitems to
+-- the menu.
+entryPopulatePopup :: EntryClass ec => Signal ec (Menu -> IO ())
+entryPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
+
+-- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
+-- you are interested in the text, connect to this signal.
+entryPreeditChanged :: EntryClass ec => Signal ec (String -> IO ())
+entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
+
+-- | The 'toggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
+-- of the entry.
+-- 
+-- The default bindings for this signal is Insert.
+entryToggleOverwirte :: EntryClass ec => Signal ec (IO ())
+entryToggleOverwirte = Signal (connect_NONE__NONE "toggle-overwrite")
+
+#ifndef DISABLE_DEPRECATED
 -- | Emitted when the user presses return within
 -- the 'Entry' field.
 --
@@ -589,3 +688,4 @@ onToggleOverwrite, afterToggleOverwrite :: EntryClass ec => ec -> IO () ->
                                            IO (ConnectId ec)
 onToggleOverwrite = connect_NONE__NONE "toggle_overwrite" False
 afterToggleOverwrite = connect_NONE__NONE "toggle_overwrite" True
+#endif
