@@ -7,7 +7,7 @@
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
---  Copyright (C) 2009 Andy Stewart
+--  Copyright (C) 2009-2010 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -100,6 +100,9 @@ module Graphics.UI.Gtk.Windows.Dialog (
   castToDialog, gTypeDialog,
   toDialog,
 
+-- * Enums
+  ResponseId(..),
+
 -- * Constructors
   dialogNew,
 
@@ -108,7 +111,6 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogGetActionArea,
   dialogRun,
   dialogResponse,
-  ResponseId(..),
   dialogAddButton,
   dialogAddActionWidget,
   dialogGetHasSeparator,
@@ -118,6 +120,9 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogGetResponseForWidget,
   dialogAlternativeDialogButtonOrder,
   dialogSetAlternativeButtonOrderFromArray,
+#if GTK_CHECK_VERSION(2,20,0)
+  dialogGetWidgetForResponse,
+#endif
 
 -- * Attributes
   dialogHasSeparator,
@@ -340,6 +345,18 @@ dialogSetAlternativeButtonOrderFromArray self newOrder =
     (toDialog self)
     (fromIntegral (length newOrder))
     newOrderPtr
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Gets the widget button that uses the given response ID in the action area of a dialog.
+dialogGetWidgetForResponse :: DialogClass self => self 
+                           -> ResponseId -- ^ @responseId@ the response ID used by the dialog widget                   
+                           -> IO (Maybe Widget) -- ^ returns     the widget button that uses the given @responseId@, or 'Nothing'. 
+dialogGetWidgetForResponse self responseId =
+    maybeNull (makeNewObject mkWidget) $
+    {#call gtk_dialog_get_widget_for_response #}
+      (toDialog self)
+      (fromResponse responseId)
+#endif
 
 --------------------
 -- Attributes
