@@ -2,11 +2,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Statusbar
 --
---  Author : Axel Simon
+--  Author : Axel Simon, Andy Stewart
 --
 --  Created: 23 May 2001
 --
 --  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 2010 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -84,6 +85,9 @@ module Graphics.UI.Gtk.Display.Statusbar (
   statusbarRemove,
   statusbarSetHasResizeGrip,
   statusbarGetHasResizeGrip,
+#if GTK_CHECK_VERSION(2,20,0)
+  statusbarGetMessageArea,
+#endif
 
 -- * Attributes
   statusbarHasResizeGrip,
@@ -201,6 +205,17 @@ statusbarGetHasResizeGrip self =
   liftM toBool $
   {# call unsafe statusbar_get_has_resize_grip #}
     (toStatusbar self)
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Retrieves the box containing the label widget.
+statusbarGetMessageArea :: StatusbarClass self => self -> IO Box
+statusbarGetMessageArea self =
+  makeNewObject mkBox $
+  liftM (castPtr :: Ptr Widget -> Ptr Box) $
+  {# call unsafe gtk_statusbar_get_message_area #}
+    (toStatusbar self)
+
+#endif
 
 --------------------
 -- Attributes
