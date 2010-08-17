@@ -179,6 +179,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   setTextViewScrollAdjustments,
   toggleCursorVisible,
   toggleOverwrite,
+  textViewPreeditChanged
   ) where
 
 import Control.Monad	(liftM)
@@ -1303,4 +1304,11 @@ toggleCursorVisible = Signal (connect_NONE__NONE "toggle-cursor-visible")
 --
 toggleOverwrite :: TextViewClass self => Signal self (IO ())
 toggleOverwrite = Signal (connect_NONE__NONE "toggle-overwrite")
+
+-- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
+-- you are interested in the text, connect to this signal.
+-- 
+-- This signal is only emitted if the text at the given position is actually editable.
+textViewPreeditChanged :: TextViewClass self => Signal self (String -> IO ())
+textViewPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
 
