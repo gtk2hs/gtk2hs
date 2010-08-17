@@ -230,6 +230,11 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetTooltipMarkup,
   widgetTooltipText,
   widgetHasTooltip,
+#if GTK_CHECK_VERSION(2,20,0)
+  widgetHasRcStyle,
+  widgetGetRealized,
+  widgetGetMapped,
+#endif
 
 -- * Signals
   realize,
@@ -2330,6 +2335,33 @@ widgetTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
 --
 widgetHasTooltip :: WidgetClass self => Attr self Bool
 widgetHasTooltip = newAttrFromBoolProperty "has-tooltip"
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Determines if the widget style has been looked up through the rc mechanism.
+widgetHasRcStyle :: WidgetClass self => self 
+                 -> IO Bool -- ^ returns 'True' if the widget has been looked up through the rc mechanism, 'False' otherwise.
+widgetHasRcStyle self =                 
+  liftM toBool $
+  {#call gtk_widget_has_rc_style #}
+    (toWidget self)
+
+-- | Determines whether widget is realized.
+widgetGetRealized :: WidgetClass self => self
+                  -> IO Bool  -- ^ returns 'True' if widget is realized, 'False' otherwise 
+widgetGetRealized self =
+  liftM toBool $
+  {#call gtk_widget_get_realized #}
+    (toWidget self)
+  
+-- | Whether the widget is mapped.
+widgetGetMapped :: WidgetClass self => self
+                -> IO Bool  -- ^ returns 'True' if the widget is mapped, 'False' otherwise. 
+widgetGetMapped self =
+  liftM toBool $
+  {#call gtk_widget_get_mapped #}
+    (toWidget self)
+  
+#endif
 
 --------------------
 -- Signals
