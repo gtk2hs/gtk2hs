@@ -82,6 +82,9 @@ module Graphics.UI.Gtk.Abstract.Paned (
   panedGetChild1,
   panedGetChild2,
 #endif
+#if GTK_CHECK_VERSION(2,20,0)
+  panedGetHandleWindow,
+#endif
 
 -- * Attributes
   panedPosition,
@@ -226,6 +229,18 @@ panedGetChild2 self =
   maybeNull (makeNewObject mkWidget) $
   {# call unsafe paned_get_child2 #}
     (toPaned self)
+#endif
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Returns the 'Window' of the handle. This function is useful when handling button or motion events
+-- because it enables the callback to distinguish between the window of the paned, a child and the
+-- handle.
+panedGetHandleWindow :: PanedClass self => self
+                     -> IO DrawWindow
+panedGetHandleWindow self =
+    makeNewGObject mkDrawWindow $
+    {#call gtk_paned_get_handle_window #}
+      (toPaned self)
 #endif
 
 --------------------
