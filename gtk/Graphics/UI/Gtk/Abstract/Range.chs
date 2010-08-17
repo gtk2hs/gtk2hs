@@ -68,6 +68,14 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetUpperStepperSensitivity,
   rangeGetUpperStepperSensitivity,
 #endif
+#if GTK_CHECK_VERSION(2,20,0)
+  rangeGetMinSliderSize,
+  rangeGetRangeRect,
+  rangeGetSliderRange,
+  rangeGetSliderSizeFixed,
+  rangeSetMinSliderSize,
+  rangeSetSliderSizeFixed,
+#endif
 
 -- * Attributes
   rangeUpdatePolicy,
@@ -110,6 +118,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(UpdateType(..), ScrollType(..))
+import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -304,6 +313,82 @@ rangeGetUpperStepperSensitivity self =
   liftM (toEnum . fromIntegral) $
   {# call gtk_range_get_upper_stepper_sensitivity #}
     (toRange self)
+#endif
+#if GTK_CHECK_VERSION(2,20,0)
+-- | This function is useful mainly for 'Range' subclasses.
+-- 
+-- See 'rangeSetMinSliderSize'.
+rangeGetMinSliderSize :: RangeClass self => self
+                      -> IO Int  -- ^ returns The minimum size of the range's slider. 
+rangeGetMinSliderSize range =
+  liftM fromIntegral $
+  {#call gtk_range_get_min_slider_size #}
+    (toRange range)
+
+-- | This function returns the area that contains the range's trough and its steppers, in widget->window
+-- coordinates.
+-- 
+-- This function is useful mainly for 'Range' subclasses.
+rangeGetRangeRect :: RangeClass self => self
+                  -> IO Rectangle
+rangeGetRangeRect self =
+  alloca $ \rPtr -> do
+  {# call gtk_range_get_range_rect #}
+    (toRange self)
+    (castPtr rPtr)
+  peek rPtr
+
+-- | This function returns sliders range along the long dimension, in widget->window coordinates.
+-- 
+-- This function is useful mainly for 'Range' subclasses.
+rangeGetSliderRange :: RangeClass self => self
+                    -> IO (Maybe (Int, Int))
+rangeGetSliderRange range =
+    alloca $ \ startPtr -> 
+    alloca $ \ endPtr -> do
+      {#call gtk_range_get_slider_range #}
+        (toRange range)
+        startPtr
+        endPtr
+      if (startPtr /= nullPtr && endPtr /= nullPtr)
+         then do
+           start <- peek startPtr
+           end <- peek endPtr
+           return (Just (fromIntegral start, fromIntegral end))
+         else return Nothing
+
+-- | This function is useful mainly for 'Range' subclasses.
+-- 
+-- See 'rangeSetSliderSizeFixed'.
+rangeGetSliderSizeFixed :: RangeClass self => self
+                        -> IO Bool  -- ^ returns whether the range's slider has a fixed size. 
+rangeGetSliderSizeFixed self =   
+  liftM toBool $
+  {#call gtk_range_get_slider_size_fixed #}
+    (toRange self)
+
+-- | Sets the minimum size of the range's slider.
+-- 
+-- This function is useful mainly for 'Range' subclasses.
+rangeSetMinSliderSize :: RangeClass self => self
+                      -> Bool
+                      -> IO ()
+rangeSetMinSliderSize self minSize =
+  {#call gtk_range_set_min_slider_size #}
+    (toRange self)
+    (fromBool minSize)
+
+-- | Sets whether the range's slider has a fixed size, or a size that depends on it's adjustment's page
+-- size.
+-- 
+-- This function is useful mainly for 'Range' subclasses.
+rangeSetSliderSizeFixed :: RangeClass self => self
+                        -> Bool -- ^ @sizeFixed@ 'True' to make the slider size constant 
+                        -> IO ()
+rangeSetSliderSizeFixed self sizeFixed =
+  {#call gtk_range_set_slider_size_fixed #}
+    (toRange self)
+    (fromBool sizeFixed)
 #endif
 
 --------------------
