@@ -2,11 +2,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget StatusIcon
 --
---  Author : Andrea Vezzosi
+--  Author : Andrea Vezzosi, Andy Stewart
 --
 --  Created: 19 July 2007
 --
 --  Copyright (C) 2007 Axel Simon
+--  Copyright (C) 2010 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -93,6 +94,9 @@ module Graphics.UI.Gtk.Display.StatusIcon (
   statusIconIsEmbedded,
   statusIconPositionMenu,
   statusIconGetGeometry,
+#if GTK_CHECK_VERSION(2,20,0)
+  statusIconSetName,
+#endif
 
 -- * Attributes
   statusIconPixbuf,
@@ -454,6 +458,16 @@ statusIconGetGeometry self =
             return $ Just (rec_,toEnum $ fromIntegral or)
         else return Nothing
 
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Sets the name of this tray icon. This should be a string identifying this icon. It is may be used
+-- for sorting the icons in the tray and will not be shown to the user.
+statusIconSetName :: StatusIconClass self => self -> String -> IO ()
+statusIconSetName self name =
+  withUTFString name $ \ namePtr -> 
+  {#call gtk_status_icon_set_name #}
+    (toStatusIcon self)
+    namePtr
+#endif
 
 --------------------
 -- Attributes
