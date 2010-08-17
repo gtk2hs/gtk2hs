@@ -86,6 +86,10 @@ module Graphics.UI.Gtk.Entry.Entry (
   entrySetCompletion,
   entryGetCompletion,
 #endif
+#if GTK_CHECK_VERSION(2,20,0)
+  entryGetIconWindow,
+  entryGetTextWindow,
+#endif
 
 -- * Attributes
   entryCursorPosition,
@@ -141,7 +145,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..))
+import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..), EntryIconPosition (..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -412,6 +416,34 @@ entryGetCompletion self =
   makeNewGObject mkEntryCompletion $
   {# call gtk_entry_get_completion #}
     (toEntry self)
+#endif
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
+-- drawing something to the entry in an expose-event callback because it enables the callback to
+-- distinguish between the text window and entry's icon windows.
+-- 
+-- See also 'entryGetTextWindow'.
+entryGetIconWindow :: EntryClass self => self
+                   -> EntryIconPosition  -- ^ @iconPos@ Icon position                        
+                   -> IO DrawWindow -- ^ returns  the entry's icon window at @iconPos@. 
+entryGetIconWindow entry iconPos =
+    makeNewGObject mkDrawWindow $
+    {#call gtk_entry_get_icon_window #}
+       (toEntry entry)
+       ((fromIntegral . fromEnum) iconPos)
+       
+-- | Returns the 'Window' which contains the text. This function is useful when drawing something to the
+-- entry in an expose-event callback because it enables the callback to distinguish between the text
+-- window and entry's icon windows.
+-- 
+-- See also 'entryGetIconWindow'.
+entryGetTextWindow :: EntryClass self => self
+                   -> IO DrawWindow  -- ^ returns the entry's text window. 
+entryGetTextWindow entry =
+    makeNewGObject mkDrawWindow $
+    {#call gtk_entry_get_text_window #}
+      (toEntry entry)
 #endif
 
 --------------------
