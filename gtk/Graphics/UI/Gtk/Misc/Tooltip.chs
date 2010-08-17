@@ -91,6 +91,11 @@ module Graphics.UI.Gtk.Misc.Tooltip (
   tooltipSetCustom,
   tooltipTriggerTooltipQuery,
   tooltipSetTipArea,
+#ifdef HAVE_GIO
+#if GTK_CHECK_VERSION(2,20,0)
+  tooltipSetIconFromGicon,
+#endif
+#endif
 #endif
   ) where
 
@@ -103,6 +108,9 @@ import System.Glib.GObject		(constructNewGObject,makeNewGObject)
 import Graphics.UI.Gtk.General.Structs	(IconSize(..), Rectangle)
 import Graphics.Rendering.Pango.Markup
 {#import Graphics.UI.Gtk.Types#}
+#ifdef HAVE_GIO
+{#import System.GIO.Types#}
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -217,4 +225,20 @@ tooltipSetTipArea self rect =
   {#call tooltip_set_tip_area#}
     (toTooltip self)
     (castPtr rectPtr)
+#endif
+
+#ifdef HAVE_GIO
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Sets the icon of the tooltip (which is in front of the text) to be the icon indicated by gicon with
+-- the size indicated by size. If gicon is 'Nothing', the image will be hidden.
+tooltipSetIconFromGicon :: TooltipClass self => self 
+                        -> Maybe Icon  -- ^ @gicon@   a GIcon representing the icon, or 'Nothing'. allow-none. 
+                        -> IconSize
+                        -> IO ()
+tooltipSetIconFromGicon tooltip icon size =
+  {#call gtk_tooltip_set_icon_from_gicon #}
+    (toTooltip tooltip)
+    (fromMaybe (Icon nullForeignPtr) icon)
+    ((fromIntegral . fromEnum) size)
+#endif
 #endif
