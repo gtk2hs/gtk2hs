@@ -2,11 +2,12 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Action
 --
---  Author : Duncan Coutts
+--  Author : Duncan Coutts, Andy Stewart
 --
 --  Created: 6 April 2005
 --
 --  Copyright (C) 2005 Duncan Coutts
+--  Copyright (C) 2010 Andy Stewart
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -127,6 +128,9 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
   actionSensitive,
   actionVisible,
   actionAccelPath,
+#endif
+#if GTK_CHECK_VERSION(2,20,0)
+  actionAlwaysShowImage,
 #endif
 
 -- * Signals
@@ -500,6 +504,19 @@ actionAccelPath :: ActionClass self => ReadWriteAttr self (Maybe String) String
 actionAccelPath = newAttr
   actionGetAccelPath
   actionSetAccelPath
+#endif
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | If 'True', the action's menu item proxies will ignore the 'menuImages' setting and always show
+-- their image, if available.
+-- 
+-- Use this property if the menu item would be useless or hard to use without their image.
+-- 
+-- Default value: 'False'
+-- 
+-- Since 2.20
+actionAlwaysShowImage :: ActionClass self => Attr self Bool
+actionAlwaysShowImage = newAttrFromBoolProperty "always-show-image"
 #endif
 
 --------------------
