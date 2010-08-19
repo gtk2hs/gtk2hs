@@ -420,7 +420,7 @@ entryGetCompletion self =
 
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
--- drawing something to the entry in an expose-event callback because it enables the callback to
+-- drawing something to the entry in an 'eventExpose' callback because it enables the callback to
 -- distinguish between the text window and entry's icon windows.
 -- 
 -- See also 'entryGetTextWindow'.
@@ -434,7 +434,7 @@ entryGetIconWindow entry iconPos =
        ((fromIntegral . fromEnum) iconPos)
        
 -- | Returns the 'Window' which contains the text. This function is useful when drawing something to the
--- entry in an expose-event callback because it enables the callback to distinguish between the text
+-- entry in an 'eventExpose' callback because it enables the callback to distinguish between the text
 -- window and entry's icon windows.
 -- 
 -- See also 'entryGetIconWindow'.
