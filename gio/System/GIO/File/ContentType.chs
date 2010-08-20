@@ -136,8 +136,9 @@ contentTypeCanBeExecutable typ =
 -- | Tries to find a content type based on the mime type name.
 contentTypeFromMimeType :: 
    String -- ^ @mimeType@ a mime type string.                                                 
- -> IO String 
+ -> String 
 contentTypeFromMimeType mimeType =
+  unsafePerformIO $
   withUTFString mimeType $ \ mimeTypePtr -> 
   {#call g_content_type_from_mime_type#} mimeTypePtr
   >>= readUTFString
