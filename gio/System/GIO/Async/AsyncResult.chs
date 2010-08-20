@@ -44,7 +44,6 @@ import System.Glib.GObject
 
 type AsyncReadyCallback = GObject -> AsyncResult -> IO ()
 
--- | This type just use for bind, don't expose it.
 {#pointer GAsyncReadyCallback#}
 
 foreign import ccall "wrapper" mkAsyncReadyCallback :: 
