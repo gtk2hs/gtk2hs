@@ -590,27 +590,27 @@ entryCompletion = newAttr
 entryActivate :: EntryClass ec => Signal ec (IO ())
 entryActivate = Signal (connect_NONE__NONE "activate")
 
--- | The 'backspace' signal is a keybinding signal which gets emitted when the user asks for it.
+-- | The 'entryBackspace' signal is a keybinding signal which gets emitted when the user asks for it.
 -- 
 -- The default bindings for this signal are Backspace and Shift-Backspace.
 entryBackspace :: EntryClass ec => Signal ec (IO ())
 entryBackspace = Signal (connect_NONE__NONE "backspace")
 
--- | The 'copyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
+-- | The 'entryCopyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
 -- clipboard.
 -- 
 -- The default bindings for this signal are Ctrl-c and Ctrl-Insert.
 entryCopyClipboard :: EntryClass ec => Signal ec (IO ())
 entryCopyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
 
--- | The 'cutClipboard' signal is a keybinding signal which gets emitted to cut the selection to the
+-- | The 'entryCutClipboard' signal is a keybinding signal which gets emitted to cut the selection to the
 -- clipboard.
 -- 
 -- The default bindings for this signal are Ctrl-x and Shift-Delete.
 entryCutClipboard :: EntryClass ec => Signal ec (IO ())
 entryCutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
 
--- | The 'deleteFromCursor' signal is a keybinding signal which gets emitted when the user initiates a
+-- | The 'entryDeleteFromCursor' signal is a keybinding signal which gets emitted when the user initiates a
 -- text deletion.
 -- 
 -- If the type is 'DeleteChars', GTK+ deletes the selection if there is one, otherwise it deletes
@@ -621,7 +621,7 @@ entryCutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
 entryDeleteFromCursor :: EntryClass ec => Signal ec (DeleteType -> Int -> IO ())
 entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 
--- | The 'moveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
+-- | The 'entryMoveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
 -- movement. If the cursor is not visible in entry, this signal causes the viewport to be moved
 -- instead.
 -- 
@@ -638,14 +638,14 @@ entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 entryMoveCursor :: EntryClass ec => Signal ec (MovementStep -> Int -> Bool -> IO ())
 entryMoveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
 
--- | The 'pasteClipboard' signal is a keybinding signal which gets emitted to paste the contents of the
+-- | The 'entryPasteClipboard' signal is a keybinding signal which gets emitted to paste the contents of the
 -- clipboard into the text view.
 -- 
 -- The default bindings for this signal are Ctrl-v and Shift-Insert.
 entryPasteClipboard :: EntryClass ec => Signal ec (IO ())
 entryPasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
 
--- | The 'populatePopup' signal gets emitted before showing the context menu of the entry.
+-- | The 'entryPopulatePopup' signal gets emitted before showing the context menu of the entry.
 -- 
 -- If you need to add items to the context menu, connect to this signal and append your menuitems to
 -- the menu.
@@ -657,7 +657,7 @@ entryPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 entryPreeditChanged :: EntryClass ec => Signal ec (String -> IO ())
 entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
 
--- | The 'toggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
+-- | The 'entryToggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
 -- of the entry.
 -- 
 -- The default bindings for this signal is Insert.
