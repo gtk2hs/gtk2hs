@@ -149,7 +149,6 @@ fileEnumeratorNextFilesFinish enumerator asyncResult =
     propagateGError ({# call g_file_enumerator_next_files_finish #} (toFileEnumerator enumerator) asyncResult) 
       >>= \glistPtr -> do
         infoPtrs <- fromGList glistPtr
-        {# call unsafe g_list_free #} glistPtr
         mapM (makeNewGObject mkFileInfo . return) infoPtrs
         
 -- | Asynchronously closes the file enumerator.
