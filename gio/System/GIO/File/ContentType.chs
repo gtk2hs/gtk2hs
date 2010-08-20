@@ -187,7 +187,6 @@ contentTypesGetRegistered ::
 contentTypesGetRegistered = do
   glistPtr <- {#call g_content_types_get_registered#}  
   strPtrs <- fromGList glistPtr
-  {# call unsafe g_list_free #} glistPtr
   mapM readUTFString strPtrs
 
   
