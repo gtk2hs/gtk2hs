@@ -23,10 +23,6 @@
 --
 -- 'icon-press' and 'icon-release' signals not bind.
 --
--- NOTE
---
--- Don't bind 'insert-at-cursor' signal, it's not default bindings signal. 
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -116,6 +112,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryCutClipboard,
   entryPasteClipboard,
   entryDeleteFromCursor,
+  entryInsertAtCursor,
   entryMoveCursor,
   entryPopulatePopup,
   entryPreeditChanged,
@@ -620,6 +617,11 @@ entryCutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
 -- deleting a word.
 entryDeleteFromCursor :: EntryClass ec => Signal ec (DeleteType -> Int -> IO ())
 entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
+
+-- | The 'entryInsertAtCursor' signal is a keybinding signal which gets emitted when the user initiates the
+-- insertion of a fixed string at the cursor.
+entryInsertAtCursor :: EntryClass ec => Signal ec (String -> IO ())
+entryInsertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 
 -- | The 'entryMoveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
 -- movement. If the cursor is not visible in entry, this signal causes the viewport to be moved
