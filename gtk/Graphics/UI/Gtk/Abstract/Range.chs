@@ -86,6 +86,10 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeUpperStepperSensitivity,
 #endif
   rangeValue,
+#if GTK_CHECK_VERSION(2,20,0)
+  rangeSliderSizeFixed,
+  rangeMinSliderSize,
+#endif
 
 -- * Signals
   adjustBounds,
@@ -448,6 +452,20 @@ rangeValue :: RangeClass self => Attr self Double
 rangeValue = newAttr
   rangeGetValue
   rangeSetValue
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Wheter range's slikder has a fixed size, or a size that depends on it's adjustment's page.
+rangeSliderSizeFixed :: RangeClass self => Attr self Bool
+rangeSliderSizeFixed = newAttr
+  rangeGetSliderSizeFixed
+  rangeSetSliderSizeFixed
+
+-- | Get/Set sliders range along the long dimension, in 'DrawWindow' coordinates.
+rangeMinSliderSize :: RangeClass self => ReadWriteAttr self Int Bool
+rangeMinSliderSize = newAttr
+  rangeGetMinSliderSize
+  rangeSetMinSliderSize
+#endif
 
 --------------------
 -- Signals
