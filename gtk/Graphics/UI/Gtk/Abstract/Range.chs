@@ -454,7 +454,7 @@ rangeValue = newAttr
   rangeSetValue
 
 #if GTK_CHECK_VERSION(2,20,0)
--- | Wheter range's slikder has a fixed size, or a size that depends on it's adjustment's page.
+-- | Wheter range's slikder has a fixed size, or a size that depends on it's adjustment's page size.
 rangeSliderSizeFixed :: RangeClass self => Attr self Bool
 rangeSliderSizeFixed = newAttr
   rangeGetSliderSizeFixed
