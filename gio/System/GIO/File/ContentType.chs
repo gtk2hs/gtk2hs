@@ -175,7 +175,7 @@ contentTypeGuess filename dat dataSize  =
 -- This function is useful in the implementation of 'mountGuessContentType'.
 contentTypeGuessForTree :: FileClass file
  => file  -- ^ @root@    the root of the tree to guess a type for                                               
- -> IO [String]  -- ^ returns an 'Nothing'-terminated array of zero or more content types
+ -> IO [String]  -- ^ returns a list of possible content types
 contentTypeGuessForTree root =
   {#call g_content_type_guess_for_tree#} (toFile root)
   >>= readUTFStringArray0
