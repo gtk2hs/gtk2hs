@@ -145,9 +145,8 @@ appInfoEqual info1 info2 =
 -- 
 -- Note that the returned ID may be 'Nothing', depending on how the appinfo has been constructed.
 appInfoGetId :: AppInfoClass appinfo => appinfo 
- -> Maybe String
+ -> IO (Maybe String)
 appInfoGetId appinfo = 
-  unsafePerformIO $ 
   {#call g_app_info_get_id#} (toAppInfo appinfo)
   >>= maybePeek readUTFString
 
