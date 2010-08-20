@@ -342,7 +342,7 @@ rangeGetRangeRect self =
     (castPtr rPtr)
   peek rPtr
 
--- | This function returns sliders range along the long dimension, in widget->window coordinates.
+-- | This function returns sliders range along the long dimension, in 'DrawWindow' coordinates.
 -- 
 -- This function is useful mainly for 'Range' subclasses.
 rangeGetSliderRange :: RangeClass self => self
