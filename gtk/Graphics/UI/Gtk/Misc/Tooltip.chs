@@ -93,7 +93,7 @@ module Graphics.UI.Gtk.Misc.Tooltip (
   tooltipSetTipArea,
 #ifdef HAVE_GIO
 #if GTK_CHECK_VERSION(2,20,0)
-  tooltipSetIconFromGicon,
+  tooltipSetIconFromGIcon,
 #endif
 #endif
 #endif
@@ -231,11 +231,11 @@ tooltipSetTipArea self rect =
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Sets the icon of the tooltip (which is in front of the text) to be the icon indicated by gicon with
 -- the size indicated by size. If gicon is 'Nothing', the image will be hidden.
-tooltipSetIconFromGicon :: TooltipClass self => self 
+tooltipSetIconFromGIcon :: TooltipClass self => self 
                         -> Maybe Icon  -- ^ @gicon@   a GIcon representing the icon, or 'Nothing'. allow-none. 
                         -> IconSize
                         -> IO ()
-tooltipSetIconFromGicon tooltip icon size =
+tooltipSetIconFromGIcon tooltip icon size =
   {#call gtk_tooltip_set_icon_from_gicon #}
     (toTooltip tooltip)
     (fromMaybe (Icon nullForeignPtr) icon)

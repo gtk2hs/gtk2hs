@@ -107,7 +107,7 @@ module Graphics.UI.Gtk.General.IconTheme (
   iconThemeChooseIcon,
 #ifdef HAVE_GIO
 #if GTK_CHECK_VERSION(2,14,0)
-  iconThemeLookupByGicon,
+  iconThemeLookupByGIcon,
 #endif
 #endif
 #endif
@@ -372,7 +372,7 @@ iconThemeChooseIcon self iconNames size flags =
 --
 -- * Available since Gtk+ version 2.14
 --
-iconThemeLookupByGicon :: (IconThemeClass self, IconClass icon) => self
+iconThemeLookupByGIcon :: (IconThemeClass self, IconClass icon) => self
  -> icon          -- ^ @icon@ - the 'Icon' to look up
  -> Int                 -- ^ @size@ - desired icon size
  -> IconLookupFlags   -- ^ @flags@ - flags modifying the behavior of the
@@ -380,7 +380,7 @@ iconThemeLookupByGicon :: (IconThemeClass self, IconClass icon) => self
  -> IO (Maybe IconInfo)        -- ^ returns a 'IconInfo'
                         -- structure containing information about the icon, or
                         -- 'Nothing' if the icon wasn't found. 
-iconThemeLookupByGicon self icon size flags = do
+iconThemeLookupByGIcon self icon size flags = do
     iiPtr <- {# call gtk_icon_theme_lookup_by_gicon #}
             (toIconTheme self)
             (toIcon icon)
