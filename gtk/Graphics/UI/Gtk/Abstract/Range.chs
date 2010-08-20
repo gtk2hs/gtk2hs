@@ -325,7 +325,7 @@ rangeGetMinSliderSize range =
   {#call gtk_range_get_min_slider_size #}
     (toRange range)
 
--- | This function returns the area that contains the range's trough and its steppers, in widget->window
+-- | This function returns the area that contains the range's trough and its steppers, in 'DrawWindow'
 -- coordinates.
 -- 
 -- This function is useful mainly for 'Range' subclasses.
