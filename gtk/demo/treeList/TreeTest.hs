@@ -11,7 +11,7 @@ data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 main = do
   initGUI
   Just xml <- xmlNew "TreeTest.glade"
-  
+
   win <- xmlGetWidget xml castToWindow "window"
   onDestroy win mainQuit
 
@@ -54,7 +54,7 @@ main = do
     value <- getValues
     path <- fmap read $ get updatePath entryText
     New.treeStoreSetValue store path value
-  
+
   onClicked removeButton $ do
     path <- fmap read $ get removePath entryText
     New.treeStoreRemove store path
@@ -65,7 +65,7 @@ main = do
   New.treeViewSetReorderable view True
 
   widgetShowAll win
-  mainGUI 
+  mainGUI
 
 setupView view model = do
   New.treeViewSetHeadersVisible view True
@@ -83,7 +83,7 @@ setupView view model = do
   renderer2 <- New.cellRendererTextNew
   renderer3 <- New.cellRendererToggleNew
 
-  New.cellLayoutPackStart col1 renderer1 True 
+  New.cellLayoutPackStart col1 renderer1 True
   New.cellLayoutPackStart col2 renderer2 True
   New.cellLayoutPackStart col3 renderer3 True
 
@@ -92,7 +92,7 @@ setupView view model = do
   New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellToggleActive := marked row ]
 
   New.treeViewAppendColumn view col1
-  New.treeViewAppendColumn view col2 
+  New.treeViewAppendColumn view col2
   New.treeViewAppendColumn view col3
 
 storeImpl =

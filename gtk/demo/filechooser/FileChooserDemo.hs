@@ -17,7 +17,7 @@ main = do
   -- get a handle on a various objects from the glade file
   mainWindow <- xmlGetWidget dialogXml castToWindow "mainWindow"
   mainWindow `onDestroy` mainQuit
-  
+
   -- and associate actions with the buttons
   selectFolderButton <- xmlGetWidget dialogXml castToButton "selectFolderButton"
   selectFolderButton `onClicked` openSelectFolderDialog mainWindow
@@ -48,16 +48,16 @@ openSelectFolderDialog :: Window -> IO ()
 openSelectFolderDialog parentWindow = do
   dialog <- fileChooserDialogNew
               (Just $ "Demo of the standard dialog "
-	           ++ "to select an existing folder")  --dialog title
+                   ++ "to select an existing folder")  --dialog title
               (Just parentWindow)                      --the parent window
-	      FileChooserActionSelectFolder            --the kind of dialog we want
-	      [("Yes, this new dialog looks nice"      --The buttons to display
-	       , ResponseAccept)
-	      ,("Eugh! Take me away!"
-	       ,ResponseCancel)]
+              FileChooserActionSelectFolder            --the kind of dialog we want
+              [("Yes, this new dialog looks nice"      --The buttons to display
+               , ResponseAccept)
+              ,("Eugh! Take me away!"
+               ,ResponseCancel)]
   widgetShow dialog
   response <- dialogRun dialog
-  case response of 
+  case response of
     ResponseAccept -> do Just fileName <- fileChooserGetFilename dialog
                          putStrLn $ "you selected the folder " ++ show fileName
     ResponseCancel -> putStrLn "dialog canceled"
@@ -68,16 +68,16 @@ openCreateFolderDialog :: Window -> IO ()
 openCreateFolderDialog parentWindow = do
   dialog <- fileChooserDialogNew
               (Just $ "Demo of the standard dialog to select "
-	           ++ "a new folder (or existing) folder")  --dialog title
+                   ++ "a new folder (or existing) folder")  --dialog title
               (Just parentWindow)                     --the parent window
-	      FileChooserActionCreateFolder                 --the kind of dialog we want
-	      [("I want this new folder"                    --The buttons to display
-	       , ResponseAccept)
-	      ,("Bored now."
-	       ,ResponseCancel)]
+              FileChooserActionCreateFolder                 --the kind of dialog we want
+              [("I want this new folder"                    --The buttons to display
+               , ResponseAccept)
+              ,("Bored now."
+               ,ResponseCancel)]
   widgetShow dialog
   response <- dialogRun dialog
-  case response of 
+  case response of
     ResponseAccept -> do Just fileName <- fileChooserGetFilename dialog
                          putStrLn $ "you selected the folder " ++ show fileName
     ResponseCancel -> putStrLn "Getting bored?"
@@ -88,17 +88,17 @@ openOpenFileDialog :: Window -> IO ()
 openOpenFileDialog parentWindow = do
   dialog <- fileChooserDialogNew
               (Just $ "Demo of the standard dialog to select "
-	                 ++ "an existing file")             --dialog title
+                         ++ "an existing file")             --dialog title
               (Just parentWindow)                     --the parent window
-	      FileChooserActionOpen                         --the kind of dialog we want
-	      [("gtk-cancel"                                --The buttons to display
-	       ,ResponseCancel)
-	      ,("gtk-open"                                  
-	       , ResponseAccept)]
+              FileChooserActionOpen                         --the kind of dialog we want
+              [("gtk-cancel"                                --The buttons to display
+               ,ResponseCancel)
+              ,("gtk-open"
+               , ResponseAccept)]
 
   widgetShow dialog
   response <- dialogRun dialog
-  case response of 
+  case response of
     ResponseAccept -> do Just fileName <- fileChooserGetFilename dialog
                          putStrLn $ "you selected the file " ++ show fileName
     ResponseCancel -> putStrLn "dialog canceled"
@@ -109,16 +109,16 @@ openSaveFileDialog :: Window -> IO ()
 openSaveFileDialog parentWindow = do
   dialog <- fileChooserDialogNew
               (Just $ "Demo of the standard dialog to select "
-	                 ++ "a new file")                   --dialog title
+                         ++ "a new file")                   --dialog title
               (Just parentWindow)                     --the parent window
-	      FileChooserActionSave                         --the kind of dialog we want
-	      [("gtk-cancel"                                --The buttons to display
-	       ,ResponseCancel)                             --you can use stock buttons
-	      ,("gtk-save"
-	       , ResponseAccept)]
+              FileChooserActionSave                         --the kind of dialog we want
+              [("gtk-cancel"                                --The buttons to display
+               ,ResponseCancel)                             --you can use stock buttons
+              ,("gtk-save"
+               , ResponseAccept)]
   widgetShow dialog
   response <- dialogRun dialog
-  case response of 
+  case response of
     ResponseAccept -> do Just fileName <- fileChooserGetFilename dialog
                          putStrLn $ "you called the new file " ++ show fileName
     ResponseCancel -> putStrLn "dialog canceled"
@@ -129,18 +129,18 @@ openFilePreviewDialog :: Window -> IO ()
 openFilePreviewDialog parentWindow = do
   dialog <- fileChooserDialogNew
               (Just $ "Demo of the standard dialog to select "
-	           ++ "a new file - with a preview widget") --dialog title
+                   ++ "a new file - with a preview widget") --dialog title
               (Just parentWindow)                     --the parent window
-	      FileChooserActionOpen                         --the kind of dialog we want
-	      [("_Yes, yes that's very clever"              --The buttons to display
-	       , ResponseAccept)
-	      ,("_No, I'm not impressed"
-	       ,ResponseCancel)]
+              FileChooserActionOpen                         --the kind of dialog we want
+              [("_Yes, yes that's very clever"              --The buttons to display
+               , ResponseAccept)
+              ,("_No, I'm not impressed"
+               ,ResponseCancel)]
 
   --create and set an extra widget
   checkButton <- checkButtonNewWithLabel "frobnicate this file"
   dialog `fileChooserSetExtraWidget` checkButton
-  
+
   --create and set a preview widget
   previewLabel <- labelNew $ Just "Preview appears here"
   previewLabel `labelSetLineWrap` True
@@ -154,10 +154,10 @@ openFilePreviewDialog parentWindow = do
 
   widgetShow dialog
   response <- dialogRun dialog
-  case response of 
+  case response of
     ResponseAccept -> do fileName <- fileChooserGetFilename dialog
                          putStrLn $ "you selected the new file " ++ show fileName
-                         
+
                          --check the state of the extra widget
                          frobnicate <- toggleButtonGetActive checkButton
                          putStrLn $ if frobnicate
@@ -166,4 +166,3 @@ openFilePreviewDialog parentWindow = do
     ResponseCancel -> putStrLn "you were not impressed"
     ResponseDeleteEvent -> putStrLn "dialog closed"
   widgetHide dialog
-

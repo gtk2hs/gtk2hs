@@ -250,11 +250,11 @@ setBitSlice (TreeIter stamp a b c) off count value =
 iterPrefixEqual :: TreeIter -> TreeIter -> Int -> Bool
 iterPrefixEqual (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) pos
   | pos>64 = let mask = 1 `shiftL` (pos-64) - 1 in
-	     a1==a2 && b1==b2 && (c1 .&. mask) == (c2 .&. mask)
+             a1==a2 && b1==b2 && (c1 .&. mask) == (c2 .&. mask)
   | pos>32 = let mask = 1 `shiftL` (pos-32) - 1 in
-	     a1==a2 && (b1 .&. mask) == (b2 .&. mask)
+             a1==a2 && (b1 .&. mask) == (b2 .&. mask)
   | otherwise = let mask = 1 `shiftL` pos - 1 in
-		(a1 .&. mask) == (a2 .&. mask)
+                (a1 .&. mask) == (a2 .&. mask)
 
 -- | The invalid tree iterator.
 --
@@ -270,8 +270,8 @@ showBits a = [ if testBit a i then '1' else '0' | i <- [0..bitSize a - 1] ]
 --
 calcForestDepth :: Forest a -> Depth
 calcForestDepth f = map bitsNeeded $
-		    takeWhile (/=0) $
-		    foldr calcTreeDepth (repeat 0) f
+                    takeWhile (/=0) $
+                    foldr calcTreeDepth (repeat 0) f
   where
   calcTreeDepth Node { subForest = f } (d:ds) =
       (d+1): zipWith max ds (foldr calcTreeDepth (repeat 0) f)
@@ -284,7 +284,7 @@ toPath d iter = gP 0 d
   where
   gP pos [] = []
   gP pos (d:ds) = let idx = getBitSlice iter pos d in
-	          if idx==0 then [] else fromIntegral (idx-1) : gP (pos+d) ds
+                  if idx==0 then [] else fromIntegral (idx-1) : gP (pos+d) ds
 
 -- | Try to convert a path into a 'TreeIter'.
 --
@@ -304,7 +304,7 @@ fromPath = fP 0 invalidIter
 --   for which this lookup was started and the innermost frame (the last
 --   element of the list) contains the root of the tree.
 --
-type Cache a = [(TreeIter, Forest a)] 
+type Cache a = [(TreeIter, Forest a)]
 
 
 -- | Create a traversal structure that allows a pre-order traversal in linear
@@ -329,7 +329,7 @@ cacheToStore cache = case last cache of (_, [Node _ forest]) -> forest
 --
 advanceCache :: Depth -> TreeIter -> Cache a -> Cache a
 advanceCache depth goal [] = []
-advanceCache depth goal cache@((rootIter,_):_) = 
+advanceCache depth goal cache@((rootIter,_):_) =
   moveToSameLevel 0 depth
   where
   moveToSameLevel pos [] = cache
@@ -348,16 +348,16 @@ advanceCache depth goal cache@((rootIter,_):_) =
       -- advance the current iterator to coincide with the goal iterator
       -- at this level
       moveWithinLevel pos d ((ti,forest):parents) = let
-	  diff = fromIntegral (goalIdx-curIdx)
-	  (dropped, remain) = splitAt diff forest
-	  advance = length dropped
-	  ti' = setBitSlice ti pos d (curIdx+fromIntegral advance)
-	in
-	if advance==diff then moveToChild (pos+d) ds ((ti',remain):parents)
-	else (ti',remain):parents -- node not found
+          diff = fromIntegral (goalIdx-curIdx)
+          (dropped, remain) = splitAt diff forest
+          advance = length dropped
+          ti' = setBitSlice ti pos d (curIdx+fromIntegral advance)
+        in
+        if advance==diff then moveToChild (pos+d) ds ((ti',remain):parents)
+        else (ti',remain):parents -- node not found
     in moveWithinLevel pos d $ case ds of
         [] -> cache
-	(d':_) -> dropWhile (isNonZero (pos+d) d') cache
+        (d':_) -> dropWhile (isNonZero (pos+d) d') cache
 
   -- Descend into the topmost forest to find the goal iterator. The position
   -- and the remainding depths specify the index in the cache that is zero.
@@ -370,16 +370,16 @@ advanceCache depth goal cache@((rootIter,_):_) =
       [] -> cache -- impossible request
       Node { subForest = children }:_ ->
         let
-	  childIdx :: Int
-	  childIdx = fromIntegral (getBitSlice goal pos d)-1
-	  (dropped, remain) = splitAt childIdx children
-	  advanced = length dropped
-	  ti' = setBitSlice ti pos d (fromIntegral advanced+1)
-	in if advanced<childIdx then ((ti',remain):cache) else 
-	   moveToChild (pos+d) ds ((ti',remain):cache)
+          childIdx :: Int
+          childIdx = fromIntegral (getBitSlice goal pos d)-1
+          (dropped, remain) = splitAt childIdx children
+          advanced = length dropped
+          ti' = setBitSlice ti pos d (fromIntegral advanced+1)
+        in if advanced<childIdx then ((ti',remain):cache) else
+           moveToChild (pos+d) ds ((ti',remain):cache)
 
 -- | Advance to the given iterator and return weather this was successful.
---    
+--
 checkSuccess :: Depth -> TreeIter -> Cache a -> (Bool, Cache a)
 checkSuccess depth iter cache = case advanceCache depth iter cache of
     cache'@((cur,sibs):_) -> (cmp cur iter && not (null sibs), cache')
@@ -422,7 +422,7 @@ iterNext depth iter cache = let
 -- | Move down to the child of the given iterator.
 --
 iterNthChild :: Depth -> Int -> TreeIter -> Cache a  ->
-		(Maybe TreeIter, Cache a)
+                (Maybe TreeIter, Cache a)
 iterNthChild depth childIdx_ iter cache = let
     (pos,leaf,child) = getTreeIterLeaf depth iter
     childIdx = fromIntegral childIdx_+1 :: Word
@@ -523,7 +523,7 @@ treeStoreInsert store path pos node =
 --   of the parent.
 --
 insertIntoForest :: Forest a -> Forest a -> TreePath -> Int ->
-		    Maybe (Forest a, Int, Bool)
+                    Maybe (Forest a, Int, Bool)
 insertIntoForest forest nodes [] pos
   | pos<0 = Just (forest++nodes, length forest, null forest)
   | otherwise = Just (prev++nodes++next, length prev, null forest)
@@ -531,13 +531,13 @@ insertIntoForest forest nodes [] pos
 insertIntoForest forest nodes (p:ps) pos = case splitAt p forest of
   (prev, []) -> Nothing
   (prev, Node { rootLabel = val,
-		subForest = for}:next) ->
+                subForest = for}:next) ->
     case insertIntoForest for nodes ps pos of
       Nothing -> Nothing
       Just (for, pos, toggle) -> Just (prev++Node { rootLabel = val,
-						    subForest = for }:next,
-				       pos, toggle)
-					       
+                                                    subForest = for }:next,
+                                       pos, toggle)
+
 -- | Remove a node from the store.
 --
 -- * The node denoted by the path is removed, along with all its children.
@@ -555,12 +555,12 @@ treeStoreRemove (TreeStore model) path = do
       Nothing -> (store, (False, False))
       Just (newForest, toggle) ->
         (Store { depth = d, -- this might be a space leak
-		 content = storeToCache newForest }, (True, toggle))
+                 content = storeToCache newForest }, (True, toggle))
   when found $ do
     when (toggle && not (null path)) $ do
       Store { depth = depth } <- readIORef (customStoreGetPrivate model)
       let parent = init path
-	  Just iter = fromPath depth parent
+          Just iter = fromPath depth parent
       treeModelRowHasChildToggled model parent iter
     treeModelRowDeleted model path
   return found
@@ -588,12 +588,12 @@ deleteFromForest forest [] = Just ([], False)
 deleteFromForest forest (p:ps) =
   case splitAt p forest of
     (prev, kill@Node { rootLabel = val,
-		       subForest = for}:next) ->
+                       subForest = for}:next) ->
       if null ps then Just (prev++next, null prev && null next) else
       case deleteFromForest for ps of
         Nothing -> Nothing
-	Just (for,toggle) -> Just (prev++Node {rootLabel = val,
-					       subForest = for }:next, toggle)
+        Just (for,toggle) -> Just (prev++Node {rootLabel = val,
+                                               subForest = for }:next, toggle)
     (prev, []) -> Nothing
 
 
@@ -621,14 +621,14 @@ treeStoreChange store path func = treeStoreChangeM store path (return . func)
 treeStoreChangeM :: TreeStore a -> TreePath -> (a -> IO a) -> IO Bool
 treeStoreChangeM (TreeStore model) path act = do
   customStoreInvalidateIters model
-  store@Store { depth = d, content = cache } <- 
+  store@Store { depth = d, content = cache } <-
       readIORef (customStoreGetPrivate model)
   (store'@Store { depth = d, content = cache }, found) <- do
     mRes <- changeForest (cacheToStore cache) act path
     return $ case mRes of
       Nothing -> (store, False)
       Just newForest -> (Store { depth = d,
-				 content = storeToCache newForest }, True)
+                                 content = storeToCache newForest }, True)
   writeIORef (customStoreGetPrivate model) store'
   let Just iter = fromPath d path
   stamp <- customStoreGetStamp model
@@ -644,17 +644,17 @@ changeForest forest act [] = return Nothing
 changeForest forest act (p:ps) = case splitAt p forest of
   (prev, []) -> return Nothing
   (prev, Node { rootLabel = val,
-		subForest = for}:next) ->
+                subForest = for}:next) ->
     if null ps then do
       val' <- act val
       return (Just (prev++Node { rootLabel = val',
-				 subForest = for }:next))
+                                 subForest = for }:next))
     else do
       mFor <- changeForest for act ps
       case mFor of
         Nothing -> return Nothing
-	Just for -> return $ Just (prev++Node { rootLabel = val,
-						subForest = for }:next)
+        Just for -> return $ Just (prev++Node { rootLabel = val,
+                                                subForest = for }:next)
 
 -- | Extract one node from the current model. Fails if the given
 --   'TreePath' refers to a non-existent node.
@@ -667,7 +667,7 @@ treeStoreGetValue model path = fmap rootLabel (treeStoreGetTree model path)
 --
 treeStoreGetTree :: TreeStore a -> TreePath -> IO (Tree a)
 treeStoreGetTree (TreeStore model) path = do
-  store@Store { depth = d, content = cache } <- 
+  store@Store { depth = d, content = cache } <-
       readIORef (customStoreGetPrivate model)
   case fromPath d path of
     (Just iter) -> do
@@ -683,7 +683,7 @@ treeStoreGetTree (TreeStore model) path = do
 --
 treeStoreLookup :: TreeStore a -> TreePath -> IO (Maybe (Tree a))
 treeStoreLookup (TreeStore model) path = do
-  store@Store { depth = d, content = cache } <- 
+  store@Store { depth = d, content = cache } <-
       readIORef (customStoreGetPrivate model)
   case fromPath d path of
     (Just iter) -> do

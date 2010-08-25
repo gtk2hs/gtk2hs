@@ -19,7 +19,7 @@ import System.Time
 import Text.Printf
 
 data FMInfo = FMInfo {
-  fIcon :: Pixbuf,               -- icon 
+  fIcon :: Pixbuf,               -- icon
   fName :: String,               -- file name
   fDesc :: String,               -- mime type description
   fSize :: Integer,              -- file size
@@ -31,7 +31,7 @@ main :: IO ()
 main = do
   -- Init.
   initGUI
-  
+
   -- Create window.
   window <- windowNew
   windowSetDefaultSize window 900 600
@@ -52,7 +52,7 @@ main = do
                               Just ii -> iconInfoLoadIcon ii
                               Nothing -> liftM fromJust $ iconThemeLoadIcon iconTheme "unknown" 24 IconLookupUseBuiltin
 
-                   let 
+                   let
                        -- Get file name.
                        name = fromJust $ fileInfoGetName info
                        -- File size.
@@ -76,7 +76,7 @@ main = do
   set tvc [ treeViewColumnTitle := "Icon"
           , treeViewColumnResizable := True ]
   treeViewAppendColumn tv tvc
-  
+
   icon <- cellRendererPixbufNew
   treeViewColumnPackStart tvc icon True
   cellLayoutSetAttributes tvc icon store $ \FMInfo { fIcon = icon } ->
@@ -113,7 +113,7 @@ main = do
   size <- cellRendererTextNew
   treeViewColumnPackStart tvc size True
   cellLayoutSetAttributes tvc size store $ \FMInfo { fSize = size } ->
-    [ cellText := formatFileSizeForDisplay size 
+    [ cellText := formatFileSizeForDisplay size
     , cellXAlign := 1.0]
 
   -- List modified time.
@@ -149,7 +149,7 @@ fileEnumeratorGetFileInfos enum = do
       infos <- fileEnumeratorGetFileInfos enum
       return $ info : infos
     Nothing -> return []
-    
+
 formatFileSizeForDisplay :: Integer -> String
 formatFileSizeForDisplay size
     | size < 2 ^ 10  = humanSize 1 ++ " bytes"
@@ -170,5 +170,5 @@ integralToDouble v = fromIntegral v :: Double
 
 gTimeValToClockTime :: GTimeVal -> ClockTime
 gTimeValToClockTime GTimeVal {gTimeValSec  = seconds
-                             ,gTimeValUSec = microseconds} = 
+                             ,gTimeValUSec = microseconds} =
   TOD (toInteger seconds) (toInteger microseconds * 1000)

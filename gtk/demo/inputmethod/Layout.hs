@@ -43,7 +43,7 @@ moveRight b@(Buffer str pos) | pos==length str = b
 
 main = do
   initGUI
-  
+
   -- Create the main window.
   win <- windowNew
   on win objectDestroy mainQuit
@@ -51,18 +51,18 @@ main = do
   area <- drawingAreaNew
   containerAdd win area
   on area sizeRequest $ return (Requisition 100 100)
-  
+
   -- Our widget's data
   buffer <- newIORef defaultBuffer
 
   preeditRef <- newIORef Nothing
-  
+
   -- Create a Cairo Context that contains information about the current font,
   -- etc.
   ctxt <- cairoCreateContext Nothing
   lay <- layoutEmpty ctxt
   layoutSetWrap lay WrapWholeWords
-  
+
   let relayout = do
       buffer@(Buffer _ cursor) <- readIORef buffer
       preedit <- readIORef preeditRef
@@ -75,19 +75,19 @@ main = do
               layoutSetAttributes lay (map (shiftAttribute (cursor + 1))
                                            (concat attrs))
       widgetQueueDraw area
-  
+
   relayout
-  
+
   -- Wrap the layout to a different width each time the window is resized.
   on area sizeAllocate $ \(Rectangle _ _ w _) ->
     layoutSetWidth lay (Just (fromIntegral w))
-  
+
   -- Setup the handler to draw the layout.
   on area exposeEvent $ updateArea area lay
-  
+
   -- Set up input method
   im <- imMulticontextNew
-  
+
   on im imContextPreeditStart $ do
       writeIORef preeditRef (Just ("",[],0))
       relayout
@@ -107,7 +107,7 @@ main = do
   on im imContextDeleteSurrounding' $ \off nchars -> do
       putStrLn $ "delete-surrounding("++show off++","++show nchars++")"
       return False
-  
+
   on win realize $ do
       imContextSetClientWindow im . Just =<< widgetGetDrawWindow win
   on win focusInEvent  $ liftIO (imContextFocusIn  im) >> return False
@@ -120,7 +120,7 @@ main = do
        case mod of
            Just f -> liftIO $ modifyIORef buffer f >> relayout >> return True
            Nothing -> return False
-  
+
   widgetShowAll win
   mainGUI
 

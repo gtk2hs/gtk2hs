@@ -21,20 +21,20 @@ main = do
   area <- drawingAreaNew
   containerAdd win area
   on area sizeRequest $ return (Requisition 100 100)
-  
+
   -- Create a Cairo Context that contains information about the current font,
   -- etc.
   ctxt <- cairoCreateContext Nothing
   lay <- layoutText ctxt loremIpsum
   layoutSetWrap lay WrapWholeWords
-  
+
   -- Wrap the layout to a different width each time the window is resized.
   on area sizeAllocate $ \(Rectangle _ _ w _) -> do
     layoutSetWidth lay (Just (fromIntegral w))
 
   -- Setup the handler to draw the layout.
   on area exposeEvent $ updateArea area lay
-  
+
   -- Run the whole thing.
   widgetShowAll win
   mainGUI
@@ -48,4 +48,3 @@ updateArea area lay = do
     showLayout lay
 
   return True
- 

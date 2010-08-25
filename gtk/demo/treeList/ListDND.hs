@@ -23,10 +23,10 @@ compStrCol :: ColumnId CompType String
 compStrCol = makeColumnIdString 2
 
 data Computer = Computer {
-	name :: String,
-	addr :: (Int, Int, Int, Int),
-	roomStore  :: ListStore String,
-	roomSel :: Int,
+        name :: String,
+        addr :: (Int, Int, Int, Int),
+        roomStore  :: ListStore String,
+        roomSel :: Int,
         cType :: CompType }
 
 data CompType
@@ -54,11 +54,11 @@ main = do
 
   let pNames = map ("resListDND" </>)
                ["laptop.png","laptopSmall.png","printer.png",
-		"tower.png","server.png","desktop.png"]
+                "tower.png","server.png","desktop.png"]
   pics <- mapM pixbufNewFromFile pNames
 
   smallPics <- mapM (\n -> pixbufNewFromFileAtScale n 48 48 True) pNames
-	
+
   [noRoom, publicRoom, restrictedRoom] <- mapM listStoreNew
     [["Paul (Home)","John (Home)","Fred (Home)"],
      ["N12","S112", "S113", "S114"],
@@ -68,7 +68,7 @@ main = do
   treeModelSetColumn noRoom roomStrCol id
   treeModelSetColumn publicRoom roomStrCol id
   treeModelSetColumn restrictedRoom roomStrCol id
-  
+
   let genRoomStore MacBookPro = noRoom
       genRoomStore MacBook = noRoom
       genRoomStore Printer = publicRoom
@@ -78,10 +78,10 @@ main = do
 
   -- the initial computer list - it's a coincidence that there's
   -- one computer of each type
-  content <- listStoreNewDND 
+  content <- listStoreNewDND
     (map (\t -> Computer { name = showCT t, addr = (192,168,0,fromEnum t+1),
-			  roomStore = genRoomStore t, roomSel = 0, cType = t})
-	      [minBound :: CompType .. maxBound])
+                          roomStore = genRoomStore t, roomSel = 0, cType = t})
+              [minBound :: CompType .. maxBound])
     (Just listStoreDefaultDragSourceIface)
     (Just DragDestIface {
       treeDragDestRowDropPossible = \store path@(i:_) -> do
@@ -123,13 +123,13 @@ main = do
   treeModelSetColumn compTypes compPicCol $
     \t -> pics !! fromEnum t
   treeModelSetColumn compTypes compStrCol showCT
-  
+
   -- create an icon view of all the computer types
   typesView <- iconViewNew
   set typesView [iconViewModel := Just compTypes,
                  iconViewPixbufColumn := compPicCol,
                  iconViewTextColumn := compStrCol,
-                 iconViewColumns := 6] 
+                 iconViewColumns := 6]
 
   -- create an editable list of computers
   inventory <- treeViewNewWithModel content
@@ -176,9 +176,9 @@ main = do
     [(oct1, True), (dot1, False), (oct2, True),
      (dot2, False), (oct3, True), (dot3, False), (oct4, True)]
   mapM_ (\d -> set d [cellText := ".",
-		      cellTextWidthChars := 0]) [dot1, dot2, dot3]
+                      cellTextWidthChars := 0]) [dot1, dot2, dot3]
   mapM_ (\o -> set o [cellXAlign := 1.0,
-		      cellTextWidthChars := 3]) [oct1, oct2, oct3, oct4]
+                      cellTextWidthChars := 3]) [oct1, oct2, oct3, oct4]
   cellLayoutSetAttributes addrCol oct1 content
     (\Computer { addr = (o1,_,_,_)} -> [cellText := show o1])
   cellLayoutSetAttributes addrCol oct2 content
@@ -186,7 +186,7 @@ main = do
   cellLayoutSetAttributes addrCol oct3 content
     (\Computer { addr = (_,_,o3,_)} -> [cellText := show o3])
   cellLayoutSetAttributes addrCol oct4 content
-    (\Computer { addr = (_,_,_,o4)} -> [cellText := show o4])  
+    (\Computer { addr = (_,_,_,o4)} -> [cellText := show o4])
   treeViewAppendColumn inventory addrCol
 
   roomCol <- treeViewColumnNew
@@ -215,13 +215,13 @@ main = do
   tl <- targetListNew
   targetListAdd tl compTypeTag [TargetSameApp] 0
   iconViewEnableModelDragSource typesView [Button1] tl [ActionCopy]
-  
+
   -- Due to a bug in Gtk+, the treeDragSourceDragDataGet handler in
   -- the DND source handler is not called unless the IconView is also
   -- set to be a DND destination. Bugzilla 550528
   tl <- targetListNew
   iconViewEnableModelDragDest typesView tl []
-  
+
   -- make the inventory widget a drag destination for compTypeTag values
   tl <- targetListNew
   targetListAdd tl compTypeTag [TargetSameApp] 0
@@ -230,12 +230,12 @@ main = do
   tl <- targetListNew
   targetListAdd tl targetTreeModelRow [TargetSameWidget] 0
   treeViewEnableModelDragSource inventory [Button1] tl [ActionMove]
-      
+
   -- Install drag and drop for permuting rows. This is now done above using
   -- the explicit target 'targetTreeModelRow'. Calling the function below
   -- will set a completely new 'TargetList' thereby removing our own
   -- 'compTypeTag' from the inventory widget's target list.
-  
+
   --treeViewSetReorderable inventory True
 
   -- arrange the widgets
@@ -245,4 +245,4 @@ main = do
   containerAdd win v
 
   widgetShowAll win
-  mainGUI 
+  mainGUI

@@ -12,9 +12,8 @@ main = do
     mapM_ (\fc -> do
       sizes <- pangoFontFaceListSizes fc
       let showSize Nothing = "all sizes"
-	  showSize (Just sz) = concat (intersperse ", " (map show sz))++
-			       " points"
+          showSize (Just sz) = concat (intersperse ", " (map show sz))++
+                               " points"
       putStrLn ("  "++show fc++" in "++showSize sizes)
       ) fcs
     ) ffs
-

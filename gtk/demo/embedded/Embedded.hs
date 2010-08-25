@@ -1,7 +1,7 @@
 -- Use GtkSocket and GtkPlug for cross-process embedded.
 -- Just startup program, press 'm' to create tab with new button.
--- Click button for hang to simulate plug hanging process, 
--- but socket process still running, can switch to other tab. 
+-- Click button for hang to simulate plug hanging process,
+-- but socket process still running, can switch to other tab.
 
 module Main where
 
@@ -27,10 +27,10 @@ main = do
     -- Entry plug main when have two arguments.
     [id] -> plugMain (toNativeWindowId $ read id :: NativeWindowId) -- get GtkSocket id
     -- Othersise entry socket main when no arguments.
-    _ -> socketMain 
-  
+    _ -> socketMain
+
 -- | GtkSocekt main.
-socketMain :: IO ()  
+socketMain :: IO ()
 socketMain = do
   initGUI
 
@@ -48,7 +48,7 @@ socketMain = do
   -- Handle key press.
   window `on` keyPressEvent $ tryEvent $ do
     keyName <- eventKeyName
-    liftIO $ 
+    liftIO $
       case keyName of
         "m" -> do
                -- Create new GtkSocket.
@@ -57,9 +57,9 @@ socketMain = do
                notebookAppendPage notebook socket "Tab"   -- add to GtkSocekt notebook
                id <- socketGetId socket                    -- get GtkSocket id
 
-               -- Fork process to add GtkPlug into GtkSocekt. 
+               -- Fork process to add GtkPlug into GtkSocekt.
                path <- liftM2 (</>) getCurrentDirectory getProgName -- get program full path
-               runCommand $ path ++ " " ++ (show $ fromNativeWindowId id) -- don't use `forkProcess` 
+               runCommand $ path ++ " " ++ (show $ fromNativeWindowId id) -- don't use `forkProcess`
                return ()
         "q" -> mainQuit          -- quit
 
@@ -74,13 +74,13 @@ plugMain id = do
 
   plug <- plugNew $ Just id
   plug `onDestroy` mainQuit
-  
+
   button <- buttonNewWithLabel "Click me to hang."
   plug `containerAdd` button
 
   -- Simulate a plugin hanging to see if it blocks the outer process.
   button `onClicked` threadDelay 5000000
-  
+
   widgetShowAll plug
-  
+
   mainGUI

@@ -37,8 +37,8 @@ main = do
               return s
     t <- getModificationTime f
     return FileInfo { fName = f
-		    , fSize = s
-		    , fTime = t }
+                    , fSize = s
+                    , fTime = t }
 
   store <- New.listStoreNew fInfos
 

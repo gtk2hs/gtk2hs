@@ -9,7 +9,7 @@ data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 main = do
   initGUI
   Just xml <- xmlNew "ListTest.glade"
-  
+
   win <- xmlGetWidget xml castToWindow "window"
   onDestroy win mainQuit
 
@@ -57,18 +57,18 @@ main = do
     value <- getValues
     index <- fmap floor $ spinButtonGetValue updateIndex
     New.listStoreSetValue store index value
-  
+
   onClicked removeButton $ do
     index <- fmap floor $ spinButtonGetValue removeIndex
     New.listStoreRemove store index
 
   onClicked clearButton $ New.listStoreClear store
-  
+
   New.treeViewSetReorderable view True
 
 --  containerAdd win view
   widgetShowAll win
-  mainGUI 
+  mainGUI
 
 setupView view model = do
   New.treeViewSetHeadersVisible view True

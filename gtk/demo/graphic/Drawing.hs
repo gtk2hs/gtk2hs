@@ -39,8 +39,7 @@ updateCanvas text = do
   }
   drawArc win gc False 0 0 width height (135*64) (90*64)
 
-  drawLayoutWithColors win gc 30 (height `div` 2) text 
+  drawLayoutWithColors win gc 30 (height `div` 2) text
     (Just (Color 0 0 0)) Nothing
 
   return True
- 

@@ -14,10 +14,10 @@ visCol = makeColumnIdBool 0
 
 main = do
   initGUI
-  
+
   win <- windowNew
   onDestroy win mainQuit
-  
+
   content <- readFile "FilterDemo.hs"
 
   -- create a view that shows all lines
@@ -54,9 +54,9 @@ main = do
   cellLayoutSetAttributes col ren model $ \row -> [ cellText := row ]
 
   treeViewAppendColumn viewFew col
-  
-  
- 
+
+
+
   box <- vBoxNew False 0
   swAll <- scrolledWindowNew Nothing Nothing
   containerAdd swAll viewAll
@@ -65,7 +65,7 @@ main = do
   swFew <- scrolledWindowNew Nothing Nothing
   containerAdd swFew viewFew
   boxPackEnd box swFew PackGrow 4
-  
+
   containerAdd win box
   widgetShowAll win
   mainGUI

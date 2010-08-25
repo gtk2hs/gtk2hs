@@ -12,7 +12,7 @@ data ColorDesc = ColorDesc {
 compareCol :: ColumnId ColorDesc String
 compareCol = makeColumnIdString 0
 
-invertColor (Color r g b) = Color (32767+r) (32767+g) (32767+b) 
+invertColor (Color r g b) = Color (32767+r) (32767+g) (32767+b)
 --Color (65535-r) (65535-g) (65535-b)
 
 parseColor s = ColorDesc c (dropWhile isSpace (upperToSpace name))
@@ -36,7 +36,7 @@ main =
     do
       initGUI
       window <- windowNew
-      
+
       contents <- readFile "rgb.txt"
       let killDups [] = []
           killDups [x] = [x]
@@ -79,4 +79,3 @@ matchFunc model str iter = do
                                   (words (map toLower (cdName row)))
          otherwise -> return False
   return r
-

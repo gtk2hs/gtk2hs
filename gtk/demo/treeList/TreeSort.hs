@@ -6,14 +6,14 @@ main = do
   initGUI
   win <- windowNew
   -- Create a tree model with some unsorted data.
-  rawmodel <- New.treeStoreNew 
+  rawmodel <- New.treeStoreNew
    [Node ("zoo",8) [], Node ("foo",5) [],
     Node ("bar",20) [], Node ("baz",2) []]
 
   -- Create a sorting proxy model, that is, a model that permutates the
   -- rows of a different model such that they appear to be sorted.
   model <- New.treeModelSortNewWithModel rawmodel
-  
+
   -- Define two sorting functions, one being the default sorting function and
   -- the other one being the sorting function for the 'SortColumnId' 2.
   -- 'SortColumnId's are arbitrary positive numbers, i.e., we could have chosen
@@ -75,7 +75,7 @@ main = do
     mIter <- New.treeModelGetIterFirst model
     recurse mIter
 
-  -- Put it all together.       
+  -- Put it all together.
   vBox <- vBoxNew False 3
   boxPackStartDefaults vBox view
   boxPackEnd vBox button PackNatural 0

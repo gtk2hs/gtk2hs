@@ -32,7 +32,7 @@ main = do
   renderer2 <- New.cellRendererTextNew
   renderer3 <- New.cellRendererToggleNew
 
-  New.cellLayoutPackStart col1 renderer1 True 
+  New.cellLayoutPackStart col1 renderer1 True
   New.cellLayoutPackStart col2 renderer2 True
   New.cellLayoutPackStart col3 renderer3 True
 
@@ -41,12 +41,12 @@ main = do
   New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellToggleActive := marked row ]
 
   New.treeViewAppendColumn view col1
-  New.treeViewAppendColumn view col2 
+  New.treeViewAppendColumn view col2
   New.treeViewAppendColumn view col3
-  
+
   containerAdd win view
   widgetShowAll win
-  mainGUI 
+  mainGUI
 
 storeImpl =
   New.treeStoreNew

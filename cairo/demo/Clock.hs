@@ -1,7 +1,7 @@
 -- original author:
 --    Mirco "MacSlow" Mueller <macslow@bangang.de>
 --
--- created: 
+-- created:
 --    10.1.2006 (or so)
 --
 -- http://www.gnu.org/licenses/licenses.html#GPL
@@ -35,9 +35,9 @@ drawClockBackground quality width height = do
   setSourceRGB 0.16 0.18 0.19
   setLineWidth (1.5/60)
   setLineCap LineCapRound
-  setLineJoin LineJoinRound  
-  drawHourMarks  
-  
+  setLineJoin LineJoinRound
+  drawHourMarks
+
   restore
 
 drawClockHands :: Bool -> Int -> Int -> Render ()
@@ -51,18 +51,18 @@ drawClockHands quality width height = do
   setLineWidth (1.5/60)
   setLineCap LineCapRound
   setLineJoin LineJoinRound
-   
+
   time <- liftIO (getClockTime >>= toCalendarTime)
   let hours   = fromIntegral (if ctHour time >= 12
                                 then ctHour time - 12
                                 else ctHour time)
       minutes = fromIntegral (ctMin time)
       seconds = fromIntegral (ctSec time)
-  
+
   drawHourHand quality hours minutes seconds
   drawMinuteHand quality minutes seconds
   drawSecondHand quality seconds
-  
+
   restore
 
 drawClockForeground :: Bool -> Int -> Int -> Render ()
@@ -79,9 +79,9 @@ drawClockForeground quality width height = do
 
   when quality drawInnerShadow
   when quality drawReflection
-  drawFrame quality 
+  drawFrame quality
   restore
-  
+
 drawDropShadow =
   withRadialPattern 0.55 0.55 0.25 0.5 0.5 0.525 $ \pattern -> do
     patternAddColorStopRGBA pattern 0    0     0     0     0.811
@@ -127,7 +127,7 @@ drawHourHand quality hours minutes seconds = do
   rotate ( (pi/6) * hours
          + (pi/360) * minutes
          + (pi/21600) * seconds)
-  
+
   -- hour hand's shadow
   when quality $ do
     setLineWidth (1.75/60)
@@ -136,7 +136,7 @@ drawHourHand quality hours minutes seconds = do
     moveTo (-2/15 + 0.025) 0.025
     lineTo (7/15 + 0.025) 0.025
     stroke
-  
+
   -- the hand itself
   setLineWidth (1/60)
   setOperator OperatorOver
@@ -153,7 +153,7 @@ drawMinuteHand quality minutes seconds = do
   setLineJoin LineJoinMiter
   rotate ( (pi/30) * minutes
          + (pi/1800) * seconds)
-  
+
   -- minute hand's shadow
   when quality $ do
     setLineWidth (1.75/60)
@@ -162,7 +162,7 @@ drawMinuteHand quality minutes seconds = do
     moveTo (-16/75 - 0.025) (-0.025)
     lineTo (2/3 - 0.025)    (-0.025)
     stroke
-  
+
   -- the minute hand itself
   setLineWidth (1/60)
   setOperator OperatorOver
@@ -276,7 +276,7 @@ initialSize = 256
 
 main = do
   initGUI
-  
+
   window <- windowNew
   windowSetDecorated window False
   windowSetResizable window True
@@ -300,13 +300,13 @@ main = do
   window `on` keyPressEvent $ tryEvent $ do
     "Escape" <- eventKeyName
     liftIO mainQuit
-  
+
   window `on` buttonPressEvent $ tryEvent $ do
     LeftButton <- eventButton
     time <- eventTime
     (x,y) <- eventRootCoordinates
     liftIO $ windowBeginMoveDrag window LeftButton (round x) (round y) time
-    
+
   window `on` buttonPressEvent $ tryEvent $ do
     MiddleButton <- eventButton
     time <- eventTime
@@ -324,7 +324,7 @@ main = do
         drawWin <- widgetGetDrawWindow window
         background <- createImageSurface FormatARGB32 width height
         foreground <- createImageSurface FormatARGB32 width height
-        let clear = do 
+        let clear = do
               save
               setOperator OperatorClear
               paint
@@ -337,7 +337,7 @@ main = do
           drawClockForeground True width height
         writeIORef backgroundRef (Just background)
         writeIORef foregroundRef (Just foreground)
-  
+
   onRealize window redrawStaticLayers
 
   sizeRef <- newIORef (initialSize, initialSize)
@@ -348,7 +348,7 @@ main = do
     size <- readIORef sizeRef
     writeIORef sizeRef (w,h)
     when (size /= (w,h)) $ do
-      
+
       background <- readIORef backgroundRef
       foreground <- readIORef foregroundRef
       maybe (return ()) surfaceFinish background
@@ -356,10 +356,10 @@ main = do
 
       writeIORef backgroundRef Nothing
       writeIORef foregroundRef Nothing
-      
+
       timeoutHandler <- readIORef timeoutHandlerRef
       maybe (return ()) timeoutRemove timeoutHandler
-      
+
       handler <- timeoutAddFull (do
         writeIORef timeoutHandlerRef Nothing
         redrawStaticLayers
@@ -367,7 +367,7 @@ main = do
         return False
         ) priorityDefaultIdle 300
       writeIORef timeoutHandlerRef (Just handler)
-      
+
     return False
 
   window `on` exposeEvent $ do

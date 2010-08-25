@@ -42,14 +42,14 @@ updateCanvas text = do
 
     setSourceRGB 1 1 0
     setLineWidth 4
-  
+
     save
     translate (width / 2) (height / 2)
     scale (width / 2) (height / 2)
     arc 0 0 1 (135 * pi/180) (225 * pi/180)
     restore
     stroke
-  
+
     setSourceRGB 0 0 0
     moveTo 30 (realToFrac height / 4)
     rotate (pi/4)

@@ -33,30 +33,30 @@ main = do
   cellLayoutSetAttributeFunc col cell model $ \(TreeIter _ n _ _) ->
     set cell [cellText := show n]
   set col [treeViewColumnTitle := "line",
-	   treeViewColumnReorderable := True ]
+           treeViewColumnReorderable := True ]
 
   -- add a column showing the line in the file
   col <- treeViewColumnNew
   treeViewAppendColumn view col
   set col [treeViewColumnTitle := "line in file",
-	   treeViewColumnReorderable := True ]
+           treeViewColumnReorderable := True ]
 
   cell <- cellRendererTextNew
   cellLayoutPackStart col cell True
   cellLayoutSetAttributes col cell model $
     \row -> [cellText := mkCase (rowCase row) (rowString row)]
-  
+
   -- add a column showing if it is forced to a specific case
   col <- treeViewColumnNew
   treeViewAppendColumn view col
   set col [treeViewColumnTitle := "case",
-	   treeViewColumnReorderable := True ]
+           treeViewColumnReorderable := True ]
 
   cell <- cellRendererToggleNew
   cellLayoutPackStart col cell True
   cellLayoutSetAttributes col cell model $
     \row -> [cellToggleActive := fromMaybe False (rowCase row),
-	     cellToggleInconsistent := rowCase row==Nothing]
+             cellToggleInconsistent := rowCase row==Nothing]
   cell `on` cellToggled $ \tpStr -> do
     let [i] = stringToTreePath tpStr
     row@RowInfo { rowCase = c } <- listStoreGetValue model i
@@ -75,4 +75,3 @@ main = do
   set win [ containerChild := swin ]
   widgetShowAll win
   mainGUI
-

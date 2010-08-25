@@ -13,7 +13,7 @@ import Graphics.UI.Gtk
 import System.Exit
 import System.IO
 import System.Process
-import System.Environment 
+import System.Environment
 import Text.Printf
 
 main :: IO ()
@@ -22,32 +22,32 @@ main = do
   case args of
     [filepath] -> do
         initGUI
-        
+
         mainWindow <- windowNew
         windowSetDefaultSize mainWindow 800 450
         windowSetPosition mainWindow WinPosCenter
-        
-        mplayer <- mplayerNew 
-        mplayerStick mplayer (toContainer mainWindow) 
-        
-        mainWindow `afterShow` do 
+
+        mplayer <- mplayerNew
+        mplayerStick mplayer (toContainer mainWindow)
+
+        mainWindow `afterShow` do
           mplayerRun mplayer filepath
-                     
+
           mainWindow `onDestroy` do
             mplayerQuit mplayer
             mainQuit
-        
+
           return ()
-        
+
         widgetShowAll mainWindow
-        
+
         mainGUI
     _ -> putStrLn "Usage : mplayer file"
 
 data MPlayer =
     MPlayer {mplayerWidget      :: DrawingArea
             ,mplayerHandle      :: TVar (Maybe (Handle, Handle, Handle, ProcessHandle))}
-                                                     
+
 mplayerNew :: IO MPlayer
 mplayerNew =
   MPlayer <$> drawingAreaNew
@@ -57,7 +57,7 @@ mplayerStick :: MPlayer -> Container -> IO ()
 mplayerStick (MPlayer {mplayerWidget = mWidget}) container = do
   widgetShowAll mWidget
   container `containerAdd` mWidget
-  
+
 mplayerRun :: MPlayer -> FilePath -> IO ()
 mplayerRun (MPlayer {mplayerWidget = mWidget
                     ,mplayerHandle = mHandle}) filepath = do
@@ -65,7 +65,7 @@ mplayerRun (MPlayer {mplayerWidget = mWidget
   wid <- liftM fromNativeWindowId $ drawableGetID drawWindow
   handle <- runInteractiveCommand $ printf "mplayer %s -slave -wid %d" filepath (wid :: Int)
   writeTVarIO mHandle (Just handle)
-    
+
 mplayerQuit :: MPlayer -> IO ()
 mplayerQuit MPlayer {mplayerHandle = mHandle} = do
   handle <- readTVarIO mHandle

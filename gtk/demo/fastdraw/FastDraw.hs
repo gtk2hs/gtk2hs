@@ -9,7 +9,7 @@ import Data.Word
 import Data.IORef
 import Control.Monad ( when )
 import Control.Monad.Trans ( liftIO )
-import Data.Array.Base ( unsafeWrite ) 
+import Data.Array.Base ( unsafeWrite )
 
 
 main = do
@@ -27,7 +27,7 @@ main = do
   chan <- pixbufGetNChannels pb
   bits <- pixbufGetBitsPerSample pb
   putStrLn ("bytes per row: "++show row++", channels per pixel: "++show chan++
-	    ", bits per sample: "++show bits)
+            ", bits per sample: "++show bits)
 
   -- draw into the Pixbuf
   doFromTo 0 255 $ \y ->
@@ -38,34 +38,34 @@ main = do
 
   -- a function to update the Pixbuf
   blueRef <- newIORef 0
-  dirRef <- newIORef True 
+  dirRef <- newIORef True
   let updateBlue = do
         blue <- readIORef blueRef
-	--print blue
-	doFromTo 0 255 $ \y ->
+        --print blue
+        doFromTo 0 255 $ \y ->
           doFromTo 0 255 $ \x ->
-	-- Here, writeArray was replaced with unsafeWrite. The latter does
-	-- not check that the index is within bounds which has a tremendous
-	-- effect on performance.
+        -- Here, writeArray was replaced with unsafeWrite. The latter does
+        -- not check that the index is within bounds which has a tremendous
+        -- effect on performance.
         --  writeArray  pbData (2+x*chan+y*row) blue  -- safe checked indexing
             unsafeWrite pbData (2+x*chan+y*row) blue  -- unchecked indexing
 
         -- arrange for the canvas to be redrawn now that we've changed
         -- the Pixbuf
-	widgetQueueDraw canvas
+        widgetQueueDraw canvas
 
         -- update the blue state ready for next time
         dir <- readIORef dirRef
-	let diff = 4
-	let blue' = if dir then blue+diff else blue-diff
-	if dir then
-	  if blue<=maxBound-diff then writeIORef blueRef blue' else
-	    writeIORef blueRef maxBound >> modifyIORef dirRef not 
-	  else
-	  if blue>=minBound+diff then writeIORef blueRef blue' else
-	    writeIORef blueRef minBound >> modifyIORef dirRef not 
-	return True 
- 
+        let diff = 4
+        let blue' = if dir then blue+diff else blue-diff
+        if dir then
+          if blue<=maxBound-diff then writeIORef blueRef blue' else
+            writeIORef blueRef maxBound >> modifyIORef dirRef not
+          else
+          if blue>=minBound+diff then writeIORef blueRef blue' else
+            writeIORef blueRef minBound >> modifyIORef dirRef not
+        return True
+
   idleAdd updateBlue priorityLow
   canvas `on` exposeEvent $ updateCanvas pb
   boxPackStartDefaults contain canvas
@@ -88,7 +88,7 @@ updateCanvas pb = do
   (flip mapM_) rects $ \(Rectangle x y w h) -> do
     drawPixbuf win gc pb x y x y w h RgbDitherNone 0 0
   return True
- 
+
 -- GHC is much better at opimising loops like this:
 --
 -- > doFromTo 0 255 $ \y ->

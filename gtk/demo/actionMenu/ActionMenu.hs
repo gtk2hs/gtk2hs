@@ -45,43 +45,43 @@ main = do
 
   -- Create menu items
   newAct <- actionNew "NewAction" "New"
-	    (Just "Clear the spreadsheet area.")
-	    (Just stockNew)
+            (Just "Clear the spreadsheet area.")
+            (Just stockNew)
   newAct `onActionActivate` putStrLn "New activated."
   openAct <- actionNew "OpenAction" "Open"
-	    (Just "Open an existing spreadsheet.")
-	    (Just stockOpen)
+            (Just "Open an existing spreadsheet.")
+            (Just stockOpen)
   openAct `onActionActivate` putStrLn "Open activated."
   saveAct <- actionNew "SaveAction" "Save"
-	    (Just "Save the current spreadsheet.")
-	    (Just stockSave)
+            (Just "Save the current spreadsheet.")
+            (Just stockSave)
   saveAct `onActionActivate` putStrLn "Save activated."
   saveAsAct <- actionNew "SaveAsAction" "SaveAs"
-	    (Just "Save spreadsheet under new name.")
-	    (Just stockSaveAs)
+            (Just "Save spreadsheet under new name.")
+            (Just stockSaveAs)
   saveAsAct `onActionActivate` putStrLn "SaveAs activated."
   exitAct <- actionNew "ExitAction" "Exit"
-	    (Just "Exit this application.")
-	    (Just stockSaveAs)
-  exitAct `onActionActivate` mainQuit 
+            (Just "Exit this application.")
+            (Just stockSaveAs)
+  exitAct `onActionActivate` mainQuit
   cutAct <- actionNew "CutAction" "Cut"
-	    (Just "Cut out the current selection.")
-	    (Just stockCut)
+            (Just "Cut out the current selection.")
+            (Just stockCut)
   cutAct `onActionActivate` putStrLn "Cut activated."
   copyAct <- actionNew "CopyAction" "Copy"
-	    (Just "Copy the current selection.")
-	    (Just stockCopy)
+            (Just "Copy the current selection.")
+            (Just stockCopy)
   copyAct `onActionActivate` putStrLn "Copy activated."
   pasteAct <- actionNew "PasteAction" "Paste"
-	    (Just "Paste the current selection.")
-	    (Just stockPaste)
+            (Just "Paste the current selection.")
+            (Just stockPaste)
   pasteAct `onActionActivate` putStrLn "Paste activated."
-  
+
   standardGroup <- actionGroupNew "standard"
   mapM_ (actionGroupAddAction standardGroup) [fileAct, editAct]
   mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act Nothing)
     [newAct, openAct, saveAct, saveAsAct, exitAct, cutAct, copyAct, pasteAct]
-  
+
   ui <- uiManagerNew
   mid <- uiManagerAddUiFromString ui uiDef
   uiManagerInsertActionGroup ui standardGroup 0
@@ -91,8 +91,8 @@ main = do
   win `onSizeRequest` return (Requisition 200 100)
   (Just menuBar) <- uiManagerGetWidget ui "/ui/menubar"
   (Just toolBar) <- uiManagerGetWidget ui "/ui/toolbar"
- 
-  edit <- textViewNew 
+
+  edit <- textViewNew
   vBox <- vBoxNew False 0
   set vBox [boxHomogeneous := False]
   boxPackStart vBox menuBar PackNatural 0

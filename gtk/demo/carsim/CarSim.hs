@@ -184,7 +184,7 @@ main = do
         containerAdd bb qa
         containerAdd bb qq
         return bb
-  
+
     howMany <- do
 
         sc <- vScaleNewWithRange 1 40 1
@@ -203,7 +203,7 @@ main = do
         alignmentSetPadding al 15 15 15 15
         containerAdd al sc
         return al
-  
+
     track <- do
 
         let dr = drawingArea
@@ -236,7 +236,7 @@ main = do
         frameSetShadowType af ShadowNone
         containerAdd af dr
         return af
-  
+
     -- 'layout' is a widget that contains all interface elements
     -- properly arranged.
 

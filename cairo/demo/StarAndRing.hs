@@ -72,7 +72,7 @@ starAndRing :: Int -> Int -> Render ()
 starAndRing width height = do
   setOperator OperatorClear
   paint
-  
+
   setOperator OperatorAdd
 
   renderWithSimilarSurface ContentColorAlpha width height $ \ringOverStar -> do

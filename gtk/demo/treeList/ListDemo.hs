@@ -19,7 +19,7 @@ main = do
     ,Phone { name = "Bar", number = 67890, marked = True  }
     ,Phone { name = "Baz", number = 39496, marked = False }]
   view <- treeViewNewWithModel model
-  
+
   treeViewSetHeadersVisible view True
 
   -- add a couple columns
@@ -60,7 +60,7 @@ main = do
     (i:_) <- treeModelGetPath model iter
     row <- listStoreGetValue model i
     return (map toLower str `isPrefixOf` map toLower (name row))
- 
+
   containerAdd win view
   widgetShowAll win
-  mainGUI 
+  mainGUI
