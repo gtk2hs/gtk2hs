@@ -62,6 +62,7 @@ module System.GIO.File.FileEnumerator (
     ) where
 
 import Control.Monad
+import Data.Maybe (fromMaybe)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -70,7 +71,6 @@ import System.Glib.GList
 import System.Glib.GObject
 import System.Glib.UTFString
 {#import System.GIO.Async.AsyncResult#}
-{#import System.GIO.Base#}
 {#import System.GIO.Types#}
 
 {# context lib = "gio" prefix = "g" #}
@@ -79,34 +79,38 @@ import System.Glib.UTFString
 -- available. The 'FileInfo' returned from this function will contain attributes that match the
 -- attribute string that was passed when the 'FileEnumerator' was created.
 -- 
--- On error, returns 'Nothing' and sets error to the error. If the enumerator is at the end, 'Nothing' will be
--- returned and error will be unset.
+-- On error, a 'GError' is thrown. If the enumerator is at the end, 'Nothing' will be
+-- returned.
 fileEnumeratorNextFile :: FileEnumeratorClass enumerator => enumerator
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.
  -> IO (Maybe FileInfo)     -- ^ returns     A 'FileInfo' or 'Nothing' on error or end of enumerator. 
 fileEnumeratorNextFile enumerator cancellable =
-    maybeNull (makeNewGObject mkFileInfo) $
-    withGObject (toFileEnumerator enumerator) $ \cEnumerator ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError $ \gErrorPtr -> 
-                g_file_enumerator_next_file cEnumerator cCancellable gErrorPtr
-    where _ = {# call g_file_enumerator_next_file #}
+    checkGError ( \gErrorPtr -> 
+                      maybeNull (makeNewGObject mkFileInfo) $
+                          {#call g_file_enumerator_next_file #} 
+                            (toFileEnumerator enumerator) 
+                            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                            gErrorPtr)
+                (\ _ -> return Nothing)
+                 
 
 -- | Releases all resources used by this enumerator, making the enumerator return GIoErrorClosed on
 -- all calls.
 -- 
 -- This will be automatically called when the last reference is dropped, but you might want to call
 -- this function to make sure resources are released as early as possible.
+--
+-- Throws a 'GError' if an error occurs.
 fileEnumeratorClose :: FileEnumeratorClass enumerator => enumerator
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.           
- -> IO Bool -- ^ returns     'True' on success or 'False' on error.                      
+ -> IO ()
 fileEnumeratorClose enumerator cancellable =
-    liftM toBool $
-    withGObject (toFileEnumerator enumerator) $ \cEnumerator ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError $ \gErrorPtr -> 
-                g_file_enumerator_close cEnumerator cCancellable gErrorPtr
-    where _ = {# call g_file_enumerator_close #}
+    propagateGError $ \gErrorPtr -> do
+        {#call g_file_enumerator_close#} 
+          (toFileEnumerator enumerator) 
+          (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+          gErrorPtr
+        return ()
 
 -- | Request information for a number of files from the enumerator asynchronously. When all i/o for the
 -- operation is finished the callback will be called with the requested information.
@@ -128,18 +132,15 @@ fileEnumeratorNextFilesAsync :: FileEnumeratorClass enumerator
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.               
  -> AsyncReadyCallback -- ^ @callback@    a 'AsyncReadyCallback' to call when the request is satisfied 
  -> IO ()
-fileEnumeratorNextFilesAsync enumerator numFiles ioPriority cancellable callback =
-    withGObject (toFileEnumerator enumerator) $ \cEnumerator ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          cCallback <- marshalAsyncReadyCallback callback
-          g_file_enumerator_next_files_async 
-            cEnumerator
-            (fromIntegral numFiles)
-            (fromIntegral ioPriority)
-            cCancellable
-            cCallback
-            (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_enumerator_next_files_async #}
+fileEnumeratorNextFilesAsync enumerator numFiles ioPriority cancellable callback = do
+    cCallback <- marshalAsyncReadyCallback callback
+    {#call g_file_enumerator_next_files_async #}
+      (toFileEnumerator enumerator)
+      (fromIntegral numFiles)
+      (fromIntegral ioPriority)
+      (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+      cCallback
+      (castFunPtrToPtr cCallback)
   
 -- | Finishes the asynchronous operation started with 'fileEnumeratorNextFilesAsync'.
 fileEnumeratorNextFilesFinish :: FileEnumeratorClass enumerator => enumerator
@@ -162,17 +163,14 @@ fileEnumeratorCloseAsync :: FileEnumeratorClass enumerator
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.               
  -> AsyncReadyCallback -- ^ @callback@    a 'AsyncReadyCallback' to call when the request is satisfied 
  -> IO ()
-fileEnumeratorCloseAsync enumerator ioPriority mbCancellable callback =
-    withGObject (toFileEnumerator enumerator) $ \cEnumerator ->
-        maybeWith withGObject mbCancellable $ \cCancellable -> do
-          cCallback <- marshalAsyncReadyCallback callback
-          g_file_enumerator_close_async 
-            cEnumerator
-            (fromIntegral ioPriority)
-            cCancellable
-            cCallback
-            (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_enumerator_close_async #}
+fileEnumeratorCloseAsync enumerator ioPriority mbCancellable callback = do
+    cCallback <- marshalAsyncReadyCallback callback
+    {#call g_file_enumerator_close_async #}
+      (toFileEnumerator enumerator) 
+      (fromIntegral ioPriority)
+      (fromMaybe (Cancellable nullForeignPtr) mbCancellable) 
+      cCallback
+      (castFunPtrToPtr cCallback)
 
 -- | Finishes closing a file enumerator, started from 'fileEnumeratorCloseAsync'.
 -- 
@@ -181,13 +179,17 @@ fileEnumeratorCloseAsync enumerator ioPriority mbCancellable callback =
 -- pending operation when the close operation was started, then this function will report
 -- 'IoErrorPending', and return 'False'. If cancellable was not 'Nothing', then the operation may have been
 -- cancelled by triggering the cancellable object from another thread. If the operation was cancelled,
--- the error 'IoErrorCancelled' will be set, and 'False' will be returned.
+-- the 'GError' 'IoErrorCancelled' will be thrown.
 fileEnumeratorCloseFinish :: FileEnumeratorClass enumerator => enumerator
  -> AsyncResult
- -> IO Bool -- ^ returns    'True' if the close operation has finished successfully.           
+ -> IO ()
 fileEnumeratorCloseFinish enumerator asyncResult = 
-    liftM toBool $
-    propagateGError ({# call g_file_enumerator_close_finish #} (toFileEnumerator enumerator) asyncResult) 
+    propagateGError (\gErrorPtr -> do
+                       {# call g_file_enumerator_close_finish #} 
+                          (toFileEnumerator enumerator) 
+                          asyncResult
+                          gErrorPtr
+                       return ()) 
 
 -- | Checks if the file enumerator has been closed.
 fileEnumeratorIsClosed :: FileEnumeratorClass enumerator => enumerator
