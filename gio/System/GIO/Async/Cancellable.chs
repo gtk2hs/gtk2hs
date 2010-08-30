@@ -51,11 +51,11 @@ module System.GIO.Async.Cancellable (
     ) where
 
 import Control.Monad
+import Data.Maybe (fromMaybe)
 import System.Glib.FFI
 import System.Glib.GError
 import System.Glib.GObject
 import System.Glib.Signals
-{#import System.GIO.Base#}
 {#import System.GIO.Signals#}
 {#import System.GIO.Types#}
 
@@ -79,13 +79,12 @@ cancellableIsCancelled :: Cancellable
 cancellableIsCancelled =
     liftM toBool . {# call cancellable_is_cancelled #}
 
--- | If the cancellable is cancelled, sets the error to notify that the operation was cancelled.
-cancellableThrowErrorIfCancelled :: Cancellable 
- -> IO Bool  -- ^ returns     'True' if cancellable was cancelled, 'False' if it was not. 
+-- | If the cancellable is cancelled, throws a 'GError' to notify that the operation was cancelled.
+cancellableThrowErrorIfCancelled :: Cancellable -> IO ()
 cancellableThrowErrorIfCancelled cancellable =
-    liftM toBool $
-    propagateGError $ \gErrorPtr -> 
+    propagateGError $ \gErrorPtr -> do
       {# call cancellable_set_error_if_cancelled #} cancellable gErrorPtr
+      return ()
 
 -- | Gets the top cancellable from the stack.
 cancellableGetCurrent :: 
@@ -97,9 +96,8 @@ cancellableGetCurrent =
 -- | Pops cancellable off the cancellable stack (verifying that cancellable is on the top of the stack).
 cancellablePopCurrent :: Maybe Cancellable -> IO ()
 cancellablePopCurrent cancellable =
-    maybeWith withGObject cancellable g_cancellable_pop_current
-    where
-      _ = {# call cancellable_pop_current #}
+      {# call cancellable_pop_current #}
+         (fromMaybe (Cancellable nullForeignPtr) cancellable) 
 
 -- | Pushes cancellable onto the cancellable stack. The current cancllable can then be recieved using
 -- 'cancellableGetCurrent' .
@@ -111,9 +109,8 @@ cancellablePopCurrent cancellable =
 -- yourself.
 cancellablePushCurrent :: Maybe Cancellable -> IO ()
 cancellablePushCurrent cancellable =
-    maybeWith withGObject cancellable g_cancellable_push_current
-    where
-      _ = {# call cancellable_push_current #}
+      {# call cancellable_push_current #}
+         (fromMaybe (Cancellable nullForeignPtr) cancellable) 
 
 -- | Resets cancellable to its uncancelled state.
 cancellableReset :: Cancellable -> IO ()
