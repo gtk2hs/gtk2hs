@@ -36,7 +36,7 @@ module System.GIO.File.File (
 -- 'File' objects do not represent files, merely an identifier for a file. All file content I/O is
 -- implemented as streaming operations (see GInputStream and GOutputStream).
 -- 
--- To construct a 'File', you can use: 'fileNewForPath' if
+-- To construct a 'File', you can use: 'fileFromPath' if
 -- you have a URI.  'fileNewForCommandlineArg'
 -- from a utf8 string gotten from 'fileGetParseName'.
 -- 
@@ -226,10 +226,11 @@ module System.GIO.File.File (
     fileMountEnclosingVolumeFinish,
     fileSupportsThreadContexts,
 #endif
-    ) where
+) where
 
 import Control.Monad
 import Data.Typeable
+import Data.Maybe (fromMaybe)
 import System.GIO.Enums
 import System.GIO.File.FileAttribute
 import System.Glib.FFI
@@ -238,7 +239,6 @@ import System.Glib.GError
 import System.Glib.GObject
 import System.Glib.UTFString
 {#import System.GIO.Async.AsyncResult#}
-{#import System.GIO.Base#}
 {#import System.GIO.Types#}
 
 import qualified Data.ByteString as BS
@@ -366,10 +366,9 @@ fileParent file =
 fileHasParent :: FileClass file => file -> Maybe File -> Bool 
 fileHasParent file parent = 
     unsafePerformIO $ liftM toBool $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject parent $ \parentPtr ->
-                  g_file_has_parent cFile parentPtr
-    where _ = {#call file_has_parent #}
+    {#call g_file_has_parent#} 
+    (toFile file)
+    (fromMaybe (File nullForeignPtr) parent)
 #endif
 
 -- | Gets a child of file with basename equal to name.
@@ -385,14 +384,14 @@ fileGetChild file name =
         {# call file_get_child #} (toFile file) cName
 
 -- | Gets the child of file for a given 'name (i.e. a UTF8 version of the name)'. If this function
--- fails, it returns 'Nothing' and error will be set. This is very useful when constructing a 'File' for a
+-- fails, it throws a GError. This is very useful when constructing a 'File' for a
 -- new file and the user entered the filename in the user interface, for instance when you select a
 -- directory and type a filename in the file selector.
 -- 
 -- This call does no blocking i/o.
-fileGetChildForDisplayName :: FileClass file => file -> String -> Maybe File
+fileGetChildForDisplayName :: FileClass file => file -> String -> File
 fileGetChildForDisplayName file displayName =
-    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
+    unsafePerformIO $ (makeNewGObject mkFile) $
         withUTFString displayName $ \cDisplayName ->
         propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName)
 
@@ -475,10 +474,9 @@ fileURIScheme file =
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
 fileRead file cancellable =
     constructNewGObject mkFileInputStream $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError (g_file_read cFile cCancellable) 
-    where _ = {# call file_read #}
+            propagateGError ({#call g_file_read#} 
+                              (toFile file)
+                              (fromMaybe (Cancellable nullForeignPtr) cancellable)) 
 
 -- | Asynchronously opens file for reading.
 -- 
@@ -492,16 +490,14 @@ fileReadAsync :: FileClass file
               -> Maybe Cancellable
               -> AsyncReadyCallback
               -> IO ()
-fileReadAsync file ioPriority mbCancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject mbCancellable $ \cCancellable -> do
-          cCallback <- marshalAsyncReadyCallback callback
-          g_file_read_async cFile
-                            (fromIntegral ioPriority)
-                            cCancellable
-                            cCallback
-                            (castFunPtrToPtr cCallback)
-    where _ = {# call file_read_async #}
+fileReadAsync file ioPriority mbCancellable callback = do
+  cCallback <- marshalAsyncReadyCallback callback
+  {#call g_file_read_async#} 
+     (toFile file)
+     (fromIntegral ioPriority)
+     (fromMaybe (Cancellable nullForeignPtr) mbCancellable) 
+     cCallback
+     (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous file read operation started with 'fileReadAsync'.
 fileReadFinish :: FileClass file
@@ -533,10 +529,11 @@ fileAppendTo :: FileClass file
              -> IO FileOutputStream
 fileAppendTo file flags cancellable =
     makeNewGObject mkFileOutputStream $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_append_to cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_append_to #}
+        propagateGError ({#call g_file_append_to #} 
+                           (toFile file) 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Creates a new file and returns an output stream for writing to it. The file must not already exist.
 -- 
@@ -559,10 +556,11 @@ fileCreate :: FileClass file
            -> IO FileOutputStream
 fileCreate file flags cancellable =
     constructNewGObject mkFileOutputStream $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_create cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_create #}
+        propagateGError ({#call g_file_create #} 
+                          (toFile file) 
+                         ((fromIntegral . fromFlags) flags) 
+                         (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Returns an output stream for overwriting the file, possibly creating a backup copy of the file
 -- first. If the file doesn't exist, it will be created.
@@ -603,14 +601,13 @@ fileReplace :: FileClass file
             -> IO FileOutputStream
 fileReplace file etag makeBackup flags cancellable =
     makeNewGObject mkFileOutputStream $
-    withGObject (toFile file) $ \cFile ->
         maybeWith withUTFString etag $ \cEtag ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_replace cFile
-                                        cEtag
-                                        (fromBool makeBackup)
-                                        ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_replace #}
+        propagateGError ({#call g_file_replace#} 
+                           (toFile file)
+                           cEtag
+                           (fromBool makeBackup)
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable))
 
 -- | Asynchronously opens file for appending.
 -- 
@@ -625,17 +622,15 @@ fileAppendToAsync :: FileClass file
                   -> Maybe Cancellable
                   -> AsyncReadyCallback
                   -> IO ()
-fileAppendToAsync file flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+fileAppendToAsync file flags ioPriority cancellable callback = do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_append_to_async cFile
-                                 ((fromIntegral . fromFlags) flags)
-                                 (fromIntegral ioPriority)
-                                 cCancellable
-                                 cCallback
-                                 (castFunPtrToPtr cCallback)
-    where _ = {# call file_append_to_async #}
+          {#call g_file_append_to_async#} 
+            (toFile file)
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous file append operation started with 'fileAppendToAsync'.
 fileAppendToFinish :: FileClass file
@@ -660,17 +655,15 @@ fileCreateAsync :: FileClass file
                   -> Maybe Cancellable
                   -> AsyncReadyCallback
                   -> IO ()
-fileCreateAsync file flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+fileCreateAsync file flags ioPriority cancellable callback = do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_create_async cFile
-                              ((fromIntegral . fromFlags) flags)
-                              (fromIntegral ioPriority)
-                              cCancellable
-                              cCallback
-                              (castFunPtrToPtr cCallback)
-    where _ = {# call file_create_async #}
+          {#call g_file_create_async #} 
+            (toFile file)
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous file create operation started with 'fileCreateAsync'.
 fileCreateFinish :: FileClass file
@@ -698,19 +691,17 @@ fileReplaceAsync :: FileClass file
                  -> AsyncReadyCallback
                  -> IO ()
 fileReplaceAsync file etag makeBackup flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString etag $ \cEtag ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+        withUTFString etag $ \cEtag -> do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_replace_async cFile
-                               cEtag
-                               (fromBool makeBackup)
-                               ((fromIntegral . fromFlags) flags)
-                               (fromIntegral ioPriority)
-                               cCancellable
-                               cCallback
-                               (castFunPtrToPtr cCallback)
-    where _ = {# call file_replace_async #}
+          {#call g_file_replace_async #} 
+            (toFile file)
+            cEtag
+            (fromBool makeBackup)
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous file replace operation started with 'fileReplaceAsync'.
 fileReplaceFinish :: FileClass file
@@ -750,11 +741,13 @@ fileQueryInfo :: FileClass file
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
     makeNewGObject mkFileInfo $
-    withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_info cFile cAttributes ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_query_info #}
+        propagateGError ({#call g_file_query_info #} 
+                           (toFile file) 
+                           cAttributes 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Asynchronously gets the requested information about specified file. The result is a 'FileInfo' object
 -- that contains key-value attributes (such as type or size for the file).
@@ -772,18 +765,16 @@ fileQueryInfoAsync :: FileClass file
                    -> AsyncReadyCallback
                    -> IO ()
 fileQueryInfoAsync file attributes flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_query_info_async cFile
-                                  cAttributes
-                                  ((fromIntegral . fromFlags) flags)
-                                  (fromIntegral ioPriority)
-                                  cCancellable
-                                  cCallback
-                                  (castFunPtrToPtr cCallback)
-    where _ = {# call file_query_info_async #}
+          {#call g_file_query_info_async #} 
+            (toFile file)
+            cAttributes
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous file info query. See 'fileQueryInfoAsync'.
 fileQueryInfoFinish :: FileClass file
@@ -818,10 +809,10 @@ fileQueryExists :: FileClass file
                 -> Bool
 fileQueryExists file cancellable =
     unsafePerformIO $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            liftM toBool $ g_file_query_exists cFile cCancellable
-    where _ = {# call file_query_exists #}
+    liftM toBool $ 
+              {#call g_file_query_exists #} 
+                (toFile file) 
+                (fromMaybe (Cancellable nullForeignPtr) cancellable) 
 
 #if GLIB_CHECK_VERSION(2,18,0)
 -- | Utility function to inspect the 'FileType' of a file. This is implemented using 'fileQueryInfo'
@@ -836,10 +827,10 @@ fileQueryFileType :: FileClass file
 fileQueryFileType file flags cancellable = 
     (toEnum . fromIntegral) $
     unsafePerformIO $ 
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        (g_file_query_file_type cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_query_file_type #}
+        ({#call g_file_query_file_type #} 
+           (toFile file) 
+           ((fromIntegral . fromFlags) flags) 
+           (fromMaybe (Cancellable nullForeignPtr) cancellable) )
 #endif
 
 -- | Similar to 'fileQueryInfo', but obtains information about the filesystem the file is on, rather
@@ -867,11 +858,11 @@ fileQueryFilesystemInfo :: FileClass file
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
     makeNewGObject mkFileInfo $
-    withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_filesystem_info cFile cAttributes cCancellable)
-    where _ = {# call file_query_filesystem_info #}
+        propagateGError ({#call g_file_query_filesystem_info #} 
+                           (toFile file) 
+                           cAttributes 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) )
 
 -- | Asynchronously gets the requested information about the filesystem that the specified file is
 -- on. The result is a 'FileInfo' object that contains key-value attributes (such as type or size for
@@ -889,17 +880,15 @@ fileQueryFilesystemInfoAsync :: FileClass file
                              -> AsyncReadyCallback
                              -> IO ()
 fileQueryFilesystemInfoAsync file attributes ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_query_filesystem_info_async cFile
-                                             cAttributes
-                                             (fromIntegral ioPriority)
-                                             cCancellable
-                                             cCallback
-                                             (castFunPtrToPtr cCallback)
-    where _ = {# call file_query_filesystem_info_async #}
+          {#call g_file_query_filesystem_info_async #} 
+            (toFile file)
+            cAttributes
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous filesystem info query. See 'fileQueryFilesystemInfoAsync'.
 fileQueryFilesystemInfoFinish :: FileClass file
@@ -922,10 +911,9 @@ fileQueryDefaultHandler :: FileClass file
                         -> IO AppInfo
 fileQueryDefaultHandler file cancellable =
     makeNewGObject mkAppInfo $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_query_default_handler cFile cCancellable)
-    where _ = {# call file_query_default_handler #}
+        propagateGError ({#call g_file_query_default_handler #} 
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) )
 
 -- | Gets a 'Mount' for the 'File'.
 -- 
@@ -941,10 +929,10 @@ fileFindEnclosingMount :: FileClass file
                        -> IO Mount
 fileFindEnclosingMount file cancellable =
     makeNewGObject mkMount $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_find_enclosing_mount cFile cCancellable)
-    where _ = {# call file_find_enclosing_mount #}
+        propagateGError ({#call g_file_find_enclosing_mount #} 
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Asynchronously gets the mount for the file.
 -- 
@@ -958,16 +946,14 @@ fileFindEnclosingMountAsync :: FileClass file
                             -> Maybe Cancellable
                             -> AsyncReadyCallback
                             -> IO ()
-fileFindEnclosingMountAsync file ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+fileFindEnclosingMountAsync file ioPriority cancellable callback = do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_find_enclosing_mount_async cFile
-                                            (fromIntegral ioPriority)
-                                            cCancellable
-                                            cCallback
-                                            (castFunPtrToPtr cCallback)
-    where _ = {# call file_find_enclosing_mount_async #}
+          {#call g_file_find_enclosing_mount_async #} 
+            (toFile file)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an asynchronous find mount request. See 'fileFindEnclosingMountAsync'.
 fileFindEnclosingMountFinish :: FileClass file
@@ -1002,11 +988,13 @@ fileEnumerateChildren :: FileClass file
                       -> IO FileEnumerator
 fileEnumerateChildren file attributes flags cancellable =
     makeNewGObject mkFileEnumerator $
-    withGObject (toFile file) $ \cFile ->
         withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_enumerate_children cFile cAttributes ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_enumerate_children #}
+        propagateGError ({#call g_file_enumerate_children #} 
+                           (toFile file) 
+                           cAttributes 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Asynchronously gets the requested information about the files in a directory. The result is a
 -- 'FileEnumerator' object that will give out 'FileInfo' objects for all the files in the directory.
@@ -1024,18 +1012,16 @@ fileEnumerateChildrenAsync :: FileClass file
                            -> AsyncReadyCallback
                            -> IO ()
 fileEnumerateChildrenAsync file attributes flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString attributes $ \cAttributes ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_enumerate_children_async cFile
-                                          cAttributes
-                                          ((fromIntegral . fromFlags) flags)
-                                          (fromIntegral ioPriority)
-                                          cCancellable
-                                          cCallback
-                                          (castFunPtrToPtr cCallback)
-    where _ = {# call file_enumerate_children_async #}
+          {#call g_file_enumerate_children_async #} 
+            (toFile file)
+            cAttributes
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes an async enumerate children operation. See 'fileEnumerateChildrenAsync'.
 fileEnumerateChildrenFinish :: FileClass file
@@ -1067,11 +1053,11 @@ fileSetDisplayName :: FileClass file
                    -> IO File
 fileSetDisplayName file displayName cancellable =
     makeNewGObject mkFile $
-    withGObject (toFile file) $ \cFile ->
         withUTFString displayName $ \cDisplayName ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_set_display_name cFile cDisplayName cCancellable)
-    where _ = {# call file_set_display_name #}
+        propagateGError ({#call g_file_set_display_name #} 
+                           (toFile file) 
+                           cDisplayName 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) )
 
 -- | Asynchronously sets the display name for a given 'File'.
 -- 
@@ -1087,17 +1073,15 @@ fileSetDisplayNameAsync :: FileClass file
                         -> AsyncReadyCallback
                         -> IO ()
 fileSetDisplayNameAsync file displayName ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString displayName $ \cDisplayName ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+        withUTFString displayName $ \cDisplayName -> do
           cCallback <- marshalAsyncReadyCallback callback
-          g_file_set_display_name_async cFile
-                                        cDisplayName
-                                        (fromIntegral ioPriority)
-                                        cCancellable
-                                        cCallback
-                                        (castFunPtrToPtr cCallback)
-    where _ = {# call file_set_display_name_async #}
+          {#call g_file_set_display_name_async #} 
+             (toFile file)
+             cDisplayName
+             (fromIntegral ioPriority)
+             (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+             cCallback
+             (castFunPtrToPtr cCallback)
 
 -- | Finishes setting a display name started with 'fileSetDisplayNameAsync'.
 fileSetDisplayNameFinish :: FileClass file
@@ -1118,10 +1102,10 @@ fileDelete :: FileClass file
            -> Maybe Cancellable
            -> IO ()
 fileDelete file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_delete cFile cCancellable) >> return ()
-    where _ = {# call file_delete #}
+        propagateGError ({#call g_file_delete #}
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        ) >> return ()
 
 -- | Sends file to the "Trashcan", if possible. This is similar to deleting it, but the user can recover
 -- it before emptying the trashcan. Not all file systems support trashing, so this call can return the
@@ -1135,10 +1119,10 @@ fileTrash :: FileClass file
            -> Maybe Cancellable
            -> IO ()
 fileTrash file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_trash cFile cCancellable) >> return ()
-    where _ = {# call file_trash #}
+        propagateGError ({#call g_file_trash #}
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        ) >> return ()
 
 -- | Copies the file source to the location specified by destination. Can not handle recursive copies of
 -- directories.
@@ -1176,24 +1160,20 @@ fileCopy :: (FileClass source, FileClass destination)
          -> [FileCopyFlags]
          -> Maybe Cancellable
          -> Maybe FileProgressCallback
-         -> IO Bool
-fileCopy source destination flags cancellable progressCallback =
-    withGObject (toFile source) $ \cSource ->
-        withGObject (toFile destination) $ \cDestination ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+         -> IO ()
+fileCopy source destination flags cancellable progressCallback = do
           cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
           propagateGError $ \cError -> do
-            ret <- g_file_copy cSource
-                               cDestination
-                               ((fromIntegral . fromFlags) flags)
-                               cCancellable
-                               cProgressCallback
-                               nullPtr
-                               cError
+            {#call g_file_copy #} 
+                      (toFile source)
+                      (toFile destination)
+                      ((fromIntegral . fromFlags) flags)
+                      (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                      cProgressCallback
+                      nullPtr
+                      cError
             when (cProgressCallback /= nullFunPtr) $
               freeHaskellFunPtr cProgressCallback
-            return $ toBool ret
-    where _ = {# call file_copy #}
 
 -- | Copies the file source to the location specified by destination asynchronously. For details of the
 -- behaviour, see 'fileCopy'.
@@ -1212,33 +1192,37 @@ fileCopyAsync :: (FileClass source, FileClass destination)
               -> Maybe FileProgressCallback
               -> AsyncReadyCallback
               -> IO ()
-fileCopyAsync source destination flags ioPriority cancellable progressCallback callback =
-    withGObject (toFile source) $ \cSource ->
-        withGObject (toFile destination) $ \cDestination ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+fileCopyAsync source destination flags ioPriority cancellable progressCallback callback = do
           cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
           cCallback <- marshalAsyncReadyCallback $ \sourceObject res -> do
                          when (cProgressCallback /= nullFunPtr) $
                            freeHaskellFunPtr cProgressCallback
                          callback sourceObject res
-          g_file_copy_async cSource
-                            cDestination
-                            ((fromIntegral . fromFlags) flags)
-                            (fromIntegral ioPriority)
-                            cCancellable
-                            cProgressCallback
-                            nullPtr
-                            cCallback
-                            (castFunPtrToPtr cCallback)
-    where _ = {# call file_copy_async #}
+          {#call g_file_copy_async #}
+            (toFile source)
+            (toFile destination)
+            ((fromIntegral . fromFlags) flags)
+            (fromIntegral ioPriority)
+            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+            cProgressCallback
+            nullPtr
+            cCallback
+            (castFunPtrToPtr cCallback)
 
 -- | Finishes copying the file started with 'fileCopyAsync'.
+--
+-- Throws a 'GError' if an error occurs.
 fileCopyFinish :: FileClass file
                => file
                -> AsyncResult
-               -> IO Bool
+               -> IO ()
 fileCopyFinish file asyncResult =
-    liftM toBool $ propagateGError ({# call file_copy_finish #} (toFile file) asyncResult)
+    propagateGError (\gErrorPtr -> do
+                       {# call file_copy_finish #} 
+                         (toFile file) 
+                         asyncResult
+                         gErrorPtr
+                       return ())
 
 -- | Tries to move the file or directory source to the location specified by destination. If native move
 -- operations are supported then this is used, otherwise a copy + delete fallback is used. The native
@@ -1277,24 +1261,20 @@ fileMove :: (FileClass source, FileClass destination)
          -> [FileCopyFlags]
          -> Maybe Cancellable
          -> Maybe FileProgressCallback
-         -> IO Bool
-fileMove source destination flags cancellable progressCallback =
-    withGObject (toFile source) $ \cSource ->
-        withGObject (toFile destination) $ \cDestination ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+         -> IO ()
+fileMove source destination flags cancellable progressCallback = do
           cProgressCallback <- maybe (return nullFunPtr) marshalFileProgressCallback progressCallback
           propagateGError $ \cError -> do
-            ret <- g_file_move cSource
-                               cDestination
-                               ((fromIntegral . fromFlags) flags)
-                               cCancellable
-                               cProgressCallback
-                               nullPtr
-                               cError
+            {#call g_file_move #} 
+                    (toFile source)
+                    (toFile destination)
+                    ((fromIntegral . fromFlags) flags)
+                    (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                    cProgressCallback
+                    nullPtr
+                    cError
             when (cProgressCallback /= nullFunPtr) $
               freeHaskellFunPtr cProgressCallback
-            return $ toBool ret
-    where _ = {# call file_move #}
 
 -- | Creates a directory. Note that this will only create a child directory of the immediate parent
 -- directory of the path or URI given by the 'File'. To recursively create directories, see
@@ -1312,12 +1292,11 @@ fileMakeDirectory :: FileClass file
                   => file
                   -> Maybe Cancellable
                   -> IO ()
-fileMakeDirectory file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          propagateGError $ g_file_make_directory cFile cCancellable
+fileMakeDirectory file cancellable = do
+          propagateGError $ {#call g_file_make_directory #}
+                              (toFile file)
+                              (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           return ()
-    where _ = {# call file_make_directory #}
 
 #if GLIB_CHECK_VERSION(2,18,0)
 -- | Creates a directory and any parent directories that may not exist similar to 'mkdir -p'. If the file
@@ -1334,12 +1313,11 @@ fileMakeDirectoryWithParents :: FileClass file
                              => file
                              -> Maybe Cancellable
                              -> IO ()
-fileMakeDirectoryWithParents file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          propagateGError $ g_file_make_directory_with_parents cFile cCancellable
+fileMakeDirectoryWithParents file cancellable = do
+          propagateGError $ {#call g_file_make_directory_with_parents #}
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           return ()
-    where _ = {# call file_make_directory_with_parents #}
 #endif
 
 -- | Creates a symbolic link.
@@ -1353,12 +1331,12 @@ fileMakeSymbolicLink :: FileClass file
                      -> Maybe Cancellable
                      -> IO ()
 fileMakeSymbolicLink file symlinkValue cancellable =
-    withGObject (toFile file) $ \cFile ->
-        withUTFString symlinkValue $ \cSymlinkValue ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          propagateGError $ g_file_make_symbolic_link cFile cSymlinkValue cCancellable
+        withUTFString symlinkValue $ \cSymlinkValue -> do
+          propagateGError $ {#call g_file_make_symbolic_link #} 
+                              (toFile file) 
+                              cSymlinkValue 
+                              (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           return ()
-    where _ = {# call file_make_symbolic_link #}
 
 {# pointer *FileAttributeInfoList newtype #}
 takeFileAttributeInfoList :: Ptr FileAttributeInfoList
@@ -1367,9 +1345,7 @@ takeFileAttributeInfoList ptr =
     do cInfos <- liftM castPtr $ {# get FileAttributeInfoList->infos #} ptr
        cNInfos <- {# get FileAttributeInfoList->n_infos #} ptr
        infos <- peekArray (fromIntegral cNInfos) cInfos
-       g_file_attribute_info_list_unref ptr
        return infos
-    where _ = {# call file_attribute_info_list_unref #}
 
 -- | Obtain the list of settable attributes for the file.
 -- 
@@ -1384,13 +1360,13 @@ fileQuerySettableAttributes :: FileClass file
                             => file
                             -> Maybe Cancellable
                             -> IO [FileAttributeInfo]
-fileQuerySettableAttributes file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          ptr <- propagateGError $ g_file_query_settable_attributes cFile cCancellable
+fileQuerySettableAttributes file cancellable = do
+          ptr <- propagateGError $ 
+                {#call g_file_query_settable_attributes #}
+                   (toFile file)
+                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           infos <- takeFileAttributeInfoList ptr
           return infos
-    where _ = {# call file_query_settable_attributes #}
 
 -- | Obtain the list of attribute namespaces where new attributes can be created by a user. An example of
 -- this is extended attributes (in the "xattr" namespace).
@@ -1402,13 +1378,13 @@ fileQueryWritableNamespaces :: FileClass file
                             => file
                             -> Maybe Cancellable
                             -> IO [FileAttributeInfo]
-fileQueryWritableNamespaces file cancellable =
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
-          ptr <- propagateGError $ g_file_query_writable_namespaces cFile cCancellable
+fileQueryWritableNamespaces file cancellable = do
+          ptr <- propagateGError $ 
+                {#call g_file_query_writable_namespaces #}
+                           (toFile file)
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           infos <- takeFileAttributeInfoList ptr
           return infos
-    where _ = {# call file_query_writable_namespaces #}
 
 -- | Tries to set all attributes in the 'FileInfo' on the target values, not stopping on the first error.
 -- 
@@ -1423,14 +1399,16 @@ fileSetAttributesFromInfo :: FileClass file => file
  -> FileInfo
  -> [FileQueryInfoFlags]
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore. 
- -> IO Bool -- ^ returns     'True' if there was any error, 'False' otherwise. 
+ -> IO ()
 fileSetAttributesFromInfo file fileInfo flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
-    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError (g_file_set_attributes_from_info cFile cFileInfo ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call g_file_set_attributes_from_info #}
+    propagateGError (\gErrorPtr -> do
+                       {#call g_file_set_attributes_from_info #} 
+                            (toFile file) 
+                            (toFileInfo fileInfo)
+                            ((fromIntegral . fromFlags) flags) 
+                            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                            gErrorPtr
+                       return ())
 
 -- | Asynchronously sets the attributes of file with info.
 -- 
@@ -1446,31 +1424,34 @@ fileSetAttributesFromInfoAsync :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore. 
  -> AsyncReadyCallback
  -> IO () -- ^ returns     'True' if there was any error, 'False' otherwise. 
-fileSetAttributesFromInfoAsync file fileInfo flags ioPriority cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
-        maybeWith withGObject cancellable $ \cCancellable -> do
+fileSetAttributesFromInfoAsync file fileInfo flags ioPriority cancellable callback = do
             cCallback <- marshalAsyncReadyCallback callback
-            g_file_set_attributes_async 
-              cFile 
-              cFileInfo 
+            {#call g_file_set_attributes_async #} 
+              (toFile file)
+              (toFileInfo fileInfo)
               ((fromIntegral . fromFlags) flags) 
               (fromIntegral ioPriority)
-              cCancellable
+              (fromMaybe (Cancellable nullForeignPtr) cancellable) 
               cCallback
               (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_set_attributes_async #}
 
 -- | Finishes setting an attribute started in 'fileSetAttributesAsync'.
+--
+-- Throws a 'GError' if an error occurs.
 fileSetAttributesFinish :: FileClass file
  => file
  -> AsyncResult
  -> FileInfo
- -> IO Bool -- ^ returns 'True' if the attributes were set correctly, 'False' otherwise. 
+ -> IO ()
 fileSetAttributesFinish file asyncResult fileInfo =
-    liftM toBool $
-    withGObject (toFileInfo fileInfo) $ \cFileInfo ->
-    propagateGError ({# call g_file_set_attributes_finish #} (toFile file) asyncResult cFileInfo)
+    withForeignPtr (unFileInfo fileInfo) $ \cFileInfo ->
+    propagateGError (\gErrorPtr -> do
+                       {# call g_file_set_attributes_finish #} 
+                        (toFile file) 
+                        asyncResult 
+                        cFileInfo
+                        gErrorPtr
+                       return ())
 
 -- | Sets attribute of type 'FileAttributeTypeString' to value. If attribute is of a different type,
 -- this operation will fail.
@@ -1483,20 +1464,19 @@ fileSetAttributeString :: FileClass file => file
  -> String -- ^ @value@       a string containing the attribute's value.                   
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeString  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withUTFString attribute $ \ attributePtr -> 
-    withUTFString value $ \ valuePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_string 
-                             cFile 
-                             attributePtr
-                             valuePtr
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_string #}
+    withUTFString value $ \ valuePtr -> do
+            propagateGError (\gErrorPtr -> do
+                               {#call g_file_set_attribute_string #} 
+                                   (toFile file)
+                                   attributePtr
+                                   valuePtr
+                                   ((fromIntegral . fromFlags) flags) 
+                                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                   gErrorPtr
+                               return ())
 
 -- | Sets attribute of type 'FileAttributeTypeByteString' to value. If attribute is of a different
 -- type, this operation will fail, returning 'False'.
@@ -1509,20 +1489,19 @@ fileSetAttributeByteString :: FileClass file => file
  -> String -- ^ @value@       a string containing the attribute's value.                   
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeByteString  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withCString attribute $ \ attributePtr -> 
-    withCString value $ \ valuePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_byte_string 
-                             cFile 
-                             attributePtr
-                             valuePtr
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_byte_string #}
+    withCString value $ \ valuePtr -> do
+            propagateGError (\gErrorPtr -> do
+                                {#call g_file_set_attribute_byte_string #} 
+                                   (toFile file)
+                                   attributePtr
+                                   valuePtr
+                                   ((fromIntegral . fromFlags) flags) 
+                                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                   gErrorPtr
+                                return ())
 
 -- | Sets attribute of type 'FileAttributeTypeUint32' to value. If attribute is of a different type,
 -- this operation will fail.
@@ -1535,19 +1514,18 @@ fileSetAttributeWord32 :: FileClass file => file
  -> Word32 -- ^ @value@       a Word32 containing the attribute's new value.                                  
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeWord32  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withUTFString attribute $ \ attributePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_uint32 
-                             cFile 
-                             attributePtr
-                             (fromIntegral value)
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_uint32 #}
+            propagateGError (\gErrorPtr -> do
+                                {#call g_file_set_attribute_uint32 #} 
+                                  (toFile file)
+                                  attributePtr
+                                  (fromIntegral value)
+                                  ((fromIntegral . fromFlags) flags) 
+                                  (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                  gErrorPtr
+                                return ())
 
 -- | Sets attribute of type 'FileAttributeTypeInt32' to value. If attribute is of a different type,
 -- this operation will fail.
@@ -1560,19 +1538,18 @@ fileSetAttributeInt32 :: FileClass file => file
  -> Int32 -- ^ @value@       a Int32 containing the attribute's new value.                                  
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeInt32  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withUTFString attribute $ \ attributePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_int32 
-                             cFile 
-                             attributePtr
-                             (fromIntegral value)
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_int32 #}
+            propagateGError (\gErrorPtr -> do
+                                {#call g_file_set_attribute_int32 #} 
+                                   (toFile file)
+                                   attributePtr
+                                   (fromIntegral value)
+                                   ((fromIntegral . fromFlags) flags) 
+                                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                   gErrorPtr
+                                return ())
 
 -- | Sets attribute of type 'FileAttributeTypeUint64' to value. If attribute is of a different type,
 -- this operation will fail.
@@ -1585,19 +1562,18 @@ fileSetAttributeWord64 :: FileClass file => file
  -> Word64 -- ^ @value@       a Word64 containing the attribute's new value.                                  
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeWord64  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withUTFString attribute $ \ attributePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_uint64 
-                             cFile 
-                             attributePtr
-                             (fromIntegral value)
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_uint64 #}
+            propagateGError (\gErrorPtr -> do
+                               {#call g_file_set_attribute_uint64 #} 
+                                   (toFile file)
+                                   attributePtr
+                                   (fromIntegral value)
+                                   ((fromIntegral . fromFlags) flags) 
+                                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                   gErrorPtr
+                               return ())
 
 -- | Sets attribute of type 'FileAttributeTypeInt64' to value. If attribute is of a different type,
 -- this operation will fail.
@@ -1610,19 +1586,18 @@ fileSetAttributeInt64 :: FileClass file => file
  -> Int64 -- ^ @value@       a Int64 containing the attribute's new value.                                  
  -> [FileQueryInfoFlags] -- ^ @flags@       'FileQueryInfoFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
- -> IO Bool -- ^ returns     'True' if the attribute was successfully set, 'False' otherwise. 
+ -> IO ()
 fileSetAttributeInt64  file attribute value flags cancellable =
-    liftM toBool $
-    withGObject (toFile file) $ \cFile ->
     withUTFString attribute $ \ attributePtr -> 
-        maybeWith withGObject cancellable $ \cCancellable -> do
-            propagateGError (g_file_set_attribute_int64 
-                             cFile 
-                             attributePtr
-                             (fromIntegral value)
-                             ((fromIntegral . fromFlags) flags) 
-                             cCancellable)
-    where _ = {# call g_file_set_attribute_int64 #}
+            propagateGError (\gErrorPtr -> do
+                               {#call g_file_set_attribute_int64 #} 
+                                   (toFile file)
+                                   attributePtr
+                                   (fromIntegral value)
+                                   ((fromIntegral . fromFlags) flags) 
+                                   (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                                   gErrorPtr
+                               return ())
 
 -- | Copies the file attributes from source to destination.
 -- 
@@ -1635,14 +1610,16 @@ fileCopyAttributes :: (FileClass source, FileClass destination)
  -> destination -- ^ @destination@ a 'File' to copy attributes to.                                   
  -> [FileCopyFlags] -- ^ @flags@       a set of 'FileCopyFlags'.                                         
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                    
- -> IO Bool -- ^ returns     'True' if the attributes were copied successfully, 'False' otherwise.
+ -> IO ()
 fileCopyAttributes source destination flags cancellable = 
-    liftM toBool $
-    withGObject (toFile source) $ \cSource ->
-    withGObject (toFile destination) $ \cDestination ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-            propagateGError (g_file_copy_attributes cSource cDestination ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call g_file_copy_attributes #}
+    propagateGError (\gErrorPtr -> do
+                       {#call g_file_copy_attributes #} 
+                           (toFile source) 
+                           (toFile destination) 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                           gErrorPtr
+                       return ())
 
 -- | Obtains a directory monitor for the given file. This may fail if directory monitoring is not
 -- supported.
@@ -1657,10 +1634,11 @@ fileMonitorDirectory :: FileClass file
                      -> IO FileMonitor
 fileMonitorDirectory file flags cancellable =
     constructNewGObject mkFileMonitor $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_monitor_directory cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_monitor_directory #}
+        propagateGError ({#call g_file_monitor_directory #} 
+                           (toFile file) 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 -- | Obtains a file monitor for the given file. If no file notification mechanism exists, then regular
 -- polling of the file is used.
@@ -1675,10 +1653,11 @@ fileMonitorFile :: FileClass file
                      -> IO FileMonitor
 fileMonitorFile file flags cancellable =
     constructNewGObject mkFileMonitor $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_monitor_file cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_monitor_file #}
+        propagateGError ({#call g_file_monitor_file #}
+                           (toFile file) 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 
 #if GLIB_CHECK_VERSION(2,18,0)
 -- | Obtains a file or directory monitor for the given file, depending on the type of the file.
@@ -1693,10 +1672,11 @@ fileMonitor :: FileClass file
                      -> IO FileMonitor
 fileMonitor file flags cancellable =
     constructNewGObject mkFileMonitor $
-    withGObject (toFile file) $ \cFile ->
-        maybeWith withGObject cancellable $ \cCancellable ->
-        propagateGError (g_file_monitor cFile ((fromIntegral . fromFlags) flags) cCancellable)
-    where _ = {# call file_monitor #}
+        propagateGError ({#call g_file_monitor #} 
+                           (toFile file) 
+                           ((fromIntegral . fromFlags) flags) 
+                           (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+                        )
 #endif
 
 -- | Mounts a file of type 'FileTypeMountable'. Using @mountOperation@, you can request callbacks when,
@@ -1714,18 +1694,15 @@ fileMountMountable :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileMountMountable file flags mountOperation cancellable callback = 
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileMountMountable file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_mount_mountable cFile
-                             ((fromIntegral . fromFlags) flags)
-                             cMountOperation
-                             cCancellable
-                             cCallback
-                             (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_mount_mountable #}
+      {#call g_file_mount_mountable #} 
+        (toFile file)
+        ((fromIntegral . fromFlags) flags)
+        (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+        (fromMaybe (Cancellable nullForeignPtr) cancellable) 
+        cCallback
+        (castFunPtrToPtr cCallback)
 
 -- | Finishes a mount operation. See 'fileMountMountable' for details.
 -- 
@@ -1752,30 +1729,32 @@ fileUnmountMountableWithOperation :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileUnmountMountableWithOperation file flags mountOperation cancellable callback = 
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileUnmountMountableWithOperation file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_unmount_mountable_with_operation 
-          cFile
+      {#call g_file_unmount_mountable_with_operation #} 
+          (toFile file)
           ((fromIntegral . fromFlags) flags)
-          cMountOperation
-          cCancellable
+          (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+          (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           cCallback
           (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_unmount_mountable_with_operation #}
 
 -- | Finishes an unmount operation, see 'fileUnmountMountableWithOperation' for details.
 -- 
 -- Finish an asynchronous unmount operation that was started with
 -- 'fileUnmountMountableWithOperation'.
+--
+-- Throws a 'GError' if an error occurs.
 fileUnmountMountableWithOperationFinish :: FileClass file => file
  -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
- -> IO Bool -- ^ returns 'True', 'False' if operation failed.                       
+ -> IO ()
 fileUnmountMountableWithOperationFinish file result =
-    liftM toBool $
-    propagateGError ({#call g_file_unmount_mountable_with_operation_finish#} (toFile file) result)
+    propagateGError (\gErrorPtr -> do
+                       {#call g_file_unmount_mountable_with_operation_finish#} 
+                          (toFile file) 
+                          result
+                          gErrorPtr
+                       return ())
 
 -- | Starts an asynchronous eject on a mountable. When this operation has completed, callback will be
 -- called with @userUser@ data, and the operation can be finalized with
@@ -1790,27 +1769,29 @@ fileEjectMountableWithOperation :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileEjectMountableWithOperation file flags mountOperation cancellable callback = 
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileEjectMountableWithOperation file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_eject_mountable_with_operation
-          cFile
+      {#call g_file_eject_mountable_with_operation #}
+          (toFile file)
           ((fromIntegral . fromFlags) flags)
-          cMountOperation
-          cCancellable
+          (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+          (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           cCallback
           (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_eject_mountable_with_operation #}
 
 -- | Finishes an asynchronous eject operation started by 'fileEjectMountableWithOperation'.
+--
+-- Throws a 'GError' if an error occurs.
 fileEjectMountableWithOperationFinish :: FileClass file => file
  -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
- -> IO Bool -- ^ returns 'True', 'False' if operation failed.                       
+ -> IO ()
 fileEjectMountableWithOperationFinish file result =
-    liftM toBool $
-    propagateGError ({#call g_file_eject_mountable_with_operation_finish#} (toFile file) result)
+    propagateGError (\gErrorPtr -> do
+                        {#call g_file_eject_mountable_with_operation_finish#} 
+                              (toFile file) 
+                              result
+                              gErrorPtr
+                        return ())
 
 -- | Starts a file of type 'FileTypeMountable'. Using @startOperation@, you can request callbacks when,
 -- for instance, passwords are needed during authentication.
@@ -1828,30 +1809,32 @@ fileStartMountable :: FileClass file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileStartMountable file flags mountOperation cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileStartMountable file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_start_mountable 
-        cFile
+      {#call g_file_start_mountable #} 
+        (toFile file)
         ((fromIntegral . fromFlags) flags)
-        cMountOperation
-        cCancellable
+        (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+        (fromMaybe (Cancellable nullForeignPtr) cancellable) 
         cCallback
         (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_start_mountable #}
 
 -- | Finishes a start operation. See 'fileStartMountable' for details.
 -- 
 -- Finish an asynchronous start operation that was started with 'fileStartMountable'.
+--
+-- Throws a 'GError' if an error occurs.
 fileStartMountableFinish :: FileClass file 
  => file
  -> AsyncResult -- ^ @result@  a 'AsyncResult'.
- -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+ -> IO ()
 fileStartMountableFinish file result =
-  liftM toBool $
-    propagateGError ({#call g_file_start_mountable_finish #} (toFile file) result)
+    propagateGError (\gErrorPtr -> do
+                       {#call g_file_start_mountable_finish #} 
+                          (toFile file) 
+                          result
+                          gErrorPtr
+                       return ())
 
 -- | Stops a file of type 'FileTypeMountable'.
 -- 
@@ -1868,30 +1851,32 @@ fileStopMountable :: FileClass file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileStopMountable file flags mountOperation cancellable callback =
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileStopMountable file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_stop_mountable 
-        cFile
+      {#call g_file_stop_mountable #} 
+        (toFile file)
         ((fromIntegral . fromFlags) flags)
-        cMountOperation
-        cCancellable
+        (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+        (fromMaybe (Cancellable nullForeignPtr) cancellable) 
         cCallback
         (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_stop_mountable #}
 
 -- | Finishes a stop operation. See 'fileStopMountable' for details.
 -- 
 -- Finish an asynchronous stop operation that was stoped with 'fileStopMountable'.
+--
+-- Throws a 'GError' if an error occurs.
 fileStopMountableFinish :: FileClass file 
  => file
  -> AsyncResult -- ^ @result@  a 'AsyncResult'.
- -> IO Bool -- ^ returns 'True' if the file was successfully ejected. 'False' otherwise.   
+ -> IO ()
 fileStopMountableFinish file result =
-  liftM toBool $
-    propagateGError ({#call g_file_stop_mountable_finish #} (toFile file) result)
+    propagateGError (\gErrorPtr -> do
+                       {#call g_file_stop_mountable_finish #} 
+                          (toFile file) 
+                          result
+                          gErrorPtr
+                       return ())
 
 -- | Polls a file of type 'FileTypeMountable'.
 -- 
@@ -1905,16 +1890,13 @@ filePollMountable :: FileClass file => file
  -> Maybe Cancellable
  -> AsyncReadyCallback
  -> IO ()
-filePollMountable file cancellable callback = 
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject cancellable $ \cCancellable -> do
+filePollMountable file cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_poll_mountable 
-          cFile
-          cCancellable
+      {#call g_file_poll_mountable #} 
+          (toFile file)
+          (fromMaybe (Cancellable nullForeignPtr) cancellable) 
           cCallback
           (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_poll_mountable #}
 
 -- | Finishes a poll operation. See 'filePollMountable' for details.
 -- 
@@ -1942,19 +1924,15 @@ fileMountEnclosingVolume :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@     optional 'Cancellable' object, 'Nothing' to ignore.        
  -> AsyncReadyCallback -- ^ @callback@        a 'AsyncReadyCallback'
  -> IO ()
-fileMountEnclosingVolume file flags mountOperation cancellable callback = 
-    withGObject (toFile file) $ \cFile ->
-    maybeWith withGObject mountOperation $ \cMountOperation -> do
-    maybeWith withGObject cancellable $ \cCancellable -> do
+fileMountEnclosingVolume file flags mountOperation cancellable callback = do
       cCallback <- marshalAsyncReadyCallback callback
-      g_file_mount_enclosing_volume 
-        cFile
+      {#call g_file_mount_enclosing_volume #} 
+        (toFile file)
         ((fromIntegral . fromFlags) flags)
-        cMountOperation
-        cCancellable
+        (fromMaybe (MountOperation nullForeignPtr) mountOperation)
+        (fromMaybe (Cancellable nullForeignPtr) cancellable) 
         cCallback
         (castFunPtrToPtr cCallback)
-    where _ = {# call g_file_mount_enclosing_volume #}
 
 -- | Finishes a mount operation started by 'fileMountEnclosingVolume'.
 fileMountEnclosingVolumeFinish :: FileClass file 
