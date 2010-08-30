@@ -98,6 +98,7 @@ module System.GIO.File.AppInfo (
   ) where
 
 import Control.Monad
+import Data.Maybe (fromMaybe)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -105,7 +106,6 @@ import System.Glib.GError
 import System.Glib.GList
 import System.Glib.GObject
 import System.Glib.UTFString
-{#import System.GIO.Base#}
 {#import System.GIO.Types#}
 
 {# context lib = "gio" prefix = "g" #}
@@ -119,12 +119,10 @@ appInfoCreateFromCommandline commandline applicationName flags =
     constructNewGObject mkAppInfo $
     withUTFString commandline $ \ commandlinePtr -> 
         maybeWith withUTFString applicationName $ \ applicationNamePtr -> 
-            propagateGError (g_app_info_create_from_commandline 
+            propagateGError ({#call g_app_info_create_from_commandline #}
                              commandlinePtr 
                              applicationNamePtr
-                             ((fromIntegral . fromFlags) flags)
-                            ) 
-    where _ = {# call g_app_info_create_from_commandline #}
+                             ((fromIntegral . fromFlags) flags)) 
 
 -- | Creates a duplicate of a 'AppInfo'.
 appInfoDup :: AppInfoClass appinfo => appinfo -> IO AppInfo
@@ -196,14 +194,14 @@ appInfoGetCommandline appinfo =
 
 -- | Gets the icon for the application.
 appInfoGetIcon :: AppInfoClass appinfo => appinfo 
- -> IO Icon -- ^ returns the default 'Icon' for appinfo. 
+ -> IO (Maybe Icon)              -- ^ returns the default 'Icon' for appinfo or 'Nothing'
 appInfoGetIcon appinfo =
-  makeNewGObject mkIcon $
+  maybeNull (makeNewGObject mkIcon) $
   {#call g_app_info_get_icon#} (toAppInfo appinfo)
 
 -- | Launches the application. Passes files to the launched application as arguments, using the optional
--- @launchContext@ to get information about the details of the launcher (like what screen it is on). On
--- error, error will be set accordingly.
+-- @launchContext@ to get information about the details of the launcher (like what screen it is on). 
+-- Throws a 'GError' if an error occurs
 -- 
 -- To lauch the application without arguments pass a emtpy files list.
 -- 
@@ -216,15 +214,17 @@ appInfoGetIcon appinfo =
 appInfoLaunch :: AppInfoClass appinfo => appinfo
  -> [File]  -- ^ @files@          a list of 'File' objects                     
  -> Maybe AppLaunchContext  -- ^ @launchContext@ a 'AppLaunchContext' or 'Nothing'                 
- -> IO Bool
+ -> IO ()
 appInfoLaunch appinfo files launchContext = 
-    liftM toBool $
-    withGObject (toAppInfo appinfo) $ \cAppinfo ->
     withForeignPtrs (map unFile files) $ \wFilePtr ->
     withGList wFilePtr $ \filesPtr ->
-        maybeWith withGObject launchContext $ \cLaunchContext ->
-        propagateGError (g_app_info_launch cAppinfo filesPtr cLaunchContext) 
-    where _ = {# call g_app_info_launch #}
+        propagateGError (\gErrorPtr -> do
+                          {#call g_app_info_launch#} 
+                           (toAppInfo appinfo) 
+                           filesPtr 
+                           (fromMaybe (AppLaunchContext nullForeignPtr) launchContext)
+                           gErrorPtr 
+                          return ()) 
 
 -- | Checks if the application accepts files as arguments.
 appInfoSupportsFiles :: AppInfoClass appinfo => appinfo 
@@ -241,8 +241,8 @@ appInfoSupportsUris appinfo =
   {#call g_app_info_supports_uris #} (toAppInfo appinfo)
 
 -- | Launches the application. Passes uris to the launched application as arguments, using the optional
--- @launchContext@ to get information about the details of the launcher (like what screen it is on). On
--- error, error will be set accordingly.
+-- @launchContext@ to get information about the details of the launcher (like what screen it is on). 
+-- Throws a 'GError' if an error occurs.
 -- 
 -- To lauch the application without arguments pass a empty uris list.
 -- 
@@ -251,14 +251,16 @@ appInfoSupportsUris appinfo =
 appInfoLaunchUris :: AppInfoClass appinfo => appinfo
  -> [String] -- ^ @uris@           a list containing URIs to launch.          
  -> Maybe AppLaunchContext -- ^ @launchContext@ a 'AppLaunchContext' or 'Nothing'                 
- -> IO Bool -- ^ returns        'True' on successful launch, 'False' otherwise. 
+ -> IO ()
 appInfoLaunchUris appinfo uris launchContext = 
-    liftM toBool $
-    withGObject (toAppInfo appinfo) $ \cAppinfo ->
     withUTFStringArray uris $ \urisPtr ->
-        maybeWith withGObject launchContext $ \cLaunchContext ->
-        propagateGError (g_app_info_launch_uris cAppinfo (castPtr urisPtr) cLaunchContext) 
-    where _ = {# call g_app_info_launch_uris #}
+        propagateGError (\gErrorPtr -> do
+                           {#call g_app_info_launch_uris#} 
+                             (toAppInfo appinfo)
+                             (castPtr urisPtr) 
+                             (fromMaybe (AppLaunchContext nullForeignPtr) launchContext)
+                             gErrorPtr
+                           return ()) 
 
 -- | Checks if the application info should be shown in menus that list available applications.
 appInfoShouldShow :: AppInfoClass appinfo => appinfo
@@ -297,44 +299,47 @@ appInfoResetTypeAssociations contentType =
 #endif
 
 -- | Sets the application as the default handler for a given type.
+-- Throws a 'GError' if an error occurs.
 appInfoSetAsDefaultForType :: AppInfoClass appinfo => appinfo 
  -> String -- ^ @contentType@ the content type.                
- -> IO Bool -- ^ returns      'True' on success, 'False' on error. 
+ -> IO ()
 appInfoSetAsDefaultForType appinfo contentType =
-  liftM toBool $
-  withGObject (toAppInfo appinfo) $ \cAppinfo ->
   withUTFString contentType $ \ contentTypePtr -> 
-      propagateGError (g_app_info_set_as_default_for_type 
-                       cAppinfo
-                       (castPtr contentTypePtr))  
-    where _ = {# call g_app_info_set_as_default_for_type #}
+      propagateGError (\gErrorPtr -> do
+                         {#call g_app_info_set_as_default_for_type#} 
+                            (toAppInfo appinfo)
+                            (castPtr contentTypePtr)
+                            gErrorPtr
+                         return ())  
 
 -- | Sets the application as the default handler for a given extension.
+-- Throws a 'GError' if an error occurs.
 appInfoSetAsDefaultForExtension :: AppInfoClass appinfo => appinfo 
  -> String -- ^ @extension@ a string containing the file extension (without the dot). 
- -> IO Bool -- ^ returns      'True' on success, 'False' on error. 
+ -> IO ()
 appInfoSetAsDefaultForExtension appinfo extension =
-  liftM toBool $
-  withGObject (toAppInfo appinfo) $ \cAppinfo ->
   withUTFString extension $ \ extensionPtr -> 
-      propagateGError (g_app_info_set_as_default_for_extension 
-                       cAppinfo
-                       (castPtr extensionPtr))  
-    where _ = {# call g_app_info_set_as_default_for_extension #}
+      propagateGError (\gErrorPtr -> do
+                         {#call g_app_info_set_as_default_for_extension #}
+                             (toAppInfo appinfo)
+                             (castPtr extensionPtr)
+                             gErrorPtr
+                         return ())  
 
 -- | Adds a content type to the application information to indicate the application is capable of opening
 -- files with the given content type.
+-- Throws a 'GError' if an error occurs.
 appInfoAddSupportsType :: AppInfoClass appinfo => appinfo 
  -> String -- ^ @contentType@ a string.                        
- -> IO Bool -- ^ returns      'True' on success, 'False' on error. 
+ -> IO ()
 appInfoAddSupportsType appinfo extension =
-  liftM toBool $
-  withGObject (toAppInfo appinfo) $ \cAppinfo ->
   withUTFString extension $ \ extensionPtr -> 
-      propagateGError (g_app_info_add_supports_type
-                       cAppinfo
-                       (castPtr extensionPtr))  
-    where _ = {# call g_app_info_add_supports_type #}
+      propagateGError (\gErrorPtr -> do
+                         {#call g_app_info_add_supports_type#}
+                           (toAppInfo appinfo)
+                           (castPtr extensionPtr)
+                           gErrorPtr
+                         return ())  
 
 -- | Checks if a supported content type can be removed from an application.
 appInfoCanRemoveSupportsType :: AppInfoClass appinfo => appinfo
@@ -344,17 +349,18 @@ appInfoCanRemoveSupportsType appinfo =
   {#call g_app_info_can_remove_supports_type#} (toAppInfo appinfo)
 
 -- | Removes a supported type from an application, if possible.
+-- Throws a 'GError' if an error occurs.
 appInfoRemoveSupportsType :: AppInfoClass appinfo => appinfo 
  -> String -- ^ @contentType@ a string.                        
- -> IO Bool -- ^ returns      'True' on success, 'False' on error. 
+ -> IO ()
 appInfoRemoveSupportsType appinfo extension =
-  liftM toBool $
-  withGObject (toAppInfo appinfo) $ \cAppinfo ->
   withUTFString extension $ \ extensionPtr -> 
-      propagateGError (g_app_info_remove_supports_type
-                       cAppinfo
-                       (castPtr extensionPtr))  
-    where _ = {# call g_app_info_remove_supports_type #}
+      propagateGError (\gErrorPtr -> do
+                          {#call g_app_info_remove_supports_type#}
+                            (toAppInfo appinfo)
+                            (castPtr extensionPtr)
+                            gErrorPtr
+                          return ())  
 
 -- | Gets a list of all of the applications currently registered on this system.
 -- 
@@ -404,18 +410,19 @@ appInfoGetDefaultForUriScheme uriScheme =
 
 -- | Utility function that launches the default application registered to handle the specified
 -- uri. Synchronous I/O is done on the uri to detect the type of the file if required.
+-- Throws a 'GError' if an error occurs.
 appInfoLaunchDefaultForUri :: 
    String  -- ^ @uri@            the uri to show                  
  -> AppLaunchContext -- ^ @launchContext@ an optional 'AppLaunchContext'.   
- -> IO Bool -- ^ returns        'True' on success, 'False' on error. 
+ -> IO ()
 appInfoLaunchDefaultForUri uri launchContext = 
-  liftM toBool $
   withUTFString uri $ \ uriPtr -> 
-      withGObject launchContext $ \cLaunchContext ->
-      propagateGError (g_app_info_launch_default_for_uri
-                       (castPtr uriPtr)
-                       cLaunchContext)
-    where _ = {# call g_app_info_launch_default_for_uri #}
+      propagateGError (\gErrorPtr -> do
+                         {#call g_app_info_launch_default_for_uri#}
+                            (castPtr uriPtr)
+                            launchContext
+                            gErrorPtr
+                         return ())
 
 -- | Gets the display string for the display. This is used to ensure new applications are started on the
 -- same display as the launching application.
