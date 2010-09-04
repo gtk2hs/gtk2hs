@@ -26,6 +26,7 @@ data Types = Tunit		-- ()
 	   | Tfloat
 	   | Tdouble
 	   | Tstring
+       | Tmstring      
 	   | Tboxed  		-- a struct which is passed by value
 	   | Tptr		-- pointer
 	   | Ttobject		-- foreign with WidgetClass context
@@ -98,6 +99,7 @@ scan ('F':'L':'A':'G':'S':xs) = TokType Tflags:scan xs
 scan ('F':'L':'O':'A':'T':xs) = TokType Tfloat:scan xs
 scan ('D':'O':'U':'B':'L':'E':xs) = TokType Tdouble:scan xs
 scan ('S':'T':'R':'I':'N':'G':xs) = TokType Tstring:scan xs
+scan ('M':'S':'T':'R':'I':'N':'G':xs) = TokType Tmstring:scan xs
 scan ('B':'O':'X':'E':'D':xs) = TokType Tboxed:scan xs
 scan ('P':'O':'I':'N':'T':'E':'R':xs) = TokType Tptr:scan xs
 scan ('T':'O':'B':'J':'E':'C':'T':xs) = TokType Ttobject:scan xs
@@ -138,6 +140,7 @@ identifier Tflags   = ss "FLAGS"
 identifier Tfloat   = ss "FLOAT"
 identifier Tdouble  = ss "DOUBLE"
 identifier Tstring  = ss "STRING"
+identifier Tmstring = ss "MSTRING"
 identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
 identifier Ttobject  = ss "OBJECT"
@@ -162,6 +165,7 @@ rawtype Tflags   = ss "Word"
 rawtype Tfloat   = ss "Float"
 rawtype Tdouble  = ss "Double"
 rawtype Tstring  = ss "CString"
+rawtype Tmstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
@@ -187,6 +191,7 @@ rawtype Tflags   = ss "{#type guint#}"
 rawtype Tfloat   = ss "{#type gfloat#}"
 rawtype Tdouble  = ss "{#type gdouble#}"
 rawtype Tstring  = ss "CString"
+rawtype Tmstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	   = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
@@ -211,6 +216,7 @@ usertype Tflags   cs = usertype Tenum cs
 usertype Tfloat	  (c:cs) = (ss "Float",cs)
 usertype Tdouble  (c:cs) = (ss "Double",cs)
 usertype Tstring  (c:cs) = (ss "String",cs)
+usertype Tmstring  (c:cs) = (ss "Maybe String",cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
 usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
 usertype Ttobject  (c:cs) = (sc c.sc '\'',cs)
@@ -271,6 +277,7 @@ nameArg Tflags	 c = ss "flags".shows c
 nameArg Tfloat	 c = ss "float".shows c
 nameArg Tdouble	 c = ss "double".shows c
 nameArg Tstring	 c = ss "str".shows c
+nameArg Tmstring c = ss "str".shows c
 nameArg Tboxed   c = ss "box".shows c
 nameArg Tptr     c = ss "ptr".shows c
 nameArg Ttobject  c = ss "obj".shows c
@@ -297,6 +304,8 @@ marshExec Tflags  arg _ body = body. ss " (toFlags ". arg. sc ')'
 marshExec Tfloat  arg _ body = body. sc ' '. arg
 marshExec Tdouble arg _ body = body. sc ' '. arg
 marshExec Tstring arg _ body = indent 5. ss "peekUTFString ". arg. ss " >>= \\". arg. ss "\' ->".
+                               body. sc ' '. arg. sc '\''
+marshExec Tmstring arg _ body = indent 5. ss "maybePeekUTFString ". arg. ss " >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
 marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castPtr ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
@@ -352,6 +361,8 @@ marshExec Tdouble n = indent 4.ss "let double".shows n.
 		      ss "' = (fromRational.toRational) double".shows n
 marshExec Tstring n = indent 4.ss "str".shows n.
 		      ss "' <- peekCString str".shows n
+marshExec Tmstring n = indent 4.ss "str".shows n.
+		      ss "' <- maybePeekCString str".shows n
 marshExec Tboxed  n = indent 4.ss "box".shows n.ss "' <- boxedPre".
 		      shows n.ss " $ castPtr box".shows n
 marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
