@@ -31,6 +31,7 @@ module System.Glib.UTFString (
   newUTFStringLen,
   peekUTFString,
   peekUTFStringLen,
+  maybePeekUTFString,
   readUTFString,
   readCString,
   withUTFStrings,
@@ -47,6 +48,7 @@ module System.Glib.UTFString (
 
 import Control.Monad	(liftM)
 import Data.Char (ord, chr)
+import Data.Maybe (maybe)
 
 import System.Glib.FFI
 
@@ -74,6 +76,11 @@ newUTFStringLen = newCStringLen . toUTF
 --
 peekUTFString :: CString -> IO String
 peekUTFString strPtr = liftM fromUTF $ peekCString strPtr
+
+-- Define maybePeekUTFString to retrieve UTF-8 from a ptr which is maybe null.
+--
+maybePeekUTFString :: CString -> IO (Maybe String)
+maybePeekUTFString strPtr = liftM (maybe Nothing (Just . fromUTF)) $ maybePeek peekCString strPtr
 
 -- Define peekUTFStringLen to retrieve UTF-8.
 --
