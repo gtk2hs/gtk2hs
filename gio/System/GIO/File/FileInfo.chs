@@ -121,7 +121,11 @@ module System.GIO.File.FileInfo (
     fileInfoSetContentType,
     fileInfoSetModificationTime,
     fileInfoSetSize,
-    fileInfoSetSymlinkTarget,
+
+    -- 'fileInfoSetSymlinkTarget' use *static string* that we don't understand the purpose of this function.
+    -- If someone know how to use it, uncomment it and fix documentation.
+    -- fileInfoSetSymlinkTarget,
+
     fileInfoSetSortOrder,
     ) where
 
@@ -601,12 +605,12 @@ fileInfoSetSize info size =
 
 -- | Sets the 'FileAttributeStandardSymlinkTarget' attribute in the file info to the given symlink
 -- target.
-fileInfoSetSymlinkTarget :: FileInfoClass info => info 
-                         -> String  -- ^ @symlinkTarget@ a static string containing a path to a symlink target. 
-                         -> IO ()
-fileInfoSetSymlinkTarget info symlinkTarget =
-  withUTFString symlinkTarget $ \ symlinkTargetPtr -> 
-  {#call g_file_info_set_symlink_target#} (toFileInfo info) symlinkTargetPtr
+-- fileInfoSetSymlinkTarget :: FileInfoClass info => info 
+--                          -> String  -- ^ @symlinkTarget@ a static string containing a path to a symlink target. 
+--                          -> IO ()
+-- fileInfoSetSymlinkTarget info symlinkTarget =
+--   withUTFString symlinkTarget $ \ symlinkTargetPtr -> 
+--   {#call g_file_info_set_symlink_target#} (toFileInfo info) symlinkTargetPtr
 
 -- | Sets the sort order attribute in the file info structure. See 'FileAttributeStandardSortOrder'.
 fileInfoSetSortOrder :: FileInfoClass info => info 
