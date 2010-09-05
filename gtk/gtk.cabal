@@ -46,6 +46,7 @@ Data-Files:		actionMenu/ActionMenu.hs
                 
                 embedded/Embedded.hs
                 embedded/Makefile
+                embedded/MPlayer.hs
                 embedded/Notes.txt
                 embedded/Uzbl.hs
                 
