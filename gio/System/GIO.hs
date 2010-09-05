@@ -34,6 +34,21 @@ module System.GIO (
     module System.GIO.File.ContentType,
     module System.GIO.File.File,
     module System.GIO.File.FileEnumerator,
+    module System.GIO.File.FileInfo,
+    module System.GIO.File.FileMonitor,
+    module System.GIO.File.IOError,
+    module System.GIO.File.MountOperation,
+
+    module System.GIO.Icons.Emblem,
+    module System.GIO.Icons.EmblemedIcon,
+    module System.GIO.Icons.FileIcon,
+    module System.GIO.Icons.Icon,
+    module System.GIO.Icons.ThemedIcon,
+
+    module System.GIO.Volumes.Drive,
+    module System.GIO.Volumes.Mount,
+    module System.GIO.Volumes.Volume,
+    module System.GIO.Volumes.VolumeMonitor,
     ) where
 
 import System.GIO.Async.AsyncResult
@@ -43,3 +58,18 @@ import System.GIO.File.AppInfo
 import System.GIO.File.ContentType
 import System.GIO.File.File
 import System.GIO.File.FileEnumerator
+import System.GIO.File.FileInfo
+import System.GIO.File.FileMonitor
+import System.GIO.File.IOError
+import System.GIO.File.MountOperation
+
+import System.GIO.Icons.Emblem
+import System.GIO.Icons.EmblemedIcon
+import System.GIO.Icons.FileIcon
+import System.GIO.Icons.Icon
+import System.GIO.Icons.ThemedIcon
+
+import System.GIO.Volumes.Drive
+import System.GIO.Volumes.Mount
+import System.GIO.Volumes.Volume
+import System.GIO.Volumes.VolumeMonitor
