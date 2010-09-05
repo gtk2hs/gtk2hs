@@ -605,7 +605,7 @@ fileInfoSetSymlinkTarget :: FileInfoClass info => info
                          -> String  -- ^ @symlinkTarget@ a static string containing a path to a symlink target. 
                          -> IO ()
 fileInfoSetSymlinkTarget info symlinkTarget =
-  withCString symlinkTarget $ \ symlinkTargetPtr -> 
+  withUTFString symlinkTarget $ \ symlinkTargetPtr -> 
   {#call g_file_info_set_symlink_target#} (toFileInfo info) symlinkTargetPtr
 
 -- | Sets the sort order attribute in the file info structure. See 'FileAttributeStandardSortOrder'.
