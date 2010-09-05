@@ -47,7 +47,6 @@ Library
         exposed-modules:
           System.GIO
           System.GIO.Enums
-          System.GIO.Base
           System.GIO.Types		  
           
           System.GIO.Async.AsyncResult
@@ -58,6 +57,21 @@ Library
           System.GIO.File.FileAttribute
           System.GIO.File.File
           System.GIO.File.FileEnumerator
+          System.GIO.File.FileInfo
+          System.GIO.File.FileMonitor
+          System.GIO.File.IOError
+          System.GIO.File.MountOperation
+          
+          System.GIO.Icons.Emblem
+          System.GIO.Icons.EmblemedIcon
+          System.GIO.Icons.FileIcon
+          System.GIO.Icons.Icon
+          System.GIO.Icons.ThemedIcon
+          
+          System.GIO.Volumes.Drive
+          System.GIO.Volumes.Mount
+          System.GIO.Volumes.Volume
+          System.GIO.Volumes.VolumeMonitor
         other-modules:
           System.GIO.Signals
 
