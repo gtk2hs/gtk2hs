@@ -66,10 +66,10 @@ module System.GIO.File.MountOperation (
 
 -- * Signals
 #if GLIB_CHECK_VERSION(2,20,0)    
-    aborted,
-    askPassword,
+    mountOperationAborted,
+    mountOperationAskPassword,
     -- askQuestion,
-    reply,
+    mountOperationReplySignal,
     -- showProcesses,
 #endif
     ) where
@@ -156,16 +156,16 @@ mountOperationUsername = newAttrFromStringProperty "username"
 -- Implementations of 'MountOperation' should handle this signal by dismissing open password dialogs.
 -- 
 -- Since 2.20
-aborted :: MountOperationClass op => Signal op (IO ())
-aborted = Signal (connect_NONE__NONE "aborted")
+mountOperationAborted :: MountOperationClass op => Signal op (IO ())
+mountOperationAborted = Signal (connect_NONE__NONE "aborted")
 #endif
 
 -- | Emitted when a mount operation asks the user for a password.
 -- 
 -- If the message contains a line break, the first line should be presented as a heading. For example,
 -- it may be used as the primary text in a 'MessageDialog'.
-askPassword :: MountOperationClass op => Signal op (String -> String -> String -> AskPasswordFlags -> IO ())
-askPassword = Signal (connect_STRING_STRING_STRING_ENUM__NONE "ask-password")
+mountOperationAskPassword :: MountOperationClass op => Signal op (String -> String -> String -> AskPasswordFlags -> IO ())
+mountOperationAskPassword = Signal (connect_STRING_STRING_STRING_ENUM__NONE "ask-password")
 
 -- | Emitted when asking the user a question and gives a list of choices for the user to choose from.
 -- 
@@ -178,6 +178,6 @@ askPassword = Signal (connect_STRING_STRING_STRING_ENUM__NONE "ask-password")
 --                                          user str choices))
 
 -- | Emitted when the user has replied to the mount operation.
-reply :: MountOperationClass op => Signal op (MountOperationResult -> IO ())
-reply = Signal (connect_ENUM__NONE "reply")
+mountOperationReplySignal :: MountOperationClass op => Signal op (MountOperationResult -> IO ())
+mountOperationReplySignal = Signal (connect_ENUM__NONE "reply")
 
