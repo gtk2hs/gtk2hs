@@ -80,10 +80,10 @@ emblemedIconGetIcon emblemed =
 
 -- | Gets the list of emblems for the icon.
 emblemedIconGetEmblems :: EmblemedIconClass emblemed => emblemed
- -> IO [Emblem]
+ -> IO [Emblem] -- ^ returns  a list of 'Emblem' s that is owned by emblemed 
 emblemedIconGetEmblems emblemed = do
   glistPtr <- {#call g_emblemed_icon_get_emblems#} (toEmblemedIcon emblemed)
-  emblemPtrs <- fromGList glistPtr
+  emblemPtrs <- readGList glistPtr
   mapM (makeNewGObject mkEmblem . return) emblemPtrs
 
 -- | Adds emblem to the 'Emblem'.
