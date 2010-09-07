@@ -131,13 +131,6 @@ entryBufferGetBytes self =
 -- | Inserts @nChars@ characters of @chars@ into the contents of the buffer,
 -- at position @position@.
 --
--- If @nChars@ is negative, then characters from chars will be inserted
--- until a null-terminator is found. If @position@ or @nChars@ are out of
--- bounds, or the maximum buffer text length is exceeded, then they are coerced
--- to sane values.
---
--- Note that the position and length are in characters, not in bytes.
---
 -- * Available since Gtk+ version 2.18
 --
 entryBufferInsertText :: EntryBufferClass self => self
@@ -156,11 +149,6 @@ entryBufferInsertText self position chars =
 -- | Deletes a sequence of characters from the buffer. @nChars@ characters are
 -- deleted starting at @position@. If @nChars@ is negative, then all characters
 -- until the end of the text are deleted.
---
--- If @position@ or @nChars@ are out of bounds, then they are coerced to
--- sane values.
---
--- Note that the positions are specified in characters, not bytes.
 --
 -- * Available since Gtk+ version 2.18
 --
@@ -218,7 +206,7 @@ entryBufferEmitInsertedText self position chars nChars =
 entryBufferText :: EntryBufferClass self => Attr self String
 entryBufferText = newAttrFromStringProperty "text"
 
--- | The length (in characters) of the text in buffer.
+-- | The length of the text in buffer.
 -- 
 -- Allowed values: <= 65535
 -- 
@@ -229,7 +217,7 @@ entryBufferText = newAttrFromStringProperty "text"
 entryBufferLength :: EntryBufferClass self => ReadAttr self Int
 entryBufferLength = readAttrFromIntProperty "length"
 
--- | The maximum length (in characters) of the text in the buffer.
+-- | The maximum length of the text in the buffer.
 -- 
 -- Allowed values: [0,65535]
 -- 
