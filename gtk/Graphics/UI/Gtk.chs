@@ -89,6 +89,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Buttons.CheckButton,
   module Graphics.UI.Gtk.Buttons.RadioButton,
   module Graphics.UI.Gtk.Buttons.ToggleButton,
+  module Graphics.UI.Gtk.Buttons.LinkButton,
+  module Graphics.UI.Gtk.Buttons.ScaleButton,
+  module Graphics.UI.Gtk.Buttons.VolumeButton,
   -- * Numeric\/text data entry
   module Graphics.UI.Gtk.Entry.Editable,
   module Graphics.UI.Gtk.Entry.Entry,
@@ -293,6 +296,9 @@ import Graphics.UI.Gtk.Buttons.Button
 import Graphics.UI.Gtk.Buttons.CheckButton
 import Graphics.UI.Gtk.Buttons.RadioButton
 import Graphics.UI.Gtk.Buttons.ToggleButton
+import Graphics.UI.Gtk.Buttons.LinkButton
+import Graphics.UI.Gtk.Buttons.ScaleButton
+import Graphics.UI.Gtk.Buttons.VolumeButton
 -- numeric\/text data entry
 import Graphics.UI.Gtk.Entry.Editable
 import Graphics.UI.Gtk.Entry.Entry
