@@ -153,6 +153,18 @@ cellRendererAccelAccelMode = newAttrFromEnumProperty "accel-mode"
 
 -- | Gets emitted when the user has selected a new accelerator.
 --
+-- (\pathString accelKey accelMods hardwareKeycode -> ...)
+--
+--     @pathString@         the path identifying the row of the edited cell      
+--
+--     @accelKey@           the new accelerator keyval
+--
+--     @accelMods@          the new acclerator modifier mask                     
+--
+--     @hardwareKeycode@    the keycode of the new accelerator                   
+--
+-- You can find those types in module Graphics.UI.Gtk.Gdk.Keys and Graphics.UI.Gtk.Gdk.EventM
+--
 -- * Available since Gtk+ version 2.10
 --
 accelEdited :: CellRendererAccelClass self => Signal self (String -> Int -> Modifier -> Int -> IO ())
