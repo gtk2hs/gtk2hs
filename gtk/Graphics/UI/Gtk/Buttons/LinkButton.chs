@@ -131,7 +131,7 @@ linkButtonNewWithLabel uri label =
 
 -- | Sets @func@ as the function that should be invoked every time a user
 -- clicks a 'LinkButton'. This function is called before every callback
--- registered for the \"clicked\" signal.
+-- registered for the 'buttonClicked' signal.
 --
 -- If no uri hook has been set, Gtk+ defaults to calling 'showURI'.
 --
