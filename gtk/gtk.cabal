@@ -291,6 +291,7 @@ Library
           Graphics.UI.Gtk.Selectors.FontSelectionDialog
           Graphics.UI.Gtk.Special.Ruler
           Graphics.UI.Gtk.Special.HRuler
+          Graphics.UI.Gtk.Special.VRuler
           Graphics.UI.Gtk.Windows.AboutDialog
           Graphics.UI.Gtk.Windows.Dialog
           Graphics.UI.Gtk.Windows.Invisible
