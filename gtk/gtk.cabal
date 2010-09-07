@@ -250,6 +250,7 @@ Library
           Graphics.UI.Gtk.Misc.Tooltips
           Graphics.UI.Gtk.Misc.Viewport
           Graphics.UI.Gtk.ModelView
+          Graphics.UI.Gtk.ModelView.CellEditable
           Graphics.UI.Gtk.ModelView.CellLayout
           Graphics.UI.Gtk.ModelView.CellRenderer
           Graphics.UI.Gtk.ModelView.CellRendererCombo

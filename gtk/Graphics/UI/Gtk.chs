@@ -108,6 +108,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Multiline.TextTagTable,
   module Graphics.UI.Gtk.Multiline.TextView,
   -- * Tree and list widget
+  module Graphics.UI.Gtk.ModelView.CellEditable,
   module Graphics.UI.Gtk.ModelView.CellLayout,
   module Graphics.UI.Gtk.ModelView.CellRenderer,
   module Graphics.UI.Gtk.ModelView.CellRendererCombo,
@@ -317,6 +318,7 @@ import Graphics.UI.Gtk.Multiline.TextTagTable
 import qualified Graphics.UI.Gtk.Multiline.TextView
 import Graphics.UI.Gtk.Multiline.TextView
 -- tree and list widget
+import Graphics.UI.Gtk.ModelView.CellEditable
 import Graphics.UI.Gtk.ModelView.CellLayout
 import Graphics.UI.Gtk.ModelView.CellRenderer
 import Graphics.UI.Gtk.ModelView.CellRendererCombo

@@ -225,6 +225,7 @@
 	GladeXML			as GladeXML, glade_xml_get_type if libglade
 	GConfClient			as GConf if gconf
 # These ones are actualy interfaces, but interface implementations are GObjects
+	GtkCellEditable
 	GtkEditable
 	GtkSourceStyle			as SourceStyleObject if gtksourceview2
 	GtkSourceStyleScheme		if sourceview
