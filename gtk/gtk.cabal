@@ -173,6 +173,7 @@ Library
           Graphics.UI.Gtk.Embedding.Socket
           Graphics.UI.Gtk.Entry.Editable
           Graphics.UI.Gtk.Entry.Entry
+          Graphics.UI.Gtk.Entry.EntryBuffer
           Graphics.UI.Gtk.Entry.EntryCompletion
           Graphics.UI.Gtk.Entry.HScale
           Graphics.UI.Gtk.Entry.SpinButton

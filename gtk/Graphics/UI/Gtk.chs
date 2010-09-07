@@ -81,6 +81,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Display.Spinner,
   module Graphics.UI.Gtk.Display.Statusbar,
   module Graphics.UI.Gtk.Display.StatusIcon,
+#if GTK_CHECK_VERSION(2,18,0)
+  module Graphics.UI.Gtk.Display.InfoBar,
+#endif
   -- * Buttons and toggles
   module Graphics.UI.Gtk.Buttons.Button,
   module Graphics.UI.Gtk.Buttons.CheckButton,
@@ -89,6 +92,7 @@ module Graphics.UI.Gtk (
   -- * Numeric\/text data entry
   module Graphics.UI.Gtk.Entry.Editable,
   module Graphics.UI.Gtk.Entry.Entry,
+  module Graphics.UI.Gtk.Entry.EntryBuffer,
   module Graphics.UI.Gtk.Entry.EntryCompletion,
   module Graphics.UI.Gtk.Entry.HScale,
   module Graphics.UI.Gtk.Entry.VScale,
@@ -157,6 +161,13 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Selectors.FontSelection,
   module Graphics.UI.Gtk.Selectors.FontSelectionDialog,
   module Graphics.UI.Gtk.Selectors.FontButton,
+#if GTK_CHECK_VERSION(2,14,0)
+  module Graphics.UI.Gtk.Selectors.HSV,
+#endif
+  -- * Special-purpose features
+  module Graphics.UI.Gtk.Special.Ruler,
+  module Graphics.UI.Gtk.Special.HRuler,
+  module Graphics.UI.Gtk.Special.VRuler,
 --  module InputDialog,
   -- ** File chooser
   module Graphics.UI.Gtk.Selectors.FileChooser,
@@ -274,6 +285,9 @@ import Graphics.UI.Gtk.Display.StatusIcon hiding (onActivate,afterActivate,onPop
 #else
 import Graphics.UI.Gtk.Display.StatusIcon
 #endif
+#if GTK_CHECK_VERSION(2,18,0)
+import Graphics.UI.Gtk.Display.InfoBar
+#endif
 -- buttons and toggles
 import Graphics.UI.Gtk.Buttons.Button
 import Graphics.UI.Gtk.Buttons.CheckButton
@@ -282,6 +296,7 @@ import Graphics.UI.Gtk.Buttons.ToggleButton
 -- numeric\/text data entry
 import Graphics.UI.Gtk.Entry.Editable
 import Graphics.UI.Gtk.Entry.Entry
+import Graphics.UI.Gtk.Entry.EntryBuffer
 import Graphics.UI.Gtk.Entry.EntryCompletion
 import Graphics.UI.Gtk.Entry.HScale
 import Graphics.UI.Gtk.Entry.VScale
@@ -357,6 +372,13 @@ import Graphics.UI.Gtk.Selectors.FileFilter
 import Graphics.UI.Gtk.Selectors.FontSelection
 import Graphics.UI.Gtk.Selectors.FontSelectionDialog
 import Graphics.UI.Gtk.Selectors.FontButton
+#if GTK_CHECK_VERSION(2,14,0)
+import Graphics.UI.Gtk.Selectors.HSV
+#endif
+-- Special-purpose features
+import Graphics.UI.Gtk.Special.Ruler
+import Graphics.UI.Gtk.Special.HRuler
+import Graphics.UI.Gtk.Special.VRuler
 --import InputDialog
 -- layout containers
 import Graphics.UI.Gtk.Layout.Alignment

@@ -207,6 +207,7 @@
 	GtkAccelGroup
 	GtkAccelMap			if gtk-2.4
 	GtkEntryCompletion		if gtk-2.4
+	GtkEntryBuffer		if gtk-2.18
 	GtkAction			if gtk-2.4
 	    GtkToggleAction		if gtk-2.4
 		GtkRadioAction		if gtk-2.4
