@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Special.HRuler (
   toHRuler,
 
 -- * Constructors
-  hrulerNew,
+  hRulerNew,
   ) where
 
 import Control.Monad	(liftM)
@@ -69,8 +69,8 @@ import System.Glib.FFI
 
 -- | Creates a new horizontal ruler.
 --
-hrulerNew :: IO HRuler
-hrulerNew =
+hRulerNew :: IO HRuler
+hRulerNew =
   makeNewObject mkHRuler $
   liftM (castPtr :: Ptr Widget -> Ptr HRuler) $
   {# call gtk_hruler_new #}

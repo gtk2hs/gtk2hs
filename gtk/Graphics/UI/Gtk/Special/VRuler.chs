@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Special.VRuler (
   toVRuler,
 
 -- * Constructors
-  vrulerNew,
+  vRulerNew,
   ) where
 
 import Control.Monad	(liftM)
@@ -69,8 +69,8 @@ import System.Glib.FFI
 
 -- | Creates a new vertical ruler
 --
-vrulerNew :: IO VRuler
-vrulerNew =
+vRulerNew :: IO VRuler
+vRulerNew =
   makeNewObject mkVRuler $
   liftM (castPtr :: Ptr Widget -> Ptr VRuler) $
   {# call gtk_vruler_new #}
