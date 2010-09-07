@@ -159,6 +159,9 @@ Library
           Graphics.UI.Gtk.Buttons.CheckButton
           Graphics.UI.Gtk.Buttons.RadioButton
           Graphics.UI.Gtk.Buttons.ToggleButton
+          Graphics.UI.Gtk.Buttons.LinkButton
+          Graphics.UI.Gtk.Buttons.ScaleButton
+          Graphics.UI.Gtk.Buttons.VolumeButton
           Graphics.UI.Gtk.Cairo
           Graphics.UI.Gtk.Display.AccelLabel
           Graphics.UI.Gtk.Display.Image
