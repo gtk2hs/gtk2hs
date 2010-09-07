@@ -116,6 +116,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.ModelView.CellRendererProgress,
   module Graphics.UI.Gtk.ModelView.CellRendererText,
   module Graphics.UI.Gtk.ModelView.CellRendererAccel,
+  module Graphics.UI.Gtk.ModelView.CellRendererSpin,
   module Graphics.UI.Gtk.ModelView.CellRendererToggle,
   module Graphics.UI.Gtk.ModelView.CellView,
   module Graphics.UI.Gtk.ModelView.CustomStore,
@@ -327,6 +328,7 @@ import Graphics.UI.Gtk.ModelView.CellRendererPixbuf
 import Graphics.UI.Gtk.ModelView.CellRendererProgress
 import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellRendererAccel
+import Graphics.UI.Gtk.ModelView.CellRendererSpin
 import Graphics.UI.Gtk.ModelView.CellRendererToggle
 import Graphics.UI.Gtk.ModelView.CellView
 import Graphics.UI.Gtk.ModelView.CustomStore

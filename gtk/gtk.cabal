@@ -258,6 +258,7 @@ Library
           Graphics.UI.Gtk.ModelView.CellRendererProgress
           Graphics.UI.Gtk.ModelView.CellRendererText
           Graphics.UI.Gtk.ModelView.CellRendererAccel
+          Graphics.UI.Gtk.ModelView.CellRendererSpin
           Graphics.UI.Gtk.ModelView.CellRendererToggle
           Graphics.UI.Gtk.ModelView.CellView
           Graphics.UI.Gtk.ModelView.CustomStore
