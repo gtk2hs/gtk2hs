@@ -175,7 +175,7 @@ import Prelude hiding (catch)
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
-import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyName)
+import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, KeyCode, keyName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..), VisibilityState(..),
   CrossingMode(..), NotifyType(..), WindowState(..), ScrollDirection(..),
@@ -466,7 +466,7 @@ eventKeyName :: EventM EKey String
 eventKeyName = liftM keyName $ eventKeyVal
 
 -- | The hardware key code.
-eventHardwareKeycode :: EventM EKey Word16
+eventHardwareKeycode :: EventM EKey KeyCode
 eventHardwareKeycode = ask >>= \ptr -> liftIO $ liftM fromIntegral 
   (#{peek GdkEventKey, hardware_keycode} ptr :: IO #{gtk2hs_type guint16})
 

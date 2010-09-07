@@ -80,6 +80,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Gdk.Enums (Modifier)
 import Graphics.UI.Gtk.Abstract.Object   (makeNewObject)
+import Graphics.UI.Gtk.Gdk.Keys (KeyVal, KeyCode)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
 
@@ -153,22 +154,12 @@ cellRendererAccelAccelMode = newAttrFromEnumProperty "accel-mode"
 
 -- | Gets emitted when the user has selected a new accelerator.
 --
--- (\pathString accelKey accelMods hardwareKeycode -> ...)
---
---     @pathString@         the path identifying the row of the edited cell      
---
---     @accelKey@           the new accelerator keyval
---
---     @accelMods@          the new acclerator modifier mask                     
---
---     @hardwareKeycode@    the keycode of the new accelerator                   
---
--- You can find those types in module Graphics.UI.Gtk.Gdk.Keys and Graphics.UI.Gtk.Gdk.EventM
---
 -- * Available since Gtk+ version 2.10
 --
-accelEdited :: CellRendererAccelClass self => Signal self (String -> Int -> Modifier -> Int -> IO ())
-accelEdited = Signal (connect_STRING_INT_ENUM_INT__NONE "accel_edited")
+accelEdited :: CellRendererAccelClass self => Signal self (String -> KeyVal -> Modifier -> KeyCode -> IO ())
+accelEdited = Signal (\after obj user -> connect_STRING_INT_ENUM_INT__NONE "accel_edited" after obj
+                      (\ path keyval modifier keycode -> 
+                        user path (fromIntegral keyval) modifier (fromIntegral keycode)))
 
 -- | Gets emitted when the user has removed the accelerator.
 --

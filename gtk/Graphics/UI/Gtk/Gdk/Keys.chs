@@ -29,6 +29,7 @@
 --
 module Graphics.UI.Gtk.Gdk.Keys (
   KeyVal,
+  KeyCode,
   keyName,
   keyFromName,
   keyToChar,
@@ -49,6 +50,7 @@ import System.Glib.UTFString
 -- released.
 --
 type KeyVal = Word32
+type KeyCode = Word16
 
 -- | Converts a key value into a symbolic name.
 --
