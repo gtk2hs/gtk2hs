@@ -105,7 +105,7 @@ rulerSetRange self (lower, upper, position, maxSize) =
 -- See 'rulerSetRange'.
 --
 rulerGetRange :: RulerClass self => self
- -> IO (Maybe (Double, Double, Double, Double))
+ -> IO (Double, Double, Double, Double)
 rulerGetRange self =
   alloca $ \lowerPtr ->
   alloca $ \upperPtr ->
@@ -117,24 +117,18 @@ rulerGetRange self =
     upperPtr
     positionPtr
     maxSizePtr
-  if lowerPtr    == nullPtr ||
-     upperPtr    == nullPtr ||
-     positionPtr == nullPtr ||
-     maxSizePtr  == nullPtr
-     then return Nothing
-     else do
-        lower    <- peek lowerPtr
-        upper    <- peek upperPtr
-        position <- peek positionPtr
-        maxSize  <- peek maxSizePtr
-        return $ Just (realToFrac lower, realToFrac upper, realToFrac position, realToFrac maxSize)
+  lower    <- peek lowerPtr
+  upper    <- peek upperPtr
+  position <- peek positionPtr
+  maxSize  <- peek maxSizePtr
+  return (realToFrac lower, realToFrac upper, realToFrac position, realToFrac maxSize)
 
 --------------------
 -- Attributes
 
 -- | Range of ruler
 --
-rulerRange :: RulerClass self => ReadWriteAttr self (Maybe (Double, Double, Double, Double)) (Double, Double, Double, Double)
+rulerRange :: RulerClass self => Attr self (Double, Double, Double, Double)
 rulerRange = newAttr
   rulerGetRange
   rulerSetRange
