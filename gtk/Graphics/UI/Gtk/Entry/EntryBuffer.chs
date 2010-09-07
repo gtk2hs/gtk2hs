@@ -128,7 +128,7 @@ entryBufferGetBytes self =
   {# call gtk_entry_buffer_get_bytes #}
     (toEntryBuffer self)
 
--- | Inserts @nChars@ characters of @chars@ into the contents of the buffer,
+-- | Inserts @chars@ into the contents of the buffer,
 -- at position @position@.
 --
 -- * Available since Gtk+ version 2.18
@@ -136,16 +136,15 @@ entryBufferGetBytes self =
 entryBufferInsertText :: EntryBufferClass self => self
  -> Int    -- ^ @position@ - the position at which to insert text.
  -> String -- ^ @chars@ - the text to insert into the buffer.
- -> Int    -- ^ @nChars@  the number of characters need insert
  -> IO Int -- ^ returns The number of characters actually inserted.
-entryBufferInsertText self position chars nChars =
+entryBufferInsertText self position chars =
   liftM fromIntegral $
-  withUTFString chars $ \charsPtr ->
+  withUTFStringLen chars $ \ (charsPtr, len) ->
   {# call gtk_entry_buffer_insert_text #}
     (toEntryBuffer self)
     (fromIntegral position)
     charsPtr
-    (fromIntegral nChars)
+    (fromIntegral len)
 
 -- | Deletes a sequence of characters from the buffer. @nChars@ characters are
 -- deleted starting at @position@. If @nChars@ is negative, then all characters
