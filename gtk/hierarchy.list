@@ -175,6 +175,7 @@
             GtkAdjustment
             GtkIMContext
                 GtkIMMulticontext
+                GtkIMContextSimple
             GtkItemFactory		if deprecated
             GtkTooltips
 			

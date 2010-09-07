@@ -244,6 +244,7 @@ Library
           Graphics.UI.Gtk.Misc.EventBox
           Graphics.UI.Gtk.Misc.HandleBox
           Graphics.UI.Gtk.Misc.IMMulticontext
+          Graphics.UI.Gtk.Misc.IMContextSimple
           Graphics.UI.Gtk.Misc.SizeGroup
           Graphics.UI.Gtk.Misc.Tooltip
           Graphics.UI.Gtk.Misc.Tooltips

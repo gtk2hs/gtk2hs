@@ -208,6 +208,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.EventBox,
   module Graphics.UI.Gtk.Misc.HandleBox,
   module Graphics.UI.Gtk.Misc.IMMulticontext,
+  module Graphics.UI.Gtk.Misc.IMContextSimple,
   module Graphics.UI.Gtk.Misc.SizeGroup,
   module Graphics.UI.Gtk.Misc.Tooltip,
   module Graphics.UI.Gtk.Misc.Tooltips,
@@ -416,6 +417,7 @@ import Graphics.UI.Gtk.Misc.DrawingArea
 import Graphics.UI.Gtk.Misc.EventBox
 import Graphics.UI.Gtk.Misc.HandleBox
 import Graphics.UI.Gtk.Misc.IMMulticontext
+import Graphics.UI.Gtk.Misc.IMContextSimple
 import Graphics.UI.Gtk.Misc.SizeGroup
 import Graphics.UI.Gtk.Misc.Tooltip
 import Graphics.UI.Gtk.Misc.Tooltips
