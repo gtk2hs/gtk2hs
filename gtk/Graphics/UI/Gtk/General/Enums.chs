@@ -45,7 +45,9 @@ module Graphics.UI.Gtk.General.Enums (
   MatchType(..),
 #endif
   MenuDirectionType(..),
+#if GTK_CHECK_VERSION(2,8,0)
   MetricType(..),
+#endif
   MovementStep(..),
   Orientation(..),
   Packing(..), toPacking, fromPacking,
@@ -82,7 +84,7 @@ module Graphics.UI.Gtk.General.Enums (
   WindowType(..),
   WrapMode(..), 
   EntryIconPosition(..),
-  module Graphics.UI.Gtk.Gdk.Enums
+module Graphics.UI.Gtk.Gdk.Enums
   ) where
 
 import System.Glib.Flags	(Flags)
