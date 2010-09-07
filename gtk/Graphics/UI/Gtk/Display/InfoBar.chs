@@ -81,7 +81,7 @@ module Graphics.UI.Gtk.Display.InfoBar (
   infoBarAddButton,
   infoBarSetResponseSensitive,
   infoBarSetDefaultResponse,
-  infoBarResponse,
+  infoBarEmitResponse,
   infoBarGetActionArea,
   infoBarGetContentArea,
 
@@ -89,7 +89,7 @@ module Graphics.UI.Gtk.Display.InfoBar (
   infoBarMessageType,
 
 -- * Signals
-  infoBarResponseSignal,
+  infoBarResponse,
   infoBarClose,
 #endif
   ) where
@@ -200,10 +200,10 @@ infoBarSetDefaultResponse self responseId =
 --
 -- * Available since Gtk+ version 2.18
 --
-infoBarResponse :: InfoBarClass self => self
+infoBarEmitResponse :: InfoBarClass self => self
  -> Int -- ^ @responseId@ - a response ID
  -> IO ()
-infoBarResponse self responseId =
+infoBarEmitResponse self responseId =
   {# call gtk_info_bar_response #}
     (toInfoBar self)
     (fromIntegral responseId)
@@ -266,7 +266,7 @@ infoBarClose = Signal (connect_NONE__NONE "close")
 --
 -- * Available since Gtk+ version 2.18
 --
-infoBarResponseSignal :: InfoBarClass self => Signal self (Int -> IO ())
-infoBarResponseSignal = Signal (connect_INT__NONE "response")
+infoBarResponse :: InfoBarClass self => Signal self (Int -> IO ())
+infoBarResponse = Signal (connect_INT__NONE "response")
 #endif
 
