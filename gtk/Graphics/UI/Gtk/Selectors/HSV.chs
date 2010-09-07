@@ -194,11 +194,12 @@ hsvToRgb ::
    -- @h@ - value for the hue 
    -- @s@ value for the saturation 
    -- @v@ value for the value
- -> IO (Double, Double, Double) -- ^ @(r, g, b)@  @r@ - Return value for the red
-                                -- component @g@ - Return value for the green
-                                -- component @b@ - Return value for the blue
-                                -- component
+ -> (Double, Double, Double) -- ^ @(r, g, b)@  @r@ - Return value for the red
+                            -- component @g@ - Return value for the green
+                            -- component @b@ - Return value for the blue
+                            -- component
 hsvToRgb (h, s, v) =
+  unsafePerformIO $
   alloca $ \rPtr ->
   alloca $ \gPtr ->
   alloca $ \bPtr -> do
@@ -216,8 +217,11 @@ hsvToRgb (h, s, v) =
 
 -- | Converts a color from RGB space to 'HSV'. Input values must be in the [0.0, 1.0] range; output values
 -- will be in the same range.
-rgbToHsv :: (Double, Double, Double) -> IO (Double, Double, Double)
+rgbToHsv :: 
+       (Double, Double, Double) 
+    -> (Double, Double, Double)
 rgbToHsv (r, g, b) =
+  unsafePerformIO $
   alloca $ \hPtr ->
   alloca $ \sPtr ->
   alloca $ \vPtr -> do
