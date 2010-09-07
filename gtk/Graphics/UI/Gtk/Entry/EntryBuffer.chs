@@ -136,15 +136,16 @@ entryBufferGetBytes self =
 entryBufferInsertText :: EntryBufferClass self => self
  -> Int    -- ^ @position@ - the position at which to insert text.
  -> String -- ^ @chars@ - the text to insert into the buffer.
+ -> Int    -- ^ @nChars@  the number of characters need insert
  -> IO Int -- ^ returns The number of characters actually inserted.
-entryBufferInsertText self position chars =
+entryBufferInsertText self position chars nChars =
   liftM fromIntegral $
   withUTFString chars $ \charsPtr ->
   {# call gtk_entry_buffer_insert_text #}
     (toEntryBuffer self)
     (fromIntegral position)
     charsPtr
-    (fromIntegral (length chars))
+    (fromIntegral nChars)
 
 -- | Deletes a sequence of characters from the buffer. @nChars@ characters are
 -- deleted starting at @position@. If @nChars@ is negative, then all characters
