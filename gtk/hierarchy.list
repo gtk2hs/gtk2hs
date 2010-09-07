@@ -118,6 +118,7 @@
                             GtkFontSelection
 			    GtkFileChooserWidget	if gtk-2.4
                         GtkHBox
+						    GtkInfoBar if gtk-2.18
                             GtkCombo	if deprecated
                             GtkFileChooserButton	if gtk-2.6
                             GtkStatusbar

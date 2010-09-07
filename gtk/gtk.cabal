@@ -167,6 +167,7 @@ Library
           Graphics.UI.Gtk.Display.Spinner
           Graphics.UI.Gtk.Display.Statusbar
           Graphics.UI.Gtk.Display.StatusIcon
+          Graphics.UI.Gtk.Display.InfoBar
           Graphics.UI.Gtk.Embedding.Embedding
           Graphics.UI.Gtk.Embedding.Plug
           Graphics.UI.Gtk.Embedding.Socket
