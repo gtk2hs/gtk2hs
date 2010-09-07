@@ -289,6 +289,7 @@ Library
           Graphics.UI.Gtk.Selectors.FontButton
           Graphics.UI.Gtk.Selectors.FontSelection
           Graphics.UI.Gtk.Selectors.FontSelectionDialog
+          Graphics.UI.Gtk.Selectors.HSV
           Graphics.UI.Gtk.Special.Ruler
           Graphics.UI.Gtk.Special.HRuler
           Graphics.UI.Gtk.Special.VRuler
