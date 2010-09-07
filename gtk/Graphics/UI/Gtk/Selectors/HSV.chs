@@ -219,7 +219,14 @@ hsvToRgb (h, s, v) =
 -- will be in the same range.
 rgbToHsv :: 
        (Double, Double, Double) 
+    -- ^ @(r, g, b)@  @r@ value for the red component 
+    -- @g@ value for the green component 
+    -- @b@ value for the blue component
     -> (Double, Double, Double)
+   -- ^ @(h, s, v)@ 
+   -- @h@ - Return value for the hue 
+   -- @s@ - Return value for the saturation 
+   -- @v@ - Return value for the value
 rgbToHsv (r, g, b) =
   unsafePerformIO $
   alloca $ \hPtr ->
