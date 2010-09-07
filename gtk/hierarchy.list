@@ -186,6 +186,7 @@
 	    GtkCellRenderer
 		GtkCellRendererPixbuf
 		GtkCellRendererText
+		    GtkCellRendererAccel    if gtk-2.10
 		    GtkCellRendererCombo	if gtk-2.6
 		GtkCellRendererToggle
 		GtkCellRendererProgress	if gtk-2.6
