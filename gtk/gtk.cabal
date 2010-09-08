@@ -237,6 +237,7 @@ Library
           Graphics.UI.Gtk.MenuComboToolbar.Toolbar
           Graphics.UI.Gtk.MenuComboToolbar.ToolButton
           Graphics.UI.Gtk.MenuComboToolbar.ToolItem
+          Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup
           Graphics.UI.Gtk.Misc.Adjustment
           Graphics.UI.Gtk.Misc.Arrow
           Graphics.UI.Gtk.Misc.Calendar

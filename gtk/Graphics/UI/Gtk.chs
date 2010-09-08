@@ -147,6 +147,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.Toolbar,
   module Graphics.UI.Gtk.MenuComboToolbar.ToolItem,
+  module Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup,
   module Graphics.UI.Gtk.MenuComboToolbar.ToolButton,
   module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton,
   module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton,
@@ -360,6 +361,7 @@ import Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.Toolbar
 import Graphics.UI.Gtk.MenuComboToolbar.ToolItem
+import Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup
 import Graphics.UI.Gtk.MenuComboToolbar.ToolButton
 import Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton
 import Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton
