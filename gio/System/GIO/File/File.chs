@@ -268,7 +268,7 @@ type FileReadMoreCallback = BS.ByteString -> IO Bool
 fileFromPath :: FilePath -> File
 fileFromPath path =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withUTFString path $ \cPath -> {# call file_new_for_path #} cPath
+    withCString path $ \cPath -> {# call file_new_for_path #} cPath
 
 -- | Constructs a 'File' for a given URI. This operation never fails, but the returned object might not
 -- support any I/O operation if uri is malformed or if the uri type is not supported.
@@ -284,7 +284,7 @@ fileFromURI uri =
 fileFromCommandlineArg :: String -> File
 fileFromCommandlineArg arg =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withUTFString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
+    withCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
 
 -- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
 -- operation never fails, but the returned object might not support any I/O operation if the @parseName@
@@ -292,7 +292,7 @@ fileFromCommandlineArg arg =
 fileFromParseName :: String -> File
 fileFromParseName parseName =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
+    withCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
 --   implement the '(==)' function, that is, comparing two descriptions
@@ -380,7 +380,7 @@ fileHasParent file parent =
 fileGetChild :: FileClass file => file -> String -> File
 fileGetChild file name =
     unsafePerformIO $ makeNewGObject mkFile $
-        withUTFString name $ \cName ->
+        withCString name $ \cName ->
         {# call file_get_child #} (toFile file) cName
 
 -- | Gets the child of file for a given 'name (i.e. a UTF8 version of the name)'. If this function
@@ -422,7 +422,7 @@ fileGetRelativePath file1 file2 =
 fileResolveRelativePath :: FileClass file => file -> FilePath -> Maybe File
 fileResolveRelativePath file relativePath =
     unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
-        withUTFString relativePath $ \cRelativePath ->
+        withCString relativePath $ \cRelativePath ->
         {# call file_resolve_relative_path #} (toFile file) cRelativePath
 
 -- | Checks to see if a file is native to the platform.
@@ -601,7 +601,7 @@ fileReplace :: FileClass file
             -> IO FileOutputStream
 fileReplace file etag makeBackup flags cancellable =
     makeNewGObject mkFileOutputStream $
-        maybeWith withUTFString etag $ \cEtag ->
+        maybeWith withCString etag $ \cEtag ->
         propagateGError ({#call g_file_replace#} 
                            (toFile file)
                            cEtag
@@ -691,7 +691,7 @@ fileReplaceAsync :: FileClass file
                  -> AsyncReadyCallback
                  -> IO ()
 fileReplaceAsync file etag makeBackup flags ioPriority cancellable callback =
-        withUTFString etag $ \cEtag -> do
+        withCString etag $ \cEtag -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_replace_async #} 
             (toFile file)
@@ -741,7 +741,7 @@ fileQueryInfo :: FileClass file
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
     makeNewGObject mkFileInfo $
-        withUTFString attributes $ \cAttributes ->
+        withCString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_info #} 
                            (toFile file) 
                            cAttributes 
@@ -765,7 +765,7 @@ fileQueryInfoAsync :: FileClass file
                    -> AsyncReadyCallback
                    -> IO ()
 fileQueryInfoAsync file attributes flags ioPriority cancellable callback =
-        withUTFString attributes $ \cAttributes -> do
+        withCString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_query_info_async #} 
             (toFile file)
@@ -858,7 +858,7 @@ fileQueryFilesystemInfo :: FileClass file
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
     makeNewGObject mkFileInfo $
-        withUTFString attributes $ \cAttributes ->
+        withCString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_filesystem_info #} 
                            (toFile file) 
                            cAttributes 
@@ -880,7 +880,7 @@ fileQueryFilesystemInfoAsync :: FileClass file
                              -> AsyncReadyCallback
                              -> IO ()
 fileQueryFilesystemInfoAsync file attributes ioPriority cancellable callback =
-        withUTFString attributes $ \cAttributes -> do
+        withCString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_query_filesystem_info_async #} 
             (toFile file)
@@ -988,7 +988,7 @@ fileEnumerateChildren :: FileClass file
                       -> IO FileEnumerator
 fileEnumerateChildren file attributes flags cancellable =
     makeNewGObject mkFileEnumerator $
-        withUTFString attributes $ \cAttributes ->
+        withCString attributes $ \cAttributes ->
         propagateGError ({#call g_file_enumerate_children #} 
                            (toFile file) 
                            cAttributes 
@@ -1012,7 +1012,7 @@ fileEnumerateChildrenAsync :: FileClass file
                            -> AsyncReadyCallback
                            -> IO ()
 fileEnumerateChildrenAsync file attributes flags ioPriority cancellable callback =
-        withUTFString attributes $ \cAttributes -> do
+        withCString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_enumerate_children_async #} 
             (toFile file)
@@ -1331,7 +1331,7 @@ fileMakeSymbolicLink :: FileClass file
                      -> Maybe Cancellable
                      -> IO ()
 fileMakeSymbolicLink file symlinkValue cancellable =
-        withUTFString symlinkValue $ \cSymlinkValue -> do
+        withCString symlinkValue $ \cSymlinkValue -> do
           propagateGError $ {#call g_file_make_symbolic_link #} 
                               (toFile file) 
                               cSymlinkValue 
@@ -1466,8 +1466,8 @@ fileSetAttributeString :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeString  file attribute value flags cancellable =
-    withUTFString attribute $ \ attributePtr -> 
-    withUTFString value $ \ valuePtr -> do
+    withCString attribute $ \ attributePtr -> 
+    withCString value $ \ valuePtr -> do
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_string #} 
                                    (toFile file)
@@ -1516,7 +1516,7 @@ fileSetAttributeWord32 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeWord32  file attribute value flags cancellable =
-    withUTFString attribute $ \ attributePtr -> 
+    withCString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                 {#call g_file_set_attribute_uint32 #} 
                                   (toFile file)
@@ -1540,7 +1540,7 @@ fileSetAttributeInt32 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeInt32  file attribute value flags cancellable =
-    withUTFString attribute $ \ attributePtr -> 
+    withCString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                 {#call g_file_set_attribute_int32 #} 
                                    (toFile file)
@@ -1564,7 +1564,7 @@ fileSetAttributeWord64 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeWord64  file attribute value flags cancellable =
-    withUTFString attribute $ \ attributePtr -> 
+    withCString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_uint64 #} 
                                    (toFile file)
@@ -1588,7 +1588,7 @@ fileSetAttributeInt64 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeInt64  file attribute value flags cancellable =
-    withUTFString attribute $ \ attributePtr -> 
+    withCString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_int64 #} 
                                    (toFile file)

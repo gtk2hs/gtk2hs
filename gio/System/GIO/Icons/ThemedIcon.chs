@@ -61,7 +61,7 @@ import System.Glib.UTFString
 themedIconNew :: String -- ^ @iconname@ a string containing an icon name. 
  -> IO ThemedIcon
 themedIconNew iconName =
-  withUTFString iconName $ \ iconNamePtr -> 
+  withCString iconName $ \ iconNamePtr -> 
   {#call g_themed_icon_new#} iconNamePtr
   >>= (constructNewGObject mkThemedIcon . return) . castPtr
 
@@ -81,7 +81,7 @@ themedIconPrependName :: ThemedIconClass icon => icon
  -> String   -- ^ @iconname@ name of icon to prepend to list of icons from within icon. 
  -> IO ()
 themedIconPrependName icon iconname =
-  withUTFString iconname $ \ iconnamePtr -> 
+  withCString iconname $ \ iconnamePtr -> 
   {#call g_themed_icon_prepend_name#} (toThemedIcon icon) iconnamePtr
 #endif
 
@@ -90,7 +90,7 @@ themedIconAppendName :: ThemedIconClass icon => icon
  -> String   -- ^ @iconname@ name of icon to append to list of icons from within icon. 
  -> IO ()
 themedIconAppendName icon iconname =
-  withUTFString iconname $ \ iconnamePtr -> 
+  withCString iconname $ \ iconnamePtr -> 
   {#call g_themed_icon_append_name#} (toThemedIcon icon) iconnamePtr
 
 -- | Gets the names of icons from within icon.

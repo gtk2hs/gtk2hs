@@ -103,6 +103,6 @@ iconToString icon =
 iconNewForString :: String -> IO Icon
 iconNewForString str =
     constructNewGObject mkIcon $
-    withUTFString str $ \ strPtr -> 
+    withCString str $ \ strPtr -> 
     propagateGError ({# call g_icon_new_for_string #} strPtr) 
 #endif

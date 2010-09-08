@@ -363,7 +363,7 @@ driveGetIdentifier :: DriveClass drive => drive
                     -> String  -- ^ @kind@    the kind of identifier to return
                     -> IO String
 driveGetIdentifier drive kind = 
-  withUTFString kind $ \ kindPtr -> 
+  withCString kind $ \ kindPtr -> 
   {#call g_drive_get_identifier#} (toDrive drive) kindPtr
   >>= readUTFString
 

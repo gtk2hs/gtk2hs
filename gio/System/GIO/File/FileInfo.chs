@@ -170,7 +170,7 @@ fileInfoHasAttribute :: FileInfoClass info => info
  -> Bool  -- ^ returns   'True' if Ginfo has an attribute named attribute, 'False' otherwise.
 fileInfoHasAttribute info attribute =
   toBool $ unsafePerformIO $
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_has_attribute#} (toFileInfo info) attributePtr
 
 #if GLIB_CHECK_VERSION(2,22,0)
@@ -180,7 +180,7 @@ fileInfoHasNamespace :: FileInfoClass info => info
  -> Bool  -- ^ returns   'True' if Ginfo has an namespace named namespace, 'False' otherwise.
 fileInfoHasNamespace info namespace =
   toBool $ unsafePerformIO $
-  withUTFString namespace $ \ namespacePtr -> 
+  withCString namespace $ \ namespacePtr -> 
   {#call g_file_info_has_namespace#} (toFileInfo info) namespacePtr
 #endif
 
@@ -189,7 +189,7 @@ fileInfoListAttributes :: FileInfoClass info => info
  -> String -- ^ @nameSpace@ a file attribute key's namespace.
  -> IO [String]-- ^ returns a array of strings of all of the possible attribute types for the given @nameSpace@
 fileInfoListAttributes info nameSpace =
-  withUTFString nameSpace $ \ nameSpacePtr -> 
+  withCString nameSpace $ \ nameSpacePtr -> 
   {#call g_file_info_list_attributes#} (toFileInfo info) nameSpacePtr
   >>= readUTFStringArray0
 
@@ -199,7 +199,7 @@ fileInfoGetAttributeType :: FileInfoClass info => info
  -> IO FileAttributeType -- ^ returns a 'FileAttributeType' for the given attribute, or 'FileAttributeTypeInvalid' if the key is not set.
 fileInfoGetAttributeType info attribute =
   liftM (toEnum . fromIntegral) $
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_type#} (toFileInfo info) attributePtr
 
 -- | Removes all cases of attribute from info if it exists.
@@ -207,7 +207,7 @@ fileInfoRemoveAttribute :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO ()
 fileInfoRemoveAttribute info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_remove_attribute#} (toFileInfo info) attributePtr
 
 -- | Gets the value of a attribute, formated as a string. This escapes things as needed to make the
@@ -216,7 +216,7 @@ fileInfoGetAttributeAsString :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO String -- ^ returns   a UTF-8 string associated with the given attribute. 
 fileInfoGetAttributeAsString info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_as_string#} (toFileInfo info) attributePtr
   >>= readUTFString
 
@@ -226,7 +226,7 @@ fileInfoGetAttributeStatus :: FileInfoClass info => info
  -> IO FileAttributeStatus -- ^ returns   a 'FileAttributeStatus' for the given attribute, or 'FileAttributeStatusUnset' if the key is invalid.
 fileInfoGetAttributeStatus info attribute =
   liftM (toEnum . fromIntegral) $
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_status#} (toFileInfo info) attributePtr
 
 -- | Gets the value of a string attribute. 
@@ -234,7 +234,7 @@ fileInfoGetAttributeString :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO String -- ^ returns   the contents of the attribute value as a string
 fileInfoGetAttributeString info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_string#} (toFileInfo info) attributePtr
   >>= readUTFString
 
@@ -244,7 +244,7 @@ fileInfoGetAttributeStringList :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO [String] -- ^ returns   the contents of the attribute value as a string list
 fileInfoGetAttributeStringList info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_stringv#} (toFileInfo info) attributePtr
   >>= readUTFStringArray0
 #endif
@@ -254,7 +254,7 @@ fileInfoGetAttributeByteString :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO String -- ^ returns   the contents of the attribute value as a ByteString
 fileInfoGetAttributeByteString info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_byte_string#} (toFileInfo info) attributePtr
   >>= readCString
 
@@ -264,7 +264,7 @@ fileInfoGetAttributeBool :: FileInfoClass info => info
  -> IO Bool -- ^ returns   the contents of the attribute value as a bool
 fileInfoGetAttributeBool info attribute =
   liftM toBool $
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_get_attribute_boolean#} (toFileInfo info) attributePtr
 
 -- | Gets an Word32 contained within the attribute. 
@@ -273,7 +273,7 @@ fileInfoGetAttributeWord32 :: FileInfoClass info => info
  -> IO Word32 -- ^ returns   the contents of the attribute value as a bool
 fileInfoGetAttributeWord32 info attribute =
   liftM fromIntegral $
-  withUTFString attribute $ \ attributePtr -> do
+  withCString attribute $ \ attributePtr -> do
   {#call g_file_info_get_attribute_uint32#} (toFileInfo info) attributePtr
   
 -- | Gets an Int32 contained within the attribute. 
@@ -282,7 +282,7 @@ fileInfoGetAttributeInt32 :: FileInfoClass info => info
  -> IO Int32 -- ^ returns   the contents of the attribute value as a bool
 fileInfoGetAttributeInt32 info attribute =
   liftM fromIntegral $
-  withUTFString attribute $ \ attributePtr -> do
+  withCString attribute $ \ attributePtr -> do
   {#call g_file_info_get_attribute_int32#} (toFileInfo info) attributePtr
 
 -- | Gets an Word64 contained within the attribute. 
@@ -291,7 +291,7 @@ fileInfoGetAttributeWord64 :: FileInfoClass info => info
  -> IO Word64 -- ^ returns   the contents of the attribute value as a bool
 fileInfoGetAttributeWord64 info attribute =
   liftM fromIntegral $
-  withUTFString attribute $ \ attributePtr -> do
+  withCString attribute $ \ attributePtr -> do
   {#call g_file_info_get_attribute_uint64#} (toFileInfo info) attributePtr
   
 -- | Gets an Int64 contained within the attribute. 
@@ -300,7 +300,7 @@ fileInfoGetAttributeInt64 :: FileInfoClass info => info
  -> IO Int64 -- ^ returns   the contents of the attribute value as a bool
 fileInfoGetAttributeInt64 info attribute =
   liftM fromIntegral $
-  withUTFString attribute $ \ attributePtr -> do
+  withCString attribute $ \ attributePtr -> do
   {#call g_file_info_get_attribute_int64#} (toFileInfo info) attributePtr
 
 -- | Gets the value of a GObject attribute.
@@ -308,7 +308,7 @@ fileInfoGetAttributeObject :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
  -> IO (Maybe GObject)                 -- ^ returns   the contents of the attribute value as a object
 fileInfoGetAttributeObject info attribute =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
     {#call g_file_info_get_attribute_object#} (toFileInfo info) attributePtr
     >>= \x -> maybeNull (makeNewGObject mkGObject) (return $ castPtr x)
 
@@ -324,7 +324,7 @@ fileInfoSetAttributeStatus :: FileInfoClass info => info
  -> IO Bool -- ^ returns   'True' if the status was changed, 'False' if the key was not set. 
 fileInfoSetAttributeStatus info attribute status =
    liftM toBool $
-   withUTFString attribute $ \ attributePtr -> 
+   withCString attribute $ \ attributePtr -> 
    {#call g_file_info_set_attribute_status#}
      (toFileInfo info)
      attributePtr
@@ -337,8 +337,8 @@ fileInfoSetAttributeString :: FileInfoClass info => info
  -> String -- ^ @attrValue@ a string.             
  -> IO ()
 fileInfoSetAttributeString info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
-  withUTFString attrValue $ \ attrValuePtr -> 
+  withCString attribute $ \ attributePtr -> 
+  withCString attrValue $ \ attrValuePtr -> 
   {#call g_file_info_set_attribute_string#} (toFileInfo info) attributePtr attrValuePtr
 
 #if GLIB_CHECK_VERSION(2,22,0)
@@ -348,7 +348,7 @@ fileInfoSetAttributeStringList :: FileInfoClass info => info
  -> [String] -- ^ @attrValue@ a string.             
  -> IO ()
 fileInfoSetAttributeStringList info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   withUTFStringArray0 attrValue $ \ attrValuePtr -> 
   {#call g_file_info_set_attribute_stringv#} (toFileInfo info) attributePtr attrValuePtr
 #endif
@@ -369,7 +369,7 @@ fileInfoSetAttributeBool :: FileInfoClass info => info
  -> Bool -- ^ @attrValue@ a string.             
  -> IO ()
 fileInfoSetAttributeBool info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_set_attribute_boolean#} (toFileInfo info) attributePtr (fromBool attrValue)
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -378,7 +378,7 @@ fileInfoSetAttributeWord32 :: FileInfoClass info => info
  -> Word32  -- ^ @attrValue@ an Word32
  -> IO ()
 fileInfoSetAttributeWord32 info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_set_attribute_uint32#} (toFileInfo info) attributePtr (fromIntegral attrValue)
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -387,7 +387,7 @@ fileInfoSetAttributeInt32 :: FileInfoClass info => info
  -> Int32  -- ^ @attrValue@ an Int32
  -> IO ()
 fileInfoSetAttributeInt32 info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_set_attribute_int32#} (toFileInfo info) attributePtr (fromIntegral attrValue)
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -396,7 +396,7 @@ fileInfoSetAttributeWord64 :: FileInfoClass info => info
  -> Word64  -- ^ @attrValue@ an Word64
  -> IO ()
 fileInfoSetAttributeWord64 info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_set_attribute_uint64#} (toFileInfo info) attributePtr (fromIntegral attrValue)
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -405,7 +405,7 @@ fileInfoSetAttributeInt64 :: FileInfoClass info => info
  -> Int64  -- ^ @attrValue@ an Int64
  -> IO ()
 fileInfoSetAttributeInt64 info attribute attrValue =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   {#call g_file_info_set_attribute_int64#} (toFileInfo info) attributePtr (fromIntegral attrValue)
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -414,7 +414,7 @@ fileInfoSetAttributeObject :: FileInfoClass info => info
  -> GObject
  -> IO ()
 fileInfoSetAttributeObject info attribute (GObject attrValue) =
-  withUTFString attribute $ \ attributePtr -> 
+  withCString attribute $ \ attributePtr -> 
   withForeignPtr attrValue $ \attrValuePtr -> 
   {#call g_file_info_set_attribute_object#} (toFileInfo info) attributePtr (castPtr attrValuePtr)
 

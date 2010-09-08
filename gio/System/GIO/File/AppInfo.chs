@@ -117,8 +117,8 @@ appInfoCreateFromCommandline :: String -- ^ @commandline@      the commandline t
  -> IO AppInfo      -- ^ returns          new 'AppInfo' for given command.                               
 appInfoCreateFromCommandline commandline applicationName flags =
     constructNewGObject mkAppInfo $
-    withUTFString commandline $ \ commandlinePtr -> 
-        maybeWith withUTFString applicationName $ \ applicationNamePtr -> 
+    withCString commandline $ \ commandlinePtr -> 
+        maybeWith withCString applicationName $ \ applicationNamePtr -> 
             propagateGError ({#call g_app_info_create_from_commandline #}
                              commandlinePtr 
                              applicationNamePtr

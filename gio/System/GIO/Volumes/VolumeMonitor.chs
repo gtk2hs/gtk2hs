@@ -117,7 +117,7 @@ volumeMonitorGetMountForUUID :: VolumeMonitorClass monitor => monitor
  -> IO (Maybe Mount)               -- ^ returns        a 'Mount' or 'Nothing' if no such mount is available.
 volumeMonitorGetMountForUUID monitor uuid =  
   maybeNull (makeNewGObject mkMount) $
-  withUTFString uuid $ \ uuidPtr -> 
+  withCString uuid $ \ uuidPtr -> 
   {#call g_volume_monitor_get_mount_for_uuid#} (toVolumeMonitor monitor) uuidPtr
 
 -- | Finds a 'Volume' object by its UUID (see 'volumeGetUuid')
@@ -126,7 +126,7 @@ volumeMonitorGetVolumeForUUID :: VolumeMonitorClass monitor => monitor
  -> IO (Maybe Volume)               -- ^ returns        a 'Volume' or 'Nothing' if no such volume is available.
 volumeMonitorGetVolumeForUUID monitor uuid =  
   maybeNull (makeNewGObject mkVolume) $ 
-  withUTFString uuid $ \ uuidPtr -> 
+  withCString uuid $ \ uuidPtr -> 
   {#call g_volume_monitor_get_volume_for_uuid#} (toVolumeMonitor monitor) uuidPtr
 
 --------------------
