@@ -63,6 +63,7 @@
                     GtkArrow
                     GtkImage
                 GtkContainer
+				    GtkToolPalette		if gtk-2.20
 				    GtkToolItemGroup	if gtk-2.20
                     WebKitWebView as WebView, webkit_web_view_get_type            if webkit 
                     GtkBin

@@ -52,31 +52,9 @@ gtk_paint_spinner, function in GtkStyle
 gtk_printer_get_hard_margins, function in GtkPrinter
 gtk_print_context_get_hard_margins, function in GtkPrintContext
    
-GtkToolPalette::set-scroll-adjustments, object signal in GtkToolPalette
-GtkToolPalette:exclusive, object property in GtkToolPalette
-GtkToolPalette:expand, object property in GtkToolPalette
-GtkToolPalette:icon-size, object property in GtkToolPalette
-GtkToolPalette:icon-size-set, object property in GtkToolPalette
-GtkToolPalette:toolbar-style, object property in GtkToolPalette
 gtk_tool_palette_add_drag_dest, function in GtkToolPalette
 gtk_tool_palette_get_drag_item, function in GtkToolPalette
 gtk_tool_palette_get_drag_target_group, function in GtkToolPalette
 gtk_tool_palette_get_drag_target_item, function in GtkToolPalette
 gtk_tool_palette_get_drop_group, function in GtkToolPalette
 gtk_tool_palette_get_drop_item, function in GtkToolPalette
-gtk_tool_palette_get_exclusive, function in GtkToolPalette
-gtk_tool_palette_get_expand, function in GtkToolPalette
-gtk_tool_palette_get_group_position, function in GtkToolPalette
-gtk_tool_palette_get_hadjustment, function in GtkToolPalette
-gtk_tool_palette_get_icon_size, function in GtkToolPalette
-gtk_tool_palette_get_style, function in GtkToolPalette
-gtk_tool_palette_get_vadjustment, function in GtkToolPalette
-gtk_tool_palette_new, function in GtkToolPalette
-gtk_tool_palette_set_drag_source, function in GtkToolPalette
-gtk_tool_palette_set_exclusive, function in GtkToolPalette
-gtk_tool_palette_set_expand, function in GtkToolPalette
-gtk_tool_palette_set_group_position, function in GtkToolPalette
-gtk_tool_palette_set_icon_size, function in GtkToolPalette
-gtk_tool_palette_set_style, function in GtkToolPalette
-gtk_tool_palette_unset_icon_size, function in GtkToolPalette
-gtk_tool_palette_unset_style, function in GtkToolPalette
