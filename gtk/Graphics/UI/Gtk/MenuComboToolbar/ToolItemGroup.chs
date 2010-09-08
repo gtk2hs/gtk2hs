@@ -32,6 +32,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup (
 -- * Detail
 -- | A 'ToolItemGroup' is used together with 'ToolPalette' to add 'ToolItems' to a palette like
 -- container with different categories and drag and drop support.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'ToolItemGroup'
+-- @
   
 #if GTK_CHECK_VERSION(2,20,0)
 -- * Types  
@@ -76,6 +86,7 @@ import System.Glib.GList
 import System.Glib.UTFString
 import Graphics.Rendering.Pango.Enums   (EllipsizeMode (..))
 import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -89,7 +100,7 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 toolItemGroupNew :: String -- ^ @label@   the label of the new group 
                  -> IO ToolItemGroup -- ^ returns a new 'ToolItemGroup'.    
 toolItemGroupNew label =
-  makeNewGObject mkToolItemGroup $
+  makeNewObject mkToolItemGroup $
   liftM (castPtr :: Ptr Widget -> Ptr ToolItemGroup) $
   withUTFString label $ \ labelPtr -> 
     {#call gtk_tool_item_group_new #}
@@ -103,7 +114,7 @@ toolItemGroupGetDropItem :: ToolItemGroupClass self => self
                          -> (Int, Int)
                          -> IO ToolItem
 toolItemGroupGetDropItem group (x, y) = 
-  makeNewGObject mkToolItem $
+  makeNewObject mkToolItem $
   {#call gtk_tool_item_group_get_drop_item #}
     (toToolItemGroup group)
     (fromIntegral x)
@@ -142,7 +153,7 @@ toolItemGroupGetNthItem :: ToolItemGroupClass group => group
                         -> Int  -- ^ @index@   the index                
                         -> IO ToolItem  -- ^ returns the 'ToolItem' at index 
 toolItemGroupGetNthItem group index =
-  makeNewGObject mkToolItem $
+  makeNewObject mkToolItem $
   {#call gtk_tool_item_group_get_nth_item #}
     (toToolItemGroup group)
     (fromIntegral index)
