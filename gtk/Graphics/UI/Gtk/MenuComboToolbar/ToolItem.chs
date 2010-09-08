@@ -86,6 +86,13 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
   toolItemGetProxyMenuItem,
   toolItemSetProxyMenuItem,
 
+#if GTK_CHECK_VERSION(2,20,0)
+  toolItemGetEllipsizeMode,
+  toolItemGetTextAlignment,
+  toolItemGetTextOrientation,
+  toolItemGetTextSizeGroup,
+#endif
+
 -- * Attributes
   toolItemVisibleHorizontal,
   toolItemVisibleVertical,
@@ -102,6 +109,8 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.Rendering.Pango.Enums   (EllipsizeMode (..))
+import Graphics.UI.Gtk.Misc.SizeGroup
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs	(IconSize)
 import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..), ReliefStyle(..))
@@ -340,6 +349,47 @@ toolItemSetProxyMenuItem self menuItemId menuItem =
     (toToolItem self)
     menuItemIdPtr
     (toWidget menuItem)
+
+#if GTK_CHECK_VERSION(2,20,0)
+-- | Returns the ellipsize mode used for @toolItem@. Custom subclasses of 'ToolItem' should call this
+-- function to find out how text should be ellipsized.
+--
+-- * Available since Gtk+ version 2.20
+--
+toolItemGetEllipsizeMode :: ToolItemClass item => item
+                         -> IO EllipsizeMode  -- ^ returns   a PangoEllipsizeMode indicating how text in @toolItem@ should be ellipsized.
+toolItemGetEllipsizeMode item = 
+  liftM (toEnum . fromIntegral) $
+  {#call gtk_tool_item_get_ellipsize_mode #}
+    (toToolItem item)
+
+-- | Returns the text alignment used for @toolItem@. Custom subclasses of 'ToolItem' should call this
+-- function to find out how text should be aligned.
+toolItemGetTextAlignment :: ToolItemClass item => item 
+                         -> IO Double -- ^ returns   a gfloat indicating the horizontal text alignment used for @toolItem@
+toolItemGetTextAlignment item =
+  liftM realToFrac $
+  {#call gtk_tool_item_get_text_alignment #}
+     (toToolItem item)
+
+-- | Returns the text orientation used for @toolItem@. Custom subclasses of 'ToolItem' should call this
+-- function to find out how text should be orientated.
+toolItemGetTextOrientation :: ToolItemClass item => item
+                           -> IO Orientation -- ^ returns   a 'Orientation' indicating the orientation used for @toolItem@ 
+toolItemGetTextOrientation item =
+  liftM (toEnum . fromIntegral) $
+  {#call gtk_tool_item_get_text_orientation #}
+     (toToolItem item)
+
+-- | Returns the size group used for labels in @toolItem@. Custom subclasses of 'ToolItem' should call
+-- this function and use the size group for labels.
+toolItemGetTextSizeGroup :: ToolItemClass item => item
+                         -> IO SizeGroup
+toolItemGetTextSizeGroup item =
+  makeNewGObject mkSizeGroup $
+  {#call gtk_tool_item_get_text_size_group #}
+     (toToolItem item)
+#endif
 
 --------------------
 -- Attributes

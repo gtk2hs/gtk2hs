@@ -58,10 +58,6 @@ GtkToolPalette:expand, object property in GtkToolPalette
 GtkToolPalette:icon-size, object property in GtkToolPalette
 GtkToolPalette:icon-size-set, object property in GtkToolPalette
 GtkToolPalette:toolbar-style, object property in GtkToolPalette
-gtk_tool_item_get_ellipsize_mode, function in GtkToolItem
-gtk_tool_item_get_text_alignment, function in GtkToolItem
-gtk_tool_item_get_text_orientation, function in GtkToolItem
-gtk_tool_item_get_text_size_group, function in GtkToolItem
 gtk_tool_palette_add_drag_dest, function in GtkToolPalette
 gtk_tool_palette_get_drag_item, function in GtkToolPalette
 gtk_tool_palette_get_drag_target_group, function in GtkToolPalette
