@@ -1,0 +1,103 @@
+Missing modules in GTK+-2.18:
+
+gtk/Graphics/UI/Gtk/General/AccelGroup.chs
+gtk/Graphics/UI/Gtk/General/AccelMap.chs
+
+gtk/Graphics/UI/Gtk/MenuComboToolbar/Item.chs
+gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolShell.chs
+
+gtk/Graphics/UI/Gtk/Printing/PageSetup.chs
+gtk/Graphics/UI/Gtk/Printing/PaperSize.chs
+gtk/Graphics/UI/Gtk/Printing/PrintContext.chs
+gtk/Graphics/UI/Gtk/Printing/PrintOperation.chs
+gtk/Graphics/UI/Gtk/Printing/PrintOperationPreview.chs
+gtk/Graphics/UI/Gtk/Printing/PrintSettings.chs
+
+gtk/Graphics/UI/Gtk/Recent/RecentChooser.chs
+gtk/Graphics/UI/Gtk/Recent/RecentChooserDialog.chs
+gtk/Graphics/UI/Gtk/Recent/RecentChooserMenu.chs
+gtk/Graphics/UI/Gtk/Recent/RecentChooserWidget.chs
+gtk/Graphics/UI/Gtk/Recent/RecentFilter.chs
+gtk/Graphics/UI/Gtk/Recent/RecentInfo.chs
+gtk/Graphics/UI/Gtk/Recent/RecentManager.chs
+
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/Activatable.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/RecentAction.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs
+gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs
+
+gtk/Graphics/UI/Gtk/Gdk/AppLaunchContext.chs
+gtk/Graphics/UI/Gtk/Gdk/Colormap.chs
+gtk/Graphics/UI/Gtk/Gdk/Device.chs
+gtk/Graphics/UI/Gtk/Gdk/DisplayManager.chs
+gtk/Graphics/UI/Gtk/Gdk/Keymap.chs
+gtk/Graphics/UI/Gtk/Gdk/PixbufLoader.chs
+gtk/Graphics/UI/Gtk/Gdk/Visual.chs
+
+Missing functions in GTK+-2.20:
+
+GtkCellEditable:editing-canceled, object property in GtkCellEditable
+GtkCellRendererSpinner:pulse, object property in GtkCellRendererSpinner
+GtkCellRendererSpinner:size, object property in GtkCellRendererSpinner
+gtk_cell_renderer_spinner_new, function in GtkCellRendererSpinner
+   
+gtk_offscreen_window_get_pixbuf, function in GtkOffscreenWindow
+gtk_offscreen_window_get_pixmap, function in GtkOffscreenWindow
+gtk_offscreen_window_new, function in GtkOffscreenWindow
+   
+gtk_paint_spinner, function in GtkStyle
+gtk_printer_get_hard_margins, function in GtkPrinter
+gtk_print_context_get_hard_margins, function in GtkPrintContext
+   
+GtkToolPalette::set-scroll-adjustments, object signal in GtkToolPalette
+GtkToolPalette:exclusive, object property in GtkToolPalette
+GtkToolPalette:expand, object property in GtkToolPalette
+GtkToolPalette:icon-size, object property in GtkToolPalette
+GtkToolPalette:icon-size-set, object property in GtkToolPalette
+GtkToolPalette:toolbar-style, object property in GtkToolPalette
+gtk_tool_item_get_ellipsize_mode, function in GtkToolItem
+gtk_tool_item_get_text_alignment, function in GtkToolItem
+gtk_tool_item_get_text_orientation, function in GtkToolItem
+gtk_tool_item_get_text_size_group, function in GtkToolItem
+gtk_tool_item_group_get_collapsed, function in GtkToolItemGroup
+gtk_tool_item_group_get_drop_item, function in GtkToolItemGroup
+gtk_tool_item_group_get_ellipsize, function in GtkToolItemGroup
+gtk_tool_item_group_get_header_relief, function in GtkToolItemGroup
+gtk_tool_item_group_get_item_position, function in GtkToolItemGroup
+gtk_tool_item_group_get_label, function in GtkToolItemGroup
+gtk_tool_item_group_get_label_widget, function in GtkToolItemGroup
+gtk_tool_item_group_get_nth_item, function in GtkToolItemGroup
+gtk_tool_item_group_get_n_items, function in GtkToolItemGroup
+gtk_tool_item_group_insert, function in GtkToolItemGroup
+gtk_tool_item_group_new, function in GtkToolItemGroup
+gtk_tool_item_group_set_collapsed, function in GtkToolItemGroup
+gtk_tool_item_group_set_ellipsize, function in GtkToolItemGroup
+gtk_tool_item_group_set_header_relief, function in GtkToolItemGroup
+gtk_tool_item_group_set_item_position, function in GtkToolItemGroup
+gtk_tool_item_group_set_label, function in GtkToolItemGroup
+gtk_tool_item_group_set_label_widget, function in GtkToolItemGroup
+gtk_tool_palette_add_drag_dest, function in GtkToolPalette
+gtk_tool_palette_get_drag_item, function in GtkToolPalette
+gtk_tool_palette_get_drag_target_group, function in GtkToolPalette
+gtk_tool_palette_get_drag_target_item, function in GtkToolPalette
+gtk_tool_palette_get_drop_group, function in GtkToolPalette
+gtk_tool_palette_get_drop_item, function in GtkToolPalette
+gtk_tool_palette_get_exclusive, function in GtkToolPalette
+gtk_tool_palette_get_expand, function in GtkToolPalette
+gtk_tool_palette_get_group_position, function in GtkToolPalette
+gtk_tool_palette_get_hadjustment, function in GtkToolPalette
+gtk_tool_palette_get_icon_size, function in GtkToolPalette
+gtk_tool_palette_get_style, function in GtkToolPalette
+gtk_tool_palette_get_vadjustment, function in GtkToolPalette
+gtk_tool_palette_new, function in GtkToolPalette
+gtk_tool_palette_set_drag_source, function in GtkToolPalette
+gtk_tool_palette_set_exclusive, function in GtkToolPalette
+gtk_tool_palette_set_expand, function in GtkToolPalette
+gtk_tool_palette_set_group_position, function in GtkToolPalette
+gtk_tool_palette_set_icon_size, function in GtkToolPalette
+gtk_tool_palette_set_style, function in GtkToolPalette
+gtk_tool_palette_unset_icon_size, function in GtkToolPalette
+gtk_tool_palette_unset_style, function in GtkToolPalette
