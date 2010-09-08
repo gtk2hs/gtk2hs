@@ -111,6 +111,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.ModelView.CellEditable,
   module Graphics.UI.Gtk.ModelView.CellLayout,
   module Graphics.UI.Gtk.ModelView.CellRenderer,
+  module Graphics.UI.Gtk.ModelView.CellRendererSpinner,
   module Graphics.UI.Gtk.ModelView.CellRendererCombo,
   module Graphics.UI.Gtk.ModelView.CellRendererPixbuf,
   module Graphics.UI.Gtk.ModelView.CellRendererProgress,
@@ -325,6 +326,7 @@ import Graphics.UI.Gtk.Multiline.TextView
 import Graphics.UI.Gtk.ModelView.CellEditable
 import Graphics.UI.Gtk.ModelView.CellLayout
 import Graphics.UI.Gtk.ModelView.CellRenderer
+import Graphics.UI.Gtk.ModelView.CellRendererSpinner
 import Graphics.UI.Gtk.ModelView.CellRendererCombo
 import Graphics.UI.Gtk.ModelView.CellRendererPixbuf
 import Graphics.UI.Gtk.ModelView.CellRendererProgress

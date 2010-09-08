@@ -186,6 +186,7 @@
 # These are derived from GtkObject:
 	    GtkTreeViewColumn
 	    GtkCellRenderer
+		    GtkCellRendererSpinner		if gtk-2.20
 		GtkCellRendererPixbuf
 		GtkCellRendererText
 		    GtkCellRendererAccel    if gtk-2.10

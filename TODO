@@ -39,11 +39,6 @@ gtk/Graphics/UI/Gtk/Gdk/Visual.chs
 
 Missing functions in GTK+-2.20:
 
-GtkCellEditable:editing-canceled, object property in GtkCellEditable
-GtkCellRendererSpinner:pulse, object property in GtkCellRendererSpinner
-GtkCellRendererSpinner:size, object property in GtkCellRendererSpinner
-gtk_cell_renderer_spinner_new, function in GtkCellRendererSpinner
-   
 gtk_offscreen_window_get_pixbuf, function in GtkOffscreenWindow
 gtk_offscreen_window_get_pixmap, function in GtkOffscreenWindow
 gtk_offscreen_window_new, function in GtkOffscreenWindow

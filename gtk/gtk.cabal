@@ -255,6 +255,7 @@ Library
           Graphics.UI.Gtk.ModelView.CellEditable
           Graphics.UI.Gtk.ModelView.CellLayout
           Graphics.UI.Gtk.ModelView.CellRenderer
+          Graphics.UI.Gtk.ModelView.CellRendererSpinner
           Graphics.UI.Gtk.ModelView.CellRendererCombo
           Graphics.UI.Gtk.ModelView.CellRendererPixbuf
           Graphics.UI.Gtk.ModelView.CellRendererProgress
