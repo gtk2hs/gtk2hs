@@ -310,6 +310,7 @@ Library
           Graphics.UI.Gtk.Windows.Invisible
           Graphics.UI.Gtk.Windows.MessageDialog
           Graphics.UI.Gtk.Windows.Window
+          Graphics.UI.Gtk.Windows.OffscreenWindow
           Graphics.UI.Gtk.Windows.WindowGroup
           Graphics.UI.Gtk.General.Enums
         other-modules:

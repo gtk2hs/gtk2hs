@@ -39,10 +39,6 @@ gtk/Graphics/UI/Gtk/Gdk/Visual.chs
 
 Missing functions in GTK+-2.20:
 
-gtk_offscreen_window_get_pixbuf, function in GtkOffscreenWindow
-gtk_offscreen_window_get_pixmap, function in GtkOffscreenWindow
-gtk_offscreen_window_new, function in GtkOffscreenWindow
-   
 gtk_paint_spinner, function in GtkStyle
 gtk_printer_get_hard_margins, function in GtkPrinter
 gtk_print_context_get_hard_margins, function in GtkPrintContext
