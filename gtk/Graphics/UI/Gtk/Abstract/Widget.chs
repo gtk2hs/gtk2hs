@@ -145,6 +145,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetTooltipWindow,
   widgetTriggerTooltipQuery,
 #endif
+#if GTK_CHECK_VERSION(2,14,0)
+  widgetGetSnapshot,
+#endif
   widgetPath,
   widgetClassPath,
   widgetGetCompositeName,
@@ -1226,6 +1229,38 @@ widgetTriggerTooltipQuery :: WidgetClass self => self -> IO ()
 widgetTriggerTooltipQuery self =
   {# call gtk_widget_trigger_tooltip_query #}
     (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Create a 'Pixmap' of the contents of the widget and its children.
+-- 
+-- Works even if the widget is obscured. The depth and visual of the resulting pixmap is dependent on
+-- the widget being snapshot and likely differs from those of a target widget displaying the
+-- pixmap. The function 'pixbufGetFromDrawable' can be used to convert the pixmap to a visual
+-- independant representation.
+-- 
+-- The snapshot area used by this function is the widget's allocation plus any extra space occupied by
+-- additional windows belonging to this widget (such as the arrows of a spin button). Thus, the
+-- resulting snapshot pixmap is possibly larger than the allocation.
+-- 
+-- The resulting pixmap is shrunken to match the specified @clipRect@. The
+-- (x,y) coordinates of @clipRect@ are interpreted widget relative. If width or height of @clipRect@ are
+-- 0 or negative, the width or height of the resulting pixmap will be shrunken by the respective
+-- amount. For instance a @clipRect@ { +5, +5, -10, -10 } will chop off 5 pixels at each side of the
+-- snapshot pixmap. @clipRect@ will contain the exact widget-relative snapshot coordinates
+-- upon return. A @clipRect@ of { -1, -1, 0, 0 } can be used to preserve the auto-grown snapshot area
+-- and use @clipRect@ as a pure output parameter.
+-- 
+-- The returned pixmap can be 'Nothing', if the resulting @clipArea@ was empty.
+widgetGetSnapshot :: WidgetClass self => self
+                  -> Rectangle
+                  -> IO (Maybe Pixmap) -- ^ returns   'Pixmap' snapshot of the widget    
+widgetGetSnapshot widget clipRect = 
+  maybeNull (constructNewGObject mkPixmap) $
+  with clipRect $ \ clipRectPtr -> 
+  {#call gtk_widget_get_snapshot #}
+     (toWidget widget)
+     (castPtr clipRectPtr)
 #endif
 
 -- %hash c:7e36 d:616f
