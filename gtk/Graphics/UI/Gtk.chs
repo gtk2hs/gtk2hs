@@ -207,6 +207,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Recent.RecentChooserMenu,
   module Graphics.UI.Gtk.Recent.RecentChooserWidget,
   module Graphics.UI.Gtk.Recent.RecentFilter,
+  module Graphics.UI.Gtk.Recent.RecentManager,
+  module Graphics.UI.Gtk.Recent.RecentInfo,
   -- * Scrolling
   module Graphics.UI.Gtk.Scrolling.HScrollbar,
   module Graphics.UI.Gtk.Scrolling.ScrolledWindow,
@@ -427,6 +429,8 @@ import Graphics.UI.Gtk.Ornaments.VSeparator
 import Graphics.UI.Gtk.Recent.RecentChooserMenu
 import Graphics.UI.Gtk.Recent.RecentChooserWidget
 import Graphics.UI.Gtk.Recent.RecentFilter
+import Graphics.UI.Gtk.Recent.RecentManager
+import Graphics.UI.Gtk.Recent.RecentInfo
 -- scrolling
 import Graphics.UI.Gtk.Scrolling.HScrollbar
 import Graphics.UI.Gtk.Scrolling.VScrollbar
