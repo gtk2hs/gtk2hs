@@ -55,6 +55,7 @@
 	    GtkSourceMarker	if sourceview
             GtkSourceMark       if gtksourceview2
         GtkObject
+		    GtkRecentFilter		if gtk-2.10
             GtkWidget
 				GtkHSV as HSV, gtk_hsv_get_type  if gtk-2.14
                 GtkMisc
