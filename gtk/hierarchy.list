@@ -224,6 +224,7 @@
 	GtkEntryCompletion		if gtk-2.4
 	GtkEntryBuffer		if gtk-2.18
 	GtkAction			if gtk-2.4
+	    GtkRecentAction		if gtk-2.12
 	    GtkToggleAction		if gtk-2.4
 		GtkRadioAction		if gtk-2.4
 	GtkActionGroup			if gtk-2.4

@@ -162,6 +162,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup,
   module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction,
   module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction,
+  module Graphics.UI.Gtk.ActionMenuToolbar.RecentAction,
   module Graphics.UI.Gtk.ActionMenuToolbar.UIManager,
   -- * Selectors (file\/font\/color)
   module Graphics.UI.Gtk.Selectors.ColorSelection,
@@ -386,6 +387,7 @@ import Graphics.UI.Gtk.ActionMenuToolbar.Action
 import Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup
 import Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction
 import Graphics.UI.Gtk.ActionMenuToolbar.RadioAction
+import Graphics.UI.Gtk.ActionMenuToolbar.RecentAction
 import Graphics.UI.Gtk.ActionMenuToolbar.UIManager
 -- selectors (file\/font\/color\/input device)
 import Graphics.UI.Gtk.Selectors.ColorSelection

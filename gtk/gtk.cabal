@@ -152,6 +152,7 @@ Library
           Graphics.UI.Gtk.ActionMenuToolbar.Action
           Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup
           Graphics.UI.Gtk.ActionMenuToolbar.RadioAction
+          Graphics.UI.Gtk.ActionMenuToolbar.RecentAction
           Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction
           Graphics.UI.Gtk.ActionMenuToolbar.UIManager
           Graphics.UI.Gtk.Builder
