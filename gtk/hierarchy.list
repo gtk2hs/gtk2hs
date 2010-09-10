@@ -22,6 +22,7 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    GtkRecentManager	    if gtk-2.10
         GdkDrawable 
             GdkWindow		as DrawWindow, gdk_window_object_get_type
 #            GdkDrawableImplX11
@@ -139,6 +140,7 @@
                     GtkList		if deprecated
                     GtkMenuShell
                         GtkMenu
+						    GtkRecentChooserMenu		if gtk-2.10
                         GtkMenuBar
                     GtkNotebook
 #                    GtkPacker
