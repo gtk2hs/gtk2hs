@@ -287,6 +287,7 @@ Library
           Graphics.UI.Gtk.Ornaments.HSeparator
           Graphics.UI.Gtk.Ornaments.VSeparator
           Graphics.UI.Gtk.Recent.RecentChooserMenu
+          Graphics.UI.Gtk.Recent.RecentChooserWidget
           Graphics.UI.Gtk.Scrolling.HScrollbar
           Graphics.UI.Gtk.Scrolling.ScrolledWindow
           Graphics.UI.Gtk.Scrolling.VScrollbar

@@ -121,6 +121,7 @@
                             GtkHButtonBox
                             GtkVButtonBox
                         GtkVBox
+						    GtkRecentChooserWidget		if gtk-2.10
                             GtkColorSelection
                             GtkFontSelection
 			    GtkFileChooserWidget	if gtk-2.4
