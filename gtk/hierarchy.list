@@ -22,6 +22,7 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    GtkRecentChooser		if gtk-2.10
 	    GtkRecentManager	    if gtk-2.10
         GdkDrawable 
             GdkWindow		as DrawWindow, gdk_window_object_get_type

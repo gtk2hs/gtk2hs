@@ -10,8 +10,6 @@ gtk/Graphics/UI/Gtk/Printing/PrintOperation.chs
 gtk/Graphics/UI/Gtk/Printing/PrintOperationPreview.chs
 gtk/Graphics/UI/Gtk/Printing/PrintSettings.chs
 
-gtk/Graphics/UI/Gtk/Recent/RecentChooser.chs
-
 gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs
 gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs
 gtk/Graphics/UI/Gtk/ActionMenuToolbar/Activatable.chs

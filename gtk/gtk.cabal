@@ -291,6 +291,7 @@ Library
           Graphics.UI.Gtk.Recent.RecentFilter
           Graphics.UI.Gtk.Recent.RecentManager
           Graphics.UI.Gtk.Recent.RecentInfo
+          Graphics.UI.Gtk.Recent.RecentChooser
           Graphics.UI.Gtk.Scrolling.HScrollbar
           Graphics.UI.Gtk.Scrolling.ScrolledWindow
           Graphics.UI.Gtk.Scrolling.VScrollbar
