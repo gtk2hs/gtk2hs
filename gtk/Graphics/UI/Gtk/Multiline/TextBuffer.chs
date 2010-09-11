@@ -534,7 +534,7 @@ textBufferInsertPixbuf self iter pixbuf =
 -- standard left-to-right cursor is a mark with right gravity (when you type,
 -- the cursor stays on the right side of the text you're typing).
 --
--- Emits the \"mark_set\" signal as notification of the mark's initial
+-- Emits the 'markSet' signal as notification of the mark's initial
 -- placement.
 --
 textBufferCreateMark :: TextBufferClass self => self
