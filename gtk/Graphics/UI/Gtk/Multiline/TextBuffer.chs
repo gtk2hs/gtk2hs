@@ -253,7 +253,7 @@ textBufferGetTagTable self =
     (toTextBuffer self)
 
 -- | Inserts @text@ at position @iter@. Emits the
--- \"insert_text\" signal; insertion actually occurs in the default handler for
+-- 'insertText' signal; insertion actually occurs in the default handler for
 -- the signal. @iter@ is invalidated when insertion occurs (because the buffer
 -- contents change).
 --
@@ -363,7 +363,7 @@ textBufferInsertRangeInteractive self iter start end defaultEditable =
 
 -- | Deletes text between @start@ and @end@. The order of @start@ and @end@ is
 -- not actually relevant; 'textBufferDelete' will reorder them. This function
--- actually emits the \"delete_range\" signal, and the default handler of that
+-- actually emits the 'deleteRange' signal, and the default handler of that
 -- signal deletes the text. Because the buffer is modified, all outstanding
 -- iterators become invalid after calling this function; however, the @start@
 -- and @end@ will be re-initialized to point to the location where text was
@@ -598,7 +598,7 @@ textBufferMoveMarkByName self name where_ =
 -- return @True@ after this function has been
 -- called on a mark; 'Graphics.UI.Gtk.Multiline.TextMark.textMarkGetDeleted'
 -- indicates that a mark no longer
--- belongs to a buffer. The \"mark_deleted\" signal will be emitted as
+-- belongs to a buffer. The 'markDeleted' signal will be emitted as
 -- notification after the mark is deleted.
 --
 textBufferDeleteMark :: (TextBufferClass self, TextMarkClass mark) => self
@@ -676,7 +676,7 @@ textBufferPlaceCursor self where_ =
     (toTextBuffer self)
     where_
 
--- | Emits the \"apply_tag\" signal on the buffer. The default handler for the
+-- | Emits the 'applyTag' signal on the buffer. The default handler for the
 -- signal applies @tag@ to the given range. @start@ and @end@ do not have to be
 -- in order.
 --
@@ -692,7 +692,7 @@ textBufferApplyTag self tag start end =
     start
     end
 
--- | Emits the \"remove_tag\" signal. The default handler for the signal
+-- | Emits the 'removeTag' signal. The default handler for the signal
 -- removes all occurrences of @tag@ from the given range. @start@ and @end@
 -- don't have to be in order.
 --
@@ -859,7 +859,7 @@ textBufferGetModified self =
 -- time it was saved. Whenever the buffer is saved to disk, call
 -- @'textBufferSetModified' buffer False@. When the buffer is
 -- modified, it will automatically toggled on the modified bit again. When the
--- modified bit flips, the buffer emits a \"modified_changed\" signal.
+-- modified bit flips, the buffer emits a 'modifiedChanged' signal.
 --
 textBufferSetModified :: TextBufferClass self => self -> Bool -> IO ()
 textBufferSetModified self setting =
@@ -915,8 +915,8 @@ textBufferGetSelectionBounds self = do
 -- operations between 'textBufferBeginUserAction' and 'textBufferEndUserAction'
 -- can then be grouped when creating an undo stack. 'TextBuffer' maintains a
 -- count of calls to 'textBufferBeginUserAction' that have not been closed with
--- a call to 'textBufferEndUserAction', and emits the \"begin_user_action\" and
--- \"end_user_action\" signals only for the outermost pair of calls. This
+-- a call to 'textBufferEndUserAction', and emits the 'beginUserAction' and
+-- 'endUserAction' signals only for the outermost pair of calls. This
 -- allows you to build user actions from other user actions.
 --
 -- The \"interactive\" buffer mutation functions, such as
