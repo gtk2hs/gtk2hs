@@ -79,9 +79,13 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferGetCharCount,
   textBufferGetTagTable,
   textBufferInsert,
+  textBufferInsertByteString,
   textBufferInsertAtCursor,
+  textBufferInsertByteStringAtCursor,
   textBufferInsertInteractive,
+  textBufferInsertByteStringInteractive,
   textBufferInsertInteractiveAtCursor,
+  textBufferInsertByteStringInteractiveAtCursor,
   textBufferInsertRange,
   textBufferInsertRangeInteractive,
   textBufferDelete,
@@ -269,12 +273,42 @@ textBufferInsert self iter text =
     textPtr
     (fromIntegral len)
 
+-- | Inserts @text@ at position @iter@. Similar
+-- to 'textBufferInsert' but uses 'ByteString' buffers.
+--
+-- * The passed-in buffer must contain a valid UTF-8 encoded string.
+--
+textBufferInsertByteString :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in the buffer
+ -> ByteString   -- ^ @text@ - text to insert
+ -> IO ()
+textBufferInsertByteString self iter text =
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert #}
+    (toTextBuffer self)
+    iter
+    textPtr
+    (fromIntegral len)
+
 -- | Simply calls 'textBufferInsert', using the current cursor position as the
 -- insertion point.
 --
 textBufferInsertAtCursor :: TextBufferClass self => self -> String -> IO ()
 textBufferInsertAtCursor self text =
   withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_at_cursor #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
+
+-- | Simply calls 'textBufferInsert', using the current cursor position as the
+-- insertion point. Similar to 'textBufferInsertAtCursor' but uses 'ByteString' buffers.
+--
+-- * The passed-in buffer must contain a valid UTF-8 encoded string.
+--
+textBufferInsertByteStringAtCursor :: TextBufferClass self => self -> ByteString -> IO ()
+textBufferInsertByteStringAtCursor self text =
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
   {# call text_buffer_insert_at_cursor #}
     (toTextBuffer self)
     textPtr
@@ -304,6 +338,25 @@ textBufferInsertInteractive self iter text defaultEditable =
     (fromIntegral len)
     (fromBool defaultEditable)
 
+-- | Similar to 'textBufferInsertInteractive' but uses 'ByteString' buffers.
+--
+-- * The passed-in buffer must contain a valid UTF-8 encoded string.
+--
+textBufferInsertByteStringInteractive :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in @buffer@
+ -> ByteString   -- ^ @text@ - the text to insert
+ -> Bool     -- ^ @defaultEditable@ - default editability of buffer
+ -> IO Bool  -- ^ returns whether text was actually inserted
+textBufferInsertByteStringInteractive self iter text defaultEditable =
+  liftM toBool $
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_interactive #}
+    (toTextBuffer self)
+    iter
+    textPtr
+    (fromIntegral len)
+    (fromBool defaultEditable)
+
 -- | Calls 'textBufferInsertInteractive' at the cursor position.
 --
 textBufferInsertInteractiveAtCursor :: TextBufferClass self => self
@@ -313,6 +366,23 @@ textBufferInsertInteractiveAtCursor :: TextBufferClass self => self
 textBufferInsertInteractiveAtCursor self text defaultEditable =
   liftM toBool $
   withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_interactive_at_cursor #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
+    (fromBool defaultEditable)
+
+-- | Similar to 'textBufferInsertInteractiveAtCursor' but uses 'ByteString' buffers.
+--
+-- * The passed-in buffer must contain a valid UTF-8 encoded string.
+--
+textBufferInsertByteStringInteractiveAtCursor :: TextBufferClass self => self
+ -> ByteString  -- ^ @text@ - the text to insert
+ -> Bool    -- ^ @defaultEditable@ - default editability of buffer
+ -> IO Bool -- ^ returns whether text was actually inserted
+textBufferInsertByteStringInteractiveAtCursor self text defaultEditable =
+  liftM toBool $
+  unsafeUseAsCStringLen text $ \(textPtr, len) ->
   {# call text_buffer_insert_interactive_at_cursor #}
     (toTextBuffer self)
     textPtr
