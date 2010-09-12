@@ -53,9 +53,6 @@
 --
 -- [@u@] Underline 
 --
--- The full markup language can be found at
--- <http://library.gnome.org/devel/pango/stable/PangoMarkupFormat.html>.
---
 module Graphics.Rendering.Pango.Markup (
   Pango.Markup,
   SpanAttribute(..),

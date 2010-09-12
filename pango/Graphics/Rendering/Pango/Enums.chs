@@ -138,7 +138,7 @@ data FontMetrics = FontMetrics {
   --   is typically negative.
   underlinePosition :: Double,
   -- | The suggested thickness to draw for the strikethrough.
-  strikethroughThickenss :: Double,
+  strikethroughThickness :: Double,
   -- | The suggested position to draw the strikethrough. The value
   --   returned is the distance above the baseline of the top of the
   --   strikethrough.
