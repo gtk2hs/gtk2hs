@@ -72,6 +72,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Windows.Invisible,
   module Graphics.UI.Gtk.Windows.Dialog,
   module Graphics.UI.Gtk.Windows.AboutDialog,
+  module Graphics.UI.Gtk.Windows.Assistant,
   module Graphics.UI.Gtk.Windows.MessageDialog,
   module Graphics.UI.Gtk.Windows.WindowGroup,
   -- * Display widgets,
@@ -291,6 +292,7 @@ import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.OffscreenWindow
 import Graphics.UI.Gtk.Windows.Invisible
 import Graphics.UI.Gtk.Windows.AboutDialog
+import Graphics.UI.Gtk.Windows.Assistant
 import Graphics.UI.Gtk.Windows.MessageDialog
 import Graphics.UI.Gtk.Windows.WindowGroup
 -- display widgets

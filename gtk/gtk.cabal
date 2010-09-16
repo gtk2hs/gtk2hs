@@ -313,6 +313,7 @@ Library
           Graphics.UI.Gtk.Special.HRuler
           Graphics.UI.Gtk.Special.VRuler
           Graphics.UI.Gtk.Windows.AboutDialog
+          Graphics.UI.Gtk.Windows.Assistant
           Graphics.UI.Gtk.Windows.Dialog
           Graphics.UI.Gtk.Windows.Invisible
           Graphics.UI.Gtk.Windows.MessageDialog

@@ -93,6 +93,7 @@
                             GtkListItem			if deprecated
 #			    GtkTreeItem
                         GtkWindow
+						    GtkAssistant		if gtk-2.10
 						    GtkOffscreenWindow	if gtk-2.20
                             GtkDialog
 			    	GtkAboutDialog		if gtk-2.6
