@@ -4,7 +4,6 @@ gtk/Graphics/UI/Gtk/General/AccelGroup.chs
 gtk/Graphics/UI/Gtk/General/AccelMap.chs
 
 gtk/Graphics/UI/Gtk/Printing/PageSetup.chs
-gtk/Graphics/UI/Gtk/Printing/PaperSize.chs
 gtk/Graphics/UI/Gtk/Printing/PrintContext.chs
 gtk/Graphics/UI/Gtk/Printing/PrintOperation.chs
 gtk/Graphics/UI/Gtk/Printing/PrintOperationPreview.chs
