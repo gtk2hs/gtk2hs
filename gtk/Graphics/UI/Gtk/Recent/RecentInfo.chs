@@ -243,7 +243,7 @@ recentInfoGetPrivateHint self =
     self
 
 -- | Computes a valid UTF-8 string that can be used as the name of the item in a menu or list. For
--- example, calling this function on an item that refers to "file:///foo/bar.txt" will yield "bar.txt".
+-- example, calling this function on an item that refers to \"file:///foo/bar.txt\" will yield \"bar.txt\".
 --
 -- * Available since Gtk+ version 2.10
 --
