@@ -22,6 +22,7 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    GdkDisplayManager		if gtk-2.2
 	    GdkAppLaunchContext		if gtk-2.14
 	    GtkPrintSettings		if gtk-2.10
 	    GtkPrintOperation		if gtk-2.10

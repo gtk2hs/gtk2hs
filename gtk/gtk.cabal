@@ -185,6 +185,7 @@ Library
           Graphics.UI.Gtk.Gdk.AppLaunchContext
           Graphics.UI.Gtk.Gdk.Cursor
           Graphics.UI.Gtk.Gdk.Display
+          Graphics.UI.Gtk.Gdk.DisplayManager
           Graphics.UI.Gtk.Gdk.Drawable
           Graphics.UI.Gtk.Gdk.DrawWindow
           Graphics.UI.Gtk.Gdk.EventM

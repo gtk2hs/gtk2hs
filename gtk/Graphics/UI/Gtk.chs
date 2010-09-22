@@ -64,6 +64,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Screen,
   module Graphics.UI.Gtk.Gdk.Display,
+  module Graphics.UI.Gtk.Gdk.DisplayManager,
   module Graphics.UI.Gtk.Gdk.Gdk,
   -- ** cairo integration
   module Graphics.UI.Gtk.Cairo,
@@ -291,6 +292,7 @@ import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Screen
 import Graphics.UI.Gtk.Gdk.Display
+import Graphics.UI.Gtk.Gdk.DisplayManager
 import Graphics.UI.Gtk.Gdk.Gdk
 -- cairo integration
 import Graphics.UI.Gtk.Cairo
