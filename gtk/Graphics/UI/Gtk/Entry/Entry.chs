@@ -634,9 +634,9 @@ entryInsertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 -- extends the selection, the variant without the Shift modifer does not. There are too many key
 -- combinations to list them all here.
 -- 
---   * Arrow keys move by individual characters/lines 
---   * Ctrl-arrow key combinations move by words/paragraphs 
---   * Home/End keys move to the ends of the buffer
+--   * Arrow keys move by individual characters\/lines 
+--   * Ctrl-arrow key combinations move by words\/paragraphs 
+--   * Home\/End keys move to the ends of the buffer
 entryMoveCursor :: EntryClass ec => Signal ec (MovementStep -> Int -> Bool -> IO ())
 entryMoveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
 

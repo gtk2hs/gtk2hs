@@ -257,7 +257,7 @@ mainIterationDo blocking =
 -- While you should not call this function directly, you might want to know how exactly events are
 -- handled. So here is what this function does with the event:
 -- 
---  1. Compress enter/leave notify events. If the event passed build an enter/leave pair together with
+--  1. Compress enter\/leave notify events. If the event passed build an enter\/leave pair together with
 --     the next event (peeked from GDK) both events are thrown away. This is to avoid a backlog of
 --     (de-)highlighting widgets crossed by the pointer.
 --    

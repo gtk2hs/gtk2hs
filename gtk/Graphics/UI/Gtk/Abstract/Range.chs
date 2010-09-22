@@ -460,7 +460,7 @@ rangeSliderSizeFixed = newAttr
   rangeGetSliderSizeFixed
   rangeSetSliderSizeFixed
 
--- | Get/Set sliders range along the long dimension, in 'DrawWindow' coordinates.
+-- | Get\/Set sliders range along the long dimension, in 'DrawWindow' coordinates.
 rangeMinSliderSize :: RangeClass self => ReadWriteAttr self Int Bool
 rangeMinSliderSize = newAttr
   rangeGetMinSliderSize
