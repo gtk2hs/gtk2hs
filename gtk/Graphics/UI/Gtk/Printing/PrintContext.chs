@@ -37,8 +37,8 @@ module Graphics.UI.Gtk.Printing.PrintContext (
 -- 'PangoLayout' and 'Context' objects that match the font metrics of the cairo
 -- surface.
 --
--- 'PrintContext' objects gets passed to the ::begin-print, ::end-print,
--- ::request-page-setup and ::draw-page signals on the 'PrintOperation'.
+-- 'PrintContext' objects gets passed to the 'beginPrint', 'endPrint',
+-- 'requestPageSetup' and 'drawPage' signals on the 'PrintOperation'.
 --
 -- Printing support was added in Gtk+ 2.10.
 

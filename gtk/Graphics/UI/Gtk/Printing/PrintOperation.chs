@@ -597,7 +597,7 @@ printOperationPrintSettings = newAttrFromObjectProperty "print-settings"
 -- 
 -- If you don't set a job name, GTK+ picks a default one by numbering successive print jobs.
 -- 
--- Default value: ""
+-- Default value: \"\"
 -- 
 -- Since 2.10
 printOperationJobName :: PrintOperationClass self => Attr self String
@@ -718,9 +718,9 @@ printOperationStatus = readAttrFromEnumProperty "status"
 -- | A string representation of the status of the print operation. The string is translated and suitable
 -- for displaying the print status e.g.  in a 'Statusbar'.
 -- 
--- See the "status" property for a status value that is suitable for programmatic use.
+-- See the 'printOperationStatus' property for a status value that is suitable for programmatic use.
 -- 
--- Default value: ""
+-- Default value: \"\"
 -- 
 -- Since 2.10
 printOperationStatusString :: PrintOperationClass self => ReadAttr self String
