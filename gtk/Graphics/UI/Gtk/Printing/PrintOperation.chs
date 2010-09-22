@@ -133,21 +133,21 @@ module Graphics.UI.Gtk.Printing.PrintOperation (
 #endif
 
 -- * Signals
-  done,
-  beginPrint,
-  paginate,
-  requestPageSetup,
-  drawPage,
-  endPrint,
-  statusChanged,
-  createCustomWidget,
+  printOptDone,
+  printOptBeginPrint,
+  printOptPaginate,
+  printOptRequestPageSetup,
+  printOptDrawPage,
+  printOptEndPrint,
+  printOptStatusChanged,
+  printOptCreateCustomWidget,
 #if GTK_CHECK_VERSION(2,18,0)
-  updateCustomWidget,
+  printOptUpdateCustomWidget,
 #endif
-  customWidgetApply,
-  preview,
-  ready,
-  gotPageSize,
+  printOptCustomWidgetApply,
+  printOptPreview,
+  printOptReady,
+  printOptGotPageSize,
 #endif
   ) where
 
@@ -795,8 +795,8 @@ printOperationNPagesToPrint = readAttrFromIntProperty "n-pages-to-print"
 -- still return @False@ after 'done' was
 -- emitted.
 --
-done :: PrintOperationClass self => Signal self (PrintOperationResult -> IO ())
-done = Signal (connect_ENUM__NONE "done")
+printOptDone :: PrintOperationClass self => Signal self (PrintOperationResult -> IO ())
+printOptDone = Signal (connect_ENUM__NONE "done")
 
 -- | Emitted after the user has finished changing print settings in the
 -- dialog, before the actual rendering starts.
@@ -805,8 +805,8 @@ done = Signal (connect_ENUM__NONE "done")
 -- 'PrintContext' and paginate the document accordingly, and then set the
 -- number of pages with 'printOperationSetNPages'.
 --
-beginPrint :: PrintOperationClass self => Signal self (PrintContext -> IO ())
-beginPrint = Signal (connect_OBJECT__NONE "begin_print")
+printOptBeginPrint :: PrintOperationClass self => Signal self (PrintContext -> IO ())
+printOptBeginPrint = Signal (connect_OBJECT__NONE "begin_print")
 
 -- | Emitted after the 'beginPrint' signal,
 -- but before the actual rendering starts. It keeps getting emitted until a
@@ -821,15 +821,15 @@ beginPrint = Signal (connect_OBJECT__NONE "begin_print")
 -- If you don't need to do pagination in chunks, you can simply do it all in
 -- the 'begin-print handler', and set the number of pages from there.
 --
-paginate :: PrintOperationClass self => Signal self (PrintContext -> IO Bool)
-paginate = Signal (connect_OBJECT__BOOL "paginate")
+printOptPaginate :: PrintOperationClass self => Signal self (PrintContext -> IO Bool)
+printOptPaginate = Signal (connect_OBJECT__BOOL "paginate")
 
 -- | Emitted once for every page that is printed, to give the application a
 -- chance to modify the page setup. Any changes done to @setup@ will be in
 -- force only for printing this page.
 --
-requestPageSetup :: PrintOperationClass self => Signal self (PrintContext -> Int -> PageSetup -> IO ())
-requestPageSetup = Signal (connect_OBJECT_INT_OBJECT__NONE "request_page_setup")
+printOptRequestPageSetup :: PrintOperationClass self => Signal self (PrintContext -> Int -> PageSetup -> IO ())
+printOptRequestPageSetup = Signal (connect_OBJECT_INT_OBJECT__NONE "request_page_setup")
 
 -- | Emitted for every page that is printed. The signal handler must render
 -- the @pageNr@'s page onto the cairo context obtained from @context@ using
@@ -839,21 +839,21 @@ requestPageSetup = Signal (connect_OBJECT_INT_OBJECT__NONE "request_page_setup")
 -- starting the print operation to set up the transformation of the cairo
 -- context according to your needs.
 --
-drawPage :: PrintOperationClass self => Signal self (PrintContext -> Int -> IO ())
-drawPage = Signal (connect_OBJECT_INT__NONE "draw_page")
+printOptDrawPage :: PrintOperationClass self => Signal self (PrintContext -> Int -> IO ())
+printOptDrawPage = Signal (connect_OBJECT_INT__NONE "draw_page")
 
 -- | Emitted after all pages have been rendered. A handler for this signal can
 -- clean up any resources that have been allocated in the 'beginPrint' handler.
 --
-endPrint :: PrintOperationClass self => Signal self (PrintContext -> IO ())
-endPrint = Signal (connect_OBJECT__NONE "end_print")
+printOptEndPrint :: PrintOperationClass self => Signal self (PrintContext -> IO ())
+printOptEndPrint = Signal (connect_OBJECT__NONE "end_print")
 
 -- | Emitted at between the various phases of the print operation. See
 -- 'PrintStatus' for the phases that are being discriminated. Use
 -- 'printOperationGetStatus' to find out the current status.
 --
-statusChanged :: PrintOperationClass self => Signal self (IO ())
-statusChanged = Signal (connect_NONE__NONE "status_changed")
+printOptStatusChanged :: PrintOperationClass self => Signal self (IO ())
+printOptStatusChanged = Signal (connect_NONE__NONE "status_changed")
 
 -- | Emitted when displaying the print dialog. If you return a widget in a
 -- handler for this signal it will be added to a custom tab in the print
@@ -865,8 +865,8 @@ statusChanged = Signal (connect_NONE__NONE "status_changed")
 -- signal is emitted on the operation. Then you can read out any information
 -- you need from the widgets.
 --
-createCustomWidget :: PrintOperationClass self => Signal self (IO Widget)
-createCustomWidget = Signal (connect_NONE__OBJECTPTR "create_custom_widget")
+printOptCreateCustomWidget :: PrintOperationClass self => Signal self (IO Widget)
+printOptCreateCustomWidget = Signal (connect_NONE__OBJECTPTR "create_custom_widget")
 
 -- | Signal helper functions.
 connect_NONE__OBJECTPTR ::
@@ -889,8 +889,8 @@ connect_NONE__OBJECTPTR signal after obj user =
 --
 -- * Available since Gtk+ version 2.18
 --
-updateCustomWidget :: PrintOperationClass self => Signal self (Widget -> PageSetup -> PrintSettings -> IO ())
-updateCustomWidget = Signal (connect_OBJECT_OBJECT_OBJECT__NONE "update_custom_widget")
+printOptUpdateCustomWidget :: PrintOperationClass self => Signal self (Widget -> PageSetup -> PrintSettings -> IO ())
+printOptUpdateCustomWidget = Signal (connect_OBJECT_OBJECT_OBJECT__NONE "update_custom_widget")
 #endif
 
 -- | Emitted right before 'beginPrint' if you
@@ -898,8 +898,8 @@ updateCustomWidget = Signal (connect_OBJECT_OBJECT_OBJECT__NONE "update_custom_w
 -- information from the custom widgets, as the widgets are not guaraneed to be
 -- around at a later time.
 --
-customWidgetApply :: PrintOperationClass self => Signal self (Widget -> IO ())
-customWidgetApply = Signal (connect_OBJECT__NONE "custom_widget_apply")
+printOptCustomWidgetApply :: PrintOperationClass self => Signal self (Widget -> IO ())
+printOptCustomWidgetApply = Signal (connect_OBJECT__NONE "custom_widget_apply")
 
 -- | Gets emitted when a preview is requested from the native dialog.
 --
@@ -917,19 +917,19 @@ customWidgetApply = Signal (connect_OBJECT__NONE "custom_widget_apply")
 -- finished by calling 'printOperationPreviewEndPreview' (typically in response
 -- to the user clicking a close button).
 --
-preview :: PrintOperationClass self => Signal self (PrintOperationPreview -> PrintContext -> Window -> IO Bool)
-preview = Signal (connect_OBJECT_OBJECT_OBJECT__BOOL "preview")
+printOptPreview :: PrintOperationClass self => Signal self (PrintOperationPreview -> PrintContext -> Window -> IO Bool)
+printOptPreview = Signal (connect_OBJECT_OBJECT_OBJECT__BOOL "preview")
 
 -- | The 'ready' signal gets emitted once per preview operation, before the first page is rendered.
 -- 
 -- A handler for this signal can be used for setup tasks.
-ready :: PrintOperationPreviewClass self => Signal self (PrintContext -> IO ())
-ready = Signal (connect_OBJECT__NONE "ready")
+printOptReady :: PrintOperationPreviewClass self => Signal self (PrintContext -> IO ())
+printOptReady = Signal (connect_OBJECT__NONE "ready")
 
 -- | The 'gotPageSize' signal is emitted once for each page that gets rendered to the preview.
 -- 
 -- A handler for this signal should update the context according to @pageSetup@ and set up a suitable
 -- cairo context, using 'printContextSetCairoContext'.
-gotPageSize :: PrintOperationPreviewClass self => Signal self (PrintContext -> PageSetup -> IO ())
-gotPageSize = Signal (connect_OBJECT_OBJECT__NONE "got_page_size")
+printOptGotPageSize :: PrintOperationPreviewClass self => Signal self (PrintContext -> PageSetup -> IO ())
+printOptGotPageSize = Signal (connect_OBJECT_OBJECT__NONE "got_page_size")
 #endif
