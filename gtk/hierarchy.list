@@ -22,6 +22,7 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    GtkPageSetup			if gtk-2.10
 	    GtkRecentChooser		if gtk-2.10
 	    GtkRecentManager	    if gtk-2.10
         GdkDrawable 

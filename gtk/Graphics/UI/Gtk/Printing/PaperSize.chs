@@ -44,6 +44,7 @@ module Graphics.UI.Gtk.Printing.PaperSize (
 #if GTK_CHECK_VERSION(2,10,0)
 -- * Types
   PaperSize(..),
+  mkPaperSize,
 
 -- * Enums
   Unit(..),

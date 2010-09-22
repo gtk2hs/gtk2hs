@@ -3,7 +3,6 @@ Missing modules in GTK+-2.18:
 gtk/Graphics/UI/Gtk/General/AccelGroup.chs
 gtk/Graphics/UI/Gtk/General/AccelMap.chs
 
-gtk/Graphics/UI/Gtk/Printing/PageSetup.chs
 gtk/Graphics/UI/Gtk/Printing/PrintContext.chs
 gtk/Graphics/UI/Gtk/Printing/PrintOperation.chs
 gtk/Graphics/UI/Gtk/Printing/PrintOperationPreview.chs
