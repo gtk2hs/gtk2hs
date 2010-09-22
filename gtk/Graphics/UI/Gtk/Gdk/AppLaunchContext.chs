@@ -28,7 +28,10 @@ module Graphics.UI.Gtk.Gdk.AppLaunchContext (
 #if GTK_CHECK_VERSION(2,14,0)
 -- * Types
   AppLaunchContext,
-  mkAppLaunchContext,
+  AppLaunchContextClass,
+  castToAppLaunchContext, 
+  gTypeAppLaunchContext,
+  toAppLaunchContext,
 
 -- * Constructors
   appLaunchContextNew,
@@ -53,29 +56,20 @@ import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 import Graphics.UI.Gtk.Gdk.EventM (TimeStamp)
 {#import Graphics.UI.Gtk.Types#}
 #ifdef HAVE_GIO
-{#import System.GIO.Types#} hiding (AppLaunchContext, mkAppLaunchContext)
+{#import System.GIO.Types#} (Icon (..), IconClass, toIcon)
 #endif
 
 {# context lib="gdk" prefix="gdk" #}
 
 #if GTK_CHECK_VERSION(2,14,0)
 --------------------
--- Types
-{#pointer *AppLaunchContext foreign newtype#}
-
---------------------
 -- Constructors
 
 -- | Creates a new 'AppLaunchContext'.
 appLaunchContextNew :: IO AppLaunchContext
-appLaunchContextNew = do
-  ptr <- {# call gdk_app_launch_context_new #}
-  mkAppLaunchContext ptr
-
-mkAppLaunchContext :: Ptr AppLaunchContext -> IO AppLaunchContext
-mkAppLaunchContext rPtr = do
-  ptr <- newForeignPtr rPtr objectUnref
-  return (AppLaunchContext ptr)
+appLaunchContextNew = 
+  constructNewGObject mkAppLaunchContext $
+  {# call gdk_app_launch_context_new #}
 
 --------------------
 -- Methods

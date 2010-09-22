@@ -1,7 +1,5 @@
 Missing modules in GTK+-2.18:
 
-gtk/Graphics/UI/Gtk/Gdk/Colormap.chs
-gtk/Graphics/UI/Gtk/Gdk/Device.chs
 gtk/Graphics/UI/Gtk/Gdk/DisplayManager.chs
 gtk/Graphics/UI/Gtk/Gdk/Keymap.chs
 gtk/Graphics/UI/Gtk/Gdk/PixbufLoader.chs
