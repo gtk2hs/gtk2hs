@@ -22,6 +22,9 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    GtkPrintSettings		if gtk-2.10
+	    GtkPrintOperation		if gtk-2.10
+	    GtkPrintOperationPreview if gtk-2.10
 	    GtkPageSetup			if gtk-2.10
 	    GtkPrintContext			if gtk-2.10
 	    GtkRecentChooser		if gtk-2.10

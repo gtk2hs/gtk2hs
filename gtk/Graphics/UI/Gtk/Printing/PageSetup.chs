@@ -107,7 +107,7 @@ import System.Glib.Properties
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Printing.PaperSize#} (PaperSize(..), mkPaperSize, Unit(..))
-import Graphics.UI.Gtk.General.Enums (PageOrientation(..))
+{#import Graphics.UI.Gtk.Printing.PrintSettings#} (PageOrientation (..))
 
 {# context lib="gtk" prefix="gtk" #}
 

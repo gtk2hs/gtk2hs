@@ -290,6 +290,8 @@ Library
           Graphics.UI.Gtk.Printing.PaperSize
           Graphics.UI.Gtk.Printing.PageSetup
           Graphics.UI.Gtk.Printing.PrintContext
+          Graphics.UI.Gtk.Printing.PrintOperation
+          Graphics.UI.Gtk.Printing.PrintSettings
           Graphics.UI.Gtk.Recent.RecentChooserMenu
           Graphics.UI.Gtk.Recent.RecentChooserWidget
           Graphics.UI.Gtk.Recent.RecentFilter

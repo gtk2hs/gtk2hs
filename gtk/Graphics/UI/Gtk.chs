@@ -209,6 +209,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Printing.PaperSize,
   module Graphics.UI.Gtk.Printing.PageSetup,
   module Graphics.UI.Gtk.Printing.PrintContext,
+  module Graphics.UI.Gtk.Printing.PrintOperation,
+  module Graphics.UI.Gtk.Printing.PrintSettings,
   -- * Recent
   module Graphics.UI.Gtk.Recent.RecentChooserMenu,
   module Graphics.UI.Gtk.Recent.RecentChooserWidget,
@@ -438,6 +440,8 @@ import Graphics.UI.Gtk.Ornaments.VSeparator
 import Graphics.UI.Gtk.Printing.PaperSize
 import Graphics.UI.Gtk.Printing.PageSetup
 import Graphics.UI.Gtk.Printing.PrintContext
+import Graphics.UI.Gtk.Printing.PrintOperation
+import Graphics.UI.Gtk.Printing.PrintSettings
 -- recent
 import Graphics.UI.Gtk.Recent.RecentChooserMenu
 import Graphics.UI.Gtk.Recent.RecentChooserWidget

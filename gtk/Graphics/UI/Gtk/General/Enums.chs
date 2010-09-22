@@ -84,9 +84,6 @@ module Graphics.UI.Gtk.General.Enums (
   WindowType(..),
   WrapMode(..), 
   EntryIconPosition(..),
-#if GTK_CHECK_VERSION(2,10,0)
-  PageOrientation (..),
-#endif
 
 module Graphics.UI.Gtk.Gdk.Enums
   ) where
@@ -429,8 +426,3 @@ instance Flags TextSearchFlags
 -- | Specifies the side of the entry at which an icon is placed.
 --
 {#enum EntryIconPosition {underscoreToCase} deriving (Eq,Show)#}
-
-#if GTK_CHECK_VERSION(2,10,0)
-{#enum PageOrientation {underscoreToCase} deriving (Eq,Show)#}
-#endif
-
