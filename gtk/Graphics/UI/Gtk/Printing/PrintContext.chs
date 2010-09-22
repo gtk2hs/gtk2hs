@@ -68,6 +68,9 @@ module Graphics.UI.Gtk.Printing.PrintContext (
   printContextGetPangoFontmap,
   printContextCreatePangoContext,
   printContextCreatePangoLayout,
+#if GTK_CHECK_VERSION(2,20,0)
+  printContextGetHardMargins,
+#endif
 #endif
   ) where
 
@@ -189,4 +192,34 @@ printContextCreatePangoLayout self = do
   ps <- makeNewPangoString ""
   psRef <- newIORef ps
   return (PangoLayout psRef pl)
+
+#if GTK_CHECK_VERSION(2,20,0)
+printContextGetHardMargins :: PrintContextClass self => self
+                           -> IO (Maybe (Double, Double, Double, Double))
+                             -- ^ returns @(top, bottom, left, right)@ 
+                             -- @top@ top hardware printer margin             
+                             -- @bottom@ bottom hardware printer margin             
+                             -- @left@ left hardware printer margin             
+                             -- @right@ right hardware printer margin             
+printContextGetHardMargins self =
+  alloca $ \ topPtr ->
+  alloca $ \ bottomPtr ->
+  alloca $ \ leftPtr ->
+  alloca $ \ rightPtr -> do
+  success <- liftM toBool $ {#call gtk_print_context_get_hard_margins #}
+               (toPrintContext self)
+               topPtr
+               bottomPtr
+               leftPtr
+               rightPtr
+  if success
+     then do
+       top <- liftM realToFrac $ peek topPtr
+       bottom <- liftM realToFrac $ peek bottomPtr
+       left <- liftM realToFrac $ peek leftPtr
+       right <- liftM realToFrac $ peek rightPtr
+       return $ Just (top, bottom, left, right)
+     else return Nothing
+#endif
+
 #endif

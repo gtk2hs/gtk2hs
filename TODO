@@ -13,10 +13,6 @@ gtk/Graphics/UI/Gtk/Gdk/Visual.chs
 
 Missing functions in GTK+-2.20:
 
-gtk_paint_spinner, function in GtkStyle
-gtk_printer_get_hard_margins, function in GtkPrinter
-gtk_print_context_get_hard_margins, function in GtkPrintContext
-   
 gtk_tool_palette_add_drag_dest, function in GtkToolPalette
 gtk_tool_palette_get_drag_item, function in GtkToolPalette
 gtk_tool_palette_get_drag_target_group, function in GtkToolPalette
