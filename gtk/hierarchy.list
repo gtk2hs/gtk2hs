@@ -23,6 +23,7 @@
 #		  defined later
     GObject 
 	    GtkPageSetup			if gtk-2.10
+	    GtkPrintContext			if gtk-2.10
 	    GtkRecentChooser		if gtk-2.10
 	    GtkRecentManager	    if gtk-2.10
         GdkDrawable 
