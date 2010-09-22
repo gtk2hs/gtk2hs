@@ -53,6 +53,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.Clipboard,
 
   -- * Drawing and other Low-Level Operations
+  module Graphics.UI.Gtk.Gdk.AppLaunchContext,
   module Graphics.UI.Gtk.Gdk.Cursor,
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
@@ -279,6 +280,7 @@ import Graphics.UI.Gtk.General.Clipboard
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style
 import Graphics.UI.Gtk.General.RcStyle
+import Graphics.UI.Gtk.Gdk.AppLaunchContext
 import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow

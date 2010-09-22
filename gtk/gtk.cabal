@@ -182,6 +182,7 @@ Library
           Graphics.UI.Gtk.Entry.HScale
           Graphics.UI.Gtk.Entry.SpinButton
           Graphics.UI.Gtk.Entry.VScale
+          Graphics.UI.Gtk.Gdk.AppLaunchContext
           Graphics.UI.Gtk.Gdk.Cursor
           Graphics.UI.Gtk.Gdk.Display
           Graphics.UI.Gtk.Gdk.Drawable
