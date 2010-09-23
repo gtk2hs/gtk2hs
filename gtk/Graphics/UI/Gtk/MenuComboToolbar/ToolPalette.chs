@@ -27,6 +27,15 @@
 --
 -- * Module available since Gtk+ version 2.20
 --
+-- TODO:
+--
+--       gtk_tool_palette_add_drag_dest
+--       gtk_tool_palette_get_drag_item
+--       gtk_tool_palette_get_drag_target_group
+--       gtk_tool_palette_get_drag_target_item
+--       gtk_tool_palette_get_drop_group
+--       gtk_tool_palette_get_drop_item
+--
 module Graphics.UI.Gtk.MenuComboToolbar.ToolPalette (
 
 -- * Detail
