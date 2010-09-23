@@ -235,7 +235,7 @@ keymapTranslateKeyboardState self hardwareKeycode state group =
 -- switch key might convert a keyboard between Hebrew to English modes, for
 -- example. 'EventKey' contains a @group@ field that
 -- indicates the active keyboard group. The level is computed from the modifier
--- mask. The returned array should be freed with 'gFree'.
+-- mask. 
 --
 keymapGetEntriesForKeyval :: KeymapClass self => self
  -> KeyVal                -- ^ @keyval@ - a keyval, such as @GDK_a@, @GDK_Up@,
@@ -255,12 +255,13 @@ keymapGetEntriesForKeyval self keyval =
          nKeys <- liftM fromIntegral $ peek nKeysPtr
          keys <- peekArray nKeys keysPtr
          keyList <- mapM peek keys
+         {#call unsafe g_free#} (castPtr keysPtr)
          return (Just keyList)
        else return Nothing
 
 -- | Returns the keyvals bound to @hardwareKeycode@. The Nth 'KeymapKey'
--- in @keys@ is bound to the Nth keyval in @keyvals@. Free
--- the returned arrays with 'gFree'. When a keycode is pressed by the user, the
+-- in @keys@ is bound to the Nth keyval in @keyvals@. 
+-- When a keycode is pressed by the user, the
 -- keyval from this list of entries is selected by considering the effective
 -- keyboard group and level. See 'keymapTranslateKeyboardState'.
 --
@@ -285,6 +286,8 @@ keymapGetEntriesForKeycode self hardwareKeycode =
          keyvals <- peekArray nEntries keyvalsPtr
          keyvalsList <- mapM (\x -> liftM fromIntegral $ peek x) keyvals
          keysList <- mapM peek keys
+         {#call unsafe g_free#} (castPtr keysPtr)
+         {#call unsafe g_free#} (castPtr keyvalsPtr)
          return (Just (keysList, keyvalsList))
        else return Nothing
 
