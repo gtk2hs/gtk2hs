@@ -491,38 +491,16 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
 -- Check user whether install gtk2hs-buildtools correctly.
 checkGtk2hsBuildtools :: IO ()
 checkGtk2hsBuildtools = do
-  allExecuteFiles <- getAllExecuteFiles
-  let c2hsName          = 
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-        programName c2hsLocal ++ ".exe"
-#else
-        programName c2hsLocal
-#endif
-      typeProgramName   = 
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-        programName typeGenProgram ++ ".exe"
-#else
-        programName typeGenProgram
-#endif
-      signalProgramName = 
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-        programName signalGenProgram ++ ".exe"
-#else
-        programName signalGenProgram
-#endif
-      printError name = do
+  c2hsPath   <- (programFindLocation c2hsLocal) normal 
+  typePath   <- (programFindLocation typeGenProgram) normal 
+  signalPath <- (programFindLocation signalGenProgram) normal 
+  let printError name = do
         putStrLn $ "Cannot find " ++ name ++ "\n" 
-                ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
+                 ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
         exitFailure
-  if c2hsName `notElem` allExecuteFiles
-     then printError c2hsName
-     else if typeProgramName `notElem` allExecuteFiles
-          then printError typeProgramName
-          else when (signalProgramName `notElem` allExecuteFiles) $
-                 printError signalProgramName
-
--- Get all execute files.
-getAllExecuteFiles :: IO [String]
-getAllExecuteFiles = do
-  paths <- getSearchPath >>= filterM doesDirectoryExist
-  liftM concat $ forM paths getDirectoryContents
+  if isNothing c2hsPath
+     then printError (programName c2hsLocal)
+     else if isNothing typePath
+          then printError (programName typeGenProgram)
+          else when (isNothing signalPath) $
+                 printError (programName signalGenProgram)
