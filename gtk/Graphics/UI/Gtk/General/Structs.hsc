@@ -100,7 +100,8 @@ module Graphics.UI.Gtk.General.Structs (
   selectionTypeInteger,
   selectionTypeString,
   selectionDataGetType,
-  withTargetEntries
+  withTargetEntries,
+  KeymapKey (..)
   ) where
 
 import Control.Monad		(liftM)
@@ -1001,3 +1002,35 @@ instance Storable TargetEntry where
     #{poke GtkTargetEntry, target} ptr cPtr
     #{poke GtkTargetEntry, flags} ptr (0::#{gtk2hs_type guint})
     #{poke GtkTargetEntry, info} ptr info
+
+-- | A 'KeymapKey' is a hardware key that can be mapped to a keyval.
+data KeymapKey = KeymapKey {
+       keycode   :: Int -- ^ @keycode@ the hardware keycode. This is an identifying number for a physical key.
+      ,group     :: Int -- ^ @group@ indicates movement in a horizontal direction. 
+                      -- Usually groups are used for two different languages. 
+                      -- In group  0, a key might have two English characters, 
+                      -- and in group 1 it might have two Hebrew characters. 
+                      -- The Hebrew characters will be printed on the key next to the English characters. 
+                      -- indicates which symbol on the key will be used, 
+                      -- in a vertical direction. So on a standard US keyboard, the                         
+      ,level     :: Int -- ^ @level@ key with the number "1" on it also has the exclamation 
+                      -- point ("!") character on it. The level
+                      -- indicates whether to use the "1" or the "!" symbol. The letter keys are considered to
+                      -- have a lowercase letter at level 0, and an uppercase letter at level 1, though only
+                      -- the uppercase letter is printed.
+    } deriving (Eq, Show) 
+               
+instance Storable KeymapKey where
+  sizeOf _ = #{const sizeof(GdkKeymapKey)}
+  alignment _ = alignment (undefined::#gtk2hs_type gint)
+  peek ptr = do
+    (keycode_  ::#gtk2hs_type guint)	<- #{peek GdkKeymapKey, keycode} ptr
+    (group_  ::#gtk2hs_type gint)	<- #{peek GdkKeymapKey, group} ptr
+    (level_ ::#gtk2hs_type gint)	<- #{peek GdkKeymapKey, level} ptr
+    return $ KeymapKey (fromIntegral keycode_) (fromIntegral group_) (fromIntegral level_)
+  poke ptr (KeymapKey keycode group level) = do
+    #{poke GdkKeymapKey, keycode} ptr ((fromIntegral keycode)::#gtk2hs_type guint)
+    #{poke GdkKeymapKey, group} ptr ((fromIntegral group)::#gtk2hs_type gint)
+    #{poke GdkKeymapKey, level} ptr ((fromIntegral level)::#gtk2hs_type gint)
+               
+               

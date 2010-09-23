@@ -1,8 +1,6 @@
 Missing modules in GTK+-2.18:
 
-gtk/Graphics/UI/Gtk/Gdk/Keymap.chs
 gtk/Graphics/UI/Gtk/Gdk/PixbufLoader.chs
-gtk/Graphics/UI/Gtk/Gdk/Visual.chs
 
 Missing functions in GTK+-2.20:
 

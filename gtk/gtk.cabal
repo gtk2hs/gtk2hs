@@ -184,6 +184,7 @@ Library
           Graphics.UI.Gtk.Entry.VScale
           Graphics.UI.Gtk.Gdk.AppLaunchContext
           Graphics.UI.Gtk.Gdk.Cursor
+          Graphics.UI.Gtk.Gdk.Keymap
           Graphics.UI.Gtk.Gdk.Display
           Graphics.UI.Gtk.Gdk.DisplayManager
           Graphics.UI.Gtk.Gdk.Drawable
