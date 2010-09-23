@@ -87,6 +87,7 @@ import qualified Distribution.Simple.Register as Register ( register )
 #endif
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
+import System.Exit (exitFailure)
 import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
@@ -494,9 +495,10 @@ checkGtk2hsBuildtools = do
   let c2hsName          = programName c2hsLocal
       typeProgramName   = programName typeGenProgram
       signalProgramName = programName signalGenProgram
-      printError name = 
-        error $ "Can't found " ++ name ++ "\n" 
-                   ++ "Please install package `gtk2hs-buildtools` first, and make sure " ++ name ++ " in your PATH."
+      printError name = do
+        putStrLn $ "Can't found " ++ name ++ "\n" 
+                ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
+        exitFailure
   if c2hsName `notElem` allExecuteFiles
      then printError c2hsName
      else if typeProgramName `notElem` allExecuteFiles
@@ -507,5 +509,5 @@ checkGtk2hsBuildtools = do
 -- Get all execute files.
 getAllExecuteFiles :: IO [String]
 getAllExecuteFiles = do
-  paths <- getSearchPath >>= (filterM doesDirectoryExist)
+  paths <- getSearchPath >>= filterM doesDirectoryExist
   liftM concat $ forM paths getDirectoryContents
