@@ -37,6 +37,11 @@ module Graphics.UI.Gtk.Gdk.Keys (
   keyvalName,
   keyvalFromName,
   keyvalToChar,
+  keyvalConvertCase,
+  keyvalToUpper,
+  keyvalToLower,
+  keyvalIsUpper,
+  keyvalIsLower,
   ) where
 
 import Control.Monad (liftM)
@@ -87,3 +92,60 @@ keyvalToChar keyval =
   {# call gdk_keyval_to_unicode #} (fromIntegral keyval)
   >>= \code -> if code == 0 then return Nothing
                             else return $ Just $ toEnum $ fromIntegral code
+
+-- | Obtains the upper- and lower-case versions of the keyval symbol. Examples of keyvals are GDK_a,
+-- 'Enter', 'F1', etc.
+keyvalConvertCase :: KeyVal -- ^ @symbol@ a keyval                                              
+                  -> (KeyVal, KeyVal) -- ^ @(lower, upper)@ 
+                                        -- ^ lower is the lowercase version of symbol. 
+                                        -- ^ upper is uppercase version of symbol. 
+keyvalConvertCase keyval = 
+  unsafePerformIO $
+  alloca $ \ lowerPtr -> 
+  alloca $ \ upperPtr -> do
+  {#call gdk_keyval_convert_case #}
+    (fromIntegral keyval)
+    lowerPtr
+    upperPtr
+  lower <- peek lowerPtr
+  upper <- peek upperPtr
+  return (fromIntegral lower, fromIntegral upper)
+
+-- | Converts a key value to upper case, if applicable.
+keyvalToUpper :: KeyVal  -- ^ @keyval@  a key value.
+              -> KeyVal -- ^ returns the upper case form of keyval, 
+                          -- or keyval itself if it is already in upper case or it is not subject to case       
+keyvalToUpper keyval =
+  unsafePerformIO $
+  liftM fromIntegral $
+  {#call gdk_keyval_to_upper #}
+     (fromIntegral keyval)
+
+-- | Converts a key value to lower case, if applicable.
+keyvalToLower :: KeyVal  -- ^ @keyval@  a key value.
+              -> KeyVal -- ^ returns the lower case form of keyval, 
+                          -- or keyval itself if it is already in lower case or it is not subject to case       
+keyvalToLower keyval =
+  unsafePerformIO $
+  liftM fromIntegral $
+  {#call gdk_keyval_to_lower #}
+     (fromIntegral keyval)
+
+-- | Returns 'True' if the given key value is in upper case.
+keyvalIsLower :: KeyVal 
+              -> Bool -- ^ returns 'True' if keyval is in upper case, or if keyval is not subject to case conversion.
+keyvalIsLower keyval =
+  unsafePerformIO $
+  liftM toBool $
+  {#call gdk_keyval_is_lower #}
+     (fromIntegral keyval)
+
+-- | Returns 'True' if the given key value is in upper case.
+keyvalIsUpper :: KeyVal 
+              -> Bool -- ^ returns 'True' if keyval is in upper case, or if keyval is not subject to case conversion.
+keyvalIsUpper keyval =
+  unsafePerformIO $
+  liftM toBool $
+  {#call gdk_keyval_is_upper #}
+     (fromIntegral keyval)
+
