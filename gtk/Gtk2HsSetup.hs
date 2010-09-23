@@ -106,13 +106,13 @@ gtk2hsUserHooks = simpleUserHooks {
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
     hookedPreProcessors = [("chs", ourC2hs)],
     confHook = \pd cf ->
-      confHook simpleUserHooks pd cf >>= return . adjustLocalBuildInfo,
+      (fmap adjustLocalBuildInfo (confHook simpleUserHooks pd cf)),
     postConf = \args cf pd lbi -> do
       genSynthezisedFiles (fromFlag (configVerbosity cf)) pd lbi
       postConf simpleUserHooks args cf pd lbi,
     buildHook = \pd lbi uh bf -> fixDeps pd >>= \pd ->
-                                 (buildHook simpleUserHooks) pd lbi uh bf,
-    copyHook = \pd lbi uh flags -> (copyHook simpleUserHooks) pd lbi uh flags >>
+                                 buildHook simpleUserHooks pd lbi uh bf,
+    copyHook = \pd lbi uh flags -> copyHook simpleUserHooks pd lbi uh flags >>
       installCHI pd lbi (fromFlag (copyVerbosity flags)) (fromFlag (copyDest flags)),
     instHook = \pd lbi uh flags ->
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -301,7 +301,7 @@ getCppOptions :: BuildInfo -> LocalBuildInfo -> [String]
 getCppOptions bi lbi
     = nub $
       ["-I" ++ dir | dir <- PD.includeDirs bi]
-   ++ [opt | opt@('-':c:_) <- (PD.cppOptions bi ++ PD.ccOptions bi), c `elem` "DIU"]
+   ++ [opt | opt@('-':c:_) <- PD.cppOptions bi ++ PD.ccOptions bi, c `elem` "DIU"]
 
 installCHI :: PackageDescription -- ^information from the .cabal file
         -> LocalBuildInfo -- ^information from the configure step
@@ -311,14 +311,13 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
   let InstallDirs { libdir = libPref } = absoluteInstallDirs pkg lbi copydest
   -- cannot use the recommended 'findModuleFiles' since it fails if there exists
   -- a modules that does not have a .chi file
-  mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi])
-                 (map toFilePath
+  mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi] . toFilePath)
 #if CABAL_VERSION_CHECK(1,8,0)
                    (PD.libModules lib)
 #else
                    (PD.libModules pkg)
 #endif
-                 )
+                 
   let files = [ f | Just f <- mFiles ]
 #if CABAL_VERSION_CHECK(1,8,0)
   installOrdinaryFiles verbosity libPref files
@@ -334,13 +333,13 @@ installCHI _ _ _ _ = return ()
 ------------------------------------------------------------------------------
 
 typeGenProgram :: Program
-typeGenProgram = (simpleProgram "gtk2hsTypeGen")
+typeGenProgram = simpleProgram "gtk2hsTypeGen"
 
 signalGenProgram :: Program
-signalGenProgram = (simpleProgram "gtk2hsHookGenerator")
+signalGenProgram = simpleProgram "gtk2hsHookGenerator"
 
 c2hsLocal :: Program
-c2hsLocal = (simpleProgram "gtk2hsC2hs")
+c2hsLocal = simpleProgram "gtk2hsC2hs"
 
 genSynthezisedFiles :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 genSynthezisedFiles verb pd lbi = do
@@ -373,7 +372,7 @@ genSynthezisedFiles verb pd lbi = do
          res <- rawSystemProgramStdoutConf verb prog (withPrograms lbi) args
          rewriteFile outFile res
 
-  (flip mapM_) (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
+  forM_ (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
     \(fileTag, f) -> do
       let tag = reverse (drop 4 (reverse fileTag))
       info verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
@@ -394,7 +393,7 @@ getPkgConfigPackages verbosity lbi pkg =
   sequence
     [ do version <- pkgconfig ["--modversion", display pkgname]
          case simpleParse version of
-           Nothing -> die $ "parsing output of pkg-config --modversion failed"
+           Nothing -> die "parsing output of pkg-config --modversion failed"
            Just v  -> return (PackageIdentifier pkgname v)
     | Dependency pkgname _ <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
@@ -459,9 +458,9 @@ instance Ord ModDep where
 extractDeps :: ModDep -> IO ModDep
 extractDeps md@ModDep { mdLocation = Nothing } = return md
 extractDeps md@ModDep { mdLocation = Just f } = withUTF8FileContents f $ \con -> do
-  let findImports acc (('{':'#':xs):xxs) = case (dropWhile ((==) ' ') xs) of
+  let findImports acc (('{':'#':xs):xxs) = case (dropWhile (' ' ==) xs) of
         ('i':'m':'p':'o':'r':'t':' ':ys) ->
-          case simpleParse (takeWhile ((/=) '#') ys) of
+          case simpleParse (takeWhile ('#' /=) ys) of
             Just m -> findImports (m:acc) xxs 
             Nothing -> die ("cannot parse chs import in "++f++":\n"++
                             "offending line is {#"++xs)
@@ -495,16 +494,15 @@ checkGtk2hsBuildtools = do
   let c2hsName          = programName c2hsLocal
       typeProgramName   = programName typeGenProgram
       signalProgramName = programName signalGenProgram
-      printError name = do
+      printError name = 
         error $ "Can't found " ++ name ++ "\n" 
                    ++ "Please install package `gtk2hs-buildtools` first, and make sure " ++ name ++ " in your PATH."
-  if not (c2hsName `elem` allExecuteFiles)
+  if c2hsName `notElem` allExecuteFiles
      then printError c2hsName
-     else if not (typeProgramName `elem` allExecuteFiles)
+     else if typeProgramName `notElem` allExecuteFiles
           then printError typeProgramName
-          else if not (signalProgramName `elem` allExecuteFiles)
-               then printError signalProgramName
-               else return ()
+          else when (signalProgramName `notElem` allExecuteFiles)
+               printError signalProgramName
 
 -- Get all execute files.
 getAllExecuteFiles :: IO [String]
