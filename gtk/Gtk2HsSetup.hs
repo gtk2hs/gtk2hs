@@ -90,7 +90,7 @@ import System.FilePath
 import System.Directory ( doesFileExist, getDirectoryContents, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
-import Control.Monad (when, unless, filterM, liftM, forM)
+import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
 import Data.List (isPrefixOf, isSuffixOf, nub)
 import Data.Char (isAlpha)
@@ -501,8 +501,8 @@ checkGtk2hsBuildtools = do
      then printError c2hsName
      else if typeProgramName `notElem` allExecuteFiles
           then printError typeProgramName
-          else when (signalProgramName `notElem` allExecuteFiles)
-               printError signalProgramName
+          else when (signalProgramName `notElem` allExecuteFiles) $
+                 printError signalProgramName
 
 -- Get all execute files.
 getAllExecuteFiles :: IO [String]
