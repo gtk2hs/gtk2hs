@@ -32,7 +32,11 @@
 
 -- | Build a Gtk2hs package.
 --
-module Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages ) where
+module Gtk2HsSetup ( 
+  gtk2hsUserHooks, 
+  getPkgConfigPackages, 
+  checkGtk2hsBuildtools
+  ) where
 
 import Distribution.Simple
 import Distribution.Simple.PreProcess
@@ -65,7 +69,7 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
-  rawSystemProgramConf, rawSystemProgramStdoutConf,
+  rawSystemProgramConf, rawSystemProgramStdoutConf, programName,
   c2hsProgram, pkgConfigProgram, requireProgram, ghcPkgProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
@@ -83,10 +87,10 @@ import qualified Distribution.Simple.Register as Register ( register )
 #endif
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
-import System.Directory ( doesFileExist )
+import System.Directory ( doesFileExist, getDirectoryContents, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
-import Control.Monad (when, unless, filterM)
+import Control.Monad (when, unless, filterM, liftM, forM)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
 import Data.List (isPrefixOf, isSuffixOf, nub)
 import Data.Char (isAlpha)
@@ -94,7 +98,6 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Control.Applicative ((<$>))
-import System.Directory (getDirectoryContents, doesDirectoryExist)
 
 -- the name of the c2hs pre-compiled header file
 precompFile = "precompchs.bin"
@@ -484,3 +487,27 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
         Just md -> (md:out', visited')
           where
             (out',visited') = foldl visit (out, m `S.insert` visited) (mdRequires md)
+
+-- Check user whether install gtk2hs-buildtools correctly.
+checkGtk2hsBuildtools :: IO ()
+checkGtk2hsBuildtools = do
+  allExecuteFiles <- getAllExecuteFiles
+  let c2hsName          = programName c2hsLocal
+      typeProgramName   = programName typeGenProgram
+      signalProgramName = programName signalGenProgram
+      printError name = do
+        error $ "Can't found " ++ name ++ "\n" 
+                   ++ "Please install package `gtk2hs-buildtools` first, and make sure " ++ name ++ " in your PATH."
+  if not (c2hsName `elem` allExecuteFiles)
+     then printError c2hsName
+     else if not (typeProgramName `elem` allExecuteFiles)
+          then printError typeProgramName
+          else if not (signalProgramName `elem` allExecuteFiles)
+               then printError signalProgramName
+               else return ()
+
+-- Get all execute files.
+getAllExecuteFiles :: IO [String]
+getAllExecuteFiles = do
+  paths <- getSearchPath
+  liftM concat $ forM paths getDirectoryContents
