@@ -87,7 +87,7 @@ import qualified Distribution.Simple.Register as Register ( register )
 #endif
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
-import System.Directory ( doesFileExist, getDirectoryContents, getDirectoryContents, doesDirectoryExist )
+import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
@@ -507,5 +507,5 @@ checkGtk2hsBuildtools = do
 -- Get all execute files.
 getAllExecuteFiles :: IO [String]
 getAllExecuteFiles = do
-  paths <- getSearchPath
+  paths <- getSearchPath >>= (filterM doesDirectoryExist)
   liftM concat $ forM paths getDirectoryContents
