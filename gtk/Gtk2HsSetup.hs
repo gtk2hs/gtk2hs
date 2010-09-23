@@ -511,7 +511,7 @@ checkGtk2hsBuildtools = do
         programName signalGenProgram
 #endif
       printError name = do
-        putStrLn $ "Cannot found " ++ name ++ "\n" 
+        putStrLn $ "Cannot find " ++ name ++ "\n" 
                 ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
         exitFailure
   if c2hsName `notElem` allExecuteFiles
