@@ -492,11 +492,26 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
 checkGtk2hsBuildtools :: IO ()
 checkGtk2hsBuildtools = do
   allExecuteFiles <- getAllExecuteFiles
-  let c2hsName          = programName c2hsLocal
-      typeProgramName   = programName typeGenProgram
-      signalProgramName = programName signalGenProgram
+  let c2hsName          = 
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+        programName c2hsLocal ++ ".exe"
+#else
+        programName c2hsLocal
+#endif
+      typeProgramName   = 
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+        programName typeGenProgram ++ ".exe"
+#else
+        programName typeGenProgram
+#endif
+      signalProgramName = 
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+        programName signalGenProgram ++ ".exe"
+#else
+        programName signalGenProgram
+#endif
       printError name = do
-        putStrLn $ "Can't found " ++ name ++ "\n" 
+        putStrLn $ "Cannot found " ++ name ++ "\n" 
                 ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
         exitFailure
   if c2hsName `notElem` allExecuteFiles
