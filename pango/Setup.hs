@@ -3,7 +3,7 @@
 -- identical across all modules.
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(postConf),
                              PackageIdentifier(..), PackageName(..) )
-import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages )
+import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages, checkGtk2hsBuildtools )
 import Distribution.Simple.Setup ( ConfigFlags(configVerbosity), fromFlag)
 import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
@@ -13,7 +13,9 @@ import Distribution.Verbosity
 import Distribution.Simple.Utils
 import System.FilePath
 
-main = defaultMainWithHooks gtk2hsUserHooks {
+main = do
+  checkGtk2hsBuildtools ["gtk2hsC2hs", "gtk2hsTypeGen"]
+  defaultMainWithHooks gtk2hsUserHooks {
 
     postConf = \args cf pd lbi -> do
       let verb = (fromFlag (configVerbosity cf))
