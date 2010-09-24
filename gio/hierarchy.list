@@ -265,8 +265,8 @@
         GVfs				as Vfs, g_vfs_get_type if gio
         GMountOperation			as MountOperation, g_mount_operation_get_type if gio
         GThemedIcon			as ThemedIcon, g_themed_icon_get_type if gio
-        GEmblem			as Emblem, g_emblem_get_type if gio
-        GEmblemedIcon			as EmblemedIcon, g_emblemed_icon_get_type if gio
+        GEmblem			as Emblem, g_emblem_get_type if gio-2.18
+        GEmblemedIcon			as EmblemedIcon, g_emblemed_icon_get_type if gio-2.18
         GFileEnumerator			as FileEnumerator, g_file_enumerator_get_type if gio
         GFilenameCompleter		as FilenameCompleter, g_filename_completer_get_type if gio
         GFileIcon			as FileIcon, g_file_icon_get_type if gio

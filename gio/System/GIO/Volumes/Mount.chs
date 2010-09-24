@@ -58,7 +58,9 @@ module System.GIO.Volumes.Mount (
     mountGetDrive,
     mountGetRoot,
     mountGetVolume,
+#if GLIB_CHECK_VERSION(2,24,0)
     mountGetDefaultLocation,
+#endif
     mountCanUnmount,
 #if GLIB_CHECK_VERSION(2,22,0)
     mountUnmountWithOperation,
@@ -155,6 +157,7 @@ mountGetVolume mount =
   maybeNull (makeNewGObject mkVolume) $
   {#call g_mount_get_volume#} (toMount mount) 
 
+#if GLIB_CHECK_VERSION(2,24,0)
 -- | Gets the default location of mount. The default location of the given mount is a path that reflects
 -- the main entry point for the user (e.g. the home directory, or the root of the volume).
 -- | Gets the root directory on mount.
@@ -163,6 +166,7 @@ mountGetDefaultLocation :: MountClass mount => mount
 mountGetDefaultLocation mount = 
   makeNewGObject mkFile $
   {#call g_mount_get_default_location#} (toMount mount) 
+#endif
 
 -- | Checks if mount can be mounted.
 mountCanUnmount :: MountClass mount => mount
