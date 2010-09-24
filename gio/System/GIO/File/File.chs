@@ -618,7 +618,7 @@ fileReplace :: FileClass file
             -> IO FileOutputStream
 fileReplace file etag makeBackup flags cancellable =
     makeNewGObject mkFileOutputStream $
-        maybeWith withCString etag $ \cEtag ->
+        maybeWith withUTFString etag $ \cEtag ->
         propagateGError ({#call g_file_replace#} 
                            (toFile file)
                            cEtag
@@ -708,7 +708,7 @@ fileReplaceAsync :: FileClass file
                  -> AsyncReadyCallback
                  -> IO ()
 fileReplaceAsync file etag makeBackup flags ioPriority cancellable callback =
-        withCString etag $ \cEtag -> do
+        withUTFString etag $ \cEtag -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_replace_async #} 
             (toFile file)
