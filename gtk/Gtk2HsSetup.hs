@@ -489,18 +489,15 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
             (out',visited') = foldl visit (out, m `S.insert` visited) (mdRequires md)
 
 -- Check user whether install gtk2hs-buildtools correctly.
-checkGtk2hsBuildtools :: IO ()
-checkGtk2hsBuildtools = do
-  c2hsPath   <- (programFindLocation c2hsLocal) normal 
-  typePath   <- (programFindLocation typeGenProgram) normal 
-  signalPath <- (programFindLocation signalGenProgram) normal 
+checkGtk2hsBuildtools :: [String] -> IO ()
+checkGtk2hsBuildtools programs = do
+  programInfos <- mapM (\ name -> do
+                         location <- programFindLocation (simpleProgram name) normal
+                         return (name, location)
+                      ) programs
   let printError name = do
         putStrLn $ "Cannot find " ++ name ++ "\n" 
                  ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
         exitFailure
-  if isNothing c2hsPath
-     then printError (programName c2hsLocal)
-     else if isNothing typePath
-          then printError (programName typeGenProgram)
-          else when (isNothing signalPath) $
-                 printError (programName signalGenProgram)
+  forM_ programInfos $ \ (name, location) ->
+    when (isNothing location) (printError name) 

@@ -5,6 +5,6 @@ import Gtk2HsSetup ( gtk2hsUserHooks, checkGtk2hsBuildtools )
 import Distribution.Simple ( defaultMainWithHooks )
 
 main = do
-  checkGtk2hsBuildtools
+  checkGtk2hsBuildtools ["gtk2hsC2hs", "gtk2hsTypeGen", "gtk2hsHookGenerator"]
   defaultMainWithHooks gtk2hsUserHooks
   
