@@ -231,6 +231,8 @@ module System.GIO.File.File (
 import Control.Monad
 import Data.Typeable
 import Data.Maybe (fromMaybe)
+import Data.ByteString (ByteString)
+import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.GIO.File.FileAttribute
 import System.Glib.FFI
@@ -265,10 +267,10 @@ type FileReadMoreCallback = BS.ByteString -> IO Bool
 
 -- | Constructs a 'File' for a given path. This operation never fails, but the returned object might not
 -- support any I/O operation if path is malformed.
-fileFromPath :: FilePath -> File
+fileFromPath :: ByteString -> File
 fileFromPath path =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withCString path $ \cPath -> {# call file_new_for_path #} cPath
+    unsafeUseAsCString path $ \cPath -> {# call file_new_for_path #} cPath
 
 -- | Constructs a 'File' for a given URI. This operation never fails, but the returned object might not
 -- support any I/O operation if uri is malformed or if the uri type is not supported.
@@ -281,18 +283,18 @@ fileFromURI uri =
 -- an absolute path or a relative path resolved relative to the current working directory. This
 -- operation never fails, but the returned object might not support any I/O operation if arg points to
 -- a malformed path.
-fileFromCommandlineArg :: String -> File
+fileFromCommandlineArg :: ByteString -> File
 fileFromCommandlineArg arg =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
+    unsafeUseAsCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
 
 -- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
 -- operation never fails, but the returned object might not support any I/O operation if the @parseName@
 -- cannot be parsed.
-fileFromParseName :: String -> File
+fileFromParseName :: ByteString -> File
 fileFromParseName parseName =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    withCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
+    unsafeUseAsCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
 --   implement the '(==)' function, that is, comparing two descriptions
@@ -317,16 +319,26 @@ instance Eq File where
 -- 'fileQueryInfo'.
 -- 
 -- This call does no blocking i/o.
-fileBasename :: FileClass file => file -> String
+fileBasename :: FileClass file => file -> ByteString
 fileBasename file =
-    unsafePerformIO $ {# call file_get_basename #} (toFile file) >>= readCString
+    unsafePerformIO $ do
+    sPtr <- {# call file_get_basename #} 
+               (toFile file)
+    sLen <- lengthArray0 0 sPtr
+    unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+        ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Gets the local pathname for 'File', if one exists.
 -- 
 -- This call does no blocking i/o.
-filePath :: FileClass file => file -> FilePath
+filePath :: FileClass file => file -> ByteString
 filePath file =
-    unsafePerformIO $ {# call file_get_path #} (toFile file) >>= readUTFString
+    unsafePerformIO $ do
+    sPtr <- {# call file_get_path #} 
+                (toFile file)
+    sLen <- lengthArray0 0 sPtr
+    unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+        ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Gets the URI for the file.
 -- 
@@ -377,10 +389,10 @@ fileHasParent file parent =
 -- points to it. You can use this for instance to create that file.
 -- 
 -- This call does no blocking i/o.
-fileGetChild :: FileClass file => file -> String -> File
+fileGetChild :: FileClass file => file -> ByteString -> File
 fileGetChild file name =
     unsafePerformIO $ makeNewGObject mkFile $
-        withCString name $ \cName ->
+        unsafeUseAsCString name $ \cName ->
         {# call file_get_child #} (toFile file) cName
 
 -- | Gets the child of file for a given 'name (i.e. a UTF8 version of the name)'. If this function
@@ -410,19 +422,24 @@ fileHasPrefix file1 file2 =
 -- | Gets the path for descendant relative to parent.
 -- 
 -- This call does no blocking i/o.
-fileGetRelativePath :: (FileClass file1, FileClass file2) => file1 -> file2 -> Maybe FilePath
+fileGetRelativePath :: (FileClass file1, FileClass file2) => file1 -> file2 -> Maybe ByteString
 fileGetRelativePath file1 file2 =
-    unsafePerformIO $
-        {# call file_get_relative_path #} (toFile file1) (toFile file2) >>=
-        maybePeek readUTFString
+    unsafePerformIO $ do
+    sPtr <- {# call file_get_relative_path #} (toFile file1) (toFile file2)
+    if sPtr == nullPtr
+       then return Nothing
+       else do
+         sLen <- lengthArray0 0 sPtr
+         liftM Just $ unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+                          ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Resolves a relative path for file to an absolute path.
 -- 
 -- This call does no blocking i/o.
-fileResolveRelativePath :: FileClass file => file -> FilePath -> Maybe File
+fileResolveRelativePath :: FileClass file => file -> ByteString -> Maybe File
 fileResolveRelativePath file relativePath =
     unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
-        withCString relativePath $ \cRelativePath ->
+        unsafeUseAsCString relativePath $ \cRelativePath ->
         {# call file_resolve_relative_path #} (toFile file) cRelativePath
 
 -- | Checks to see if a file is native to the platform.
@@ -1327,11 +1344,11 @@ fileMakeDirectoryWithParents file cancellable = do
 -- returned.
 fileMakeSymbolicLink :: FileClass file
                      => file
-                     -> String
+                     -> ByteString
                      -> Maybe Cancellable
                      -> IO ()
 fileMakeSymbolicLink file symlinkValue cancellable =
-        withCString symlinkValue $ \cSymlinkValue -> do
+        unsafeUseAsCString symlinkValue $ \cSymlinkValue -> do
           propagateGError $ {#call g_file_make_symbolic_link #} 
                               (toFile file) 
                               cSymlinkValue 
