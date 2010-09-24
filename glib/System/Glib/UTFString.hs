@@ -145,12 +145,18 @@ peekUTFStringArray0 cStrArr = do
   cStrs <- peekArray0 nullPtr cStrArr
   mapM peekUTFString cStrs
 
--- Like peekUTFStringArray0 but then free the string array using g_strfreev
+-- Like 'peekUTFStringArray0' but then free the string array including all strings.
+--
+-- To be used when functions indicate that their return value should be freed
+-- with \"g_strfreev\".
+--
 readUTFStringArray0 :: Ptr CString -> IO [String]
-readUTFStringArray0 cStrArr = do
+readUTFStringArray0 cStrArr | cStrArr == nullPtr = return []
+                            | otherwise = do
   cStrs <- peekArray0 nullPtr cStrArr
+  strings <- mapM peekUTFString cStrs
   g_strfreev cStrArr
-  mapM peekUTFString cStrs
+  return strings
 
 foreign import ccall unsafe "g_strfreev"
   g_strfreev :: Ptr a -> IO ()
