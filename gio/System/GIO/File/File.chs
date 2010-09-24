@@ -741,7 +741,7 @@ fileQueryInfo :: FileClass file
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
     makeNewGObject mkFileInfo $
-        withCString attributes $ \cAttributes ->
+        withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_info #} 
                            (toFile file) 
                            cAttributes 
@@ -765,7 +765,7 @@ fileQueryInfoAsync :: FileClass file
                    -> AsyncReadyCallback
                    -> IO ()
 fileQueryInfoAsync file attributes flags ioPriority cancellable callback =
-        withCString attributes $ \cAttributes -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_query_info_async #} 
             (toFile file)
@@ -858,7 +858,7 @@ fileQueryFilesystemInfo :: FileClass file
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
     makeNewGObject mkFileInfo $
-        withCString attributes $ \cAttributes ->
+        withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_filesystem_info #} 
                            (toFile file) 
                            cAttributes 
@@ -880,7 +880,7 @@ fileQueryFilesystemInfoAsync :: FileClass file
                              -> AsyncReadyCallback
                              -> IO ()
 fileQueryFilesystemInfoAsync file attributes ioPriority cancellable callback =
-        withCString attributes $ \cAttributes -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_query_filesystem_info_async #} 
             (toFile file)
@@ -1012,7 +1012,7 @@ fileEnumerateChildrenAsync :: FileClass file
                            -> AsyncReadyCallback
                            -> IO ()
 fileEnumerateChildrenAsync file attributes flags ioPriority cancellable callback =
-        withCString attributes $ \cAttributes -> do
+        withUTFString attributes $ \cAttributes -> do
           cCallback <- marshalAsyncReadyCallback callback
           {#call g_file_enumerate_children_async #} 
             (toFile file)
@@ -1466,8 +1466,8 @@ fileSetAttributeString :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeString  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
-    withCString value $ \ valuePtr -> do
+    withUTFString attribute $ \ attributePtr -> 
+    withUTFString value $ \ valuePtr -> do
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_string #} 
                                    (toFile file)
@@ -1491,8 +1491,8 @@ fileSetAttributeByteString :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeByteString  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
-    withCString value $ \ valuePtr -> do
+    withUTFString attribute $ \ attributePtr -> 
+    withUTFString value $ \ valuePtr -> do
             propagateGError (\gErrorPtr -> do
                                 {#call g_file_set_attribute_byte_string #} 
                                    (toFile file)
@@ -1516,7 +1516,7 @@ fileSetAttributeWord32 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeWord32  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
+    withUTFString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                 {#call g_file_set_attribute_uint32 #} 
                                   (toFile file)
@@ -1540,7 +1540,7 @@ fileSetAttributeInt32 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeInt32  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
+    withUTFString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                 {#call g_file_set_attribute_int32 #} 
                                    (toFile file)
@@ -1564,7 +1564,7 @@ fileSetAttributeWord64 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeWord64  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
+    withUTFString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_uint64 #} 
                                    (toFile file)
@@ -1588,7 +1588,7 @@ fileSetAttributeInt64 :: FileClass file => file
  -> Maybe Cancellable -- ^ @cancellable@ optional 'Cancellable' object, 'Nothing' to ignore.                
  -> IO ()
 fileSetAttributeInt64  file attribute value flags cancellable =
-    withCString attribute $ \ attributePtr -> 
+    withUTFString attribute $ \ attributePtr -> 
             propagateGError (\gErrorPtr -> do
                                {#call g_file_set_attribute_int64 #} 
                                    (toFile file)

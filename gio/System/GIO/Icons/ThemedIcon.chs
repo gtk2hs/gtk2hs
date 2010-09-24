@@ -81,7 +81,7 @@ themedIconPrependName :: ThemedIconClass icon => icon
  -> String   -- ^ @iconname@ name of icon to prepend to list of icons from within icon. 
  -> IO ()
 themedIconPrependName icon iconname =
-  withCString iconname $ \ iconnamePtr -> 
+  withUTFString iconname $ \ iconnamePtr -> 
   {#call g_themed_icon_prepend_name#} (toThemedIcon icon) iconnamePtr
 #endif
 
@@ -90,7 +90,7 @@ themedIconAppendName :: ThemedIconClass icon => icon
  -> String   -- ^ @iconname@ name of icon to append to list of icons from within icon. 
  -> IO ()
 themedIconAppendName icon iconname =
-  withCString iconname $ \ iconnamePtr -> 
+  withUTFString iconname $ \ iconnamePtr -> 
   {#call g_themed_icon_append_name#} (toThemedIcon icon) iconnamePtr
 
 -- | Gets the names of icons from within icon.

@@ -265,7 +265,7 @@ volumeGetIdentifier :: VolumeClass volume => volume
                     -> String  -- ^ @kind@    the kind of identifier to return
                     -> IO String
 volumeGetIdentifier volume kind = 
-  withCString kind $ \ kindPtr -> 
+  withUTFString kind $ \ kindPtr -> 
   {#call g_volume_get_identifier#} (toVolume volume) kindPtr
   >>= readUTFString
 
