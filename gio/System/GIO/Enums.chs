@@ -48,10 +48,14 @@ module System.GIO.Enums (
     MountMountFlags(..),
     MountUnmountFlags(..),
 
+#if GLIB_CHECK_VERSION(2,22,0)
     DriveStartFlags(..),
     DriveStartStopType(..),
+#endif
 
+#if GLIB_CHECK_VERSION(2,18,0)
     EmblemOrigin(..),
+#endif
 
     AppInfoCreateFlags(..),
     ) where
@@ -122,15 +126,19 @@ instance Flags MountMountFlags
 {# enum GMountUnmountFlags as MountUnmountFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
 instance Flags MountUnmountFlags
 
+#if GLIB_CHECK_VERSION(2,22,0)
 -- | Flags used when starting a drive.
 {# enum GDriveStartFlags as DriveStartFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
 instance Flags DriveStartFlags
 
 -- | Enumeration describing how a drive can be started/stopped.
 {# enum GDriveStartStopType as DriveStartStopType {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
+#endif
 
+#if GLIB_CHECK_VERSION(2,18,0)
 -- | 'EmblemOrigin' is used to add information about the origin of the emblem to 'Emblem'.
 {# enum GEmblemOrigin as EmblemOrigin {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
+#endif
 
 -- | Flags used when creating a 'AppInfo'.
 {# enum GAppInfoCreateFlags as AppInfoCreateFlags {underscoreToCase} with prefix = "G" deriving (Eq, Ord, Bounded, Show, Typeable) #}
