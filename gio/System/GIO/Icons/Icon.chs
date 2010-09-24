@@ -59,6 +59,8 @@ module System.GIO.Icons.Icon (
     ) where
 
 import Control.Monad
+import Data.ByteString (ByteString)
+import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -90,19 +92,21 @@ iconEqual icon1 icon2 =
 --   * If icon is a 'ThemedIcon' with exactly one name, the encoding is simply the name (such as
 --   network-server).
 iconToString :: IconClass icon => icon 
- -> IO String
-iconToString icon =
-   {#call g_icon_to_string#} (toIcon icon)  
-   >>= readUTFString
+ -> IO ByteString
+iconToString icon = do
+   sPtr <- {#call g_icon_to_string#} (toIcon icon)  
+   sLen <- lengthArray0 0 sPtr
+   unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+        ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Generate a 'Icon' instance from str. This function can fail if str is not valid - see
 -- 'iconToString' for discussion.
 -- 
 -- If your application or library provides one or more 'Icon' implementations you need to ensure that
 -- each GType is registered with the type system prior to calling 'iconNewForString'.
-iconNewForString :: String -> IO Icon
+iconNewForString :: ByteString -> IO Icon
 iconNewForString str =
     constructNewGObject mkIcon $
-    withCString str $ \ strPtr -> 
+    unsafeUseAsCString str $ \ strPtr -> 
     propagateGError ({# call g_icon_new_for_string #} strPtr) 
 #endif
