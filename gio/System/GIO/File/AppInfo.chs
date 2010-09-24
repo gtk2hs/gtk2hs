@@ -99,6 +99,8 @@ module System.GIO.File.AppInfo (
 
 import Control.Monad
 import Data.Maybe (fromMaybe)
+import Data.ByteString (ByteString)
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -185,11 +187,16 @@ appInfoGetExecutable appinfo =
 #if GLIB_CHECK_VERSION(2,20,0)
 -- | Gets the commandline with which the application will be started.
 appInfoGetCommandline :: AppInfoClass appinfo => appinfo
- -> Maybe String -- ^ returns a string containing the appinfo's commandline, or 'Nothing' if this information is not available
+ -> Maybe ByteString -- ^ returns a string containing the appinfo's commandline, or 'Nothing' if this information is not available
 appInfoGetCommandline appinfo = 
-  unsafePerformIO $ 
-  {#call g_app_info_get_commandline#} (toAppInfo appinfo)
-  >>= maybePeek peekCString
+  unsafePerformIO $ do
+  sPtr <- {#call g_app_info_get_commandline#} (toAppInfo appinfo)
+  if sPtr == nullPtr
+     then return Nothing
+     else do
+       sLen <- lengthArray0 0 sPtr
+       liftM Just $ unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+                        ({#call unsafe g_free#} (castPtr sPtr))
 #endif
 
 -- | Gets the icon for the application.
