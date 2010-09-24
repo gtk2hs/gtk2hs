@@ -45,6 +45,8 @@ module System.GIO.Icons.ThemedIcon (
     ) where
 
 import Control.Monad
+import Data.ByteString (ByteString)
+import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -58,10 +60,10 @@ import System.Glib.UTFString
 -------------------
 -- Methods
 -- | Creates a new icon for a file.
-themedIconNew :: String -- ^ @iconname@ a string containing an icon name. 
+themedIconNew :: ByteString -- ^ @iconname@ a string containing an icon name. 
  -> IO ThemedIcon
 themedIconNew iconName =
-  withCString iconName $ \ iconNamePtr -> 
+  unsafeUseAsCString iconName $ \ iconNamePtr -> 
   {#call g_themed_icon_new#} iconNamePtr
   >>= (constructNewGObject mkThemedIcon . return) . castPtr
 
