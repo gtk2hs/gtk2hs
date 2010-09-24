@@ -32,7 +32,11 @@
 
 -- | Build a Gtk2hs package.
 --
-module Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages ) where
+module Gtk2HsSetup ( 
+  gtk2hsUserHooks, 
+  getPkgConfigPackages, 
+  checkGtk2hsBuildtools
+  ) where
 
 import Distribution.Simple
 import Distribution.Simple.PreProcess
@@ -65,7 +69,7 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
-  rawSystemProgramConf, rawSystemProgramStdoutConf,
+  rawSystemProgramConf, rawSystemProgramStdoutConf, programName,
   c2hsProgram, pkgConfigProgram, requireProgram, ghcPkgProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
@@ -83,10 +87,11 @@ import qualified Distribution.Simple.Register as Register ( register )
 #endif
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
-import System.Directory ( doesFileExist )
+import System.Exit (exitFailure)
+import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
-import Control.Monad (when, unless, filterM)
+import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
 import Data.List (isPrefixOf, isSuffixOf, nub)
 import Data.Char (isAlpha)
@@ -94,7 +99,6 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Control.Applicative ((<$>))
-import System.Directory (getDirectoryContents, doesDirectoryExist)
 
 -- the name of the c2hs pre-compiled header file
 precompFile = "precompchs.bin"
@@ -103,13 +107,13 @@ gtk2hsUserHooks = simpleUserHooks {
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
     hookedPreProcessors = [("chs", ourC2hs)],
     confHook = \pd cf ->
-      confHook simpleUserHooks pd cf >>= return . adjustLocalBuildInfo,
+      (fmap adjustLocalBuildInfo (confHook simpleUserHooks pd cf)),
     postConf = \args cf pd lbi -> do
       genSynthezisedFiles (fromFlag (configVerbosity cf)) pd lbi
       postConf simpleUserHooks args cf pd lbi,
     buildHook = \pd lbi uh bf -> fixDeps pd >>= \pd ->
-                                 (buildHook simpleUserHooks) pd lbi uh bf,
-    copyHook = \pd lbi uh flags -> (copyHook simpleUserHooks) pd lbi uh flags >>
+                                 buildHook simpleUserHooks pd lbi uh bf,
+    copyHook = \pd lbi uh flags -> copyHook simpleUserHooks pd lbi uh flags >>
       installCHI pd lbi (fromFlag (copyVerbosity flags)) (fromFlag (copyDest flags)),
     instHook = \pd lbi uh flags ->
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -298,7 +302,7 @@ getCppOptions :: BuildInfo -> LocalBuildInfo -> [String]
 getCppOptions bi lbi
     = nub $
       ["-I" ++ dir | dir <- PD.includeDirs bi]
-   ++ [opt | opt@('-':c:_) <- (PD.cppOptions bi ++ PD.ccOptions bi), c `elem` "DIU"]
+   ++ [opt | opt@('-':c:_) <- PD.cppOptions bi ++ PD.ccOptions bi, c `elem` "DIU"]
 
 installCHI :: PackageDescription -- ^information from the .cabal file
         -> LocalBuildInfo -- ^information from the configure step
@@ -308,14 +312,13 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
   let InstallDirs { libdir = libPref } = absoluteInstallDirs pkg lbi copydest
   -- cannot use the recommended 'findModuleFiles' since it fails if there exists
   -- a modules that does not have a .chi file
-  mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi])
-                 (map toFilePath
+  mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi] . toFilePath)
 #if CABAL_VERSION_CHECK(1,8,0)
                    (PD.libModules lib)
 #else
                    (PD.libModules pkg)
 #endif
-                 )
+                 
   let files = [ f | Just f <- mFiles ]
 #if CABAL_VERSION_CHECK(1,8,0)
   installOrdinaryFiles verbosity libPref files
@@ -331,13 +334,13 @@ installCHI _ _ _ _ = return ()
 ------------------------------------------------------------------------------
 
 typeGenProgram :: Program
-typeGenProgram = (simpleProgram "gtk2hsTypeGen")
+typeGenProgram = simpleProgram "gtk2hsTypeGen"
 
 signalGenProgram :: Program
-signalGenProgram = (simpleProgram "gtk2hsHookGenerator")
+signalGenProgram = simpleProgram "gtk2hsHookGenerator"
 
 c2hsLocal :: Program
-c2hsLocal = (simpleProgram "gtk2hsC2hs")
+c2hsLocal = simpleProgram "gtk2hsC2hs"
 
 genSynthezisedFiles :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 genSynthezisedFiles verb pd lbi = do
@@ -370,7 +373,7 @@ genSynthezisedFiles verb pd lbi = do
          res <- rawSystemProgramStdoutConf verb prog (withPrograms lbi) args
          rewriteFile outFile res
 
-  (flip mapM_) (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
+  forM_ (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
     \(fileTag, f) -> do
       let tag = reverse (drop 4 (reverse fileTag))
       info verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
@@ -391,7 +394,7 @@ getPkgConfigPackages verbosity lbi pkg =
   sequence
     [ do version <- pkgconfig ["--modversion", display pkgname]
          case simpleParse version of
-           Nothing -> die $ "parsing output of pkg-config --modversion failed"
+           Nothing -> die "parsing output of pkg-config --modversion failed"
            Just v  -> return (PackageIdentifier pkgname v)
     | Dependency pkgname _ <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
@@ -456,9 +459,9 @@ instance Ord ModDep where
 extractDeps :: ModDep -> IO ModDep
 extractDeps md@ModDep { mdLocation = Nothing } = return md
 extractDeps md@ModDep { mdLocation = Just f } = withUTF8FileContents f $ \con -> do
-  let findImports acc (('{':'#':xs):xxs) = case (dropWhile ((==) ' ') xs) of
+  let findImports acc (('{':'#':xs):xxs) = case (dropWhile (' ' ==) xs) of
         ('i':'m':'p':'o':'r':'t':' ':ys) ->
-          case simpleParse (takeWhile ((/=) '#') ys) of
+          case simpleParse (takeWhile ('#' /=) ys) of
             Just m -> findImports (m:acc) xxs 
             Nothing -> die ("cannot parse chs import in "++f++":\n"++
                             "offending line is {#"++xs)
@@ -484,3 +487,17 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
         Just md -> (md:out', visited')
           where
             (out',visited') = foldl visit (out, m `S.insert` visited) (mdRequires md)
+
+-- Check user whether install gtk2hs-buildtools correctly.
+checkGtk2hsBuildtools :: [String] -> IO ()
+checkGtk2hsBuildtools programs = do
+  programInfos <- mapM (\ name -> do
+                         location <- programFindLocation (simpleProgram name) normal
+                         return (name, location)
+                      ) programs
+  let printError name = do
+        putStrLn $ "Cannot find " ++ name ++ "\n" 
+                 ++ "Please install `gtk2hs-buildtools` first and check that the install directory is in your PATH (e.g. HOME/.cabal/bin)."
+        exitFailure
+  forM_ programInfos $ \ (name, location) ->
+    when (isNothing location) (printError name) 
