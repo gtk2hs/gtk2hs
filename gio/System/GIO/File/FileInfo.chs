@@ -131,6 +131,8 @@ module System.GIO.File.FileInfo (
 
 import Control.Monad
 
+import Data.ByteString (ByteString)
+import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GError
@@ -252,11 +254,13 @@ fileInfoGetAttributeStringList info attribute =
 -- | Gets the value of a byte string attribute. 
 fileInfoGetAttributeByteString :: FileInfoClass info => info
  -> String -- ^ @attribute@ a file attribute key.
- -> IO String -- ^ returns   the contents of the attribute value as a ByteString
+ -> IO ByteString -- ^ returns   the contents of the attribute value as a ByteString
 fileInfoGetAttributeByteString info attribute =
-  withUTFString attribute $ \ attributePtr -> 
-  {#call g_file_info_get_attribute_byte_string#} (toFileInfo info) attributePtr
-  >>= readCString
+  withUTFString attribute $ \ attributePtr -> do
+  sPtr <- {#call g_file_info_get_attribute_byte_string#} (toFileInfo info) attributePtr
+  sLen <- lengthArray0 0 sPtr
+  unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+        ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Gets the value of a boolean attribute.
 fileInfoGetAttributeBool :: FileInfoClass info => info
@@ -356,11 +360,11 @@ fileInfoSetAttributeStringList info attribute attrValue =
 -- | Sets the attribute to contain the given @attrValue@, if possible.
 fileInfoSetAttributeByteString :: FileInfoClass info => info
  -> String -- ^ @attribute@  a file attribute key. 
- -> String -- ^ @attrValue@ a string.             
+ -> ByteString -- ^ @attrValue@ a string.             
  -> IO ()
 fileInfoSetAttributeByteString info attribute attrValue =
   withUTFString attribute $ \ attributePtr -> 
-  withUTFString attrValue $ \ attrValuePtr -> 
+  unsafeUseAsCString attrValue $ \ attrValuePtr -> 
   {#call g_file_info_set_attribute_byte_string#} (toFileInfo info) attributePtr attrValuePtr
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -456,11 +460,16 @@ fileInfoGetIsSymlink info =
 
 -- | Gets the name for a file.
 fileInfoGetName :: FileInfoClass info => info
-                -> Maybe String   -- ^ returns a string containing the file name. 
+                -> Maybe ByteString   -- ^ returns a string containing the file name. 
 fileInfoGetName info = 
-    unsafePerformIO $ 
-    {#call g_file_info_get_name#} (toFileInfo info)
-    >>= maybePeek readCString
+    unsafePerformIO $ do
+    sPtr <- {#call g_file_info_get_name#} (toFileInfo info)
+    if sPtr == nullPtr
+       then return Nothing
+       else do
+         sLen <- lengthArray0 0 sPtr
+         liftM Just $ unsafePackCStringFinalizer (castPtr sPtr) (fromIntegral sLen)
+                          ({#call unsafe g_free#} (castPtr sPtr))
 
 -- | Gets the display name for a file.
 fileInfoGetDisplayName :: FileInfoClass info => info
@@ -558,9 +567,9 @@ fileInfoSetIsSymlink info isSymlink =
   {#call g_file_info_set_is_symlink#} (toFileInfo info) (fromBool isSymlink)
 
 -- | Sets the name attribute for the current 'FileInfo'. See 'FileAttributeStandardName'.
-fileInfoSetName :: FileInfoClass info => info -> String -> IO ()
+fileInfoSetName :: FileInfoClass info => info -> ByteString -> IO ()
 fileInfoSetName info name = 
-  withCString name $ \ namePtr -> 
+  unsafeUseAsCString name $ \ namePtr -> 
   {#call g_file_info_set_name#} (toFileInfo info) namePtr
 
 -- | Sets the display name for the current 'FileInfo'. See 'FileAttributeStandardDisplayName'.
