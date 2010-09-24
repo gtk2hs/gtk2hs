@@ -182,7 +182,7 @@ appInfoGetExecutable :: AppInfoClass appinfo => appinfo
 appInfoGetExecutable appinfo = 
   unsafePerformIO $
   {#call g_app_info_get_executable#} (toAppInfo appinfo)
-  >>= peekCString
+  >>= peekUTFString
 
 #if GLIB_CHECK_VERSION(2,20,0)
 -- | Gets the commandline with which the application will be started.
