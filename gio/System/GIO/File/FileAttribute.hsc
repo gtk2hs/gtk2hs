@@ -1,4 +1,9 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+-- -*-haskell-*-
+
+#include <gio/gio.h>
+         
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gio -*-haskell-*-
 --
 --  Author : Peter Gavin, Andy Stewart
@@ -69,7 +74,9 @@ module System.GIO.File.FileAttribute (
     fileAttributeStandardContentType,
     fileAttributeStandardFastContentType,
     fileAttributeStandardSize,
+#if GLIB_CHECK_VERSION(2,20,0)
     fileAttributeStandardAllocatedSize,
+#endif                                      
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -86,7 +93,14 @@ module System.GIO.File.FileAttribute (
     fileAttributeMountableCanUnmount,
     fileAttributeMountableCanEject,
     fileAttributeMountableUnixDevice,
+#if GLIB_CHECK_VERSION(2,22,0)
     fileAttributeMountableUnixDeviceFile,
+    fileAttributeMountableCanStart,                                        
+    fileAttributeMountableCanDegraded,
+    fileAttributeMountableCanStop,                                     
+    fileAttributeMountableStartStopType,
+    fileAttributeMountableCanPoll,
+#endif                                        
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -113,7 +127,9 @@ module System.GIO.File.FileAttribute (
     fileAttributeOwnerGroup,
     fileAttributeThumbnailPath,
     fileAttributeThumbnailingFailed,
+#if GLIB_CHECK_VERSION(2,20,0)
     fileAttributePreviewIcon,
+#endif                            
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -123,9 +139,12 @@ module System.GIO.File.FileAttribute (
     fileAttributeTrashItemCount,
     fileAttributeFilesystemUsePreview,
     fileAttributeStandardDescription,
+#if GLIB_CHECK_VERSION(2,22,0)
+    fileAttributeTrashOrigPath,
+    fileAttributeTrashDeletionDate,
+#endif                                    
     ) where
 
-#include <gio/gio.h>
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -142,7 +161,9 @@ data FileAttributeType = FileAttributeTypeInvalid
                        | FileAttributeTypeWord64
                        | FileAttributeTypeInt64
                        | FileAttributeTypeObject
+#if GLIB_CHECK_VERSION(2,22,0)
                        | FileAttributeTypeStringList
+#endif                         
                          deriving (Eq, Ord, Bounded, Show, Read)
 instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_INVALID}     = FileAttributeTypeInvalid
@@ -154,7 +175,9 @@ instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_UINT64}      = FileAttributeTypeWord64
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_INT64}       = FileAttributeTypeInt64
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_OBJECT}      = FileAttributeTypeObject
+#if GLIB_CHECK_VERSION(2,22,0)
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_STRINGV}     = FileAttributeTypeStringList
+#endif                                                        
     
     fromEnum FileAttributeTypeInvalid    = #{const G_FILE_ATTRIBUTE_TYPE_INVALID}
     fromEnum FileAttributeTypeString     = #{const G_FILE_ATTRIBUTE_TYPE_STRING}
@@ -165,7 +188,9 @@ instance Enum FileAttributeType where
     fromEnum FileAttributeTypeWord64     = #{const G_FILE_ATTRIBUTE_TYPE_UINT64}
     fromEnum FileAttributeTypeInt64      = #{const G_FILE_ATTRIBUTE_TYPE_INT64}
     fromEnum FileAttributeTypeObject     = #{const G_FILE_ATTRIBUTE_TYPE_OBJECT}
+#if GLIB_CHECK_VERSION(2,22,0)
     fromEnum FileAttributeTypeStringList = #{const G_FILE_ATTRIBUTE_TYPE_STRINGV}
+#endif
 
 data FileAttributeInfo =
     FileAttributeInfo
@@ -201,7 +226,9 @@ fileAttributeStandardType,
     fileAttributeStandardContentType,
     fileAttributeStandardFastContentType,
     fileAttributeStandardSize,
+#if GLIB_CHECK_VERSION(2,20,0)
     fileAttributeStandardAllocatedSize,
+#endif                                      
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -218,7 +245,14 @@ fileAttributeStandardType,
     fileAttributeMountableCanUnmount,
     fileAttributeMountableCanEject,
     fileAttributeMountableUnixDevice,
+#if GLIB_CHECK_VERSION(2,22,0)
     fileAttributeMountableUnixDeviceFile,
+    fileAttributeMountableCanStart,
+    fileAttributeMountableCanDegraded,
+    fileAttributeMountableCanStop,
+    fileAttributeMountableStartStopType,
+    fileAttributeMountableCanPoll,
+#endif                                        
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -245,7 +279,9 @@ fileAttributeStandardType,
     fileAttributeOwnerGroup,
     fileAttributeThumbnailPath,
     fileAttributeThumbnailingFailed,
+#if GLIB_CHECK_VERSION(2,20,0)
     fileAttributePreviewIcon,                                   
+#endif                            
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -254,7 +290,11 @@ fileAttributeStandardType,
     fileAttributeSELinuxContext,
     fileAttributeTrashItemCount,
     fileAttributeFilesystemUsePreview,
-    fileAttributeStandardDescription
+    fileAttributeStandardDescription,
+#if GLIB_CHECK_VERSION(2,22,0)
+    fileAttributeTrashOrigPath,
+    fileAttributeTrashDeletionDate
+#endif                                    
     :: String
 fileAttributeStandardType            = #{const_str G_FILE_ATTRIBUTE_STANDARD_TYPE}
 fileAttributeStandardIsHidden        = #{const_str G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN}
@@ -269,7 +309,9 @@ fileAttributeStandardIcon            = #{const_str G_FILE_ATTRIBUTE_STANDARD_ICO
 fileAttributeStandardContentType     = #{const_str G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE}
 fileAttributeStandardFastContentType = #{const_str G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE}
 fileAttributeStandardSize            = #{const_str G_FILE_ATTRIBUTE_STANDARD_SIZE}
+#if GLIB_CHECK_VERSION(2,20,0)
 fileAttributeStandardAllocatedSize   = #{const_str G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE}
+#endif                                       
 fileAttributeStandardSymlinkTarget   = #{const_str G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET}
 fileAttributeStandardTargetURI       = #{const_str G_FILE_ATTRIBUTE_STANDARD_TARGET_URI}
 fileAttributeStandardSortOrder       = #{const_str G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER}
@@ -286,7 +328,15 @@ fileAttributeMountableCanMount       = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CA
 fileAttributeMountableCanUnmount     = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_UNMOUNT}
 fileAttributeMountableCanEject       = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_EJECT}
 fileAttributeMountableUnixDevice     = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE}
+#if GLIB_CHECK_VERSION(2,22,0)
 fileAttributeMountableUnixDeviceFile = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE_FILE}
+fileAttributeMountableCanStart       = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_START}
+fileAttributeMountableCanDegraded    = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_START_DEGRADED}
+fileAttributeMountableCanStop        = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_STOP}
+fileAttributeMountableStartStopType  = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_START_STOP_TYPE}
+fileAttributeMountableCanPoll        = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_POLL}
+fileAttributeMountableIsMediaCheckAutomatic = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_IS_MEDIA_CHECK_AUTOMATIC}
+#endif                                       
 fileAttributeMountableHalUDI         = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI}
 fileAttributeTimeModified            = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED}
 fileAttributeTimeModifiedUSec        = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC}
@@ -313,7 +363,9 @@ fileAttributeOwnerUserReal           = #{const_str G_FILE_ATTRIBUTE_OWNER_USER_R
 fileAttributeOwnerGroup              = #{const_str G_FILE_ATTRIBUTE_OWNER_GROUP}
 fileAttributeThumbnailPath           = #{const_str G_FILE_ATTRIBUTE_THUMBNAIL_PATH}
 fileAttributeThumbnailingFailed      = #{const_str G_FILE_ATTRIBUTE_THUMBNAILING_FAILED}
+#if GLIB_CHECK_VERSION(2,20,0)
 fileAttributePreviewIcon             = #{const_str G_FILE_ATTRIBUTE_PREVIEW_ICON}
+#endif                                       
 fileAttributeFilesystemSize          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_SIZE}
 fileAttributeFilesystemFree          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_FREE}
 fileAttributeFilesystemType          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_TYPE}
@@ -323,3 +375,7 @@ fileAttributeSELinuxContext          = #{const_str G_FILE_ATTRIBUTE_SELINUX_CONT
 fileAttributeTrashItemCount          = #{const_str G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT}
 fileAttributeFilesystemUsePreview    = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW}
 fileAttributeStandardDescription     = #{const_str G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION}
+#if GLIB_CHECK_VERSION(2,22,0)
+fileAttributeTrashOrigPath           = #{const_str G_FILE_ATTRIBUTE_TRASH_ORIG_PATH}
+fileAttributeTrashDeletionDate       = #{const_str G_FILE_ATTRIBUTE_TRASH_DELETION_DATE}
+#endif                                    
