@@ -232,7 +232,8 @@ import Control.Monad
 import Data.Typeable
 import Data.Maybe (fromMaybe)
 import Data.ByteString (ByteString)
-import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
+import Data.ByteString (useAsCString)
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.GIO.File.FileAttribute
 import System.Glib.FFI
@@ -270,7 +271,7 @@ type FileReadMoreCallback = BS.ByteString -> IO Bool
 fileFromPath :: ByteString -> File
 fileFromPath path =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    unsafeUseAsCString path $ \cPath -> {# call file_new_for_path #} cPath
+    useAsCString path $ \cPath -> {# call file_new_for_path #} cPath
 
 -- | Constructs a 'File' for a given URI. This operation never fails, but the returned object might not
 -- support any I/O operation if uri is malformed or if the uri type is not supported.
@@ -286,7 +287,7 @@ fileFromURI uri =
 fileFromCommandlineArg :: ByteString -> File
 fileFromCommandlineArg arg =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    unsafeUseAsCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
+    useAsCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
 
 -- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
 -- operation never fails, but the returned object might not support any I/O operation if the @parseName@
@@ -294,7 +295,7 @@ fileFromCommandlineArg arg =
 fileFromParseName :: ByteString -> File
 fileFromParseName parseName =
     unsafePerformIO $ constructNewGObject mkFile $ 
-    unsafeUseAsCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
+    useAsCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
 --   implement the '(==)' function, that is, comparing two descriptions
@@ -392,7 +393,7 @@ fileHasParent file parent =
 fileGetChild :: FileClass file => file -> ByteString -> File
 fileGetChild file name =
     unsafePerformIO $ makeNewGObject mkFile $
-        unsafeUseAsCString name $ \cName ->
+        useAsCString name $ \cName ->
         {# call file_get_child #} (toFile file) cName
 
 -- | Gets the child of file for a given 'name (i.e. a UTF8 version of the name)'. If this function
@@ -439,7 +440,7 @@ fileGetRelativePath file1 file2 =
 fileResolveRelativePath :: FileClass file => file -> ByteString -> Maybe File
 fileResolveRelativePath file relativePath =
     unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
-        unsafeUseAsCString relativePath $ \cRelativePath ->
+        useAsCString relativePath $ \cRelativePath ->
         {# call file_resolve_relative_path #} (toFile file) cRelativePath
 
 -- | Checks to see if a file is native to the platform.
@@ -848,6 +849,7 @@ fileQueryFileType file flags cancellable =
            (toFile file) 
            ((fromIntegral . fromFlags) flags) 
            (fromMaybe (Cancellable nullForeignPtr) cancellable) )
+
 #endif
 
 -- | Similar to 'fileQueryInfo', but obtains information about the filesystem the file is on, rather
@@ -1348,7 +1350,7 @@ fileMakeSymbolicLink :: FileClass file
                      -> Maybe Cancellable
                      -> IO ()
 fileMakeSymbolicLink file symlinkValue cancellable =
-        unsafeUseAsCString symlinkValue $ \cSymlinkValue -> do
+        useAsCString symlinkValue $ \cSymlinkValue -> do
           propagateGError $ {#call g_file_make_symbolic_link #} 
                               (toFile file) 
                               cSymlinkValue 

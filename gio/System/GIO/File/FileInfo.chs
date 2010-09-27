@@ -132,7 +132,8 @@ module System.GIO.File.FileInfo (
 import Control.Monad
 
 import Data.ByteString (ByteString)
-import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
+import Data.ByteString (useAsCString)
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer)
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GError
@@ -364,7 +365,7 @@ fileInfoSetAttributeByteString :: FileInfoClass info => info
  -> IO ()
 fileInfoSetAttributeByteString info attribute attrValue =
   withUTFString attribute $ \ attributePtr -> 
-  unsafeUseAsCString attrValue $ \ attrValuePtr -> 
+  useAsCString attrValue $ \ attrValuePtr -> 
   {#call g_file_info_set_attribute_byte_string#} (toFileInfo info) attributePtr attrValuePtr
 
 -- | Sets the attribute to contain the given @attrValue@, if possible.
@@ -569,7 +570,7 @@ fileInfoSetIsSymlink info isSymlink =
 -- | Sets the name attribute for the current 'FileInfo'. See 'FileAttributeStandardName'.
 fileInfoSetName :: FileInfoClass info => info -> ByteString -> IO ()
 fileInfoSetName info name = 
-  unsafeUseAsCString name $ \ namePtr -> 
+  useAsCString name $ \ namePtr -> 
   {#call g_file_info_set_name#} (toFileInfo info) namePtr
 
 -- | Sets the display name for the current 'FileInfo'. See 'FileAttributeStandardDisplayName'.

@@ -46,7 +46,8 @@ module System.GIO.Icons.ThemedIcon (
 
 import Control.Monad
 import Data.ByteString (ByteString)
-import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
+import Data.ByteString (useAsCString)
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -63,7 +64,7 @@ import System.Glib.UTFString
 themedIconNew :: ByteString -- ^ @iconname@ a string containing an icon name. 
  -> IO ThemedIcon
 themedIconNew iconName =
-  unsafeUseAsCString iconName $ \ iconNamePtr -> 
+  useAsCString iconName $ \ iconNamePtr -> 
   {#call g_themed_icon_new#} iconNamePtr
   >>= (constructNewGObject mkThemedIcon . return) . castPtr
 

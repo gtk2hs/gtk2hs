@@ -60,7 +60,8 @@ module System.GIO.Icons.Icon (
 
 import Control.Monad
 import Data.ByteString (ByteString)
-import Data.ByteString.Unsafe (unsafeUseAsCString, unsafePackCStringFinalizer)
+import Data.ByteString (useAsCString)
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer)
 import System.GIO.Enums
 import System.Glib.FFI
 import System.Glib.Flags
@@ -107,6 +108,6 @@ iconToString icon = do
 iconNewForString :: ByteString -> IO Icon
 iconNewForString str =
     constructNewGObject mkIcon $
-    unsafeUseAsCString str $ \ strPtr -> 
+    useAsCString str $ \ strPtr -> 
     propagateGError ({# call g_icon_new_for_string #} strPtr) 
 #endif
