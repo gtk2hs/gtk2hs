@@ -527,7 +527,7 @@ checkResize :: ContainerClass self => Signal self (IO ())
 checkResize = Signal (connect_NONE__NONE "check-resize")
 
 -- %hash c:b3a d:af3f
--- | A widget in the container received the input focus.
+-- | A widget in the container received or lost the input focus.
 --
 setFocusChild :: ContainerClass self => Signal self (Maybe Widget -> IO ())
 setFocusChild = Signal (connect_MOBJECT__NONE "set-focus-child")
