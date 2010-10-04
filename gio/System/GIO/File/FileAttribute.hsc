@@ -290,11 +290,11 @@ fileAttributeStandardType,
     fileAttributeSELinuxContext,
     fileAttributeTrashItemCount,
     fileAttributeFilesystemUsePreview,
-    fileAttributeStandardDescription,
 #if GLIB_CHECK_VERSION(2,24,0)
     fileAttributeTrashOrigPath,
-    fileAttributeTrashDeletionDate
+    fileAttributeTrashDeletionDate,
 #endif                                    
+    fileAttributeStandardDescription
     :: String
 fileAttributeStandardType            = #{const_str G_FILE_ATTRIBUTE_STANDARD_TYPE}
 fileAttributeStandardIsHidden        = #{const_str G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN}
