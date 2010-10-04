@@ -139,7 +139,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeTrashItemCount,
     fileAttributeFilesystemUsePreview,
     fileAttributeStandardDescription,
-#if GLIB_CHECK_VERSION(2,22,0)
+#if GLIB_CHECK_VERSION(2,24,0)
     fileAttributeTrashOrigPath,
     fileAttributeTrashDeletionDate,
 #endif                                    
@@ -291,7 +291,7 @@ fileAttributeStandardType,
     fileAttributeTrashItemCount,
     fileAttributeFilesystemUsePreview,
     fileAttributeStandardDescription,
-#if GLIB_CHECK_VERSION(2,22,0)
+#if GLIB_CHECK_VERSION(2,24,0)
     fileAttributeTrashOrigPath,
     fileAttributeTrashDeletionDate
 #endif                                    
@@ -375,7 +375,7 @@ fileAttributeSELinuxContext          = #{const_str G_FILE_ATTRIBUTE_SELINUX_CONT
 fileAttributeTrashItemCount          = #{const_str G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT}
 fileAttributeFilesystemUsePreview    = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW}
 fileAttributeStandardDescription     = #{const_str G_FILE_ATTRIBUTE_STANDARD_DESCRIPTION}
-#if GLIB_CHECK_VERSION(2,22,0)
+#if GLIB_CHECK_VERSION(2,24,0)
 fileAttributeTrashOrigPath           = #{const_str G_FILE_ATTRIBUTE_TRASH_ORIG_PATH}
 fileAttributeTrashDeletionDate       = #{const_str G_FILE_ATTRIBUTE_TRASH_DELETION_DATE}
 #endif                                    
