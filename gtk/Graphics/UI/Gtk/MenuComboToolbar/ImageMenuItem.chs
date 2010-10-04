@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget ImageMenuItem
 --
