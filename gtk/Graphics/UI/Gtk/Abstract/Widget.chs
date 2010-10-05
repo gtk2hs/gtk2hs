@@ -2478,7 +2478,7 @@ stateChanged :: WidgetClass self => Signal self (StateType -> IO ())
 stateChanged = Signal (connect_ENUM__NONE "state-changed")
 
 -- %hash c:bef2 d:1d66
--- | The parent-set signal is emitted when a new parent has been set on a
+-- | The 'parentSet' signal is emitted when a new parent has been set on a
 -- widget. The parameter is the new parent.
 --
 parentSet :: WidgetClass self => Signal self (Maybe Widget -> IO ())
@@ -2494,7 +2494,7 @@ hierarchyChanged :: WidgetClass self => Signal self (Maybe Widget -> IO ())
 hierarchyChanged = Signal (connect_MOBJECT__NONE "hierarchy-changed")
 
 -- %hash c:5894 d:ba10
--- | The style-set signal is emitted when a new style has been set on a
+-- | The 'styleSet' signal is emitted when a new style has been set on a
 -- widget. Note that style-modifying functions like 'widgetModifyBase' also
 -- cause this signal to be emitted.
 --

@@ -240,7 +240,7 @@ colorButtonAlpha = newAttr
 --------------------
 -- Signals
 
--- | The ::color-set signal is emitted when the user selects a color. When
+-- | The 'colorSet' signal is emitted when the user selects a color. When
 -- handling this signal, use 'colorButtonGetColor' and 'colorButtonGetAlpha' to
 -- find out which color was just selected.
 --

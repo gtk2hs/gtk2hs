@@ -631,7 +631,7 @@ dragDataDelete :: WidgetClass self => Signal self (DragContext -> IO ())
 dragDataDelete = Signal (connect_OBJECT__NONE "drag-data-delete")
 
 -- %hash c:eb9c d:844c
--- | The ::drag-data-get signal is emitted on the drag source when the
+-- | The 'dragDataGet' signal is emitted on the drag source when the
 -- drop site requests the data which is dragged. It is the
 -- responsibility of the signal handler to set the selection data in
 -- the format which is indicated by 'InfoId'. See

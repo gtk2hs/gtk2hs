@@ -105,7 +105,7 @@ currentTime = #{const GDK_CURRENT_TIME}
 --
 -- * EventProperty is not bound since it involves Atoms and its hard to see
 --   how a Haskell application should extract the data. It should be possible
---   to connect directly to property-changed signals. If there is a need
+--   to connect directly to 'propertyChanged' signals. If there is a need
 --   to monitor a property for which there is no signal we could add
 --   a trigger for just that property.
 --

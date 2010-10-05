@@ -81,7 +81,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 --
 -- * GtkFileChooser key binding example
 --
--- The default keys that activate the key-binding signals in
+-- The default keys that activate the 'keyBinding' signals in
 -- GtkFileChooserDefaultClass are as follows:
 --
 -- [Signal name] Key
@@ -1147,7 +1147,7 @@ afterFileActivated = connect_NONE__NONE "file-activated" True
 -- property (or call the 'fileChooserSetDoOverwriteConfirmation' function), and
 -- they will automatically get a stock confirmation dialog. Applications which
 -- need to customize this behavior should do that, and also connect to the
--- confirm-overwrite signal.
+-- 'confirmOverwrite' signal.
 --
 -- A signal handler for this signal must return a 'FileChooserConfirmation'
 -- value, which indicates the action to take. If the handler determines that

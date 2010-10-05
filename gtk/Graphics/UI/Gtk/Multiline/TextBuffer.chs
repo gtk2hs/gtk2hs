@@ -395,7 +395,7 @@ textBufferInsertByteStringInteractiveAtCursor self text defaultEditable =
 -- tags. If @start@ and @end@ are in a different buffer from @buffer@, the two
 -- buffers must share the same tag table.
 --
--- Implemented via emissions of the insert-text and apply-tag signals, so
+-- Implemented via emissions of the insert-text and 'applyTag' signals, so
 -- expect those.
 --
 textBufferInsertRange :: TextBufferClass self => self

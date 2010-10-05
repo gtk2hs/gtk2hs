@@ -327,7 +327,7 @@ statusIconGetIconName self =
 -- %hash c:b1db d:b874
 -- | Gets the size in pixels that is available for the image. Stock icons and
 -- named icons adapt their size automatically if the size of the notification
--- area changes. For other storage types, the size-changed signal can be used
+-- area changes. For other storage types, the 'sizeChanged' signal can be used
 -- to react to size changes.
 --
 statusIconGetSize :: StatusIconClass self => self

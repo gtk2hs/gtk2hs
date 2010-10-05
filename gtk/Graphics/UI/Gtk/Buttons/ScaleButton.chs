@@ -216,7 +216,7 @@ scaleButtonIcons =
 --------------------
 -- Signals
 
--- | The ::value-changed signal is emitted when the value field has changed.
+-- | The 'scaleButtonValueChanged' signal is emitted when the value field has changed.
 --
 scaleButtonValueChanged :: ScaleButtonClass self => Signal self (Double -> IO ())
 scaleButtonValueChanged = Signal (connect_DOUBLE__NONE "value_changed")

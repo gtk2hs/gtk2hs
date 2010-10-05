@@ -316,7 +316,7 @@ fontButtonShowSize = newAttr
 --------------------
 -- Signals
 
--- | The ::font-set signal is emitted when the user selects a font. When
+-- | The 'fontSet' signal is emitted when the user selects a font. When
 -- handling this signal, use 'fontButtonGetFontName' to find out which font was
 -- just selected.
 --
