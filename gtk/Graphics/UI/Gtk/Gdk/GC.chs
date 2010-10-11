@@ -85,7 +85,7 @@ import Control.Exception (handle)
 #endif
 
 import System.Glib.FFI
-import System.Glib.GObject		(constructNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..), 
@@ -100,7 +100,7 @@ gcNew :: DrawableClass d => d -> IO GC
 gcNew d = do
   gcPtr <- {#call unsafe gc_new#} (toDrawable d)
   if (gcPtr==nullPtr) then return (error "gcNew: null graphics context.")
-		      else constructNewGObject mkGC (return gcPtr)
+		      else wrapNewGObject mkGC (return gcPtr)
 
 
 -- | Creates a graphics context with specific values.
@@ -108,7 +108,7 @@ gcNew d = do
 gcNewWithValues :: DrawableClass d => d -> GCValues -> IO GC
 gcNewWithValues d gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
   mask <- pokeGCValues vPtr gcv
-  gc <- constructNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
+  gc <- wrapNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
     (toDrawable d) (castPtr vPtr) mask
   handle (const $ return ()) $ when (isJust (tile gcv)) $ 
     touchForeignPtr ((unPixmap.fromJust.tile) gcv)
