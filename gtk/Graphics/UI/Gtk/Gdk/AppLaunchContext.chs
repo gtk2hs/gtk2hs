@@ -52,7 +52,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 import Graphics.UI.Gtk.Gdk.EventM (TimeStamp)
 {#import Graphics.UI.Gtk.Types#}
 #ifdef HAVE_GIO
@@ -68,7 +68,7 @@ import Graphics.UI.Gtk.Gdk.EventM (TimeStamp)
 -- | Creates a new 'AppLaunchContext'.
 appLaunchContextNew :: IO AppLaunchContext
 appLaunchContextNew = 
-  constructNewGObject mkAppLaunchContext $
+  wrapNewGObject mkAppLaunchContext $
   {# call gdk_app_launch_context_new #}
 
 --------------------
