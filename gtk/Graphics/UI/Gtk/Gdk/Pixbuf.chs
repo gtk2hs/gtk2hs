@@ -266,7 +266,7 @@ instance GErrorClass PixbufError where
 --
 pixbufNewFromFile :: FilePath -> IO Pixbuf
 pixbufNewFromFile fname =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
      withUTFString fname $ \strPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -289,7 +289,7 @@ pixbufNewFromFile fname =
 --
 pixbufNewFromFileAtSize :: String -> Int -> Int -> IO Pixbuf
 pixbufNewFromFileAtSize filename width height =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
     withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -327,7 +327,7 @@ pixbufNewFromFileAtScale ::
   -> Bool -- ^ whether to preserve the aspect ratio
   -> IO Pixbuf
 pixbufNewFromFileAtScale filename width height preserveAspectRatio =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
     withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -397,7 +397,7 @@ pixbufSave pb fname iType options =
 --
 pixbufNew :: Colorspace -> Bool -> Int -> Int -> Int -> IO Pixbuf
 pixbufNew colorspace hasAlpha bitsPerSample width height =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
     {#call pixbuf_new#} ((fromIntegral . fromEnum) colorspace)
       (fromBool hasAlpha) (fromIntegral bitsPerSample) (fromIntegral width)
       (fromIntegral height)
@@ -409,7 +409,7 @@ pixbufNew colorspace hasAlpha bitsPerSample width height =
 pixbufNewFromXPMData :: [String] -> IO Pixbuf
 pixbufNewFromXPMData s =
   withUTFStringArray0 s $ \strsPtr ->
-    constructNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
+    wrapNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
 
 -- | A dymmy type for inline picture data.
 --
@@ -458,7 +458,7 @@ pixbufNewFromInline :: Ptr InlineImage -> IO Pixbuf
 pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
   pbPtr <- {#call unsafe pixbuf_new_from_inline#} (-1) (castPtr iPtr)
     (fromBool False) (castPtr errPtrPtr)
-  if pbPtr/=nullPtr then constructNewGObject mkPixbuf (return pbPtr)
+  if pbPtr/=nullPtr then wrapNewGObject mkPixbuf (return pbPtr)
     else do
       errPtr <- peek errPtrPtr
       (GError dom code msg) <- peek errPtr
@@ -474,7 +474,7 @@ pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
 --
 pixbufNewSubpixbuf :: Pixbuf -> Int -> Int -> Int -> Int -> IO Pixbuf
 pixbufNewSubpixbuf pb srcX srcY height width =
-  constructNewGObject mkPixbuf $ do
+  wrapNewGObject mkPixbuf $ do
     pbPtr <- {#call unsafe pixbuf_new_subpixbuf#} pb
       (fromIntegral srcX) (fromIntegral srcY)
       (fromIntegral height) (fromIntegral width)
@@ -484,7 +484,7 @@ pixbufNewSubpixbuf pb srcX srcY height width =
 -- | Create a deep copy of an image.
 --
 pixbufCopy :: Pixbuf -> IO Pixbuf
-pixbufCopy pb = constructNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
+pixbufCopy pb = wrapNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 
 -- | How an image is scaled.
@@ -531,7 +531,7 @@ pixbufScaleSimple ::
   -> InterpType -- ^ interpolation type
   -> IO Pixbuf
 pixbufScaleSimple pb width height interp =
-    constructNewGObject mkPixbuf $ liftM castPtr $
+    wrapNewGObject mkPixbuf $ liftM castPtr $
 	{#call pixbuf_scale_simple#} (toPixbuf pb)
 	(fromIntegral width) (fromIntegral height)
 	(fromIntegral $ fromEnum interp)
@@ -609,7 +609,7 @@ pixbufComposite src dest destX destY destWidth destHeight
 --
 pixbufFlipHorizontally :: Pixbuf -> IO Pixbuf
 pixbufFlipHorizontally self =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   {# call pixbuf_flip #}
     self
     (fromBool True)
@@ -619,7 +619,7 @@ pixbufFlipHorazontally = pixbufFlipHorizontally
 --
 pixbufFlipVertically :: Pixbuf -> IO Pixbuf
 pixbufFlipVertically self =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   {# call pixbuf_flip #}
     self
     (fromBool False)
@@ -629,7 +629,7 @@ pixbufFlipVertically self =
 --
 pixbufRotateSimple :: Pixbuf -> PixbufRotation -> IO Pixbuf
 pixbufRotateSimple self angle =
-  constructNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   {# call pixbuf_rotate_simple #}
     self
     ((fromIntegral . fromEnum) angle)
@@ -655,9 +655,9 @@ pixbufRotateSimple self angle =
 --   during this substitution.
 --
 pixbufAddAlpha :: Pixbuf -> Maybe (Word8, Word8, Word8) -> IO Pixbuf
-pixbufAddAlpha pb Nothing = constructNewGObject mkPixbuf $
+pixbufAddAlpha pb Nothing = wrapNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool False) 0 0 0
-pixbufAddAlpha pb (Just (r,g,b)) = constructNewGObject mkPixbuf $
+pixbufAddAlpha pb (Just (r,g,b)) = wrapNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool True)
     (fromIntegral r) (fromIntegral g) (fromIntegral b)
 
@@ -709,7 +709,7 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
 --
 pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)
 pixbufGetFromDrawable d (Rectangle x y width height) =
-  maybeNull (constructNewGObject mkPixbuf) $
+  maybeNull (wrapNewGObject mkPixbuf) $
   {#call unsafe pixbuf_get_from_drawable#}
     (Pixbuf nullForeignPtr) (toDrawable d) (Colormap nullForeignPtr)
     (fromIntegral x) (fromIntegral y) 0 0
@@ -774,8 +774,8 @@ pixbufRenderPixmapAndMaskForColormap pixbuf colormap threshold =
                                                                  (castPtr pmRetPtr) -- seems to reject Pixmap**, so cast
                                                                  (castPtr bmRetPtr)
                                                                  (fromIntegral threshold)
-      pm <- constructNewGObject mkPixmap (peek pmRetPtr :: IO (Ptr Pixmap))
-      bm <- maybeNull (constructNewGObject mkPixmap) (peek bmRetPtr :: IO (Ptr Bitmap))
+      pm <- wrapNewGObject mkPixmap (peek pmRetPtr :: IO (Ptr Pixmap))
+      bm <- maybeNull (wrapNewGObject mkPixmap) (peek bmRetPtr :: IO (Ptr Bitmap))
       return (pm, bm)
 
 
