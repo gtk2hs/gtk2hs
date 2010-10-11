@@ -106,7 +106,7 @@ import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 pixbufAnimationNewFromFile :: FilePath               -- ^ Name of file to load, in the GLib file name encoding
                            -> IO PixbufAnimation     -- ^ A newly-created animation
 pixbufAnimationNewFromFile fname =
-  constructNewGObject mkPixbufAnimation $
+  wrapNewGObject mkPixbufAnimation $
   propagateGError $ \errPtrPtr ->
      withUTFString fname $ \strPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
@@ -162,7 +162,7 @@ pixbufAnimationGetIter :: PixbufAnimation            -- ^ a 'PixbufAnimation'
                        -> Maybe GTimeVal             -- ^ time when the animation starts playing
                        -> IO PixbufAnimationIter     -- ^ an iterator to move over the animation
 pixbufAnimationGetIter self tv = maybeWith with tv $ \stPtr ->
-                                 constructNewGObject mkPixbufAnimationIter $
+                                 wrapNewGObject mkPixbufAnimationIter $
                                    {#call unsafe pixbuf_animation_get_iter#} self (castPtr stPtr)
 
 
@@ -267,7 +267,7 @@ pixbufSimpleAnimNew :: Int   -- ^ the width of the animation
                     -> Int   -- ^ the height of the animation
                     -> Float -- ^ the speed of the animation, in frames per second
                     -> IO PixbufSimpleAnim  -- ^ a newly allocated 'PixbufSimpleAnim'
-pixbufSimpleAnimNew width height rate = constructNewGObject mkPixbufSimpleAnim $
+pixbufSimpleAnimNew width height rate = wrapNewGObject mkPixbufSimpleAnim $
   {#call unsafe pixbuf_simple_anim_new#} (fromIntegral width) (fromIntegral height) (realToFrac rate)
 
 
