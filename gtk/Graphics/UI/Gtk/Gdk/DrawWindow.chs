@@ -86,7 +86,7 @@ import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags                (toFlags)
-import System.Glib.GObject      (makeNewGObject)
+import System.Glib.GObject              (wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
@@ -555,7 +555,7 @@ drawWindowGetOrigin self =
 -- passed-in handle is a reference to a native window, that is, an Xlib XID
 -- for X windows and a HWND for Win32.
 drawWindowForeignNew :: NativeWindowId -> IO (Maybe DrawWindow)
-drawWindowForeignNew anid = maybeNull (makeNewGObject mkDrawWindow) $
+drawWindowForeignNew anid = maybeNull (wrapNewGObject mkDrawWindow) $
   liftM castPtr $ {#call gdk_window_foreign_new#} (fromNativeWindowId anid)
 
 -- | Obtains the root window (parent all other windows are inside) for the default display and screen.
