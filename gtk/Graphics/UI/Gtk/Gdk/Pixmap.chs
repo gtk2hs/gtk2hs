@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
 
 import Data.Maybe
 import System.Glib.FFI
-import System.Glib.GObject           (constructNewGObject)
+import System.Glib.GObject           (wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Gdk.Drawable  (Drawable, DrawableClass(..))
 
@@ -83,7 +83,7 @@ pixmapNew :: DrawableClass drawable
  -> Maybe Int      -- ^ @depth@  - depth of the pixmap
  -> IO Pixmap
 pixmapNew mbDrawable width height depth =
-    constructNewGObject mkPixmap $
+    wrapNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
       (maybe (Drawable nullForeignPtr) toDrawable mbDrawable)
       (fromIntegral width) (fromIntegral height)
@@ -97,7 +97,7 @@ pixmapNew ::
  -> Maybe Int        -- ^ @depth@  - depth of the pixmap
  -> IO Pixmap
 pixmapNew mbDrawWindow width height depth =
-    constructNewGObject mkPixmap $
+    wrapNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
       (maybe (DrawWindow nullForeignPtr) toDrawWindow mbDrawWindow)
       (fromIntegral width) (fromIntegral height)
