@@ -138,7 +138,7 @@ displayOpen ::
                -- ^ returns a 'Display', or @Nothing@ if the display
                -- could not be opened.
 displayOpen displayName =
-  maybeNull (makeNewGObject mkDisplay) $
+  maybeNull (wrapNewGObject mkDisplay) $
   withUTFString displayName $ \displayNamePtr ->
   {# call gdk_display_open #}
     displayNamePtr
