@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 -- * Methods
   checkMenuItemSetActive,
   checkMenuItemGetActive,
-  checkMenuItemToggled,
+  checkMenuItemEmitToggled,
   checkMenuItemSetInconsistent,
   checkMenuItemGetInconsistent,
 #if GTK_CHECK_VERSION(2,4,0)
@@ -77,6 +77,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 #if GTK_CHECK_VERSION(2,4,0)
   checkMenuItemDrawAsRadio,
 #endif
+
+-- * Signals
+  checkMenuItemToggled
   ) where
 
 import Control.Monad	(liftM)
@@ -85,6 +88,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+{#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -149,8 +153,8 @@ checkMenuItemGetActive self =
 
 -- | Emits the toggled signal.
 --
-checkMenuItemToggled :: CheckMenuItemClass self => self -> IO ()
-checkMenuItemToggled self =
+checkMenuItemEmitToggled :: CheckMenuItemClass self => self -> IO ()
+checkMenuItemEmitToggled self =
   {# call check_menu_item_toggled #}
     (toCheckMenuItem self)
 
@@ -232,3 +236,7 @@ checkMenuItemDrawAsRadio = newAttr
   checkMenuItemSetDrawAsRadio
 #endif
 
+-- | This signal is emitted when the state of the check box is changed.
+--
+checkMenuItemToggled :: CheckMenuItemClass self => Signal self (IO ())
+checkMenuItemToggled = Signal (connect_NONE__NONE "toggled")
