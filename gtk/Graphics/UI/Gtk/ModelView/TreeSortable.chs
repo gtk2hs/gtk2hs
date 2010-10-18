@@ -183,11 +183,20 @@ foreign import ccall "wrapper" mkTreeIterCompareFunc ::
 -- 'treeSortableDefaultSortColumnId' then the model will sort using
 -- this function.
 --
+-- | If @sortFunc@ is 'Nothing', then there will be no default comparison function. 
+-- This means that once the
+-- model has been sorted, it can't go back to the default state. In this case, when the current sort
+-- column id of sortable is 'TreeSortableDefaultSortColumnId', the model will be unsorted.
 treeSortableSetDefaultSortFunc :: TreeSortableClass self => self
- -> (TreeIter -> TreeIter -> IO Ordering)
+ -> Maybe (TreeIter -> TreeIter -> IO Ordering)
                                 -- ^ @sortFunc@ - The comparison function
+                                -- or 'Nothing' to use default comparison function.
  -> IO ()
-treeSortableSetDefaultSortFunc self sortFunc = do
+treeSortableSetDefaultSortFunc self Nothing = do
+  {# call tree_sortable_set_default_sort_func #}
+    (toTreeSortable self)
+    nullFunPtr nullPtr nullFunPtr
+treeSortableSetDefaultSortFunc self (Just sortFunc) = do
   fPtr <- mkTreeIterCompareFunc (\_ iter1Ptr iter2Ptr _ -> do
     iter1 <- peek iter1Ptr
     iter2 <- peek iter2Ptr

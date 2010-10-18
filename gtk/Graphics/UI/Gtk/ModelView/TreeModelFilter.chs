@@ -148,13 +148,9 @@ treeModelFilterNew childModel root =
 -- up to date.
 --
 treeModelFilterSetVisibleFunc :: TreeModelFilterClass self => self
- -> Maybe (TreeIter -> IO Bool)	      -- ^ @func@ - The visible function or
-                                      -- @Nothing@ to reset this function.
+ -> (TreeIter -> IO Bool)         -- ^ @func@ - The visible function
  -> IO ()
-treeModelFilterSetVisibleFunc self Nothing =
-  {# call gtk_tree_model_filter_set_visible_func #}
-    (toTreeModelFilter self) nullFunPtr nullPtr nullFunPtr
-treeModelFilterSetVisibleFunc self (Just func) = do
+treeModelFilterSetVisibleFunc self func = do
   funcPtr <- mkTreeModelFilterVisibleFunc $ \_ tiPtr _ -> do
     ti <- peekTreeIter tiPtr
     liftM fromBool $ func ti
