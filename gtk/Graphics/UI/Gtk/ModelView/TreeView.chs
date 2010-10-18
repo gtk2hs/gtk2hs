@@ -220,6 +220,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   cursorChanged,
   rowCollapsed,
   rowExpanded,
+  rowActivated,
   testCollapseRow,
   testExpandRow,
 
@@ -1762,6 +1763,13 @@ testCollapseRow = Signal (connect_BOXED_BOXED__BOOL "test-collapse-row" peek rea
 --
 rowExpanded :: TreeViewClass self => Signal self (TreeIter -> TreePath -> IO ())
 rowExpanded = Signal (connect_BOXED_BOXED__NONE "row-expanded" peek readNTP)
+
+-- | A row was activated.
+--
+-- * Activation usually means the user has pressed return on a row.
+--
+rowActivated :: TreeViewClass self => Signal self (TreePath -> TreeViewColumn -> IO ())
+rowActivated = Signal (connect_BOXED_OBJECT__NONE "row-activated" readNTP)
 
 -- %hash c:9ee6 d:325e
 -- | The given row has been collapsed (child nodes are hidden).
