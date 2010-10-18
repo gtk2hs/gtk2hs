@@ -115,8 +115,14 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryInsertAtCursor,
   entryMoveCursor,
   entryPopulatePopup,
-  entryPreeditChanged,
   entryToggleOverwirte,
+#if GTK_CHECK_VERSION(2,20,0)
+  entryPreeditChanged,
+#endif
+#if GTK_CHECK_VERSION(2,16,0)
+  entryIconPress,
+  entryIconRelease,
+#endif
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -134,6 +140,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   ) where
 
 import Control.Monad	(liftM)
+import Control.Monad.Reader (runReaderT)
 import Data.Char	(ord, chr)
 
 import System.Glib.FFI
@@ -143,6 +150,7 @@ import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..), EntryIconPosition (..))
+import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -654,10 +662,31 @@ entryPasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
 entryPopulatePopup :: EntryClass ec => Signal ec (Menu -> IO ())
 entryPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 
+#if GTK_CHECK_VERSION(2,20,0)
 -- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
 -- you are interested in the text, connect to this signal.
 entryPreeditChanged :: EntryClass ec => Signal ec (String -> IO ())
 entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
+#endif
+
+#if GTK_CHECK_VERSION(2,16,0)
+-- | The 'iconPress' signal is emitted when an activatable icon is clicked.
+--
+entryIconPress :: EntryClass ec =>
+                    Signal ec (EntryIconPosition -> EventM EButton ())
+entryIconPress = Signal connect
+  where connect after obj f =
+          connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
+
+-- | The 'iconRelease' signal is emitted on the button release from a mouse click over an activatable
+-- icon.
+--
+entryIconRelease :: EntryClass ec =>
+                      Signal ec (EntryIconPosition -> EventM EButton ())
+entryIconRelease = Signal connect
+  where connect after obj f =
+          connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
+#endif
 
 -- | The 'entryToggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
 -- of the entry.
