@@ -259,8 +259,6 @@ listStoreRemove (ListStore model) index = do
   when (index >=0 && index < Seq.length seq) $ do
     writeIORef (customStoreGetPrivate model) (delete index seq)
     treeModelRowDeleted model [index]
-  --TODO we should probably fail on a bad index
-
   where delete :: Int -> Seq a -> Seq a
         delete i xs = front Seq.>< Seq.drop 1 back
           where (front, back) = Seq.splitAt i xs
