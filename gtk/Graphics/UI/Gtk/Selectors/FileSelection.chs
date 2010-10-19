@@ -18,10 +18,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO
---
--- Fix fileSelectionQueryButtons
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -181,22 +177,6 @@ fileSelectionHideFileopButtons :: FileSelectionClass self => self -> IO ()
 fileSelectionHideFileopButtons self =
   {# call file_selection_hide_fileop_buttons #}
     (toFileSelection self)
-
--- currently broken
--- -- query the widgets of the file selectors buttons
--- --
--- -- * this is useful to attach signals handlers to these buttons
--- --
--- -- * the buttons are OK & Cancel (in this order)
--- --
--- fileSelectionQueryButtons :: FileSelectionClass fsel 
--- 			  => fsel
--- 			  -> IO (Button, Button)
--- fileSelectionQueryButtons fsel =
---   withForeignPtr (unFileSelection $ toFileSelection fsel) $ \ ptr -> do
---       ok     <- {#get FileSelection.ok_button    #} ptr
---       cancel <- {#get FileSelection.cancel_button#} ptr
---       return (castToButton ok, castToButton cancel)
 
 -- | Will attempt to match @pattern@ to a valid filenames or subdirectories in
 -- the current directory. If a match can be made, the matched filename will
