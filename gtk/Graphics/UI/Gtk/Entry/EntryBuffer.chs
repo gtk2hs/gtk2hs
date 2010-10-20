@@ -105,7 +105,7 @@ entryBufferNew ::
     Maybe String                -- ^ @initialChars@ - initial buffer text or 'Nothing'
  -> IO EntryBuffer
 entryBufferNew initialChars =
-  constructNewGObject mkEntryBuffer $
+  wrapNewGObject mkEntryBuffer $
   maybeWith withUTFString initialChars $ \initialCharsPtr -> do
     let chars = if initialCharsPtr == nullPtr
                    then (-1)
