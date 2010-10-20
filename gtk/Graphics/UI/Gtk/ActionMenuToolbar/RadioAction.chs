@@ -88,7 +88,7 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.StockItems
@@ -114,7 +114,7 @@ radioActionNew ::
                    -- should return if this action is selected.
  -> IO RadioAction
 radioActionNew name label tooltip stockId value =
-  constructNewGObject mkRadioAction $
+  wrapNewGObject mkRadioAction $
   maybeWith withUTFString stockId $ \stockIdPtr ->
   maybeWith withUTFString tooltip $ \tooltipPtr ->
   withUTFString label $ \labelPtr ->
