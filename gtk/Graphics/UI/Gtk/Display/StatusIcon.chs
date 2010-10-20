@@ -131,7 +131,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject,makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.Enums#}
 import Graphics.UI.Gtk.General.Structs
@@ -152,7 +152,7 @@ import Graphics.UI.Gtk.Gdk.Events
 --
 statusIconNew :: IO StatusIcon
 statusIconNew =
-  constructNewGObject mkStatusIcon $
+  wrapNewGObject mkStatusIcon $
   {# call gtk_status_icon_new #}
 
 -- %hash c:3318 d:cd70
@@ -165,7 +165,7 @@ statusIconNewFromPixbuf ::
     Pixbuf -- ^ @pixbuf@ - a 'Pixbuf'
  -> IO StatusIcon
 statusIconNewFromPixbuf pixbuf =
-  constructNewGObject mkStatusIcon $
+  wrapNewGObject mkStatusIcon $
   {# call gtk_status_icon_new_from_pixbuf #}
     pixbuf
 
@@ -179,7 +179,7 @@ statusIconNewFromFile ::
     String -- ^ @filename@ - a filename
  -> IO StatusIcon
 statusIconNewFromFile filename =
-  constructNewGObject mkStatusIcon $
+  wrapNewGObject mkStatusIcon $
   withUTFString filename $ \filenamePtr ->
   {# call gtk_status_icon_new_from_file #}
     filenamePtr
@@ -194,7 +194,7 @@ statusIconNewFromStock ::
     StockId -- ^ @stockId@ - a stock icon id
  -> IO StatusIcon
 statusIconNewFromStock stockId =
-  constructNewGObject mkStatusIcon $
+  wrapNewGObject mkStatusIcon $
   withUTFString stockId $ \stockIdPtr ->
   {# call gtk_status_icon_new_from_stock #}
     stockIdPtr
@@ -207,7 +207,7 @@ statusIconNewFromIconName ::
     String -- ^ @iconName@ - an icon name
  -> IO StatusIcon
 statusIconNewFromIconName iconName =
-  constructNewGObject mkStatusIcon $
+  wrapNewGObject mkStatusIcon $
   withUTFString iconName $ \iconNamePtr ->
   {# call gtk_status_icon_new_from_icon_name #}
     iconNamePtr
