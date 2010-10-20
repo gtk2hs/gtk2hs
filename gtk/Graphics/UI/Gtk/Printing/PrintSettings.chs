@@ -179,7 +179,7 @@ import Graphics.UI.Gtk.Printing.PaperSize (PaperSize(PaperSize), mkPaperSize, Un
 --
 printSettingsNew :: IO PrintSettings
 printSettingsNew =
-  constructNewGObject mkPrintSettings $
+  wrapNewGObject mkPrintSettings $
   {# call gtk_print_settings_new #}
 
 #if GTK_CHECK_VERSION(2,12,0)
@@ -192,7 +192,7 @@ printSettingsNewFromFile ::
     String -- ^ @fileName@ - the filename to read the settings from
  -> IO PrintSettings
 printSettingsNewFromFile fileName =
-  constructNewGObject mkPrintSettings $
+  wrapNewGObject mkPrintSettings $
   propagateGError $ \errorPtr ->
   withUTFString fileName $ \fileNamePtr -> 
   {# call gtk_print_settings_new_from_file #}
@@ -209,7 +209,7 @@ printSettingsNewFromFile fileName =
 printSettingsCopy :: PrintSettingsClass self => self
  -> IO PrintSettings -- ^ returns a newly allocated copy of @other@
 printSettingsCopy self =
-  makeNewGObject mkPrintSettings $
+  wrapNewGObject mkPrintSettings $
   {# call gtk_print_settings_copy #}
     (toPrintSettings self)
 
