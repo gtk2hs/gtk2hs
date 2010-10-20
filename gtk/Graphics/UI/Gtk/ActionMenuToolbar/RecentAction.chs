@@ -71,7 +71,7 @@ import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.UTFString
-import System.Glib.GObject		(constructNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -92,7 +92,7 @@ recentActionNew ::
            -- the action, or 'Nothing'
  -> IO RecentAction
 recentActionNew name label tooltip stockId =
-  constructNewGObject mkRecentAction $ 
+  wrapNewGObject mkRecentAction $ 
   liftM castPtr $
   withUTFString name $ \namePtr ->
   maybeWith withUTFString label $ \labelPtr ->
@@ -119,7 +119,7 @@ recentActionNewForManager :: RecentManagerClass manager =>
             -- default 'RecentManager'
  -> IO RecentAction
 recentActionNewForManager name label tooltip stockId manager =
-  constructNewGObject mkRecentAction $ liftM castPtr $
+  wrapNewGObject mkRecentAction $ liftM castPtr $
   withUTFString name $ \namePtr ->
   maybeWith withUTFString label $ \labelPtr ->
   maybeWith withUTFString tooltip $ \tooltipPtr ->
