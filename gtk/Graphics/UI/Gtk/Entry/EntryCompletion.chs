@@ -141,7 +141,7 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(constructNewGObject,
+import System.Glib.GObject		(wrapNewGObject,
 					 makeNewGObject, destroyFunPtr)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -163,7 +163,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --
 entryCompletionNew :: IO EntryCompletion
 entryCompletionNew =
-  constructNewGObject mkEntryCompletion $
+  wrapNewGObject mkEntryCompletion $
   {# call gtk_entry_completion_new #}
 
 --------------------
