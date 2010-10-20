@@ -63,7 +63,7 @@ import System.Glib.FFI
 --
 imMulticontextNew :: IO IMContext
 imMulticontextNew =
-  constructNewGObject mkIMContext $
+  wrapNewGObject mkIMContext $
   {# call im_multicontext_new #}
 
 --------------------
