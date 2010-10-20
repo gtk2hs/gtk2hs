@@ -89,7 +89,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(makeNewGObject, wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -118,7 +118,7 @@ textMarkNew ::
  -> Bool  -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark
 textMarkNew  markName leftGravity =
-  makeNewGObject mkTextMark $
+  wrapNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_mark_new #}
     markNamePtr
