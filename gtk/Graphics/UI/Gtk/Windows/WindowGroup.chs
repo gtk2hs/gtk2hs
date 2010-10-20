@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
   ) where
 
 import System.Glib.FFI
-import System.Glib.GObject              (constructNewGObject)
+import System.Glib.GObject              (wrapNewGObject)
 import System.Glib.GList                (fromGList)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -67,7 +67,7 @@ import System.Glib.GList                (fromGList)
 --
 windowGroupNew :: IO WindowGroup
 windowGroupNew =
-  constructNewGObject mkWindowGroup $
+  wrapNewGObject mkWindowGroup $
   {# call gtk_window_group_new #}
 
 --------------------
