@@ -83,7 +83,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.StockItems
@@ -107,7 +107,7 @@ toggleActionNew ::
                     -- representing the action
  -> IO ToggleAction
 toggleActionNew name label tooltip stockId =
-  constructNewGObject mkToggleAction $
+  wrapNewGObject mkToggleAction $
   maybeWith withUTFString stockId $ \stockIdPtr ->
   maybeWith withUTFString tooltip $ \tooltipPtr ->
   withUTFString label $ \labelPtr ->
