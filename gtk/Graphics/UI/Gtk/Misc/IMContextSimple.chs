@@ -67,7 +67,7 @@ import qualified Data.Map as M
 --
 imContextSimpleNew :: IO IMContextSimple
 imContextSimpleNew =
-  constructNewGObject mkIMContextSimple $
+  wrapNewGObject mkIMContextSimple $
   liftM castPtr {# call gtk_im_context_simple_new #}
 
 --------------------
