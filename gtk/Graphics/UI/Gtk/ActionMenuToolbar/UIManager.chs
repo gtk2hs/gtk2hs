@@ -262,7 +262,7 @@ import System.Glib.GList
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -285,7 +285,7 @@ newtype MergeId = MergeId { fromMergeId :: {# type guint #}}
 --
 uiManagerNew :: IO UIManager
 uiManagerNew =
-  constructNewGObject mkUIManager $
+  wrapNewGObject mkUIManager $
   {# call gtk_ui_manager_new #}
 
 --------------------
