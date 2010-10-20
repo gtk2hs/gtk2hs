@@ -476,7 +476,7 @@ import System.Glib.GTypeConstants (none)
 --
 rcStyleNew :: IO RcStyle
 rcStyleNew =
-  constructNewGObject mkRcStyle $
+  wrapNewGObject mkRcStyle $
   {# call gtk_rc_style_new #}
 
 --------------------
@@ -488,7 +488,7 @@ rcStyleNew =
 rcStyleCopy :: RcStyleClass self => self
  -> IO RcStyle -- ^ returns the resulting 'RcStyle'
 rcStyleCopy self =
-  constructNewGObject mkRcStyle $
+  wrapNewGObject mkRcStyle $
   {# call gtk_rc_style_copy #}
     (toRcStyle self)
 
