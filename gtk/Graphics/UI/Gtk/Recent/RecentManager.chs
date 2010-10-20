@@ -118,7 +118,7 @@ import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError, che
 --
 recentManagerNew :: IO RecentManager
 recentManagerNew =
-  constructNewGObject mkRecentManager $
+  wrapNewGObject mkRecentManager $
   {# call gtk_recent_manager_new #}
 
 --------------------
