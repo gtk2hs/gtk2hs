@@ -155,7 +155,7 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.Rendering.Pango.Font
@@ -183,12 +183,12 @@ type TagName = String
 --
 textTagNew :: Maybe TagName -> IO TextTag
 textTagNew (Just name) =
-  constructNewGObject mkTextTag $
+  wrapNewGObject mkTextTag $
   withCString name $ \namePtr ->
   {# call unsafe text_tag_new #}
     namePtr
 textTagNew Nothing =
-  constructNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
+  wrapNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
     
 
 --------------------
