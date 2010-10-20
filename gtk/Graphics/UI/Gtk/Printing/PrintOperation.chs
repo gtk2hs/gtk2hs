@@ -192,7 +192,7 @@ instance PrintOperationPreviewClass PrintOperation
 --
 printOperationNew :: IO PrintOperation
 printOperationNew =
-  constructNewGObject mkPrintOperation $
+  wrapNewGObject mkPrintOperation $
   {# call gtk_print_operation_new #}
 
 --------------------
@@ -499,7 +499,7 @@ printRunPageSetupDialog :: (WindowClass window, PageSetupClass pageSetup, PrintS
                           -> setting -- ^ @settings@   a 'PrintSettings'                    
                           -> IO PageSetup  -- ^ returns    a new 'PageSetup'                    
 printRunPageSetupDialog window pageSetup setting = 
-  makeNewGObject mkPageSetup $
+  wrapNewGObject mkPageSetup $
   {#call gtk_print_run_page_setup_dialog #}
      (toWindow window)
      (toPageSetup pageSetup)
