@@ -113,7 +113,7 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 -- | Creates a new 'Builder' object.
 builderNew :: IO Builder
 builderNew =
-  makeNewObject mkBuilder $
+  wrapNewGObject mkBuilder $
   {# call unsafe builder_new #}
 
 -- | Parses a file containing a GtkBuilder UI definition and merges it with
