@@ -59,7 +59,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject	(constructNewGObject, makeNewGObject)
+import System.Glib.GObject	(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -71,7 +71,7 @@ import System.Glib.GObject	(constructNewGObject, makeNewGObject)
 --
 textTagTableNew :: IO TextTagTable
 textTagTableNew =
-  constructNewGObject mkTextTagTable $
+  wrapNewGObject mkTextTagTable $
   {# call unsafe text_tag_table_new #}
 
 --------------------
