@@ -201,7 +201,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject			(constructNewGObject,
+import System.Glib.GObject			(wrapNewGObject,
 						 makeNewGObject)
 import Data.ByteString (ByteString)
 import Data.ByteString.Unsafe (unsafeUseAsCStringLen, unsafePackCStringFinalizer)
@@ -223,7 +223,7 @@ textBufferNew ::
                        -- new one
  -> IO TextBuffer
 textBufferNew table =
-  constructNewGObject mkTextBuffer $
+  wrapNewGObject mkTextBuffer $
   {# call unsafe text_buffer_new #}
     (maybe (TextTagTable nullForeignPtr) toTextTagTable table)
 
@@ -613,7 +613,7 @@ textBufferCreateMark :: TextBufferClass self => self
  -> Bool         -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark  -- ^ returns the new 'TextMark' object
 textBufferCreateMark self markName where_ leftGravity =
-  makeNewGObject mkTextMark $
+  wrapNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_buffer_create_mark #}
     (toTextBuffer self)
