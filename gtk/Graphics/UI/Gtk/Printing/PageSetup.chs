@@ -119,7 +119,7 @@ import System.Glib.UTFString
 --
 pageSetupNew :: IO PageSetup
 pageSetupNew =
-  constructNewGObject mkPageSetup $
+  wrapNewGObject mkPageSetup $
   {# call gtk_page_setup_new #}
 
 #if GTK_CHECK_VERSION(2,12,0)
@@ -137,7 +137,7 @@ pageSetupNewFromFile fileName =
   setupPtr <- {# call gtk_page_setup_new_from_file #}
              fileNamePtr
              errorPtr
-  constructNewGObject mkPageSetup (return setupPtr) 
+  wrapNewGObject mkPageSetup (return setupPtr) 
 
 #endif
 
@@ -149,7 +149,7 @@ pageSetupNewFromFile fileName =
 pageSetupCopy :: PageSetupClass self => self
  -> IO PageSetup -- ^ returns a copy of @other@
 pageSetupCopy self =
-  makeNewGObject mkPageSetup $
+  wrapNewGObject mkPageSetup $
   {# call gtk_page_setup_copy #}
     (toPageSetup self)
 
