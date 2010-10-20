@@ -257,7 +257,7 @@ import System.Glib.GList		(fromGList)
 import System.Glib.Flags
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, constructNewGObject,
+import System.Glib.GObject		(makeNewGObject, wrapNewGObject,
 					 destroyFunPtr)
 import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))
@@ -1113,7 +1113,7 @@ treeViewCreateRowDragIcon :: TreeViewClass self => self
  -> TreePath
  -> IO Pixmap
 treeViewCreateRowDragIcon self path =
-  constructNewGObject mkPixmap $
+  wrapNewGObject mkPixmap $
   withTreePath path $ \path ->
   {# call unsafe tree_view_create_row_drag_icon #}
     (toTreeView self)
