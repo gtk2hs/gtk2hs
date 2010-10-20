@@ -374,7 +374,7 @@ import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 import System.Glib.GType      (GType)
 import System.Glib.GList      (GList, fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -1256,7 +1256,7 @@ widgetGetSnapshot :: WidgetClass self => self
                   -> Rectangle
                   -> IO (Maybe Pixmap) -- ^ returns   'Pixmap' snapshot of the widget    
 widgetGetSnapshot widget clipRect = 
-  maybeNull (constructNewGObject mkPixmap) $
+  maybeNull (wrapNewGObject mkPixmap) $
   with clipRect $ \ clipRectPtr -> 
   {#call gtk_widget_get_snapshot #}
      (toWidget widget)
@@ -1478,7 +1478,7 @@ widgetModifyFont self fontDesc =
 widgetCreatePangoContext :: WidgetClass self => self
  -> IO PangoContext -- ^ returns the new 'PangoContext'
 widgetCreatePangoContext self =
-  constructNewGObject mkPangoContext $
+  wrapNewGObject mkPangoContext $
   {# call gtk_widget_create_pango_context #}
     (toWidget self)
 
@@ -1523,7 +1523,7 @@ widgetCreateLayout :: WidgetClass self => self
  -> String    -- ^ @text@ - text to set on the layout
  -> IO PangoLayout
 widgetCreateLayout self text = do
-  pl <- constructNewGObject mkPangoLayoutRaw $
+  pl <- wrapNewGObject mkPangoLayoutRaw $
     withUTFString text $ \textPtr ->
     {# call unsafe widget_create_pango_layout #}
       (toWidget self)
