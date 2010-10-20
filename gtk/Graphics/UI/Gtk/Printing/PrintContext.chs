@@ -176,7 +176,7 @@ printContextGetPangoFontmap self =
 printContextCreatePangoContext :: PrintContextClass self => self
  -> IO PangoContext -- ^ returns a new Pango context for @context@
 printContextCreatePangoContext self =
-  makeNewGObject mkPangoContext $
+  wrapNewGObject mkPangoContext $
   {# call gtk_print_context_create_pango_context #}
     (toPrintContext self)
 
@@ -186,7 +186,7 @@ printContextCreatePangoContext self =
 printContextCreatePangoLayout :: PrintContextClass self => self
  -> IO PangoLayout -- ^ returns a new Pango layout for @context@
 printContextCreatePangoLayout self = do
-  pl <- constructNewGObject mkPangoLayoutRaw $
+  pl <- wrapNewGObject mkPangoLayoutRaw $
     {# call gtk_print_context_create_pango_layout #}
     (toPrintContext self)
   ps <- makeNewPangoString ""
