@@ -91,7 +91,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import System.Glib.GObject		(constructNewGObject)
+import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -107,7 +107,7 @@ sizeGroupNew ::
     SizeGroupMode -- ^ @mode@ - the mode for the new size group.
  -> IO SizeGroup
 sizeGroupNew mode =
-  constructNewGObject mkSizeGroup $
+  wrapNewGObject mkSizeGroup $
   {# call unsafe size_group_new #}
     ((fromIntegral . fromEnum) mode)
 
