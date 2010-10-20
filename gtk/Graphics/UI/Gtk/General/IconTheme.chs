@@ -147,7 +147,7 @@ import System.Glib.Properties
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Flags
-import System.Glib.GObject		(constructNewGObject, makeNewGObject, Quark)
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject, Quark)
 import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
 import Graphics.UI.Gtk.General.Structs (Rectangle, Point)
 {#import Graphics.UI.Gtk.Types#}
@@ -175,7 +175,7 @@ import Graphics.UI.Gtk.General.Structs (Rectangle, Point)
 --
 iconThemeNew :: IO IconTheme
 iconThemeNew =
-  constructNewGObject mkIconTheme $
+  wrapNewGObject mkIconTheme $
   {# call gtk_icon_theme_new #}
 
 --------------------
