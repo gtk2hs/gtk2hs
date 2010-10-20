@@ -82,7 +82,7 @@ module Graphics.UI.Gtk.ModelView.TreeModelFilter (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject			(constructNewGObject)
+import System.Glib.GObject			(wrapNewGObject)
 import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
@@ -116,14 +116,14 @@ treeModelFilterNew :: (TreeModelClass (childModel row),
  -> IO (TypedTreeModelFilter row)
 treeModelFilterNew childModel [] =
   liftM unsafeTreeModelFilterToGeneric $
-  constructNewGObject mkTreeModelFilter $ 
+  wrapNewGObject mkTreeModelFilter $ 
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelFilter) $
   {# call gtk_tree_model_filter_new #}
     (toTreeModel childModel)
     (NativeTreePath nullPtr)
 treeModelFilterNew childModel root =
   liftM unsafeTreeModelFilterToGeneric $
-  constructNewGObject mkTreeModelFilter $ 
+  wrapNewGObject mkTreeModelFilter $ 
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelFilter) $
   withTreePath root $ \root ->
   {# call gtk_tree_model_filter_new #}
