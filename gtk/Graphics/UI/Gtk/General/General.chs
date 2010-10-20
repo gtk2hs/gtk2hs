@@ -18,10 +18,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO
---
--- quitAddDestroy, quitAdd, quitRemove
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -51,6 +47,11 @@ module Graphics.UI.Gtk.General.General (
   mainIteration,
   mainIterationDo,
   mainDoEvent,
+
+  -- ** Call when mainloop is left
+  quitAddDestroy,
+  quitAdd,
+  quitRemove,
   
   -- * Grab widgets
   grabAdd,
@@ -290,6 +291,40 @@ mainDoEvent :: EventM t ()
 mainDoEvent = do
   ptr <- ask
   liftIO $ {#call main_do_event #} (castPtr ptr)
+
+-- | Trigger destruction of object in case the mainloop at level @mainLevel@ is quit.
+quitAddDestroy :: ObjectClass obj 
+                 => Int -- ^ @mainLevel@ Level of the mainloop which shall trigger the destruction. 
+                 -> obj -- ^ @object@     Object to be destroyed.                                    
+                 -> IO ()
+quitAddDestroy mainLevel obj = 
+  {#call quit_add_destroy #}
+     (fromIntegral mainLevel)
+     (toObject obj)
+
+-- | Registers a function to be called when an instance of the mainloop is left.
+quitAdd :: Int -- ^ @mainLevel@ Level at which termination the function shall be called. You can pass 0 here to have the function run at the current mainloop.                                                                           
+        -> (IO Bool) -- ^ @function@   The function to call. This should return 'False' to be removed from the list of quit handlers. Otherwise the function might be called again.
+        -> IO Int -- ^ returns    A handle for this quit handler (you need this for 'quitRemove')
+quitAdd mainLevel func = do
+  funcPtr <- mkGtkFunction $ \ _ -> 
+    liftM fromBool func
+  liftM fromIntegral $
+            {#call quit_add #} 
+              (fromIntegral mainLevel)
+              funcPtr
+              nullPtr
+
+{#pointer GtkFunction#}
+
+foreign import ccall "wrapper" mkGtkFunction ::
+  (Ptr () -> IO {#type gboolean#}) -> IO GtkFunction
+
+-- | Removes a quit handler by its identifier.
+quitRemove :: Int -- ^ @quitHandlerId@ Identifier for the handler returned when installing it.  
+           -> IO ()
+quitRemove quitHandlerId =
+  {#call quit_remove #} (fromIntegral quitHandlerId)
 
 -- | add a grab widget
 --
