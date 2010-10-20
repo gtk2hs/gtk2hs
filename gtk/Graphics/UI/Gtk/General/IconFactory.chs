@@ -107,7 +107,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
 import Graphics.UI.Gtk.General.StockItems
@@ -141,7 +141,7 @@ instance Show IconSize where
 --
 iconFactoryNew :: IO IconFactory
 iconFactoryNew  =
-  constructNewGObject mkIconFactory {#call unsafe icon_factory_new#}
+  wrapNewGObject mkIconFactory {#call unsafe icon_factory_new#}
 
 --------------------
 -- Methods
@@ -214,7 +214,7 @@ iconSetRenderIcon :: WidgetClass widget => IconSet
                   -> IconSize
                   -> widget
                   -> IO Pixbuf
-iconSetRenderIcon set dir state size widget = makeNewGObject mkPixbuf $
+iconSetRenderIcon set dir state size widget = wrapNewGObject mkPixbuf $
   {#call icon_set_render_icon#} set (Style nullForeignPtr)
     ((fromIntegral.fromEnum) dir) ((fromIntegral.fromEnum) state)
     ((fromIntegral.fromEnum) size) (toWidget widget) nullPtr
