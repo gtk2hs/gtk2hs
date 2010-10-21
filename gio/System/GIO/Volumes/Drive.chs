@@ -126,7 +126,7 @@ driveGetName drive =
 driveGetIcon :: DriveClass drive => drive
  -> IO Icon -- ^ returns a 'Icon'. 
 driveGetIcon drive = 
-  makeNewGObject mkIcon $
+  wrapNewGObject mkIcon $
   {#call g_drive_get_icon#} (toDrive drive) 
 
 -- | Check if drive has any mountable volumes.
@@ -142,7 +142,7 @@ driveGetVolumes :: DriveClass drive => drive
 driveGetVolumes drive = do
   glistPtr <- {#call g_drive_get_volumes #} (toDrive drive)
   volumePtrs <- fromGList glistPtr
-  mapM (makeNewGObject mkVolume . return) volumePtrs
+  mapM (wrapNewGObject mkVolume . return) volumePtrs
 
 -- | Checks if drive can be eject.
 driveCanEject :: DriveClass drive => drive
