@@ -56,7 +56,7 @@ module Graphics.Rendering.Pango.Cairo (
 import Control.Exception    (bracket)
 
 import System.Glib.FFI
-import System.Glib.GObject		(constructNewGObject, makeNewGObject,
+import System.Glib.GObject		(wrapNewGObject, makeNewGObject,
   objectRef, objectUnref)
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
@@ -128,12 +128,12 @@ cairoFontMapGetResolution (FontMap fm) = liftM realToFrac $
 --   has a scaling factor of 96 dpi. See 'cairoFontMapGetDefault'.
 --
 cairoCreateContext :: Maybe FontMap -> IO PangoContext
-cairoCreateContext (Just (FontMap fm)) = constructNewGObject mkPangoContext $
+cairoCreateContext (Just (FontMap fm)) = wrapNewGObject mkPangoContext $
   withForeignPtr fm $ \fmPtr -> -- PangoCairoFontMap /= PangoFontMap
   {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 cairoCreateContext Nothing = do
   fmPtr <- {#call unsafe pango_cairo_font_map_get_default#}
-  constructNewGObject mkPangoContext $
+  wrapNewGObject mkPangoContext $
     {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 
 -- | Set the scaling factor of the 'PangoContext'.
@@ -201,7 +201,7 @@ createLayout :: String -> Render PangoLayout
 createLayout text = Render $ do
   cr <- ask
   liftIO $ do
-    layRaw <- constructNewGObject mkPangoLayoutRaw $
+    layRaw <- wrapNewGObject mkPangoLayoutRaw $
 	      {#call unsafe pango_cairo_create_layout#} cr
     textRef <- newIORef undefined
     let pl = (PangoLayout textRef layRaw)
