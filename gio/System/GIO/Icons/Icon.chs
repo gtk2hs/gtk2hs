@@ -107,7 +107,7 @@ iconToString icon = do
 -- each GType is registered with the type system prior to calling 'iconNewForString'.
 iconNewForString :: ByteString -> IO Icon
 iconNewForString str =
-    constructNewGObject mkIcon $
+    wrapNewGObject mkIcon $
     useAsCString str $ \ strPtr -> 
     propagateGError ({# call g_icon_new_for_string #} strPtr) 
 #endif
