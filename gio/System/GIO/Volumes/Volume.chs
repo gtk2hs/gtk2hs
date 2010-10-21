@@ -128,7 +128,7 @@ volumeGetUUID volume =
 volumeGetIcon :: VolumeClass volume => volume
               -> IO Icon
 volumeGetIcon volume =               
-  makeNewGObject mkIcon $
+  wrapNewGObject mkIcon $
   {#call g_volume_get_icon#} (toVolume volume)
 
 -- | Gets the drive for the volume.
