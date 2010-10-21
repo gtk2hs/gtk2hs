@@ -126,7 +126,7 @@ import Data.Char     (ord, chr)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList                (readGSList)
-import System.Glib.GObject              (constructNewGObject, makeNewGObject)
+import System.Glib.GObject              (wrapNewGObject, makeNewGObject)
 import Graphics.Rendering.Pango.Structs
 {#import Graphics.Rendering.Pango.BasicTypes#}
 import Graphics.Rendering.Pango.Types
@@ -152,7 +152,7 @@ import Control.Exception ( Exception(ArrayException),
 --
 layoutEmpty :: PangoContext -> IO PangoLayout
 layoutEmpty pc = do
-  pl <- constructNewGObject mkPangoLayoutRaw
+  pl <- wrapNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   ps <- makeNewPangoString ""
   psRef <- newIORef ps
@@ -162,7 +162,7 @@ layoutEmpty pc = do
 --
 layoutText :: PangoContext -> String -> IO PangoLayout
 layoutText pc txt = do
-  pl <- constructNewGObject mkPangoLayoutRaw
+  pl <- wrapNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   withUTFStringLen txt $ \(strPtr,len) ->
     {#call unsafe layout_set_text#} pl strPtr (fromIntegral len)
@@ -174,7 +174,7 @@ layoutText pc txt = do
 --
 layoutCopy :: PangoLayout -> IO PangoLayout
 layoutCopy (PangoLayout uc pl) = do
-  pl <- constructNewGObject mkPangoLayoutRaw
+  pl <- wrapNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_copy#} pl)
   return (PangoLayout uc pl)
 
