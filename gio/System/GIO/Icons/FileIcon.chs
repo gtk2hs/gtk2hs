@@ -58,7 +58,7 @@ import System.Glib.UTFString
 fileIconNew :: FileClass file => file -> IO FileIcon
 fileIconNew file =
   {#call g_file_icon_new#} (toFile file)
-  >>= (constructNewGObject mkFileIcon . return) . castPtr
+  >>= (wrapNewGObject mkFileIcon . return) . castPtr
 
 -- | Gets the 'File' associated with the given icon.
 fileIconGetFile :: FileIconClass icon => icon -> IO File
