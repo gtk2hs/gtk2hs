@@ -131,7 +131,7 @@ mountGetUUID mount = do
 mountGetIcon :: MountClass mount => mount
  -> IO Icon -- ^ returns a 'Icon'. 
 mountGetIcon mount = 
-  makeNewGObject mkIcon $
+  wrapNewGObject mkIcon $
   {#call g_mount_get_icon#} (toMount mount) 
 
 -- | Gets the drive for the mount.
@@ -147,7 +147,7 @@ mountGetDrive mount =
 mountGetRoot :: MountClass mount => mount
  -> IO File
 mountGetRoot mount = 
-  makeNewGObject mkFile $
+  wrapNewGObject mkFile $
   {#call g_mount_get_root#} (toMount mount) 
 
 -- | Gets the volume directory on mount.
@@ -164,7 +164,7 @@ mountGetVolume mount =
 mountGetDefaultLocation :: MountClass mount => mount
  -> IO File
 mountGetDefaultLocation mount = 
-  makeNewGObject mkFile $
+  wrapNewGObject mkFile $
   {#call g_mount_get_default_location#} (toMount mount) 
 #endif
 
