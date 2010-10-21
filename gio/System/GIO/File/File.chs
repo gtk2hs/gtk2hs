@@ -270,14 +270,14 @@ type FileReadMoreCallback = BS.ByteString -> IO Bool
 -- support any I/O operation if path is malformed.
 fileFromPath :: ByteString -> File
 fileFromPath path =
-    unsafePerformIO $ constructNewGObject mkFile $ 
+    unsafePerformIO $ wrapNewGObject mkFile $ 
     useAsCString path $ \cPath -> {# call file_new_for_path #} cPath
 
 -- | Constructs a 'File' for a given URI. This operation never fails, but the returned object might not
 -- support any I/O operation if uri is malformed or if the uri type is not supported.
 fileFromURI :: String -> File
 fileFromURI uri =
-    unsafePerformIO $ constructNewGObject mkFile $ 
+    unsafePerformIO $ wrapNewGObject mkFile $ 
     withUTFString uri $ \cURI -> {# call file_new_for_uri #} cURI 
 
 -- | Creates a 'File' with the given argument from the command line. The value of arg can be either a URI,
@@ -286,7 +286,7 @@ fileFromURI uri =
 -- a malformed path.
 fileFromCommandlineArg :: ByteString -> File
 fileFromCommandlineArg arg =
-    unsafePerformIO $ constructNewGObject mkFile $ 
+    unsafePerformIO $ wrapNewGObject mkFile $ 
     useAsCString arg $ \cArg -> {# call file_new_for_commandline_arg #} cArg 
 
 -- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
@@ -294,7 +294,7 @@ fileFromCommandlineArg arg =
 -- cannot be parsed.
 fileFromParseName :: ByteString -> File
 fileFromParseName parseName =
-    unsafePerformIO $ constructNewGObject mkFile $ 
+    unsafePerformIO $ wrapNewGObject mkFile $ 
     useAsCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
@@ -392,7 +392,7 @@ fileHasParent file parent =
 -- This call does no blocking i/o.
 fileGetChild :: FileClass file => file -> ByteString -> File
 fileGetChild file name =
-    unsafePerformIO $ makeNewGObject mkFile $
+    unsafePerformIO $ wrapNewGObject mkFile $
         useAsCString name $ \cName ->
         {# call file_get_child #} (toFile file) cName
 
@@ -491,7 +491,7 @@ fileURIScheme file =
 -- depend on what kind of filesystem the file is on.
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
 fileRead file cancellable =
-    constructNewGObject mkFileInputStream $
+    wrapNewGObject mkFileInputStream $
             propagateGError ({#call g_file_read#} 
                               (toFile file)
                               (fromMaybe (Cancellable nullForeignPtr) cancellable)) 
@@ -523,7 +523,7 @@ fileReadFinish :: FileClass file
                -> AsyncResult
                -> IO FileInputStream
 fileReadFinish file asyncResult =
-    constructNewGObject mkFileInputStream $
+    wrapNewGObject mkFileInputStream $
     propagateGError ({# call file_read_finish #} (toFile file) asyncResult)
 
 -- | Gets an output stream for appending data to the file. If the file doesn't already exist it is
@@ -546,7 +546,7 @@ fileAppendTo :: FileClass file
              -> Maybe Cancellable
              -> IO FileOutputStream
 fileAppendTo file flags cancellable =
-    makeNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
         propagateGError ({#call g_file_append_to #} 
                            (toFile file) 
                            ((fromIntegral . fromFlags) flags) 
@@ -573,7 +573,7 @@ fileCreate :: FileClass file
            -> Maybe Cancellable
            -> IO FileOutputStream
 fileCreate file flags cancellable =
-    constructNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
         propagateGError ({#call g_file_create #} 
                           (toFile file) 
                          ((fromIntegral . fromFlags) flags) 
@@ -618,7 +618,7 @@ fileReplace :: FileClass file
             -> Maybe Cancellable
             -> IO FileOutputStream
 fileReplace file etag makeBackup flags cancellable =
-    makeNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
         maybeWith withUTFString etag $ \cEtag ->
         propagateGError ({#call g_file_replace#} 
                            (toFile file)
@@ -656,7 +656,7 @@ fileAppendToFinish :: FileClass file
                    -> AsyncResult
                    -> IO FileOutputStream
 fileAppendToFinish file asyncResult =
-    constructNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
     propagateGError ({# call file_append_to_finish #} (toFile file) asyncResult)
 
 -- | Asynchronously creates a new file and returns an output stream for writing to it. The file must not
@@ -689,7 +689,7 @@ fileCreateFinish :: FileClass file
                    -> AsyncResult
                    -> IO FileOutputStream
 fileCreateFinish file asyncResult =
-    constructNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
     propagateGError ({# call file_create_finish #} (toFile file) asyncResult)
 
 -- | Asynchronously overwrites the file, replacing the contents, possibly creating a backup copy of the
@@ -727,7 +727,7 @@ fileReplaceFinish :: FileClass file
                   -> AsyncResult
                   -> IO FileOutputStream
 fileReplaceFinish file asyncResult =
-    constructNewGObject mkFileOutputStream $
+    wrapNewGObject mkFileOutputStream $
     propagateGError ({# call file_replace_finish #} (toFile file) asyncResult)
 
 -- | Gets the requested information about specified file. The result is a 'FileInfo' object that contains
@@ -758,7 +758,7 @@ fileQueryInfo :: FileClass file
               -> Maybe Cancellable
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
-    makeNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
         withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_info #} 
                            (toFile file) 
@@ -800,7 +800,7 @@ fileQueryInfoFinish :: FileClass file
                     -> AsyncResult
                     -> IO FileInfo
 fileQueryInfoFinish file asyncResult =
-    constructNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
     propagateGError ({#call file_query_info_finish #} (toFile file) asyncResult)
 
 -- | Utility function to check if a particular file exists. This is implemented using 'fileQueryInfo'
@@ -876,7 +876,7 @@ fileQueryFilesystemInfo :: FileClass file
                         -> Maybe Cancellable
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
-    makeNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
         withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_filesystem_info #} 
                            (toFile file) 
@@ -915,7 +915,7 @@ fileQueryFilesystemInfoFinish :: FileClass file
                               -> AsyncResult
                               -> IO FileInfo
 fileQueryFilesystemInfoFinish file asyncResult =
-    constructNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
     propagateGError ({# call file_query_filesystem_info_finish #} (toFile file) asyncResult)
 
 -- | Returns the 'AppInfo' that is registered as the default application to handle the file specified by
@@ -929,7 +929,7 @@ fileQueryDefaultHandler :: FileClass file
                         -> Maybe Cancellable
                         -> IO AppInfo
 fileQueryDefaultHandler file cancellable =
-    makeNewGObject mkAppInfo $
+    wrapNewGObject mkAppInfo $
         propagateGError ({#call g_file_query_default_handler #} 
                            (toFile file)
                            (fromMaybe (Cancellable nullForeignPtr) cancellable) )
@@ -947,7 +947,7 @@ fileFindEnclosingMount :: FileClass file
                        -> Maybe Cancellable
                        -> IO Mount
 fileFindEnclosingMount file cancellable =
-    makeNewGObject mkMount $
+    wrapNewGObject mkMount $
         propagateGError ({#call g_file_find_enclosing_mount #} 
                            (toFile file)
                            (fromMaybe (Cancellable nullForeignPtr) cancellable) 
@@ -980,7 +980,7 @@ fileFindEnclosingMountFinish :: FileClass file
                              -> AsyncResult
                              -> IO Mount
 fileFindEnclosingMountFinish file asyncResult =
-    makeNewGObject mkMount $
+    wrapNewGObject mkMount $
     propagateGError ({# call file_find_enclosing_mount_finish #} (toFile file) asyncResult)
 
 -- | Gets the requested information about the files in a directory. The result is a 'FileEnumerator'
@@ -1006,7 +1006,7 @@ fileEnumerateChildren :: FileClass file
                       -> Maybe Cancellable
                       -> IO FileEnumerator
 fileEnumerateChildren file attributes flags cancellable =
-    makeNewGObject mkFileEnumerator $
+    wrapNewGObject mkFileEnumerator $
         withCString attributes $ \cAttributes ->
         propagateGError ({#call g_file_enumerate_children #} 
                            (toFile file) 
@@ -1048,7 +1048,7 @@ fileEnumerateChildrenFinish :: FileClass file
                              -> AsyncResult
                              -> IO FileEnumerator
 fileEnumerateChildrenFinish file asyncResult =
-    constructNewGObject mkFileEnumerator $
+    wrapNewGObject mkFileEnumerator $
     propagateGError ({# call file_enumerate_children_finish #} (toFile file) asyncResult)
 
 -- | Renames file to the specified display name.
@@ -1071,7 +1071,7 @@ fileSetDisplayName :: FileClass file
                    -> Maybe Cancellable
                    -> IO File
 fileSetDisplayName file displayName cancellable =
-    makeNewGObject mkFile $
+    wrapNewGObject mkFile $
         withUTFString displayName $ \cDisplayName ->
         propagateGError ({#call g_file_set_display_name #} 
                            (toFile file) 
@@ -1108,7 +1108,7 @@ fileSetDisplayNameFinish :: FileClass file
                          -> AsyncResult
                          -> IO File
 fileSetDisplayNameFinish file asyncResult =
-    makeNewGObject mkFile $
+    wrapNewGObject mkFile $
     propagateGError ({# call file_set_display_name_finish #} (toFile file) asyncResult)
 
 -- | Deletes a file. If the file is a directory, it will only be deleted if it is empty.
@@ -1652,7 +1652,7 @@ fileMonitorDirectory :: FileClass file
                      -> Maybe Cancellable
                      -> IO FileMonitor
 fileMonitorDirectory file flags cancellable =
-    constructNewGObject mkFileMonitor $
+    wrapNewGObject mkFileMonitor $
         propagateGError ({#call g_file_monitor_directory #} 
                            (toFile file) 
                            ((fromIntegral . fromFlags) flags) 
@@ -1671,7 +1671,7 @@ fileMonitorFile :: FileClass file
                      -> Maybe Cancellable
                      -> IO FileMonitor
 fileMonitorFile file flags cancellable =
-    constructNewGObject mkFileMonitor $
+    wrapNewGObject mkFileMonitor $
         propagateGError ({#call g_file_monitor_file #}
                            (toFile file) 
                            ((fromIntegral . fromFlags) flags) 
@@ -1690,7 +1690,7 @@ fileMonitor :: FileClass file
                      -> Maybe Cancellable
                      -> IO FileMonitor
 fileMonitor file flags cancellable =
-    constructNewGObject mkFileMonitor $
+    wrapNewGObject mkFileMonitor $
         propagateGError ({#call g_file_monitor #} 
                            (toFile file) 
                            ((fromIntegral . fromFlags) flags) 
@@ -1730,7 +1730,7 @@ fileMountMountableFinish :: FileClass file => file
  -> AsyncResult -- ^ @result@  a 'AsyncResult'                                         
  -> IO File
 fileMountMountableFinish file result =
-    constructNewGObject mkFile $
+    wrapNewGObject mkFile $
     propagateGError ({#call g_file_mount_mountable_finish#} (toFile file) result)
 
 #if GLIB_CHECK_VERSION(2,22,0)
