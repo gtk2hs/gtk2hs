@@ -118,7 +118,7 @@ appInfoCreateFromCommandline :: String -- ^ @commandline@      the commandline t
  -> [AppInfoCreateFlags] -- ^ @flags@            flags that can specify details of the created 'AppInfo'        
  -> IO AppInfo      -- ^ returns          new 'AppInfo' for given command.                               
 appInfoCreateFromCommandline commandline applicationName flags =
-    constructNewGObject mkAppInfo $
+    wrapNewGObject mkAppInfo $
     withUTFString commandline $ \ commandlinePtr -> 
         maybeWith withUTFString applicationName $ \ applicationNamePtr -> 
             propagateGError ({#call g_app_info_create_from_commandline #}
@@ -129,7 +129,7 @@ appInfoCreateFromCommandline commandline applicationName flags =
 -- | Creates a duplicate of a 'AppInfo'.
 appInfoDup :: AppInfoClass appinfo => appinfo -> IO AppInfo
 appInfoDup appinfo = 
-    constructNewGObject mkAppInfo $
+    wrapNewGObject mkAppInfo $
     {#call g_app_info_dup #} (toAppInfo appinfo)
 
 -- | Checks if two 'AppInfo's are equal.
@@ -378,7 +378,7 @@ appInfoGetAll :: IO [AppInfo]
 appInfoGetAll = do
   glistPtr <- {# call g_app_info_get_all #} 
   list <- fromGList glistPtr
-  mapM (makeNewGObject mkAppInfo . return) list       
+  mapM (wrapNewGObject mkAppInfo . return) list       
 
 -- | Gets a list of all 'AppInfo's for a given content type.
 appInfoGetAllForType :: 
@@ -391,7 +391,7 @@ appInfoGetAllForType contentType =
        then return []
        else do 
          list <- fromGList glistPtr
-         mapM (makeNewGObject mkAppInfo . return) list       
+         mapM (wrapNewGObject mkAppInfo . return) list       
 
 -- | Gets the 'AppInfo' that corresponds to a given content type.
 appInfoGetDefaultForType :: 
@@ -478,5 +478,5 @@ appLaunchContextLaunchFailed launchContext startupNotifyId =
 -- subclass of this, such as 'AppLaunchContext'.
 appLaunchContextNew :: IO AppLaunchContext
 appLaunchContextNew =
-    constructNewGObject mkAppLaunchContext $
+    wrapNewGObject mkAppLaunchContext $
     {#call g_app_launch_context_new#}
