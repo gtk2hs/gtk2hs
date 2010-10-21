@@ -129,10 +129,11 @@ makeNewGObject (constr, objectUnref) generator = do
 
 foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
 
--- | This function wraps any object that does not
--- derive from Object. The object is NOT reference, hence it should be used
--- when a new object is created. Newly created 'GObject's have a reference
--- count of one, hence don't need ref'ing.
+-- | This function wraps any newly created objects that derives from
+-- GInitiallyUnowned also known as objects with
+-- \"floating-references\". The object will be refSink (for glib
+-- versions >= 2.10). On non-floating objects, this function behaves
+-- exactly the same as "makeNewGObject".
 --
 constructNewGObject :: GObjectClass obj => 
   (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
