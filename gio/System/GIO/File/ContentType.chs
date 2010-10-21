@@ -119,7 +119,7 @@ contentTypeGetMimeType typ =
 contentTypeGetIcon :: String 
  -> Icon  -- ^ returns 'Icon' corresponding to the content type. 
 contentTypeGetIcon typ = 
-  unsafePerformIO $ makeNewGObject mkIcon $
+  unsafePerformIO $ wrapNewGObject mkIcon $
   withUTFString typ $ \ typPtr -> 
   {#call g_content_type_get_icon#} typPtr
 
