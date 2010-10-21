@@ -84,7 +84,7 @@ import System.Glib.UTFString
 -- | Gets the volume monitor used by gio.
 volumeMonitorGet :: IO VolumeMonitor
 volumeMonitorGet =
-  constructNewGObject mkVolumeMonitor $
+  wrapNewGObject mkVolumeMonitor $
   {#call g_volume_monitor_get #}
 
 -- | Gets a list of drives connected to the system.
@@ -93,7 +93,7 @@ volumeMonitorGetConnectedDrives :: VolumeMonitorClass monitor => monitor
 volumeMonitorGetConnectedDrives monitor = do
   glistPtr <- {#call g_volume_monitor_get_connected_drives #} (toVolumeMonitor monitor)
   drivePtrs <- fromGList glistPtr
-  mapM (makeNewGObject mkDrive . return) drivePtrs
+  mapM (wrapNewGObject mkDrive . return) drivePtrs
 
 -- | Gets a list of the volumes on the system.
 volumeMonitorGetVolumes :: VolumeMonitorClass monitor => monitor
@@ -101,7 +101,7 @@ volumeMonitorGetVolumes :: VolumeMonitorClass monitor => monitor
 volumeMonitorGetVolumes monitor = do
   glistPtr <- {#call g_volume_monitor_get_volumes #} (toVolumeMonitor monitor)
   volumePtrs <- fromGList glistPtr
-  mapM (makeNewGObject mkDrive . return) volumePtrs
+  mapM (wrapNewGObject mkDrive . return) volumePtrs
 
 -- | Gets a list of the mounts on the system.
 volumeMonitorGetMounts :: VolumeMonitorClass monitor => monitor
@@ -109,7 +109,7 @@ volumeMonitorGetMounts :: VolumeMonitorClass monitor => monitor
 volumeMonitorGetMounts monitor = do
   glistPtr <- {#call g_volume_monitor_get_mounts #} (toVolumeMonitor monitor)
   mountPtrs <- fromGList glistPtr
-  mapM (makeNewGObject mkDrive . return) mountPtrs
+  mapM (wrapNewGObject mkDrive . return) mountPtrs
 
 -- | Finds a 'Mount' object by its UUID (see 'mountGetUuid'
 volumeMonitorGetMountForUUID :: VolumeMonitorClass monitor => monitor
