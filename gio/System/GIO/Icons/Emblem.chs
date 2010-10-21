@@ -69,7 +69,7 @@ import System.Glib.UTFString
 -- | Creates a new emblem for icon.
 emblemNew :: IconClass icon => icon -> IO Emblem
 emblemNew icon =
-    constructNewGObject mkEmblem $
+    wrapNewGObject mkEmblem $
     {#call g_emblem_new#} (toIcon icon) 
 
 -- | Creates a new emblem for icon.
@@ -78,7 +78,7 @@ emblemNewWithOrigin :: IconClass icon
  -> EmblemOrigin  -- ^ @origin@  a 'EmblemOrigin' enum defining the emblem's origin 
  -> IO Emblem
 emblemNewWithOrigin icon origin =
-    constructNewGObject mkEmblem $
+    wrapNewGObject mkEmblem $
     {#call g_emblem_new_with_origin#} (toIcon icon) ((fromIntegral . fromEnum) origin)
 
 -- | Gives back the icon from emblem.
