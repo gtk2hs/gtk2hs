@@ -40,6 +40,7 @@ module System.Glib.GObject (
 #endif
   makeNewGObject,
   constructNewGObject,
+  wrapNewGObject,
   
   -- ** GType queries
   gTypeGObject,
@@ -142,6 +143,19 @@ constructNewGObject (constr, objectUnref) generator = do
   -- the name is confusing, what the function does is ref,sink,unref
   objectRefSink objPtr
 #endif
+  obj <- newForeignPtr objPtr objectUnref
+  return $! constr obj
+
+-- | This function wraps any newly created object that does not derived
+-- from GInitiallyUnowned (that is a GObject with no floating
+-- reference). Since newly created 'GObject's have a reference count of
+-- one, they don't need ref'ing.
+--
+wrapNewGObject :: GObjectClass obj => 
+  (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
+wrapNewGObject (constr, objectUnref) generator = do
+  objPtr <- generator
+  when (objPtr == nullPtr) (fail "wrapNewGObject: object is NULL")
   obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
 
