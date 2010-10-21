@@ -70,7 +70,7 @@ import System.Glib.Signals
 -- operations.
 cancellableNew :: IO Cancellable
 cancellableNew =
-    constructNewGObject mkCancellable $
+    wrapNewGObject mkCancellable $
     {# call cancellable_new #}
 
 -- | Checks if a cancellable job has been cancelled.
