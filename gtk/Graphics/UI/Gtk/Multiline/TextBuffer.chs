@@ -613,7 +613,7 @@ textBufferCreateMark :: TextBufferClass self => self
  -> Bool         -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark  -- ^ returns the new 'TextMark' object
 textBufferCreateMark self markName where_ leftGravity =
-  wrapNewGObject mkTextMark $
+  makeNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_buffer_create_mark #}
     (toTextBuffer self)
