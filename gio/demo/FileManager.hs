@@ -18,6 +18,8 @@ import System.Locale
 import System.Time
 import Text.Printf
 
+import qualified Data.ByteString.UTF8 as UTF8
+
 data FMInfo = FMInfo {
   fIcon :: Pixbuf,               -- icon
   fName :: String,               -- file name
@@ -47,7 +49,7 @@ main = do
                    -- Get Icon.
                    icon <- fileInfoGetIcon info
                    iconTheme <- iconThemeGetDefault
-                   iconInfo <- iconThemeLookupByGicon iconTheme icon 24 IconLookupUseBuiltin
+                   iconInfo <- iconThemeLookupByGIcon iconTheme icon 24 IconLookupUseBuiltin
                    pixbuf <- case iconInfo of
                               Just ii -> iconInfoLoadIcon ii
                               Nothing -> liftM fromJust $ iconThemeLoadIcon iconTheme "unknown" 24 IconLookupUseBuiltin
@@ -63,7 +65,7 @@ main = do
                        Just contentType = fileInfoGetContentType info
                        desc = contentTypeGetDescription contentType
 
-                   return $ FMInfo pixbuf name desc size time
+                   return $ FMInfo pixbuf (UTF8.toString name) desc size time
                 ) infos
 
   -- Initialize tree view.
@@ -137,7 +139,7 @@ main = do
 
 directoryGetFileInfos :: FilePath -> IO [FileInfo]
 directoryGetFileInfos directory = do
-  let dir = fileFromPath directory
+  let dir = fileFromPath (UTF8.fromString directory)
   enumerator <- fileEnumerateChildren dir "*" [] Nothing
   fileEnumeratorGetFileInfos enumerator
 
