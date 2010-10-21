@@ -66,7 +66,7 @@ themedIconNew :: ByteString -- ^ @iconname@ a string containing an icon name.
 themedIconNew iconName =
   useAsCString iconName $ \ iconNamePtr -> 
   {#call g_themed_icon_new#} iconNamePtr
-  >>= (constructNewGObject mkThemedIcon . return) . castPtr
+  >>= (wrapNewGObject mkThemedIcon . return) . castPtr
 
 -- | Creates a new themed icon for iconnames.
 themedIconNewFromNames :: 
@@ -76,7 +76,7 @@ themedIconNewFromNames iconNames = do
   let len = if null iconNames then (-1) else length iconNames
   withUTFStringArray iconNames $ \ iconNamesPtr -> 
       {#call g_themed_icon_new_from_names#} iconNamesPtr (fromIntegral len)
-      >>= (constructNewGObject mkThemedIcon . return) . castPtr
+      >>= (wrapNewGObject mkThemedIcon . return) . castPtr
 
 #if GLIB_CHECK_VERSION(2,18,0)
 -- | Prepend a name to the list of icons from within icon.
