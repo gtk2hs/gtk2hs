@@ -97,7 +97,7 @@ import System.Glib.UTFString
 -- | Creates a new mount operation.
 mountOperationNew :: IO MountOperation
 mountOperationNew =
-    constructNewGObject mkMountOperation $
+    wrapNewGObject mkMountOperation $
     {# call g_mount_operation_new #}
 
 -- | Emits the "reply" signal.
