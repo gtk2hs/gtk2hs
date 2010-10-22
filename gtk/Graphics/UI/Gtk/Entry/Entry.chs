@@ -82,6 +82,9 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryGetIconWindow,
   entryGetTextWindow,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  entryImContextFilterKeypress,
+#endif
 
 -- * Attributes
   entryCursorPosition,
@@ -146,7 +149,9 @@ import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..), EntryIconPosition (..))
-import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton)
+import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton, EKey)
+import Control.Monad.Reader             ( ask )
+import Control.Monad.Trans              ( liftIO )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -445,6 +450,27 @@ entryGetTextWindow entry =
     makeNewGObject mkDrawWindow $
     {#call gtk_entry_get_text_window #}
       (toEntry entry)
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Allow the 'Entry' input method to internally handle key press and release events. If this function
+-- returns 'True', then no further processing should be done for this key event. See
+-- 'imContextFilterKeypress'.
+-- 
+-- Note that you are expected to call this function from your handler when overriding key event
+-- handling. This is needed in the case when you need to insert your own key handling between the input
+-- method and the default key event handling of the 'Entry'. See 'textViewResetImContext' for
+-- an example of use.
+--
+-- * Available since Gtk+ version 2.22
+--
+entryImContextFilterKeypress :: EntryClass self => self -> EventM EKey Bool
+entryImContextFilterKeypress self = do
+  ptr <- ask
+  liftIO $ liftM toBool $
+    {# call gtk_entry_im_context_filter_keypress #}
+      (toEntry self)
+      (castPtr ptr)
 #endif
 
 --------------------
