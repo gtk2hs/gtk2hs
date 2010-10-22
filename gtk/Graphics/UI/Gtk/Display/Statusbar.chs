@@ -88,6 +88,9 @@ module Graphics.UI.Gtk.Display.Statusbar (
 #if GTK_CHECK_VERSION(2,20,0)
   statusbarGetMessageArea,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  statusbarRemoveAll,
+#endif
 
 -- * Attributes
   statusbarHasResizeGrip,
@@ -215,6 +218,20 @@ statusbarGetMessageArea self =
   {# call unsafe gtk_statusbar_get_message_area #}
     (toStatusbar self)
 
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Forces the removal of all messages from a statusbar's stack with the exact @contextId@.
+--
+-- * Available since Gtk+ version 2.22
+--
+statusbarRemoveAll :: StatusbarClass self => self 
+                   -> Int -- ^ @contextId@ a context identifier 
+                   -> IO ()
+statusbarRemoveAll self contextId = 
+  {#call gtk_statusbar_remove_all #}
+    (toStatusbar self)
+    (fromIntegral contextId)
 #endif
 
 --------------------
