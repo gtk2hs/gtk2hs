@@ -108,6 +108,10 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewSetReorderable,
   iconViewGetReorderable,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  iconViewGetItemRow,
+  iconViewGetItemColumn,
+#endif
 
 -- * Attributes
   iconViewSelectionMode,
@@ -822,6 +826,37 @@ iconViewGetReorderable self =
   liftM toBool $
   {# call gtk_icon_view_get_reorderable #}
     (toIconView self)
+
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Gets the row in which the item path is currently displayed. Row numbers start at 0.
+--
+-- * Available since Gtk+ version 2.22
+--
+iconViewGetItemRow :: IconViewClass self => self
+                   -> TreePath -- ^ @path@      the 'TreePath' of the item            
+                   -> IO Int -- ^ returns   The row in which the item is displayed 
+iconViewGetItemRow self path =
+  liftM fromIntegral $
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_get_item_row #}
+    (toIconView self)
+    path
+
+-- | Gets the column in which the item path is currently displayed. Column numbers start at 0.
+--
+-- * Available since Gtk+ version 2.22
+--
+iconViewGetItemColumn :: IconViewClass self => self
+                   -> TreePath -- ^ @path@      the 'TreePath' of the item            
+                   -> IO Int -- ^ returns   The column in which the item is displayed 
+iconViewGetItemColumn self path =
+  liftM fromIntegral $
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_get_item_column #}
+    (toIconView self)
+    path
 
 #endif
 
