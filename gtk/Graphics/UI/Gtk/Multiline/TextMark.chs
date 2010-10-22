@@ -118,7 +118,7 @@ textMarkNew ::
  -> Bool  -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark
 textMarkNew  markName leftGravity =
-  makeNewGObject mkTextMark $
+  wrapNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_mark_new #}
     markNamePtr
