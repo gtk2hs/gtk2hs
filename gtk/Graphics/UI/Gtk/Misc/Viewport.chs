@@ -71,6 +71,9 @@ module Graphics.UI.Gtk.Misc.Viewport (
 #if GTK_CHECK_VERSION(2,20,0)
   viewportGetBinWindow,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  viewportGetViewWindow,
+#endif
 
 -- * Attributes
   viewportHAdjustment,
@@ -167,6 +170,18 @@ viewportGetBinWindow :: ViewportClass self => self -> IO DrawWindow
 viewportGetBinWindow self =
     makeNewGObject mkDrawWindow $
     {#call gtk_viewport_get_bin_window #}
+      (toViewport self)
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Gets the view window of the 'Viewport'.
+--
+-- * Available since Gtk+ version 2.22
+--
+viewportGetViewWindow :: ViewportClass self => self -> IO DrawWindow
+viewportGetViewWindow self =
+    makeNewGObject mkDrawWindow $
+    {#call gtk_viewport_get_view_window #}
       (toViewport self)
 #endif
 
