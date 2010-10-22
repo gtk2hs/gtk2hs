@@ -81,6 +81,9 @@ module Graphics.UI.Gtk.Layout.Table (
   tableGetDefaultColSpacing,
   tableSetHomogeneous,
   tableGetHomogeneous,
+#if GTK_CHECK_VERSION(2,22,0)
+  tableGetSize,
+#endif
 
 -- * Attributes
   tableNRows,
@@ -328,6 +331,26 @@ tableGetHomogeneous self =
   liftM toBool $
   {# call unsafe table_get_homogeneous #}
     (toTable self)
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Returns the size of 'Table'.
+--
+-- * Available since Gtk+ version 2.22
+--
+tableGetSize :: TableClass self => self
+             -> IO (Int, Int) -- ^ returns (rows, columns) of table
+tableGetSize self =
+  alloca $ \ rowsPtr ->
+  alloca $ \ columnsPtr -> do
+  {# call unsafe gtk_table_get_size #}
+    (toTable self)
+    rowsPtr
+    columnsPtr
+  rows <- peek rowsPtr
+  columns <- peek columnsPtr
+  return (fromIntegral rows, fromIntegral columns)
+  
+#endif
 
 --------------------
 -- Attributes
