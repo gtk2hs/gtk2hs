@@ -146,6 +146,8 @@ module Graphics.UI.Gtk.Multiline.TextView (
 #if GTK_CHECK_VERSION(2,22,0)
   textViewGetHadjustment,
   textViewGetVadjustment,
+  textViewImContextFilterKeypress,
+  textViewResetImContext,
 #endif
 
 -- * Attributes
@@ -193,6 +195,9 @@ import System.Glib.Attributes
 import System.Glib.Properties           (newAttrFromStringProperty)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
+import Graphics.UI.Gtk.Gdk.EventM	(EventM, EKey)
+import Control.Monad.Reader             ( ask )
+import Control.Monad.Trans              ( liftIO )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
@@ -1037,6 +1042,37 @@ textViewGetVadjustment self =
   makeNewObject mkAdjustment $
   {#call gtk_text_view_get_vadjustment #}
     (toTextView self)
+
+-- | Allow the 'TextView' input method to internally handle key press and release events. If this
+-- function returns 'True', then no further processing should be done for this key event. See
+-- 'imContextFilterKeypress'.
+-- 
+-- Note that you are expected to call this function from your handler when overriding key event
+-- handling. This is needed in the case when you need to insert your own key handling between the input
+-- method and the default key event handling of the 'TextView'.
+--
+-- * Available since Gtk+ version 2.22
+--
+textViewImContextFilterKeypress :: TextViewClass self => self -> EventM EKey Bool
+textViewImContextFilterKeypress self = do
+  ptr <- ask
+  liftIO $ liftM toBool $
+    {# call gtk_text_view_im_context_filter_keypress #}
+      (toTextView self)
+      (castPtr ptr)
+
+-- | Reset the input method context of the text view if needed.
+-- 
+-- This can be necessary in the case where modifying the buffer would confuse on-going input method
+-- behavior.
+--
+-- * Available since Gtk+ version 2.22
+--
+textViewResetImContext :: TextViewClass self => self -> IO ()
+textViewResetImContext self =
+  {#call gtk_text_view_reset_im_context #} (toTextView self)
+
+
 #endif
 
 --------------------
