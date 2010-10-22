@@ -82,6 +82,9 @@ module Graphics.UI.Gtk.Layout.Expander (
   expanderUseMarkup,
   expanderSpacing,
   expanderLabelWidget,
+#if GTK_CHECK_VERSION(2,22,0)
+  expanderLabelFill,
+#endif
 
 -- * Signals
   onActivate,
@@ -94,6 +97,7 @@ import Control.Monad (liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
@@ -313,6 +317,15 @@ expanderLabelWidget :: WidgetClass labelWidget => ReadWriteAttr Expander Widget 
 expanderLabelWidget = newAttr
   expanderGetLabelWidget
   expanderSetLabelWidget
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Whether the label widget should fill all available horizontal space.
+-- 
+-- Default value: 'False'
+--
+expanderLabelFill :: Attr Expander Bool
+expanderLabelFill = newAttrFromBoolProperty "label-fill"
+#endif
 
 --------------------
 -- Signals
