@@ -65,6 +65,9 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
   fontSelectionDialogSetFontName,
   fontSelectionDialogGetPreviewText,
   fontSelectionDialogSetPreviewText,
+#if GTK_CHECK_VERSION(2,22,0)
+  fontSelectionDialogGetFontSelection,
+#endif
 
 -- * Attributes
   fontSelectionDialogPreviewText,
@@ -136,6 +139,20 @@ fontSelectionDialogSetPreviewText self text =
   {# call font_selection_dialog_set_preview_text #}
     (toFontSelectionDialog self)
     textPtr
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Retrieves the 'FontSelection' widget embedded in the dialog.
+--
+-- * Available since Gtk+ version 2.22
+--
+fontSelectionDialogGetFontSelection :: FontSelectionDialogClass self => self
+                                    -> IO FontSelection -- ^ returns the embedded 'FontSelection' 
+fontSelectionDialogGetFontSelection self = 
+  makeNewObject mkFontSelection $
+  liftM (castPtr :: Ptr Widget -> Ptr FontSelection) $
+  {#call gtk_font_selection_dialog_get_font_selection #}
+     (toFontSelectionDialog self)
+#endif
 
 --------------------
 -- Attributes
