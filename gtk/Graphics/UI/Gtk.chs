@@ -226,6 +226,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Scrolling.ScrolledWindow,
   module Graphics.UI.Gtk.Scrolling.VScrollbar,
   -- * Miscellaneous
+  module Graphics.UI.Gtk.Misc.Accessible,
   module Graphics.UI.Gtk.Misc.Adjustment,
   module Graphics.UI.Gtk.Misc.Arrow,
   module Graphics.UI.Gtk.Misc.Calendar,
@@ -460,6 +461,7 @@ import Graphics.UI.Gtk.Scrolling.HScrollbar
 import Graphics.UI.Gtk.Scrolling.VScrollbar
 import Graphics.UI.Gtk.Scrolling.ScrolledWindow
 -- miscellaneous
+import Graphics.UI.Gtk.Misc.Accessible
 import Graphics.UI.Gtk.Misc.Adjustment
 import Graphics.UI.Gtk.Misc.Arrow
 import Graphics.UI.Gtk.Misc.Calendar

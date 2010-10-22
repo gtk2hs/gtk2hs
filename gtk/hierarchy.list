@@ -22,6 +22,8 @@
 #		  if a different equality instance is manually
 #		  defined later
     GObject 
+	    AtkObject
+		    GtkAccessible		if gtk-2.22
 	    GdkKeymap				if gtk-2.2
 	    GdkDisplayManager		if gtk-2.2
 	    GdkAppLaunchContext		if gtk-2.14
