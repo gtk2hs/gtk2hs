@@ -125,6 +125,9 @@ module Graphics.UI.Gtk.ModelView.IconView (
 #if GTK_CHECK_VERSION(2,8,0)
   iconViewReorderable,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  iconViewItemOrientation,
+#endif
 
 -- * Signals
   setIconViewScrollAdjustments,
@@ -971,6 +974,19 @@ iconViewOrientation = newAttrFromEnumProperty "orientation"
 --
 iconViewReorderable :: IconViewClass self => Attr self Bool
 iconViewReorderable = newAttrFromBoolProperty "reorderable"
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | The item-orientation property specifies how the cells (i.e. the icon and the text) of the item are
+-- positioned relative to each other.
+-- 
+-- Default value: 'OrientationVertical'
+--
+-- * Available since Gtk+ version 2.22
+--
+iconViewItemOrientation :: IconViewClass self => Attr self Orientation
+iconViewItemOrientation = newAttrFromEnumProperty "item-orientation"
+                          {# call pure unsafe gtk_orientation_get_type #}
 #endif
 
 --------------------
