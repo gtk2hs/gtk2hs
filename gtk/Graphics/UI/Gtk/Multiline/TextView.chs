@@ -143,6 +143,10 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewSetAcceptsTab,
   textViewGetAcceptsTab,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  textViewGetHadjustment,
+  textViewGetVadjustment,
+#endif
 
 -- * Attributes
   textViewPixelsAboveLines,
@@ -1010,6 +1014,28 @@ textViewGetAcceptsTab :: TextViewClass self => self
 textViewGetAcceptsTab self =
   liftM toBool $
   {# call gtk_text_view_get_accepts_tab #}
+    (toTextView self)
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Gets the horizontal-scrolling 'Adjustment'.
+--
+-- * Available since Gtk+ version 2.22
+--
+textViewGetHadjustment :: TextViewClass self => self -> IO Adjustment
+textViewGetHadjustment self =
+  makeNewObject mkAdjustment $
+  {#call gtk_text_view_get_hadjustment #}
+    (toTextView self)
+
+-- | Gets the vertical-scrolling 'Adjustment'.
+--
+-- * Available since Gtk+ version 2.22
+--
+textViewGetVadjustment :: TextViewClass self => self -> IO Adjustment
+textViewGetVadjustment self =
+  makeNewObject mkAdjustment $
+  {#call gtk_text_view_get_vadjustment #}
     (toTextView self)
 #endif
 
