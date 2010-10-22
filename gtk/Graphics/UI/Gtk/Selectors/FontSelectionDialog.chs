@@ -65,6 +65,10 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
   fontSelectionDialogSetFontName,
   fontSelectionDialogGetPreviewText,
   fontSelectionDialogSetPreviewText,
+#if GTK_CHECK_VERSION(2,14,0)
+  fontSelectionDialogGetCancelButton,
+  fontSelectionDialogGetOkButton,
+#endif
 #if GTK_CHECK_VERSION(2,22,0)
   fontSelectionDialogGetFontSelection,
 #endif
@@ -139,6 +143,31 @@ fontSelectionDialogSetPreviewText self text =
   {# call font_selection_dialog_set_preview_text #}
     (toFontSelectionDialog self)
     textPtr
+
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Gets the 'Cancel' button.
+--
+-- * Available since Gtk+ version 2.14
+--
+fontSelectionDialogGetCancelButton :: FontSelectionDialogClass self => self
+                                    -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'Cancel' button. 
+fontSelectionDialogGetCancelButton self = 
+  makeNewObject mkWidget $
+  {#call gtk_font_selection_dialog_get_cancel_button #}
+     (toFontSelectionDialog self)
+
+-- | Gets the 'OK' button.
+--
+-- * Available since Gtk+ version 2.14
+--
+fontSelectionDialogGetOkButton :: FontSelectionDialogClass self => self
+                               -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'OK' button. 
+fontSelectionDialogGetOkButton self = 
+  makeNewObject mkWidget $
+  {#call gtk_font_selection_dialog_get_ok_button #}
+     (toFontSelectionDialog self)
+
+#endif
 
 #if GTK_CHECK_VERSION(2,22,0)
 -- | Retrieves the 'FontSelection' widget embedded in the dialog.
