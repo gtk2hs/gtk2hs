@@ -89,6 +89,9 @@ module Graphics.UI.Gtk.Windows.Assistant (
   assistantGetPageSideImage,
   assistantSetPageComplete,
   assistantGetPageComplete,
+#if GTK_CHECK_VERSION(2,22,0)
+  assistantCommit,
+#endif
 
 -- * Attributes
   assistantCurrentPage,
@@ -424,6 +427,21 @@ assistantGetPageComplete self page =
   {# call gtk_assistant_get_page_complete #}
     (toAssistant self)
     (toWidget page)
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Erases the visited page history so the back button is not shown on the current page, and removes the
+-- cancel button from subsequent pages.
+-- 
+-- Use this when the information provided up to the current page is hereafter deemed permanent and
+-- cannot be modified or undone. For example, showing a progress page to track a long-running,
+-- unreversible operation after the user has clicked apply on a confirmation page.
+--
+-- * Available since Gtk+ version 2.22
+--
+assistantCommit :: AssistantClass self => self -> IO ()
+assistantCommit self =
+  {#call gtk_assistant_commit#} (toAssistant self)
+#endif
 
 -- | Adds a widget to the action area of a 'Assistant'.
 --
