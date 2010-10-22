@@ -89,6 +89,9 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
   messageDialogImage,
 #endif
   messageDialogButtons,
+#if GTK_CHECK_VERSION(2,22,0)
+  messageDialogMessageArea,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -333,6 +336,16 @@ messageDialogImage = newAttrFromObjectProperty "image"
 messageDialogButtons :: MessageDialogClass self => WriteAttr self ButtonsType
 messageDialogButtons = writeAttrFromEnumProperty "buttons"
   {#call pure unsafe gtk_buttons_type_get_type #}
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | The 'VBox' that corresponds to the message area of this dialog. 
+--
+-- * Available since Gtk+ version 2.22
+--
+messageDialogMessageArea :: MessageDialogClass self => ReadAttr self VBox
+messageDialogMessageArea = readAttrFromObjectProperty "message-area"
+  {# call pure unsafe gtk_vbox_get_type #}
+#endif
 
 --------------------
 -- helpers
