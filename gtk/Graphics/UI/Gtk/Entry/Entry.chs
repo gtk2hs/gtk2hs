@@ -84,6 +84,7 @@ module Graphics.UI.Gtk.Entry.Entry (
 #endif
 #if GTK_CHECK_VERSION(2,22,0)
   entryImContextFilterKeypress,
+  entryResetImContext,
 #endif
 
 -- * Attributes
@@ -471,6 +472,17 @@ entryImContextFilterKeypress self = do
     {# call gtk_entry_im_context_filter_keypress #}
       (toEntry self)
       (castPtr ptr)
+
+-- | Reset the input method context of the entry if needed.
+-- 
+-- This can be necessary in the case where modifying the buffer would confuse on-going input method
+-- behavior.
+--
+-- * Available since Gtk+ version 2.22
+--
+entryResetImContext :: EntryClass self => self -> IO ()
+entryResetImContext self =
+  {#call gtk_entry_reset_im_context #} (toEntry self)
 #endif
 
 --------------------
