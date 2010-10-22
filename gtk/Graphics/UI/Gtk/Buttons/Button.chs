@@ -93,6 +93,9 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonSetImagePosition,
   buttonGetImagePosition,
 #endif
+#if GTK_CHECK_VERSION(2,22,0)
+  buttonGetEventWindow,
+#endif
 
 -- * Attributes
   buttonLabel,
@@ -490,6 +493,19 @@ buttonGetImagePosition :: ButtonClass self => self
 buttonGetImagePosition self =
   liftM (toEnum . fromIntegral) $
   {# call gtk_button_get_image_position #}
+    (toButton self)
+#endif
+
+#if GTK_CHECK_VERSION(2,22,0)
+-- | Returns the button's event window if it is realized, 'Nothing' otherwise.  
+--
+-- * Available since Gtk+ version 2.22
+--
+buttonGetEventWindow :: ButtonClass self => self 
+                       -> IO (Maybe DrawWindow) -- ^ returns button's event window or 'Nothing'
+buttonGetEventWindow self =
+  maybeNull (makeNewGObject mkDrawWindow) $
+  {#call gtk_button_get_event_window #}
     (toButton self)
 #endif
 
