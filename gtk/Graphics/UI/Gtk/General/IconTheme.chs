@@ -416,7 +416,7 @@ iconThemeLoadIcon :: IconThemeClass self => self
                       -- so you must not modify the icon. 
                       -- `Nothing` if the icon isn't found.
 iconThemeLoadIcon self iconName size flags =
-  maybeNull (makeNewGObject mkPixbuf) $
+  maybeNull (wrapNewGObject mkPixbuf) $
   propagateGError $ \errorPtr ->
   withUTFString iconName $ \iconNamePtr ->
   {# call gtk_icon_theme_load_icon #}
@@ -664,7 +664,7 @@ iconInfoGetFilename self = do
 -- loaded, which would be a waste of memory.
 iconInfoLoadIcon :: IconInfo -> IO Pixbuf
 iconInfoLoadIcon self =
-  makeNewGObject mkPixbuf $
+  wrapNewGObject mkPixbuf $
   propagateGError $ \errorPtr ->
   {# call gtk_icon_info_load_icon #}
     self

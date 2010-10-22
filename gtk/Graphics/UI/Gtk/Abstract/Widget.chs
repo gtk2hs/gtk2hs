@@ -1554,7 +1554,7 @@ widgetRenderIcon :: WidgetClass self => self
  -> IO (Maybe Pixbuf) -- ^ returns a new pixbuf, or @Nothing@ if the stock ID
                       -- wasn't known
 widgetRenderIcon self stockId size detail =
-  maybeNull (makeNewGObject mkPixbuf) $
+  maybeNull (wrapNewGObject mkPixbuf) $
   withUTFString detail $ \detailPtr ->
   withUTFString stockId $ \stockIdPtr ->
   {# call gtk_widget_render_icon #}
