@@ -368,7 +368,7 @@ fileParseName file =
 -- This call does no blocking i/o.
 fileParent :: FileClass file => file -> Maybe File
 fileParent file =
-    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $ 
+    unsafePerformIO $ maybeNull (wrapNewGObject mkFile) $ 
     {# call file_get_parent #} (toFile file) 
 
 #if GLIB_CHECK_VERSION(2,24,0)
@@ -404,7 +404,7 @@ fileGetChild file name =
 -- This call does no blocking i/o.
 fileGetChildForDisplayName :: FileClass file => file -> String -> File
 fileGetChildForDisplayName file displayName =
-    unsafePerformIO $ (makeNewGObject mkFile) $
+    unsafePerformIO $ (wrapNewGObject mkFile) $
         withUTFString displayName $ \cDisplayName ->
         propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName)
 
@@ -439,7 +439,7 @@ fileGetRelativePath file1 file2 =
 -- This call does no blocking i/o.
 fileResolveRelativePath :: FileClass file => file -> ByteString -> Maybe File
 fileResolveRelativePath file relativePath =
-    unsafePerformIO $ maybeNull (makeNewGObject mkFile) $
+    unsafePerformIO $ maybeNull (wrapNewGObject mkFile) $
         useAsCString relativePath $ \cRelativePath ->
         {# call file_resolve_relative_path #} (toFile file) cRelativePath
 
