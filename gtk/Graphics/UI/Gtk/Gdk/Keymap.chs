@@ -142,7 +142,7 @@ import Graphics.UI.Gtk.General.Structs (KeymapKey (..))
 keymapGetDefault ::
     IO Keymap -- ^ returns the 'Keymap' attached to the default display.
 keymapGetDefault =
-  constructNewGObject mkKeymap $
+  makeNewGObject mkKeymap $
   {# call gdk_keymap_get_default #}
 
 #if GTK_CHECK_VERSION(2,2,0)

@@ -152,7 +152,7 @@ cursorGetDisplay ::
     Cursor  -- ^ @cursor@ 'Cursor'
  -> IO Display   -- ^ return the 'Display' associated to cursor 
 cursorGetDisplay cursor =
-    constructNewGObject mkDisplay $ {#call cursor_get_display#} cursor
+    makeNewGObject mkDisplay $ {#call cursor_get_display#} cursor
     
 -- | Returns a 'Pixbuf' with the image used to display the cursor.    
 -- Note that depending on the capabilities of the windowing system and on the cursor, GDK may not be able to obtain the image data. 
@@ -161,4 +161,4 @@ cursorGetImage ::
     Cursor  -- ^ @cursor@ 'Cursor'
  -> IO (Maybe Pixbuf)   -- ^ a 'Pixbuf' representing cursor, or @Nothing@
 cursorGetImage cursor = 
-    maybeNull (constructNewGObject mkPixbuf) $ {#call cursor_get_image#} cursor
+    maybeNull (makeNewGObject mkPixbuf) $ {#call cursor_get_image#} cursor

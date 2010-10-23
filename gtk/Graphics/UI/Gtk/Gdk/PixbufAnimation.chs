@@ -187,7 +187,7 @@ pixbufAnimationIsStaticImage self = liftM toBool $ {#call unsafe pixbuf_animatio
 pixbufAnimationGetStaticImage :: PixbufAnimation
                               -> IO (Maybe Pixbuf) -- ^ unanimated image representing the animation
 pixbufAnimationGetStaticImage self =
-  maybeNull (constructNewGObject mkPixbuf) $ {#call unsafe pixbuf_animation_get_static_image#} self
+  maybeNull (makeNewGObject mkPixbuf) $ {#call unsafe pixbuf_animation_get_static_image#} self
 
 
 
@@ -254,7 +254,7 @@ pixbufAnimationIterOnCurrentlyLoadingFrame iter = liftM toBool $
 --
 pixbufAnimationIterGetPixbuf :: PixbufAnimationIter -- ^ an animation iterator
                                 -> IO Pixbuf        -- ^ the pixbuf to be displayed
-pixbufAnimationIterGetPixbuf iter = constructNewGObject mkPixbuf $
+pixbufAnimationIterGetPixbuf iter = makeNewGObject mkPixbuf $
    {# call unsafe pixbuf_animation_iter_get_pixbuf #} iter
 
 
