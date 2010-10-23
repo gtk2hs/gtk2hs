@@ -399,7 +399,7 @@ appInfoGetDefaultForType ::
  -> Bool  -- ^ @mustSupportUris@ if 'True', the 'AppInfo' is expected to support URIs 
  -> IO (Maybe AppInfo)         -- ^ returns list of 'AppInfo's for given @contentType@ or 'Nothing' on error. 
 appInfoGetDefaultForType contentType mustSupportUris = 
-  maybeNull (makeNewGObject mkAppInfo) $
+  maybeNull (wrapNewGObject mkAppInfo) $
   withUTFString contentType $ \ contentTypePtr -> do
   {# call g_app_info_get_default_for_type #} 
              (castPtr contentTypePtr)
@@ -411,7 +411,7 @@ appInfoGetDefaultForUriScheme ::
    String -- ^ @uriScheme@ a string containing a URI scheme.               
  -> IO (Maybe AppInfo)         -- ^ returns list of 'AppInfo's for given @contentType@ or 'Nothing' on error. 
 appInfoGetDefaultForUriScheme uriScheme = 
-  maybeNull (makeNewGObject mkAppInfo) $
+  maybeNull (wrapNewGObject mkAppInfo) $
   withUTFString uriScheme $ \ uriSchemePtr -> 
     {# call g_app_info_get_default_for_uri_scheme #} (castPtr uriSchemePtr)
 
