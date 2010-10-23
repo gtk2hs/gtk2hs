@@ -90,7 +90,7 @@ cancellableThrowErrorIfCancelled cancellable =
 cancellableGetCurrent :: 
   IO (Maybe Cancellable)  -- ^ returns a 'Cancellable' from the top of the stack, or 'Nothing' if the stack is empty.
 cancellableGetCurrent =
-    maybeNull (constructNewGObject mkCancellable) $
+    maybeNull (makeNewGObject mkCancellable) $
     {# call cancellable_get_current #} 
 
 -- | Pops cancellable off the cancellable stack (verifying that cancellable is on the top of the stack).
