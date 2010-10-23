@@ -135,14 +135,14 @@ volumeGetIcon volume =
 volumeGetDrive :: VolumeClass volume => volume
                -> IO (Maybe Drive)  -- ^ returns a 'Drive' or 'Nothing' if volume is not associated with a drive.
 volumeGetDrive volume = 
-  maybeNull (makeNewGObject mkDrive) $
+  maybeNull (wrapNewGObject mkDrive) $
   {#call g_volume_get_drive#} (toVolume volume)
 
 -- | Gets the mount for the volume.
 volumeGetMount :: VolumeClass volume => volume
                -> IO (Maybe Mount)  -- ^ returns a 'Mount' or 'Nothing' if volume is not associated with a mount.
 volumeGetMount volume = 
-  maybeNull (makeNewGObject mkMount) $
+  maybeNull (wrapNewGObject mkMount) $
   {#call g_volume_get_mount#} (toVolume volume)
 
 -- | Checks if a volume can be mounted.
@@ -167,7 +167,7 @@ volumeShouldAutomount volume =
 volumeGetActivationRoot :: VolumeClass volume => volume
                         -> IO (Maybe File) -- ^ returns the activation root of volume or 'Nothing'. 
 volumeGetActivationRoot volume = 
-  maybeNull (makeNewGObject mkFile) $
+  maybeNull (wrapNewGObject mkFile) $
   {#call g_volume_get_activation_root#} (toVolume volume)
 #endif
 
