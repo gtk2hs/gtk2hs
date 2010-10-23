@@ -479,7 +479,7 @@ screenGetActiveWindow :: Screen
  -> IO (Maybe DrawWindow) -- ^ returns the currently active window, or
                           -- @Nothing@.
 screenGetActiveWindow self =
-  maybeNull (makeNewGObject mkDrawWindow) $
+  maybeNull (wrapNewGObject mkDrawWindow) $
   {# call gdk_screen_get_active_window #}
     self
 #endif
@@ -503,7 +503,7 @@ screenGetWindowStack :: Screen
 screenGetWindowStack self = do
   lPtr <- {# call gdk_screen_get_window_stack #} self
   if lPtr==nullPtr then return Nothing else liftM Just $ do
-  fromGList lPtr >>= mapM (constructNewGObject mkDrawWindow . return)
+  fromGList lPtr >>= mapM (wrapNewGObject mkDrawWindow . return)
 #endif
 
 --------------------

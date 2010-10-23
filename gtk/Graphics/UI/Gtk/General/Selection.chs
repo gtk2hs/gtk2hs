@@ -340,7 +340,7 @@ selectionDataSetPixbuf pixbuf = do
 selectionDataGetPixbuf :: SelectionDataM (Maybe Pixbuf)
 selectionDataGetPixbuf = do
   selPtr <- ask
-  liftIO $ maybeNull (constructNewGObject mkPixbuf) $
+  liftIO $ maybeNull (wrapNewGObject mkPixbuf) $
     {#call unsafe gtk_selection_data_get_pixbuf #} selPtr
 
 -- %hash c:d222 d:af3f

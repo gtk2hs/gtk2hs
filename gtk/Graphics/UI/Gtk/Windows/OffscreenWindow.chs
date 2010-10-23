@@ -108,8 +108,7 @@ offscreenWindowGetPixmap offscreen =
   {#call gtk_offscreen_window_get_pixmap #}
      (toOffscreenWindow offscreen)
 
--- | Retrieves a snapshot of the contained widget in the form of a 'Pixbuf'. This is a new pixbuf with a
--- reference count of 1, and the application should unreference it once it is no longer needed.
+-- | Retrieves a snapshot of the contained widget in the form of a 'Pixbuf'.
 --
 -- * Available since Gtk+ version 2.20
 --
@@ -117,7 +116,7 @@ offscreenWindowGetPixbuf :: OffscreenWindowClass self
                            => self -- ^ @offscreen@ the 'OffscreenWindow' contained widget.              
                            -> IO (Maybe Pixbuf) -- ^ returns   A 'Pixbuf' pointer to the offscreen pixbuf, or 'Nothing'. 
 offscreenWindowGetPixbuf offscreen =
-  maybeNull (makeNewGObject mkPixbuf) $
+  maybeNull (wrapNewGObject mkPixbuf) $
   {#call gtk_offscreen_window_get_pixbuf #}
      (toOffscreenWindow offscreen)
 
