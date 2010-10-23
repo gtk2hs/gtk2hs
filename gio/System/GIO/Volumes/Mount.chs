@@ -140,7 +140,7 @@ mountGetIcon mount =
 mountGetDrive :: MountClass mount => mount
  -> IO (Maybe Drive)             -- ^ returns the 'Drive' for mount or 'Nothing' if no 'Drive' can be computed. 
 mountGetDrive mount = 
-  maybeNull (makeNewGObject mkDrive) $
+  maybeNull (wrapNewGObject mkDrive) $
   {#call g_mount_get_drive#} (toMount mount) 
 
 -- | Gets the root directory on mount.
@@ -154,7 +154,7 @@ mountGetRoot mount =
 mountGetVolume :: MountClass mount => mount
  -> IO (Maybe Volume)        -- ^ returns a 'Volume' or 'Nothing' if mount is not associated with a volume. 
 mountGetVolume mount = 
-  maybeNull (makeNewGObject mkVolume) $
+  maybeNull (wrapNewGObject mkVolume) $
   {#call g_mount_get_volume#} (toMount mount) 
 
 #if GLIB_CHECK_VERSION(2,24,0)
