@@ -69,14 +69,19 @@ module Graphics.UI.Gtk.Entry.Editable (
   editableEditable,
 
 -- * Signals
+  editableChanged,
+  deleteText,
+  insertText,
+  stopDeleteText,
+  stopInsertText,
+
+-- * Deprecated
   onEditableChanged,
   afterEditableChanged,
   onDeleteText,
   afterDeleteText,
-  stopDeleteText,
   onInsertText,
-  afterInsertText,
-  stopInsertText
+  afterInsertText
   ) where
 
 import Control.Monad    (liftM)
@@ -277,29 +282,27 @@ editableEditable = newAttr
 --------------------
 -- Signals
 
--- | The 'onEditableChanged' signal is emitted at the end of a single
+-- | The 'editableChanged' signal is emitted at the end of a single
 -- user-visible operation on the contents of the 'Editable'.
 --
 -- * For inctance, a paste operation that replaces the contents of the
 --   selection will cause only one signal emission (even though it is
 --   implemented by first deleting the selection, then inserting the new
---   content, and may cause multiple 'onEditableInserText' signals to be
+--   content, and may cause multiple 'inserText' signals to be
 --   emitted).
 --
-onEditableChanged, afterEditableChanged :: EditableClass ec => ec -> IO () ->
-                                     IO (ConnectId ec)
-onEditableChanged = connect_NONE__NONE "changed" False
-afterEditableChanged = connect_NONE__NONE "changed" True
+editableChanged :: EditableClass ec => Signal ec (IO ())
+editableChanged = Signal (connect_NONE__NONE "changed")
 
 -- | Emitted when a piece of text is deleted from the 'Editable' widget.
 --
--- * See 'onInsertText' for information on how to use this signal.
+-- * See 'insertText' for information on how to use this signal.
 --
-onDeleteText, afterDeleteText :: EditableClass self => self
- -> (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
- -> IO (ConnectId self)
-onDeleteText = connect_INT_INT__NONE "delete_text" False
-afterDeleteText = connect_INT_INT__NONE "delete_text" True
+deleteText :: EditableClass self =>
+              Signal self (
+                Int -> Int -> IO () -- ^ @(\startPos endPos -> ...)@
+              )
+deleteText = Signal (connect_INT_INT__NONE "delete_text")
 
 -- | Stop the current signal that deletes text.
 stopDeleteText :: EditableClass self => ConnectId self -> IO ()
@@ -324,7 +327,7 @@ stopDeleteText (ConnectId _ obj) =
 --   The following code is an example of how to turn all input into uppercase:
 --
 --   > idRef <- newIORef undefined
---   > id <- onInsertText entry $ \str pos -> do
+--   > id <- entry `on` insertText $ \str pos -> do
 --   >   id <- readIORef idRef
 --   >   signalBlock id
 --   >   pos' <- editableInsertText entry (map toUpper str) pos
@@ -333,9 +336,39 @@ stopDeleteText (ConnectId _ obj) =
 --   >   return pos'
 --   > writeIORef idRef id
 --
---   Note that the 'afterInsertText' function is not very useful, except to
+--   Note that binding 'insertText' using 'after' is not very useful, except to
 --   track editing actions.
 --
+insertText :: EditableClass self => Signal self (String -> Int -> IO Int)
+insertText = Signal $ \after obj handler ->
+  connect_PTR_INT_PTR__NONE "insert_text" after obj
+  (\strPtr strLen posPtr -> do
+    str <- if strLen<0 then peekUTFString strPtr
+           else peekUTFStringLen (strPtr, strLen)
+    pos <- peek (posPtr :: Ptr {#type gint#})
+    pos' <- handler str (fromIntegral pos)
+    poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
+  )
+ 
+-- | Stop the current signal that inserts text.
+stopInsertText :: EditableClass self => ConnectId self -> IO ()
+stopInsertText (ConnectId _ obj) =
+  signalStopEmission obj "insert_text"
+
+--------------------
+-- Deprecated Signals
+
+onEditableChanged, afterEditableChanged :: EditableClass ec => ec -> IO () ->
+                                     IO (ConnectId ec)
+onEditableChanged = connect_NONE__NONE "changed" False
+afterEditableChanged = connect_NONE__NONE "changed" True
+
+onDeleteText, afterDeleteText :: EditableClass self => self
+ -> (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
+ -> IO (ConnectId self)
+onDeleteText = connect_INT_INT__NONE "delete_text" False
+afterDeleteText = connect_INT_INT__NONE "delete_text" True
+
 onInsertText, afterInsertText :: EditableClass self => self
  -> (String -> Int -> IO Int)
  -> IO (ConnectId self)
@@ -357,8 +390,3 @@ afterInsertText obj handler =
     pos' <- handler str (fromIntegral pos)
     poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
   )
-
--- | Stop the current signal that inserts text.
-stopInsertText :: EditableClass self => ConnectId self -> IO ()
-stopInsertText (ConnectId _ obj) =
-  signalStopEmission obj "insert_text"
