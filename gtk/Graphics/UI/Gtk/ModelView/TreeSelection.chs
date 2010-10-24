@@ -95,8 +95,13 @@ module Graphics.UI.Gtk.ModelView.TreeSelection (
   treeSelectionMode,
 
 -- * Signals
+  treeSelectionSelectionChanged,
+
+#ifndef DISABLE_DEPRECATED
+-- * Deprecated
   onSelectionChanged,
   afterSelectionChanged
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -379,8 +384,16 @@ treeSelectionMode = newAttr
 -- rows are selected, and it may occasionally be emitted when nothing has
 -- happened.
 --
+treeSelectionSelectionChanged :: TreeSelectionClass self => Signal self (IO ())
+treeSelectionSelectionChanged = Signal (connect_NONE__NONE "changed")
+
+#ifndef DISABLE_DEPRECATED
+--------------------
+-- Deprecated Signals
+
 onSelectionChanged, afterSelectionChanged :: TreeSelectionClass self => self
  -> IO ()
  -> IO (ConnectId self)
 onSelectionChanged = connect_NONE__NONE "changed" False
 afterSelectionChanged = connect_NONE__NONE "changed" True
+#endif
