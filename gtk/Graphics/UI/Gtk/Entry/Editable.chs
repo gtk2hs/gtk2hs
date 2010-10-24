@@ -76,12 +76,14 @@ module Graphics.UI.Gtk.Entry.Editable (
   stopInsertText,
 
 -- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onEditableChanged,
   afterEditableChanged,
   onDeleteText,
   afterDeleteText,
   onInsertText,
   afterInsertText
+#endif
   ) where
 
 import Control.Monad    (liftM)
@@ -355,6 +357,7 @@ stopInsertText :: EditableClass self => ConnectId self -> IO ()
 stopInsertText (ConnectId _ obj) =
   signalStopEmission obj "insert-text"
 
+#ifndef DISABLE_DEPRECATED
 --------------------
 -- Deprecated Signals
 
@@ -390,3 +393,4 @@ afterInsertText obj handler =
     pos' <- handler str (fromIntegral pos)
     poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
   )
+#endif
