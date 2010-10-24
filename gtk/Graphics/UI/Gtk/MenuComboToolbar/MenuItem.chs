@@ -91,6 +91,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemRightJustified,
 
 -- * Signals
+  activateItem,
+  activateLeaf,
+  select,
+  deselect,
+  toggle,
+
+#ifndef DISABLE_DEPRECATED
+-- * Deprecated
   onActivateItem,
   afterActivateItem,
   onActivateLeaf,
@@ -101,6 +109,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   afterDeselect,
   onToggle,
   afterToggle
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -277,43 +286,63 @@ menuItemRightJustified = newAttr
 -- * This is the only function applications normally connect to.
 --   It is not emitted if the item has a submenu.
 --
-onActivateLeaf, afterActivateLeaf :: MenuItemClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onActivateLeaf = connect_NONE__NONE "activate" False
-afterActivateLeaf = connect_NONE__NONE "activate" True
+activateLeaf :: MenuItemClass self => Signal self (IO ())
+activateLeaf = Signal (connect_NONE__NONE "activate")
 
 -- | Emitted when the user chooses a menu item that has a submenu.
 --
 -- * This signal is not emitted if the menu item does not have a
 --   submenu.
 --
+activateItem :: MenuItemClass self => Signal self (IO ())
+activateItem = Signal (connect_NONE__NONE "activate-item")
+
+-- | This signal is emitted when the item is selected.
+--
+select :: ItemClass i => Signal i (IO ())
+select = Signal (connect_NONE__NONE "select")
+
+-- | This signal is emitted when the item is deselected.
+--
+deselect :: ItemClass i => Signal i (IO ())
+deselect = Signal (connect_NONE__NONE "deselect")
+
+-- | This signal is emitted when the item is toggled.
+--
+toggle :: ItemClass i => Signal i (IO ())
+toggle = Signal (connect_NONE__NONE "toggle")
+
+#ifndef DISABLE_DEPRECATED
+--------------------
+-- Deprecated Signals
+
+onActivateLeaf, afterActivateLeaf :: MenuItemClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onActivateLeaf = connect_NONE__NONE "activate" False
+afterActivateLeaf = connect_NONE__NONE "activate" True
+
 onActivateItem, afterActivateItem :: MenuItemClass self => self
  -> IO ()
  -> IO (ConnectId self)
 onActivateItem = connect_NONE__NONE "activate-item" False
 afterActivateItem = connect_NONE__NONE "activate-item" True
 
--- | This signal is emitted when the item is selected.
---
 onSelect, afterSelect :: ItemClass i => i
  -> IO ()
  -> IO (ConnectId i)
 onSelect = connect_NONE__NONE "select" False
 afterSelect = connect_NONE__NONE "select" True
 
--- | This signal is emitted when the item is deselected.
---
 onDeselect, afterDeselect :: ItemClass i => i
  -> IO ()
  -> IO (ConnectId i)
 onDeselect = connect_NONE__NONE "deselect" False
 afterDeselect = connect_NONE__NONE "deselect" True
 
--- | This signal is emitted when the item is toggled.
---
 onToggle, afterToggle :: ItemClass i => i
  -> IO ()
  -> IO (ConnectId i)
-onToggle = connect_NONE__NONE "toggled" False
-afterToggle = connect_NONE__NONE "toggled" True
+onToggle = connect_NONE__NONE "toggle" False
+afterToggle = connect_NONE__NONE "toggle" True
+#endif
