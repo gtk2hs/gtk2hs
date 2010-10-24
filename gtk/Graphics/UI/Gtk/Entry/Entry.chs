@@ -708,18 +708,16 @@ entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
 --
 entryIconPress :: EntryClass ec =>
                     Signal ec (EntryIconPosition -> EventM EButton ())
-entryIconPress = Signal connect
-  where connect after obj f =
-          connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
+entryIconPress = Signal $ \after obj f ->
+  connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
 
 -- | The 'iconRelease' signal is emitted on the button release from a mouse click over an activatable
 -- icon.
 --
 entryIconRelease :: EntryClass ec =>
                       Signal ec (EntryIconPosition -> EventM EButton ())
-entryIconRelease = Signal connect
-  where connect after obj f =
-          connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
+entryIconRelease = Signal $ \after obj f ->
+  connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
 #endif
 
 -- | The 'entryToggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
