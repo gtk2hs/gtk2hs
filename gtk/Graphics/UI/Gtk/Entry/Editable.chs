@@ -302,12 +302,12 @@ deleteText :: EditableClass self =>
               Signal self (
                 Int -> Int -> IO () -- ^ @(\startPos endPos -> ...)@
               )
-deleteText = Signal (connect_INT_INT__NONE "delete_text")
+deleteText = Signal (connect_INT_INT__NONE "delete-text")
 
 -- | Stop the current signal that deletes text.
 stopDeleteText :: EditableClass self => ConnectId self -> IO ()
 stopDeleteText (ConnectId _ obj) =
-  signalStopEmission obj "delete_text"
+  signalStopEmission obj "delete-text"
 
 -- | Emitted when a piece of text is inserted into the 'Editable' widget.
 --
@@ -341,7 +341,7 @@ stopDeleteText (ConnectId _ obj) =
 --
 insertText :: EditableClass self => Signal self (String -> Int -> IO Int)
 insertText = Signal $ \after obj handler ->
-  connect_PTR_INT_PTR__NONE "insert_text" after obj
+  connect_PTR_INT_PTR__NONE "insert-text" after obj
   (\strPtr strLen posPtr -> do
     str <- if strLen<0 then peekUTFString strPtr
            else peekUTFStringLen (strPtr, strLen)
@@ -353,7 +353,7 @@ insertText = Signal $ \after obj handler ->
 -- | Stop the current signal that inserts text.
 stopInsertText :: EditableClass self => ConnectId self -> IO ()
 stopInsertText (ConnectId _ obj) =
-  signalStopEmission obj "insert_text"
+  signalStopEmission obj "insert-text"
 
 --------------------
 -- Deprecated Signals
