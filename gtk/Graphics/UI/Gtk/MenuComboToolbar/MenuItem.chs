@@ -79,9 +79,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemSetSubmenu,
   menuItemGetSubmenu,
   menuItemRemoveSubmenu,
-  menuItemSelect,
-  menuItemDeselect,
-  menuItemActivate,
+  menuItemEmitSelect,
+  menuItemEmitDeselect,
+  menuItemEmitActivate,
   menuItemSetRightJustified,
   menuItemGetRightJustified,
   menuItemSetAccelPath,
@@ -91,11 +91,11 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemRightJustified,
 
 -- * Signals
-  activateItem,
-  activateLeaf,
-  select,
-  deselect,
-  toggle,
+  menuItemActivateItem,
+  menuItemActivate,
+  menuItemSelect,
+  menuItemDeselect,
+  menuItemToggle,
 
 #ifndef DISABLE_DEPRECATED
 -- * Deprecated
@@ -192,22 +192,22 @@ menuItemRemoveSubmenu self =
 
 -- | Select the menu item. Emits the \"select\" signal on the item.
 --
-menuItemSelect :: MenuItemClass self => self -> IO ()
-menuItemSelect self =
+menuItemEmitSelect :: MenuItemClass self => self -> IO ()
+menuItemEmitSelect self =
   {# call menu_item_select #}
     (toMenuItem self)
 
 -- | Deselect the menu item. Emits the \"deselect\" signal on the item.
 --
-menuItemDeselect :: MenuItemClass self => self -> IO ()
-menuItemDeselect self =
+menuItemEmitDeselect :: MenuItemClass self => self -> IO ()
+menuItemEmitDeselect self =
   {# call menu_item_deselect #}
     (toMenuItem self)
 
 -- | Simulate a click on the menu item. Emits the \"activate\" signal on the item.
 --
-menuItemActivate :: MenuItemClass self => self -> IO ()
-menuItemActivate self =
+menuItemEmitActivate :: MenuItemClass self => self -> IO ()
+menuItemEmitActivate self =
   {# call menu_item_activate #}
     (toMenuItem self)
 
@@ -286,31 +286,31 @@ menuItemRightJustified = newAttr
 -- * This is the only function applications normally connect to.
 --   It is not emitted if the item has a submenu.
 --
-activateLeaf :: MenuItemClass self => Signal self (IO ())
-activateLeaf = Signal (connect_NONE__NONE "activate")
+menuItemActivate :: MenuItemClass self => Signal self (IO ())
+menuItemActivate = Signal (connect_NONE__NONE "activate")
 
 -- | Emitted when the user chooses a menu item that has a submenu.
 --
 -- * This signal is not emitted if the menu item does not have a
 --   submenu.
 --
-activateItem :: MenuItemClass self => Signal self (IO ())
-activateItem = Signal (connect_NONE__NONE "activate-item")
+menuItemActivateItem :: MenuItemClass self => Signal self (IO ())
+menuItemActivateItem = Signal (connect_NONE__NONE "activate-item")
 
 -- | This signal is emitted when the item is selected.
 --
-select :: ItemClass i => Signal i (IO ())
-select = Signal (connect_NONE__NONE "select")
+menuItemSelect :: ItemClass i => Signal i (IO ())
+menuItemSelect = Signal (connect_NONE__NONE "select")
 
 -- | This signal is emitted when the item is deselected.
 --
-deselect :: ItemClass i => Signal i (IO ())
-deselect = Signal (connect_NONE__NONE "deselect")
+menuItemDeselect :: ItemClass i => Signal i (IO ())
+menuItemDeselect = Signal (connect_NONE__NONE "deselect")
 
 -- | This signal is emitted when the item is toggled.
 --
-toggle :: ItemClass i => Signal i (IO ())
-toggle = Signal (connect_NONE__NONE "toggle")
+menuItemToggle :: ItemClass i => Signal i (IO ())
+menuItemToggle = Signal (connect_NONE__NONE "toggle")
 
 #ifndef DISABLE_DEPRECATED
 --------------------
