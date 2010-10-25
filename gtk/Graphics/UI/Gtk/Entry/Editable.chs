@@ -300,10 +300,8 @@ editableChanged = Signal (connect_NONE__NONE "changed")
 --
 -- * See 'insertText' for information on how to use this signal.
 --
-deleteText :: EditableClass self =>
-              Signal self (
-                Int -> Int -> IO () -- ^ @(\startPos endPos -> ...)@
-              )
+deleteText :: EditableClass self 
+             => Signal self (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
 deleteText = Signal (connect_INT_INT__NONE "delete-text")
 
 -- | Stop the current signal that deletes text.
