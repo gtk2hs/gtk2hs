@@ -758,7 +758,7 @@ fileQueryInfo :: FileClass file
               -> Maybe Cancellable
               -> IO FileInfo
 fileQueryInfo file attributes flags cancellable =
-    wrapNewGObject mkFileInfo $
+    makeNewGObject mkFileInfo $
         withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_info #} 
                            (toFile file) 
@@ -800,7 +800,7 @@ fileQueryInfoFinish :: FileClass file
                     -> AsyncResult
                     -> IO FileInfo
 fileQueryInfoFinish file asyncResult =
-    wrapNewGObject mkFileInfo $
+    makeNewGObject mkFileInfo $
     propagateGError ({#call file_query_info_finish #} (toFile file) asyncResult)
 
 -- | Utility function to check if a particular file exists. This is implemented using 'fileQueryInfo'
@@ -876,7 +876,7 @@ fileQueryFilesystemInfo :: FileClass file
                         -> Maybe Cancellable
                         -> IO FileInfo
 fileQueryFilesystemInfo file attributes cancellable =
-    wrapNewGObject mkFileInfo $
+    makeNewGObject mkFileInfo $
         withUTFString attributes $ \cAttributes ->
         propagateGError ({#call g_file_query_filesystem_info #} 
                            (toFile file) 
@@ -915,7 +915,7 @@ fileQueryFilesystemInfoFinish :: FileClass file
                               -> AsyncResult
                               -> IO FileInfo
 fileQueryFilesystemInfoFinish file asyncResult =
-    wrapNewGObject mkFileInfo $
+    makeNewGObject mkFileInfo $
     propagateGError ({# call file_query_filesystem_info_finish #} (toFile file) asyncResult)
 
 -- | Returns the 'AppInfo' that is registered as the default application to handle the file specified by
