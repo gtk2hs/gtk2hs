@@ -83,27 +83,27 @@ Data-Files:		actionMenu/ActionMenu.hs
                 statusicon/Makefile
                 statusicon/StatusIcon.hs
                 
-                treeList/Completion.hs
-                treeList/DirList.hs
-                treeList/FilterDemo.hs
-                treeList/ListDemo.hs
-                treeList/ListDND.hs
-                treeList/ListTest.glade
-                treeList/ListTest.hs
-                treeList/ListText.hs
-                treeList/Makefile
-                treeList/rgb.txt
-                treeList/TreeDemo.hs
-                treeList/TreeSort.hs
-                treeList/TreeTest.glade
-                treeList/TreeTest.hs
+                modelview/Completion.hs
+                modelview/DirList.hs
+                modelview/FilterDemo.hs
+                modelview/ListDemo.hs
+                modelview/ListDND.hs
+                modelview/ListTest.glade
+                modelview/ListTest.hs
+                modelview/ListText.hs
+                modelview/Makefile
+                modelview/rgb.txt
+                modelview/TreeDemo.hs
+                modelview/TreeSort.hs
+                modelview/TreeTest.glade
+                modelview/TreeTest.hs
                 
-                treeList/resListDND/desktop.png
-                treeList/resListDND/laptop.png
-                treeList/resListDND/laptopSmall.png
-                treeList/resListDND/printer.png
-                treeList/resListDND/server.png
-                treeList/resListDND/tower.png
+                modelview/resListDND/desktop.png
+                modelview/resListDND/laptop.png
+                modelview/resListDND/laptopSmall.png
+                modelview/resListDND/printer.png
+                modelview/resListDND/server.png
+                modelview/resListDND/tower.png
                 
                 unicode/Arabic.hs
                 unicode/Makefile

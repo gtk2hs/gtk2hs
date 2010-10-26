@@ -91,6 +91,6 @@ Needs: --enable-cairo and/or cairo lib installed at Gtk2HS build time
 Feature request: avoid svgviewer: user error (Pattern match failure in do expression at SvgViewer.hs:11:2-9)
   when not giving any parameter
 
-treelist: some examples showing how to use ListView and TreeView widgets
+modelview: some examples showing how to use ListView and TreeView widgets
 
 unicode: Example of an international dialog box (in arabic)

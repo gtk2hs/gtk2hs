@@ -335,7 +335,7 @@ data SelectionMode = SelectionNone
 --
 {#enum ShadowType {underscoreToCase} deriving (Eq,Show)#}
 
--- Sort a 'Graphics.UI.Gtk.TreeList.TreeViewColumn' in ascending or descending
+-- Sort a 'Graphics.UI.Gtk.ModelView.TreeViewColumn' in ascending or descending
 -- order.
 --
 {#enum SortType {underscoreToCase} deriving (Eq,Show)#}
