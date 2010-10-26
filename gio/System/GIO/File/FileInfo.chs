@@ -150,13 +150,13 @@ import System.GIO.File.FileAttribute
 -- | Creates a new file info structure.
 fileInfoNew :: IO FileInfo
 fileInfoNew = 
-    makeNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
     {#call g_file_info_new#}
 
 -- | Duplicates a file info structure.
 fileInfoDup :: FileInfoClass info => info -> IO FileInfo
 fileInfoDup info =
-    makeNewGObject mkFileInfo $
+    wrapNewGObject mkFileInfo $
     {#call g_file_info_dup#} (toFileInfo info)
 
 -- | Copies all of the 'FileAttributes' from @srcInfo@ to @destInfo@.
