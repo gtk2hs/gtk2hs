@@ -292,10 +292,10 @@ fileFromCommandlineArg arg =
 -- | Constructs a 'File' with the given name (i.e. something given by 'fileParseName'. This
 -- operation never fails, but the returned object might not support any I/O operation if the @parseName@
 -- cannot be parsed.
-fileFromParseName :: ByteString -> File
+fileFromParseName :: String -> File
 fileFromParseName parseName =
     unsafePerformIO $ wrapNewGObject mkFile $ 
-    useAsCString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
+    withUTFString parseName $ \cParseName -> {# call file_parse_name #} cParseName 
 
 -- | Compare two file descriptors for equality. This test is also used to
 --   implement the '(==)' function, that is, comparing two descriptions
