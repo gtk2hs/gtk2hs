@@ -18,7 +18,7 @@ main = do
   -- the other one being the sorting function for the 'SortColumnId' 2.
   -- 'SortColumnId's are arbitrary positive numbers, i.e., we could have chosen
   -- any other unique number.
-  New.treeSortableSetDefaultSortFunc model $ \iter1 iter2 -> do
+  New.treeSortableSetDefaultSortFunc model $ Just $ \iter1 iter2 -> do
     (t1,_) <- New.treeModelGetRow rawmodel iter1
     (t2,_) <- New.treeModelGetRow rawmodel iter2
     return (compare t1 t2)
