@@ -176,7 +176,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetParent,
   widgetGetSettings,
 #if GTK_CHECK_VERSION(2,2,0)
-  --widgetGetClipboard,
+  widgetGetClipboard,
   widgetGetDisplay,
   widgetGetRootWindow,
   widgetGetScreen,
@@ -379,6 +379,7 @@ import System.Glib.GType      (GType)
 import System.Glib.GList      (GList, fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.Rendering.Pango.Markup
+import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
@@ -1822,6 +1823,25 @@ widgetGetSettings self =
     (toWidget self)
 
 #if GTK_CHECK_VERSION(2,2,0)
+
+-- | Returns the clipboard object for the given selection to
+-- be used with widget. widget must have a 'Display'
+-- associated with it, so must be attached to a toplevel
+-- window.
+widgetGetClipboard :: WidgetClass self => self
+                   -> SelectionTag  -- ^ @selection@ a 'Atom' which identifies the clipboard
+                                       -- to use. 'selectionClipboard' gives the
+                                       -- default clipboard. Another common value
+                                       -- is 'selectionPrimary', which gives
+                                       -- the primary X selection. 
+                   -> IO Clipboard -- ^ returns the appropriate clipboard object. If no
+                                   -- clipboard already exists, a new one will
+                                   -- be created. 
+widgetGetClipboard self (Atom tagPtr) = 
+  makeNewGObject mkClipboard $
+  {#call gtk_widget_get_clipboard #} 
+    (toWidget self)
+    tagPtr
 
 -- %hash c:45ed d:52ef
 -- | Get the 'Display' for the toplevel window associated with this widget.
