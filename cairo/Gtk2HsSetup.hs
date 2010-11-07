@@ -23,10 +23,14 @@
         CABAL_VERSION_MICRO)
 #else
 #warning Setup.hs is guessing the version of Cabal. If compilation of Setup.hs fails use -DCABAL_VERSION_MINOR=x for Cabal version 1.x.0 when building (prefixed by --ghc-option= when using the 'cabal' command)
+#if (__GLASGOW_HASKELL__ >= 700)
+#define CABAL_VERSION CABAL_VERSION_ENCODE(1,10,0)
+#else
 #if (__GLASGOW_HASKELL__ >= 612)
 #define CABAL_VERSION CABAL_VERSION_ENCODE(1,8,0)
 #else
 #define CABAL_VERSION CABAL_VERSION_ENCODE(1,6,0)
+#endif
 #endif
 #endif
 
@@ -191,7 +195,11 @@ register pkg@PackageDescription { library       = Just lib  }
      _ | modeGenerateRegFile   -> die "Generate Reg File not supported"
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
+#if CABAL_VERSION_CHECK(1,10,0)
+                                    installedPkgInfo pkg lbi inplace [packageDb]
+#else
                                     installedPkgInfo pkg lbi inplace packageDb
+#endif
 
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
