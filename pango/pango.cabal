@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.11.2
+Version:        0.12.0
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -20,17 +20,17 @@ Tested-With:    GHC == 6.10.4
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
                     Gtk2HsSetup.hs
-					hierarchy.list
+                    hierarchy.list
 
 x-Types-File:      Graphics/Rendering/Pango/Types.chs
 x-Types-ModName:   Graphics.Rendering.Pango.Types
 x-Types-Forward:   *System.Glib.GObject
 x-Types-Hierarchy: hierarchy.list
 
-Data-Dir:		demo
-Data-Files:		Layout.hs
+Data-Dir:       demo
+Data-Files:     Layout.hs
                 Makefile
-				
+                
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
@@ -42,8 +42,8 @@ Flag new-exception
 Library
         build-depends:  base >= 3 && < 5,
                         process, directory, array, containers, pretty, mtl, haskell98,
-                        glib  >= 0.11.1 && < 0.12,
-                        cairo >= 0.11.1 && < 0.12
+                        glib  >= 0.12 && < 0.13,
+                        cairo >= 0.12 && < 0.13
 
         if flag(new-exception)
           build-depends:  base >= 4

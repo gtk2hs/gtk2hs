@@ -1,5 +1,5 @@
 Name:           gtk
-Version:        0.11.2
+Version:        0.12.0
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -22,16 +22,16 @@ Extra-Source-Files: wingtk.h
                     template-hsc-gtk2hs.h
                     Gtk2HsSetup.hs
                     marshal.list
-					hierarchy.list
-					
+                    hierarchy.list
+                    
 x-Types-File:       Graphics/UI/Gtk/Types.chs
 x-Types-ModName:    Graphics.UI.Gtk.Types
 x-Types-Forward:    *System.Glib.GObject Graphics.UI.Gtk.General.Threading
 x-Types-Destructor: objectUnrefFromMainloop
 x-Types-Hierarchy:  hierarchy.list
 
-Data-Dir:		demo
-Data-Files:		actionMenu/ActionMenu.hs
+Data-Dir:       demo
+Data-Files:     actionMenu/ActionMenu.hs
                 actionMenu/Makefile
                 
                 buttonbox/ButtonBox.hs
@@ -107,9 +107,9 @@ Data-Files:		actionMenu/ActionMenu.hs
                 
                 unicode/Arabic.hs
                 unicode/Makefile
-				
-				demos.txt
-				
+                
+                demos.txt
+                
 Source-Repository head
   type:         darcs
   location:     http://code.haskell.org/gtk2hs/
@@ -122,16 +122,16 @@ Flag deprecated
 
 Flag have-gio
   Description: Depend on GIO package, thereby enabling certain features.
-  Default:	True
+  Default:  True
 
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, haskell98, mtl, bytestring,
-                        glib  >= 0.11.2 && < 0.12,
-                        pango >= 0.11.1 && < 0.12,
-                        cairo >= 0.11.1 && < 0.12
+                        glib  >= 0.12.0 && < 0.13,
+                        pango >= 0.12.0 && < 0.13,
+                        cairo >= 0.12.0 && < 0.13
         if flag(have-gio)
-          build-depends: gio >= 0.11.1 && < 0.12
+          build-depends: gio >= 0.12.0 && < 0.13
           cpp-options:    -DHAVE_GIO
 
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
@@ -349,7 +349,7 @@ Library
         extensions:     ForeignFunctionInterface
         c-sources: Graphics/UI/Gtk/ModelView/Gtk2HsStore.c
                    Graphics/UI/Gtk/General/hsgthread.c
-	      -- Due to http://hackage.haskell.org/trac/ghc/ticket/781
+          -- Due to http://hackage.haskell.org/trac/ghc/ticket/781
         -- we need to compile the hsgthread.c module with -fPIC to ensure that a global
         -- variable in GLib that holds the address for the mutex lock and unlock functions
         -- is accessed correctly. This bug only exists on x86-64 platforms.
