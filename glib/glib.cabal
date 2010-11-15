@@ -57,6 +57,7 @@ Library
                           System.Glib.UTFString
                           System.Glib.Types
                           System.Glib.GList
+                          System.Glib.GString
                           System.Glib.GType
                           System.Glib.GTypeConstants
                           System.Glib.GValue
