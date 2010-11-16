@@ -90,7 +90,11 @@ everything is installed correctly if you can say
 pkg-config --cflags gtk+-2.0
 
 and you see some compiler flags that contain the path into which you have
-installed the binary bundle.
+installed the binary bundle. We had reports that the binaries containing version 2.22 do not work and that the version 2.16 gives the following errors when running cabal:
+
+setup.exe: gtk-0.12.0: library-dirs: c:/.../dist/win64/libpng-1.4.3-1/lib doesn't exist or isn't a directory
+
+This problem can be worked around by creating said directory and copying libpng into it. Any further feedback regarding the installation of the binary packages is welcome.
 
 You may now install the cabal packages of Gtk2Hs into any directory you like
 (including one that contains embedded spaces). Note that cabal installs the
