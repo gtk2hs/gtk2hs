@@ -185,6 +185,12 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewSetGridLines,
 #endif
 #endif
+#if GTK_CHECK_VERSION(2,12,0)
+  treeViewSetTooltipRow,
+  treeViewSetTooltipCell,
+  treeViewGetTooltipContext,
+#endif
+
 -- * Attributes
   treeViewModel,
   treeViewHAdjustment,
@@ -214,6 +220,9 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewGridLines,
   treeViewSearchEntry,
 #endif
+#if GTK_CHECK_VERSION(2,12,0)
+  treeViewTooltipColumn,
+#endif
 
 -- * Signals
   columnsChanged,
@@ -223,7 +232,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   rowActivated,
   testCollapseRow,
   testExpandRow,
-
+  
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
   treeViewWidgetToTreeCoords,
@@ -1543,6 +1552,62 @@ treeViewSetGridLines self gridLines =
 #endif
 #endif
 
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Sets the tip area of @tooltip@ to be the area covered by @path@. See also
+-- 'treeViewTooltipColumn' for a simpler alternative. See also
+-- 'tooltipSetTipArea'.
+treeViewSetTooltipRow :: TreeViewClass self => self
+  -> Tooltip -- ^ the @tooltip@
+  -> TreePath -- ^ @path@ - the position of the @tooltip@
+  -> IO ()
+treeViewSetTooltipRow self tip path =
+  withTreePath path $ \path ->
+  {#call gtk_tree_view_set_tooltip_row #} (toTreeView self) tip path
+
+-- | Sets the tip area of tooltip to the area path, column and cell have in
+-- common. For example if @path@ is @Nothing@ and @column@ is set, the tip area will be
+-- set to the full area covered by column. See also
+-- 'tooltipSetTipArea'. Note that if @path@ is not specified and @cell@ is
+-- set and part of a column containing the expander, the tooltip might not
+-- show and hide at the correct position. In such cases @path@ must be set to
+-- the current node under the mouse cursor for this function to operate
+-- correctly. See also 'treeViewTooltipColumn' for a simpler alternative.
+--
+treeViewSetTooltipCell :: (TreeViewClass self, TreeViewColumnClass col,
+                           CellRendererClass renderer) => self
+  -> Tooltip -- ^ the @tooltip@
+  -> Maybe TreePath -- ^ @path@ at which the tip should be shown
+  -> Maybe col -- ^ @column@ at which the tip should be shown
+  -> Maybe renderer -- ^ the @renderer@ for which to show the tip
+  -> IO ()
+treeViewSetTooltipCell self tip mPath mColumn mRenderer =
+  (case mPath of Just path -> withTreePath path
+                 Nothing -> \f -> f (NativeTreePath nullPtr)) $ \path -> do
+  {#call gtk_tree_view_set_tooltip_cell#} (toTreeView self) tip path
+    (maybe (TreeViewColumn nullForeignPtr) toTreeViewColumn mColumn)
+    (maybe (CellRenderer nullForeignPtr) toCellRenderer mRenderer)
+
+-- | This function is supposed to be used in a 'widgetQueryTooltip' signal handler
+-- for this 'TreeView'. The @point@ value which is received in the
+-- signal handler should be passed to this function without modification. A
+-- return value of @Just iter@ indicates that there is a tree view row at the given
+-- coordinates (if @Just (x,y)@ is passed in, denoting a mouse position), resp.
+-- the cursor row (if @Nothing@ is passed in, denoting a keyboard request).
+--
+treeViewGetTooltipContext :: TreeViewClass self => self
+  -> Maybe Point -- ^ @point@ - the coordinates of the mouse or @Nothing@
+                 --   if a keyboard tooltip is to be generated
+  -> IO (Maybe TreeIter) -- ^ @Just iter@ if a tooltip should be shown for that row
+treeViewGetTooltipContext self (Just (x,y)) = 
+  alloca $ \xPtr -> alloca $ \yPtr -> receiveTreeIter $
+    {#call gtk_tree_view_get_tooltip_context#} (toTreeView self)
+    xPtr yPtr 0 nullPtr nullPtr
+treeViewGetTooltipContext self Nothing = 
+  receiveTreeIter $
+    {#call gtk_tree_view_get_tooltip_context#} (toTreeView self)
+    nullPtr nullPtr 1 nullPtr nullPtr
+#endif
+
 --------------------
 -- Attributes
 
@@ -1620,9 +1685,7 @@ treeViewEnableSearch = newAttr
 -- %hash c:e732
 -- | Model column to search through when searching through code.
 --
--- Allowed values: >= -1
---
--- Default value: -1
+-- Default value: 'invalidColumnId'
 --
 treeViewSearchColumn :: TreeViewClass self => Attr self (ColumnId row String)
 treeViewSearchColumn = newAttr
@@ -1739,6 +1802,34 @@ treeViewSearchEntry :: (TreeViewClass self, EntryClass entry) => ReadWriteAttr s
 treeViewSearchEntry = newAttr
   treeViewGetSearchEntry
   treeViewSetSearchEntry
+#endif
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | The column for which to show tooltips.
+--
+-- If you only plan to have simple (text-only) tooltips on full rows, you can
+-- use this function to have 'TreeView' handle these automatically for you.
+-- @column@ should be set to a column in model containing the tooltip texts,
+-- or @-1@ to disable this feature. When enabled, 'widgetHasTooltip' will be
+-- set to @True@ and this view will connect to the 'widgetQueryTooltip' signal
+-- handler.
+--
+-- Note that the signal handler sets the text as 'Markup',
+-- so \&, \<, etc have to be escaped in the text.
+--
+-- Default value: 'invalidColumnId'
+--
+treeViewTooltipColumn :: TreeViewClass self => Attr self (ColumnId row String)
+treeViewTooltipColumn = newAttr
+  (\self -> liftM (makeColumnIdString . fromIntegral) $
+  {# call unsafe tree_view_get_tooltip_column #}
+    (toTreeView self)
+  )
+  (\self column ->
+  {# call tree_view_set_tooltip_column #}
+    (toTreeView self)
+    (fromIntegral (columnIdToNumber column))
+  )
 #endif
 
 --------------------
