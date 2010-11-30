@@ -52,8 +52,12 @@ module System.GIO.Volumes.VolumeMonitor (
     vmDriveChanged,
     vmDriveConnected,
     vmDriveDisconnected,
+#if GLIB_CHECK_VERSION(2,18,0)
     vmDriveEjectButton,
+#endif
+#if GLIB_CHECK_VERSION(2,22,0)
     vmDriveStopButton,
+#endif
     vmMountAdded,
     vmMountChanged,
     vmMountPreUnmount,
