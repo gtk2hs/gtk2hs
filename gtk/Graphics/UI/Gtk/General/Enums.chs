@@ -83,7 +83,9 @@ module Graphics.UI.Gtk.General.Enums (
   WindowPosition(..),
   WindowType(..),
   WrapMode(..), 
+#if GTK_CHECK_VERSION(2,16,0)
   EntryIconPosition(..),
+#endif
   AnchorType (..),
 
 module Graphics.UI.Gtk.Gdk.Enums
@@ -424,9 +426,11 @@ instance Flags TextSearchFlags
 --
 {#enum WrapMode {underscoreToCase} deriving (Eq,Show)#}
 
+#if GTK_CHECK_VERSION(2,16,0)
 -- | Specifies the side of the entry at which an icon is placed.
 --
 {#enum EntryIconPosition {underscoreToCase} deriving (Eq,Show)#}
+#endif
 
 -- |
 --
