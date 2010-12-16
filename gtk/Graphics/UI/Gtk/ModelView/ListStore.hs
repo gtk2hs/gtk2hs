@@ -180,7 +180,8 @@ listStoreGetValue (ListStore model) index =
 listStoreSetValue :: ListStore a -> Int -> a -> IO ()
 listStoreSetValue (ListStore model) index value = do
   modifyIORef (customStoreGetPrivate model) (Seq.update index value)
-  treeModelRowChanged model [index] (TreeIter 0 (fromIntegral index) 0 0)
+  stamp <- customStoreGetStamp model
+  treeModelRowChanged model [index] (TreeIter stamp (fromIntegral index) 0 0)
 
 -- | Extract all data from the store.
 --
