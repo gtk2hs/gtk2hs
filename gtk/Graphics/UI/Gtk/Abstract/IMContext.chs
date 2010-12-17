@@ -192,7 +192,7 @@ imContextSetUsePreedit self usePreedit =
 
 -- | Sets surrounding context around the insertion point and preedit string.
 -- This function is expected to be called in response to the
--- 'IMContext'::retrieve_surrounding signal, and will likely have no effect if
+-- 'imContextRetrieveSurrounding' signal, and will likely have no effect if
 -- called at other times.
 --
 imContextSetSurrounding :: IMContextClass self => self
