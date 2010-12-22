@@ -125,7 +125,7 @@ Flag have-gio
   Default:  True
 
 Flag have-quartz-gtk
-  Description: Assume that the installed GTK is the version for OS X backed by Quartz, and hence does not provide gdk_x11_drawable_get_xid
+  Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
   Default:  False
 
 Library

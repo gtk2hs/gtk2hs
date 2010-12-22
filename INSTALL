@@ -123,6 +123,13 @@ Furthermore, there are libraries that use the native Aqua API as a backend to
 Gdk. It seems that this porting effort has stalled and as of now does not
 support certain features as copy and paste. Use at your own risk.
 
+NOTE: If you use Quartz backend on Mac OS X, please building with the 
+flag -have-quartz-gtk to disable function gdk_x11_drawable_get_xid, 
+otherwise you will get linking error :
+
+    Loading package gtk-0.12.0 ... linking ... <interactive>:
+    unknown symbol `_gdk_x11_drawable_get_xid'
+    ghc: unable to load package `gtk-0.12.0'
 
 Building from darcs
 -------------------
