@@ -124,6 +124,10 @@ Flag have-gio
   Description: Depend on GIO package, thereby enabling certain features.
   Default:  True
 
+Flag have-quartz-gtk
+  Description: Assume that the installed GTK is the version for OS X backed by Quartz, and hence does not provide gdk_x11_drawable_get_xid
+  Default:  False
+
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, haskell98, mtl, bytestring,
@@ -133,6 +137,8 @@ Library
         if flag(have-gio)
           build-depends: gio >= 0.12.0 && < 0.13
           cpp-options:    -DHAVE_GIO
+        if flag(have-quartz-gtk)
+          cpp-options:    -DHAVE_QUARTZ_GTK
 
         build-tools:    gtk2hsC2hs, gtk2hsHookGenerator, gtk2hsTypeGen
 

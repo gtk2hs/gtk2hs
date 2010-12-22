@@ -595,12 +595,12 @@ nativeWindowIdNone = NativeWindowId 0
 #endif
 #endif
 
-#if !defined(WIN32)
-foreign import ccall unsafe "gdk_x11_drawable_get_xid" 
-  gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
-#else                                  
+#if defined(WIN32)
 foreign import ccall unsafe "gdk_win32_drawable_get_handle" 
   gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
+#elif !defined(HAVE_QUARTZ_GTK)
+foreign import ccall unsafe "gdk_x11_drawable_get_xid" 
+  gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
 #endif                                                                           
 
 -- | Get 'NativeWindowId' of 'Drawable'.                                  
@@ -608,10 +608,12 @@ drawableGetID :: DrawableClass d => d -> IO NativeWindowId
 drawableGetID d =
   liftM toNativeWindowId $
   (\(Drawable drawable) ->
-#if !defined(WIN32)
-     withForeignPtr drawable gdk_x11_drawable_get_xid
-#else                    
+#if defined(WIN32)
      withForeignPtr drawable gdk_win32_drawable_get_handle
+#elif !defined(HAVE_QUARTZ_GTK)
+     withForeignPtr drawable gdk_x11_drawable_get_xid
+#else
+     error "drawableGetID: not supported with a GTK using a Quartz backend"
 #endif
   ) (toDrawable d)
 
