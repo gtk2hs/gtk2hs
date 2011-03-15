@@ -65,6 +65,9 @@ module Graphics.Rendering.Cairo (
   , restore
   , status
   , withTargetSurface
+  , pushGroup
+  , pushGroupWithContent
+  , popGroupToSource
   , setSourceRGB
   , setSourceRGBA
   , setSource
@@ -123,6 +126,7 @@ module Graphics.Rendering.Cairo (
   , withRGBPattern
   , withRGBAPattern
   , withPatternForSurface
+  , withGroupPattern
   , withLinearPattern
   , withRadialPattern
   , patternAddColorStopRGB
@@ -355,7 +359,44 @@ withTargetSurface f = do
   context <- ask
   surface <- liftIO $ Internal.getTarget context
   f surface
-  
+
+-- | Like @pushGroupWithContent ContentColorAlpha@, but more convenient.
+pushGroup :: Render ()
+pushGroup = liftRender0 Internal.pushGroup
+
+-- | Temporarily redirects drawing to an intermediate surface known as a group.
+-- The redirection lasts until the group is completed by a call to
+-- 'withGroupPattern' or 'popGroupToSource'. These calls provide the result of
+-- any drawing to the group as a pattern (either as an explicit object, or set
+-- as the source pattern).  This group functionality can be convenient for
+-- performing intermediate compositing. One common use of a group is to render
+-- objects as opaque within the group (so that they occlude each other), and
+-- then blend the result with translucence onto the destination.
+--
+-- Groups can be nested arbitrarily deeply by making balanced calls to
+-- 'pushGroupWithContent' and 'withGroupPattern'. As a side effect,
+-- 'pushGroupWithContent' calls 'save' and 'withGroupPattern' calls 'restore',
+-- so that any changes to the graphics state will not be visible outside the
+-- group.
+--
+-- As an example, here is how one might fill and stroke a path with
+-- translucence, but without any portion of the fill being visible under the
+-- stroke:
+--
+-- > pushGroup
+-- > setSource fillPattern
+-- > fillPreserve
+-- > setSource strokePattern
+-- > stroke
+-- > popGroupToSource
+-- > paintWithAlpha alpha
+pushGroupWithContent :: Content -> Render ()
+pushGroupWithContent = liftRender1 Internal.pushGroupWithContent
+
+-- | Like @withGroupPattern setSource@, but more convenient.
+popGroupToSource :: Render ()
+popGroupToSource = liftRender0 Internal.popGroupToSource
+
 -- | Sets the source pattern within the context to an opaque color. This opaque
 -- color will then be used for any subsequent drawing operation until a new source
 -- pattern is set.
@@ -970,6 +1011,21 @@ withPatternForSurface surface f =
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
+
+-- | Pop the current group from the group stack and use it as a pattern. The
+-- group should be populated first by calling 'pushGroup' or
+-- 'pushGroupWithContent' and doing some drawing operations. This also calls
+-- 'restore' to balance the 'save' called in 'pushGroup'.
+withGroupPattern :: (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
+withGroupPattern f = do
+  context <- ask
+  bracketR (Internal.popGroup context)
+           (\pattern -> do status <- Internal.patternStatus pattern
+                           liftIO $ Internal.patternDestroy pattern
+                           unless (status == StatusSuccess) $
+                             fail =<< Internal.statusToString status)
+           f
 
 -- | Create a new linear gradient 'Pattern' along the line defined by @(x0, y0)@
 -- and @(x1, y1)@. Before using the gradient pattern, a number of color stops

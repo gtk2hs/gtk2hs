@@ -27,6 +27,10 @@ import Foreign.C
 {#fun restore                                { unCairo `Cairo' } -> `()' #}
 {#fun status             as status           { unCairo `Cairo' } -> `Status' cToEnum#}
 {#fun get_target         as getTarget        { unCairo `Cairo' } -> `Surface' mkSurface*#}
+{#fun push_group              as ^           { unCairo `Cairo' } -> `()' #}
+{#fun push_group_with_content as ^           { unCairo `Cairo', cFromEnum `Content' } -> `()' #}
+{#fun pop_group               as ^           { unCairo `Cairo' } -> `Pattern' Pattern #}
+{#fun pop_group_to_source     as ^           { unCairo `Cairo' } -> `()' #}
 {#fun set_source_rgb     as setSourceRGB     { unCairo `Cairo', `Double', `Double', `Double' } -> `()'#}
 {#fun set_source_rgba    as setSourceRGBA    { unCairo `Cairo', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun set_source         as setSource        { unCairo `Cairo', unPattern `Pattern' } -> `()'#}
