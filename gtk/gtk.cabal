@@ -369,7 +369,6 @@ Library
         -- needs to be imported from this module:
         x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
-        cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
         if !flag(deprecated)
           cpp-options:  -DDISABLE_DEPRECATED
         else

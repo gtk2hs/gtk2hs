@@ -78,11 +78,7 @@ module Graphics.UI.Gtk.Gdk.GC (
 
 import Control.Monad	(when)
 import Data.Maybe	(fromJust, isJust)
-#ifdef HAVE_NEW_CONTROL_EXCEPTION
-import Control.OldException (handle)
-#else
-import Control.Exception (handle)
-#endif
+import Control.Exception (handle, ErrorCall(..))
 
 import System.Glib.FFI
 import System.Glib.GObject		(wrapNewGObject)
@@ -110,11 +106,11 @@ gcNewWithValues d gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
   mask <- pokeGCValues vPtr gcv
   gc <- wrapNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
     (toDrawable d) (castPtr vPtr) mask
-  handle (const $ return ()) $ when (isJust (tile gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (tile gcv)) $
     touchForeignPtr ((unPixmap.fromJust.tile) gcv)
-  handle (const $ return ()) $ when (isJust (stipple gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (stipple gcv)) $
     touchForeignPtr ((unPixmap.fromJust.stipple) gcv)
-  handle (const $ return ()) $ when (isJust (clipMask gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (clipMask gcv)) $
     touchForeignPtr ((unPixmap.fromJust.clipMask) gcv)
   return gc
 
@@ -124,11 +120,11 @@ gcSetValues :: GC -> GCValues -> IO ()
 gcSetValues gc gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
   mask <- pokeGCValues vPtr gcv
   gc <- {#call unsafe gc_set_values#} gc (castPtr vPtr) mask
-  handle (const $ return ()) $ when (isJust (tile gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (tile gcv)) $
     touchForeignPtr ((unPixmap.fromJust.tile) gcv)
-  handle (const $ return ()) $ when (isJust (stipple gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (stipple gcv)) $
     touchForeignPtr ((unPixmap.fromJust.stipple) gcv)
-  handle (const $ return ()) $ when (isJust (clipMask gcv)) $ 
+  handle (\(ErrorCall _) -> return ()) $ when (isJust (clipMask gcv)) $
     touchForeignPtr ((unPixmap.fromJust.clipMask) gcv)
   return gc
 
