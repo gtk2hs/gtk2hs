@@ -34,12 +34,7 @@ module System.Glib.StoreValue (
 
 import Control.Monad	(liftM)
 
-#if HAVE_NEW_CONTROL_EXCEPTION
-import Control.OldException
-#else
-import Control.Exception
-                          (throw, Exception(AssertionFailed))
-#endif
+import Control.Exception  (throw, AssertionFailed(..))
 
 #include<glib-object.h>
 

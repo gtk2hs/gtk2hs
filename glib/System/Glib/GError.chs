@@ -58,14 +58,15 @@ module System.Glib.GError (
   -- particular error domain use 'catchGErrorJustDomain' \/
   -- 'handleGErrorJustDomain'
   --
-  catchGError,
   catchGErrorJust,
   catchGErrorJustDomain,
   
-  handleGError,
   handleGErrorJust,
   handleGErrorJustDomain,
   
+  -- ** Deprecated
+  catchGError,
+  handleGError,
   failOnGError,
   throwGError,
 
@@ -89,19 +90,19 @@ module System.Glib.GError (
 import Foreign
 import Foreign.C
 import System.Glib.UTFString
-#if HAVE_NEW_CONTROL_EXCEPTION
-import Control.OldException
-#else
 import Control.Exception
-#endif
-
-import Data.Dynamic
-
-{# context lib="gtk" prefix ="gtk" #}
+import Data.Typeable
+import Prelude hiding (catch)
 
 -- | A GError consists of a domain, code and a human readable message.
 data GError = GError !GErrorDomain !GErrorCode !GErrorMessage
   deriving Typeable
+
+instance Show GError where
+  show (GError _ _ msg) = msg
+
+instance Exception GError
+
 
 type GQuark = {#type GQuark #}
 
@@ -184,7 +185,8 @@ checkGError action handler =
 -- | Use this if you need to explicitly throw a GError or re-throw an existing
 --   GError that you do not wish to handle.
 throwGError :: GError -> IO a
-throwGError gerror = evaluate (throwDyn gerror)
+throwGError = throw
+{-# DEPRECATED throwGError "Use ordinary Control.Exception.throw" #-}
 
 -- | This will catch any GError exception. The handler function will receive the
 --   raw GError. This is probably only useful when you want to take some action
@@ -200,7 +202,8 @@ throwGError gerror = evaluate (throwDyn gerror)
 catchGError :: IO a            -- ^ The computation to run
             -> (GError -> IO a) -- ^ Handler to invoke if an exception is raised
             -> IO a
-catchGError action handler = catchDyn action handler
+catchGError = catch
+{-# DEPRECATED catchGError "Use ordinary Control.Exception.catch" #-}
 
 -- | This will catch just a specific GError exception. If you need to catch a
 --   range of related errors, 'catchGErrorJustDomain' is probably more
@@ -215,11 +218,11 @@ catchGErrorJust :: GErrorClass err => err  -- ^ The error to catch
                 -> IO a                    -- ^ The computation to run
                 -> (GErrorMessage -> IO a) -- ^ Handler to invoke if an exception is raised
                 -> IO a
-catchGErrorJust code action handler = catchGError action handler'
+catchGErrorJust code action handler = catch action handler'
   where handler' gerror@(GError domain code' msg)
           | fromIntegral domain == gerrorDomain code
            && code' == fromEnum code   = handler msg
-          | otherwise                  = throwGError gerror
+          | otherwise                  = throw gerror
 
 -- | Catch all GErrors from a particular error domain. The handler function
 --   should just deal with one error enumeration type. If you need to catch
@@ -238,7 +241,7 @@ catchGErrorJustDomain :: GErrorClass err => IO a        -- ^ The computation to 
                       -> (err -> GErrorMessage -> IO a) -- ^ Handler to invoke if an exception is raised
                       -> IO a
 catchGErrorJustDomain action (handler :: err -> GErrorMessage -> IO a) =
-    catchGError action handler'
+    catch action handler'
   where handler' gerror@(GError domain code msg)
           | fromIntegral domain == gerrorDomain (undefined::err) = handler (toEnum code) msg
           | otherwise                                            = throwGError gerror
@@ -249,13 +252,14 @@ catchGErrorJustDomain action (handler :: err -> GErrorMessage -> IO a) =
 -- >   ...
 --   
 handleGError :: (GError -> IO a) -> IO a -> IO a
-handleGError = flip catchGError
+handleGError = handle
+{-# DEPRECATED handleGError "Use ordinary Control.Exception.handle" #-}
 
 -- | A verson of 'handleGErrorJust' with the arguments swapped around.
 handleGErrorJust :: GErrorClass err => err -> (GErrorMessage -> IO a) -> IO a -> IO a
 handleGErrorJust code = flip (catchGErrorJust code)
 
--- | A verson of 'handleGErrorJustDomain' with the arguments swapped around.
+-- | A verson of 'catchGErrorJustDomain' with the arguments swapped around.
 handleGErrorJustDomain :: GErrorClass err => (err -> GErrorMessage -> IO a) -> IO a -> IO a
 handleGErrorJustDomain = flip catchGErrorJustDomain
 
