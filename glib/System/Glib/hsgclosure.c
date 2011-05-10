@@ -85,7 +85,7 @@ gtk2hs_closure_marshal(GClosure *closure,
 #endif
     guint i;
     
-    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: about to run callback=%p, n_param_values=%d", hc->callback, n_param_values));
+    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to run callback, n_param_values=%d", hc->callback, n_param_values));
 #ifdef GHC_RTS_USES_CAPABILITY
     cap = rts_lock();
 #else
@@ -96,29 +96,34 @@ gtk2hs_closure_marshal(GClosure *closure,
    
     /* construct the function call */
     for (i = 0; i < n_param_values; i++) {
-        WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: param_values[%d]=%s :: %s",
+        WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): param_values[%d]=%s :: %s",
+	                   hc->callback,
                            i,
                            g_strdup_value_contents(&param_values[i]),
                            g_type_name(G_VALUE_TYPE(&param_values[i]))));
         call = rts_apply(CAP call, gtk2hs_value_as_haskellobj(CAP &param_values[i]));
     }
     
-    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: about to rts_evalIO"));
+    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to rts_evalIO", hc->callback));
     
     /* perform the call */
     cap=rts_evalIO(CAP rts_apply(CAP (HaskellObj)runIO_closure, call),&ret);
     
-    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: about to rts_checkSchedStatus"));
+    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to rts_checkSchedStatus", hc->callback));
     
     /* barf if anything went wrong */
     /* TODO: pass a sensible value for call site so we get better error messages */
     /* or perhaps we can propogate any error? */
     rts_checkSchedStatus("gtk2hs_closure_marshal", cap);
+    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): ret=%p", hc->callback, ret));
     
     if (return_value) {
-        WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: return_value :: %s",
+        WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): return_value :: %s, ret=%p, UNTAG_CLOSURE(ret)=%p",
+	                   hc->callback,
 /*                           g_strdup_value_contents(return_value), */
-                           g_type_name(G_VALUE_TYPE(return_value))));
+                           g_type_name(G_VALUE_TYPE(return_value)),
+			   ret,
+			   UNTAG_CLOSURE(ret)));
         gtk2hs_value_from_haskellobj(return_value, ret);
     }
     
@@ -127,7 +132,7 @@ gtk2hs_closure_marshal(GClosure *closure,
 #else
     rts_unlock();
 #endif
-    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: done running callback"));
+    WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): done running callback", hc->callback));
 }
 
 GClosure *
