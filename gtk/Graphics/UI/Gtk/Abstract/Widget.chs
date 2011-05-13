@@ -839,7 +839,7 @@ widgetGetParentWindow self =
 --   the event mask is automatically adjusted so that he signal is emitted.
 --   This function is useful to disable the reception of the signal. It
 --   should be called whenever all signals receiving an 'Event'
---   have been disconected. 
+--   have been disconnected.
 --
 widgetDelEvents :: WidgetClass self => self -> [EventMask] -> IO ()
 widgetDelEvents self events = do
@@ -2691,10 +2691,14 @@ scrollEvent = Signal (eventM "scroll_event" [ScrollMask])
 --   the following flags:
 --
 --   * 'PointerMotionMask': Track all movements.
+--
 --   * 'ButtonMotionMask': Only track movements if a button is depressed.
---   * 'Button1MotionMask': Only track movments if the left button is depressed.
---   * 'Button2MotionMask': Only track movments if the middle button is depressed.
---   * 'Button3MotionMask': Only track movments if the right button is depressed.
+--
+--   * 'Button1MotionMask': Only track movements if the left button is depressed.
+--
+--   * 'Button2MotionMask': Only track movements if the middle button is depressed.
+--
+--   * 'Button3MotionMask': Only track movements if the right button is depressed.
 --
 --   If the application cannot respond quickly enough to all mouse motions,
 --   it is possible to only receive motion signals on request. In this case,
