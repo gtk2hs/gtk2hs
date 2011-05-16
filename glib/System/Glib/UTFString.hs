@@ -55,37 +55,37 @@ import System.Glib.FFI
 -- Define withUTFString to emit UTF-8.
 --
 withUTFString :: String -> (CString -> IO a) -> IO a
-withUTFString hsStr = withCString (toUTF hsStr)
+withUTFString hsStr = withCAString (toUTF hsStr)
 
 -- Define withUTFStringLen to emit UTF-8.
 --
 withUTFStringLen :: String -> (CStringLen -> IO a) -> IO a
-withUTFStringLen hsStr = withCStringLen (toUTF hsStr)
+withUTFStringLen hsStr = withCAStringLen (toUTF hsStr)
 
 -- Define newUTFString to emit UTF-8.
 --
 newUTFString :: String -> IO CString
-newUTFString = newCString . toUTF
+newUTFString = newCAString . toUTF
 
 -- Define newUTFStringLen to emit UTF-8.
 --
 newUTFStringLen :: String -> IO CStringLen
-newUTFStringLen = newCStringLen . toUTF
+newUTFStringLen = newCAStringLen . toUTF
 
 -- Define peekUTFString to retrieve UTF-8.
 --
 peekUTFString :: CString -> IO String
-peekUTFString strPtr = liftM fromUTF $ peekCString strPtr
+peekUTFString strPtr = liftM fromUTF $ peekCAString strPtr
 
 -- Define maybePeekUTFString to retrieve UTF-8 from a ptr which is maybe null.
 --
 maybePeekUTFString :: CString -> IO (Maybe String)
-maybePeekUTFString strPtr = liftM (maybe Nothing (Just . fromUTF)) $ maybePeek peekCString strPtr
+maybePeekUTFString strPtr = liftM (maybe Nothing (Just . fromUTF)) $ maybePeek peekCAString strPtr
 
 -- Define peekUTFStringLen to retrieve UTF-8.
 --
 peekUTFStringLen :: CStringLen -> IO String
-peekUTFStringLen strPtr = liftM fromUTF $ peekCStringLen strPtr
+peekUTFStringLen strPtr = liftM fromUTF $ peekCAStringLen strPtr
 
 -- like peekUTFString but then frees the string using g_free
 --
@@ -99,7 +99,7 @@ readUTFString strPtr = do
 --
 readCString :: CString -> IO String
 readCString strPtr = do
-  str <- peekCString strPtr
+  str <- peekCAString strPtr
   g_free strPtr
   return str
 
