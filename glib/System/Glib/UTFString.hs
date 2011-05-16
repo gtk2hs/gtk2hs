@@ -52,42 +52,43 @@ import Data.Maybe (maybe)
 
 import System.Glib.FFI
 
--- Define withUTFString to emit UTF-8.
+-- | Like 'withCString' but using the UTF-8 encoding.
 --
 withUTFString :: String -> (CString -> IO a) -> IO a
 withUTFString hsStr = withCAString (toUTF hsStr)
 
--- Define withUTFStringLen to emit UTF-8.
+-- | Like 'withCStringLen' but using the UTF-8 encoding.
 --
 withUTFStringLen :: String -> (CStringLen -> IO a) -> IO a
 withUTFStringLen hsStr = withCAStringLen (toUTF hsStr)
 
--- Define newUTFString to emit UTF-8.
+-- | Like 'newCString' but using the UTF-8 encoding.
 --
 newUTFString :: String -> IO CString
 newUTFString = newCAString . toUTF
 
--- Define newUTFStringLen to emit UTF-8.
+-- | Like  Define newUTFStringLen to emit UTF-8.
 --
 newUTFStringLen :: String -> IO CStringLen
 newUTFStringLen = newCAStringLen . toUTF
 
--- Define peekUTFString to retrieve UTF-8.
+-- | Like 'peekCString' but using the UTF-8 encoding.
 --
 peekUTFString :: CString -> IO String
 peekUTFString strPtr = liftM fromUTF $ peekCAString strPtr
 
--- Define maybePeekUTFString to retrieve UTF-8 from a ptr which is maybe null.
+-- | Like 'maybePeek' 'peekCString' but using the UTF-8 encoding to retrieve
+-- UTF-8 from a 'CString' which may be the 'nullPtr'.
 --
 maybePeekUTFString :: CString -> IO (Maybe String)
 maybePeekUTFString strPtr = liftM (maybe Nothing (Just . fromUTF)) $ maybePeek peekCAString strPtr
 
--- Define peekUTFStringLen to retrieve UTF-8.
+-- | Like 'peekCStringLen' but using the UTF-8 encoding.
 --
 peekUTFStringLen :: CStringLen -> IO String
 peekUTFStringLen strPtr = liftM fromUTF $ peekCAStringLen strPtr
 
--- like peekUTFString but then frees the string using g_free
+-- | Like like 'peekUTFString' but then frees the string using g_free
 --
 readUTFString :: CString -> IO String
 readUTFString strPtr = do
@@ -95,7 +96,7 @@ readUTFString strPtr = do
   g_free strPtr
   return str
 
--- like peekCString but then frees the string using g_free
+-- | Like 'peekCString' but then frees the string using @g_free@.
 --
 readCString :: CString -> IO String
 readCString strPtr = do
@@ -106,7 +107,7 @@ readCString strPtr = do
 foreign import ccall unsafe "g_free"
   g_free :: Ptr a -> IO ()
 
--- Temporarily allocate a list of UTF-8 Strings.
+-- | Temporarily allocate a list of UTF-8 'CString's.
 --
 withUTFStrings :: [String] -> ([CString] -> IO a) -> IO a
 withUTFStrings hsStrs = withUTFStrings' hsStrs []
@@ -115,40 +116,41 @@ withUTFStrings hsStrs = withUTFStrings' hsStrs []
         withUTFStrings' (s:ss) cs body = withUTFString s $ \c ->
                                          withUTFStrings' ss (c:cs) body
 
--- Temporarily allocate an array of UTF-8 Strings.
+-- | Temporarily allocate an array of UTF-8 encoded 'CString's.
 --
 withUTFStringArray :: [String] -> (Ptr CString -> IO a) -> IO a
 withUTFStringArray hsStr body =
   withUTFStrings hsStr $ \cStrs -> do
   withArray cStrs body
 
--- Temporarily allocate a null-terminated array of UTF-8 Strings.
+-- | Temporarily allocate a null-terminated array of UTF-8 encoded 'CString's.
 --
 withUTFStringArray0 :: [String] -> (Ptr CString -> IO a) -> IO a
 withUTFStringArray0 hsStr body =
   withUTFStrings hsStr $ \cStrs -> do
   withArray0 nullPtr cStrs body
 
--- Convert an array of UTF-8 strings of the given length to a list of Haskell
--- strings.
+-- | Convert an array (of the given length) of UTF-8 encoded 'CString's to a
+--   list of Haskell 'String's.
 --
 peekUTFStringArray :: Int -> Ptr CString -> IO [String]
 peekUTFStringArray len cStrArr = do
   cStrs <- peekArray len cStrArr
   mapM peekUTFString cStrs
 
--- Convert a null-terminated array of UTF-8 strings to a list of Haskell
--- strings.
+-- | Convert a null-terminated array of UTF-8 encoded 'CString's to a list of
+--   Haskell 'String's.
 --
 peekUTFStringArray0 :: Ptr CString -> IO [String]
 peekUTFStringArray0 cStrArr = do
   cStrs <- peekArray0 nullPtr cStrArr
   mapM peekUTFString cStrs
 
--- Like 'peekUTFStringArray0' but then free the string array including all strings.
+-- | Like 'peekUTFStringArray0' but then free the string array including all
+-- strings.
 --
 -- To be used when functions indicate that their return value should be freed
--- with \"g_strfreev\".
+-- with @g_strfreev@.
 --
 readUTFStringArray0 :: Ptr CString -> IO [String]
 readUTFStringArray0 cStrArr | cStrArr == nullPtr = return []
@@ -161,7 +163,9 @@ readUTFStringArray0 cStrArr | cStrArr == nullPtr = return []
 foreign import ccall unsafe "g_strfreev"
   g_strfreev :: Ptr a -> IO ()
 
--- Convert Unicode characters to UTF-8.
+-- | Encode a Haskell Unicode String as UTF-8
+--
+-- You should think of this as it it had type @String -> [Word8]@
 --
 toUTF :: String -> String
 toUTF [] = []
@@ -174,7 +178,9 @@ toUTF (x:xs) | ord x<=0x007F = x:toUTF xs
 			       chr (0x80 .|. (ord x .&. 0x3F)):
 			       toUTF xs
 
--- Convert UTF-8 to Unicode.
+-- | Decode a UTF-8 string into a Haskell Unicode String.
+--
+-- You should think of this as it it had type @[Word8] -> String@
 --
 fromUTF :: String -> String
 fromUTF [] = []
@@ -195,11 +201,12 @@ fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
     
     err = error "fromUTF: illegal UTF-8 character"
 
--- Offset correction for String to UTF8 mapping.
+-- | Offset correction for String to UTF8 mapping.
 --
 newtype UTFCorrection = UTFCorrection [Int] deriving Show
 
--- Create a list of offset corrections.
+-- | Create a list of offset corrections.
+--
 genUTFOfs :: String -> UTFCorrection
 genUTFOfs str = UTFCorrection (gUO 0 str)
   where
