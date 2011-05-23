@@ -764,7 +764,7 @@ closePath = liftRender0 Internal.closePath
 -- path to connect the current point to the beginning of the arc.
 --
 -- Angles are measured in radians. An angle of 0 is in the direction of the
--- positive X axis (in user-space). An angle of @pi@ radians (90 degrees) is in
+-- positive X axis (in user-space). An angle of @pi/2@ radians (90 degrees) is in
 -- the direction of the positive Y axis (in user-space). Angles increase in the
 -- direction from the positive X axis toward the positive Y axis. So with the
 -- default transformation matrix, angles increase in a clockwise direction.
