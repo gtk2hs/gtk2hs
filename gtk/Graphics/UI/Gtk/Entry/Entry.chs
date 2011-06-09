@@ -52,6 +52,7 @@ module Graphics.UI.Gtk.Entry.Entry (
 
 -- * Constructors
   entryNew,
+  entryNewWithBuffer,
 
 -- * Methods
   entrySetText,
@@ -187,6 +188,16 @@ entryNew =
   makeNewObject mkEntry $
   liftM (castPtr :: Ptr Widget -> Ptr Entry) $
   {# call unsafe entry_new #}
+
+-- | Creates a new 'Entry' widget backed by a particular 'EntryBuffer'. One
+-- buffer can be shared among many widgets.
+--
+entryNewWithBuffer :: EntryBufferClass buffer => buffer -> IO Entry
+entryNewWithBuffer buffer =
+  makeNewObject mkEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr Entry) $
+  {# call unsafe entry_new_with_buffer #}
+    (toEntryBuffer buffer)
 
 --------------------
 -- Methods
