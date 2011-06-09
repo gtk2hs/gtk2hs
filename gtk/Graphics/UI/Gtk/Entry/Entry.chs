@@ -103,6 +103,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryActivatesDefault,
   entryWidthChars,
   entryScrollOffset,
+  entryBuffer,
   entryText,
 #if GTK_CHECK_VERSION(2,4,0)
   entryXalign,
@@ -201,6 +202,27 @@ entryNewWithBuffer buffer =
 
 --------------------
 -- Methods
+
+-- | Sets the given buffer as the buffer being displayed.
+--
+entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self -> buffer -> IO ()
+entrySetBuffer self buffer =
+  {# call entry_set_buffer #}
+    (toEntry self)
+    (toEntryBuffer buffer)
+
+-- Although the documentation doesn't say one way or the other, a look at the
+-- source indicates that gtk_entry_get_buffer doesn't increment the reference
+-- count of the GtkEntryBuffer it returns, so, like textViewGetBuffer, we must
+-- increment it ourselves.
+
+-- | Returns the 'EntryBuffer' being displayed.
+--
+entryGetBuffer :: EntryClass self => self -> IO EntryBuffer
+entryGetBuffer self =
+  makeNewGObject mkEntryBuffer $
+  {# call entry_get_buffer #}
+    (toEntry self)
 
 -- | Sets the text in the widget to the given value, replacing the current
 -- contents.
@@ -624,6 +646,13 @@ entryWidthChars = newAttr
 --
 entryScrollOffset :: EntryClass self => ReadAttr self Int
 entryScrollOffset = readAttrFromIntProperty "scroll-offset"
+
+-- | The buffer being displayed.
+--
+entryBuffer :: EntryClass self => Attr self EntryBuffer
+entryBuffer = newAttr
+  entryGetBuffer
+  entrySetBuffer
 
 -- | The contents of the entry.
 --
