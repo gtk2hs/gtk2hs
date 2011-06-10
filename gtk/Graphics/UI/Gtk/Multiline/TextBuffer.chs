@@ -1263,7 +1263,9 @@ insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert-child-anchor" mkT
 -- | Some text was inserted.
 --
 bufferInsertText :: TextBufferClass self => Signal self (TextIter -> String -> IO ())
-bufferInsertText = Signal (connect_BOXED_STRING__NONE "insert-text" mkTextIterCopy)
+bufferInsertText = Signal $ \after obj handler ->
+  connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy after obj
+  (\iter strPtr strLen -> peekUTFStringLen (strPtr, strLen) >>= handler iter)
 
 -- | A 'TextMark' within the buffer was deleted.
 --
