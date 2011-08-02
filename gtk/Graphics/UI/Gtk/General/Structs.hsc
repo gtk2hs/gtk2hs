@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, TypeSynonymInstances #-}
+{-# LANGUAGE ScopedTypeVariables, TypeSynonymInstances, FlexibleInstances #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 

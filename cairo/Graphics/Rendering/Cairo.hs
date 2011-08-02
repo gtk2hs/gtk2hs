@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, MultiParamTypeClasses, FlexibleInstances, CPP #-}
+{-# LANGUAGE ScopedTypeVariables, MultiParamTypeClasses, FlexibleInstances, CPP, DatatypeContexts #-}
 
 -- The following is all rather brittle: We need to pre-process this file with GHC
 -- in order to get the __GLASGOW_HASKELL__ macro (which we should replace with a

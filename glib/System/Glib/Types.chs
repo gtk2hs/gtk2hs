@@ -52,8 +52,6 @@ class GObjectClass o where
   toGObject         :: o -> GObject
   -- | Unchecked downcast.
   unsafeCastGObject :: GObject -> o
-  {-# INLINE toGObject #-}
-  {-# INLINE unsafeCastGObject #-}
 
 instance GObjectClass GObject where
   toGObject = id

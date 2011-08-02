@@ -46,7 +46,7 @@ Flag cairo_svg
   
 Library
         build-depends:  base >= 4 && < 5,
-                        bytestring, mtl, haskell98, array
+                        bytestring, mtl, array
         build-tools:    gtk2hsC2hs
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix

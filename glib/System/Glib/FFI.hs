@@ -32,6 +32,7 @@ module System.Glib.FFI (
   maybeNull,
   newForeignPtr,
   withForeignPtrs,
+  unsafePerformIO,
   module Foreign,
   module Foreign.C
   ) where
@@ -43,7 +44,7 @@ import System.IO.Unsafe (unsafePerformIO)
 
 import Foreign.C
 import qualified Foreign hiding (free)
-import Foreign  hiding	(with, newForeignPtr, free
+import Foreign  hiding	(unsafePerformIO, with, newForeignPtr, free
 #if (__GLASGOW_HASKELL__<606)
     , withObject
 #endif
