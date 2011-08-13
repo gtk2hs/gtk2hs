@@ -72,9 +72,9 @@ module GBMonad (
   ) where
 
 -- standard libraries
-import Char	  (toUpper, toLower, isSpace)
-import List       (find)
-import Maybe	  (fromMaybe)
+import Data.Char	  (toUpper, toLower, isSpace)
+import Data.List       (find)
+import Data.Maybe	  (fromMaybe)
 
 -- Compiler Toolkit
 import Position   (Position, Pos(posOf), nopos, builtinPos)

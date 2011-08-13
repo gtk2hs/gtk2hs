@@ -32,11 +32,11 @@ module FileOps (fileFindIn, mktemp)
 where
 
 -- standard libs
-import Char      (chr, ord)
-import Directory (doesFileExist)
-import IO	 (Handle, IOMode(..), openFile)
-import Monad	 (liftM)
-import Random    (newStdGen, randomRs)
+import Data.Char      (chr, ord)
+import System.Directory (doesFileExist)
+import System.IO	 (Handle, IOMode(..), openFile)
+import Control.Monad	 (liftM)
+import System.Random    (newStdGen, randomRs)
 
 import FNameOps  (dirname, stripDirname, addPath)
 

@@ -37,7 +37,7 @@
 module CNames (nameAnalysis)
 where
 
-import Monad	 (when, mapM_)
+import Control.Monad	 (when, mapM_)
 
 import Position  (Position, posOf)
 import Idents	 (Ident, identToLexeme)

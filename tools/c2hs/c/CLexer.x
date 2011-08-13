@@ -66,7 +66,7 @@
 
 module CLexer (lexC, parseError) where
 
-import Char      (isDigit)
+import Data.Char      (isDigit)
 import Data.Word      (Word8)
 import Numeric   (readDec, readOct, readHex)
 

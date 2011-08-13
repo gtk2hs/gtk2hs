@@ -169,9 +169,9 @@
 module CHSLexer (CHSToken(..), lexCHS) 
 where 
 
-import List	 ((\\))
-import Char	 (isDigit)
-import Monad	 (liftM)
+import Data.List	 ((\\))
+import Data.Char	 (isDigit)
+import Control.Monad	 (liftM)
 import Numeric   (readDec, readOct, readHex)
 
 import Position  (Position(..), Pos(posOf), incPos, retPos, tabPos)

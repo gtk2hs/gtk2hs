@@ -52,7 +52,7 @@ Executable gtk2hsC2hs
         main-is:        Main.hs
         build-depends:  base >= 4 && < 5,
                         process, directory, array, containers, pretty,
-                        haskell98, filepath
+                        filepath, random
         build-tools:    alex, happy
         other-modules:  BaseVersion
                         Config

@@ -55,8 +55,8 @@ module UNames (NameSupply, Name,
 	       saveRootNameSupply, restoreRootNameSupply)
 where
 
-import Monad  (when)
-import Ix
+import Control.Monad  (when)
+import Data.Ix
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef       (IORef, newIORef, readIORef, writeIORef)
 import Binary (Binary(..))

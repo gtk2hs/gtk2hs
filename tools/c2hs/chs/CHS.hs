@@ -95,9 +95,9 @@ module CHS (CHSModule(..), CHSFrag(..), CHSHook(..), CHSTrans(..), CHSParm(..),
 where 
 
 -- standard libraries
-import Char	 (isSpace, toUpper, toLower)
-import List	 (intersperse)
-import Monad	 (when, unless)
+import Data.Char	 (isSpace, toUpper, toLower)
+import Data.List	 (intersperse)
+import Control.Monad	 (when, unless)
 
 -- Compiler Toolkit
 import Position  (Position(..), Pos(posOf), nopos, isBuiltinPos)

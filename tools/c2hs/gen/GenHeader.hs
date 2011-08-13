@@ -48,7 +48,7 @@ module GenHeader (
 ) where 
 
 -- standard libraries
-import Monad     (when)
+import Control.Monad     (when)
 
 -- Compiler Toolkit
 import Position  (Position, Pos(..), nopos)

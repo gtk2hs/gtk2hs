@@ -69,9 +69,9 @@ module State (-- the PreCST monad
 	      getNameSupply)
 where
 
-import Ix
-import Monad       (when)
-import List        (sort)
+import Data.Ix
+import Control.Monad       (when)
+import Data.List        (sort)
 
 import BaseVersion (version, copyright, disclaimer)
 import Config	   (errorLimit)

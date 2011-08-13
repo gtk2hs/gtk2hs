@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 --  C -> Haskell Compiler: Parser for C Header Files
 --
 --  Author : Duncan Coutts, Manuel M T Chakravarty

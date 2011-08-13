@@ -80,9 +80,9 @@ module CTrav (CT, readCT, transCT, getCHeaderCT, runCT, throwCTExc, ifCTExc,
 	      lookupDeclOrTag)
 where
 
-import List       (find)
-import Maybe	  (fromMaybe)
-import Monad	  (liftM)
+import Data.List       (find)
+import Data.Maybe	  (fromMaybe)
+import Control.Monad	  (liftM)
 import Control.Exception (assert)
 
 import Position   (Position, Pos(..), nopos)

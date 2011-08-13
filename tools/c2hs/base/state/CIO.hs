@@ -72,9 +72,12 @@ module CIO (-- (verbatim) re-exports
 	    fileFindInCIO, mktempCIO)
 where
 
-import IO
-import Directory
-import System
+import System.IO
+import System.IO.Error
+import System.Cmd
+import System.Directory
+import System.Exit
+import System.Environment
 #if __GLASGOW_HASKELL__ >= 612
 import System.IO (hSetEncoding, latin1)
 #endif

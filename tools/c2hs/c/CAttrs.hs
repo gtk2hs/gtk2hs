@@ -68,9 +68,9 @@ module CAttrs (-- attributed C
 	       CObj(..), CTag(..), CDef(..))
 where
 
-import Char	  (toUpper)
-import List       (isPrefixOf)
-import Maybe	  (mapMaybe)
+import Data.Char	  (toUpper)
+import Data.List       (isPrefixOf)
+import Data.Maybe	  (mapMaybe)
 
 import Position   (Position, Pos(posOf), nopos, dontCarePos, builtinPos)
 import Errors     (interr)

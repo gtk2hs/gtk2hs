@@ -88,7 +88,7 @@ module Attributes (-- attribute management
 		   getGenAttr, setGenAttr, updGenAttr) 
 where
 
-import Array
+import Data.Array
 import Control.Exception (assert)
 import Position   (Position, Pos(posOf), nopos, isNopos, dontCarePos, 
 		   isDontCarePos)

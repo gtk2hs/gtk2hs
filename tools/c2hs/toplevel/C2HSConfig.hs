@@ -42,8 +42,8 @@ module C2HSConfig (
   bitfieldDirection, bitfieldPadding, bitfieldIntSigned, bitfieldAlignment
 ) where
 
-import Ix    (Ix)
-import Array (Array, array)
+import Data.Ix    (Ix)
+import Data.Array (Array, array)
 
 import Foreign (Ptr, FunPtr)
 import Foreign  (Storable(sizeOf, alignment), toBool)

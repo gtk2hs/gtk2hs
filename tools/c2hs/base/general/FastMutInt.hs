@@ -1,4 +1,5 @@
 {-# OPTIONS -cpp -fglasgow-exts #-}
+{-# LANGUAGE BangPatterns #-}
 --
 -- (c) The University of Glasgow 2002
 --
@@ -12,7 +13,7 @@ module FastMutInt(
 #define SIZEOF_HSINT  4
 
 import GHC.Base
-import GHC.IOBase
+import GHC.IO
 
 data FastMutInt = FastMutInt (MutableByteArray# RealWorld)
 

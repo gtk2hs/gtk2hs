@@ -79,7 +79,7 @@ module StateTrans (-- the monad and the generic operations
 		   MVar, newMV, readMV, assignMV)
 where
 
-import Monad      (liftM)
+import Control.Monad      (liftM)
 import System.IO  (fixIO)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 

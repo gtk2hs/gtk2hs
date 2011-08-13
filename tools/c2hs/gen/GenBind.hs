@@ -112,10 +112,10 @@ module GenBind (expandHooks)
 where 
 
 -- standard libraries
-import Char	  (toUpper, toLower, isSpace)
-import List       (deleteBy, intersperse, isPrefixOf, find)
-import Maybe	  (isNothing, isJust, fromJust, fromMaybe)
-import Monad	  (when, unless, liftM, mapAndUnzipM)
+import Data.Char	  (toUpper, toLower, isSpace)
+import Data.List       (deleteBy, intersperse, isPrefixOf, find)
+import Data.Maybe	  (isNothing, isJust, fromJust, fromMaybe)
+import Control.Monad	  (when, unless, liftM, mapAndUnzipM)
 
 import Data.Bits  ((.&.), (.|.), xor, complement)
 

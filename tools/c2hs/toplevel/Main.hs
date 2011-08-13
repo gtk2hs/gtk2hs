@@ -140,10 +140,10 @@ module Main (main)
 where
 
 -- standard libraries
-import List	  (isPrefixOf)
-import IO	  ()
-import Monad      (when, unless, mapM)
-import Maybe      (fromJust)
+import Data.List	  (isPrefixOf)
+import System.IO	  ()
+import Control.Monad      (when, unless, mapM)
+import Data.Maybe      (fromJust)
 
 -- base libraries
 import System.Console.GetOpt     
