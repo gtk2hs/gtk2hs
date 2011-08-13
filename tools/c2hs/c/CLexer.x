@@ -67,6 +67,7 @@
 module CLexer (lexC, parseError) where
 
 import Char      (isDigit)
+import Data.Word      (Word8)
 import Numeric   (readDec, readOct, readHex)
 
 import Position  (Position(..), Pos(posOf))
@@ -388,6 +389,13 @@ type AlexInput = (Position, 	-- current position,
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar _ = error "alexInputPrevChar not used"
 
+-- For alex >= 3.0
+alexGetByte :: AlexInput -> Maybe (Word8,AlexInput)
+alexGetByte (p,[]) = Nothing
+alexGetByte (p,(c:s))  = let p' = alexMove p c in p' `seq`
+                           Just (fromIntegral $ ord c, (p', s))
+
+-- For alex < 3.0
 alexGetChar :: AlexInput -> Maybe (Char,AlexInput)
 alexGetChar (p,[]) = Nothing
 alexGetChar (p,(c:s))  = let p' = alexMove p c in p' `seq`
