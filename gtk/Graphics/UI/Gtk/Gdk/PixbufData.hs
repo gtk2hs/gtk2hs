@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, ScopedTypeVariables, FlexibleInstances, MultiParamTypeClasses, DatatypeContexts #-}
+{-# LANGUAGE ScopedTypeVariables, FlexibleInstances, MultiParamTypeClasses #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf as Array
@@ -38,34 +38,21 @@ import Graphics.UI.Gtk.Types
 import Data.Ix
 -- internal module of GHC
 import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
-#if __GLASGOW_HASKELL__ < 605
-			 HasBounds, bounds
-#else
-			 getBounds
-#endif
-#if __GLASGOW_HASKELL__ >= 608
-			 ,getNumElements
-#endif
-                       )
+                         getBounds, getNumElements )
 
 -- | An array that stored the raw pixel data of a 'Pixbuf'.
 --
 -- * See 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufGetPixels'.
 --
-data Ix i => PixbufData i e = PixbufData !Pixbuf
-                          {-# UNPACK #-} !(Ptr e)
-                                         !(i,i)
-                          {-# UNPACK #-} !Int
+data PixbufData i e = PixbufData !Pixbuf
+                  {-# UNPACK #-} !(Ptr e)
+                                 !(i,i)
+                  {-# UNPACK #-} !Int
 
 mkPixbufData :: Storable e => Pixbuf -> Ptr e -> Int -> PixbufData Int e
 mkPixbufData pb (ptr :: Ptr e) size =
   PixbufData pb ptr (0, count) count
   where count = fromIntegral (size `div` sizeOf (undefined :: e))
-
-#if __GLASGOW_HASKELL__ < 605
-instance HasBounds PixbufData where
-  bounds (PixbufData pb ptr bd cnt) = bd
-#endif
 
 -- | 'PixbufData' is a mutable array.
 instance Storable e => MArray PixbufData e IO where
@@ -80,11 +67,7 @@ instance Storable e => MArray PixbufData e IO where
   unsafeWrite (PixbufData (Pixbuf pb) pixPtr _ _) idx elem = do
       pokeElemOff pixPtr idx elem
       touchForeignPtr pb
-#if __GLASGOW_HASKELL__ >= 605
   {-# INLINE getBounds #-}
   getBounds (PixbufData _ _ bd _) = return bd
-#endif
-#if __GLASGOW_HASKELL__ >= 608
   {-# INLINE getNumElements #-}
   getNumElements (PixbufData _ _ _ count) = return count
-#endif

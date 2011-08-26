@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, MultiParamTypeClasses, FlexibleInstances, CPP, DatatypeContexts #-}
+{-# LANGUAGE ScopedTypeVariables, MultiParamTypeClasses, FlexibleInstances, CPP #-}
 
 -- The following is all rather brittle: We need to pre-process this file with GHC
 -- in order to get the __GLASGOW_HASKELL__ macro (which we should replace with a
@@ -1728,7 +1728,7 @@ imageSurfaceGetPixels pb = do
 
 -- | An array that stores the raw pixel data of an image 'Surface'.
 --
-data Ix i => SurfaceData i e = SurfaceData !Surface
+data SurfaceData i e = SurfaceData !Surface
                           {-# UNPACK #-} !(Ptr e)
                                          !(i,i)
                           {-# UNPACK #-} !Int
