@@ -6,7 +6,7 @@ Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts, Manuel Chakravaty
 Maintainer:     gtk2hs-devel@sourceforge.net
 Build-Type:     Simple
-Cabal-Version:  >= 1.6.0
+Cabal-Version:  >= 1.8
 Stability:      stable
 homepage:       http://www.haskell.org/gtk2hs/
 bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
@@ -40,6 +40,7 @@ Executable gtk2hsTypeGen
         main-is:        TypeGen.hs
         hs-source-dirs: hierarchyGen
         other-modules:  Paths_gtk2hs_buildtools
+        build-depends:  base
 
 Executable gtk2hsHookGenerator
         main-is:        HookGenerator.hs
@@ -47,6 +48,7 @@ Executable gtk2hsHookGenerator
         if flag(ClosureSignals)
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
         other-modules:  Paths_gtk2hs_buildtools
+        build-depends:  base
 
 Executable gtk2hsC2hs
         main-is:        Main.hs
