@@ -27,46 +27,40 @@
 --
 
 module System.Glib.FFI (
-  with,
   nullForeignPtr,
   maybeNull,
   newForeignPtr,
   withForeignPtrs,
+#if MIN_VERSION_base(4,4,0)
   unsafePerformIO,
+  unsafeForeignPtrToPtr,
+#endif
   module Foreign,
   module Foreign.C
   ) where
-
-import System.IO.Unsafe (unsafePerformIO)
 
 -- We should almost certainly not be using the standard free function anywhere
 -- in the glib or gtk bindings, so we do not re-export it from this module.
 
 import Foreign.C
-import qualified Foreign hiding (free)
-import Foreign  hiding	(unsafePerformIO, with, newForeignPtr, free
-#if (__GLASGOW_HASKELL__<606)
-    , withObject
+
+#if MIN_VERSION_base(4,4,0)
+import Foreign hiding (unsafePerformIO, unsafeForeignPtrToPtr, newForeignPtr, free)
+import System.IO.Unsafe (unsafePerformIO)
+
+import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
+#else
+import Foreign hiding (newForeignPtr, free)
 #endif
-  )
-#if (__GLASGOW_HASKELL__>=610)
+
 import qualified Foreign.Concurrent
-#endif
 
-with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
-with = Foreign.with
-
-#if (__GLASGOW_HASKELL__>=610)
 newForeignPtr :: Ptr a -> FinalizerPtr a -> IO (ForeignPtr a)
 newForeignPtr p finalizer
    = Foreign.Concurrent.newForeignPtr p (mkFinalizer finalizer p)
 
 foreign import ccall "dynamic"
    mkFinalizer :: FinalizerPtr a -> Ptr a -> IO ()
-#else
-newForeignPtr :: Ptr a -> FinalizerPtr a -> IO (ForeignPtr a)
-newForeignPtr = flip Foreign.newForeignPtr
-#endif
 
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
