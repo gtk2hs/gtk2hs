@@ -1,5 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts #-}
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE CPP, BangPatterns, MagicHash, UnboxedTuples #-}
 --
 -- (c) The University of Glasgow 2002
 --

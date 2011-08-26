@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts #-}
+{-# LANGUAGE CPP, ScopedTypeVariables #-}
 --
 -- (c) The University of Glasgow 2002
 --
@@ -72,17 +72,12 @@ import Data.IORef
 import Data.Char		( ord, chr )
 import Data.Array.Base  	( unsafeRead, unsafeWrite )
 import Control.Monad		( when, liftM )
-# if __GLASGOW_HASKELL__<610
-import Control.Exception	( throwDyn )
-# else
-import Control.OldException	( throwDyn )
-# endif
 import System.IO as IO
 import System.IO.Unsafe		( unsafeInterleaveIO )
 import System.IO.Error		( mkIOError, eofErrorType )
 import GHC.Real			( Ratio(..) )
 import GHC.Exts
-import GHC.IOBase	 	( IO(..) )
+import GHC.IO           	( IO(..) )
 import GHC.Word			( Word8(..) )
 # if __GLASGOW_HASKELL__<602
 import GHC.Handle		( hSetBinaryMode )

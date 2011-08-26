@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 --  C -> Haskell Compiler: Parser for C Header Files
 --
 --  Author : Duncan Coutts, Manuel M T Chakravarty
@@ -93,6 +92,8 @@
 --
 
 {
+{-# LANGUAGE BangPatterns #-}
+{-# OPTIONS_GHC -w #-}
 module CParser (parseC) where
 
 import Prelude    hiding (reverse)
