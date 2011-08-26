@@ -59,10 +59,20 @@ module Graphics.UI.Gtk.General.Style (
   styleGetDark,
   styleGetText,
   styleGetBase,
-  styleGetAntiAliasing
+  styleGetAntiAliasing,
+
+  stylePaintFlatBox,
+  stylePaintLayout,
+
   ) where
 
+{# context prefix ="gtk" #}
+
+import System.Glib.FFI
+
 {#import Graphics.UI.Gtk.Types#}
+{#import Graphics.Rendering.Pango.Types#}
+import Graphics.Rendering.Pango.BasicTypes
 import Graphics.UI.Gtk.General.Structs		(styleGetForeground,
 			 styleGetBackground,
 			 styleGetLight,
@@ -70,5 +80,57 @@ import Graphics.UI.Gtk.General.Structs		(styleGetForeground,
 			 styleGetDark,
 			 styleGetText,
 			 styleGetBase,
-			 styleGetAntiAliasing)
+			 styleGetAntiAliasing,
+                         Rectangle)
+import Graphics.UI.Gtk.General.Enums (StateType, ShadowType)
 
+stylePaintFlatBox :: WidgetClass widget
+                  => Style
+                  -> DrawWindow
+                  -> StateType
+                  -> ShadowType
+                  -> Rectangle
+                  -> widget
+                  -> String
+                  -> Int -> Int -> Int -> Int
+                  -> IO ()
+stylePaintFlatBox style window stateType shadowType
+                  clipRect widget detail x y width height =
+  with clipRect $ \rectPtr ->
+  withCString detail $ \detailPtr ->
+  {# call paint_flat_box #}
+    style
+    window
+    ((fromIntegral.fromEnum) stateType)
+    ((fromIntegral.fromEnum) shadowType)
+    (castPtr rectPtr)
+    (toWidget widget)
+    detailPtr
+    (fromIntegral x) (fromIntegral y)
+    (fromIntegral width) (fromIntegral height)
+
+stylePaintLayout :: WidgetClass widget
+                 => Style
+                 -> DrawWindow
+                 -> StateType
+                 -> Bool
+                 -> Rectangle
+                 -> widget
+                 -> String
+                 -> Int -> Int
+                 -> PangoLayout
+                 -> IO ()
+stylePaintLayout style window stateType useText
+                  clipRect widget detail x y (PangoLayout _ layout) =
+  with clipRect $ \rectPtr ->
+  withCString detail $ \detailPtr ->
+  {# call gtk_paint_layout #}
+    style
+    window
+    ((fromIntegral.fromEnum) stateType)
+    (fromBool useText)
+    (castPtr rectPtr)
+    (toWidget widget)
+    detailPtr
+    (fromIntegral x) (fromIntegral y)
+    layout
