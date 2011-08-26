@@ -1,37 +1,7 @@
 {-# LANGUAGE CPP #-}
 
-#define CABAL_VERSION_ENCODE(major, minor, micro) (     \
-          ((major) * 10000)                             \
-        + ((minor) *   100)                             \
-        + ((micro) *     1))
-
-#define CABAL_VERSION_CHECK(major,minor,micro)    \
-        (CABAL_VERSION >= CABAL_VERSION_ENCODE(major,minor,micro))
-
--- now, this is bad, but Cabal doesn't seem to actually pass any information about
--- its version to CPP, so guess the version depending on the version of GHC
-#ifdef CABAL_VERSION_MINOR
-#ifndef CABAL_VERSION_MAJOR
-#define CABAL_VERSION_MAJOR 1
-#endif
-#ifndef CABAL_VERSION_MICRO
-#define CABAL_VERSION_MICRO 0
-#endif
-#define CABAL_VERSION CABAL_VERSION_ENCODE(     \
-        CABAL_VERSION_MAJOR,                    \
-        CABAL_VERSION_MINOR,                    \
-        CABAL_VERSION_MICRO)
-#else
-#warning Setup.hs is guessing the version of Cabal. If compilation of Setup.hs fails use -DCABAL_VERSION_MINOR=x for Cabal version 1.x.0 when building (prefixed by --ghc-option= when using the 'cabal' command)
-#if (__GLASGOW_HASKELL__ >= 700)
-#define CABAL_VERSION CABAL_VERSION_ENCODE(1,10,0)
-#else
-#if (__GLASGOW_HASKELL__ >= 612)
-#define CABAL_VERSION CABAL_VERSION_ENCODE(1,8,0)
-#else
-#define CABAL_VERSION CABAL_VERSION_ENCODE(1,6,0)
-#endif
-#endif
+#ifndef CABAL_VERSION_CHECK
+#error This module has to be compiled via the Setup.hs program which generates the gtk2hs-macros.h file
 #endif
 
 -- | Build a Gtk2hs package.
@@ -49,13 +19,7 @@ import Distribution.InstalledPackageInfo ( importDirs,
                                            libraryDirs,
                                            extraLibraries,
                                            extraGHCiLibraries )
-import Distribution.Simple.PackageIndex (
-#if CABAL_VERSION_CHECK(1,8,0)
-  lookupInstalledPackageId
-#else
-  lookupPackageId
-#endif
-  )
+import Distribution.Simple.PackageIndex ( lookupInstalledPackageId )
 import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                updatePackageDescription,
                                                BuildInfo(..),
@@ -64,11 +28,7 @@ import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                libModules, hasLibs)
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
                                            InstallDirs(..),
-#if CABAL_VERSION_CHECK(1,8,0)
                                            componentPackageDeps,
-#else
-                                           packageDeps,
-#endif
                                            absoluteInstallDirs)
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
@@ -84,11 +44,7 @@ import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   fromFlagOrDefault, defaultRegisterFlags)
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
 import Distribution.Simple.Install ( install )
-#if CABAL_VERSION_CHECK(1,8,0)
 import Distribution.Simple.Register ( generateRegistrationInfo, registerPackage )
-#else
-import qualified Distribution.Simple.Register as Register ( register )
-#endif
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
 import System.Exit (exitFailure)
@@ -147,8 +103,6 @@ fixLibs dlls = concatMap $ \ lib ->
 -- The following code is a big copy-and-paste job from the sources of
 -- Cabal 1.8 just to be able to fix a field in the package file. Yuck.
 
-#if CABAL_VERSION_CHECK(1,8,0)
-        
 installHook :: PackageDescription -> LocalBuildInfo
                    -> UserHooks -> InstallFlags -> IO ()
 installHook pkg_descr localbuildinfo _ flags = do
@@ -195,19 +149,20 @@ register pkg@PackageDescription { library       = Just lib  }
      _ | modeGenerateRegFile   -> die "Generate Reg File not supported"
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
+                                    installedPkgInfo pkg lbi inplace
 #if CABAL_VERSION_CHECK(1,10,0)
-                                    installedPkgInfo pkg lbi inplace [packageDb]
+                                    packageDbs
 #else
-                                    installedPkgInfo pkg lbi inplace packageDb
+                                    packageDb
 #endif
 
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
     modeGenerateRegScript = fromFlag (regGenScript regFlags)
     inplace   = fromFlag (regInPlace regFlags)
-    packageDb = case flagToMaybe (regPackageDB regFlags) of
-                    Just db -> db
-                    Nothing -> registrationPackageDB (withPackageDB lbi)
+    packageDbs = nub $ withPackageDB lbi
+                    ++ maybeToList (flagToMaybe  (regPackageDB regFlags))
+    packageDb = registrationPackageDB packageDbs
     distPref  = fromFlag (regDistPref regFlags)
     verbosity = fromFlag (regVerbosity regFlags)
 
@@ -215,44 +170,6 @@ register _ _ regFlags = notice verbosity "No package to register"
   where
     verbosity = fromFlag (regVerbosity regFlags)
 
-#else
-installHook :: PackageDescription -> LocalBuildInfo
-                   -> UserHooks -> InstallFlags -> IO ()
-installHook pkg_descr localbuildinfo _ flags = do
-  let copyFlags = defaultCopyFlags {
-                      copyDistPref   = installDistPref flags,
-                      copyInPlace    = installInPlace flags,
-                      copyUseWrapper = installUseWrapper flags,
-                      copyDest       = toFlag NoCopyDest,
-                      copyVerbosity  = installVerbosity flags
-                  }
-  install pkg_descr localbuildinfo copyFlags
-  let registerFlags = defaultRegisterFlags {
-                          regDistPref  = installDistPref flags,
-                          regInPlace   = installInPlace flags,
-                          regPackageDB = installPackageDB flags,
-                          regVerbosity = installVerbosity flags
-                      }
-  when (hasLibs pkg_descr) $ register pkg_descr localbuildinfo registerFlags
-
-registerHook :: PackageDescription -> LocalBuildInfo
-        -> UserHooks -> RegisterFlags -> IO ()
-registerHook pkg_descr localbuildinfo _ flags =
-    if hasLibs pkg_descr
-    then register pkg_descr localbuildinfo flags
-    else setupMessage verbosity
-           "Package contains no library to register:" (packageId pkg_descr)
-  where verbosity = fromFlag (regVerbosity flags)
-
-register :: PackageDescription -> LocalBuildInfo
-         -> RegisterFlags -- ^Install in the user's database?; verbose
-         -> IO ()
-register pkg_descr lbi regFlags = do
-  let verbosity = fromFlag (regVerbosity regFlags)
-  warn verbosity "Cannot register ghci libraries with Cabal 1.6 (need 1.8)."
-  Register.register pkg_descr lbi regFlags
-  
-#endif
 
 ------------------------------------------------------------------------------
 -- This is a hack for Cabal-1.8, It is not needed in Cabal-1.9.1 or later
@@ -291,13 +208,8 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
   -- additional .chi files might be needed that other packages have installed;
   -- we assume that these are installed in the same place as .hi files
   let chiDirs = [ dir |
-#if CABAL_VERSION_CHECK(1,8,0)
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
                   dir <- maybe [] importDirs (lookupInstalledPackageId (installedPkgs lbi) ipi) ]
-#else
-                  ipi <- packageDeps lbi,
-                  dir <- maybe [] importDirs (lookupPackageId (installedPkgs lbi) ipi) ]
-#endif
   rawSystemProgramConf verbosity c2hsLocal (withPrograms lbi) $
        map ("--include=" ++) (outDir:chiDirs)
     ++ ["--cppopts=" ++ opt | opt <- getCppOptions bi lbi]
@@ -321,18 +233,10 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
   -- cannot use the recommended 'findModuleFiles' since it fails if there exists
   -- a modules that does not have a .chi file
   mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi] . toFilePath)
-#if CABAL_VERSION_CHECK(1,8,0)
                    (PD.libModules lib)
-#else
-                   (PD.libModules pkg)
-#endif
                  
   let files = [ f | Just f <- mFiles ]
-#if CABAL_VERSION_CHECK(1,8,0)
   installOrdinaryFiles verbosity libPref files
-#else
-  copyFiles verbosity libPref files
-#endif
 
   
 installCHI _ _ _ _ = return ()

@@ -1,45 +1,10 @@
--- Setup file for a Gtk2Hs module. Contains only adjustments specific to this module,
--- all Gtk2Hs-specific boilerplate is stored in Gtk2HsSetup.hs which should be kept
--- identical across all modules.
-import Distribution.Simple ( defaultMainWithHooks, UserHooks(postConf),
-                             PackageIdentifier(..), PackageName(..) )
-import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages, checkGtk2hsBuildtools )
-import Distribution.Simple.Setup ( ConfigFlags(configVerbosity), fromFlag)
-import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
-import Distribution.Simple.BuildPaths ( autogenModulesDir )
-import Distribution.Text ( display )
-import Distribution.Version ( Version(..) )
-import Distribution.Verbosity
-import Distribution.Simple.Utils
-import System.FilePath
+-- Standard setup file for a Gtk2Hs module.
+--
+-- See also:
+--  * SetupMain.hs    : the real Setup script for this package
+--  * Gtk2HsSetup.hs  : Gtk2Hs-specific boilerplate
+--  * SetupWrapper.hs : wrapper for compat with various ghc/cabal versions
 
-main = do
-  checkGtk2hsBuildtools ["gtk2hsC2hs", "gtk2hsTypeGen"]
-  defaultMainWithHooks gtk2hsUserHooks {
+import SetupWrapper ( setupWrapper )
 
-    postConf = \args cf pd lbi -> do
-      let verb = (fromFlag (configVerbosity cf))
-      cPkgs <- getPkgConfigPackages verb lbi pd
-      let [pangoVersion] = [ v | PackageIdentifier (PackageName "pango") v <- cPkgs ]
-      writePangoVersionHeaderFile verb lbi pangoVersion
-      postConf gtk2hsUserHooks args cf pd lbi
-  }
-
-------------------------------------------------------------------------------
--- Generate CPP defines for version of C libs.
-------------------------------------------------------------------------------
-
-writePangoVersionHeaderFile :: Verbosity -> LocalBuildInfo -> Version -> IO ()
-writePangoVersionHeaderFile verbosity lbi (Version (major:minor:micro:_) []) = do
-  createDirectoryIfMissingVerbose verbosity True targetDir
-  rewriteFile targetFile $ unlines
-    [ "#define PANGO_VERSION_MAJOR " ++ show major
-    , "#define PANGO_VERSION_MINOR " ++ show minor
-    , "#define PANGO_VERSION_MICRO " ++ show micro
-    ]
-  where
-    targetDir  = autogenModulesDir lbi
-    targetFile = targetDir </> "hspangoversion.h"
-
-writeVersionHeaderFile _ _ version =
-  die $ "unexpected pango version number: " ++ display version
+main = setupWrapper "SetupMain.hs"
