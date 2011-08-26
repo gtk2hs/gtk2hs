@@ -203,6 +203,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetAllocation,
 #endif
   widgetGetState,
+  widgetSetState,
   widgetGetSavedState,
   widgetGetSize,
   widgetEvent,
@@ -223,6 +224,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetReceivesDefault,
   widgetCompositeChild,
   widgetStyle,
+  widgetState,
   widgetEvents,
   widgetExtensionEvents,
   widgetNoShowAll,
@@ -389,7 +391,10 @@ import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize(..)
                                         ,Point
-					,widgetGetState, widgetGetSavedState
+#if !GTK_CHECK_VERSION(2,18,0)
+                                        ,widgetGetState
+#endif
+                                        ,widgetGetSavedState
 					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
   marshExposeRect,
@@ -2150,6 +2155,29 @@ widgetGetAllocation widget =
      peek allocationPtr
 #endif
 
+#if GTK_CHECK_VERSION(2,18,0)
+-- | Retrieve the current state of the widget.
+--
+-- * The state refers to different modes of user interaction, see
+--   'StateType' for more information.
+--
+widgetGetState :: WidgetClass self => self -> IO StateType
+widgetGetState widget =
+  liftM (toEnum . fromIntegral) $
+  {#call widget_get_state#}
+    (toWidget widget)
+#endif
+
+-- | This function is for use in widget implementations. Sets the state of a
+-- widget (insensitive, prelighted, etc.) Usually you should set the state
+-- using wrapper functions such as 'widgetSetSensitive'.
+--
+widgetSetState :: WidgetClass self => self -> StateType -> IO ()
+widgetSetState widget state =
+  {#call widget_set_state#}
+    (toWidget widget)
+    ((fromIntegral . fromEnum) state)
+
 -- | Rarely-used function. This function is used to emit the event signals on a widget (those signals
 -- should never be emitted without using this function to do so). If you want to synthesize an event
 -- though, don't use this function; instead, use 'mainDoEvent' so the event will behave as if it
@@ -2285,6 +2313,14 @@ widgetCompositeChild = readAttrFromBoolProperty "composite-child"
 --
 widgetStyle :: WidgetClass self => Attr self Style
 widgetStyle = newAttrFromObjectProperty "style" gTypeStyle
+
+-- | The current visual user interaction state of the widget (insensitive,
+-- prelighted, selected etc). See 'StateType' for more information.
+--
+widgetState :: WidgetClass self => Attr self StateType
+widgetState = newAttr
+  widgetGetState
+  widgetSetState
 
 -- %hash c:e2a4 d:9296
 -- | The event mask that decides what kind of GdkEvents this widget gets.
