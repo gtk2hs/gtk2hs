@@ -8,7 +8,7 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.8
 Stability:      stable
-homepage:       http://www.haskell.org/gtk2hs/
+homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the Cairo library.
 Description:    Cairo is a library to render high quality vector graphics. There

@@ -8,7 +8,7 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.8
 Stability:      stable
-homepage:       http://www.haskell.org/gtk2hs/
+homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the GLIB library for Gtk2Hs.
 Description:    The GNU Library is a collection of C data structures and utility

@@ -8,7 +8,7 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.8
 Stability:      provisional
-homepage:       http://www.haskell.org/gtk2hs/
+homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the Gtk+ graphical user interface library.
 Description: This is the core library of the Gtk2Hs suite of libraries for Haskell

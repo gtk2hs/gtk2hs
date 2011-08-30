@@ -8,7 +8,7 @@ Maintainer:     gtk2hs-users@sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.8
 Stability:      stable
-homepage:       http://www.haskell.org/gtk2hs/
+homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
 Synopsis:       Binding to the GIO.
 Description:    GIO is striving to provide a modern, easy-to-use VFS API that sits at the right level in the library stack. 
