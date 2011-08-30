@@ -11,8 +11,12 @@ module FastMutInt(
 
 #define SIZEOF_HSINT  4
 
-import GHC.Base
-import GHC.IO
+import GHC.Exts
+# if __GLASGOW_HASKELL__>=612
+import GHC.IO     (IO(IO))
+#else
+import GHC.IOBase (IO(IO))
+#endif
 
 data FastMutInt = FastMutInt (MutableByteArray# RealWorld)
 

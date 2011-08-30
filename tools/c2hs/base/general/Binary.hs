@@ -77,7 +77,11 @@ import System.IO.Unsafe		( unsafeInterleaveIO )
 import System.IO.Error		( mkIOError, eofErrorType )
 import GHC.Real			( Ratio(..) )
 import GHC.Exts
-import GHC.IO           	( IO(..) )
+# if __GLASGOW_HASKELL__>=612
+import GHC.IO     (IO(IO))
+#else
+import GHC.IOBase (IO(IO))
+#endif
 import GHC.Word			( Word8(..) )
 # if __GLASGOW_HASKELL__<602
 import GHC.Handle		( hSetBinaryMode )
