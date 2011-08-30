@@ -21,6 +21,8 @@ import System.Process
 import System.Exit
 import System.FilePath
 import System.Directory
+import qualified Control.Exception as Exception
+import System.IO.Error (isDoesNotExistError)
 
 import Data.List
 import Data.Char
@@ -54,7 +56,10 @@ setupWrapper setupHsFile = do
                 return version
 
     savedCabalVersion = do
-      versionString <- readFile setupVersionFile `catch` \_ -> return ""
+      versionString <- readFile setupVersionFile
+                         `Exception.catch` \e -> if isDoesNotExistError e
+                                                   then return ""
+                                                   else Exception.throwIO e
       case reads versionString of
         [(version,s)] | all isSpace s -> return (Just version)
         _                             -> return Nothing
