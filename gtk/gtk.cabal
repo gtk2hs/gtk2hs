@@ -15,7 +15,7 @@ Description: This is the core library of the Gtk2Hs suite of libraries for Haske
              based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
              for creating graphical user interfaces.
 Category:       Graphics
-Tested-With:    GHC == 6.10.4
+Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
 Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h

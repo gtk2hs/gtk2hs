@@ -20,7 +20,7 @@ Description:    This package provides a set of helper programs necessary to
                 to call back from C to Haskell. These tools are not needed
                 to actually run Gtk2Hs programs.
 Category:       Development
-Tested-With:    GHC == 6.10.4
+Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
 Data-Files:     callbackGen/Signal.chs.template
                 hierarchyGen/hierarchy.list
                 hierarchyGen/Hierarchy.chs.template

@@ -16,7 +16,7 @@ Description:    This package provides a wrapper around the Pango C library that
                 either with Cairo to output text in PDF, PS or other
                 documents or with Gtk+ to display text on-screen.
 Category:       Graphics
-Tested-With:    GHC == 6.10.4
+Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
                     Gtk2HsSetup.hs
