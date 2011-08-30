@@ -46,14 +46,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.Rendering.Pango.BasicTypes#}
 import Graphics.Rendering.Pango.Structs
-#ifdef HAVE_NEW_CONTROL_EXCEPTION
-import Control.OldException ( Exception(ArrayException),
-                              ArrayException(IndexOutOfBounds) )
-#else
-import Control.Exception ( Exception(ArrayException),
-                           ArrayException(IndexOutOfBounds) )
-#endif
-import Control.Exception (throwIO)
+import Control.Exception (throwIO, ArrayException(IndexOutOfBounds) )
 
 {# context lib="pango" prefix="pango" #}
 
@@ -180,9 +173,9 @@ glyphItemSplit (GlyphItem (PangoItem ps pir) gs) pos = do
       {#call unsafe pango_glyph_item_split#} giPtr1 strPtr
         (fromIntegral (ofsToUTF pos uc))
     if giPtr2==nullPtr then 
-       throwIO (ArrayException (IndexOutOfBounds
+       throwIO (IndexOutOfBounds
          ("Graphics.Rendering.Pango.GlyphStorage."++
-          "glyphItemSplit: cannot split item at index "++show pos))) else do
+          "glyphItemSplit: cannot split item at index "++show pos)) else do
       pirPtr2 <- {#get PangoGlyphItem.item#} giPtr2
       gsrPtr2 <- {#get PangoGlyphItem.glyphs#} giPtr2
       {#call unsafe g_free#} giPtr2

@@ -136,15 +136,7 @@ import Graphics.Rendering.Pango.Types
 import Graphics.Rendering.Pango.Rendering  -- for haddock
 import Graphics.Rendering.Pango.Attributes ( withAttrList, fromAttrList)
 import Data.IORef
-#ifdef HAVE_NEW_CONTROL_EXCEPTION
-import Control.OldException ( Exception(ArrayException),
-                              ArrayException(IndexOutOfBounds),
-                              throwIO )
-#else
-import Control.Exception ( Exception(ArrayException),
-                           ArrayException(IndexOutOfBounds),
-                           throwIO )
-#endif
+import Control.Exception (throwIO, ArrayException(IndexOutOfBounds))
 
 {# context lib="pango" prefix="pango" #}
 
@@ -754,9 +746,9 @@ layoutGetLine (PangoLayout psRef pl) idx = do
 #endif
       pl (fromIntegral idx)
   if llPtr==nullPtr then 
-     throwIO (ArrayException (IndexOutOfBounds
+     throwIO (IndexOutOfBounds
       ("Graphics.Rendering.Pango.Layout.layoutGetLine: "++
-       "no line at index "++show idx))) else do
+       "no line at index "++show idx)) else do
   ll <- makeNewLayoutLineRaw llPtr
   {#call unsafe layout_line_ref#} ll
   return (LayoutLine psRef ll)
