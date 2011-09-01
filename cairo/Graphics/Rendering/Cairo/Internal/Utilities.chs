@@ -32,7 +32,7 @@ import Data.Char (ord, chr)
 -- Define withUTFString to emit UTF-8.
 --
 withUTFString :: String -> (CString -> IO a) -> IO a
-withUTFString hsStr = withCString (toUTF hsStr)
+withUTFString hsStr = withCAString (toUTF hsStr)
  where
     -- Convert Unicode characters to UTF-8.
     --

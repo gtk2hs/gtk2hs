@@ -23,6 +23,6 @@ import Foreign.C
 
 #ifdef CAIRO_HAS_SVG_SURFACE
 
-{#fun svg_surface_create  as svgSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
+{#fun svg_surface_create  as svgSurfaceCreate { withCAString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 
 #endif

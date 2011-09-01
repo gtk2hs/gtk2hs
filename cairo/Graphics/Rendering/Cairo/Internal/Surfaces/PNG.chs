@@ -25,10 +25,10 @@ import Foreign.C
 
 imageSurfaceCreateFromPNG :: FilePath -> IO Surface
 imageSurfaceCreateFromPNG filename =
-  withCString filename $ \filenamePtr ->
+  withCAString filename $ \filenamePtr ->
   {#call unsafe image_surface_create_from_png#} filenamePtr
   >>= mkSurface
 
-{#fun surface_write_to_png as surfaceWriteToPNG { withSurface* `Surface', withCString* `FilePath' } -> `Status' cToEnum#}
+{#fun surface_write_to_png as surfaceWriteToPNG { withSurface* `Surface', withCAString* `FilePath' } -> `Status' cToEnum#}
 
 #endif
