@@ -4,7 +4,7 @@ License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts
-Maintainer:     gtk2hs-users@sourceforge.net
+Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
 Cabal-Version:  >= 1.8
 Stability:      stable

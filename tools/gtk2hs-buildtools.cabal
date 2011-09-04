@@ -4,7 +4,7 @@ License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts, Manuel Chakravaty
-Maintainer:     gtk2hs-devel@sourceforge.net
+Maintainer:     gtk2hs-devel@lists.sourceforge.net
 Build-Type:     Simple
 Cabal-Version:  >= 1.8
 Stability:      stable
