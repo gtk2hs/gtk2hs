@@ -18,7 +18,7 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
                 It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
 Category:       System
 Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
-Extra-Source-Files: Gtk2HsSetup.hs
+Extra-Source-Files: SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
 					hierarchy.list
 

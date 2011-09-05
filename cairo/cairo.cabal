@@ -17,7 +17,7 @@ Description:    Cairo is a library to render high quality vector graphics. There
 Category:       Graphics
 Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
 extra-source-files: cairo-gtk2hs.h
-                    Gtk2HsSetup.hs
+                    SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
 
 Data-Dir:		demo
 Data-Files:		cairo-clock-icon.png

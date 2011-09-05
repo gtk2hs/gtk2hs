@@ -18,7 +18,7 @@ Description:    The GNU Library is a collection of C data structures and utility
 Category:       System
 Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
 Extra-Source-Files:
-                Gtk2HsSetup.hs
+                SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                 System/Glib/hsgclosure.c
                 System/Glib/hsgclosure.h
 
