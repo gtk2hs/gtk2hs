@@ -135,6 +135,9 @@ module Graphics.UI.Gtk.Gdk.EventM (
   ScrollDirection(..),
   eventScrollDirection,
   eventIsHint,
+#if GTK_CHECK_VERSION(2,12,0)
+  eventRequestMotions,
+#endif
   eventArea,
   eventRegion,
   VisibilityState(..),
@@ -503,6 +506,31 @@ eventScrollDirection = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
 eventIsHint :: EventM EMotion Bool
 eventIsHint = ask >>= \ptr -> liftIO $ liftM toBool 
   (#{peek GdkEventMotion, is_hint} ptr :: IO #{gtk2hs_type gint16})
+
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Request more motion notifies if this event is a motion notify hint event.
+--
+-- This action should be used instead of 'drawWindowGetPointer' to request
+-- further motion notifies, because it also works for extension events where
+-- motion notifies are provided for devices other than the core pointer.
+--
+-- Coordinate extraction, processing and requesting more motion events from a
+-- 'motionNotifyEvent' usually works like this:
+--
+-- > on widget motionNotifyEvent $ do
+--     (x, y) <- eventCoordinates
+--     -- handle the x,y motion:
+--     ...
+--     -- finally, notify that we are ready to get more motion events:
+--     eventRequestMotions
+--
+eventRequestMotions :: EventM EMotion ()
+eventRequestMotions = ask >>= \ptr -> liftIO $
+  gdk_event_request_motions ptr
+
+foreign import ccall "gdk_event_request_motions"
+  gdk_event_request_motions :: Ptr EMotion -> IO ()
+#endif
 
 -- | Query a bounding box of the region that needs to be updated.
 eventArea :: EventM EExpose Rectangle

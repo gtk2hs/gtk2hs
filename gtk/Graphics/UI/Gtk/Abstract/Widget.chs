@@ -2699,13 +2699,19 @@ scrollEvent = Signal (eventM "scroll_event" [ScrollMask])
 --   * 'Button2MotionMask': Only track movements if the middle button is depressed.
 --
 --   * 'Button3MotionMask': Only track movements if the right button is depressed.
---
---   If the application cannot respond quickly enough to all mouse motions,
---   it is possible to only receive motion signals on request. In this case,
---   you need to add 'PointerMotionHintMask' to the flags above and call
---   'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer' each time a
---   motion even is received. Motion events will then be delayed until the
---   function is called.
+--   'PointerMotionHintMask' is a special flag which can be used in
+--   combination with any of the above and is used to reduce the number of
+--   'motionNotifyEvent's received. Normally a 'motionNotifyEvent' event is
+--   received each time the mouse moves. However, if the application spends a
+--   lot of time processing the event (updating the display, for example), it
+--   can lag behind the position of the mouse. When using
+--   'PointerMotionHintMask', fewer 'motionNotifyEvent's will be sent, some of
+--   which are marked as a hint. To receive more motion events after a motion
+--   hint event, the application needs to asks for more, by calling
+--   'Graphics.UI.Gtk.Gdk.EventM.eventRequestMotions'. This effectively limits
+--   the rate at which new motion events are received. (Note that you don't
+--   need to check if the hint is set as
+--   'Graphics.UI.Gtk.Gdk.EventM.eventRequestMotions' does so automatically.)
 --
 motionNotifyEvent :: WidgetClass self => Signal self (EventM EMotion Bool)
 motionNotifyEvent = Signal (eventM "motion_notify_event" [])
