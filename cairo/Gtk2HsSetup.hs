@@ -33,8 +33,8 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
-  rawSystemProgramConf, rawSystemProgramStdoutConf, programName,
-  c2hsProgram, pkgConfigProgram, requireProgram, ghcPkgProgram,
+  rawSystemProgramConf, rawSystemProgramStdoutConf, programName, programPath,
+  c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
 import Distribution.Simple.Utils
@@ -210,8 +210,10 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
   let chiDirs = [ dir |
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
                   dir <- maybe [] importDirs (lookupInstalledPackageId (installedPkgs lbi) ipi) ]
+  (gccProg, _) <- requireProgram verbosity gccProgram (withPrograms lbi)
   rawSystemProgramConf verbosity c2hsLocal (withPrograms lbi) $
        map ("--include=" ++) (outDir:chiDirs)
+    ++ [ "--cpp=" ++ programPath gccProg, "--cppopts=-E" ]
     ++ ["--cppopts=" ++ opt | opt <- getCppOptions bi lbi]
     ++ ["--output-dir=" ++ newOutDir,
         "--output=" ++ newOutFile,
