@@ -65,7 +65,7 @@ module CIO (-- (verbatim) re-exports
 	    --
 	    -- `System'
 	    --
-	    ExitCode(..), exitWithCIO, getArgsCIO, getProgNameCIO, systemCIO,
+	    ExitCode(..), exitWithCIO, getArgsCIO, getProgNameCIO,
 	    --
 	    -- CTK general stuff
 	    --
@@ -175,9 +175,6 @@ getArgsCIO  = liftIO getArgs
 
 getProgNameCIO :: PreCST e s String
 getProgNameCIO  = liftIO getProgName
-
-systemCIO :: String -> PreCST e s ExitCode
-systemCIO  = liftIO . system
 
 -- general IO routines defined in CTK
 -- ----------------------------------

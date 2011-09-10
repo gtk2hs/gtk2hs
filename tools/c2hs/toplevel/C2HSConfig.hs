@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 --								  -*-haskell-*-
 --  ===========================================================================
 --  C -> Haskell Compiler: configuration
@@ -48,6 +47,7 @@ import Data.Array (Array, array)
 import Foreign (Ptr, FunPtr)
 import Foreign  (Storable(sizeOf, alignment), toBool)
 import Foreign.C (CInt)
+import System.Info (os)
 
 -- program settings
 -- ----------------
@@ -55,12 +55,9 @@ import Foreign.C (CInt)
 -- C preprocessor executable (EXPORTED)
 --
 cpp :: FilePath
-cpp  =
-#ifdef _C2HS_CPP_IS_GCC
-  "gcc"
-#else
-  "cpp"
-#endif
+cpp  = case os of
+  "darwin" -> "gcc"
+  _        -> "cpp"
 
 -- C preprocessor options (EXPORTED)
 --
@@ -70,16 +67,12 @@ cpp  =
 --
 -- * `-P' would suppress `#line' directives
 --
-cppopts :: String
-cppopts  =
-#ifdef _C2HS_CPP_IS_GCC
-  "-E "++
-#endif
-#ifdef _C2HS_CPP_LANG_SINGLE
-  "-xc -w"
-#else
-  "-x c -w"
-#endif
+cppopts :: [String]
+cppopts  = case (os,cpp) of
+  ("openbsd","cpp") -> ["-xc", "-w"]
+  (_,"cpp")         -> ["-x", "c", "-w"]
+  (_,"gcc")         -> ["-E", "-x", "c", "-w"]
+  _                 -> []
 
 -- C preprocessor option for including only definitions (EXPORTED)
 cppoptsdef :: String

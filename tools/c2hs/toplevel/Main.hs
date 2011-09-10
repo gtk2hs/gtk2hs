@@ -141,7 +141,8 @@ where
 
 -- standard libraries
 import Data.List	  (isPrefixOf)
-import System.IO	  ()
+import System.IO	  (openFile)
+import System.Process	  (runProcess, waitForProcess)
 import Control.Monad      (when, unless, mapM)
 import Data.Maybe      (fromJust)
 
@@ -160,7 +161,7 @@ import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
 		   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
 		   ioeGetErrorString, ioeGetFileName, doesFileExistCIO,
 		   removeFileCIO, liftIO,
-		   systemCIO, fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
+		   fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
 		   SwitchBoard(..), Traces(..), setTraces,
 		   traceSet, setSwitch, getSwitch, putTraceStr)
 import C	  (AttrC, hsuffix, isuffix, loadAttrC)
@@ -398,7 +399,7 @@ help  = do
 -- * `Help' cannot occur 
 --
 processOpt                   :: Flag -> CST s ()
-processOpt (CPPOpts cppopts)  = addCPPOpts cppopts
+processOpt (CPPOpts cppopt )  = addCPPOpts [cppopt]
 processOpt (CPP     cpp    )  = setCPP     cpp
 processOpt (Dump    dt     )  = setDump    dt
 processOpt (Keep           )  = setKeep
@@ -449,15 +450,15 @@ computeOutputName bndFileNoSuffix =
 -- * any header search path that is set with `-IDIR' is also added to
 --   `hpathsSB'
 --
-addCPPOpts      :: String -> CST s ()
+addCPPOpts      :: [String] -> CST s ()
 addCPPOpts opts  = 
   do
-    let iopts = [opt | opt <- words opts, "-I" `isPrefixOf` opt, "-I-" /= opt]
+    let iopts = [opt | opt <- opts, "-I" `isPrefixOf` opt, "-I-" /= opt]
     addHPaths . map (drop 2) $ iopts
     addOpts opts
   where
     addOpts opts  = setSwitch $ 
-		      \sb -> sb {cppOptsSB = cppOptsSB sb ++ (' ':opts)}
+                      \sb -> sb {cppOptsSB = cppOptsSB sb ++ opts}
 
 -- set the program name of the C proprocessor
 --
@@ -556,10 +557,13 @@ process headerFile preCompFile bndFileStripped  =
 	let ppFile = outFileBase ++ "_pp" ++ chssuffix
 	cpp     <- getSwitch cppSB
 	cppOpts <- getSwitch cppOptsSB
-	let cmd  = unwords [cpp, cppOpts, cppoptsdef, headerFile,
-			    bndFile, ">", ppFile]
-	tracePreproc cmd
-	exitCode <- systemCIO cmd
+        let args = cppOpts ++ [cppoptsdef, headerFile, bndFile]
+        tracePreproc (unwords (cpp:args))
+	exitCode <- liftIO $ do
+          ppHnd <- openFile ppFile WriteMode
+          process <- runProcess cpp args
+            Nothing Nothing Nothing (Just ppHnd) Nothing
+          waitForProcess process
 	case exitCode of 
 	  ExitFailure _ -> fatal "Error during preprocessing chs file"
  	  _		-> nop
@@ -609,9 +613,13 @@ process headerFile preCompFile bndFileStripped  =
         --
         cpp     <- getSwitch cppSB
         cppOpts <- getSwitch cppOptsSB
-        let cmd  = unwords [cpp, cppOpts, newHeaderFile, ">" ++ preprocFile]
-        tracePreproc cmd
-        exitCode <- systemCIO cmd
+        let args = cppOpts ++ [newHeaderFile]
+        tracePreproc (unwords (cpp:args))
+        exitCode <- liftIO $ do
+          preprocHnd <- openFile preprocFile WriteMode
+          process <- runProcess cpp args
+            Nothing Nothing Nothing (Just preprocHnd) Nothing
+          waitForProcess process
         case exitCode of 
           ExitFailure _ -> fatal "Error during preprocessing custom header file"
           _             -> nop
@@ -674,9 +682,13 @@ preCompileHeader headerFile preCompFile =
     --
     cpp     <- getSwitch cppSB
     cppOpts <- getSwitch cppOptsSB
-    let cmd  = unwords [cpp, cppOpts, realHeaderFile, ">" ++ preprocFile]
-    tracePreproc cmd
-    exitCode <- systemCIO cmd
+    let args = cppOpts ++ [realHeaderFile]
+    tracePreproc (unwords (cpp:args))
+    exitCode <- liftIO $ do
+      preprocHnd <- openFile preprocFile WriteMode
+      process <- runProcess cpp args
+        Nothing Nothing Nothing (Just preprocHnd) Nothing
+      waitForProcess process
     case exitCode of
       ExitFailure _ -> fatal "Error during preprocessing"
       _             -> nop

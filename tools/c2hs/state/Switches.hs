@@ -69,7 +69,7 @@ module Switches (
 -- all switches of the toolkit (EXPORTED)
 --
 data SwitchBoard = SwitchBoard {
-		     cppOptsSB :: String,	-- cpp options
+		     cppOptsSB :: [String],	-- cpp options
 		     cppSB     :: FilePath,	-- cpp executable
 		     hpathsSB  :: [FilePath],	-- header file directories
 		       -- since 0.11.1 `hpathsSB' isn't really needed anymore..
@@ -89,7 +89,7 @@ data SwitchBoard = SwitchBoard {
 --
 initialSwitchBoard :: SwitchBoard
 initialSwitchBoard  = SwitchBoard {
-			cppOptsSB = "",
+			cppOptsSB = [],
 			cppSB     = "cpp",
 			hpathsSB  = [],
 			keepSB	  = False,
