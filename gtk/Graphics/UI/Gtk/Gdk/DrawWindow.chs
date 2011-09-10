@@ -78,11 +78,13 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowGetPointer,
   drawWindowGetPointerPos,
   drawWindowGetOrigin,
+  drawWindowSetCursor,
   drawWindowForeignNew,
   drawWindowGetDefaultRootWindow,
   ) where
 
 import Control.Monad    (liftM)
+import Data.Maybe       (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Flags                (toFlags)
@@ -90,6 +92,7 @@ import System.Glib.GObject              (wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
+{#import Graphics.UI.Gtk.Gdk.Cursor#}
 import Graphics.UI.Gtk.Gdk.EventM	(Modifier, eventRegion)
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
@@ -550,6 +553,18 @@ drawWindowGetOrigin self =
   y <- peek yPtr
   return (fromIntegral x, fromIntegral y)
 
+-- | Sets the mouse pointer for a 'DrawWindow'.
+--
+-- Use 'cursorNewForDisplay' or 'cursorNewFromPixmap' to create the cursor.
+-- To make the cursor invisible, use 'BlankCursor'. Passing @Nothing@ means
+-- that the @DrawWindow@ will use the cursor of its parent @DrawWindow@.
+-- Most @DrawWindow@ should use this default.
+--
+drawWindowSetCursor :: DrawWindow -> Maybe Cursor -> IO ()
+drawWindowSetCursor self cursor =
+  {# call gdk_window_set_cursor #}
+    self
+    (fromMaybe (Cursor nullForeignPtr) cursor)
 
 -- | Get the handle to an exising window of the windowing system. The
 -- passed-in handle is a reference to a native window, that is, an Xlib XID
