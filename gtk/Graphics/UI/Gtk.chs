@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -fno-warn-duplicate-exports #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK)
 --
