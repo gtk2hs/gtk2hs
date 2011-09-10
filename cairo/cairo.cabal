@@ -47,7 +47,7 @@ Flag cairo_svg
 Library
         build-depends:  base >= 4 && < 5,
                         bytestring, mtl, array
-        build-tools:    gtk2hsC2hs
+        build-tools:    gtk2hsC2hs >= 0.13.5
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types

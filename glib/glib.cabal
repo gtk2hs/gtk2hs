@@ -34,7 +34,7 @@ Flag closure_signals
 Library
         build-depends:  base >= 4 && < 5,
                         containers
-        build-tools:    gtk2hsC2hs
+        build-tools:    gtk2hsC2hs >= 0.13.5
         if flag(closure_signals)
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
           c-sources: System/Glib/hsgclosure.c

@@ -6,7 +6,7 @@ where
 --
 idstr      = "$Id: Version.hs,v 1.1 2004/11/21 21:05:42 as49 Exp $"
 name       = "C->Haskell Compiler"
-versnum    = "0.13.4 (gtk2hs branch)"
+versnum    = "0.13.5 (gtk2hs branch)"
 versnick   = "\"Bin IO\""
 date	   = "13 Nov 2004"
 version    = name ++ ", version " ++ versnum ++ " " ++ versnick ++ ", " ++ date

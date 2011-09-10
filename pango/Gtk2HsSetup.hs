@@ -252,7 +252,15 @@ signalGenProgram :: Program
 signalGenProgram = simpleProgram "gtk2hsHookGenerator"
 
 c2hsLocal :: Program
-c2hsLocal = simpleProgram "gtk2hsC2hs"
+c2hsLocal = (simpleProgram "gtk2hsC2hs") {
+    programFindVersion = findProgramVersion "--version" $ \str ->
+      -- Invoking "gtk2hsC2hs --version" gives a string like:
+      -- C->Haskell Compiler, version 0.13.4 (gtk2hs branch) "Bin IO", 13 Nov 2004
+      case words str of
+        (_:_:_:ver:_) -> ver
+        _             -> ""
+  }
+
 
 genSynthezisedFiles :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 genSynthezisedFiles verb pd lbi = do
