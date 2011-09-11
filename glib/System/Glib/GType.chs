@@ -28,7 +28,8 @@
 --
 module System.Glib.GType (
   GType,
-  typeInstanceIsA
+  typeInstanceIsA,
+  glibTypeInit,
   ) where
 
 import System.Glib.FFI
@@ -45,3 +46,13 @@ typeInstanceIsA :: Ptr () -> GType -> Bool
 typeInstanceIsA obj p = toBool $
   unsafePerformIO ({#call unsafe g_type_check_instance_is_a#} obj p)
 
+
+-- | Prior to any use of the glib type/object system, @glibTypeInit@ has to
+-- be called to initialise the system.
+--
+-- Note that this is not needed for gtk applications using @initGUI@ since
+-- that initialises everything itself. It is only needed for applications
+-- using glib directly, without also using gtk.
+--
+glibTypeInit :: IO ()
+glibTypeInit = {# call g_type_init #}
