@@ -1,7 +1,5 @@
 -- Simple StatusIcon example
 import Graphics.UI.Gtk
-import qualified Graphics.UI.Gtk.Display.StatusIcon as I
-
 
 main = do
   initGUI
@@ -9,11 +7,11 @@ main = do
   statusIconSetVisible icon True
   statusIconSetTooltip icon "This is a test"
   menu <- mkmenu icon
-  I.onPopupMenu icon $ \b a -> do
+  on icon statusIconPopupMenu $ \b a -> do
          widgetShowAll menu
          print (b,a)
          menuPopup menu $ maybe Nothing (\b' -> Just (b',a)) b
-  I.onActivate icon $ do
+  on icon statusIconActivate $ do
          putStrLn "'activate' signal triggered"
   mainGUI
 
@@ -27,4 +25,4 @@ mkmenu s = do
         mkitem menu (label,act) =
             do i <- menuItemNewWithLabel label
                menuShellAppend menu i
-               i `onActivateLeaf` act
+               on i menuItemActivate act

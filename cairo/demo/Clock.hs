@@ -13,7 +13,6 @@
 import Graphics.Rendering.Cairo
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Gdk.EventM
-import System.Glib (handleGError, GError(..))
 import System.Time
 import Control.Monad (when)
 import Data.Maybe (isJust)
@@ -283,8 +282,7 @@ main = do
   windowSetPosition window WinPosCenterAlways
 
   widgetSetAppPaintable window True
-  handleGError (\_ -> return ()) $
-    windowSetIconFromFile window "cairo-clock-icon.png"
+  windowSetIconFromFile window "cairo-clock-icon.png"
   windowSetTitle window "Gtk2Hs Cairo Clock"
   windowSetDefaultSize window initialSize initialSize
   windowSetGeometryHints window (Just window)
