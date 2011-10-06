@@ -518,11 +518,11 @@ eventIsHint = ask >>= \ptr -> liftIO $ liftM toBool
 -- 'motionNotifyEvent' usually works like this:
 --
 -- > on widget motionNotifyEvent $ do
---     (x, y) <- eventCoordinates
---     -- handle the x,y motion:
---     ...
---     -- finally, notify that we are ready to get more motion events:
---     eventRequestMotions
+-- >   (x, y) <- eventCoordinates
+-- >   -- handle the x,y motion:
+-- >   ...
+-- >   -- finally, notify that we are ready to get more motion events:
+-- >   eventRequestMotions
 --
 eventRequestMotions :: EventM EMotion ()
 eventRequestMotions = ask >>= \ptr -> liftIO $

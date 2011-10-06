@@ -37,7 +37,7 @@
 --   is rendered through Gdk, use
 --   'Graphics.UI.Gtk.Abstract.Widget.widgetCreatePangoContext', if you use
 --   the Cairo rendering engine, a new context can be acquired using
---   'Graphics.Rendering.Cairo.cairoCreateContext'.
+--   'Graphics.Rendering.Pango.Cairo.cairoCreateContext'.
 --
 -- * The properties of a 'PangoContext' can be changed which, in turn, has
 --   an effect on how text is rendered. To reflect such a change in the
