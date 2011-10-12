@@ -56,8 +56,10 @@ module System.GIO.Volumes.Drive (
     DriveClass,
 
 -- * Enums,
+#if GLIB_CHECK_VERSION(2,22,0)
     DriveStartStopType (..),
     DriveStartFlags (..),
+#endif
 
 -- * Methods
     driveGetName,
