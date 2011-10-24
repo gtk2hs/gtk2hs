@@ -149,7 +149,11 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..), EntryIconPosition (..))
+import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..)
+#if GTK_CHECK_VERSION(2,16,0)
+  , EntryIconPosition (..)
+#endif
+  )
 import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton, EKey)
 import Control.Monad.Reader             ( ask )
 import Control.Monad.Trans              ( liftIO )
