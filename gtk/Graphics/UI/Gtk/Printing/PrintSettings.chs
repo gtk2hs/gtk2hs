@@ -150,7 +150,9 @@ import System.Glib.Properties
 import System.Glib.UTFString
 import System.Glib.GError
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_CHECK_VERSION(2,10,0)
 import Graphics.UI.Gtk.Printing.PaperSize (PaperSize(PaperSize), mkPaperSize, Unit(..))
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -677,7 +679,6 @@ printSettingsSetResolution self resolution =
   {# call gtk_print_settings_set_resolution #}
     (toPrintSettings self)
     (fromIntegral resolution)
-#endif
 
 #if GTK_CHECK_VERSION(2,16,0)
 -- | Sets the values of 'PrintSettingsResolution', 'PrintSettingsResolutionX' and
@@ -733,6 +734,7 @@ printSettingsSetPrinterLpi self lpi =
   {# call gtk_print_settings_set_printer_lpi #}
     (toPrintSettings self)
     (realToFrac lpi)
+#endif
 
 -- | Gets the value of 'PrintSettingsScale'.
 printSettingsGetScale :: PrintSettingsClass self => self
@@ -767,7 +769,6 @@ printSettingsSetPrintPages self pages =
   {# call gtk_print_settings_set_print_pages #}
     (toPrintSettings self)
     ((fromIntegral . fromEnum) pages)
-#endif
 
 -- | Gets the value of 'PrintSettingsPageRanges'.
 --
@@ -940,6 +941,7 @@ printSettingsToFile self fileName =
     (toPrintSettings self)
     fileNamePtr
     errorPtr
+#endif
 
 -- | Obtain the value of 'PrintSettingsPrinter'.
 printSettingsPrinter :: PrintSettingsClass self => Attr self String
