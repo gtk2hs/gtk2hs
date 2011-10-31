@@ -48,6 +48,8 @@ module Graphics.Rendering.Pango.Structs (
   setAttrPos,
   pangoItemGetFont,
   pangoItemGetLanguage,
+  pangoItemRawGetOffset,
+  pangoItemRawGetLength,
   pangoItemRawAnalysis,
   pangoItemRawGetLevel,
   readAttr
@@ -232,6 +234,14 @@ pangoItemRawGetFont ptr =
 pangoItemRawGetLanguage :: Ptr pangoItem -> IO (Ptr CChar)
 pangoItemRawGetLanguage ptr =
   #{peek PangoItem, analysis.language} ptr
+
+-- Get the offset at which a PangoItem starts
+pangoItemRawGetOffset :: Ptr pangoItem -> IO #{type gint}
+pangoItemRawGetOffset = #{peek PangoItem, offset}
+
+-- Get the number of bytes that the PangoItem affects
+pangoItemRawGetLength :: Ptr pangoItem -> IO #{type gint}
+pangoItemRawGetLength = #{peek PangoItem, length}
 
 -- Get the PangoAnalysis within a PangoItem
 pangoItemRawAnalysis :: Ptr pangoItem -> Ptr pangoAnalysis

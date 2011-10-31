@@ -62,6 +62,7 @@ module Graphics.Rendering.Pango.Rendering (
 
 import System.Glib.FFI
 import Graphics.Rendering.Pango.Structs  ( pangoItemRawAnalysis, intToPu,
+  pangoItemRawGetOffset, pangoItemRawGetLength,
   pangoItemGetFont, pangoItemGetLanguage)
 {#import Graphics.Rendering.Pango.Types#}       (PangoContext(..), Font(..))
 {#import Graphics.Rendering.Pango.BasicTypes#}
@@ -135,8 +136,11 @@ pangoItemGetFontMetrics pi = do
 --
 pangoShape :: PangoItem -> IO GlyphItem
 pangoShape pi@(PangoItem ps pir) =
-  withPangoString ps $ \_ l strPtr -> withPangoItemRaw pir $ \pirPtr -> do
+  withPangoString ps $ \_ _ strPtr -> withPangoItemRaw pir $ \pirPtr -> do
   gsPtr <- {#call unsafe glyph_string_new#}
   gs <- makeNewGlyphStringRaw gsPtr
-  {#call unsafe shape#} strPtr l (pangoItemRawAnalysis pirPtr) gs
+  ofs <- pangoItemRawGetOffset pirPtr
+  len <- pangoItemRawGetLength pirPtr
+  {#call unsafe shape#} (strPtr `plusPtr` (fromIntegral ofs)) (fromIntegral len)
+    (pangoItemRawAnalysis pirPtr) gs
   return (GlyphItem pi gs)
