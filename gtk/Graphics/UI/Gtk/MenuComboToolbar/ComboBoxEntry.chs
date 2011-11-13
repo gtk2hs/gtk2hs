@@ -144,7 +144,7 @@ comboBoxEntryNewWithModel model = do
 --------------------
 -- Methods
 
--- | Set a model box that holds strings.
+-- | Set a model that holds strings.
 --
 -- This function stores a 'Graphics.UI.Gtk.ModelView.ListStore' with the
 -- widget and sets the model to the list store. The widget can contain only

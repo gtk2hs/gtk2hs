@@ -9,7 +9,10 @@
 module Gtk2HsSetup ( 
   gtk2hsUserHooks, 
   getPkgConfigPackages, 
-  checkGtk2hsBuildtools
+  checkGtk2hsBuildtools,
+  typeGenProgram,
+  signalGenProgram,
+  c2hsLocal
   ) where
 
 import Distribution.Simple
@@ -411,11 +414,11 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
             (out',visited') = foldl visit (out, m `S.insert` visited) (mdRequires md)
 
 -- Check user whether install gtk2hs-buildtools correctly.
-checkGtk2hsBuildtools :: [String] -> IO ()
+checkGtk2hsBuildtools :: [Program] -> IO ()
 checkGtk2hsBuildtools programs = do
-  programInfos <- mapM (\ name -> do
-                         location <- programFindLocation (simpleProgram name) normal
-                         return (name, location)
+  programInfos <- mapM (\ prog -> do
+                         location <- programFindLocation prog normal
+                         return (programName prog, location)
                       ) programs
   let printError name = do
         putStrLn $ "Cannot find " ++ name ++ "\n" 

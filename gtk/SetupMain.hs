@@ -3,10 +3,11 @@
 -- all Gtk2Hs-specific boilerplate is kept in Gtk2HsSetup.hs
 -- which should be kept identical across all packages.
 --
-import Gtk2HsSetup ( gtk2hsUserHooks, checkGtk2hsBuildtools )
+import Gtk2HsSetup ( gtk2hsUserHooks, checkGtk2hsBuildtools,
+                     typeGenProgram, signalGenProgram, c2hsLocal)
 import Distribution.Simple ( defaultMainWithHooks )
 
 main = do
-  checkGtk2hsBuildtools ["gtk2hsC2hs", "gtk2hsTypeGen", "gtk2hsHookGenerator"]
+  checkGtk2hsBuildtools [typeGenProgram, signalGenProgram, c2hsLocal]
   defaultMainWithHooks gtk2hsUserHooks
   
