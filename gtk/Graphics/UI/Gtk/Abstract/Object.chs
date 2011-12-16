@@ -67,12 +67,14 @@ module Graphics.UI.Gtk.Abstract.Object (
   objectWeakunref,
 
 -- * Signals
-  objectDestroy
+  objectDestroy,
+  notifyProperty
   ) where
 
 import Control.Monad (when)
 
 import System.Glib.FFI
+import System.Glib.Attributes (ReadWriteAttr)
 import System.Glib.GObject	(objectUnref)
 #if GLIB_CHECK_VERSION(2,10,0)
 import System.Glib.GObject	(objectRefSink)
@@ -156,3 +158,15 @@ objectWeakunref obj fun =
 --
 objectDestroy :: ObjectClass self => Signal self (IO ())
 objectDestroy = Signal (connect_NONE__NONE "destroy")
+
+-- | Register a notify callback that is triggered when the given property
+--   has been modified.
+--
+-- * Note that this callback is triggered even if the actual value of
+--   the property has not changed.
+-- * Not all attributes are properties. A warning will be generated at
+--   runtime if the passed-in attribute is not a property of the class
+--   with which it was registered.
+--
+notifyProperty :: ObjectClass self => ReadWriteAttr self a b -> Signal self (IO ())
+notifyProperty attr = Signal (\on obj cb -> connect_PTR__NONE ("notify::"++show attr) on obj (const cb))

@@ -222,3 +222,7 @@ isA :: GObjectClass o => o -> GType -> Bool
 isA obj gType = 
 	typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj) gType
 
+-- at this point we would normally implement the notify signal handler;
+-- I've moved this definition into the Object class of the gtk package
+-- since there's a quite a bit of machinery missing here (generated signal
+-- register functions and the problem of recursive modules)

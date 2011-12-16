@@ -492,7 +492,8 @@ import Graphics.UI.Gtk.Abstract.Object (
   GWeakNotify,
   objectWeakref,
   objectWeakunref,
-  objectDestroy )
+  objectDestroy,
+  notifyProperty )
 import Graphics.UI.Gtk.Abstract.Paned
 import Graphics.UI.Gtk.Abstract.Range
 import Graphics.UI.Gtk.Abstract.Scale

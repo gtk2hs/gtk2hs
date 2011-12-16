@@ -139,7 +139,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 
 -- * Signals
   changed,
-  popupShownNotify,
   
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
@@ -727,11 +726,6 @@ comboBoxTitle = newAttr
 --
 changed :: ComboBoxClass self => Signal self (IO ())
 changed = Signal (connect_NONE__NONE "changed")
-
--- | The combo box was dropped down or collapsed.
---
-popupShownNotify :: ComboBoxClass self => Signal self (IO ())
-popupShownNotify = Signal (connect_NONE__NONE "notify::popup-shown")
 
 --------------------
 -- Deprecated Signals

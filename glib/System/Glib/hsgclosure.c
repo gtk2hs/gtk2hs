@@ -199,8 +199,8 @@ gtk2hs_value_as_haskellobj(const GValue *value) {
         return rts_mkPtr(CAP g_value_get_pointer(value));
     case G_TYPE_BOXED:
         return rts_mkPtr(CAP g_value_get_boxed(value));
-/*    case G_TYPE_PARAM:
-        return g_value_get_param(value); */
+    case G_TYPE_PARAM:
+        return rts_mkPtr(CAP g_value_get_param(value));
     case G_TYPE_OBJECT:
         return rts_mkPtr(CAP g_value_get_object(value));
     }
