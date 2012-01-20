@@ -37,7 +37,11 @@ module @MODULE_NAME@ (
   ) where
 
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
+#if __GLASGOW_HASKELL__>=704
+import Foreign.C.Types    (CULong(..), CUInt(..))
+#else
 import Foreign.C.Types    (CULong, CUInt)
+#endif
 import System.Glib.GType	(GType, typeInstanceIsA)
 @MODULE_IMPORTS@
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
