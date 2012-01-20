@@ -361,7 +361,7 @@ cFromBool :: Num a => Bool -> a
 cFromBool  = fromBool
 
 {-# INLINE cToBool #-}
-cToBool :: Num a => a -> Bool
+cToBool :: (Eq a, Num a) => a -> Bool
 cToBool  = toBool
 
 {-# INLINE cToEnum #-}
