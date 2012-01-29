@@ -158,6 +158,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetModifyText,
   widgetModifyBase,
   widgetModifyFont,
+  widgetRestoreFg,
+  widgetRestoreBg,
+  widgetRestoreText,
+  widgetRestoreBase,
   widgetCreatePangoContext,
   widgetGetPangoContext,
   widgetCreateLayout,
@@ -1384,8 +1388,7 @@ widgetGetModifierStyle self =
 widgetModifyFg :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the foreground color.
  -> Color     -- ^ @color@ - the color to assign (does not need to be
-              -- allocated), or @Nothing@ to undo the effect of previous calls
-              -- to of 'widgetModifyFg'.
+              -- allocated)
  -> IO ()
 widgetModifyFg self state color =
   with color $ \colorPtr ->
@@ -1393,6 +1396,18 @@ widgetModifyFg self state color =
     (toWidget self)
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
+
+-- | Restores the foreground color for a widget in a particular state. This
+-- undoes the effects of previous calls to `widgetModifyFg'.
+--
+widgetRestoreFg :: WidgetClass self => self
+ -> StateType -- ^ @state@ - the state for which to restore the foreground color.
+ -> IO ()
+widgetRestoreFg self state =
+  {# call gtk_widget_modify_fg #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    nullPtr
 
 -- %hash c:2c5
 -- | Sets the background color for a widget in a particular state. All other
@@ -1408,8 +1423,7 @@ widgetModifyFg self state color =
 widgetModifyBg :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the background color.
  -> Color     -- ^ @color@ - the color to assign (does not need to be
-              -- allocated), or @Nothing@ to undo the effect of previous calls
-              -- to of 'widgetModifyBg'.
+              -- allocated).
  -> IO ()
 widgetModifyBg self state color =
   with color $ \colorPtr ->
@@ -1417,6 +1431,18 @@ widgetModifyBg self state color =
     (toWidget self)
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
+
+-- | Restores the background color for a widget in a particular state. This
+-- undoes the effects of previous calls to `widgetModifyBg'.
+--
+widgetRestoreBg :: WidgetClass self => self
+ -> StateType -- ^ @state@ - the state for which to restore the background color.
+ -> IO ()
+widgetRestoreBg self state =
+  {# call gtk_widget_modify_bg #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    nullPtr
 
 -- %hash c:d2ba
 -- | Sets the text color for a widget in a particular state. All other style
@@ -1427,8 +1453,7 @@ widgetModifyBg self state color =
 widgetModifyText :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the text color.
  -> Color     -- ^ @color@ - the color to assign (does not need to be
-              -- allocated), or @Nothing@ to undo the effect of previous calls
-              -- to of 'widgetModifyText'.
+              -- allocated).
  -> IO ()
 widgetModifyText self state color =
   with color $ \colorPtr ->
@@ -1436,6 +1461,18 @@ widgetModifyText self state color =
     (toWidget self)
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
+
+-- | Restores the text color for a widget in a particular state. This
+-- undoes the effects of previous calls to `widgetModifyText'.
+--
+widgetRestoreText :: WidgetClass self => self
+ -> StateType -- ^ @state@ - the state for which to restore the text color.
+ -> IO ()
+widgetRestoreText self state =
+  {# call gtk_widget_modify_text #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    nullPtr
 
 -- %hash c:ac08
 -- | Sets the base color for a widget in a particular state. All other style
@@ -1453,8 +1490,7 @@ widgetModifyText self state color =
 widgetModifyBase :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the base color.
  -> Color     -- ^ @color@ - the color to assign (does not need to be
-              -- allocated), or @Nothing@ to undo the effect of previous calls
-              -- to of 'widgetModifyBase'.
+              -- allocated).
  -> IO ()
 widgetModifyBase self state color =
   with color $ \colorPtr ->
@@ -1462,6 +1498,19 @@ widgetModifyBase self state color =
     (toWidget self)
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
+
+-- | Restores the base color for a widget in a particular state. This undoes
+-- the effects of previous calls to widgetModifyBase.
+--
+widgetRestoreBase :: WidgetClass self => self
+ -> StateType -- ^ @state@ - the state for which to restore the base color.
+ -> IO ()
+widgetRestoreBase self state =
+  {# call gtk_widget_modify_base #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    nullPtr
+
 
 -- %hash c:38d7
 -- | Sets the font to use for a widget. All other style values are left
