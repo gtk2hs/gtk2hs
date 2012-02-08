@@ -173,7 +173,7 @@ drawLines d gc points =
 -- | Render a 'Pixbuf'.
 --
 -- * Usage:
---   @drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither@
+--   @drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither xDither yDither@
 --   Renders a rectangular portion of a 'Pixbuf' to a
 --   'Drawable'. The @srcX@, @srcY@,
 --   @srcWidth@ and @srcHeight@ specify what part of the
@@ -221,8 +221,14 @@ drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) ->
 --   results in an outlined rectangle with corners at (0, 0), (0, 20), (20,
 --   20), and (20, 0), which makes it 21 pixels wide and 21 pixels high.
 --
-drawRectangle :: DrawableClass d => d -> GC -> Bool -> Int -> Int ->
-				       Int -> Int -> IO ()
+drawRectangle :: DrawableClass d => d -- ^ drawable
+  -> GC -- ^ graphics context
+  -> Bool -- ^ filled
+  -> Int -- ^ x
+  -> Int -- ^ y
+  -> Int -- ^ width
+  -> Int -- ^ height
+  -> IO ()
 drawRectangle d gc filled x y width height = {#call unsafe draw_rectangle#}
   (toDrawable d) (toGC gc) (fromBool filled) (fromIntegral x)
   (fromIntegral y) (fromIntegral width) (fromIntegral height)
@@ -355,9 +361,17 @@ drawLayoutWithColors d gc x y (PangoLayout _ pl) foreground background = let
 --   'GC', then use 'drawRectangle' to draw a 
 --   rectangle clipped to the bitmap.
 --
-drawDrawable :: (DrawableClass src, DrawableClass dest) => 
-		dest -> GC -> src -> Int -> Int -> Int -> Int -> 
-		Int -> Int -> IO ()
+drawDrawable :: (DrawableClass src, DrawableClass dest)
+  => dest -- ^ destination drawable
+  -> GC -- ^ graphics context
+  -> src -- ^ source drawable
+  -> Int -- ^ @xSrc@
+  -> Int -- ^ @ySrc@
+  -> Int -- ^ @xDest@
+  -> Int -- ^ @yDest@
+  -> Int -- ^ @width@
+  -> Int -- ^ @height@
+  -> IO ()
 drawDrawable dest gc src xSrc ySrc xDest yDest width height =
   {#call unsafe draw_drawable#} (toDrawable dest) (toGC gc)
   (toDrawable src)
