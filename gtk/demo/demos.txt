@@ -31,7 +31,7 @@ embedded: You will need uzbl installed (http://uzbl.org/) to run the Uzbl demo.
 
 fastdraw: shows a palette of colors constantly changing (Example of a drawing graphics onto a canvas)
 
-filechooser: examples of Save and Open dialogs.
+filechooser: examples of Save and Open dialogs. requires the glade package
 
 fonts: shows info on all your installed fonts.
 
@@ -93,6 +93,6 @@ Needs: --enable-cairo and/or cairo lib installed at Gtk2HS build time
 Feature request: avoid svgviewer: user error (Pattern match failure in do expression at SvgViewer.hs:11:2-9)
   when not giving any parameter
 
-treelist: some examples showing how to use ListView and TreeView widgets
+treelist: some examples showing how to use ListView and TreeView widgets; requires the glade package
 
 unicode: Example of an international dialog box (in arabic)
