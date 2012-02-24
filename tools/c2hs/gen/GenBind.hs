@@ -728,10 +728,15 @@ callImport hook isPure isUns mLock ideLexeme hsLexeme cdecl pos =
 
 -- Haskell code for the foreign import declaration needed by a call hook
 --
+-- On Windows, the paths for headers in "entity" may include backslashes, like
+-- dist\build\System\Types\GIO.h
+-- It seems GHC expects these to be escaped. Below, we make an educated guess
+-- that it in fact expects a Haskell string, and use the "show" function to do
+-- the escaping of this (and any other cases) for us.
 foreignImport :: String -> String -> String -> Bool -> ExtType -> String
 foreignImport header ident hsIdent isUnsafe ty  =
-  "foreign import ccall " ++ safety ++ " \"" ++ entity ++
-  "\"\n  " ++ hsIdent ++ " :: " ++ showExtType ty ++ "\n"
+  "foreign import ccall " ++ safety ++ " " ++ show entity ++
+  "\n  " ++ hsIdent ++ " :: " ++ showExtType ty ++ "\n"
   where
     safety = if isUnsafe then "unsafe" else "safe"
     entity | null header = ident
