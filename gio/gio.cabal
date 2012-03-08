@@ -1,5 +1,5 @@
 Name:           gio
-Version:        0.12.2
+Version:        0.12.3
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -17,7 +17,7 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
                 Among other things that means using GObject. 
                 It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
 Category:       System
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 Extra-Source-Files: SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
 					hierarchy.list

@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.12.2
+Version:        0.12.3
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -16,7 +16,7 @@ Description:    This package provides a wrapper around the Pango C library that
                 either with Cairo to output text in PDF, PS or other
                 documents or with Gtk+ to display text on-screen.
 Category:       Graphics
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
@@ -42,8 +42,8 @@ Flag new-exception
 Library
         build-depends:  base >= 4 && < 5,
                         process, directory, array, containers, pretty, mtl,
-                        glib  >= 0.12 && < 0.13,
-                        cairo >= 0.12 && < 0.13
+                        glib  >= 0.12.0 && < 0.13,
+                        cairo >= 0.12.0 && < 0.13
 
         if flag(new-exception)
           build-depends:  base >= 4

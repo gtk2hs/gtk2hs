@@ -1,5 +1,5 @@
 Name:           gtk
-Version:        0.12.2
+Version:        0.12.3
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -15,7 +15,7 @@ Description: This is the core library of the Gtk2Hs suite of libraries for Haske
              based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
              for creating graphical user interfaces.
 Category:       Graphics
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 Extra-Source-Files: wingtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h

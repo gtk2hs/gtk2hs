@@ -1,5 +1,5 @@
 Name:           glib
-Version:        0.12.2
+Version:        0.12.3
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -16,7 +16,7 @@ Description:    The GNU Library is a collection of C data structures and utility
                 much functionality as required to support the packages that
                 wrap libraries that are themselves based on GLib.
 Category:       System
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 Extra-Source-Files:
                 SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                 System/Glib/hsgclosure.c

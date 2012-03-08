@@ -1,5 +1,5 @@
 Name:           cairo
-Version:        0.12.2
+Version:        0.12.3
 License:        BSD3
 License-file:   COPYRIGHT
 Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
@@ -15,7 +15,7 @@ Description:    Cairo is a library to render high quality vector graphics. There
                 exist various backends that allows rendering to Gtk windows, PDF,
                 PS, PNG and SVG documents, amongst others.
 Category:       Graphics
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 extra-source-files: cairo-gtk2hs.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
 

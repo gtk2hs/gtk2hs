@@ -1,5 +1,5 @@
 Name:   gtk2hs-buildtools
-Version:        0.12.1
+Version:        0.12.3
 License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -20,7 +20,7 @@ Description:    This package provides a set of helper programs necessary to
                 to call back from C to Haskell. These tools are not needed
                 to actually run Gtk2Hs programs.
 Category:       Development
-Tested-With:    GHC == 6.10.4, GHC == 6.12.3, GHC == 7.0.4, GHC == 7.2.1
+Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 Data-Files:     callbackGen/Signal.chs.template
                 hierarchyGen/hierarchy.list
                 hierarchyGen/Hierarchy.chs.template
@@ -114,3 +114,4 @@ Executable gtk2hsC2hs
         else
           cpp-options:  -D_C2HS_CPP_LANG_SINGLE
         extensions:     ForeignFunctionInterface
+                        BangPatterns
