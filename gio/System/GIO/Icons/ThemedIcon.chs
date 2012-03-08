@@ -39,7 +39,9 @@ module System.GIO.Icons.ThemedIcon (
 -- * Methods
     themedIconNew,
     themedIconNewFromNames,
+#if GLIB_CHECK_VERSION(2,18,0)
     themedIconPrependName,
+#endif
     themedIconAppendName,
     themedIconGetNames,
     ) where

@@ -119,6 +119,10 @@ import Graphics.UI.Gtk.General.Enums	(StateType)
 import Graphics.UI.Gtk.General.DNDTypes (InfoId, Atom(Atom) , SelectionTag,
                                          TargetTag, SelectionTypeTag)
 import Graphics.Rendering.Pango.Structs ( Color(..), Rectangle(..) )
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,14,0)
+#else
+import Unsafe.Coerce
+#endif
 -- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
@@ -605,6 +609,12 @@ drawableGetID d =
   liftM toNativeWindowId $
   (\(Drawable drawable) ->
 #if defined(WIN32)
+#if GTK_CHECK_VERSION(2,14,0)
+#else
+     -- GTK-2.12 is a bit sloppy about the distinction between pointers and
+     -- 32-bit ints, so we have to mimic that sloppiness here
+     liftM unsafeCoerce $
+#endif
      withForeignPtr drawable gdk_win32_drawable_get_handle
 #elif !defined(HAVE_QUARTZ_GTK)
      withForeignPtr drawable gdk_x11_drawable_get_xid

@@ -5,8 +5,13 @@
 -- version test of the array package). At the same time we need to version of
 -- Cairo and the macros for testing it. We sneakily get the version from the
 -- internal cairo-version.h file but we have to define the testing macros ourselves.
-#include<cairo-version.h>
 #include<cairo-features.h>
+
+-- GTK-2.12 doesn't have cairo-version.h, but defines the appropriate VERSION
+-- variables in cairo-features.h instead. So only include this when necessary.
+#ifndef CAIRO_VERSION_MAJOR
+#include<cairo-version.h>
+#endif
 #define CAIRO_VERSION_ENCODE(major, minor, micro) (     \
           ((major) * 10000)                             \
         + ((minor) *   100)                             \
