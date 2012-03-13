@@ -1251,16 +1251,26 @@ endUserAction = Signal (connect_NONE__NONE "end-user-action")
 
 -- | A 'Pixbuf' is inserted into the buffer.
 --
+-- * See note in 'bufferInsertText'.
+--
 insertPixbuf :: TextBufferClass self => Signal self (TextIter -> Pixbuf -> IO ())
 insertPixbuf = Signal (connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy)
 
 -- | The 'insertChildAnchor' signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'. 
 -- Insertion actually occurs in the default handler.
 --
+-- * See note in 'bufferInsertText'.
+--
 insertChildAnchor :: TextBufferClass self => Signal self (TextIter -> TextChildAnchor -> IO ())
 insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert-child-anchor" mkTextIterCopy)
 
--- | Some text was inserted.
+-- | Some text is inserted. Insertion actually occurs in the default handler.
+--
+-- * The function connected to this handler may not modify the buffer since
+--   this would invalidate the iterator. If this function replaces the
+--   default handler, it needs to stop the emission of this signal in order
+--   to prevent the default handler from running. If additional text should
+--   be inserted, this can be done using the 'after' function to connect.
 --
 bufferInsertText :: TextBufferClass self => Signal self (TextIter -> String -> IO ())
 bufferInsertText = Signal $ \after obj handler ->
