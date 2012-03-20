@@ -69,6 +69,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 
 -- * Constructors
   pixbufNew,
+  pixbufNewFromData,
   pixbufNewFromFile,
 #if GTK_CHECK_VERSION(2,4,0)
   pixbufNewFromFileAtSize,
@@ -401,6 +402,19 @@ pixbufNew colorspace hasAlpha bitsPerSample width height =
     {#call pixbuf_new#} ((fromIntegral . fromEnum) colorspace)
       (fromBool hasAlpha) (fromIntegral bitsPerSample) (fromIntegral width)
       (fromIntegral height)
+
+pixbufNewFromData :: Ptr CUChar -> Colorspace -> Bool -> Int -> Int -> Int -> Int -> IO Pixbuf
+pixbufNewFromData imData cSpace hasAlpha bitsPerSample width height rowStride
+  = wrapNewGObject mkPixbuf $
+     {#call pixbuf_new_from_data #}
+       imData
+       (fromIntegral . fromEnum $ cSpace)
+       (fromBool hasAlpha)
+       (fromIntegral bitsPerSample)
+       (fromIntegral width)
+       (fromIntegral height)
+       (fromIntegral rowStride)
+       nullFunPtr nullPtr
 
 -- | Create a new image from a String.
 --
