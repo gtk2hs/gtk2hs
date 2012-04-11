@@ -76,6 +76,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemNewWithMnemonic,
 
 -- * Methods
+#if GTK_CHECK_VERSION(2,16,0)
+  menuItemSetLabel,
+  menuItemGetLabel,
+  menuItemSetUseUnderline,
+  menuItemGetUseUnderline,
+#endif
   menuItemSetSubmenu,
   menuItemGetSubmenu,
   menuItemRemoveSubmenu,
@@ -89,6 +95,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 -- * Attributes
   menuItemSubmenu,
   menuItemRightJustified,
+#if GTK_CHECK_VERSION(2,16,0)
+  menuItemLabel,
+  menuItemUseUnderline,
+#endif
 
 -- * Signals
   menuItemActivateItem,
@@ -163,7 +173,36 @@ menuItemNewWithMnemonic label =
 
 --------------------
 -- Methods
+#if GTK_CHECK_VERSION(2,16,0)
+-- | Sets text on the MenuItem label
 
+menuItemSetLabel :: (MenuItemClass self) => self -> String -> IO ()
+menuItemSetLabel self label =
+  withUTFString label $ {# call gtk_menu_item_set_label #} (toMenuItem self)
+
+-- | Gets text on the MenuItem label
+menuItemGetLabel :: (MenuItemClass self) => self -> IO String
+menuItemGetLabel self =
+  {# call gtk_menu_item_get_label #}
+    (toMenuItem self)
+  >>= \strPtr -> if strPtr == nullPtr
+                   then return ""
+                   else peekUTFString strPtr
+
+-- | If True, an underline in the text indicates the next character should be used for the mnemonic accelerator key.
+--
+menuItemSetUseUnderline :: (MenuItemClass self) => self -> Bool -> IO ()
+menuItemSetUseUnderline self =
+  {# call gtk_menu_item_set_use_underline #} (toMenuItem self) . fromBool
+
+-- | Checks if an underline in the text indicates the next character should be used for the mnemonic accelerator key.
+--
+menuItemGetUseUnderline :: (MenuItemClass self) => self -> IO Bool
+menuItemGetUseUnderline self =
+  liftM toBool $ {# call gtk_menu_item_get_use_underline #}
+    (toMenuItem self)
+
+#endif
 -- | Sets the item's submenu, or changes it.
 --
 menuItemSetSubmenu :: (MenuItemClass self, MenuClass submenu) => self -> submenu -> IO ()
@@ -278,6 +317,22 @@ menuItemRightJustified = newAttr
   menuItemGetRightJustified
   menuItemSetRightJustified
 
+#if GTK_CHECK_VERSION(2,16,0)
+-- | \'label\' property. See 'menuItemSetLabel' and 'menuItemGetLabel'
+--
+menuItemLabel :: MenuItemClass self => Attr self String
+menuItemLabel = newAttr
+  menuItemGetLabel
+  menuItemSetLabel
+
+-- | \'useUnderline\' property. See 'menuItemSetUseUnderline' and 
+-- 'menuItemGetUseEUnderline'
+--
+menuItemUseUnderline :: MenuItemClass self => Attr self Bool
+menuItemUseUnderline = newAttr
+  menuItemGetUseUnderline
+  menuItemSetUseUnderline
+#endif
 --------------------
 -- Signals
 
