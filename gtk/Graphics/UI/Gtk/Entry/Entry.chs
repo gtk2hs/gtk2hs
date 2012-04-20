@@ -78,6 +78,10 @@ module Graphics.UI.Gtk.Entry.Entry (
   entrySetCompletion,
   entryGetCompletion,
 #endif
+#if GTK_CHECK_VERSION (2,18,0)
+  entryGetBuffer,
+  entrySetBuffer,
+#endif
 #if GTK_CHECK_VERSION(2,20,0)
   entryGetIconWindow,
   entryGetTextWindow,
@@ -103,6 +107,9 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryXalign,
   entryAlignment,
   entryCompletion,
+#endif
+#if GTK_CHECK_VERSION (2,18,0)
+  entryBuffer,
 #endif
 
 -- * Signals
@@ -157,6 +164,9 @@ import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..)
 import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton, EKey)
 import Control.Monad.Reader             ( ask )
 import Control.Monad.Trans              ( liftIO )
+#if GTK_CHECK_VERSION (2,18,0)
+import Graphics.UI.Gtk.Entry.EntryBuffer
+#endif
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -429,6 +439,23 @@ entryGetCompletion self =
     (toEntry self)
 #endif
 
+#if GTK_CHECK_VERSION(2,18,0)
+-- | Get the 'EntryBuffer' object which holds the text for this widget.
+entryGetBuffer :: EntryClass self => self
+  -> IO EntryBuffer
+entryGetBuffer self =
+  makeNewGObject mkEntryBuffer $
+  {# call gtk_entry_get_buffer #}
+    (toEntry self)
+
+-- | Set the 'EntryBuffer' object which holds the text for this widget.
+entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self
+  -> buffer -> IO ()
+entrySetBuffer self =
+  {# call gtk_entry_set_buffer #}
+    (toEntry self) . toEntryBuffer
+#endif
+
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
 -- drawing something to the entry in an 'eventExpose' callback because it enables the callback to
@@ -622,6 +649,15 @@ entryCompletion = newAttr
   entryGetCompletion
   entrySetCompletion
 #endif
+
+#if GTK_CHECK_VERSION(2,18,0)
+entryBuffer :: (EntryClass self, EntryBufferClass buffer) =>
+  ReadWriteAttr self EntryBuffer buffer
+entryBuffer = newAttr
+  entryGetBuffer
+  entrySetBuffer
+#endif
+
 
 --------------------
 -- Signals
