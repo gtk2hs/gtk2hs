@@ -1,6 +1,6 @@
 
-PROGS  = drawing drawing2 starandring text clock graph
-SOURCES = Drawing.hs Drawing2.hs StarAndRing.hs Text.hs Clock.hs Graph.hs
+PROGS  = drawing drawing2 starandring text clock graph sdldrawing
+SOURCES = Drawing.hs Drawing2.hs StarAndRing.hs Text.hs Clock.hs Graph.hs CairoSDL.hs
 
 all : $(PROGS)
 
@@ -20,6 +20,9 @@ clock : Clock.hs
 	$(HC_RULE)
 
 graph : Graph.hs
+	$(HC_RULE)
+
+sdldrawing : CairoSDL.hs
 	$(HC_RULE)
 
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)

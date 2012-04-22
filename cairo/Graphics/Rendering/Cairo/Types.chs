@@ -14,7 +14,8 @@
 
 -- #hide
 module Graphics.Rendering.Cairo.Types (
-    Matrix(Matrix), MatrixPtr
+    PixelData
+  , Matrix(Matrix), MatrixPtr
   , Cairo(Cairo), unCairo
   , Surface(Surface), withSurface, mkSurface, manageSurface
   , Pattern(Pattern), unPattern
@@ -62,6 +63,8 @@ import Foreign.C
 import Control.Monad (liftM)
 
 {#context lib="cairo" prefix="cairo"#}
+
+type PixelData = Ptr CUChar
 
 -- not visible
 {#pointer *cairo_t as Cairo newtype#}

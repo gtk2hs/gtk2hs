@@ -197,9 +197,11 @@ module Graphics.Rendering.Cairo (
 
   -- ** Image surfaces
   , withImageSurface
+  , withImageSurfaceForData
 #if CAIRO_CHECK_VERSION(1,6,0)
   , formatStrideForWidth
 #endif
+  , createImageSurfaceForData
   , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
@@ -1680,6 +1682,41 @@ createImageSurface ::
   -> IO Surface
 createImageSurface format width height = do
   surface <- Internal.imageSurfaceCreate format width height
+  Internal.manageSurface surface
+  return surface
+
+-- | Like 'withImageSurface' but creating a surface to target external
+-- data pointed to by 'PixelData'.
+--
+withImageSurfaceForData ::
+     PixelData         -- ^ pointer to pixel data
+  -> Format            -- ^ format of pixels in the surface to create
+  -> Int               -- ^ width of the surface, in pixels
+  -> Int               -- ^ height of the surface, in pixels
+  -> Int               -- ^ size of stride between rows in the surface to create
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within this action
+  -> IO a
+withImageSurfaceForData pixels format width height stride f =
+  bracket (Internal.imageSurfaceCreateForData pixels format width height stride)
+          (\surface -> do status <- Internal.surfaceStatus surface
+                          Internal.surfaceDestroy surface
+                          unless (status == StatusSuccess) $
+                            Internal.statusToString status >>= fail)
+          (\surface -> f surface)
+
+-- | Like 'createImageSurface' but creating a surface to target external
+-- data pointed to by 'PixelData'.
+--
+createImageSurfaceForData ::
+     PixelData         -- ^ pointer to pixel data
+  -> Format            -- ^ format of pixels in the surface to create
+  -> Int               -- ^ width of the surface, in pixels
+  -> Int               -- ^ height of the surface, in pixels
+  -> Int               -- ^ size of stride between rows in the surface to create
+  -> IO Surface
+createImageSurfaceForData pixels format width height stride = do
+  surface <- Internal.imageSurfaceCreateForData pixels format width height stride
   Internal.manageSurface surface
   return surface
 

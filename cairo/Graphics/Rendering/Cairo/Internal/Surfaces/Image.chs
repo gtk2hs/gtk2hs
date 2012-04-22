@@ -21,6 +21,14 @@ import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
+{#fun image_surface_create_for_data as imageSurfaceCreateForData
+  { id `Ptr CUChar'
+  , cFromEnum `Format'
+  , `Int'
+  , `Int'
+  , `Int'
+  } -> `Surface' mkSurface*#}
+
 {#fun image_surface_create     as imageSurfaceCreate    { cFromEnum `Format', `Int', `Int' } -> `Surface' mkSurface*#}
 {#fun image_surface_get_width  as imageSurfaceGetWidth  { withSurface* `Surface' } -> `Int'#}
 {#fun image_surface_get_height as imageSurfaceGetHeight { withSurface* `Surface' } -> `Int'#}
