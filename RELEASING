@@ -1,0 +1,126 @@
+This file is a collection of notes and reminders of things to do around the
+time of a release. None of this is by any means set in stone.
+
+Before release:
+
+* Take a look through the bug tracker.
+  http://hackage.haskell.org/trac/gtk2hs
+* Test that it builds! This is supposed to be a cross-platform library, too,
+  and support for a lot of setups is one of our selling points. There's a lot
+  of knobs, each with a lot of settings:
+  32-bit or 64-bit architecture
+  Windows, Linux, or Mac
+  GHC version
+  GTK library version
+  It's basically impossible to test that it builds on every combination, but a
+  representative sampling would be nice.
+* Check that the demos still work. There are demo directories in each Hackage
+  package's directory.
+* Bump all the version numbers in tandem.
+
+At release time:
+
+* Upload all the new packages. Some shell like this seems reasonable:
+  for i in tools glib gio cairo pango gtk; do
+    pushd $i
+    rm dist/*.tar.gz
+    cabal sdist && cabal upload dist/*.tar.gz
+    popd
+  done
+* Make an announcement on the mailing lists. Below is a template email. Once in
+  a while, you might want to run a command like this to update the
+  "contributors" section:
+  darcs log | grep '^[^ ]' | cut -b31- | sort | uniq -c | sort -n
+
+  To: haskell@haskell.org
+  Subject: [ANN] gtk2hs-X.X.X
+  Body:
+
+  Today, we welcome into the world version X.X.X of Gtk2Hs[1], a set of Haskell
+  bindings to many of the libraries included in the Gtk+/Gnome platform. Gtk+
+  is an extensive and mature multi-platform toolkit for creating graphical user
+  interfaces.
+
+  GUIs written using Gtk2Hs use themes to resemble the native look on Windows.
+  Gtk is the toolkit used by Gnome, one of the two major GUI toolkits on Linux.
+  On Mac OS programs written using Gtk2Hs are run by Apple's X11 server but may
+  also be linked against a native Aqua implementation of Gtk.
+
+  You can look forward to using the following improvements in this release:
+
+  XXX
+
+  This release has been tested on Linux and Windows with a variety of
+  combinations of Gtk+ and GHC versions.
+
+  Installation
+  ------------
+  Assuming you have the necessary Gtk+ base libraries already installed, you
+  can get the basic set of Haskell bindings with these two commands:
+
+  cabal install gtk2hs-buildtools
+  cabal install gtk
+
+  Other available packages include gconf, glade, gnomevfs, gstreamer, gtkglext,
+  gtksourceview2, soegtk, svgcairo, vte, and webkit. There are longer-winded
+  instructions that include pointers on getting the Gtk+ base libraries
+  installed on the website [2].
+
+  Features
+  --------
+  * Automatic memory management (unlike some other C/C++ GUI libraries, Gtk+
+    provides proper support for garbage-collected languages)
+  * Unicode support
+  * High quality vector graphics using Cairo
+  * Extensive reference documentation
+  * An implementation of the ``Haskell School of Expression'' graphics API
+
+  Community
+  ---------
+  You can keep up with the latest developments on the mailing lists:
+  * gtk2hs-users [3]: discussions about writing code that uses Gtk2Hs
+  * gtk2hs-devel [4]: discussions about modifying the Gtk2Hs bindings
+  * gtk2hs-commit [5]: a read-only mailing list with announcements of every
+    patch to hit the darcs repository
+
+  Check out the latest code via darcs:
+  darcs get http://code.haskell.org/gtk2hs/
+
+  Or complain on the bug tracker [6].
+
+  This code was brought to you by:
+  Duncan Coutts
+  Axel Simon
+  Andy Stewart
+  Peter Gavin
+  Jens Petersen
+  John Obbele
+  Hans van Thiel
+  Daniel Wagner
+  Bertram Felgenhauer
+  ...and many, many more
+
+  [1] http://projects.haskell.org/gtk2hs/
+  [2] http://code.haskell.org/gtk2hs/INSTALL
+  [3] https://lists.sourceforge.net/lists/listinfo/gtk2hs-users
+  [4] https://lists.sourceforge.net/lists/listinfo/gtk2hs-devel
+  [5] https://lists.sourceforge.net/lists/listinfo/gtk2hs-commit
+  [6] http://hackage.haskell.org/trac/gtk2hs/
+* Make an announcement on the blog via:
+  http://projects.haskell.org/gtk2hs/wp-admin/post-new.php
+  Below is a template.
+  Title: New Gtk2Hs X.X.X release
+  Tags:
+  Categories: Announcements, Releases
+  Body:
+  Thanks to X, X, and X, we have a bunch of improvements in Gtk2Hs X.X.X:
+
+  XXX
+
+  Thanks to everyone who helped out!
+  ~d
+* Update the documentation links. You can get there directly at
+  http://projects.haskell.org/gtk2hs/wp-admin/page.php?action=edit&post=5
+  or by visiting the admin page at
+  http://projects.haskell.org/gtk2hs/wp-admin
+  and clicking "Manage", then "Pages", then "Documentation".
