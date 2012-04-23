@@ -239,7 +239,7 @@ customStoreNew priv con tmIface mDragSource mDragDest = do
         customTreeDragSourceIface = fromMaybe dummyDragSource mDragSource,
         customTreeDragDestIface = fromMaybe dummyDragDest mDragDest }
   privPtr <- newStablePtr priv
-  liftM con $ makeNewGObject (CustomStore, objectUnref) $
+  liftM con $ wrapNewGObject (CustomStore, objectUnref) $
     gtk2hs_store_new implPtr privPtr
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
