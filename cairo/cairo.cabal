@@ -69,6 +69,7 @@ Library
                           Graphics.Rendering.Cairo.Internal.Surfaces.PS
                           Graphics.Rendering.Cairo.Internal.Surfaces.SVG
         extensions:     ForeignFunctionInterface
+        Include-dirs: .
         x-c2hs-Header:  cairo-gtk2hs.h
         pkgconfig-depends: cairo >= 1.2.0
         if flag(cairo_pdf)
