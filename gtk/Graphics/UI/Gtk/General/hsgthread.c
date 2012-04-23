@@ -26,7 +26,6 @@
  */
 
 #include <glib.h>
-#include <glib/gthread.h>
 #include <gdk/gdk.h>
 #include "hsgthread.h"
 
