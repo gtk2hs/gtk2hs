@@ -31,6 +31,8 @@ At release time:
   a while, you might want to run a command like this to update the
   "contributors" section:
   darcs log | grep '^[^ ]' | cut -b31- | sort | uniq -c | sort -n
+  juhp is Jens Petersen
+  as49 is Axel Simon
 
   To: haskell@haskell.org
   Subject: [ANN] gtk2hs-X.X.X
