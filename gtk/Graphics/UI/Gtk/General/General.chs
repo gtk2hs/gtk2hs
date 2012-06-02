@@ -202,7 +202,7 @@ postGUIAsync action = do
 --   their arguments from the main loop, that is, from the OS thread of Gtk,
 --   thereby ensuring that any Gtk and OS function can be called.
 --
-{#fun unsafe gdk_threads_enter as threadsEnter {} -> `()' #}
+{#fun gdk_threads_enter as threadsEnter {} -> `()' #}
 
 -- | Release the global Gtk lock.
 --
