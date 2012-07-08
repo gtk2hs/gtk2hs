@@ -639,20 +639,24 @@ eventGrabWindow = do
 
 
 -- | Execute an event handler and assume it handled the event unless it
---   threw a pattern match exception.
+--   threw a pattern match exception or calls mzero (e.g. via guard).
 tryEvent :: EventM any () -> EventM any Bool
 tryEvent act = do
   ptr <- ask
   liftIO $ (runReaderT (act >> return True) ptr)
 #if __GLASGOW_HASKELL__ >= 610
     `catches` [ Handler (\ (PatternMatchFail _) -> return False)
-              , Handler (\ e -> if isUserError e && "Pattern" `isPrefixOf` ioeGetErrorString e
+              , Handler (\ e -> if isUserError e &&
+                                   ("Pattern" `isPrefixOf` ioeGetErrorString e ||
+                                    "mzero" == ioeGetErrorString e)
                                 then return False
                                 else throw e) ]
 #else
     `catch` (\e -> case e of
                IOException e
                  | "user error (Pattern" `isPrefixOf` show e ->
+                   return False
+                 | "user error (mzero" `isPrefixOf` show e ->
                    return False
                PatternMatchFail _ -> return False
                _ -> throw e)
