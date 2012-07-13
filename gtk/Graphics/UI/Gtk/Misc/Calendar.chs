@@ -147,9 +147,9 @@ calendarNew =
 calendarSelectMonth :: CalendarClass self => self
  -> Int     -- ^ @month@ - a month number between 0 and 11.
  -> Int     -- ^ @year@ - the year the month is in.
- -> IO Bool -- ^ returns @True@, always
+ -> IO ()
 calendarSelectMonth self month year =
-  liftM toBool $
+  liftM (const ()) $
   {# call calendar_select_month #}
     (toCalendar self)
     (fromIntegral month)
@@ -170,9 +170,9 @@ calendarSelectDay self day =
 --
 calendarMarkDay :: CalendarClass self => self
  -> Int     -- ^ @day@ - the day number to mark between 1 and 31.
- -> IO Bool -- ^ returns @True@, always
+ -> IO ()
 calendarMarkDay self day =
-  liftM toBool $
+  liftM (const ()) $
   {# call calendar_mark_day #}
     (toCalendar self)
     (fromIntegral day)
@@ -181,9 +181,9 @@ calendarMarkDay self day =
 --
 calendarUnmarkDay :: CalendarClass self => self
  -> Int     -- ^ @day@ - the day number to unmark between 1 and 31.
- -> IO Bool -- ^ returns @True@, always
+ -> IO ()
 calendarUnmarkDay self day =
-  liftM toBool $
+  liftM (const ()) $
   {# call calendar_unmark_day #}
     (toCalendar self)
     (fromIntegral day)
