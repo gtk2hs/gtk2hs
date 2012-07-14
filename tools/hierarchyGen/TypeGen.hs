@@ -279,13 +279,7 @@ makeClass rootObject destr prefix table (name:parents) =
   indent 0.
   indent 0.ss "{#pointer *".
   (case lookup name table of
-        (Just TypeInfo { tiQueryFunction = cname })
-          | stripPrefix cname == name -> ss name
-          | otherwise                 -> ss cname.ss " as ".ss name
-	  where stripPrefix s = if uCasePrefix `isPrefixOf` s
-		                  then drop (length prefix) s
-				  else s
-                uCasePrefix = toUpper (head prefix) : tail prefix -- gtk -> Gtk
+        (Just TypeInfo { tiQueryFunction = cname }) -> ss cname.ss " as ".ss name
 	).
   ss " foreign newtype #}".
   (case lookup name table of
