@@ -34,6 +34,9 @@ module Graphics.UI.Gtk.Special.VRuler (
 -- show the location of the mouse on the window and to show the size of the
 -- window in specified units. The available units of measurement are 'Pixels',
 -- 'Inches' and 'Centimeters'. 'Pixels' is the default. rulers.
+--
+-- * Rulers are removed in Gtk3 and thus this module is blank. There is no
+--   replacement
 
 -- * Class Hierarchy
 --
@@ -45,7 +48,7 @@ module Graphics.UI.Gtk.Special.VRuler (
 -- |               +----'Ruler'
 -- |                     +----VRuler
 -- @
-
+#if GTK_MAJOR_VERSION < 3
 -- * Types
   VRuler,
   VRulerClass,
@@ -54,8 +57,9 @@ module Graphics.UI.Gtk.Special.VRuler (
 
 -- * Constructors
   vRulerNew,
+#endif
   ) where
-
+#if GTK_MAJOR_VERSION < 3
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -74,3 +78,4 @@ vRulerNew =
   makeNewObject mkVRuler $
   liftM (castPtr :: Ptr Widget -> Ptr VRuler) $
   {# call gtk_vruler_new #}
+#endif

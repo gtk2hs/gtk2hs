@@ -67,7 +67,9 @@ module Graphics.UI.Gtk.Layout.Notebook (
 -- * Types
   Notebook,
   NotebookClass,
+#if GTK_MAJOR_VERSION < 3
   NotebookPage,
+#endif
   castToNotebook, gTypeNotebook,
   toNotebook,
 
@@ -96,10 +98,12 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookGetShowBorder,
   notebookSetScrollable,
   notebookGetScrollable,
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   notebookSetTabBorder,
   notebookSetTabHBorder,
   notebookSetTabVBorder,
+#endif
 #endif
   notebookSetPopup,
   notebookGetCurrentPage,
@@ -114,10 +118,12 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookGetTabLabel,
   notebookGetTabLabelText,
   Packing(..), PackType(..),
+#if GTK_MAJOR_VERSION < 3
   notebookQueryTabLabelPacking,
   notebookSetTabLabelPacking,
 #ifndef DISABLE_DEPRECATED
   notebookSetHomogeneousTabs,
+#endif
 #endif
   notebookSetTabLabel,
   notebookSetTabLabelText,
@@ -199,7 +205,9 @@ import Graphics.UI.Gtk.General.Enums	(Packing(..), toPacking, fromPacking,
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_MAJOR_VERSION < 3
 {#pointer *GtkNotebookPage as NotebookPage foreign newtype #}
+#endif
 
 --------------------
 -- Constructors
@@ -672,6 +680,7 @@ notebookGetScrollable self =
   {# call unsafe notebook_get_scrollable #}
     (toNotebook self)
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- | Sets the width the border around the tab labels in a notebook. This is
 -- equivalent to calling @'notebookSetTabHBorder' notebook borderWidth@
@@ -680,6 +689,7 @@ notebookGetScrollable self =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 notebookSetTabBorder :: NotebookClass self => self
  -> Int   -- ^ @borderWidth@ - width of the border around the tab labels.
  -> IO ()
@@ -693,6 +703,7 @@ notebookSetTabBorder self borderWidth =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 notebookSetTabHBorder :: NotebookClass self => self
  -> Int   -- ^ @tabHborder@ - width of the horizontal border of tab labels.
  -> IO ()
@@ -706,6 +717,7 @@ notebookSetTabHBorder self tabHborder =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 notebookSetTabVBorder :: NotebookClass self => self
  -> Int   -- ^ @tabVborder@ - width of the vertical border of tab labels.
  -> IO ()
@@ -713,6 +725,7 @@ notebookSetTabVBorder self tabVborder =
   {# call notebook_set_tab_vborder #}
     (toNotebook self)
     (fromIntegral tabVborder)
+#endif
 #endif
 
 -- | Enables or disables the popup menu: if the user clicks with the right
@@ -841,9 +854,11 @@ notebookGetTabLabelText self child =
     (toWidget child)
   >>= maybePeek peekUTFString
 
+#if GTK_MAJOR_VERSION < 3
 -- | Query the packing attributes for the tab label of the page containing
 -- @child@.
 --
+-- Removed in Gtk3.
 notebookQueryTabLabelPacking :: (NotebookClass self, WidgetClass child) => self
  -> child            -- ^ @child@ - the page
  -> IO (Packing,PackType)
@@ -866,6 +881,7 @@ notebookQueryTabLabelPacking self child =
 -- @child@. See 'Graphics.UI.Gtk.Abstract.Box.boxPackStart' for the exact
 -- meaning of the parameters.
 --
+-- Removed in Gtk3.
 notebookSetTabLabelPacking :: (NotebookClass self, WidgetClass child) => self
  -> child    -- ^ @child@ - the child widget
  -> Packing
@@ -886,6 +902,7 @@ notebookSetTabLabelPacking self child pack packType =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 notebookSetHomogeneousTabs :: NotebookClass self => self
  -> Bool  -- ^ @homogeneous@ - @True@ if all tabs should be the same size.
  -> IO ()
@@ -893,6 +910,7 @@ notebookSetHomogeneousTabs self homogeneous =
   {# call notebook_set_homogeneous_tabs #}
     (toNotebook self)
     (fromBool homogeneous)
+#endif
 #endif
 
 -- | Changes the tab label for @child@.

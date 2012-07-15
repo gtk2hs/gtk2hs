@@ -37,6 +37,8 @@ module Graphics.UI.Gtk.Abstract.Object (
 -- derive from 'Object' rather than 'GObject' do so for backward compatibility
 -- reasons.
 --
+-- Object has been removed in Gt3k, but this module still provides useful
+-- functions.
 
 -- * Class Hierarchy
 -- |
@@ -51,12 +53,13 @@ module Graphics.UI.Gtk.Abstract.Object (
 -- |         +----'Tooltips'
 -- |         +----'TreeViewColumn'
 -- @
-
+#if GTK_MAJOR_VERSION < 3
 -- * Types
   Object,
   ObjectClass,
   castToObject, gTypeObject,
   toObject,
+#endif
 
 -- * Methods
   makeNewObject,
@@ -70,7 +73,6 @@ module Graphics.UI.Gtk.Abstract.Object (
   objectDestroy,
   notifyProperty
   ) where
-
 import Control.Monad (when)
 
 import System.Glib.FFI
@@ -104,13 +106,16 @@ import Data.IORef
 foreign import ccall unsafe "gtk_object_sink"
   objectSink :: Ptr obj -> IO ()
 #endif
-
 -- This is a convenience function to generate a new widget. It adds the
 -- finalizer with the method described under objectSink.
 --
 -- * The constr argument is the contructor of the specific object.
 --
+#if GTK_MAJOR_VERSION < 3
 makeNewObject :: ObjectClass obj => 
+#else
+makeNewObject :: GObjectClass obj => 
+#endif
   (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
 makeNewObject (constr, objectUnref) generator = do
   objPtr <- generator
@@ -132,7 +137,11 @@ foreign import ccall "wrapper" mkDestructor
 -- | Attach a callback that will be called after the
 -- destroy hooks have been called
 --
+#if GTK_MAJOR_VERSION < 3
 objectWeakref :: ObjectClass o => o -> IO () -> IO GWeakNotify
+#else
+objectWeakref :: GObjectClass o => o -> IO () -> IO GWeakNotify
+#endif
 objectWeakref obj uFun = do
   funPtrContainer <- newIORef nullFunPtr
   uFunPtr <- mkDestructor $ \_ _ -> do
@@ -145,7 +154,11 @@ objectWeakref obj uFun = do
 
 -- | Detach a weak destroy callback function
 --
+#if GTK_MAJOR_VERSION < 3
 objectWeakunref :: ObjectClass o => o -> GWeakNotify -> IO ()
+#else
+objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
+#endif
 objectWeakunref obj fun = 
   {#call unsafe g_object_weak_unref#} (toGObject obj) fun nullPtr
 
@@ -157,7 +170,11 @@ objectWeakunref obj fun =
 -- the reference that they hold. May result in finalization of the object if
 -- all references are released.
 --
+#if GTK_MAJOR_VERSION < 3
 objectDestroy :: ObjectClass self => Signal self (IO ())
+#else
+objectDestroy :: WidgetClass self => Signal self (IO ())
+#endif
 objectDestroy = Signal (connect_NONE__NONE "destroy")
 
 -- | Register a notify callback that is triggered when the given property
@@ -169,5 +186,9 @@ objectDestroy = Signal (connect_NONE__NONE "destroy")
 --   runtime if the passed-in attribute is not a property of the class
 --   with which it was registered.
 --
+#if GTK_MAJOR_VERSION < 3
 notifyProperty :: ObjectClass self => ReadWriteAttr self a b -> Signal self (IO ())
+#else
+notifyProperty :: GObjectClass self => ReadWriteAttr self a b -> Signal self (IO ())
+#endif
 notifyProperty attr = Signal (\on obj cb -> connect_PTR__NONE ("notify::"++show attr) on obj (const cb))

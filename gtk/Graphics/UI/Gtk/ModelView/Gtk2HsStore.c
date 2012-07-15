@@ -55,6 +55,7 @@ static gboolean     gtk2hs_store_get_sort_column_id     (GtkTreeSortable        
 static void         gtk2hs_store_set_sort_column_id     (GtkTreeSortable        *sortable,
                                                          gint                   sort_column_id,
                                                          GtkSortType            order);
+#if GTK_MAJOR_VERSION < 3
 static void	    gtk2hs_store_set_sort_func		(GtkTreeSortable        *sortable,
                                                          gint                   sort_column_id,
                                                          GtkTreeIterCompareFunc func,
@@ -64,6 +65,7 @@ static void         gtk2hs_store_set_default_sort_func  (GtkTreeSortable        
                                                          GtkTreeIterCompareFunc func,
                                                          gpointer               data,
                                                          GtkDestroyNotify       destroy);
+#endif
 static gboolean     gtk2hs_store_has_default_sort_func  (GtkTreeSortable        *sortable);
 
 
@@ -120,6 +122,7 @@ gtk2hs_store_get_type (void)
       NULL
     };
 
+#if GTK_MAJOR_VERSION < 3
 /* The TreeSortable interface is currently not implemented. */
     static const GInterfaceInfo tree_sortable_info =
     {
@@ -127,7 +130,7 @@ gtk2hs_store_get_type (void)
       NULL,
       NULL
     };
-
+#endif
     static const GInterfaceInfo tree_drag_source_info =
     {
       (GInterfaceInitFunc) gtk2hs_store_tree_drag_source_init,
@@ -215,6 +218,7 @@ gtk2hs_store_tree_model_init (GtkTreeModelIface *iface)
   iface->unref_node      = gtk2hs_store_unref_node;
 }
 
+#if GTK_MAJOR_VERSION < 3
 /**
  *
  *  gtk2hs_store_tree_sortable_init: init callback for the interface registration
@@ -234,7 +238,7 @@ gtk2hs_store_tree_sortable_init (GtkTreeSortableIface *iface)
   iface->set_default_sort_func  = gtk2hs_store_set_default_sort_func;
   iface->has_default_sort_func  = gtk2hs_store_has_default_sort_func;
 }
-
+#endif
 /**
  *
  *  gtk2hs_store_tree_drag_source_init: init callback for the interface registration
@@ -634,6 +638,7 @@ gtk2hs_store_set_sort_column_id (GtkTreeSortable        *sortable,
   return;
 }
 
+#if GTK_MAJOR_VERSION < 3
 static void
 gtk2hs_store_set_sort_func (GtkTreeSortable        *sortable,
                             gint                   sort_column_id,
@@ -654,7 +659,7 @@ gtk2hs_store_set_default_sort_func (GtkTreeSortable        *sortable,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_set_default_sort_func\t\t(%p)\n", sortable));
   return;
 }
-
+#endif
 static gboolean
 gtk2hs_store_has_default_sort_func (GtkTreeSortable        *sortable)
 {

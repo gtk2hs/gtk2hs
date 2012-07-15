@@ -107,15 +107,19 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogNew,
 
 -- * Methods
+#if GTK_MAJOR_VERSION < 3
   dialogGetUpper,
   dialogGetActionArea,
+#endif
   dialogRun,
   dialogResponse,
   dialogAddButton,
   dialogAddActionWidget,
-  dialogGetHasSeparator,
   dialogSetDefaultResponse,
+#if GTK_MAJOR_VERSION < 3
+  dialogGetHasSeparator,
   dialogSetHasSeparator,
+#endif
   dialogSetResponseSensitive,
   dialogGetResponseForWidget,
   dialogAlternativeDialogButtonOrder,
@@ -125,7 +129,9 @@ module Graphics.UI.Gtk.Windows.Dialog (
 #endif
 
 -- * Attributes
+#if GTK_MAJOR_VERSION < 3
   dialogHasSeparator,
+#endif
   dialogActionAreaBorder,
   dialogButtonSpacing,
   dialogContentAreaBorder,
@@ -150,7 +156,10 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(dialogGetUpper, dialogGetActionArea,
+import Graphics.UI.Gtk.General.Structs (
+#if GTK_MAJOR_VERSION < 3
+                    dialogGetUpper, dialogGetActionArea,
+#endif
 					ResponseId(..), fromResponse, toResponse)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -253,13 +262,26 @@ dialogAddActionWidget self child responseId =
     (toWidget child)
     (fromResponse responseId)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Query if the dialog has a visible horizontal separator.
 --
+-- Removed in Gtk3.
 dialogGetHasSeparator :: DialogClass self => self -> IO Bool
 dialogGetHasSeparator self =
   liftM toBool $
   {# call unsafe dialog_get_has_separator #}
     (toDialog self)
+
+-- | Sets whether the dialog has a separator above the buttons. @True@ by
+-- default.
+--
+-- Removed in Gtk3.
+dialogSetHasSeparator :: DialogClass self => self -> Bool -> IO ()
+dialogSetHasSeparator self setting =
+  {# call dialog_set_has_separator #}
+    (toDialog self)
+    (fromBool setting)
+#endif
 
 -- | Sets the last widget in the dialog's action area with the given
 -- 'ResponseId' as the default widget for the dialog. Pressing \"Enter\"
@@ -276,15 +298,6 @@ dialogSetDefaultResponse self responseId =
   {# call dialog_set_default_response #}
     (toDialog self)
     (fromResponse responseId)
-
--- | Sets whether the dialog has a separator above the buttons. @True@ by
--- default.
---
-dialogSetHasSeparator :: DialogClass self => self -> Bool -> IO ()
-dialogSetHasSeparator self setting =
-  {# call dialog_set_has_separator #}
-    (toDialog self)
-    (fromBool setting)
 
 -- | Calls @'widgetSetSensitive' widget setting@ for each widget in the
 -- dialog's action area with the given @responseId@. A convenient way to
@@ -360,15 +373,17 @@ dialogGetWidgetForResponse self responseId =
 
 --------------------
 -- Attributes
-
+#if GTK_MAJOR_VERSION < 3
 -- | The dialog has a separator bar above its buttons.
 --
 -- Default value: @True@
 --
+-- Removed in Gtk3.
 dialogHasSeparator :: DialogClass self => Attr self Bool
 dialogHasSeparator = newAttr
   dialogGetHasSeparator
   dialogSetHasSeparator
+#endif
 
 -- | Width of border around the button area at the bottom of the dialog.
 --

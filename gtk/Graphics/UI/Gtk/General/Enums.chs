@@ -41,12 +41,16 @@ module Graphics.UI.Gtk.General.Enums (
 #endif
   DirectionType(..),
   Justification(..),
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   MatchType(..),
 #endif
+#endif
   MenuDirectionType(..),
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,8,0)
   MetricType(..),
+#endif
 #endif
   MovementStep(..),
   Orientation(..),
@@ -56,7 +60,9 @@ module Graphics.UI.Gtk.General.Enums (
   PathType(..),
   PolicyType(..),
   PositionType(..),
+#if GTK_MAJOR_VERSION < 3
   ProgressBarOrientation(..),
+#endif
   ReliefStyle(..),
   ResizeMode(..),
   ScrollType(..),
@@ -65,9 +71,11 @@ module Graphics.UI.Gtk.General.Enums (
   ShadowType(..),
   SortType(..),
   StateType(..),
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   SubmenuDirection(..),
   SubmenuPlacement(..),
+#endif
 #endif
   SpinButtonUpdatePolicy(..),
   SpinType(..),
@@ -78,15 +86,19 @@ module Graphics.UI.Gtk.General.Enums (
   ToolbarStyle(..),
   TreeViewColumnSizing(..),
   --TroughType(..),
+#if GTK_MAJOR_VERSION < 3
   UpdateType(..),
   Visibility(..),
+#endif
   WindowPosition(..),
   WindowType(..),
   WrapMode(..), 
 #if GTK_CHECK_VERSION(2,16,0)
   EntryIconPosition(..),
 #endif
+#if GTK_MAJOR_VERSION < 3
   AnchorType (..),
+#endif
 
 module Graphics.UI.Gtk.Gdk.Enums
   ) where
@@ -212,19 +224,25 @@ instance Flags DestDefaults
 --
 {#enum Justification {underscoreToCase} deriving (Eq,Show)#}
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- | Some kind of string search options
 --
+-- Removed in Gtk3.
 {#enum MatchType {underscoreToCase} deriving (Eq,Show)#}
+#endif
 #endif
 
 -- | From where was a menu item entered?
 --
 {#enum MenuDirectionType {underscoreToCase} deriving (Eq,Show)#}
 
+#if GTK_MAJOR_VERSION < 3
 -- | Units of measure
 --
+-- Removed in Gtk3.
 {#enum MetricType {underscoreToCase} deriving (Eq,Show)#}
+#endif
 
 -- | Movement in text widget
 --
@@ -294,10 +312,13 @@ fromPacking PackNatural = (False,False)
 --
 {#enum PositionType {underscoreToCase} deriving (Eq,Show)#}
 
+#if GTK_MAJOR_VERSION < 3
 -- | Is the ProgressBar horizontally or vertically
 -- directed?
 --
+-- Removed in Gtk3.
 {#enum ProgressBarOrientation {underscoreToCase} deriving (Eq,Show)#}
+#endif
 
 -- | I don't have a clue.
 --
@@ -346,14 +367,18 @@ data SelectionMode = SelectionNone
 --
 {#enum StateType {underscoreToCase} deriving (Eq,Show)#}
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- | Submenu direction policies
 --
+-- Removed in Gtk3.
 {#enum SubmenuDirection {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Submenu placement policies
 --
+-- Removed in Gtk3.
 {#enum SubmenuPlacement {underscoreToCase} deriving (Eq,Show)#}
+#endif
 #endif
 
 -- | Whether to clamp or ignore illegal values.
@@ -404,15 +429,18 @@ instance Flags TextSearchFlags
 -- hm... text editing?
 --{#enum TroughType {underscoreToCase} deriving (Eq,Show)#}
 
-
+#if GTK_MAJOR_VERSION < 3
 -- | Updating types for range widgets (determines when the
 -- @\"connectToValueChanged\"@ signal is emitted by the widget)
 --
+-- Removed in Gtk3.
 {#enum UpdateType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Visibility
 --
+-- Removed in Gtk3.
 {#enum Visibility {underscoreToCase} deriving (Eq,Show)#}
+#endif
 
 -- | Window position types
 --
@@ -432,7 +460,9 @@ instance Flags TextSearchFlags
 {#enum EntryIconPosition {underscoreToCase} deriving (Eq,Show)#}
 #endif
 
+#if GTK_MAJOR_VERSION < 3
 -- |
 --
+-- Removed in Gtk3.
 {#enum AnchorType {underscoreToCase} deriving (Eq,Show)#}
-
+#endif

@@ -28,7 +28,6 @@ x-Types-File:       Graphics/UI/Gtk/Types.chs
 x-Types-ModName:    Graphics.UI.Gtk.Types
 x-Types-Forward:    *System.Glib.GObject Graphics.UI.Gtk.General.Threading
 x-Types-Destructor: objectUnrefFromMainloop
-x-Types-Hierarchy:  hierarchy.list
 
 Data-Dir:       demo
 Data-Files:     actionMenu/ActionMenu.hs
@@ -127,6 +126,10 @@ Flag have-gio
 Flag have-quartz-gtk
   Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
   Default:  False
+
+Flag gtk3
+  Description: Use GTK3 rather than GTK2
+  Default: False
 
 Library
         build-depends:  base >= 4 && < 5,
@@ -378,9 +381,19 @@ Library
           x-c2hs-Header:  wingtk.h
           cpp-options:    -DWIN32
           extra-libraries: kernel32
+        else 
+          if flag(gtk3)
+            x-c2hs-Header:  gtk2hsX.h
+          else
+            x-c2hs-Header:  gtk/gtk.h
+        
+        if flag(gtk3)
+          x-Types-Hierarchy:  hierarchy3.list
         else
-          x-c2hs-Header:  gtk/gtk.h
-
+          x-Types-Hierarchy:  hierarchy.list
+        
         x-Types-Tag:     default plugNsocket
-
-        pkgconfig-depends: gthread-2.0, gtk+-2.0
+        if flag(gtk3)
+          pkgconfig-depends: gthread-2.0, gtk+-3.0
+        else
+          pkgconfig-depends: gthread-2.0, gtk+-2.0

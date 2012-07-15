@@ -55,7 +55,9 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   treeViewColumnPackStart,
   treeViewColumnPackEnd,
   treeViewColumnClear,
+#if GTK_MAJOR_VERSION < 3
   treeViewColumnGetCellRenderers,
+#endif
   treeViewColumnSetSpacing,
   treeViewColumnGetSpacing,
   treeViewColumnSetVisible,
@@ -193,14 +195,17 @@ treeViewColumnClear self =
   {# call tree_view_column_clear #}
     self
 
+#if GTK_MAJOR_VERSION < 3
 -- | Retrieve all 'CellRenderer's that are contained in this column.
 --
+-- Removed in Gtk3.
 treeViewColumnGetCellRenderers :: TreeViewColumn -> IO [CellRenderer]
 treeViewColumnGetCellRenderers self =
   {# call unsafe tree_view_column_get_cell_renderers #}
     self
   >>= fromGList
   >>= mapM (makeNewObject mkCellRenderer . return)
+#endif
 
 -- | Set the number of pixels between two cell renderers.
 --

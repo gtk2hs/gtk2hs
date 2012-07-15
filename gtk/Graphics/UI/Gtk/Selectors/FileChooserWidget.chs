@@ -60,7 +60,9 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 -- * Constructors
   FileChooserAction,
   fileChooserWidgetNew,
+#if GTK_MAJOR_VERSION < 3
   fileChooserWidgetNewWithBackend,
+#endif
 #endif
   ) where
 
@@ -96,11 +98,13 @@ fileChooserWidgetNew action =
   {# call unsafe gtk_file_chooser_widget_new #}
     ((fromIntegral . fromEnum) action)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Creates a new 'FileChooserWidget' with a specified backend. This is
 -- especially useful if you use 'fileChooserSetLocalOnly' to allow non-local
 -- files. This is a file chooser widget that can be embedded in custom windows
 -- and it is the same widget that is used by 'FileChooserDialog'.
 --
+-- Removed in Gtk3.
 fileChooserWidgetNewWithBackend :: 
     FileChooserAction    -- ^ @action@ - Open or save mode for the widget
  -> String               -- ^ @backend@ - The name of the specific filesystem
@@ -113,4 +117,5 @@ fileChooserWidgetNewWithBackend action backend =
   {# call unsafe gtk_file_chooser_widget_new_with_backend #}
     ((fromIntegral . fromEnum) action)
     backendPtr
+#endif
 #endif

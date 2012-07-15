@@ -111,10 +111,12 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufAddAlpha,
   pixbufCopyArea,
   pixbufFill,
+#if GTK_MAJOR_VERSION < 3
   pixbufGetFromDrawable,
 
   pixbufRenderThresholdAlpha,
   pixbufRenderPixmapAndMaskForColormap
+#endif
   ) where
 
 import Control.Monad (liftM)
@@ -128,7 +130,9 @@ import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 				propagateGError)
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap, Pixmap)
+#endif
 
 {# context prefix="gdk" #}
 
@@ -709,6 +713,7 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
    (fromIntegral blue)  `shiftL`  8 .|.
    (fromIntegral alpha))
 
+#if GTK_MAJOR_VERSION < 3
 -- | Take a screenshot of a 'Drawable'.
 --
 -- * This function creates a 'Pixbuf' and fills it with the image
@@ -721,6 +726,7 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
 --   rectangle. The function will return @Nothing@ if the window
 --   is not currently visible.
 --
+-- Removed in Gtk3.
 pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)
 pixbufGetFromDrawable d (Rectangle x y width height) =
   maybeNull (wrapNewGObject mkPixbuf) $
@@ -730,10 +736,11 @@ pixbufGetFromDrawable d (Rectangle x y width height) =
     (fromIntegral width) (fromIntegral height)
 
 
-
 -- | Takes the opacity values in a rectangular portion of a pixbuf and
 -- thresholds them to produce a bi-level alpha mask that can be used
 -- as a clipping mask for a drawable.
+--
+-- Removed in Gtk3.
 pixbufRenderThresholdAlpha ::
     Pixbuf -- ^ A pixbuf.
  -> Bitmap -- ^ Bitmap where the bilevel mask will be painted to.
@@ -775,6 +782,7 @@ pixbufRenderThresholdAlpha src dest srcX srcY destX destY w h at =
 -- If the pixbuf does not have an alpha channel, then the returned
 -- mask will be @Nothing@.
 --
+-- Removed in Gtk3.
 pixbufRenderPixmapAndMaskForColormap ::
     Pixbuf                    -- ^ A pixbuf.
  -> Colormap                  -- ^ A Colormap
@@ -791,5 +799,4 @@ pixbufRenderPixmapAndMaskForColormap pixbuf colormap threshold =
       pm <- wrapNewGObject mkPixmap (peek pmRetPtr :: IO (Ptr Pixmap))
       bm <- maybeNull (wrapNewGObject mkPixmap) (peek bmRetPtr :: IO (Ptr Bitmap))
       return (pm, bm)
-
-
+#endif

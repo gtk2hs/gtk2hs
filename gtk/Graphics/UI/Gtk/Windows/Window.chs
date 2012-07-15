@@ -92,9 +92,11 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,12,0)
   windowSetStartupId,
 #endif
+#if GTK_MAJOR_VERSION < 3
   windowGetFrame,
   windowSetFrameDimensions,
   windowGetFrameDimensions,
+#endif
   windowStick,
   windowUnstick,
   windowAddAccelGroup,
@@ -188,7 +190,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowToplevelFocus,
   windowTransientFor,
   windowFocus,
+#if GTK_MAJOR_VERSION < 3
   windowHasFrame,
+#endif
   windowIconList,
   windowMnemonicModifier,
 #if GTK_CHECK_VERSION(2,20,0)
@@ -208,7 +212,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetResizable,
   windowSetModal,
   windowGetModal,
+#if GTK_MAJOR_VERSION < 3
   windowSetPolicy,
+#endif
   windowSetTransientFor,
   windowGetTransientFor,
   windowSetDestroyWithParent,
@@ -237,8 +243,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetDeletable,
   windowGetDeletable,
 #endif
+#if GTK_MAJOR_VERSION < 3
   windowSetHasFrame,
   windowGetHasFrame,
+#endif
   windowSetRole,
   windowGetRole,
   windowSetIcon,
@@ -273,7 +281,9 @@ import System.Glib.GList                (fromGList, withGList)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs  (windowGetFrame)
+#endif
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
@@ -373,6 +383,7 @@ windowActivateDefault self =
   {# call window_activate_default #}
     (toWindow self)
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 {-# DEPRECATED windowSetPolicy "Use windowSetResizable instead." #-}
 -- | Sets the window resizing policy.
@@ -380,6 +391,7 @@ windowActivateDefault self =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code. Use 'windowSetResizable' instead.
 --
+-- Removed in Gtk3.
 windowSetPolicy :: WindowClass self => self -> Bool -> Bool -> Bool -> IO ()
 windowSetPolicy self allowShrink allowGrow autoShrink =
   {# call window_set_policy #}
@@ -387,6 +399,7 @@ windowSetPolicy self allowShrink allowGrow autoShrink =
     (fromBool allowShrink)
     (fromBool allowGrow)
     (fromBool autoShrink)
+#endif
 #endif
 
 -- | Sets a window modal or non-modal. Modal windows prevent interaction with
@@ -1056,6 +1069,8 @@ windowGetDeletable self = liftM toBool $
   {# call window_get_deletable #}
     (toWindow self)
 #endif
+
+#if GTK_MAJOR_VERSION < 3
 -- | (Note: this is a special-purpose function intended for the framebuffer
 -- port; see 'windowSetHasFrame'. It will have no effect on the window border
 -- drawn by the window manager, which is the normal case when using the X
@@ -1064,6 +1079,7 @@ windowGetDeletable self = liftM toBool $
 -- For windows with frames (see 'windowSetHasFrame') this function can be
 -- used to change the size of the frame border.
 --
+-- Removed in Gtk3.
 windowSetFrameDimensions :: WindowClass self => self
  -> Int   -- ^ @left@ - The width of the left border
  -> Int   -- ^ @top@ - The height of the top border
@@ -1087,8 +1103,7 @@ windowSetFrameDimensions self left top right bottom =
 -- which is the normal case when using a windowing system. 
 -- See 'drawWindowGetFrameExtents' to get the standard window border extents.)
 --
---
---
+-- Removed in Gtk3.
 windowGetFrameDimensions :: WindowClass self => self
  -> IO (Int, Int, Int, Int)
  -- ^ returns @(left, top, right, bottom)@. @left@ is the
@@ -1115,6 +1130,7 @@ windowGetFrameDimensions self =
 -- but it could conceivably be used by X-programs that want to do their own window
 -- decorations.
 --
+-- Removed in Gtk3.
 windowSetHasFrame :: WindowClass self => self 
  -> Bool  -- ^ @setting@ - a boolean   
  -> IO ()
@@ -1125,11 +1141,13 @@ windowSetHasFrame self setting =
 
 -- | Accessor for whether the window has a frame window exterior to window->window. Gets the value set by 'windowSetHasFrame'.
 --
+-- Removed in Gtk3.
 windowGetHasFrame :: WindowClass self => self
  -> IO Bool  -- ^ return @True@ if a frame has been added to the window via 'windowSetHasFrame'.
 windowGetHasFrame self = liftM toBool $
   {# call window_get_has_frame #}
     (toWindow self)
+#endif
 
 -- | This function is only useful on X11, not with other Gtk+ targets.
 --
@@ -2017,6 +2035,7 @@ windowFocus = newAttr
   windowGetFocus
   windowSetFocus
 
+#if GTK_MAJOR_VERSION < 3
 -- | (Note: this is a special-purpose function for the framebuffer port, that
 -- causes Gtk+ to draw its own window border. For most applications, you want
 -- 'windowSetDecorated' instead, which tells the window manager whether to draw
@@ -2031,10 +2050,12 @@ windowFocus = newAttr
 -- but it could conceivably be used by X-programs that want to do their own
 -- window decorations.
 --
+-- Removed in Gtk3.
 windowHasFrame :: WindowClass self => Attr self Bool
 windowHasFrame = newAttr
   windowGetHasFrame
   windowSetHasFrame
+#endif
 
 -- | Sets up the icon representing a 'Window'. The icon is used when the
 -- window is minimized (also known as iconified). Some window managers or

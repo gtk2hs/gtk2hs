@@ -52,9 +52,6 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- Besides adding widgets at the start or the end of a box, you can also
 -- specify the padding around each widget (in pixels) and a 'Packing'
 -- parameter that denotes how to fill up unused space.
--- The functions 'boxPackStartDefaults' or 'boxPackEndDefaults' 
--- are a convenient way to pack widgets into a 'Box' without specifying
--- these extra paramters.
 --
 -- While the right amount of padding around each widget is a matter of
 -- appearance, the 'Packing' paramter specifies the way the widgets in
@@ -66,9 +63,9 @@ module Graphics.UI.Gtk.Abstract.Box (
 --
 -- Because 'Box' is a 'Container', you may also use
 -- 'Graphics.UI.Gtk.Abstract.Container.containerAdd' to insert widgets into
--- the box, and they will be packed as if with 'boxPackStartDefaults'. Use
--- 'Graphics.UI.Gtk.Abstract.Container.containerRemove' to remove widgets
--- from the 'Box'.
+-- the box, and they will be packed as if with 'boxPackStart' with 'PackRepel'
+-- and 0 padding. Use 'Graphics.UI.Gtk.Abstract.Container.containerRemove' to
+-- remove widgets from the 'Box'.
 --
 -- Use 'boxSetHomogeneous' to specify whether or not all children of the
 -- 'Box' are forced to get the same amount of space. Note that the
@@ -108,8 +105,10 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- * Methods
   boxPackStart,
   boxPackEnd,
+#if GTK_MAJOR_VERSION < 3
   boxPackStartDefaults,
   boxPackEndDefaults,
+#endif
   boxGetHomogeneous,
   boxSetHomogeneous,
   boxGetSpacing,
@@ -196,9 +195,11 @@ boxPackEnd self child packing padding =
     (fromIntegral padding)
   where (expand, fill) = fromPacking packing
 
+#if GTK_MAJOR_VERSION < 3
 -- | Like 'boxPackStart' but uses the default parameters 'PackRepel' and 0 for
 -- padding.
 --
+-- Removed in Gtk3
 boxPackStartDefaults :: (BoxClass self, WidgetClass widget) => self
  -> widget -- ^ @widget@ - the 'Widget' to be added to the box.
  -> IO ()
@@ -210,6 +211,7 @@ boxPackStartDefaults self widget =
 -- | Like 'boxPackEnd' but uses the default parameters 'PackRepel' and 0 for
 -- padding.
 --
+-- Removed in Gtk3
 boxPackEndDefaults :: (BoxClass self, WidgetClass widget) => self
  -> widget -- ^ @widget@ - the 'Widget' to be added to the box.
  -> IO ()
@@ -217,6 +219,7 @@ boxPackEndDefaults self widget =
   {# call box_pack_end_defaults #}
     (toBox self)
     (toWidget widget)
+#endif
 
 -- | Sets the homogeneous property,
 -- controlling whether or not all children of the box are given equal space

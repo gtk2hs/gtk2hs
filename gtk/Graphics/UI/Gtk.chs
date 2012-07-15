@@ -288,7 +288,11 @@ import Graphics.UI.Gtk.Gdk.AppLaunchContext
 import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
+#else
+import Graphics.UI.Gtk.Gdk.Region
+#endif
 --import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.UI.Gtk.Gdk.Pixbuf
@@ -484,11 +488,13 @@ import Graphics.UI.Gtk.Abstract.Bin
 import Graphics.UI.Gtk.Abstract.Misc
 import Graphics.UI.Gtk.Abstract.IMContext
 import Graphics.UI.Gtk.Abstract.Object (
+#if GTK_MAJOR_VERSION < 3
   Object,
   ObjectClass,
   castToObject,
   gTypeObject,
   toObject,
+#endif
   GWeakNotify,
   objectWeakref,
   objectWeakunref,

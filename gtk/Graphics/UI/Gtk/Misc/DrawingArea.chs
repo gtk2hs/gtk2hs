@@ -80,8 +80,10 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
   drawingAreaNew,
 
 -- * Methods
+#if GTK_MAJOR_VERSION < 3
   drawingAreaGetDrawWindow,
   drawingAreaGetSize
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -89,7 +91,9 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs	(widgetGetDrawWindow, widgetGetSize)
+#endif
 -- to make haddock happy:
 import Graphics.UI.Gtk.Abstract.Widget
 
@@ -106,14 +110,18 @@ drawingAreaNew =
   liftM (castPtr :: Ptr Widget -> Ptr DrawingArea) $
   {# call unsafe drawing_area_new #}
 
+#if GTK_MAJOR_VERSION < 3
 -- | See 'widgetGetDrawWindow'
 --
+-- Removed in Gtk3.
 drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
 drawingAreaGetDrawWindow = widgetGetDrawWindow
 {-# DEPRECATED drawingAreaGetDrawWindow "use widgetGetDrawWindow instead" #-}
 
 -- | See 'widgetGetSize'
 --
+-- Removed in Gtk3.
 drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
 drawingAreaGetSize = widgetGetSize
 {-# DEPRECATED drawingAreaGetSize "use widgetGetSize instead" #-}
+#endif

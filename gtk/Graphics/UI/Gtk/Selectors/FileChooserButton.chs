@@ -60,7 +60,9 @@ module Graphics.UI.Gtk.Selectors.FileChooserButton (
 
 -- * Constructors
   fileChooserButtonNew,
+#if GTK_MAJOR_VERSION < 3
   fileChooserButtonNewWithBackend,
+#endif
   fileChooserButtonNewWithDialog,
 
 -- * Methods
@@ -112,8 +114,10 @@ fileChooserButtonNew title action =
     titlePtr
     ((fromIntegral . fromEnum) action)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Creates a new file-selecting button widget using @backend@.
 --
+-- Removed in Gtk3.
 fileChooserButtonNewWithBackend :: 
     String               -- ^ @title@ - the title of the browse dialog.
  -> FileChooserAction    -- ^ @action@ - the open mode for the widget.
@@ -129,6 +133,7 @@ fileChooserButtonNewWithBackend title action backend =
     titlePtr
     ((fromIntegral . fromEnum) action)
     backendPtr
+#endif
 
 -- | Creates a 'FileChooserButton' widget which uses @dialog@ as it's
 -- file-picking window.

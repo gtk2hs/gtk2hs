@@ -49,9 +49,11 @@ module Graphics.UI.Gtk.General.General (
   mainDoEvent,
 
   -- ** Call when mainloop is left
+#if GTK_MAJOR_VERSION < 3
   quitAddDestroy,
   quitAdd,
   quitRemove,
+#endif
   
   -- * Grab widgets
   grabAdd,
@@ -292,7 +294,10 @@ mainDoEvent = do
   ptr <- ask
   liftIO $ {#call main_do_event #} (castPtr ptr)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Trigger destruction of object in case the mainloop at level @mainLevel@ is quit.
+--
+-- Removed in Gtk3.
 quitAddDestroy :: ObjectClass obj 
                  => Int -- ^ @mainLevel@ Level of the mainloop which shall trigger the destruction. 
                  -> obj -- ^ @object@     Object to be destroyed.                                    
@@ -303,6 +308,8 @@ quitAddDestroy mainLevel obj =
      (toObject obj)
 
 -- | Registers a function to be called when an instance of the mainloop is left.
+--
+-- Removed in Gtk3.
 quitAdd :: Int -- ^ @mainLevel@ Level at which termination the function shall be called. You can pass 0 here to have the function run at the current mainloop.                                                                           
         -> (IO Bool) -- ^ @function@   The function to call. This should return 'False' to be removed from the list of quit handlers. Otherwise the function might be called again.
         -> IO Int -- ^ returns    A handle for this quit handler (you need this for 'quitRemove')
@@ -321,10 +328,13 @@ foreign import ccall "wrapper" mkGtkFunction ::
   (Ptr () -> IO {#type gboolean#}) -> IO GtkFunction
 
 -- | Removes a quit handler by its identifier.
+--
+-- Removed in Gtk3.
 quitRemove :: Int -- ^ @quitHandlerId@ Identifier for the handler returned when installing it.  
            -> IO ()
 quitRemove quitHandlerId =
   {#call quit_remove #} (fromIntegral quitHandlerId)
+#endif
 
 -- | add a grab widget
 --

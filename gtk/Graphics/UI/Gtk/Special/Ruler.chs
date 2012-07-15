@@ -35,6 +35,9 @@ module Graphics.UI.Gtk.Special.Ruler (
 -- triangle indicates the location of the mouse relative to the horizontal or
 -- vertical ruler. See 'HRuler' to learn how to create a new horizontal ruler.
 -- See 'VRuler' to learn how to create a new vertical ruler.
+--
+-- * Rulers are removed in Gtk3 and thus this module is blank. There is no
+--   replacement
 
 -- * Class Hierarchy
 --
@@ -47,7 +50,7 @@ module Graphics.UI.Gtk.Special.Ruler (
 -- |                     +----'HRuler'
 -- |                     +----'VRuler'
 -- @
-
+#if GTK_MAJOR_VERSION < 3
 -- * Types
   Ruler,
   RulerClass,
@@ -65,9 +68,10 @@ module Graphics.UI.Gtk.Special.Ruler (
   rulerMaxSize,
 #if GTK_CHECK_VERSION(2,8,0)
   rulerMetric,
-#endif 
+#endif
+#endif
   ) where
-
+#if GTK_MAJOR_VERSION < 3
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -171,4 +175,5 @@ rulerMaxSize = newAttrFromDoubleProperty "max-size"
 rulerMetric :: RulerClass self => Attr self MetricType
 rulerMetric = newAttrFromEnumProperty "metric"
                 {# call pure unsafe gtk_metric_type_get_type #}
+#endif
 #endif

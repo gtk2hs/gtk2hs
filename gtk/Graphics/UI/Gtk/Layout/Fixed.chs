@@ -84,12 +84,13 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- * Methods
   fixedPut,
   fixedMove,
+#if GTK_MAJOR_VERSION < 3
   fixedSetHasWindow,
   fixedGetHasWindow,
 
 -- * Attributes
   fixedHasWindow,
-
+#endif
 -- * Child Attributes
   fixedChildX,
   fixedChildY,
@@ -147,6 +148,7 @@ fixedMove self widget (x, y) =
     (fromIntegral x)
     (fromIntegral y)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Sets whether the 'Fixed' widget is created with a separate 'DrawWindow' for
 -- its window or not. (By default, it will be created with no separate
 -- 'DrawWindow'). This function must be called while the 'Fixed' is not
@@ -155,6 +157,7 @@ fixedMove self widget (x, y) =
 -- This function was added to provide an easy migration path for older
 -- applications which may expect 'Fixed' to have a separate window.
 --
+-- Removed in Gtk3. Use the Widget version.
 fixedSetHasWindow :: FixedClass self => self -> Bool -> IO ()
 fixedSetHasWindow self hasWindow =
   {# call fixed_set_has_window #}
@@ -164,6 +167,7 @@ fixedSetHasWindow self hasWindow =
 -- | Gets whether the 'Fixed' has its own 'DrawWindow'. See
 -- 'fixedSetHasWindow'.
 --
+-- Removed in Gtk3. Use the Widget version.
 fixedGetHasWindow :: FixedClass self => self -> IO Bool
 fixedGetHasWindow self =
   liftM toBool $
@@ -175,11 +179,12 @@ fixedGetHasWindow self =
 
 -- | \'hasWindow\' property. See 'fixedGetHasWindow' and 'fixedSetHasWindow'
 --
+-- Removed in Gtk3. Use the Widget version.
 fixedHasWindow :: FixedClass self => Attr self Bool
 fixedHasWindow = newAttr
   fixedGetHasWindow
   fixedSetHasWindow
-
+#endif
 --------------------
 -- Child Attributes
 

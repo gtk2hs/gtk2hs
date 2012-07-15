@@ -3,9 +3,11 @@
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>         
+#include <gdk/gdk.h>
 #include "template-hsc-gtk2hs.h"
-
+#if !defined(WIN32) && !HAVE_QUARTZ_GTK
+#include <gtk/gtkx.h>
+#endif
 --  GIMP Toolkit (GTK) Structures
 --
 --  Author : Axel Simon
@@ -35,19 +37,23 @@ module Graphics.UI.Gtk.General.Structs (
   Point,
   Rectangle(..),
   Color(..),
+#if GTK_MAJOR_VERSION < 3
   GCValues(..),
   pokeGCValues,
   newGCValues,
   widgetGetState,
   widgetGetSavedState,
+#endif
   Allocation,
   Requisition(..),
   treeIterSize,
   textIterSize,
   inputError,
+#if GTK_MAJOR_VERSION < 3
   dialogGetUpper,
   dialogGetActionArea,
   fileSelectionGetButtons,
+#endif
   ResponseId(..),
   fromResponse,
   toResponse,
@@ -58,12 +64,15 @@ module Graphics.UI.Gtk.General.Structs (
   nativeWindowIdNone,
 #endif
   drawableGetID,
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   toolbarChildButton,
   toolbarChildToggleButton,
   toolbarChildRadioButton,
 #endif
+#endif
   IconSize(..),
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   comboGetList,
 #endif
@@ -71,6 +80,7 @@ module Graphics.UI.Gtk.General.Structs (
   widgetGetSize,
   layoutGetDrawWindow,
   windowGetFrame,
+#endif
   styleGetForeground,
   styleGetBackground,
   styleGetLight,
@@ -79,6 +89,7 @@ module Graphics.UI.Gtk.General.Structs (
   styleGetText,
   styleGetBase,
   styleGetAntiAliasing,
+#if GTK_MAJOR_VERSION < 3
   colorSelectionDialogGetColor,
   colorSelectionDialogGetOkButton,
   colorSelectionDialogGetCancelButton,
@@ -89,6 +100,7 @@ module Graphics.UI.Gtk.General.Structs (
   dragContextSetSuggestedAction,
   dragContextGetAction,
   dragContextSetAction,
+#endif
   SortColumnId,
   treeSortableDefaultSortColumnId,
   tagInvalid,
@@ -99,7 +111,9 @@ module Graphics.UI.Gtk.General.Structs (
   selectionTypeAtom,
   selectionTypeInteger,
   selectionTypeString,
+#if GTK_MAJOR_VERSION < 3
   selectionDataGetType,
+#endif
   withTargetEntries,
   KeymapKey (..)
   ) where
@@ -113,8 +127,6 @@ import System.Glib.UTFString ( UTFCorrection, ofsToUTF )
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Types
-import Graphics.UI.Gtk.Gdk.Enums	(Function, Fill, SubwindowMode,
-					 LineStyle, CapStyle, JoinStyle)
 import Graphics.UI.Gtk.General.Enums	(StateType)
 import Graphics.UI.Gtk.General.DNDTypes (InfoId, Atom(Atom) , SelectionTag,
                                          TargetTag, SelectionTypeTag)
@@ -183,13 +195,14 @@ foreign import ccall unsafe "gdk_colormap_query_color"
   gdkColormapQueryColor :: Ptr ColorMap -> CULong -> Ptr Color -> IO ()
 
 -- entry GC
-
+#if GTK_MAJOR_VERSION < 3
 -- | Intermediate data structure for 'GC's.
 --
 -- * If @graphicsExposure@ is set then copying portions into a
 --   drawable will generate an @\"exposure\"@ event, even if the
 --   destination area is not currently visible.
 --
+-- Removed in Gtk3.
 data GCValues = GCValues {
   foreground :: Color,
   background :: Color,
@@ -370,6 +383,7 @@ pokeGCValues ptr (GCValues {
 -- * Use this value instead of the constructor to avoid compiler wanings
 --   about uninitialized fields.
 --
+-- Removed in Gtk3.
 newGCValues :: GCValues
 newGCValues = GCValues {
     foreground = undefined,
@@ -390,14 +404,16 @@ newGCValues = GCValues {
     capStyle   = undefined,
     joinStyle  = undefined
   }
+#endif
 
 -- Widget related methods
-
+#if GTK_MAJOR_VERSION < 3
 -- | Retrieve the current state of the widget.
 --
 -- * The state refers to different modes of user interaction, see
 --   'StateType' for more information.
 --
+-- Removed in Gtk3.
 widgetGetState :: WidgetClass w => w -> IO StateType
 widgetGetState w =
   liftM (\x -> toEnum (fromIntegral (x :: #gtk2hs_type guint8))) $
@@ -408,11 +424,12 @@ widgetGetState w =
 -- * If a widget is turned insensitive, the previous state is stored in
 --   a specific location. This function retrieves this previous state.
 --
+-- Removed in Gtk3.
 widgetGetSavedState :: WidgetClass w => w -> IO StateType
 widgetGetSavedState w =
   liftM (\x -> toEnum (fromIntegral (x :: #gtk2hs_type guint8))) $
   withForeignPtr ((unWidget . toWidget) w) $ #{peek GtkWidget,saved_state}
-
+#endif
 
 -- | Allocation
 --
@@ -463,7 +480,7 @@ textIterSize :: Int
 textIterSize = #{const sizeof(GtkTextIter)}
 
 -- Dialog related methods
-
+#if GTK_MAJOR_VERSION < 3
 -- | Get the upper part of a dialog.
 --
 -- * The upper part of a dialog window consists of a 'VBox'.
@@ -482,6 +499,7 @@ dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
 dialogGetActionArea :: DialogClass dc => dc -> IO HBox
 dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area} 
+#endif
 
 -- | Some constructors that can be used as response
 -- numbers for dialogs.
@@ -582,8 +600,12 @@ fromNativeWindowId :: NativeWindowId -> Ptr a
 fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
-#else
+#elif GTK_MAJOR_VERSION < 3 || (!defined(WIN32) && !HAVE_QUARTZ_GTK)
+#if GTK_MAJOR_VERSION < 3
 newtype NativeWindowId = NativeWindowId #{gtk2hs_type GdkNativeWindow} deriving (Eq, Show)
+#else
+newtype NativeWindowId = NativeWindowId #{type Window} deriving (Eq, Show)
+#endif
 unNativeWindowId :: Integral a => NativeWindowId -> a
 unNativeWindowId (NativeWindowId id) = fromIntegral id
 toNativeWindowId :: Integral a => a -> NativeWindowId
@@ -595,19 +617,37 @@ nativeWindowIdNone = NativeWindowId 0
 #endif
 #endif
 
+#if GTK_MAJOR_VERSION < 3
 #if defined(WIN32)
 foreign import ccall unsafe "gdk_win32_drawable_get_handle" 
   gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
 #elif !defined(HAVE_QUARTZ_GTK)
 foreign import ccall unsafe "gdk_x11_drawable_get_xid" 
   gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
-#endif                                                                           
+#endif
+#else
+#if defined(WIN32)
+foreign import ccall unsafe "gdk_win32_drawable_get_handle"
+  gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
+#elif !defined(HAVE_QUARTZ_GTK)
+foreign import ccall unsafe "gdk_x11_window_get_xid" 
+  gdk_x11_drawable_get_xid :: (Ptr DrawWindow) -> IO CInt
+#endif
+#endif
 
--- | Get 'NativeWindowId' of 'Drawable'.                                  
+-- | Get 'NativeWindowId' of 'Drawable'.
+#if GTK_MAJOR_VERSION < 3
 drawableGetID :: DrawableClass d => d -> IO NativeWindowId
+#else
+drawableGetID :: DrawWindowClass d => d -> IO NativeWindowId
+#endif
 drawableGetID d =
   liftM toNativeWindowId $
+#if GTK_MAJOR_VERSION < 3
   (\(Drawable drawable) ->
+#else
+  (\(DrawWindow drawable) ->
+#endif
 #if defined(WIN32)
 #if GTK_CHECK_VERSION(2,14,0)
 #else
@@ -621,18 +661,26 @@ drawableGetID d =
 #else
      error "drawableGetID: not supported with a GTK using a Quartz backend"
 #endif
+#if GTK_MAJOR_VERSION < 3
   ) (toDrawable d)
+#else
+  ) (toDrawWindow d)
+#endif
 
+
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- Static values for different Toolbar widgets.
 --
 -- * c2hs and hsc should agree on types!
 --
+-- Removed in Gtk3.
 toolbarChildButton, toolbarChildToggleButton, toolbarChildRadioButton ::
   CInt -- \#gtk2hs_type GtkToolbarChildType
 toolbarChildButton       = #const GTK_TOOLBAR_CHILD_BUTTON
 toolbarChildToggleButton = #const GTK_TOOLBAR_CHILD_TOGGLEBUTTON
 toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
+#endif
 #endif
 
 -- | The size of an icon in pixels.
@@ -688,17 +736,19 @@ instance Enum IconSize where
   fromEnum (IconSizeUser n) = n
   
 -- entry Widget Combo
-
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- | Extract the List container from a 'Combo' box.
 --
+-- Removed in Gtk3.
 comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
 #endif
+#endif
 
 -- FileSelection related methods
-
+#if GTK_MAJOR_VERSION < 3
 -- | Extract the buttons of a fileselection.
 --
 fileSelectionGetButtons :: FileSelectionClass fsel => fsel -> 
@@ -711,7 +761,9 @@ fileSelectionGetButtons fsel =
   where
   butPtrToButton bp = makeNewObject mkButton $ liftM castPtr $
       withForeignPtr ((unFileSelection . toFileSelection) fsel) bp
+#endif
 
+#if GTK_MAJOR_VERSION < 3
 -- DrawingArea related methods
 
 -- | Retrieves the 'DrawWindow' that the widget draws onto.
@@ -723,6 +775,7 @@ fileSelectionGetButtons fsel =
 -- opportunity to use a widget's 'DrawWindow' as soon as it has been created
 -- but before the widget is displayed.
 --
+-- Removed in Gtk3.
 widgetGetDrawWindow :: WidgetClass widget => widget -> IO DrawWindow
 widgetGetDrawWindow da =
   withForeignPtr (unWidget.toWidget $ da) $ \da' -> do
@@ -735,6 +788,7 @@ widgetGetDrawWindow da =
 --
 -- * This information may be out of date if the user is resizing the window.
 --
+-- Removed in Gtk3.
 widgetGetSize :: WidgetClass widget => widget -> IO (Int, Int)
 widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
     (width :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, width} 
@@ -747,6 +801,7 @@ widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
 
 -- | Retrieves the 'Drawable' part.
 --
+-- Removed in Gtk3.
 layoutGetDrawWindow :: Layout -> IO DrawWindow
 layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
   withForeignPtr (unLayout lay) $
@@ -756,6 +811,7 @@ layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
 
 -- | Retrieves the frame 'DrawWindow' that contains a 'Window'.
 --
+-- Removed in Gtk3.
 windowGetFrame :: WindowClass widget => widget -> IO (Maybe DrawWindow)
 windowGetFrame da =
   withForeignPtr (unWidget.toWidget $ da) $ \da' -> do
@@ -763,7 +819,7 @@ windowGetFrame da =
   if drawWindowPtr == nullPtr
     then return Nothing
     else liftM Just $ makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
-
+#endif
 -- Styles related methods
 
 -- | Retrieve the the foreground color.
@@ -868,7 +924,10 @@ styleGetAntiAliasing st ty =
   withForeignPtr (unStyle st) $ \stPtr ->
     peekElemOff (#{ptr GtkStyle, text_aa} stPtr) (fromEnum ty)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Retrieve the ColorSelection object contained within the dialog.
+--
+-- Removed in Gtk3.
 colorSelectionDialogGetColor :: ColorSelectionDialog -> IO ColorSelection
 colorSelectionDialogGetColor cd =
   makeNewObject mkColorSelection $ liftM castPtr $
@@ -876,6 +935,8 @@ colorSelectionDialogGetColor cd =
       #{peek GtkColorSelectionDialog, colorsel}
 
 -- | Retrieve the OK button widget contained within the dialog.
+--
+-- Removed in Gtk3.
 colorSelectionDialogGetOkButton :: ColorSelectionDialog -> IO Button
 colorSelectionDialogGetOkButton cd =
   makeNewObject mkButton $ liftM castPtr $
@@ -883,6 +944,8 @@ colorSelectionDialogGetOkButton cd =
       #{peek GtkColorSelectionDialog, ok_button}
 
 -- | Retrieve the Cancel button widget contained within the dialog.
+--
+-- Removed in Gtk3.
 colorSelectionDialogGetCancelButton :: ColorSelectionDialog -> IO Button
 colorSelectionDialogGetCancelButton cd =
   makeNewObject mkButton $ liftM castPtr $
@@ -890,6 +953,8 @@ colorSelectionDialogGetCancelButton cd =
       #{peek GtkColorSelectionDialog, cancel_button}
 
 -- | Retrieve the Help button widget contained within the dialog.
+--
+-- Removed in Gtk3.
 colorSelectionDialogGetHelpButton :: ColorSelectionDialog -> IO Button
 colorSelectionDialogGetHelpButton cd =
   makeNewObject mkButton $ liftM castPtr $
@@ -919,6 +984,7 @@ dragContextGetSuggestedAction dc = liftM (fromIntegral :: #{gtk2hs_type int} -> 
 dragContextSetSuggestedAction :: DragContext -> Int -> IO ()
 dragContextSetSuggestedAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
   #{poke GdkDragContext, suggested_action} ptr (fromIntegral val :: #{gtk2hs_type int})
+#endif
 
 -- | ID number of a sort column.
 --
@@ -971,11 +1037,13 @@ selectionTypeInteger = intToAtom #{const GDK_SELECTION_TYPE_INTEGER}
 selectionTypeString :: SelectionTypeTag
 selectionTypeString = intToAtom #{const GDK_SELECTION_TYPE_STRING}
 
+#if GTK_MAJOR_VERSION < 3
 -- | Extract the type field of SelectionData*. This should be in the
 --   Selection modules but c2hs chokes on the 'type' field.
 selectionDataGetType :: Ptr () -> IO SelectionTypeTag
 selectionDataGetType selPtr =
   liftM intToAtom $ #{peek GtkSelectionData, type} selPtr
+#endif
 
 -- A type that identifies a target. This is needed to marshal arrays of
 -- GtkTargetEntries.

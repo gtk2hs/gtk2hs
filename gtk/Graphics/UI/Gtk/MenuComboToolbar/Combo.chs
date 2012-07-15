@@ -31,8 +31,9 @@
 -- A text entry field with a dropdown list
 --
 -- * Warning: this module is deprecated and should not be used in
--- newly-written code.
+-- newly-written code. 
 --
+-- This module is empty in Gtk3 as Combo has been removed.
 module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 -- * Detail
 -- 
@@ -63,6 +64,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 -- |                                 +----Combo
 -- @
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- * Types
   Combo,
@@ -88,8 +90,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
   comboAllowEmpty,
   comboValueInList,
 #endif
+#endif
   ) where
 
+#if GTK_MAJOR_VERSION < 3
 import Control.Monad	(liftM, mapM_)
 
 import System.Glib.FFI
@@ -231,4 +235,5 @@ comboAllowEmpty = newAttrFromBoolProperty "allow-empty"
 --
 comboValueInList :: ComboClass self => Attr self Bool
 comboValueInList = newAttrFromBoolProperty "value-in-list"
+#endif
 #endif

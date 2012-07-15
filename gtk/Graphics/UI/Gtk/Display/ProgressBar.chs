@@ -77,16 +77,20 @@ module Graphics.UI.Gtk.Display.ProgressBar (
   progressBarGetFraction,
   progressBarGetPulseStep,
   progressBarGetText,
+#if GTK_MAJOR_VERSION < 3
   ProgressBarOrientation(..),
   progressBarSetOrientation,
   progressBarGetOrientation,
+#endif
 #if GTK_CHECK_VERSION(2,6,0)
   progressBarSetEllipsize,
   progressBarGetEllipsize,
 #endif
 
 -- * Attributes
+#if GTK_MAJOR_VERSION < 3
   progressBarOrientation,
+#endif
   progressBarDiscreteBlocks,
   progressBarFraction,
   progressBarPulseStep,
@@ -104,7 +108,9 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
+#endif
 #if GTK_CHECK_VERSION(2,6,0)
 import Graphics.Rendering.Pango.Enums	(EllipsizeMode(..))
 #endif
@@ -195,6 +201,7 @@ progressBarGetText self =
     (toProgressBar self)
   >>= maybePeek peekUTFString
 
+#if GTK_MAJOR_VERSION < 3
 -- | Causes the progress bar to switch to a different orientation
 -- (left-to-right, right-to-left, top-to-bottom, or bottom-to-top).
 --
@@ -211,6 +218,7 @@ progressBarGetOrientation self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe progress_bar_get_orientation #}
     (toProgressBar self)
+#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Sets the mode used to ellipsize (add an ellipsis: \"...\") the text if
@@ -238,15 +246,17 @@ progressBarGetEllipsize self =
 
 --------------------
 -- Attributes
-
+#if GTK_MAJOR_VERSION < 3
 -- | Orientation and growth direction of the progress bar.
 --
 -- Default value: 'ProgressLeftToRight'
 --
+-- Removed in Gtk3.
 progressBarOrientation :: ProgressBarClass self => Attr self ProgressBarOrientation
 progressBarOrientation = newAttr
   progressBarGetOrientation
   progressBarSetOrientation
+#endif
 
 -- | The number of discrete blocks in a progress bar (when shown in the
 -- discrete style).

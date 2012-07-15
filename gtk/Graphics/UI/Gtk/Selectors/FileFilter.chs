@@ -84,6 +84,8 @@ import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
+-- Back in <X.h> DestroyNotify is defined as 17
+#undef DestroyNotify
 import System.Glib.GObject              (DestroyNotify, destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)

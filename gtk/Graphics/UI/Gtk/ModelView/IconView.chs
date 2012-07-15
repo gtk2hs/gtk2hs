@@ -72,8 +72,10 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewSelectedForeach,
   iconViewSetSelectionMode,
   iconViewGetSelectionMode,
+#if GTK_MAJOR_VERSION < 3
   iconViewSetOrientation,
   iconViewGetOrientation,
+#endif
   iconViewSetColumns,
   iconViewGetColumns,
   iconViewSetItemWidth,
@@ -348,6 +350,7 @@ iconViewGetSelectionMode self =
   {# call gtk_icon_view_get_selection_mode #}
     (toIconView self)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Sets the ::orientation property which determines whether the labels are
 -- drawn beside the icons instead of below.
 --
@@ -368,6 +371,7 @@ iconViewGetOrientation self =
   liftM (toEnum . fromIntegral) $
   {# call gtk_icon_view_get_orientation #}
     (toIconView self)
+#endif
 
 -- %hash c:7d23 d:d4e7
 -- | Sets the ::columns property which determines in how many columns the

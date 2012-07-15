@@ -87,7 +87,9 @@ instance CellLayoutClass IconView
 instance CellLayoutClass EntryCompletion
 instance CellLayoutClass TreeViewColumn
 instance CellLayoutClass ComboBox
+#if GTK_MAJOR_VERSION < 3
 instance CellLayoutClass ComboBoxEntry
+#endif
 
 --------------------
 -- Methods

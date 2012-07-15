@@ -72,7 +72,9 @@ module Graphics.UI.Gtk.Buttons.LinkButton (
   linkButtonNewWithLabel,
 
 -- * Methods
+#if GTK_MAJOR_VERSION < 3
   linkButtonSetUriHook,
+#endif
 
 -- * Attributes
   linkButtonURI,
@@ -128,13 +130,14 @@ linkButtonNewWithLabel uri label =
 
 --------------------
 -- Methods
-
+#if GTK_MAJOR_VERSION < 3
 -- | Sets @func@ as the function that should be invoked every time a user
 -- clicks a 'LinkButton'. This function is called before every callback
 -- registered for the 'buttonClicked' signal.
 --
 -- If no uri hook has been set, Gtk+ defaults to calling 'showURI'.
 --
+-- Removed in Gtk3.
 linkButtonSetUriHook :: (String -> IO ()) -> IO ()
 linkButtonSetUriHook func = do
   pfPtr <- mkLinkButtonUriFunc $ \_ cstr _  -> do
@@ -148,6 +151,7 @@ linkButtonSetUriHook func = do
 foreign import ccall "wrapper" mkLinkButtonUriFunc ::
   (Ptr LinkButton -> CString -> Ptr () -> IO ())
   -> IO LinkButtonUriFunc
+#endif
 
 --------------------
 -- Attributes

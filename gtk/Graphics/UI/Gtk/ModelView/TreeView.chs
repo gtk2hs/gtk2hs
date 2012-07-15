@@ -146,7 +146,9 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewConvertWidgetToBinWindowCoords,
   treeViewConvertWidgetToTreeCoords,
 #endif
+#if GTK_MAJOR_VERSION < 3
   treeViewCreateRowDragIcon,
+#endif
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
   treeViewGetSearchColumn,
@@ -235,9 +237,10 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
+#if GTK_MAJOR_VERSION < 3
   treeViewWidgetToTreeCoords,
   treeViewTreeToWidgetCoords,
-
+#endif
   onColumnsChanged,
   afterColumnsChanged,
   onCursorChanged,
@@ -962,6 +965,7 @@ treeViewGetVisibleRect self =
   peek rPtr
 
 #ifndef DISABLE_DEPRECATED
+#if GTK_MAJOR_VERSION < 3
 -- | 'treeViewTreeToWidgetCoords' has been deprecated since version 2.12 and should not be used in
 -- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
 -- bin window coordinates to coordinates relative to bin window, please see
@@ -970,6 +974,7 @@ treeViewGetVisibleRect self =
 -- Converts tree coordinates (coordinates in full scrollable area of the tree) to bin window
 -- coordinates.
 --
+-- Removed in Gtk3.
 treeViewTreeToWidgetCoords :: TreeViewClass self => self
  -> Point    -- ^ @(tx, ty)@ - tree X and Y coordinates
  -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates
@@ -993,6 +998,7 @@ treeViewTreeToWidgetCoords self (tx, ty) =
 -- 
 -- Converts bin window coordinates to coordinates for the tree (the full scrollable area of the tree).
 --
+-- Removed in Gtk3.
 treeViewWidgetToTreeCoords :: TreeViewClass self => self
  -> Point    -- ^ @(wx, wy)@ - widget X and Y coordinates
  -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates
@@ -1008,6 +1014,7 @@ treeViewWidgetToTreeCoords self (wx, wy) =
   tx <- peek txPtr
   ty <- peek tyPtr
   return (fromIntegral tx, fromIntegral ty)
+#endif
 #endif
 
 #if GTK_CHECK_VERSION(2,12,0)
@@ -1115,9 +1122,11 @@ treeViewConvertWidgetToTreeCoords self (wx, wy) =
   return (fromIntegral tx, fromIntegral ty)
 #endif
 
+#if GTK_MAJOR_VERSION < 3
 -- | Creates a 'Pixmap' representation of the row at the given path. This image
 -- can be used for a drag icon.
 --
+-- Removed in Gtk3.
 treeViewCreateRowDragIcon :: TreeViewClass self => self
  -> TreePath
  -> IO Pixmap
@@ -1127,6 +1136,7 @@ treeViewCreateRowDragIcon self path =
   {# call unsafe tree_view_create_row_drag_icon #}
     (toTreeView self)
     path
+#endif
 
 -- | Returns whether or not the tree allows to start interactive searching by
 -- typing in text.

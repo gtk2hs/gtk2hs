@@ -66,8 +66,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   ExtensionMode(..),
   GType,
   KeyVal,
+#if GTK_MAJOR_VERSION < 3
   Region,
   Bitmap,
+#endif
   Requisition(..),
   Rectangle(..),
   Color,
@@ -82,9 +84,13 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- * Methods
   widgetShow,
   widgetShowNow,
+#if GTK_MAJOR_VERSION < 3
   widgetHide,
+#endif
   widgetShowAll,
+#if GTK_MAJOR_VERSION < 3
   widgetHideAll,
+#endif
   widgetDestroy,
   widgetQueueDraw,
   widgetQueueResize,
@@ -111,42 +117,54 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetSensitive,
   widgetSetSensitivity,
   widgetGetParentWindow,
+#if GTK_MAJOR_VERSION < 3
   widgetGetDrawWindow,
+#endif
   widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
   widgetSetEvents,
+#if GTK_MAJOR_VERSION < 3
   widgetSetExtensionEvents,
   widgetGetExtensionEvents,
+#endif
   widgetGetToplevel,
   widgetGetAncestor,
+#if GTK_MAJOR_VERSION < 3
   widgetGetColormap,
   widgetSetColormap,
+#endif
   widgetGetPointer,
   widgetIsAncestor,
   widgetTranslateCoordinates,
   widgetSetStyle,
   widgetGetStyle,
+#if GTK_MAJOR_VERSION < 3
   widgetPushColormap,
   widgetPopColormap,
   widgetSetDefaultColormap,
-  widgetGetDefaultStyle,
   widgetGetDefaultColormap,
+#endif
+  widgetGetDefaultStyle,
   widgetSetDirection,
   widgetGetDirection,
   widgetSetDefaultDirection,
   widgetGetDefaultDirection,
+#if GTK_MAJOR_VERSION < 3
   widgetShapeCombineMask,
 #if GTK_CHECK_VERSION(2,10,0)
   widgetInputShapeCombineMask,
+#endif
 #endif
 #if GTK_CHECK_VERSION(2,12,0)
   widgetGetTooltipWindow,
   widgetSetTooltipWindow,
   widgetTriggerTooltipQuery,
 #endif
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
   widgetGetSnapshot,
+#endif
 #endif
   widgetPath,
   widgetClassPath,
@@ -167,13 +185,17 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetCreateLayout,
   widgetRenderIcon,
   widgetQueueDrawArea,
+#if GTK_MAJOR_VERSION < 3
   widgetResetShapes,
+#endif
   widgetSetAppPaintable,
   widgetSetDoubleBuffered,
   widgetSetRedrawOnAllocate,
   widgetSetCompositeName,
+#if GTK_MAJOR_VERSION < 3
   widgetSetScrollAdjustments,
   widgetRegionIntersect,
+#endif
   widgetGetAccessible,
   widgetChildFocus,
   widgetGetChildVisible,
@@ -196,7 +218,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetAddMnemonicLabel,
   widgetRemoveMnemonicLabel,
 #if GTK_CHECK_VERSION(2,10,0)
+#if GTK_MAJOR_VERSION < 3
   widgetGetAction,
+#endif
   widgetIsComposited,
 #endif
 #endif
@@ -208,8 +232,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #endif
   widgetGetState,
   widgetSetState,
+#if GTK_MAJOR_VERSION < 3
   widgetGetSavedState,
   widgetGetSize,
+#endif
   widgetEvent,
 
 -- * Attributes
@@ -230,10 +256,14 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetStyle,
   widgetState,
   widgetEvents,
+#if GTK_MAJOR_VERSION < 3
   widgetExtensionEvents,
+#endif
   widgetNoShowAll,
   widgetChildVisible,
+#if GTK_MAJOR_VERSION < 3
   widgetColormap,
+#endif
   widgetCompositeName,
   widgetDirection,
   widgetTooltipMarkup,
@@ -390,16 +420,27 @@ import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
-{#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
-{#import Graphics.UI.Gtk.Gdk.Pixmap#} (Bitmap)
+{#import Graphics.UI.Gtk.Gdk.Region#}	(
+#if GTK_MAJOR_VERSION < 3
+    Region(..), makeNewRegion
+#endif
+    )
+{#import Graphics.UI.Gtk.Gdk.Pixmap#} (
+#if GTK_MAJOR_VERSION < 3
+    Bitmap
+#endif
+    )
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize(..)
                                         ,Point
 #if !GTK_CHECK_VERSION(2,18,0)
                                         ,widgetGetState
 #endif
+#if GTK_MAJOR_VERSION < 3
                                         ,widgetGetSavedState
-					,widgetGetDrawWindow, widgetGetSize)
+					,widgetGetDrawWindow, widgetGetSize
+#endif
+					)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
   marshExposeRect,
   EventButton,
@@ -479,6 +520,7 @@ widgetShowNow self =
   {# call widget_show_now #}
     (toWidget self)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Reverses the effects of 'widgetShow', causing the widget to be hidden
 -- (invisible to the user).
 --
@@ -486,6 +528,7 @@ widgetHide :: WidgetClass self => self -> IO ()
 widgetHide self =
   {# call widget_hide #}
     (toWidget self)
+#endif
 
 -- | Recursively shows a widget, and any child widgets (if the widget is a
 -- container).
@@ -495,12 +538,15 @@ widgetShowAll self =
   {# call widget_show_all #}
     (toWidget self)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Recursively hides a widget and any child widgets.
 --
+-- Removed in Gtk3.
 widgetHideAll :: WidgetClass self => self -> IO ()
 widgetHideAll self =
   {# call widget_hide_all #}
     (toWidget self)
+#endif
 
 -- | Destroys a widget. Equivalent to
 --   'Graphics.UI.Gtk.Abstract.Object.objectDestroy'.
@@ -893,6 +939,7 @@ widgetSetEvents self events =
     (toWidget self)
     (fromIntegral $ fromFlags events)
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:4f2c d:781
 -- | Sets the extension events mask to @mode@. See 'ExtensionMode' and
 -- 'inputSetExtensionEvents'.
@@ -915,6 +962,7 @@ widgetGetExtensionEvents self =
   liftM (toFlags . fromIntegral) $
   {# call widget_get_extension_events #}
     (toWidget self)
+#endif
 
 -- %hash c:270b d:8877
 -- | This function returns the topmost widget in the container hierarchy
@@ -949,7 +997,7 @@ widgetGetAncestor self widgetType = do
   if ptr==nullPtr then return Nothing else
     liftM Just $ makeNewObject mkWidget (return ptr)
 
-
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:bd95 d:eb94
 -- | Gets the colormap that will be used to render @widget@.
 --
@@ -972,6 +1020,7 @@ widgetSetColormap self colormap =
   {# call gtk_widget_set_colormap #}
     (toWidget self)
     colormap
+#endif
 
 -- %hash c:3522 d:5637
 -- | Obtains the location of the mouse pointer in widget coordinates. Widget
@@ -1060,6 +1109,7 @@ widgetGetStyle widget = do
   {# call gtk_widget_ensure_style #} (toWidget widget)
   makeNewGObject mkStyle $ {# call gtk_widget_get_style #} (toWidget widget)
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:d5ed d:dc10
 -- | Pushes @cmap@ onto a global stack of colormaps; the topmost colormap on
 -- the stack will be used to create all widgets. Remove @cmap@ with
@@ -1090,6 +1140,7 @@ widgetSetDefaultColormap ::
 widgetSetDefaultColormap colormap =
   {# call gtk_widget_set_default_colormap #}
     colormap
+#endif
 
 -- %hash c:e71b d:72c2
 -- | Returns the default style used by all widgets initially.
@@ -1101,6 +1152,7 @@ widgetGetDefaultStyle =
   makeNewGObject mkStyle $
   {# call gtk_widget_get_default_style #}
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:d731 d:52bf
 -- | Obtains the default colormap used to create widgets.
 --
@@ -1109,6 +1161,7 @@ widgetGetDefaultColormap ::
 widgetGetDefaultColormap =
   makeNewGObject mkColormap $
   {# call gtk_widget_get_default_colormap #}
+#endif
 
 -- | Sets the reading direction on a particular widget. This direction
 -- controls the primary direction for widgets containing text, and also the
@@ -1157,6 +1210,7 @@ widgetGetDefaultDirection =
   liftM (toEnum . fromIntegral) $
   {# call gtk_widget_get_default_direction #}
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:c7ba d:3a9c
 -- | Sets a shape for this widget's 'DrawWindow'. This allows for transparent
 -- windows etc., see 'windowShapeCombineMask' for more information.
@@ -1175,7 +1229,9 @@ widgetShapeCombineMask self shapeMask offsetX offsetY =
         (castPtr bitmapPtr)
         (fromIntegral offsetX)
         (fromIntegral offsetY)
+#endif
 
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:3c29 d:68e2
 -- | Sets an input shape for this widget's GDK window. This allows for windows
@@ -1198,6 +1254,7 @@ widgetInputShapeCombineMask self shapeMask offsetX offsetY =
         (castPtr bitmapPtr)
         (fromIntegral offsetX)
         (fromIntegral offsetY)
+#endif
 #endif
 
 #if GTK_CHECK_VERSION(2,12,0)
@@ -1241,6 +1298,7 @@ widgetTriggerTooltipQuery self =
     (toWidget self)
 #endif
 
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
 -- | Create a 'Pixmap' of the contents of the widget and its children.
 -- 
@@ -1271,6 +1329,7 @@ widgetGetSnapshot widget clipRect =
   {#call gtk_widget_get_snapshot #}
      (toWidget widget)
      (castPtr clipRectPtr)
+#endif
 #endif
 
 -- %hash c:7e36 d:616f
@@ -1657,6 +1716,7 @@ widgetQueueDrawArea self x y width height =
     (fromIntegral width)
     (fromIntegral height)
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:5ffb d:3e1a
 -- | Recursively resets the shape on this widget and its descendants.
 --
@@ -1664,6 +1724,7 @@ widgetResetShapes :: WidgetClass self => self -> IO ()
 widgetResetShapes self =
   {# call gtk_widget_reset_shapes #}
     (toWidget self)
+#endif
 
 -- | Sets whether the application intends to draw on the widget in response
 --   to an 'onExpose' signal.
@@ -1752,12 +1813,14 @@ widgetSetCompositeName self name =
     (toWidget self)
     namePtr
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:5c58 d:6895
 -- | For widgets that support scrolling, sets the scroll adjustments and
 -- returns @True@. For widgets that don't support scrolling, does nothing and
 -- returns @False@. Widgets that don't support scrolling can be scrolled by
 -- placing them in a 'Viewport', which does support scrolling.
 --
+-- Removed in Gtk3. 
 widgetSetScrollAdjustments :: WidgetClass self => self
  -> Maybe Adjustment -- ^ @hadjustment@ - an adjustment for horizontal scrolling, or
                -- @Nothing@
@@ -1770,7 +1833,10 @@ widgetSetScrollAdjustments self hadjustment vadjustment =
     (toWidget self)
     (fromMaybe (Adjustment nullForeignPtr) hadjustment)
     (fromMaybe (Adjustment nullForeignPtr) vadjustment)
+#endif
 
+
+#if GTK_MAJOR_VERSION < 3
 -- | Computes the intersection of a widget's area and @region@, returning
 -- the intersection. The result may be empty, use
 -- 'Graphics.UI.Gtk.Gdk.Region.regionEmpty' to check.
@@ -1790,6 +1856,7 @@ widgetRegionIntersect self region = do
     (toWidget self)
     region
   makeNewRegion intersectionPtr
+#endif
 
 -- %hash c:3c94 d:cdb6
 -- | Returns the accessible object that describes the widget to an assistive
@@ -1805,10 +1872,19 @@ widgetRegionIntersect self region = do
 -- The documentation of the ATK library contains more information about
 -- accessible objects and their uses.
 --
+-- Returns a GObject in Gtk3.
 widgetGetAccessible :: WidgetClass self => self
+#if GTK_MAJOR_VERSION < 3
  -> IO Object -- ^ returns the 'Object' associated with @widget@
+#else
+ -> IO GObject -- ^ returns the 'GObject' associated with @widget@
+#endif
 widgetGetAccessible self =
+#if GTK_MAJOR_VERSION < 3
   makeNewGObject mkObject $
+#else
+  makeNewGObject mkGObject $
+#endif
   liftM castPtr $
   {# call gtk_widget_get_accessible #}
     (toWidget self)
@@ -2136,12 +2212,14 @@ widgetRemoveMnemonicLabel self label =
     (toWidget label)
 
 #if GTK_CHECK_VERSION(2,10,0)
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:5c70 d:cbf9
 -- | Returns the 'Action' that @widget@ is a proxy for. See also
 -- 'actionGetProxies'.
 --
 -- * Available since Gtk+ version 2.10
 --
+-- Removed in Gtk3.
 widgetGetAction :: WidgetClass self => self
  -> IO (Maybe Action)
    -- ^ returns the action that a widget is a proxy for, or
@@ -2150,6 +2228,7 @@ widgetGetAction self = do
   ptr <- {# call gtk_widget_get_action #} (toWidget self)
   if ptr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkAction (return ptr)
+#endif
 
 -- %hash c:7ea0 d:2560
 -- | Whether @widget@ can rely on having its alpha channel drawn correctly. On
@@ -2380,15 +2459,18 @@ widgetEvents :: WidgetClass self => Attr self [EventMask]
 widgetEvents = newAttrFromFlagsProperty "events"
                  {# call pure unsafe gdk_event_mask_get_type #}
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:ba80
 -- | The mask that decides what kind of extension events this widget gets.
 --
 -- Default value: 'ExtensionEventsNone'
 --
+-- Removed in Gtk3.
 widgetExtensionEvents :: WidgetClass self => Attr self [ExtensionMode]
 widgetExtensionEvents = newAttr
   widgetGetExtensionEvents
   widgetSetExtensionEvents
+#endif
 
 -- %hash c:1605 d:48ea
 -- | Whether 'widgetShowAll' should not affect this widget.
@@ -2407,13 +2489,16 @@ widgetChildVisible = newAttr
   widgetGetChildVisible
   widgetSetChildVisible
 
+#if GTK_MAJOR_VERSION < 3
 -- %hash c:a20a d:646f
 -- | \'colormap\' property. See 'widgetGetColormap' and 'widgetSetColormap'
 --
+-- Removed in Gtk3.
 widgetColormap :: WidgetClass self => Attr self Colormap
 widgetColormap = newAttr
   widgetGetColormap
   widgetSetColormap
+#endif
 
 -- %hash c:a7fd d:55b8
 -- | \'compositeName\' property. See 'widgetGetCompositeName' and

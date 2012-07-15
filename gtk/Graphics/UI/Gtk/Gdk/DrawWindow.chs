@@ -54,32 +54,42 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
 -- * Methods
   drawWindowGetState,
   drawWindowScroll,
+#if GTK_MAJOR_VERSION < 3
   drawWindowClear,
   drawWindowClearArea,
   drawWindowClearAreaExpose,
+#endif
   drawWindowRaise,
   drawWindowLower,
   drawWindowBeginPaintRect,
+#if GTK_MAJOR_VERSION < 3
   drawWindowBeginPaintRegion,
+#endif
   drawWindowEndPaint,
   drawWindowInvalidateRect,
+#if GTK_MAJOR_VERSION < 3
   drawWindowInvalidateRegion,
   drawWindowGetUpdateArea,
+#endif
   drawWindowFreezeUpdates,
   drawWindowThawUpdates,
   drawWindowProcessUpdates,
 #if GTK_CHECK_VERSION(2,4,0)
   drawWindowSetAcceptFocus,
 #endif
+#if GTK_MAJOR_VERSION < 3
   drawWindowShapeCombineMask,
   drawWindowShapeCombineRegion,
+#endif
   drawWindowSetChildShapes,
   drawWindowMergeChildShapes,
   drawWindowGetPointer,
   drawWindowGetPointerPos,
   drawWindowGetOrigin,
   drawWindowSetCursor,
+#if GTK_MAJOR_VERSION < 3
   drawWindowForeignNew,
+#endif
   drawWindowGetDefaultRootWindow,
   ) where
 
@@ -93,7 +103,11 @@ import System.Glib.GObject              (wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
 {#import Graphics.UI.Gtk.Gdk.Cursor#}
-import Graphics.UI.Gtk.Gdk.EventM	(Modifier, eventRegion)
+import Graphics.UI.Gtk.Gdk.EventM	(Modifier,
+#if GTK_MAJOR_VERSION < 3
+    eventRegion,
+#endif
+    )
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
@@ -130,9 +144,10 @@ drawWindowScroll self dx dy =
      (fromIntegral dx)
      (fromIntegral dy)
 
-
+#if GTK_MAJOR_VERSION < 3
 -- | Clears an entire @DrawWindow@ to the background color or background pixmap.
 -- 
+-- Removed in Gtk3.
 drawWindowClear :: DrawWindowClass self => self -> IO ()
 drawWindowClear self =
   {# call gdk_window_clear #}
@@ -140,6 +155,7 @@ drawWindowClear self =
 
 -- | Clears an area of @DrawWindow@ to the background color or background pixmap.
 -- 
+-- Removed in Gtk3. 
 drawWindowClearArea :: DrawWindowClass self => self
  -> Int   -- ^ @x@ - x coordinate of rectangle to clear
  -> Int   -- ^ @y@ - y coordinate of rectangle to clear
@@ -157,6 +173,7 @@ drawWindowClearArea self x y width height =
 -- | Like 'drawWindowClearArea', but also generates an expose event for the
 -- cleared area.
 -- 
+-- Removed in Gtk3.
 drawWindowClearAreaExpose :: DrawWindowClass self => self
  -> Int   -- ^ @x@ - x coordinate of rectangle to clear
  -> Int   -- ^ @y@ - y coordinate of rectangle to clear
@@ -170,6 +187,7 @@ drawWindowClearAreaExpose self x y width height =
      (fromIntegral y)
      (fromIntegral width)
      (fromIntegral height)
+#endif
 
 -- | Raises @DrawWindow@ to the top of the Z-order (stacking order), so that other
 -- drawWindows with the same parent drawWindow appear below @DrawWindow@. This is true
@@ -220,6 +238,7 @@ drawWindowBeginPaintRect :: DrawWindowClass self => self
 drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
   {#call gdk_window_begin_paint_rect#} (toDrawWindow self) (castPtr rectPtr)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Indicate that you are beginning the process of redrawing @region@.
 --
 -- * A
@@ -257,6 +276,7 @@ drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
 -- matching call to 'drawWindowEndPaint' is required for each call to
 -- 'drawWindowBeginPaintRegion'.
 -- 
+-- Removed in Gtk3.
 drawWindowBeginPaintRegion :: DrawWindowClass self => self
  -> Region -- ^ @region@ - region you intend to draw to
  -> IO ()
@@ -264,6 +284,7 @@ drawWindowBeginPaintRegion self region =
   {# call gdk_window_begin_paint_region #}
      (toDrawWindow self)
      region
+#endif
 
 -- | Signal that drawing has finished.
 --
@@ -293,6 +314,7 @@ drawWindowInvalidateRect self rect invalidateChildren =
      (castPtr rectPtr)
      (fromBool invalidateChildren)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Adds @region@ to the update area for @DrawWindow@. The update area is the
 -- region that needs to be redrawn, or \"dirty region.\". During the
 -- next idle period of the main look, an expose even for this region
@@ -313,7 +335,9 @@ drawWindowInvalidateRegion self region invalidateChildren =
      (toDrawWindow self)
      region
      (fromBool invalidateChildren)
+#endif
 
+#if GTK_MAJOR_VERSION < 3
 -- | Ask for the dirty region of this window.
 --
 -- * Transfers ownership of the update area from @DrawWindow@ to the caller of the
@@ -321,11 +345,13 @@ drawWindowInvalidateRegion self region invalidateChildren =
 -- an invalid\/dirty region; the update area is removed from @DrawWindow@ and
 -- handed to you. If this window has no update area, 'drawWindowGetUpdateArea' returns 'Nothing'.
 -- 
+-- Removed in Gtk3.
 drawWindowGetUpdateArea :: DrawWindowClass self => self
  -> IO (Maybe Region) -- ^ returns the update area for @DrawWindow@
 drawWindowGetUpdateArea self = do
   reg <- {# call gdk_window_get_update_area #} (toDrawWindow self)
   if reg==nullPtr then return Nothing else liftM Just (makeNewRegion reg)
+#endif
 
 -- | Temporarily freezes a drawWindow such that it won\'t receive expose events.
 --  * The drawWindow will begin receiving expose events again when 
@@ -384,6 +410,7 @@ drawWindowSetAcceptFocus self acceptFocus =
      (fromBool acceptFocus)
 #endif
 
+#if GTK_MAJOR_VERSION < 3
 -- | Applies a shape mask to window. Pixels in window corresponding to set
 --   bits in the mask will be visible; pixels in window corresponding to
 --   unset bits in the mask will be transparent. This gives a non-rectangular
@@ -421,8 +448,9 @@ drawWindowShapeCombineMask self Nothing offsetX offsetY =
      nullPtr
      (fromIntegral offsetX)
      (fromIntegral offsetY)
+#endif
 
-
+#if GTK_MAJOR_VERSION < 3
 -- | Makes pixels in @DrawWindow@ outside @shapeRegion@ transparent.
 --
 -- * Makes pixels in @DrawWindow@ outside @shapeRegion@ transparent, so that
@@ -458,6 +486,7 @@ drawWindowShapeCombineRegion self Nothing offsetX offsetY =
      (Region nullForeignPtr)
      (fromIntegral offsetX)
      (fromIntegral offsetY)
+#endif
 
 -- | Sets the shape mask of @DrawWindow@ to the union of shape masks for all
 -- children of @DrawWindow@, ignoring the shape mask of @DrawWindow@ itself. Contrast
@@ -566,12 +595,16 @@ drawWindowSetCursor self cursor =
     self
     (fromMaybe (Cursor nullForeignPtr) cursor)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Get the handle to an exising window of the windowing system. The
 -- passed-in handle is a reference to a native window, that is, an Xlib XID
 -- for X windows and a HWND for Win32.
+--
+-- Removed in Gtk3.
 drawWindowForeignNew :: NativeWindowId -> IO (Maybe DrawWindow)
 drawWindowForeignNew anid = maybeNull (wrapNewGObject mkDrawWindow) $
   liftM castPtr $ {#call gdk_window_foreign_new#} (fromNativeWindowId anid)
+#endif
 
 -- | Obtains the root window (parent all other windows are inside) for the default display and screen.
 drawWindowGetDefaultRootWindow :: 

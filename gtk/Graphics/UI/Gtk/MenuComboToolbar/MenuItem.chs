@@ -101,8 +101,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 #endif
 
 -- * Signals
-  menuItemActivatedItem,
-  menuItemActivated,
   menuItemActivateItem,
   menuItemActivate,
   menuItemSelect,
@@ -121,6 +119,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   afterDeselect,
   onToggle,
   afterToggle
+#endif
 #endif
   ) where
 
@@ -228,8 +227,9 @@ menuItemGetSubmenu self =
 --
 menuItemRemoveSubmenu :: MenuItemClass self => self -> IO ()
 menuItemRemoveSubmenu self =
-  {# call menu_item_remove_submenu #}
+  {# call menu_item_set_submenu #}
     (toMenuItem self)
+    (Widget $ unsafePerformIO $ newForeignPtr_ nullPtr)
 
 -- | Select the menu item. Emits the \"select\" signal on the item.
 --
@@ -350,30 +350,30 @@ menuItemActivated = Signal (connect_NONE__NONE "activate")
 menuItemActivate :: MenuItemClass self => Signal self (IO ())
 menuItemActivate = menuItemActivated
 
+#if GTK_MAJOR_VERSION < 3
 -- | Emitted when the user chooses a menu item that has a submenu.
 --
 -- * This signal is not emitted if the menu item does not have a
 --   submenu.
 --
-menuItemActivatedItem :: MenuItemClass self => Signal self (IO ())
-menuItemActivatedItem = Signal (connect_NONE__NONE "activate-item")
-
--- | Deprecated. See 'menuItemActivatedItem'.
 menuItemActivateItem :: MenuItemClass self => Signal self (IO ())
 menuItemActivateItem = menuItemActivatedItem
 
 -- | This signal is emitted when the item is selected.
 --
+-- Removed in Gtk3.
 menuItemSelect :: ItemClass i => Signal i (IO ())
 menuItemSelect = Signal (connect_NONE__NONE "select")
 
 -- | This signal is emitted when the item is deselected.
 --
+-- Removed in Gtk3.
 menuItemDeselect :: ItemClass i => Signal i (IO ())
 menuItemDeselect = Signal (connect_NONE__NONE "deselect")
 
 -- | This signal is emitted when the item is toggled.
 --
+-- Removed in Gtk3.
 menuItemToggle :: ItemClass i => Signal i (IO ())
 menuItemToggle = Signal (connect_NONE__NONE "toggle")
 
@@ -410,4 +410,5 @@ onToggle, afterToggle :: ItemClass i => i
  -> IO (ConnectId i)
 onToggle = connect_NONE__NONE "toggle" False
 afterToggle = connect_NONE__NONE "toggle" True
+#endif
 #endif

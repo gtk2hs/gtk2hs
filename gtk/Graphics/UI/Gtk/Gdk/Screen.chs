@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.Gdk.Screen (
 
 -- * Methods
   screenGetDefault,
+#if GTK_MAJOR_VERSION <3
   screenGetSystemColormap,
 #if GTK_CHECK_VERSION(2,8,0)
   screenGetRGBAColormap,
@@ -64,6 +65,7 @@ module Graphics.UI.Gtk.Gdk.Screen (
 #ifndef DISABLE_DEPRECATED
   screenGetDefaultColormap,
   screenSetDefaultColormap,
+#endif
 #endif
 
 --  screenGetSystemVisual,
@@ -100,7 +102,9 @@ module Graphics.UI.Gtk.Gdk.Screen (
 -- * Attributes
   screenFontOptions,
   screenResolution,
+#if GTK_MAJOR_VERSION < 3
   screenDefaultColormap,
+#endif
 
 -- * Signals
   screenSizeChanged,
@@ -144,6 +148,7 @@ screenGetDefault =
   maybeNull (makeNewGObject mkScreen) $
   {# call gdk_screen_get_default #}
 
+#if GTK_MAJOR_VERSION < 3
 screenGetDefaultColormap :: Screen
  -> IO Colormap -- ^ returns the default 'Colormap'.
 screenGetDefaultColormap self =
@@ -163,6 +168,7 @@ screenSetDefaultColormap self colormap =
 
 -- | Gets the system default colormap for @screen@
 --
+-- Removed in Gtk3.
 screenGetSystemColormap :: Screen
  -> IO Colormap -- ^ returns the default colormap for @screen@.
 screenGetSystemColormap self =
@@ -181,6 +187,7 @@ screenGetSystemColormap self =
 --
 -- * Available since Gdk version 2.8
 --
+-- Removed in Gtk3.
 screenGetRGBAColormap :: Screen
  -> IO (Maybe Colormap) -- ^ returns a colormap to use for windows with an
                         -- alpha channel or @Nothing@ if the capability is not
@@ -189,6 +196,7 @@ screenGetRGBAColormap self =
   maybeNull (makeNewGObject mkColormap) $
   {# call gdk_screen_get_rgba_colormap #}
     self
+#endif
 #endif
 
 -- | Get the system's default visual for @screen@. This is the visual for the
@@ -523,14 +531,17 @@ screenFontOptions = newAttr
 screenResolution :: Attr Screen Double
 screenResolution = newAttrFromDoubleProperty "resolution"
 
+#if GTK_MAJOR_VERSION < 3
 -- | Sets the default @colormap@ for @screen@.
 --
 -- Gets the default colormap for @screen@.
 --
+-- Removed in Gtk3.
 screenDefaultColormap :: Attr Screen Colormap
 screenDefaultColormap = newAttr
   screenGetDefaultColormap
   screenSetDefaultColormap
+#endif
 
 --------------------
 -- Signals

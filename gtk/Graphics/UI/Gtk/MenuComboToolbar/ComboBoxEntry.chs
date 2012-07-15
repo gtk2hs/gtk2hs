@@ -49,6 +49,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- Connect to the activate signal of the 'Entry' (use 'binGetChild') to detect
 -- when the user actually finishes entering text.
 --
+-- * This module is deprecated and the functionality removed in Gtk3. It is
+--   therefore empty in Gtk3.
 
 -- * Class Hierarchy
 -- |
@@ -62,6 +64,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- |                                 +----ComboBoxEntry
 -- @
 
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,4,0)
 -- * Types
   ComboBoxEntry,
@@ -86,8 +89,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- * Attributes
   comboBoxEntryTextColumn,
 #endif
+#endif
   ) where
 
+#if GTK_MAJOR_VERSION < 3
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -225,4 +230,5 @@ comboBoxEntryTextColumn = newAttr
   comboBoxEntryGetTextColumn
   comboBoxEntrySetTextColumn
 
+#endif
 #endif

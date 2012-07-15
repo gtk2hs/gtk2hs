@@ -87,7 +87,9 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   cellIsExpander,
   cellIsExpanded,
   cellBackground,
+#if GTK_MAJOR_VERSION < 3
   cellBackgroundColor,
+#endif
   cellBackgroundSet,
 
 -- * Signals
@@ -115,7 +117,9 @@ import System.Glib.FFI
 import System.Glib.Attributes ( Attr, WriteAttr )
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.GC		(Color)
+#endif
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 
@@ -266,11 +270,14 @@ cellIsExpanded = newAttrFromBoolProperty "is-expanded"
 cellBackground :: CellRendererClass self => WriteAttr self String
 cellBackground = writeAttrFromStringProperty "cell-background"
 
+#if GTK_MAJOR_VERSION < 3
 -- | Cell background color as a 'Color'.
 --
+-- Removed in Gtk3.
 cellBackgroundColor :: CellRendererClass self => Attr self Color
 cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
   {# call pure unsafe gdk_color_get_type #}
+#endif
 
 -- | Whether the 'cellBackground' \/ 'cellBackgroundColor' attribute is set.
 --

@@ -65,7 +65,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
   toolItemGetHomogeneous,
   toolItemSetExpand,
   toolItemGetExpand,
+#if GTK_MAJOR_VERSION < 3
   toolItemSetTooltip,
+#endif
   toolItemSetUseDragWindow,
   toolItemGetUseDragWindow,
   toolItemSetVisibleHorizontal,
@@ -173,10 +175,12 @@ toolItemGetExpand self =
   {# call unsafe tool_item_get_expand #}
     (toToolItem self)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Sets the 'Tooltips' object to be used for the tool item, the text to be
 -- displayed as tooltip on the item and the private text to be used. See
 -- 'tooltipsSetTip'.
 --
+-- Removed in Gtk3.
 toolItemSetTooltip :: ToolItemClass self => self
  -> Tooltips -- ^ @tooltips@ - The 'Tooltips' object to be used
  -> String   -- ^ @tipText@ - text to be used as tooltip text for @toolItem@
@@ -190,6 +194,7 @@ toolItemSetTooltip self tooltips tipText tipPrivate =
     tooltips
     tipTextPtr
     tipPrivatePtr
+#endif
 
 -- | Sets whether toolitem has a drag window. When @True@ the tool item can be
 -- used as a drag source through 'dragSourceSet'. When the tool item has a drag

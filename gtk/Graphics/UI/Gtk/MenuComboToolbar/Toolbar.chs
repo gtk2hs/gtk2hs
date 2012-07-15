@@ -91,6 +91,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   toolbarNew,
 
 -- * Methods
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   toolbarInsertNewButton,
   toolbarAppendNewButton,
@@ -107,11 +108,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 #endif
   toolbarSetOrientation,
   toolbarGetOrientation,
+#endif
   toolbarSetStyle,
   toolbarGetStyle,
   toolbarUnsetStyle,
+#if GTK_MAJOR_VERSION < 3
   toolbarSetTooltips,
   toolbarGetTooltips,
+#endif
   IconSize(..),
 #ifndef DISABLE_DEPRECATED
   toolbarSetIconSize,
@@ -131,12 +135,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 #endif
 
 -- * Attributes
+#if GTK_MAJOR_VERSION < 3
   toolbarOrientation,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   toolbarShowArrow,
 #endif
 #if GTK_CHECK_VERSION(2,8,0)
+#if GTK_MAJOR_VERSION < 3
   toolbarTooltips,
+#endif
 #endif
   toolbarStyle,
 
@@ -168,9 +176,11 @@ import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..),
 					 ReliefStyle(..))
 import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 					 toolbarChildToggleButton,
 					 toolbarChildRadioButton,
+#endif
 #endif
 					 IconSize(..))
 import Graphics.UI.Gtk.General.StockItems	(stockLookupItem, siLabel, stockMissingImage)
@@ -198,7 +208,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 
 --------------------
 -- Methods
-
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- | Insert a new 'Button' into the 'Toolbar'.
 --
@@ -217,6 +227,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarInsertNewButton :: ToolbarClass self => self
  -> Int
  -> StockId
@@ -242,6 +253,7 @@ toolbarInsertNewButton self pos stockId tooltips =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarAppendNewButton :: ToolbarClass self => self
  -> String
  -> Maybe (String, String)
@@ -255,6 +267,7 @@ toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarPrependNewButton :: ToolbarClass self => self
  -> String
  -> Maybe (String, String)
@@ -268,6 +281,7 @@ toolbarPrependNewButton self = toolbarInsertNewButton self 0
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarInsertNewToggleButton :: ToolbarClass self => self
  -> Int
  -> StockId
@@ -294,6 +308,7 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarAppendNewToggleButton :: ToolbarClass self => self
  -> String
  -> Maybe (String, String)
@@ -307,6 +322,7 @@ toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarPrependNewToggleButton :: ToolbarClass self => self
  -> String
  -> Maybe (String, String)
@@ -328,6 +344,7 @@ toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarInsertNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
  -> Int
  -> StockId
@@ -356,6 +373,7 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarAppendNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
  -> String
  -> Maybe (String, String)
@@ -370,6 +388,7 @@ toolbarAppendNewRadioButton self = toolbarInsertNewRadioButton self (-1)
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarPrependNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
  -> String
  -> Maybe (String, String)
@@ -386,6 +405,7 @@ toolbarPrependNewRadioButton self = toolbarInsertNewRadioButton self 0
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarInsertNewWidget :: (ToolbarClass self, WidgetClass w) => self
  -> Int
  -> w
@@ -407,6 +427,7 @@ toolbarInsertNewWidget self pos w tooltips =
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarAppendNewWidget :: (ToolbarClass self, WidgetClass w) => self
  -> w
  -> Maybe (String, String)
@@ -420,6 +441,7 @@ toolbarAppendNewWidget self = toolbarInsertNewWidget self (-1)
 -- * Warning: this function is deprecated and should not be used in
 -- newly-written code.
 --
+-- Removed in Gtk3.
 toolbarPrependNewWidget :: (ToolbarClass self, WidgetClass w) => self
  -> w 
  -> Maybe (String, String)
@@ -429,6 +451,7 @@ toolbarPrependNewWidget self = toolbarInsertNewWidget self 0
 
 -- | Sets whether a toolbar should appear horizontally or vertically.
 --
+-- Removed in Gtk3.
 toolbarSetOrientation :: ToolbarClass self => self -> Orientation -> IO ()
 toolbarSetOrientation self orientation =
   {# call toolbar_set_orientation #}
@@ -438,12 +461,13 @@ toolbarSetOrientation self orientation =
 -- | Retrieves the current orientation of the toolbar. See
 -- 'toolbarSetOrientation'.
 --
+-- Removed in Gtk3.
 toolbarGetOrientation :: ToolbarClass self => self -> IO Orientation
 toolbarGetOrientation self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe toolbar_get_orientation #}
     (toToolbar self)
-
+#endif
 -- | Alters the view of the toolbar to display either icons only, text only, or
 -- both.
 --
@@ -470,8 +494,10 @@ toolbarUnsetStyle self =
   {# call toolbar_unset_style #}
     (toToolbar self)
 
+#if GTK_MAJOR_VERSION < 3
 -- | Sets if the tooltips of a toolbar should be active or not.
 --
+-- Removed in Gtk3.
 toolbarSetTooltips :: ToolbarClass self => self
  -> Bool  -- ^ @enable@ - set to @False@ to disable the tooltips, or @True@ to
           -- enable them.
@@ -483,11 +509,13 @@ toolbarSetTooltips self enable =
 
 -- | Retrieves whether tooltips are enabled. See 'toolbarSetTooltips'.
 --
+-- Removed in Gtk3.
 toolbarGetTooltips :: ToolbarClass self => self -> IO Bool
 toolbarGetTooltips self =
   liftM toBool $
   {# call unsafe toolbar_get_tooltips #}
     (toToolbar self)
+#endif
 
 #ifndef DISABLE_DEPRECATED
 -- | This function sets the size of stock icons in the toolbar. You can call
@@ -647,14 +675,17 @@ toolbarGetReliefStyle self =
 --------------------
 -- Attributes
 
+#if GTK_MAJOR_VERSION < 3
 -- | The orientation of the toolbar.
 --
 -- Default value: 'OrientationHorizontal'
 --
+-- Removed in Gtk3.
 toolbarOrientation :: ToolbarClass self => Attr self Orientation
 toolbarOrientation = newAttr
   toolbarGetOrientation
   toolbarSetOrientation
+#endif
 
 -- | How to draw the toolbar.
 --
@@ -675,14 +706,18 @@ toolbarShowArrow = newAttr
   toolbarSetShowArrow
 #endif
 
+
+#if GTK_MAJOR_VERSION < 3
 -- | If the tooltips of the toolbar should be active or not.
 --
 -- Default value: @True@
 --
+-- Removed in Gtk3.
 toolbarTooltips :: ToolbarClass self => Attr self Bool
 toolbarTooltips = newAttr
   toolbarGetTooltips
   toolbarSetTooltips
+#endif
 
 --------------------
 -- Child Attributes

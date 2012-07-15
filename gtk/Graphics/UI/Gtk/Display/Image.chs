@@ -123,10 +123,12 @@ module Graphics.UI.Gtk.Display.Image (
 
 -- * Attributes
   imagePixbuf,
+#if GTK_MAJOR_VERSION < 3
   imagePixmap,
+  imageMask,
+#endif
   imageAnimation,
   imageImage,
-  imageMask,
   imageFile,
   imageStock,
   imageIconSize,
@@ -378,23 +380,25 @@ imageAnimation :: (PixbufClass pixbuf, PixbufAnimationClass animation)  => ReadW
 imageAnimation = newAttrFromObjectProperty "pixbuf-animation"
   {# call pure unsafe gdk_pixbuf_get_type #}
 
+#if GTK_MAJOR_VERSION < 3
 -- | A 'Pixmap' to display.
 --
 imagePixmap :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
 imagePixmap = newAttrFromObjectProperty "pixmap"
   {# call pure unsafe gdk_pixmap_get_type #}
 
--- | A 'Image' to display.
---
-imageImage :: ImageClass image => ReadWriteAttr Image Image image
-imageImage = newAttrFromObjectProperty "image"
-  {# call pure unsafe gtk_image_get_type #}
-
 -- | Mask bitmap to use with 'Image' or 'Pixmap'.
 --
 imageMask :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
 imageMask = newAttrFromObjectProperty "mask"
   {# call pure unsafe gdk_pixmap_get_type #}
+#endif
+
+-- | A 'Image' to display.
+--
+imageImage :: ImageClass image => ReadWriteAttr Image Image image
+imageImage = newAttrFromObjectProperty "image"
+  {# call pure unsafe gtk_image_get_type #}
 
 -- | Filename to load and display.
 --

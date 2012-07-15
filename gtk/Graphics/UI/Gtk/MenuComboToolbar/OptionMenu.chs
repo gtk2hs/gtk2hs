@@ -26,7 +26,7 @@
 -- A widget used to choose from a list of valid choices
 --
 -- * Warning: this module is deprecated and should not be used in
--- newly-written code.
+-- newly-written code. It is empty in Gtk3.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 -- * Detail
@@ -58,6 +58,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 -- |                                 +----OptionMenu
 -- @
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- * Types
   OptionMenu,
@@ -82,6 +83,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
   onOMChanged,
   afterOMChanged
 #endif
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -95,6 +97,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 --------------------
 -- Constructors
@@ -179,4 +182,5 @@ onOMChanged, afterOMChanged :: OptionMenuClass self => self
  -> IO (ConnectId self)
 onOMChanged = connect_NONE__NONE "changed" False
 afterOMChanged = connect_NONE__NONE "changed" True
+#endif
 #endif

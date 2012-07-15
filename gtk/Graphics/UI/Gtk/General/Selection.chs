@@ -70,7 +70,9 @@ module Graphics.UI.Gtk.General.Selection (
   selectionRemoveAll,
 
   selectionDataSet,
+#if GTK_MAJOR_VERSION < 3
   selectionDataGet,
+#endif
   selectionDataIsValid,
   selectionDataSetText,
   selectionDataGetText,
@@ -82,7 +84,9 @@ module Graphics.UI.Gtk.General.Selection (
   selectionDataTargetsIncludeImage,
 #endif
   selectionDataGetTarget,
+#if GTK_MAJOR_VERSION < 3
   selectionDataSetTarget,
+#endif
   selectionDataGetTargets,
   selectionDataTargetsIncludeText,
 #if GTK_CHECK_VERSION(2,10,0)
@@ -109,7 +113,10 @@ import Graphics.UI.Gtk.General.Structs (
   selectionTypeAtom,
   selectionTypeInteger,
   selectionTypeString,
-  selectionDataGetType)
+#if GTK_MAJOR_VERSION < 3
+  selectionDataGetType
+#endif
+  )
 
 import Graphics.UI.Gtk.Signals
 import System.Glib.UTFString ( peekUTFString, withUTFStringLen,
@@ -258,10 +265,26 @@ selectionDataSet (Atom tagPtr) values@(~(v:_)) = ask >>= \selPtr ->
   {#call unsafe gtk_selection_data_set #} selPtr tagPtr (fromIntegral (8*sizeOf v))
     (castPtr arrayPtr) (fromIntegral (arrayLen*sizeOf v))
 
+-- The GtkSelectionData struct was made opaque in Gtk3, but the accessor routines
+-- where introduced in 2.14.
+#if GTK_CHECK_VERSION(2,14,0)
+selectionDataGet_format selPtr = {#call gtk_selection_data_get_format#} selPtr
+selectionDataGet_length selPtr = {#call gtk_selection_data_get_length#} selPtr
+selectionDataGet_data selPtr = {#call gtk_selection_data_get_data#} selPtr
+selectionDataGet_target selPtr = {#call gtk_selection_data_get_target#} selPtr
+#else
+selectionDataGet_format selPtr = {#get SelectionData -> format#} selPtr
+selectionDataGet_length selPtr = {#get SelectionData -> length#} selPtr
+selectionDataGet_data selPtr = {#get SelectionData -> data#} selPtr
+selectionDataGet_target selPtr = {#get SelectionData -> target#} selPtr
+#endif
+
+#if GTK_MAJOR_VERSION < 3
 -- | Retreives the data in the 'SelectionDataM' monad. The returned array
 --   must have elements of the size that were used to set this data. If
 --   the size or the type tag does not match, @Nothing@ is returned.
 --
+-- Removed in Gtk3.
 selectionDataGet :: (Integral a, Storable a) => 
                     SelectionTypeTag -> SelectionDataM (Maybe [a])
 selectionDataGet tagPtr = do
@@ -269,18 +292,19 @@ selectionDataGet tagPtr = do
   liftIO $ do
     typeTag <- selectionDataGetType selPtr
     if typeTag/=tagPtr then return Nothing else do
-    bitSize <- liftM fromIntegral $ {#get SelectionData -> format#} selPtr
-    lenBytes <- liftM fromIntegral $ {#get SelectionData -> length#} selPtr
-    dataPtr <- liftM castPtr $ {#get SelectionData -> data#} selPtr
+    bitSize <- liftM fromIntegral $ selectionDataGet_format selPtr
+    lenBytes <- liftM fromIntegral $ selectionDataGet_length selPtr
+    dataPtr <- liftM castPtr $ selectionDataGet_data selPtr
     if lenBytes<=0 || bitSize/=sizeOf (unsafePerformIO (peek dataPtr))*8
       then return Nothing
       else liftM Just $ do
         peekArray (fromIntegral (lenBytes `quot` (bitSize `quot` 8))) dataPtr
+#endif
 
 selectionDataGetLength :: SelectionDataM Int
 selectionDataGetLength = do
   selPtr <- ask
-  liftIO $ liftM fromIntegral $ {#get SelectionData -> length#} selPtr    
+  liftIO $ liftM fromIntegral $ selectionDataGet_length selPtr    
 
 -- | Check if the currently stored data is valid.
 --
@@ -376,13 +400,17 @@ selectionDataGetURIs = do
 selectionDataGetTarget :: SelectionDataM TargetTag
 selectionDataGetTarget = do
   selPtr <- ask
-  liftM Atom $ liftIO $ {#get SelectionData -> target#} selPtr
+  liftM Atom $ liftIO $ selectionDataGet_target selPtr
 
+#if GTK_MAJOR_VERSION < 3
 -- | Set the selection to the given 'TargetTag'.
+--
+-- Removed in Gtk3.
 selectionDataSetTarget :: TargetTag -> SelectionDataM ()
 selectionDataSetTarget (Atom targetTag) = do
   selPtr <- ask
   liftIO $ {#set SelectionData -> target#} selPtr targetTag
+#endif
 
 -- %hash c:e659 d:af3f
 -- | Queries the content type of the selection data as a list of targets.

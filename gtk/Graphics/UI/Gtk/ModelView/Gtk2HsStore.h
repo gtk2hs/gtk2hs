@@ -1,9 +1,8 @@
 #ifndef __GTK2HS_STORE_H__
 #define __GTK2HS_STORE_H__
 
-#include <gtk/gtktreemodel.h>
-#include <gtk/gtktreednd.h>
-#include <gtk/gtktreesortable.h>
+#include <gtk/gtk.h>
+
 #include "Graphics/UI/Gtk/ModelView/CustomStore_stub.h"
 
 G_BEGIN_DECLS

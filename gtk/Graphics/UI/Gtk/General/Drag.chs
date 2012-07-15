@@ -70,9 +70,11 @@ module Graphics.UI.Gtk.General.Drag (
   toDragContext,
   
 -- * Methods
+#if GTK_MAJOR_VERSION < 3
   dragContextActions,
   dragContextSuggestedAction,
   dragContextAction,
+#endif
   
   dragDestSet,
   dragDestSetProxy,
@@ -150,9 +152,12 @@ import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..)
                                      )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
 import Graphics.UI.Gtk.General.Structs ( Point, 
+#if GTK_MAJOR_VERSION < 3
   dragContextGetActions, dragContextSetActions,
   dragContextGetSuggestedAction, dragContextSetSuggestedAction,
-  dragContextGetAction, dragContextSetAction )
+  dragContextGetAction, dragContextSetAction
+#endif
+  )
 import Graphics.UI.Gtk.Signals
 import Control.Monad.Reader (runReaderT)
 
@@ -162,9 +167,11 @@ import Control.Monad.Reader (runReaderT)
 --------------------
 -- Methods
 
+#if GTK_MAJOR_VERSION < 3
 -- | A set of actions that the source recommends to be taken. Only valid if
 --   'dragContextSuggestedAction' is set to 'ActionAsk'.
 --
+-- Removed in Gtk3.
 dragContextActions :: Attr DragContext [DragAction]
 dragContextActions = newAttr (liftM toFlags . dragContextGetActions)
                              (\o -> dragContextSetActions o . fromFlags)
@@ -178,6 +185,7 @@ dragContextSuggestedAction = newAttr (liftM toEnum . dragContextGetSuggestedActi
 dragContextAction :: Attr DragContext DragAction
 dragContextAction = newAttr (liftM toEnum . dragContextGetAction)
                             (\o -> dragContextSetAction o . fromEnum)
+#endif
 
 -- %hash c:4ff5 d:af3f
 

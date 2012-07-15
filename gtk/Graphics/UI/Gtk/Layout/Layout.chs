@@ -63,7 +63,9 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutGetVAdjustment,
   layoutSetHAdjustment,
   layoutSetVAdjustment,
+#if GTK_MAJOR_VERSION < 3
   layoutGetDrawWindow,
+#endif
 
 -- * Attributes
   layoutHAdjustment,
@@ -89,7 +91,9 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs	(layoutGetDrawWindow)
+#endif
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}

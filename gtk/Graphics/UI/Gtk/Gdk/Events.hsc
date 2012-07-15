@@ -71,7 +71,9 @@ import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
+#endif
 import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
                                          VisibilityState(..),
 					 CrossingMode(..),
@@ -201,7 +203,9 @@ data Event =
     -- next field.
     eventArea	:: Rectangle,
     -- | A set of horizontal stripes that denote the invalid area.
+#if GTK_MAJOR_VERSION < 3
     eventRegion      :: Region,
+#endif
 
     -- | The number of contiguous 'Expose' events following this
     --   one. The only use for this is \"exposure compression\", i.e. 
@@ -427,18 +431,24 @@ marshExpose ptr = do
   (#{const GDK_EXPOSE}::#gtk2hs_type GdkEventType) <- #{peek GdkEventAny,type} ptr
   (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventExpose, send_event} ptr
   (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
+#if GTK_MAJOR_VERSION < 3
   (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
   reg_ <- gdk_region_copy reg_
   region_ <- makeNewRegion reg_
+#endif
   (count_  ::#gtk2hs_type gint)	<- #{peek GdkEventExpose, count} ptr
   return $ Expose {
     eventSent   = toBool sent_,
     eventArea   = area_,
+#if GTK_MAJOR_VERSION < 3
     eventRegion = region_,
+#endif
     eventCount  = fromIntegral count_}
 
+#if GTK_MAJOR_VERSION < 3
 foreign import ccall "gdk_region_copy"
   gdk_region_copy :: Ptr Region -> IO (Ptr Region)
+#endif
 
 marshExposeRect :: Ptr Event -> IO Rectangle
 marshExposeRect ptr = do

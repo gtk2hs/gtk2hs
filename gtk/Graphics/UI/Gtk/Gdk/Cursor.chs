@@ -37,8 +37,10 @@ module Graphics.UI.Gtk.Gdk.Cursor (
 -- * Constructors  
   cursorNew,
   
--- * Methods  
+-- * Methods
+#if GTK_MAJOR_VERSION < 3
   cursorNewFromPixmap,
+#endif
   cursorNewFromPixbuf,
   cursorNewFromName,
   cursorNewForDisplay,
@@ -59,7 +61,7 @@ import Graphics.UI.Gtk.General.Structs
 
 --------------------
 -- Types
-{#pointer *Cursor foreign newtype #}
+{#pointer *GdkCursor as Cursor foreign newtype #}
 
 --------------------
 -- Enums
@@ -90,10 +92,12 @@ cursorNew cursorType = do
 
 --------------------
 -- Methods
+#if GTK_MAJOR_VERSION < 3
 -- | Creates a new cursor from a given pixmap and mask. Both the pixmap and
 -- mask must have a depth of 1 (i.e. each pixel has only 2 values - on or off).
 -- The standard cursor size is 16 by 16 pixels.
 --
+-- Removed in Gtk3.
 cursorNewFromPixmap ::
      Pixmap -- ^ @source@ - the pixmap specifying the cursor.
   -> Pixmap -- ^ @mask@ - the pixmap specifying the mask, which must be the
@@ -110,6 +114,7 @@ cursorNewFromPixmap source mask fg bg x y =
     with bg $ \bgPtr -> do
       rPtr <- {# call unsafe cursor_new_from_pixmap #} source mask (castPtr fgPtr) (castPtr bgPtr) (fromIntegral x) (fromIntegral y)
       makeNewCursor rPtr
+#endif
 
 -- | Creates a new cursor from a pixbuf.
 -- Not all GDK backends support RGBA cursors. If they are not supported, a monochrome approximation will be displayed. 

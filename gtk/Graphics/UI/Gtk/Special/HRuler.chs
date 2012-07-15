@@ -25,6 +25,8 @@
 --
 -- A horizontal ruler
 --
+-- * Rulers are removed in Gtk3 and thus this module is blank. There is no
+--   replacement
 module Graphics.UI.Gtk.Special.HRuler (
 
 -- * Detail
@@ -45,7 +47,7 @@ module Graphics.UI.Gtk.Special.HRuler (
 -- |               +----'Ruler'
 -- |                     +----HRuler
 -- @
-
+#if GTK_MAJOR_VERSION < 3
 -- * Types
   HRuler,
   HRulerClass,
@@ -54,8 +56,9 @@ module Graphics.UI.Gtk.Special.HRuler (
 
 -- * Constructors
   hRulerNew,
+#endif
   ) where
-
+#if GTK_MAJOR_VERSION < 3
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -74,3 +77,4 @@ hRulerNew =
   makeNewObject mkHRuler $
   liftM (castPtr :: Ptr Widget -> Ptr HRuler) $
   {# call gtk_hruler_new #}
+#endif
