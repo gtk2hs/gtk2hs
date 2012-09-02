@@ -56,7 +56,8 @@ import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
-import Data.List (isPrefixOf, isSuffixOf, nub)
+import Data.List (isPrefixOf, isSuffixOf, nub, minimumBy)
+import Data.Ord as Ord (comparing)
 import Data.Char (isAlpha)
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -100,8 +101,16 @@ getDlls dirs = filter ((== ".dll") . takeExtension) . concat <$>
 fixLibs :: [FilePath] -> [String] -> [String]
 fixLibs dlls = concatMap $ \ lib ->
     case filter (("lib" ++ lib) `isPrefixOf`) dlls of
-                dll:_ -> [dropExtension dll]
-                _     -> if lib == "z" then [] else [lib]
+                dlls@(_:_) -> [dropExtension (pickDll dlls)]
+                _          -> if lib == "z" then [] else [lib]
+  where
+    -- If there are several .dll files matching the one we're after then we
+    -- just have to guess. For example for recent Windows cairo builds we get
+    -- libcairo-2.dll libcairo-gobject-2.dll libcairo-script-interpreter-2.dll
+    -- Our heuristic is to pick the one with the shortest name.
+    -- Yes this is a hack but the proper solution is hard: we would need to
+    -- parse the .a file and see which .dll file(s) it needed to link to.
+    pickDll = minimumBy (Ord.comparing length)
 
 -- The following code is a big copy-and-paste job from the sources of
 -- Cabal 1.8 just to be able to fix a field in the package file. Yuck.
