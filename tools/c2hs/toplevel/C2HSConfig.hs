@@ -46,7 +46,7 @@ import Data.Array (Array, array)
 
 import Foreign (Ptr, FunPtr)
 import Foreign  (Storable(sizeOf, alignment), toBool)
-import Foreign.C (CInt)
+import Foreign.C (CInt(..))
 import System.Info (os)
 
 -- program settings
