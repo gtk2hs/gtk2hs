@@ -79,7 +79,10 @@ module StateTrans (-- the monad and the generic operations
 		   MVar, newMV, readMV, assignMV)
 where
 
+import Prelude hiding     (catch)
+
 import Control.Monad      (liftM)
+import Control.Exception  (catch)
 import System.IO  (fixIO)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 

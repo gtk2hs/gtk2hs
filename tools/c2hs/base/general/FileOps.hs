@@ -31,11 +31,13 @@
 module FileOps (fileFindIn, mktemp)
 where
 
+import Prelude hiding (catch)
 -- standard libs
 import Data.Char      (chr, ord)
 import System.Directory (doesFileExist)
 import System.IO	 (Handle, IOMode(..), openFile)
 import Control.Monad	 (liftM)
+import Control.Exception (catch, SomeException)
 import System.Random    (newStdGen, randomRs)
 
 import FNameOps  (dirname, stripDirname, addPath)
@@ -89,8 +91,11 @@ mktemp pre post =
 			     in do
 			       h <- openFile fname ReadWriteMode
 			       return (h, fname)
-			     `catch` \_ -> createLoop (attempts - 1) rs'
+			     `catch` handler attempts rs'
     --
+    handler :: Int -> [Int] -> SomeException -> IO (Handle,FilePath)
+    handler attempts rs' _ = createLoop (attempts - 1) rs'
+
     sixChars :: [Int] -> ([Int], String)
     sixChars is = 
       let
