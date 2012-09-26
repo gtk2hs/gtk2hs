@@ -582,7 +582,7 @@ treeViewSetColumnDragFunction self (Just pred) = do
 {#pointer TreeViewColumnDropFunc#}
 
 foreign import ccall "wrapper" mkTreeViewColumnDropFunc ::
-  (Ptr () -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
+  (Ptr TreeView -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
   Ptr () -> IO {#type gboolean#}) -> IO TreeViewColumnDropFunc
 
 -- | Scroll to a coordinate.
@@ -798,7 +798,7 @@ treeViewMapExpandedRows self func = do
 {#pointer TreeViewMappingFunc#}
 
 foreign import ccall "wrapper" mkTreeViewMappingFunc ::
-  (Ptr () -> Ptr NativeTreePath -> Ptr () -> IO ()) ->
+  (Ptr TreeView -> Ptr NativeTreePath -> Ptr () -> IO ()) ->
   IO TreeViewMappingFunc
 
 -- | Check if row is expanded.

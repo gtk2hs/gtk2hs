@@ -493,17 +493,17 @@ comboBoxSetRowSeparatorSource self Nothing  =
   {# call gtk_combo_box_set_row_separator_func #}
     (toComboBox self) nullFunPtr nullPtr nullFunPtr
 comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
-  funPtr <- mkRowSeparatorFunc $ \_ iterPtr -> do
+  funPtr <- mkRowSeparatorFunc $ \_ iterPtr _ -> do
         iter <- peek iterPtr
         value <- customStoreGetRow model iter
-        return (extract value)
+        return (fromBool $ extract value)
   {# call gtk_combo_box_set_row_separator_func #}
     (toComboBox self) funPtr (castFunPtrToPtr funPtr) destroyFunPtr
 
 {#pointer TreeViewRowSeparatorFunc#}
 
 foreign import ccall "wrapper" mkRowSeparatorFunc ::
-  (Ptr TreeModel -> Ptr TreeIter -> IO Bool) -> IO TreeViewRowSeparatorFunc
+  (Ptr TreeModel -> Ptr TreeIter -> Ptr () -> IO {#type gboolean #}) -> IO TreeViewRowSeparatorFunc
 
 -- %hash c:5bf8
 -- | Sets whether the popup menu should have a tearoff menu item.

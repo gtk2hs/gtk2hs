@@ -160,7 +160,7 @@ treeModelFilterSetVisibleFunc self func = do
 {#pointer TreeModelFilterVisibleFunc #}
 
 foreign import ccall "wrapper" mkTreeModelFilterVisibleFunc ::
-  (Ptr TreeModelFilter -> Ptr TreeIter -> Ptr () -> IO {#type gboolean#}) ->
+  (Ptr TreeModel -> Ptr TreeIter -> Ptr () -> IO {#type gboolean#}) ->
   IO TreeModelFilterVisibleFunc
 
 -- %hash c:a56d d:b42e

@@ -47,12 +47,12 @@ type AsyncReadyCallback = GObject -> AsyncResult -> IO ()
 {#pointer GAsyncReadyCallback#}
 
 foreign import ccall "wrapper" mkAsyncReadyCallback :: 
-    (Ptr GObject -> Ptr AsyncResult -> Ptr () -> IO ()) -> IO GAsyncReadyCallback
+    (Ptr () -> Ptr AsyncResult -> Ptr () -> IO ()) -> IO GAsyncReadyCallback
 
 marshalAsyncReadyCallback :: AsyncReadyCallback -> IO GAsyncReadyCallback
 marshalAsyncReadyCallback asyncReadyCallback = 
     mkAsyncReadyCallback $ \ cObject cAsyncResult cCallback -> do
-      object <- (makeNewGObject mkGObject . return) cObject
+      object <- (makeNewGObject mkGObject . return) (castPtr cObject)
       asyncResult <- (makeNewGObject mkAsyncResult . return) cAsyncResult
       asyncReadyCallback object asyncResult
       freeHaskellFunPtr (castPtrToFunPtr cCallback)

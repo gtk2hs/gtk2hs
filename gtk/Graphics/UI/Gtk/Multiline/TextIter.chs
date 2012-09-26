@@ -797,7 +797,7 @@ type TextCharPredicateCB = Char -> Bool
 {#pointer TextCharPredicate#}
 
 foreign import ccall "wrapper" mkTextCharPredicate ::
-  ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
+  ({#type gunichar#} -> Ptr () -> IO {#type gboolean#}) -> IO TextCharPredicate
 
 -- | Move 'TextIter' forward until a
 -- predicate function returns True.
@@ -810,7 +810,7 @@ foreign import ccall "wrapper" mkTextCharPredicate ::
 textIterForwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
                            IO Bool
 textIterForwardFindChar ti pred limit = do
-  fPtr <- mkTextCharPredicate (\c _ -> fromBool $ pred (chr (fromIntegral c)))
+  fPtr <- mkTextCharPredicate (\c _ -> return $ fromBool $ pred (chr (fromIntegral c)))
   res <- liftM toBool $ {#call text_iter_forward_find_char#} 
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr
@@ -827,7 +827,7 @@ textIterForwardFindChar ti pred limit = do
 textIterBackwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
                             IO Bool
 textIterBackwardFindChar ti pred limit = do
-  fPtr <- mkTextCharPredicate (\c _ -> fromBool $ pred (chr (fromIntegral c)))
+  fPtr <- mkTextCharPredicate (\c _ -> return $ fromBool $ pred (chr (fromIntegral c)))
   res <- liftM toBool $ {#call text_iter_backward_find_char#} 
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr

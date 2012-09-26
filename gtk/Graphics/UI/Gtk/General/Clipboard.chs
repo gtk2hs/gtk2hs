@@ -260,7 +260,7 @@ clipboardSetWithData :: ClipboardClass self => self
                               -- data succeeded.
 clipboardSetWithData self targets getFunc clearFunc = do
   gFunPtr <- mkClipboardGetFunc
-    (\_ sPtr info -> runReaderT (getFunc info) sPtr >> return ())
+    (\_ sPtr info _ -> runReaderT (getFunc info) sPtr >> return ())
   cFunPtr <- mkClipboardClearFunc
     (\_ _ -> clearFunc)
   res <- withTargetEntries targets $ \nTargets targets ->
@@ -282,7 +282,7 @@ clipboardSetWithData self targets getFunc clearFunc = do
 {#pointer ClipboardClearFunc#}
 
 foreign import ccall "wrapper" mkClipboardGetFunc ::
-  (Ptr Clipboard -> Ptr () -> {#type guint#} -> IO ()) -> IO ClipboardGetFunc
+  (Ptr Clipboard -> Ptr () -> {#type guint#} -> Ptr () -> IO ()) -> IO ClipboardGetFunc
 
 foreign import ccall "wrapper" mkClipboardClearFunc ::
   (Ptr Clipboard -> Ptr () -> IO ()) -> IO ClipboardClearFunc
@@ -313,7 +313,7 @@ clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
                               -- ignored.
 clipboardSetWithOwner self targets getFunc clearFunc owner = do
   gFunPtr <- mkClipboardGetFunc
-    (\_ sPtr info -> runReaderT (getFunc info) sPtr >> return ())
+    (\_ sPtr info _ -> runReaderT (getFunc info) sPtr >> return ())
   cFunPtr <- mkClipboardClearFunc
     (\_ _ -> clearFunc)
   res <- withTargetEntries targets $ \nTargets targets ->
@@ -404,7 +404,7 @@ clipboardRequestContents :: ClipboardClass self => self
 clipboardRequestContents self (Atom target) callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardReceivedFunc
-    (\_ sPtr -> do
+    (\_ sPtr _ -> do
       freeHaskellFunPtr =<< readIORef cbRef
       runReaderT callback sPtr
       return ())
@@ -418,7 +418,7 @@ clipboardRequestContents self (Atom target) callback = do
 {#pointer ClipboardReceivedFunc#}
 
 foreign import ccall "wrapper" mkClipboardReceivedFunc ::
-  (Ptr Clipboard -> Ptr () -> IO ()) -> IO ClipboardReceivedFunc
+  (Ptr Clipboard -> Ptr () -> Ptr () -> IO ()) -> IO ClipboardReceivedFunc
 
 -- %hash c:7bb1 d:4ef1
 -- | Requests the contents of the clipboard as text. When the text is later
@@ -439,7 +439,7 @@ clipboardRequestText :: ClipboardClass self => self
 clipboardRequestText self callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTextReceivedFunc
-    (\_ sPtr -> do
+    (\_ sPtr _ -> do
       freeHaskellFunPtr =<< readIORef cbRef
       mStr <- if sPtr==nullPtr then return Nothing else
         liftM Just $ peekUTFString sPtr
@@ -453,7 +453,7 @@ clipboardRequestText self callback = do
 {#pointer ClipboardTextReceivedFunc#}
 
 foreign import ccall "wrapper" mkClipboardTextReceivedFunc ::
-  (Ptr Clipboard -> CString -> IO ()) -> IO ClipboardTextReceivedFunc
+  (Ptr Clipboard -> CString -> Ptr () -> IO ()) -> IO ClipboardTextReceivedFunc
 
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -477,7 +477,7 @@ clipboardRequestImage :: ClipboardClass self => self
 clipboardRequestImage self callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardImageReceivedFunc
-    (\_ sPtr -> do
+    (\_ sPtr _ -> do
       freeHaskellFunPtr =<< readIORef cbRef
       mPixbuf <- maybeNull (makeNewGObject mkPixbuf) (return sPtr)
       callback mPixbuf)
@@ -490,7 +490,7 @@ clipboardRequestImage self callback = do
 {#pointer ClipboardImageReceivedFunc#}
 
 foreign import ccall "wrapper" mkClipboardImageReceivedFunc ::
-  (Ptr Clipboard -> Ptr Pixbuf -> IO ()) -> IO ClipboardImageReceivedFunc
+  (Ptr Clipboard -> Ptr Pixbuf -> Ptr () -> IO ()) -> IO ClipboardImageReceivedFunc
 
 #endif
 
@@ -513,7 +513,7 @@ clipboardRequestTargets :: ClipboardClass self => self
 clipboardRequestTargets self callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardTargetsReceivedFunc
-    (\_ tPtr len -> do
+    (\_ tPtr len _ -> do
       -- We must free Haskell pointer *in* the callback to avoid segfault.
       freeHaskellFunPtr =<< readIORef cbRef
       mTargets <- if tPtr==nullPtr then return Nothing else
@@ -528,7 +528,7 @@ clipboardRequestTargets self callback = do
 {#pointer ClipboardTargetsReceivedFunc#}
 
 foreign import ccall "wrapper" mkClipboardTargetsReceivedFunc ::
-  (Ptr Clipboard -> Ptr (Ptr ()) -> {#type gint#} -> IO ()) -> IO ClipboardTargetsReceivedFunc
+  (Ptr Clipboard -> Ptr (Ptr ()) -> {#type gint#} -> Ptr () -> IO ()) -> IO ClipboardTargetsReceivedFunc
 
 #if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:5601 d:d6a6
@@ -552,10 +552,10 @@ clipboardRequestRichText :: (ClipboardClass self, TextBufferClass buffer) => sel
 clipboardRequestRichText self buffer callback = do
   cbRef <- newIORef nullFunPtr
   cbPtr <- mkClipboardRichTextReceivedFunc
-    (\_ tPtr sPtr len -> do
+    (\_ tPtr sPtr len _ -> do
       freeHaskellFunPtr =<< readIORef cbRef
       mRes <- if sPtr==nullPtr then return Nothing else liftM Just $ do
-        str <- peekUTFStringLen (sPtr,fromIntegral len)
+        str <- peekUTFStringLen (castPtr sPtr,fromIntegral len)
         return (Atom tPtr, str)
       callback mRes)
   writeIORef cbRef cbPtr
@@ -568,7 +568,7 @@ clipboardRequestRichText self buffer callback = do
 {#pointer ClipboardRichTextReceivedFunc#}
 
 foreign import ccall "wrapper" mkClipboardRichTextReceivedFunc ::
-  (Ptr Clipboard -> Ptr () -> CString -> {#type gsize#} -> IO ()) ->
+  (Ptr Clipboard -> Ptr () -> Ptr CUChar -> {#type gsize#} -> Ptr () -> IO ()) ->
   IO ClipboardRichTextReceivedFunc
 #endif
 #endif

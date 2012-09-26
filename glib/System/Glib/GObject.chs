@@ -127,8 +127,6 @@ makeNewGObject (constr, objectUnref) generator = do
 
 {#pointer GDestroyNotify as DestroyNotify#}
 
-foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
-
 -- | This function wraps any newly created objects that derives from
 -- GInitiallyUnowned also known as objects with
 -- \"floating-references\". The object will be refSink (for glib

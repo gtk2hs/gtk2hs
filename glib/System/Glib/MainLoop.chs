@@ -71,7 +71,7 @@ import System.Glib.GObject	(DestroyNotify, destroyFunPtr)
 
 {#pointer SourceFunc#}
 
-foreign import ccall "wrapper" mkSourceFunc :: IO {#type gint#} -> IO SourceFunc
+foreign import ccall "wrapper" mkSourceFunc :: (Ptr () -> IO {#type gint#}) -> IO SourceFunc
 
 type HandlerId = {#type guint#}
 
@@ -79,7 +79,7 @@ type HandlerId = {#type guint#}
 --
 makeCallback :: IO {#type gint#} -> IO (SourceFunc, DestroyNotify)
 makeCallback fun = do
-  funPtr <- mkSourceFunc fun
+  funPtr <- mkSourceFunc (const fun)
   return (funPtr, destroyFunPtr)
 
 -- | Sets a function to be called at regular intervals, with the default

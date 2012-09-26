@@ -274,7 +274,7 @@ assistantSetForwardPageFunc self (Just pageFunc) = do
 {#pointer AssistantPageFunc#}
 
 foreign import ccall "wrapper" mkAssistantPageFunc ::
-  ({#type glong#} -> Ptr () -> IO {#type glong#})
+  ({#type gint#} -> Ptr () -> IO {#type gint#})
   -> IO AssistantPageFunc
 
 -- | Sets the page type for @page@. The page type determines the page behavior

@@ -427,7 +427,7 @@ treeModelForeach self fun = do
 {#pointer TreeModelForeachFunc#}
 
 foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
-  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) ->
+  (Ptr TreeModel -> Ptr NativeTreePath -> Ptr TreeIter -> Ptr () -> IO CInt) ->
   IO TreeModelForeachFunc
 
 #if GTK_CHECK_VERSION(2,2,0)

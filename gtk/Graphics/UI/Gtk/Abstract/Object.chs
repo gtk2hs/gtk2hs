@@ -126,7 +126,8 @@ makeNewObject (constr, objectUnref) generator = do
 
 {#pointer GWeakNotify#}
 
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
+foreign import ccall "wrapper" mkDestructor
+  :: (Ptr () -> Ptr GObject -> IO ()) -> IO GWeakNotify
 
 -- | Attach a callback that will be called after the
 -- destroy hooks have been called
@@ -134,7 +135,7 @@ foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
 objectWeakref :: ObjectClass o => o -> IO () -> IO GWeakNotify
 objectWeakref obj uFun = do
   funPtrContainer <- newIORef nullFunPtr
-  uFunPtr <- mkDestructor $ do
+  uFunPtr <- mkDestructor $ \_ _ -> do
     uFun
     funPtr <- readIORef funPtrContainer
     freeHaskellFunPtr funPtr

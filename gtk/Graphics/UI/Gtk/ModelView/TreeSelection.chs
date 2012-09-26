@@ -151,7 +151,7 @@ treeSelectionGetMode self =
 treeSelectionSetSelectFunction :: TreeSelectionClass self => self
  -> TreeSelectionCB -> IO ()
 treeSelectionSetSelectFunction ts fun = do
-  fPtr <- mkTreeSelectionFunc (\_ _ tp _ -> do
+  fPtr <- mkTreeSelectionFunc (\_ _ tp _ _ -> do
     path <- peekTreePath (castPtr tp)
     liftM fromBool $ fun path
     )
@@ -168,7 +168,7 @@ type TreeSelectionCB = TreePath -> IO Bool
 {#pointer TreeSelectionFunc#}
 
 foreign import ccall "wrapper"  mkTreeSelectionFunc ::
-  (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO CInt)->
+  (Ptr TreeSelection -> Ptr TreeModel -> Ptr NativeTreePath -> {#type gint#} -> Ptr () -> IO CInt)->
   IO TreeSelectionFunc
 
 -- | Retrieve the 'TreeView' widget that this 'TreeSelection' works on.
@@ -199,7 +199,7 @@ treeSelectionSelectedForeach :: TreeSelectionClass self => self
  -> TreeSelectionForeachCB
  -> IO ()
 treeSelectionSelectedForeach self fun = do
-  fPtr <- mkTreeSelectionForeachFunc (\_ _ iterPtr -> do
+  fPtr <- mkTreeSelectionForeachFunc (\_ _ iterPtr _ -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
@@ -219,7 +219,7 @@ type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
 
 foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
-  (Ptr () -> Ptr () -> Ptr TreeIter -> IO ()) -> IO TreeSelectionForeachFunc
+  (Ptr TreeModel -> Ptr NativeTreePath -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Creates a list of paths of all selected rows.
