@@ -27,7 +27,7 @@
 -- Portability : portable (depends on GHC)
 --
 module Graphics.UI.Gtk.Embedding.Embedding (
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0)) && GTK_MAJOR_VERSION < 3
   socketHasPlug,
 #endif
   ) where
@@ -35,7 +35,7 @@ module Graphics.UI.Gtk.Embedding.Embedding (
 import System.Glib.FFI
 import Graphics.UI.Gtk.Types
 
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0)) && GTK_MAJOR_VERSION < 3
 -- | Test if a Plug is connected to the socket.
 -- 
 socketHasPlug :: SocketClass s => s -> IO Bool

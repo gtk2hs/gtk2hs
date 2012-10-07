@@ -190,7 +190,11 @@ plugAttrEmbedded = readAttrFromBoolProperty "embedded"
 -- 
 plugAttrSocketWindow :: PlugClass self => ReadAttr self (Maybe DrawWindow)
 plugAttrSocketWindow = readAttrFromMaybeObjectProperty "socket-window"
+#if GTK_MAJOR_VERSION < 3
                        {# call pure unsafe gdk_window_object_get_type #}
+#else
+                       {# call pure unsafe gdk_window_get_type #}
+#endif
 
 --------------------
 -- Signals

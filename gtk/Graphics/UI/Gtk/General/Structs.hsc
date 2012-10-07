@@ -617,7 +617,11 @@ fromNativeWindowId = unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId Nothing
 #else
+#if GTK_MAJOR_VERSION < 3
 newtype NativeWindowId = NativeWindowId #{gtk2hs_type GdkNativeWindow} deriving (Eq, Show)
+#else
+newtype NativeWindowId = NativeWindowId #{gtk2hs_type Window} deriving (Eq, Show)
+#endif
 unNativeWindowId :: Integral a => NativeWindowId -> a
 unNativeWindowId (NativeWindowId id) = fromIntegral id
 toNativeWindowId :: Integral a => a -> NativeWindowId

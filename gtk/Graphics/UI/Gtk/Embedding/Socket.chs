@@ -116,6 +116,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
   ) where
 
 import Control.Monad	(liftM)
+import Data.Maybe (isJust)
 
 import System.Glib.FFI
 import System.Glib.Attributes
@@ -190,13 +191,18 @@ socketGetId self =
 -- * Available since Gtk+ version 2.14
 --
 socketGetPlugWindow :: SocketClass self => self
- -> IO DrawWindow -- ^ returns the window of the plug if available, or
-                  -- {@NULL@, FIXME: this should probably be converted to a
-                  -- Maybe data type}
+ -> IO (Maybe DrawWindow) -- ^ returns the window of the plug if available,
+                          -- or Nothing
 socketGetPlugWindow self =
-  makeNewGObject mkDrawWindow $
+  maybeNull (makeNewGObject mkDrawWindow) $
   {# call gtk_socket_get_plug_window #}
     (toSocket self)
+
+#if GTK_MAJOR_VERSION >= 3
+socketHasPlug :: SocketClass s => s -> IO Bool
+socketHasPlug = liftM isJust . socketGetPlugWindow
+#endif
+
 #endif
 
 --------------------
