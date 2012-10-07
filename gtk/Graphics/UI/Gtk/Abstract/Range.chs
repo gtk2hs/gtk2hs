@@ -125,6 +125,9 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(ScrollType(..))
+#if GTK_MAJOR_VERSION < 3
+import Graphics.UI.Gtk.General.Enums	(UpdateType(..))
+#endif
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
 {# context lib="gtk" prefix="gtk" #}

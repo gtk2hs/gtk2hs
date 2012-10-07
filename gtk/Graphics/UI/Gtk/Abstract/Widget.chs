@@ -231,8 +231,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetCanFocus,
   widgetGetAllocation,
 #endif
+#if GTK_CHECK_VERSION(3,0,0)
   widgetGetAllocatedWidth,
   widgetGetAllocatedHeight,
+#endif
   widgetGetState,
   widgetSetState,
 #if GTK_MAJOR_VERSION < 3
@@ -423,7 +425,7 @@ import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..)
 #if GTK_MAJOR_VERSION < 3
-    , ExtensionMode(..))
+    , ExtensionMode(..)
 #endif
     )
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
@@ -2300,6 +2302,7 @@ widgetGetAllocation widget =
      peek allocationPtr
 #endif
 
+#if GTK_CHECK_VERSION(3,0,0)
 -- | Returns the width that has currently been allocated to widget. This function is intended
 -- | to be used when implementing handlers for the "draw" function.
 widgetGetAllocatedWidth :: WidgetClass self => self -> IO Int
@@ -2311,6 +2314,7 @@ widgetGetAllocatedWidth widget =
 widgetGetAllocatedHeight :: WidgetClass self => self -> IO Int
 widgetGetAllocatedHeight widget =
      liftM fromIntegral $ {#call widget_get_allocated_height#} (toWidget widget)
+#endif
 
 #if GTK_CHECK_VERSION(2,18,0)
 -- | Retrieve the current state of the widget.

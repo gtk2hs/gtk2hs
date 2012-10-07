@@ -391,7 +391,7 @@ dialogGetActionArea self =
     {#call gtk_dialog_get_content_area #}
       (toDialog self)
 #else
-dialogGetContentArea = dialogGetUpper
+dialogGetContentArea self = liftM toWidget $ dialogGetUpper self
 #endif
 
 --------------------

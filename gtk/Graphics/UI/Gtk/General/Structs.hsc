@@ -5,7 +5,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include "template-hsc-gtk2hs.h"
-#if !defined(WIN32) && !HAVE_QUARTZ_GTK
+#if GTK_MAJOR_VERSION >= 3
 #include <gtk/gtkx.h>
 #endif
 --  GIMP Toolkit (GTK) Structures
@@ -127,6 +127,10 @@ import System.Glib.UTFString ( UTFCorrection, ofsToUTF )
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Types
+#if GTK_MAJOR_VERSION < 3
+import Graphics.UI.Gtk.Gdk.Enums (Function, Fill, SubwindowMode,
+                                  LineStyle, CapStyle, JoinStyle)
+#endif
 import Graphics.UI.Gtk.General.Enums	(StateType)
 import Graphics.UI.Gtk.General.DNDTypes (InfoId, Atom(Atom) , SelectionTag,
                                          TargetTag, SelectionTypeTag)

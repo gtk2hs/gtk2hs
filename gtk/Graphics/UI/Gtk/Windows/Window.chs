@@ -150,10 +150,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowType,
   windowAllowShrink,
   windowAllowGrow,
-#if GTK_MAJOR_VERSION >= 3
   windowResizable,
-#endif
+#if GTK_MAJOR_VERSION >= 3
   windowHasResizeGrip,
+#endif
   windowModal,
 #if GTK_CHECK_VERSION(2,12,0)
   windowOpacity,
@@ -2027,6 +2027,7 @@ windowResizable = newAttr
   windowGetResizable
   windowSetResizable
 
+#if GTK_MAJOR_VERSION >= 3
 -- | If @True@, window has a resize grip.
 --
 -- Default value: @True@
@@ -2035,6 +2036,7 @@ windowHasResizeGrip :: WindowClass self => Attr self Bool
 windowHasResizeGrip = newAttr
   windowGetHasResizeGrip
   windowSetHasResizeGrip
+#endif
 
 -- | If @True@, the window is modal (other windows are not usable while this
 -- one is up).
