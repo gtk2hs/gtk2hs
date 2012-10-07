@@ -179,10 +179,13 @@ instance Storable Color where
     #{poke GdkColor, red}   ptr red
     #{poke GdkColor, green} ptr green
     #{poke GdkColor, blue}  ptr blue
+#if GTK_MAJOR_VERSION < 3
     cPtr <- gdkColormapGetSystem
     gdkColormapAllocColor cPtr ptr 0 1
+#endif
     return ()
 
+#if GTK_MAJOR_VERSION < 3
 type ColorMap = ()
 
 foreign import ccall unsafe "gdk_colormap_get_system"
@@ -195,7 +198,6 @@ foreign import ccall unsafe "gdk_colormap_query_color"
   gdkColormapQueryColor :: Ptr ColorMap -> CULong -> Ptr Color -> IO ()
 
 -- entry GC
-#if GTK_MAJOR_VERSION < 3
 -- | Intermediate data structure for 'GC's.
 --
 -- * If @graphicsExposure@ is set then copying portions into a
@@ -600,12 +602,18 @@ fromNativeWindowId :: NativeWindowId -> Ptr a
 fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
-#elif GTK_MAJOR_VERSION < 3 || (!defined(WIN32) && !HAVE_QUARTZ_GTK)
-#if GTK_MAJOR_VERSION < 3
-newtype NativeWindowId = NativeWindowId #{gtk2hs_type GdkNativeWindow} deriving (Eq, Show)
+#elif defined(HAVE_QUARTZ_GTK)
+newtype NativeWindowId = NativeWindowId (Maybe DrawWindow) deriving (Eq)
+unNativeWindowId :: NativeWindowId -> Maybe DrawWindow
+unNativeWindowId (NativeWindowId id) = id
+toNativeWindowId :: Maybe DrawWindow -> NativeWindowId
+toNativeWindowId = NativeWindowId
+fromNativeWindowId :: NativeWindowId -> Maybe DrawWindow
+fromNativeWindowId = unNativeWindowId
+nativeWindowIdNone :: NativeWindowId
+nativeWindowIdNone = NativeWindowId Nothing
 #else
-newtype NativeWindowId = NativeWindowId #{type Window} deriving (Eq, Show)
-#endif
+newtype NativeWindowId = NativeWindowId #{gtk2hs_type GdkNativeWindow} deriving (Eq, Show)
 unNativeWindowId :: Integral a => NativeWindowId -> a
 unNativeWindowId (NativeWindowId id) = fromIntegral id
 toNativeWindowId :: Integral a => a -> NativeWindowId
@@ -659,7 +667,7 @@ drawableGetID d =
 #elif !defined(HAVE_QUARTZ_GTK)
      withForeignPtr drawable gdk_x11_drawable_get_xid
 #else
-     error "drawableGetID: not supported with a GTK using a Quartz backend"
+     return $ Just (DrawWindow drawable)
 #endif
 #if GTK_MAJOR_VERSION < 3
   ) (toDrawable d)

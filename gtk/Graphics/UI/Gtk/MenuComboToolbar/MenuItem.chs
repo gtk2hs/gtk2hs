@@ -107,6 +107,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemDeselect,
   menuItemToggle,
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 -- * Deprecated
   onActivateItem,
@@ -350,7 +351,6 @@ menuItemActivated = Signal (connect_NONE__NONE "activate")
 menuItemActivate :: MenuItemClass self => Signal self (IO ())
 menuItemActivate = menuItemActivated
 
-#if GTK_MAJOR_VERSION < 3
 -- | Emitted when the user chooses a menu item that has a submenu.
 --
 -- * This signal is not emitted if the menu item does not have a
@@ -361,22 +361,20 @@ menuItemActivateItem = menuItemActivatedItem
 
 -- | This signal is emitted when the item is selected.
 --
--- Removed in Gtk3.
-menuItemSelect :: ItemClass i => Signal i (IO ())
+menuItemSelect :: MenuItemClass i => Signal i (IO ())
 menuItemSelect = Signal (connect_NONE__NONE "select")
 
 -- | This signal is emitted when the item is deselected.
 --
--- Removed in Gtk3.
-menuItemDeselect :: ItemClass i => Signal i (IO ())
+menuItemDeselect :: MenuItemClass i => Signal i (IO ())
 menuItemDeselect = Signal (connect_NONE__NONE "deselect")
 
 -- | This signal is emitted when the item is toggled.
 --
--- Removed in Gtk3.
-menuItemToggle :: ItemClass i => Signal i (IO ())
+menuItemToggle :: MenuItemClass i => Signal i (IO ())
 menuItemToggle = Signal (connect_NONE__NONE "toggle")
 
+#if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
 --------------------
 -- Deprecated Signals

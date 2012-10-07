@@ -31,7 +31,6 @@ module Graphics.UI.Gtk.Gdk.Enums (
   DragAction(..),
   EventMask(..),
   Modifier(..),
-  ExtensionMode(..),
   NotifyType(..),
   ScrollDirection(..),
   VisibilityState(..),
@@ -44,6 +43,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
   OwnerChange(..),
 #endif
 #if GTK_MAJOR_VERSION < 3
+  ExtensionMode(..),
   CapStyle(..),
   Dither(..),
   Fill(..),
@@ -166,13 +166,13 @@ instance Flags EventMask
 
 instance Flags Modifier
 
+#if GTK_MAJOR_VERSION < 3
 -- | specify which input extension a widget desires
 --
 {#enum ExtensionMode {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags ExtensionMode
 
-#if GTK_MAJOR_VERSION < 3
 -- | How objects are filled.
 --
 -- Removed in Gtk3.

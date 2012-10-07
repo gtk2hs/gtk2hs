@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.Embedding.Plug (
 -- |                                 +----Plug
 -- @
 
-#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
 -- * Types
   Plug,
   PlugClass,
@@ -92,7 +92,7 @@ import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
 
 --------------------
 -- Constructors

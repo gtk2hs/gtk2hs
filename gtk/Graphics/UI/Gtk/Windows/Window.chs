@@ -150,7 +150,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowType,
   windowAllowShrink,
   windowAllowGrow,
+#if GTK_MAJOR_VERSION >= 3
   windowResizable,
+#endif
+  windowHasResizeGrip,
   windowModal,
 #if GTK_CHECK_VERSION(2,12,0)
   windowOpacity,
@@ -210,6 +213,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetTitle,
   windowSetResizable,
   windowGetResizable,
+#if GTK_MAJOR_VERSION >= 3
+  windowSetHasResizeGrip,
+  windowGetHasResizeGrip,
+#endif
   windowSetModal,
   windowGetModal,
 #if GTK_MAJOR_VERSION < 3
@@ -361,6 +368,24 @@ windowGetResizable self =
   liftM toBool $
   {# call unsafe window_get_resizable #}
     (toWindow self)
+
+#if GTK_MAJOR_VERSION >= 3
+-- | Sets whether the window has a resize grip. @True@ by default.
+--
+windowSetHasResizeGrip :: WindowClass self => self -> Bool -> IO ()
+windowSetHasResizeGrip self setting =
+  {# call window_set_has_resize_grip #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Returns whether the window has a resize grip.
+--
+windowGetHasResizeGrip :: WindowClass self => self -> IO Bool
+windowGetHasResizeGrip self =
+  liftM toBool $
+  {# call unsafe window_get_has_resize_grip #}
+    (toWindow self)
+#endif
 
 -- | Activates the current focused widget within the window.
 --
@@ -2001,6 +2026,15 @@ windowResizable :: WindowClass self => Attr self Bool
 windowResizable = newAttr
   windowGetResizable
   windowSetResizable
+
+-- | If @True@, window has a resize grip.
+--
+-- Default value: @True@
+--
+windowHasResizeGrip :: WindowClass self => Attr self Bool
+windowHasResizeGrip = newAttr
+  windowGetHasResizeGrip
+  windowSetHasResizeGrip
 
 -- | If @True@, the window is modal (other windows are not usable while this
 -- one is up).

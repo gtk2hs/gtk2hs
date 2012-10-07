@@ -47,6 +47,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.IconTheme,
   module Graphics.UI.Gtk.General.StockItems,
   module Graphics.UI.Gtk.General.Selection,
+  module Graphics.UI.Gtk.General.Settings,
   module Graphics.UI.Gtk.General.Drag,
   module Graphics.UI.Gtk.Gdk.Keys,
   module Graphics.UI.Gtk.General.Style,
@@ -278,6 +279,7 @@ import Graphics.UI.Gtk.General.IconFactory
 import Graphics.UI.Gtk.General.IconTheme
 import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Selection
+import Graphics.UI.Gtk.General.Settings
 import Graphics.UI.Gtk.General.Drag
 import Graphics.UI.Gtk.General.Clipboard
 -- drawing

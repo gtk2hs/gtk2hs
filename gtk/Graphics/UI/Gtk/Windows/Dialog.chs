@@ -109,8 +109,9 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- * Methods
 #if GTK_MAJOR_VERSION < 3
   dialogGetUpper,
-  dialogGetActionArea,
 #endif
+  dialogGetContentArea,
+  dialogGetActionArea,
   dialogRun,
   dialogResponse,
   dialogAddButton,
@@ -371,6 +372,28 @@ dialogGetWidgetForResponse self responseId =
       (fromResponse responseId)
 #endif
 
+#if GTK_MAJOR_VERSION >= 3
+-- | Returns the content area of dialog.
+dialogGetContentArea :: DialogClass self => self -> IO Widget
+dialogGetContentArea self =
+    makeNewObject mkWidget $
+    {#call gtk_dialog_get_content_area #}
+      (toDialog self)
+
+-- | Returns the action area of dialog.
+--
+-- * This is useful to add some special widgets that cannot be added with
+-- dialogAddActionWidget.
+--
+dialogGetActionArea :: DialogClass self => self -> IO Widget
+dialogGetActionArea self =
+    makeNewObject mkWidget $
+    {#call gtk_dialog_get_content_area #}
+      (toDialog self)
+#else
+dialogGetContentArea = dialogGetUpper
+#endif
+
 --------------------
 -- Attributes
 #if GTK_MAJOR_VERSION < 3
@@ -449,3 +472,4 @@ onResponse, afterResponse :: DialogClass self => self
 onResponse dia act = connect_INT__NONE "response" False dia (act . toResponse)
 afterResponse dia act = connect_INT__NONE "response" True dia (act . toResponse)
 #endif
+

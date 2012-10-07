@@ -63,7 +63,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   castToWidget, gTypeWidget,
   toWidget,
   EventMask(..),
+#if GTK_MAJOR_VERSION < 3
   ExtensionMode(..),
+#endif
   GType,
   KeyVal,
 #if GTK_MAJOR_VERSION < 3
@@ -84,9 +86,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- * Methods
   widgetShow,
   widgetShowNow,
-#if GTK_MAJOR_VERSION < 3
   widgetHide,
-#endif
   widgetShowAll,
 #if GTK_MAJOR_VERSION < 3
   widgetHideAll,
@@ -120,6 +120,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #if GTK_MAJOR_VERSION < 3
   widgetGetDrawWindow,
 #endif
+  widgetGetWindow,
   widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
@@ -230,6 +231,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetCanFocus,
   widgetGetAllocation,
 #endif
+  widgetGetAllocatedWidth,
+  widgetGetAllocatedHeight,
   widgetGetState,
   widgetSetState,
 #if GTK_MAJOR_VERSION < 3
@@ -418,7 +421,11 @@ import Graphics.Rendering.Pango.Markup
 import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
+import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..)
+#if GTK_MAJOR_VERSION < 3
+    , ExtensionMode(..))
+#endif
+    )
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
 {#import Graphics.UI.Gtk.Gdk.Region#}	(
 #if GTK_MAJOR_VERSION < 3
@@ -520,7 +527,6 @@ widgetShowNow self =
   {# call widget_show_now #}
     (toWidget self)
 
-#if GTK_MAJOR_VERSION < 3
 -- | Reverses the effects of 'widgetShow', causing the widget to be hidden
 -- (invisible to the user).
 --
@@ -528,7 +534,6 @@ widgetHide :: WidgetClass self => self -> IO ()
 widgetHide self =
   {# call widget_hide #}
     (toWidget self)
-#endif
 
 -- | Recursively shows a widget, and any child widgets (if the widget is a
 -- container).
@@ -1295,6 +1300,18 @@ widgetSetTooltipWindow self customWindow =
 widgetTriggerTooltipQuery :: WidgetClass self => self -> IO ()
 widgetTriggerTooltipQuery self =
   {# call gtk_widget_trigger_tooltip_query #}
+    (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Returns the widget's window if it is realized, Nothing otherwise
+--
+-- * Available since Gtk+ version 2.14
+--
+widgetGetWindow :: WidgetClass self => self -> IO (Maybe DrawWindow)
+widgetGetWindow self =
+  maybeNull (makeNewGObject mkDrawWindow) $
+  {# call gtk_widget_get_window #}
     (toWidget self)
 #endif
 
@@ -2282,6 +2299,18 @@ widgetGetAllocation widget =
      {#call widget_get_allocation#} (toWidget widget) (castPtr allocationPtr)
      peek allocationPtr
 #endif
+
+-- | Returns the width that has currently been allocated to widget. This function is intended
+-- | to be used when implementing handlers for the "draw" function.
+widgetGetAllocatedWidth :: WidgetClass self => self -> IO Int
+widgetGetAllocatedWidth widget =
+     liftM fromIntegral $ {#call widget_get_allocated_width#} (toWidget widget)
+
+-- | Returns the height that has currently been allocated to widget. This function is intended
+-- | to be used when implementing handlers for the "draw" function.
+widgetGetAllocatedHeight :: WidgetClass self => self -> IO Int
+widgetGetAllocatedHeight widget =
+     liftM fromIntegral $ {#call widget_get_allocated_height#} (toWidget widget)
 
 #if GTK_CHECK_VERSION(2,18,0)
 -- | Retrieve the current state of the widget.

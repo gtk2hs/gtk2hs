@@ -219,6 +219,7 @@ Library
           Graphics.UI.Gtk.General.IconTheme
           Graphics.UI.Gtk.General.RcStyle
           Graphics.UI.Gtk.General.Selection
+          Graphics.UI.Gtk.General.Settings
           Graphics.UI.Gtk.General.StockItems
           Graphics.UI.Gtk.General.Style
           Graphics.UI.Gtk.Layout.Alignment
@@ -378,21 +379,22 @@ Library
         else
           x-Types-Tag:  deprecated 
         if os(windows)
-          x-c2hs-Header:  wingtk.h
           cpp-options:    -DWIN32
           extra-libraries: kernel32
-        else 
-          if flag(gtk3)
-            x-c2hs-Header:  gtk2hsX.h
-          else
-            x-c2hs-Header:  gtk/gtk.h
+        
+        x-c2hs-Header:  hsgtk.h
         
         if flag(gtk3)
           x-Types-Hierarchy:  hierarchy3.list
         else
           x-Types-Hierarchy:  hierarchy.list
         
-        x-Types-Tag:     default plugNsocket
+        if os(windows) || flag(have-quartz-gtk)
+          x-Types-Tag: default
+        else
+          x-Types-Tag: default plugNsocket
+          cpp-options: -DHAVE_PLUG_AND_SOCKET
+
         if flag(gtk3)
           pkgconfig-depends: gthread-2.0, gtk+-3.0
         else
