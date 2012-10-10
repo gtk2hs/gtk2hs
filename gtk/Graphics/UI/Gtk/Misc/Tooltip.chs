@@ -34,8 +34,8 @@ module Graphics.UI.Gtk.Misc.Tooltip (
 -- | 'Tooltip' belongs to the new tooltips API that was introduced in Gtk+
 -- 2.12 and which deprecates the old 'Tooltips' API.
 --
--- Basic tooltips can be realized simply by using 'widgetSetTooltipText' or
--- 'widgetSetTooltipMarkup' without any explicit tooltip object.
+-- Basic tooltips can be realized simply by using 'widgetTooltipText' or
+-- 'widgetTooltipMarkup' without any explicit tooltip object.
 --
 -- When you need a tooltip with a little more fancy contents, like adding an
 -- image, or you want the tooltip to have different contents per 'TreeView' row
