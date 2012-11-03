@@ -198,16 +198,16 @@ foreign import ccall unsafe "gtk2hs_closure_new"
 
 {#pointer GClosureNotify#}
 
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify 	 
-  	 
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify
+
 mkFunPtrClosureNotify :: FunPtr a -> IO GClosureNotify
-mkFunPtrClosureNotify hPtr = do 	 
-  dRef <- newIORef nullFunPtr 	 
-  dPtr <- mkDestructor $ do 	 
-    freeHaskellFunPtr hPtr 	 
-    dPtr <- readIORef dRef 	 
-    freeHaskellFunPtr dPtr 	 
-  writeIORef dRef dPtr 	 
+mkFunPtrClosureNotify hPtr = do
+  dRef <- newIORef nullFunPtr
+  dPtr <- mkDestructor $ do
+    freeHaskellFunPtr hPtr
+    dPtr <- readIORef dRef
+    freeHaskellFunPtr dPtr
+  writeIORef dRef dPtr
   return dPtr
 
 #endif
