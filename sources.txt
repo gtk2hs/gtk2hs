@@ -1,0 +1,6 @@
+./glib
+./gio
+./cairo
+./pango
+./gtk -fgtk3
+
