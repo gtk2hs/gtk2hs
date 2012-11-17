@@ -2,5 +2,5 @@
 ./gio
 ./cairo
 ./pango
-./gtk -fgtk3
+./gtk
 
