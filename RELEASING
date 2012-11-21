@@ -27,6 +27,7 @@ At release time:
     cabal sdist && cabal upload dist/*.tar.gz
     popd
   done
+* darcs tag those babies!
 * Make an announcement on the mailing lists. Below is a template email. Once in
   a while, you might want to run a command like this to update the
   "contributors" section:
