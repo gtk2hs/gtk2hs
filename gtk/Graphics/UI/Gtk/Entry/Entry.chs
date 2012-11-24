@@ -114,6 +114,7 @@ module Graphics.UI.Gtk.Entry.Entry (
 #endif
 
 -- * Signals
+  entryActivated,
   entryActivate,
   entryBackspace,
   entryCopyClipboard,
@@ -684,8 +685,12 @@ entryBuffer = newAttr
 -- 
 -- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
 -- control activation programmatically.
+entryActivated :: EntryClass ec => Signal ec (IO ())
+entryActivated = Signal (connect_NONE__NONE "activate")
+
+-- | Deprecated. See 'entryActivated'.
 entryActivate :: EntryClass ec => Signal ec (IO ())
-entryActivate = Signal (connect_NONE__NONE "activate")
+entryActivate = entryActivated
 
 -- | The 'entryBackspace' signal is a keybinding signal which gets emitted when the user asks for it.
 -- 

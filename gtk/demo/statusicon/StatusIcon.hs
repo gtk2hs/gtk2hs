@@ -25,4 +25,4 @@ mkmenu s = do
         mkitem menu (label,act) =
             do i <- menuItemNewWithLabel label
                menuShellAppend menu i
-               on i menuItemActivate act
+               on i menuItemActivated act

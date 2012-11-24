@@ -153,8 +153,8 @@ comboBoxEntryNewWithModel model = do
 -- Any exisiting model or renderers are removed before setting the new text
 -- model.
 -- In order to respond to new texts that the user enters, it is necessary to
--- connect to the 'Graphics.UI.Gtk.Entry.Entry.entryActivate' signal of the
--- contained 'Graphics.UI.Gtk.Entry.Entry.Entry' an insert the text into the
+-- connect to the 'Graphics.UI.Gtk.Entry.Entry.entryActivated' signal of the
+-- contained 'Graphics.UI.Gtk.Entry.Entry.Entry' and insert the text into the
 -- text model which can be retrieved with
 -- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxGetModelText'.
 -- Note that the functions 'comboBoxAppendText', 'comboBoxInsertText',

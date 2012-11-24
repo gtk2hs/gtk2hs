@@ -110,6 +110,7 @@ module Graphics.UI.Gtk.Display.StatusIcon (
 
 -- * Signals
   statusIconSizeChanged,
+  statusIconActivated,
   statusIconActivate,
   statusIconPopupMenu,
 
@@ -550,9 +551,13 @@ statusIconSizeChanged = Signal (connect_INT__BOOL "size-changed")
 
 -- | Gets emitted when the user activates the status icon. 
 -- If and how status icons can activated is platform-dependent.
+statusIconActivated :: StatusIconClass self => Signal self (IO ())
+statusIconActivated = Signal (connect_NONE__NONE "activate")
+
+-- | Deprecated. See 'statusIconActivated'.
 statusIconActivate :: StatusIconClass self => Signal self (IO ())
-statusIconActivate = Signal (connect_NONE__NONE "activate")
- 
+statusIconActivate = statusIconActivated
+
 -- | Gets emitted when the user brings up the context menu
 -- of the status icon. Whether status icons can have context 
 -- menus and how these are activated is platform-dependent.

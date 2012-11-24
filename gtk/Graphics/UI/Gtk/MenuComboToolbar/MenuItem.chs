@@ -101,6 +101,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 #endif
 
 -- * Signals
+  menuItemActivatedItem,
+  menuItemActivated,
   menuItemActivateItem,
   menuItemActivate,
   menuItemSelect,
@@ -341,16 +343,24 @@ menuItemUseUnderline = newAttr
 -- * This is the only function applications normally connect to.
 --   It is not emitted if the item has a submenu.
 --
+menuItemActivated :: MenuItemClass self => Signal self (IO ())
+menuItemActivated = Signal (connect_NONE__NONE "activate")
+
+-- | Deprecated. See 'menuItemActivated'.
 menuItemActivate :: MenuItemClass self => Signal self (IO ())
-menuItemActivate = Signal (connect_NONE__NONE "activate")
+menuItemActivate = menuItemActivated
 
 -- | Emitted when the user chooses a menu item that has a submenu.
 --
 -- * This signal is not emitted if the menu item does not have a
 --   submenu.
 --
+menuItemActivatedItem :: MenuItemClass self => Signal self (IO ())
+menuItemActivatedItem = Signal (connect_NONE__NONE "activate-item")
+
+-- | Deprecated. See 'menuItemActivatedItem'.
 menuItemActivateItem :: MenuItemClass self => Signal self (IO ())
-menuItemActivateItem = Signal (connect_NONE__NONE "activate-item")
+menuItemActivateItem = menuItemActivatedItem
 
 -- | This signal is emitted when the item is selected.
 --
