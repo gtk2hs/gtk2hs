@@ -52,7 +52,9 @@ module Graphics.UI.Gtk.Entry.Entry (
 
 -- * Constructors
   entryNew,
+#if GTK_CHECK_VERSION(2,18,0)
   entryNewWithBuffer,
+#endif
 
 -- * Methods
   entrySetText,
@@ -190,6 +192,7 @@ entryNew =
   liftM (castPtr :: Ptr Widget -> Ptr Entry) $
   {# call unsafe entry_new #}
 
+#if GTK_CHECK_VERSION(2,18,0)
 -- | Creates a new 'Entry' widget backed by a particular 'EntryBuffer'. One
 -- buffer can be shared among many widgets.
 --
@@ -203,7 +206,6 @@ entryNewWithBuffer buffer =
 --------------------
 -- Methods
 
-#if GTK_CHECK_VERSION(2,18,0)
 -- Although the documentation doesn't say one way or the other, a look at the
 -- source indicates that gtk_entry_get_buffer doesn't increment the reference
 -- count of the GtkEntryBuffer it returns, so, like textViewGetBuffer, we must
