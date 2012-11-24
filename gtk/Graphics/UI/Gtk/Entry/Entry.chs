@@ -103,7 +103,6 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryActivatesDefault,
   entryWidthChars,
   entryScrollOffset,
-  entryBuffer,
   entryText,
 #if GTK_CHECK_VERSION(2,4,0)
   entryXalign,
@@ -203,26 +202,27 @@ entryNewWithBuffer buffer =
 --------------------
 -- Methods
 
--- | Sets the given buffer as the buffer being displayed.
---
-entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self -> buffer -> IO ()
-entrySetBuffer self buffer =
-  {# call entry_set_buffer #}
-    (toEntry self)
-    (toEntryBuffer buffer)
-
+#if GTK_CHECK_VERSION(2,18,0)
 -- Although the documentation doesn't say one way or the other, a look at the
 -- source indicates that gtk_entry_get_buffer doesn't increment the reference
 -- count of the GtkEntryBuffer it returns, so, like textViewGetBuffer, we must
 -- increment it ourselves.
 
--- | Returns the 'EntryBuffer' being displayed.
---
-entryGetBuffer :: EntryClass self => self -> IO EntryBuffer
+-- | Get the 'EntryBuffer' object which holds the text for this widget.
+entryGetBuffer :: EntryClass self => self
+  -> IO EntryBuffer
 entryGetBuffer self =
   makeNewGObject mkEntryBuffer $
-  {# call entry_get_buffer #}
+  {# call gtk_entry_get_buffer #}
     (toEntry self)
+
+-- | Set the 'EntryBuffer' object which holds the text for this widget.
+entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self
+  -> buffer -> IO ()
+entrySetBuffer self =
+  {# call gtk_entry_set_buffer #}
+    (toEntry self) . toEntryBuffer
+#endif
 
 -- | Sets the text in the widget to the given value, replacing the current
 -- contents.
@@ -472,23 +472,6 @@ entryGetCompletion self =
     (toEntry self)
 #endif
 
-#if GTK_CHECK_VERSION(2,18,0)
--- | Get the 'EntryBuffer' object which holds the text for this widget.
-entryGetBuffer :: EntryClass self => self
-  -> IO EntryBuffer
-entryGetBuffer self =
-  makeNewGObject mkEntryBuffer $
-  {# call gtk_entry_get_buffer #}
-    (toEntry self)
-
--- | Set the 'EntryBuffer' object which holds the text for this widget.
-entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self
-  -> buffer -> IO ()
-entrySetBuffer self =
-  {# call gtk_entry_set_buffer #}
-    (toEntry self) . toEntryBuffer
-#endif
-
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
 -- drawing something to the entry in an 'eventExpose' callback because it enables the callback to
@@ -647,13 +630,6 @@ entryWidthChars = newAttr
 entryScrollOffset :: EntryClass self => ReadAttr self Int
 entryScrollOffset = readAttrFromIntProperty "scroll-offset"
 
--- | The buffer being displayed.
---
-entryBuffer :: EntryClass self => Attr self EntryBuffer
-entryBuffer = newAttr
-  entryGetBuffer
-  entrySetBuffer
-
 -- | The contents of the entry.
 --
 -- Default value: \"\"
@@ -691,6 +667,8 @@ entryCompletion = newAttr
 #endif
 
 #if GTK_CHECK_VERSION(2,18,0)
+-- | The buffer being displayed.
+--
 entryBuffer :: (EntryClass self, EntryBufferClass buffer) =>
   ReadWriteAttr self EntryBuffer buffer
 entryBuffer = newAttr
