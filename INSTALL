@@ -1,202 +1,240 @@
-Gtk2Hs: A GUI Library for Haskell based on Gtk+
+This is a mirror of the wiki document available at http://www.haskell.org/haskellwiki/Gtk2Hs/Installation. See that document for the most up-to-date version of the installation instructions. If you are reading this document on a Linux machine, you probably already have a copy of the gtk2hs source code available, so you should skip straight to the "From Source" section of those instructions.
+----------------------------------
 
-Contents:
+These instructions are for installing everything necessary to go from a newly installed operating system to a minimal (but working) Gtk2Hs installation.
 
-* Overview
-* Building
-* Building form darcs
-* Running the demos
-* Documentation
-* Deinstallation
-* Building on Windows
+Table of Contents
+1 Windows
+    1.1 Haskell Build System
+    1.2 GTK Libraries
+    1.3 Gtk2Hs Bindings
+    1.4 Changing Environment Variables
+        1.4.1 Command Prompt
+        1.4.2 Windows XP GUI
+        1.4.3 Windows 7 GUI
+    1.5 Unzipping
+    1.6 Installing darcs
+2 Linux
+    2.1 Preferred Way: Via Package Manager
+    2.2 From Source
+    2.3 Installing darcs
+3 Mac
+4 FreeBSD
+5 Appendix
+    5.1 Supported Versions
+        5.1.1 Operating System
+        5.1.2 Gtk+
+        5.1.3 GHC
+        5.1.4 Tested Configurations
+    5.2 Going Beyond Minimal: All Available Packages
+    5.3 Getting the Latest and Greatest
+    5.4 Getting the Oldest and Moldiest
+    5.5 Troubleshooting
+        5.5.1 glade.h is not found
+        5.5.2 cabal cannot find gtk2hsC2hs
+        5.5.3 "Spinner" errors while trying to compile the "notebook" demo
+    5.6 Uninstalling
 
-Overview
---------
+== Windows ==
+=== Haskell Build System ===
+You will need at least GHC and cabal-install. The simplest way to get these is to install [http://www.haskell.org/platform/ the Haskell Platform]. You will need to add cabal-install's executable directory to your %PATH% (it will tell you which path to add in a warning after you install your first executable there). See [[#Changing Environment Variables]] for details on how to do this.
 
-http://haskell.org/gtk2hs/
+=== GTK Libraries ===
+Download an all-in-one bundle from [http://www.gtk.org/download/win32.php the Gtk+ website]. Unpack the bundle to a path that does not have spaces in it, and add the /bin directory created by unpacking to your %PATH%. Important points:
+* Get an all-in-one bundle. Do not install each of the packages separately.
+* Do not install the bundle to a path that has spaces in it.
+* Do not get the 2.16 bundle.
 
-Gtk2hs is a set of Haskell packages wrapping the GTK+ GUI stack:
+You can check that you have done everything in this step correctly by opening a command prompt and entering
+ <nowiki>pkg-config --cflags gtk+-2.0</nowiki>
+If you see some compiler flags that contain the path into which you have installed the binary bundle, you are okay.
 
-* tools             (Tools to build gtk2hs)
-* glib              (GLib2 library)
-* gio               (VFS library)
-* cairo             (Vector graphics library)
-* pango             (Unicode text rendering)
-* gtk               (GTK+ GUI toolkit)
-
-The following are also available, but are not built by default when installing
-the 'gtk' package. In particular, these might not have a binary library on
-Windows available:
-
-* gconf             (GConf2 configuration system)
-* glade             (libglade UI loader)
-* gstreamer         (Media codec library)
-* gtkglext          (Gtk+ OpenGL extension)
-* gtksourceview2    (Source code editor)
-* svgcairo          (Cairo SVG loader)
-* vte               (Terminal emulator)
-* webkit            (WebKit rendering engine)
-* soegtk            (Graphics library for book "The Haskell School of Expression")
-
-The following packages are deprecated:
-* gnomevfs      (replaced by gio)
-* mozembed      (replaced by webkit)
-* sourceview    (replaced by gtksourceview2)
-
-The GHC Haskell compiler, version 6.10.x or greater, is required.
-Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
-ghc-6.12.2 has a runtime issue that can cause gtk2hs apps to crash
-(http://hackage.haskell.org/trac/ghc/ticket/4038), so better avoid it.
-
-These instructions are about building Gtk2Hs from source. Certain Linux
-distributions might provide binary packages via their packaging system.
-
-
-Building
---------
-
-From version 0.11, gtk2hs is now distributed as separate packages on hackage.
-So the easiest way to install it is using "cabal-install", eg.:
-
-cabal install gtk
-
-Building the Gtk2Hs packages requires the installation of Gtk2Hs-specific
-build tools. You can install these by issuing:
-
+=== Gtk2Hs Bindings ===
+This step should be as easy as running
+ <nowiki>
+cabal update
 cabal install gtk2hs-buildtools
+cabal install gtk</nowiki>
+After installing gtk2hs-buildtools, make sure that gtk2hsC2hs is in a directory that is on your %PATH%.
+=== Changing Environment Variables ===
+The installation process involves modifying (or, if necessary, adding) the %PATH% environment variable. This subtopic describes how to do this. The %PATH% variable is a ';'-separated list of directories.
 
-Note that you need to have ~/.cabal/bin on your PATH since otherwise building
-the libraries will fail, saying that e.g. gtk2hsC2hs cannot be found.
+==== Command Prompt ====
+You can see and modify variables with echo and set:
+ <nowiki>
+echo %PATH%
+set PATH=dir1;dir2;...</nowiki>
 
-Building on Windows
---------------------
+==== Windows XP GUI ====
+* Start -> Control Panel -> System -> Advanced -> Environment Variables
+* In the <em>top</em> window, click "New" to add a variable or "Edit" to modify an existing one.
 
-Installation on Windows is nearly as easy as on Unix platforms. However, you
-need to download the pre-compiled binary libraries of Gtk+ and all it's
-dependent libraries. Point your browser to
+==== Windows 7 GUI ====
+* Click on the Windows symbol on the bottom-left where "Start" used to be
+* Choose Computer -> Properties -> Advanced System Settings
+* In the <em>top</em> window, click "New" to add a variable or "Edit" to modify an existing one.
 
-http://www.gtk.org/download-windows.html
+=== Unzipping ===
+There are many good tools for extracting zip archives on Windows. If you don't have one already, [http://www.7-zip.org/ 7-zip] is a fine choice to install. You can extract a file with a command like
+ <nowiki>
+cd c:\path\to\where\you\want\to\extract\files
+7za x c:\path\to\file.zip</nowiki>
 
-and download one of the "All-in-one bundles". Note that you do *not* need to
-install MinGW nor MSys (but it does not hurt if they are installed on your
-system). Install the binaries by unpacking them into a directory without
-spaces. Again, this is very important:
+=== Installing darcs ===
+You can get a copy of darcs for Windows from [http://darcs.net/Binaries the official download page].
 
-*** Do not install the binaries into a directory with embedded spaces. ***
+== Linux ==
+=== Preferred Way: Via Package Manager ===
+You should check if your package manager already has gtk2hs, as this is the easiest and most reliable way to get everything installed. Below is a short list of package names for some distributions (feel free to add your favorite).
+* Debian: libghc-gtk-dev
+* Fedora: ghc-gtk-devel
+* Gentoo: available in the haskell overlay as dev-haskell/gtk
 
-Ensure that the /bin directory is added to your %PATH%. You can ensure that
-everything is installed correctly if you can say
+=== From Source ===
+First install the dependencies: a Haskell build system and the Gtk+ libraries. For the build system, you need at least GHC and cabal-install; for the Gtk+ libraries you will need (the development versions of) glib, gio, cairo, pango, and gtk. The names of the appropriate packages are listed below for some distributions (feel free to add your favorite).
+* Debian: ghc cabal-install libglib2.0-dev libcairo2-dev libpango1.0-dev libgtk2.0-dev
+* Fedora: ghc-compiler cabal-install glib2-devel cairo-devel pango-devel gtk2-devel
 
-pkg-config --cflags gtk+-2.0
+You must add cabal's executable directory to your $PATH next. By default, this directory is $HOME/.cabal/bin. To do this locally for a single shell, write
+ <nowiki>export PATH=$HOME/.cabal/bin:$PATH</nowiki>
+Add a line with the same contents to your shell's rc file to make this change in all future invocations of your shell.
 
-and you see some compiler flags that contain the path into which you have
-installed the binary bundle. We had reports that the binaries containing version 2.22 do not work and that the version 2.16 gives the following errors when running cabal:
+You can now build Gtk2Hs itself, with the commands
+ <nowiki>
+cabal update
+cabal install gtk2hs-buildtools
+cabal install gtk</nowiki>
 
-setup.exe: gtk-0.12.0: library-dirs: c:/.../dist/win64/libpng-1.4.3-1/lib doesn't exist or isn't a directory
+=== Installing darcs ===
+There are binaries available on [http://darcs.net/Binaries the official download page], or in almost all cases via your package manager as a package named darcs.
 
-This problem can be worked around by creating said directory and copying libpng into it. Any further feedback regarding the installation of the binary packages is welcome.
+== Mac ==
+There are one-off experience reports of varying age available at [[Gtk2Hs/Mac]]. Please write to the mailing list if you are willing to maintain good instructions (or just start editing this page!).
 
-You may now install the cabal packages of Gtk2Hs into any directory you like
-(including one that contains embedded spaces). Note that cabal installs the
-tools necessary to build into something like
+== FreeBSD ==
+Gtk2Hs is available as [http://www.freshports.org/x11-toolkits/hs-gtk2hs/ hs-gtk2hs] in FreshPorts.
 
-C:\Documents and Settings\%user%\Application Data\cabal\bin
+== Appendix ==
+=== Supported Versions ===
+The most recent release of Gtk2Hs was tested on the a variety of systems. Below we offer two kinds of statistics; the second thing we give is a list of system configurations on which the minimal gtk2hs installation described above has been tested. (Please feel free to add your system configuration if you build gtk2hs.) Above that, we list the versions of each component for which some system configuration successfully built gtk2hs, with an asterisk marking those that are officially supported. Any system configuration containing officially supported versions of each component should be able to build gtk2hs successfully; please report a bug if you find this not to be true!
 
-Make sure that this path is also in your %PATH% variable!
+==== Operating System ====
+* Windows XP*
+* Ubuntu 12.10*
+* Fedora 17*
 
-ghci and Gtk2Hs on Windows
+==== Gtk+ ====
+* 2.12*
+* 2.14*
+* 2.18*
+* 2.20*
+* 2.22*
+* 2.24*
 
-Due to the way cabal registers packages with ghc, it is quite difficult to
-perform the renaming of libraries which is necessary for the binary Windows
-bundle to work. As a consequence, the cabal package can do this renaming only
-with Cabal 1.8 (shipped with ghc 6.12). If you use ghc 6.10 or earlier, you
-need to upgrade your Cabal system to 1.8 if you want to build Gtk2Hs with ghci
-support. Note that it is always possible to build executables on Windows.
+==== GHC ====
+* 7.0*
+* 7.2*
+* 7.4*
+* 7.6*
 
-Building on Mac OS X
---------------------
+==== Tested Configurations ====
+gtk-0.12.4:
+* Windows XP, Gtk+ 2.12, GHC 7.6
+* Windows XP, Gtk+ 2.14, GHC 7.6
+* Windows XP, Gtk+ 2.18, GHC 7.6
+* Windows XP, Gtk+ 2.20, GHC 7.6
+* Windows XP, Gtk+ 2.22, GHC 7.6
+* Windows XP, Gtk+ 2.24, GHC 7.6
+* Windows XP, Gtk+ 2.24, GHC 7.4
+* Windows XP, Gtk+ 2.24, GHC 7.2
+* Windows XP, Gtk+ 2.24, GHC 7.0
+* Fedora 17, Gtk+ 2.24, GHC 7.6
+gtk-0.12.3:
+* Ubuntu 12.10, Gtk+ 2.24, GHC 7.4
+* Windows 7, Gtk+ ??, GHC ??
 
-There is nothing particular about Mac OS X, except that pango 1.26 has a bug
-that makes application seem to hang.
+=== Going Beyond Minimal: All Available Packages ===
+There are many packages available. The basic one installed by the above instructions are:
 
-Furthermore, there are libraries that use the native Aqua API as a backend to
-Gdk. It seems that this porting effort has stalled and as of now does not
-support certain features as copy and paste. Use at your own risk.
+* [http://hackage.haskell.org/package/gtk2hs-buildtools gtk2hs-buildtools]: build tools, required to build from source
+* [http://hackage.haskell.org/package/glib glib]: object type system and data structures
+* [http://hackage.haskell.org/package/gio gio]: an OS-agnostic file access API
+* [http://hackage.haskell.org/package/cairo cairo]: a 2D vector graphics library
+* [http://hackage.haskell.org/package/pango pango]: a Unicode-aware font rendering engine
+* [http://hackage.haskell.org/package/gtk gtk]: the base GUI library
 
-NOTE: If you use Quartz backend on Mac OS X, please building with the 
-flag -have-quartz-gtk to disable function gdk_x11_drawable_get_xid, 
-otherwise you will get linking error :
+The following packages are also available:
 
-    Loading package gtk-0.12.0 ... linking ... <interactive>:
-    unknown symbol `_gdk_x11_drawable_get_xid'
-    ghc: unable to load package `gtk-0.12.0'
+* [http://hackage.haskell.org/package/gconf gconf]: configuration database
+* [http://hackage.haskell.org/package/glade glade]: a library to build user interfaces from XML descriptions
+* [http://hackage.haskell.org/package/gstreamer gstreamer]: a multimedia streaming framework
+* [http://hackage.haskell.org/package/gtkglext gtkglext]: an OpenGL widget
+* [http://hackage.haskell.org/package/gtksourceview2 gtksourceview2]: a source-code widget
+* [http://hackage.haskell.org/package/soegtk soegtk]: an API providing functions for Paul Hudak's Haskell School of Expressions book
+* [http://hackage.haskell.org/package/svgcairo svgcairo]: writing Cairo graphics to SVG files
+* [http://hackage.haskell.org/package/vte vte]: a terminal widget
+* [http://hackage.haskell.org/package/webkit webkit]: a web-browser widget, based on Apple's webkit library
 
-Building from darcs
--------------------
+The following deprecated packages are no longer supported, and are only available via darcs (see, funnily enough, [[#Getting the Latest and Greatest]] below for instructions on using this tool):
 
-This section assumes that you are building from a darcs checkout or snapshot.
-If you are building on Windows, read "Building on Windows" first.
+* [http://www2.in.tum.de/~simona/sourceview sourceview]: version 1 of the SourceView widget
+* [http://www2.in.tum.de/~simona/gnomevfs gnomevfs]: Gnome Virtual File System, superseded by gio
+* [http://www2.in.tum.de/~simona/mozembed mozembed]: a web-browser widget, superseded by webkit
 
-The following assumes that the sources are in ~/gtk2hs.
+=== Getting the Latest and Greatest ===
+First follow your operating system's instructions for installing dependencies and for installing darcs. You can then get a copy of the newest code by running the command
+ <nowiki>darcs get --lazy http://code.haskell.org/gtk2hs</nowiki>
+On Linux, you can build all the basic packages by running
+ <nowiki>cd gtk2hs && sh bootstrap.sh</nowiki>
+On Windows, run cabal install in each directory by hand:
+ <nowiki>
+cd gtk2hs/tools
+cabal install
+cd ../glib
+cabal install
+cd ../gio
+cabal install
+cd ../cairo
+cabal install
+cd ../pango
+cabal install
+cd ../gtk
+cabal install</nowiki>
 
-Building the latest sources from the darcs repository is normally straight
-forward. In fact, since Gtk2Hs is only a wrapper around Gtk+, the development
-version is usually not as "unstable" as it is for most software projects.
-You must have all the appropriate development packages installed of course
-(glib-2.0, gio-2.0, pango, cairo, gtk+-2.0) for all the packages you wish to build. You can check the existence by running 'pkg-config --list-all'.
+One benefit of getting the source repository is that there are demos available in each package's demo directory. For example, you can run gtk's Hello World example by:
+ <nowiki>
+cd gtk2hs/gtk/demo/hello
+ghc World
+./World</nowiki>
+There are also Makefiles in each directory if you have a suitable make installation.
 
-You can get the latest development darcs source tree by running:
+=== Getting the Oldest and Moldiest ===
+There are bundles of some very old versions available [http://sourceforge.net/project/showfiles.php?group_id=49207&package_id=42440 on the SourceForge downloads page]. For newer versions, follow the instructions for installing darcs for your operating system. You can then get version x.y.z with the command
+ <nowiki>darcs get -t x.y.z http://code.haskell.org/gtk2hs</nowiki>
 
-~:$ darcs get --lazy http://code.haskell.org/gtk2hs
+=== Troubleshooting ===
+==== glade.h is not found ====
+The symptom is this error message:
+ <nowiki>gtk2hsC2hs.exe : glade/glade.h: File does not exist</nowiki>
+Probably this means that instead of installing the GTK/Glade bundle you installed them separately. The Gtk+/glade bundle comes with the "include/libglade-2.0" containing a number of header files. For some reason this directory is not included in stand-alone Gtk+ and glade installers. Install the bundle and add this directory to the INCLUDE environment variable.
 
-The easiest way to build everything is to run the script:
+==== cabal cannot find gtk2hsC2hs ====
+Either you forgot to install gtk2hs-buildtools, or you have not yet put cabal's executable directory in your path. Default directories are
+* Linux: $HOME/.cabal/bin
+* Windows XP: %USERPROFILE%\Application Data\cabal\bin
+* Windows 7: %USERPROFILE%\AppData\Roaming\cabal\bin
+See [[#Changing Environment Variables]] for instructions on changing environment variables on Windows.
 
-~/gtk2hs:$ sh bootstrap.sh
+==== "Spinner" errors while trying to compile the "notebook" demo ====
+The symptom is errors like the following:
+ <nowiki>
+   [1 of 1] Compiling Main             ( Notebook.hs, Notebook.o )
+   Notebook.hs:14:35:
+   Not in scope: type constructor or class `Spinner'
+   Notebook.hs:78:13: Not in scope: `spinnerNew'
+   Notebook.hs:101:2: Not in scope: `spinnerStart'
+   Notebook.hs:109:2: Not in scope: `spinnerStop'</nowiki>
+The Spinner widget first appears in Gtk+-2.22, so this will happen if you installed an older version of Gtk+.
 
-which build the tools and all the main supported libraries.
-
-Otherwise you can run "cabal install" by hand in a appropriate order
-in a desired subset of the individual package directories.
-
-
-Running the demos.
-------------------
-
-To get started, you can compile and run one of the programs that reside in
-the demo/ directory in the respective packages. For example:
-
-~/gtk2hs/gtk/demo/hello:$ make
-
-which has the same effect as typing
-
-~/gtk2hs/gtk/demo/hello:$ ghc --make World.hs -o helloworld
-
-The program should pop up a dialog box when you run
-
-~/gtk2hs/gtk/demo/hello:$ ./helloworld
-
-
-Documentation
--------------
-
-The documentation is available on the website and in hackage.
-You can also build the documentation locally with cabal.
-
-
-Deinstallation
------------------
-
-Although cabal doesn't allow to uninstall files at the moment, you can
-unregister the packages with ghc-pkg and delete the installed files manually.
-Eg reversing the order in bootstrap.sh:
-
-for pkg in webkit vte svgcairo soegtk gtksourceview2 gtkglext gstreamer glade gconf gtk pango cairo gio glib ; \
-do ghc-pkg unregister $pkg; done
-
-Unregistering packages is usually enough to be able to work with different
-versions of Gtk2Hs.
-
-Please report problems to the Gtk2hs mailing list
-<gtk2hs-users@lists.sourceforge.net>.
-
-The Gtk2Hs team.
+=== Uninstalling ===
+Uninstallation is currently ill-supported. You can unregister packages with GHC using ghc-pkg unregister, and the installed files can be manually deleted from GHC's local directories, but cabal does not yet support automatic uninstallation.
