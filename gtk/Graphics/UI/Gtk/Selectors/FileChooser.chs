@@ -207,6 +207,16 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserAction,
 
 -- * Signals
+  currentFolderChanged,
+  fileActivated,
+  fileSelectionChanged,
+  updatePreview,
+#if GTK_CHECK_VERSION(2,8,0)
+  confirmOverwrite,
+#endif
+
+#ifndef DISABLE_DEPRECATED
+-- * Deprecated
   onCurrentFolderChanged,
   afterCurrentFolderChanged,
   onFileActivated,
@@ -218,8 +228,9 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 #if GTK_CHECK_VERSION(2,8,0)
   onConfirmOverwrite,
   afterConfirmOverwrite,
-#endif
-#endif
+#endif -- version 2.8
+#endif -- deprecated
+#endif -- version 2.4
   ) where
 
 import Control.Monad (liftM)
@@ -1072,11 +1083,8 @@ fileChooserAction = newAttr
 -- See also: 'fileChooserSetCurrentFolder', 'fileChooserGetCurrentFolder',
 -- 'fileChooserSetCurrentFolderURI', 'fileChooserGetCurrentFolderURI'.
 --
-onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" False
-afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
+currentFolderChanged :: FileChooserClass self => Signal self (IO ())
+currentFolderChanged = Signal (connect_NONE__NONE "current-folder-changed")
 
 -- | This signal is emitted when there is a change in the set of selected
 -- files in a 'FileChooser'. This can happen when the user modifies the
@@ -1091,11 +1099,8 @@ afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
 -- 'fileChooserGetFilename', 'fileChooserGetFilenames', 'fileChooserSelectURI',
 -- 'fileChooserUnselectURI', 'fileChooserGetURI', 'fileChooserGetURIs'.
 --
---onSelectionChanged, afterSelectionChanged :: FileChooserClass self => self
--- -> IO ()
--- -> IO (ConnectId self)
---onSelectionChanged = connect_NONE__NONE "selection-changed" False
---afterSelectionChanged = connect_NONE__NONE "selection-changed" True
+fileSelectionChanged :: FileChooserClass self => Signal self (IO ())
+fileSelectionChanged = Signal (connect_NONE__NONE "selection-changed")
 
 -- | This signal is emitted when the preview in a file chooser should be
 -- regenerated. For example, this can happen when the currently selected file
@@ -1114,11 +1119,8 @@ afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
 -- 'fileChooserSetPreviewWidgetActive', 'fileChooserSetUsePreviewLabel',
 -- 'fileChooserGetPreviewFilename', 'fileChooserGetPreviewURI'.
 --
-onUpdatePreview, afterUpdatePreview :: FileChooserClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onUpdatePreview = connect_NONE__NONE "update-preview" False
-afterUpdatePreview = connect_NONE__NONE "update-preview" True
+updatePreview :: FileChooserClass self => Signal self (IO ())
+updatePreview = Signal (connect_NONE__NONE "update-preview")
 
 -- | This signal is emitted when the user \"activates\" a file in the file
 -- chooser. This can happen by double-clicking on a file in the file list, or
@@ -1131,11 +1133,8 @@ afterUpdatePreview = connect_NONE__NONE "update-preview" True
 -- See also: 'fileChooserGetFilename', 'fileChooserGetFilenames',
 -- 'fileChooserGetURI', 'fileChooserGetURIs'.
 --
-onFileActivated, afterFileActivated :: FileChooserClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onFileActivated = connect_NONE__NONE "file-activated" False
-afterFileActivated = connect_NONE__NONE "file-activated" True
+fileActivated :: FileChooserClass self => Signal self (IO ())
+fileActivated = Signal (connect_NONE__NONE "file-activated")
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- | This signal gets emitted whenever it is appropriate to present a
@@ -1160,11 +1159,54 @@ afterFileActivated = connect_NONE__NONE "file-activated" True
 --
 -- Since Gtk 2.8.
 --
+confirmOverwrite :: FileChooserClass self => Signal self (IO FileChooserConfirmation)
+confirmOverwrite = Signal (connect_NONE__ENUM "confirm-overwrite")
+#endif
+
+#ifndef DISABLE_DEPRECATED
+
+-- * Deprecated
+
+onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" False
+afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
+{-# DEPRECATED onCurrentFolderChanged "use currentFolderChanged instead" #-}
+{-# DEPRECATED afterCurrentFolderChanged "use currentFolderChanged instead" #-}
+
+--onSelectionChanged, afterSelectionChanged :: FileChooserClass self => self
+-- -> IO ()
+-- -> IO (ConnectId self)
+--onSelectionChanged = connect_NONE__NONE "selection-changed" False
+--afterSelectionChanged = connect_NONE__NONE "selection-changed" True
+
+onUpdatePreview, afterUpdatePreview :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onUpdatePreview = connect_NONE__NONE "update-preview" False
+afterUpdatePreview = connect_NONE__NONE "update-preview" True
+{-# DEPRECATED onUpdatePreview "use updatePreview instead" #-}
+{-# DEPRECATED afterUpdatePreview "use updatePreview instead" #-}
+
+onFileActivated, afterFileActivated :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onFileActivated = connect_NONE__NONE "file-activated" False
+afterFileActivated = connect_NONE__NONE "file-activated" True
+{-# DEPRECATED onFileActivated "use fileActivated instead" #-}
+{-# DEPRECATED afterFileActivated "use fileActivated instead" #-}
+
+#if GTK_CHECK_VERSION(2,8,0)
 onConfirmOverwrite, afterConfirmOverwrite :: FileChooserClass self => self
  -> IO FileChooserConfirmation
  -> IO (ConnectId self)
 onConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" False
 afterConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" True
+{-# DEPRECATED onConfirmOverwrite "use confirmOverwrite instead" #-}
+{-# DEPRECATED afterConfirmOverwrite "use confirmOverwrite instead" #-}
+#endif
+
 #endif
 
 #endif
