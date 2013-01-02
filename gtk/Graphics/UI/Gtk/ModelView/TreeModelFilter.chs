@@ -50,11 +50,13 @@ module Graphics.UI.Gtk.ModelView.TreeModelFilter (
 -- @
 -- |  'GObject'
 -- |   +----TreeModelFilter
+-- |   +----TypedTreeModelFilter
 -- @
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- * Types
   TreeModelFilter,
+  TypedTreeModelFilter,
   TreeModelFilterClass,
   castToTreeModelFilter, gTypeTreeModelFilter,
   toTreeModelFilter,
