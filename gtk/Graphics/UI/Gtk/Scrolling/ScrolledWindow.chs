@@ -95,6 +95,12 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   ShadowType(..),
   scrolledWindowSetShadowType,
   scrolledWindowGetShadowType,
+#if GTK_MAJOR_VERSION >= 3
+  scrolledWindowSetMinContentWidth,
+  scrolledWindowGetMinContentWidth,
+  scrolledWindowSetMinContentHeight,
+  scrolledWindowGetMinContentHeight,
+#endif
   scrolledWindowSetHAdjustment,
   scrolledWindowSetVAdjustment,
 #if GTK_CHECK_VERSION(2,8,0)
@@ -109,6 +115,10 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowVscrollbarPolicy,
   scrolledWindowWindowPlacement,
   scrolledWindowShadowType,
+#if GTK_MAJOR_VERSION >= 3
+  scrolledWindowMinContentWidth,
+  scrolledWindowMinContentHeight,
+#endif
   scrolledWindowPlacement,
   ) where
 
@@ -259,6 +269,42 @@ scrolledWindowGetShadowType self =
   {# call unsafe scrolled_window_get_shadow_type #}
     (toScrolledWindow self)
 
+#if GTK_MAJOR_VERSION >= 3
+-- | Sets the minimum width that @scrolledWindow@ should keep visible.
+--   Note that this can and (usually will) be smaller than the minimum size of the content.
+--
+scrolledWindowSetMinContentWidth :: ScrolledWindowClass self => self -> Int -> IO ()
+scrolledWindowSetMinContentWidth self width =
+  {# call gtk_scrolled_window_set_min_content_width #}
+    (toScrolledWindow self)
+    (fromIntegral width)
+
+-- | Gets the minimum content width of @scrolledWindow@, or -1 if not set.
+--
+scrolledWindowGetMinContentWidth :: ScrolledWindowClass self => self -> IO Int
+scrolledWindowGetMinContentWidth self =
+  liftM fromIntegral $
+  {# call unsafe scrolled_window_get_min_content_width #}
+    (toScrolledWindow self)
+
+-- | Sets the minimum height that @scrolledWindow@ should keep visible.
+--   Note that this can and (usually will) be smaller than the minimum size of the content.
+--
+scrolledWindowSetMinContentHeight :: ScrolledWindowClass self => self -> Int -> IO ()
+scrolledWindowSetMinContentHeight self height =
+  {# call gtk_scrolled_window_set_min_content_height #}
+    (toScrolledWindow self)
+    (fromIntegral height)
+
+-- | Gets the minimum content height of @scrolledWindow@, or -1 if not set.
+--
+scrolledWindowGetMinContentHeight :: ScrolledWindowClass self => self -> IO Int
+scrolledWindowGetMinContentHeight self =
+  liftM fromIntegral $
+  {# call unsafe scrolled_window_get_min_content_height #}
+    (toScrolledWindow self)
+#endif
+
 -- | Sets the 'Adjustment' for the horizontal scrollbar.
 --
 scrolledWindowSetHAdjustment :: ScrolledWindowClass self => self -> Adjustment -> IO ()
@@ -354,6 +400,26 @@ scrolledWindowShadowType :: ScrolledWindowClass self => Attr self ShadowType
 scrolledWindowShadowType = newAttr
   scrolledWindowGetShadowType
   scrolledWindowSetShadowType
+
+#if GTK_MAJOR_VERSION >= 3
+-- | Minimum width that @scrolledWindow@ should keep visible.
+--
+-- Default value: -1
+--
+scrolledWindowMinContentWidth :: ScrolledWindowClass self => Attr self Int
+scrolledWindowMinContentWidth = newAttr
+  scrolledWindowGetMinContentWidth
+  scrolledWindowSetMinContentWidth
+
+-- | Minimum height that @scrolledWindow@ should keep visible.
+--
+-- Default value: -1
+--
+scrolledWindowMinContentHeight :: ScrolledWindowClass self => Attr self Int
+scrolledWindowMinContentHeight = newAttr
+  scrolledWindowGetMinContentHeight
+  scrolledWindowSetMinContentHeight
+#endif
 
 -- | \'placement\' property. See 'scrolledWindowGetPlacement' and
 -- 'scrolledWindowSetPlacement'
