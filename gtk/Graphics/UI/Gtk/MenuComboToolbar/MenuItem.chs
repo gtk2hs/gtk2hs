@@ -101,6 +101,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 #endif
 
 -- * Signals
+  menuItemActivatedItem,
+  menuItemActivated,
   menuItemActivateItem,
   menuItemActivate,
   menuItemSelect,
@@ -356,6 +358,10 @@ menuItemActivate = menuItemActivated
 -- * This signal is not emitted if the menu item does not have a
 --   submenu.
 --
+menuItemActivatedItem :: MenuItemClass self => Signal self (IO ())
+menuItemActivatedItem = Signal (connect_NONE__NONE "activate-item")
+
+-- | Deprecated. See 'menuItemActivatedItem'.
 menuItemActivateItem :: MenuItemClass self => Signal self (IO ())
 menuItemActivateItem = menuItemActivatedItem
 

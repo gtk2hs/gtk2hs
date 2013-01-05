@@ -482,23 +482,7 @@ entryGetCompletion self =
     (toEntry self)
 #endif
 
-#if GTK_CHECK_VERSION(2,18,0)
--- | Get the 'EntryBuffer' object which holds the text for this widget.
-entryGetBuffer :: EntryClass self => self
-  -> IO EntryBuffer
-entryGetBuffer self =
-  makeNewGObject mkEntryBuffer $
-  {# call gtk_entry_get_buffer #}
-    (toEntry self)
-
--- | Set the 'EntryBuffer' object which holds the text for this widget.
-entrySetBuffer :: (EntryClass self, EntryBufferClass buffer) => self
-  -> buffer -> IO ()
-entrySetBuffer self =
-  {# call gtk_entry_set_buffer #}
-    (toEntry self) . toEntryBuffer
-#endif
-
+#if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
 -- drawing something to the entry in an 'eventExpose' callback because it enables the callback to
