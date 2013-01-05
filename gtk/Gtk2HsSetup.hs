@@ -56,8 +56,8 @@ import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
-import Data.List (isPrefixOf, isSuffixOf, nub)
-import Data.Char (isAlpha)
+import Data.List (isPrefixOf, isSuffixOf, stripPrefix, nub)
+import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -99,10 +99,16 @@ getDlls dirs = filter ((== ".dll") . takeExtension) . concat <$>
 
 fixLibs :: [FilePath] -> [String] -> [String]
 fixLibs dlls = concatMap $ \ lib ->
-    case filter (("lib" ++ lib) `isPrefixOf`) dlls of
+    case filter (isLib lib) dlls of
                 dll:_ -> [dropExtension dll]
                 _     -> if lib == "z" then [] else [lib]
-
+  where
+    isLib lib dll =
+        case stripPrefix ("lib"++lib) dll of
+            Just ('.':_)                -> True
+            Just ('-':n:_) | isNumber n -> True
+            _                           -> False
+        
 -- The following code is a big copy-and-paste job from the sources of
 -- Cabal 1.8 just to be able to fix a field in the package file. Yuck.
 

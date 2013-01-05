@@ -56,9 +56,9 @@ import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
-import Data.List (isPrefixOf, isSuffixOf, nub, minimumBy)
+import Data.List (isPrefixOf, isSuffixOf, nub, minimumBy, stripPrefix)
 import Data.Ord as Ord (comparing)
-import Data.Char (isAlpha)
+import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -100,7 +100,7 @@ getDlls dirs = filter ((== ".dll") . takeExtension) . concat <$>
 
 fixLibs :: [FilePath] -> [String] -> [String]
 fixLibs dlls = concatMap $ \ lib ->
-    case filter (("lib" ++ lib) `isPrefixOf`) dlls of
+    case filter (isLib lib) dlls of
                 dlls@(_:_) -> [dropExtension (pickDll dlls)]
                 _          -> if lib == "z" then [] else [lib]
   where
@@ -111,7 +111,12 @@ fixLibs dlls = concatMap $ \ lib ->
     -- Yes this is a hack but the proper solution is hard: we would need to
     -- parse the .a file and see which .dll file(s) it needed to link to.
     pickDll = minimumBy (Ord.comparing length)
-
+    isLib lib dll =
+        case stripPrefix ("lib"++lib) dll of
+            Just ('.':_)                -> True
+            Just ('-':n:_) | isNumber n -> True
+            _                           -> False
+        
 -- The following code is a big copy-and-paste job from the sources of
 -- Cabal 1.8 just to be able to fix a field in the package file. Yuck.
 
