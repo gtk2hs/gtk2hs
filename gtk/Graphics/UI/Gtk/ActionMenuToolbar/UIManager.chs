@@ -449,7 +449,7 @@ uiManagerAddUiFromFile self filename =
   liftM MergeId $
   propagateGError $ \errorPtr ->
   withUTFString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_ui_manager_add_ui_from_file_utf8 #}
 #else
   {# call gtk_ui_manager_add_ui_from_file #}

@@ -25,12 +25,20 @@
  * instead.
  */
 
+#define DEFINED_LPTYPELIB
+#define DEFINDE_LPTYPEINFO
+#define DEFINED_LPTYPECOMP
+#define DEFINE_LPCREATETYPEINFO
+#define DEFINED_LPDISPATCH
+
 #include <glib.h>
 #include <gdk/gdk.h>
 #include "hsgthread.h"
 
 #if defined( WIN32 )
 #include <windows.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #endif
 
 #undef DEBUG
@@ -46,6 +54,13 @@ static guint gtk2hs_finalizer_id;
 static GArray* gtk2hs_finalizers;
 
 gboolean gtk2hs_run_finalizers(gpointer data);
+
+/* Initialize the default _fmode on WIN32. */
+void gtk2hs_initialise (void) {
+#if defined( WIN32 )
+    _fmode = _O_BINARY;
+#endif
+}
 
 /* Initialize the threads system of Gdk and Gtk. */
 void gtk2hs_threads_initialise (void) {

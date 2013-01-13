@@ -319,7 +319,7 @@ iconSourceGetDirection is = do
 --
 iconSourceGetFilename :: IconSource -> IO (Maybe String)
 iconSourceGetFilename is = do
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) 
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   strPtr <- {#call unsafe icon_source_get_filename_utf8#} is
 #else
   strPtr <- {#call unsafe icon_source_get_filename#} is
@@ -383,7 +383,7 @@ iconSourceResetDirection is =
 --
 iconSourceSetFilename :: IconSource -> FilePath -> IO ()
 iconSourceSetFilename is name = 
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) 
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   withUTFString name $ {# call unsafe icon_source_set_filename_utf8 #} is
 #else
   withUTFString name $ {# call unsafe icon_source_set_filename #} is

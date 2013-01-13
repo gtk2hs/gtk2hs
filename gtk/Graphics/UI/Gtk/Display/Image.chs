@@ -190,7 +190,7 @@ imageNewFromFile filename =
   makeNewObject mkImage $
   liftM (castPtr :: Ptr Widget -> Ptr Image) $
   withUTFString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call unsafe gtk_image_new_from_file_utf8 #}
 #else
   {# call unsafe gtk_image_new_from_file #}
@@ -293,7 +293,7 @@ imageSetFromAnimation self pba =
 imageSetFromFile :: Image -> FilePath -> IO ()
 imageSetFromFile self filename =
   withUTFString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_image_set_from_file_utf8 #}
 #else
   {# call gtk_image_set_from_file #}

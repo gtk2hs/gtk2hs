@@ -374,7 +374,7 @@ fileChooserGetFilename :: FileChooserClass self => self
                         -- @Nothing@ if no file is selected, or the selected
                         -- file can't be represented with a local filename.
 fileChooserGetFilename self =
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_get_filename_utf8 #}
 #else
   {# call gtk_file_chooser_get_filename #}
@@ -416,7 +416,7 @@ fileChooserSetFilename :: FileChooserClass self => self
 fileChooserSetFilename self filename =
   liftM toBool $
   withCString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_set_filename_utf8 #}
 #else
   {# call gtk_file_chooser_set_filename #}
@@ -435,7 +435,7 @@ fileChooserSelectFilename :: FileChooserClass self => self
 fileChooserSelectFilename self filename =
   liftM toBool $
   withCString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_select_filename_utf8 #}
 #else
   {# call gtk_file_chooser_select_filename #}
@@ -452,7 +452,7 @@ fileChooserUnselectFilename :: FileChooserClass self => self
  -> IO ()
 fileChooserUnselectFilename self filename =
   withCString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_unselect_filename_utf8 #}
 #else
   {# call gtk_file_chooser_unselect_filename #}
@@ -481,7 +481,7 @@ fileChooserUnselectAll self =
 --
 fileChooserGetFilenames :: FileChooserClass self => self -> IO [FilePath]
 fileChooserGetFilenames self =
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_get_filenames_utf8 #}
 #else
   {# call gtk_file_chooser_get_filenames #}
@@ -500,7 +500,7 @@ fileChooserSetCurrentFolder :: FileChooserClass self => self
 fileChooserSetCurrentFolder self filename =
   liftM toBool $
   withCString filename $ \filenamePtr ->
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_set_current_folder_utf8 #}
 #else
   {# call gtk_file_chooser_set_current_folder #}
@@ -516,7 +516,7 @@ fileChooserGetCurrentFolder :: FileChooserClass self => self
                         -- @Nothing@ if the current path cannot be represented
                         -- as a local filename.
 fileChooserGetCurrentFolder self =
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_get_current_folder_utf8 #}
 #else
   {# call gtk_file_chooser_get_current_folder #}
@@ -728,7 +728,7 @@ fileChooserGetPreviewFilename :: FileChooserClass self => self
                         -- no file is selected, or if the selected file cannot
                         -- be represented as a local filename.
 fileChooserGetPreviewFilename self =
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_get_preview_filename_utf8 #}
 #else
   {# call gtk_file_chooser_get_preview_filename #}
@@ -829,7 +829,7 @@ fileChooserAddShortcutFolder :: FileChooserClass self => self
 fileChooserAddShortcutFolder self folder =
   propagateGError $ \errorPtr ->
   withCString folder $ \folderPtr -> do
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_add_shortcut_folder_utf8 #}
 #else
   {# call gtk_file_chooser_add_shortcut_folder #}
@@ -849,7 +849,7 @@ fileChooserRemoveShortcutFolder :: FileChooserClass self => self
 fileChooserRemoveShortcutFolder self folder =
   propagateGError $ \errorPtr ->
   withCString folder $ \folderPtr -> do
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_remove_shortcut_folder_utf8 #}
 #else
   {# call gtk_file_chooser_remove_shortcut_folder #}
@@ -864,7 +864,7 @@ fileChooserRemoveShortcutFolder self folder =
 --
 fileChooserListShortcutFolders :: FileChooserClass self => self -> IO [String]
 fileChooserListShortcutFolders self =
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_file_chooser_list_shortcut_folders_utf8 #}
 #else
   {# call gtk_file_chooser_list_shortcut_folders #}

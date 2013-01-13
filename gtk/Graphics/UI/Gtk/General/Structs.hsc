@@ -606,7 +606,7 @@ fromNativeWindowId :: NativeWindowId -> Ptr a
 fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
-#elif defined(HAVE_QUARTZ_GTK)
+#elif defined(HAVE_QUARTZ_GTK) || (defined(WIN32) && GTK_MAJOR_VERSION >= 3)
 newtype NativeWindowId = NativeWindowId (Maybe DrawWindow) deriving (Eq)
 unNativeWindowId :: NativeWindowId -> Maybe DrawWindow
 unNativeWindowId (NativeWindowId id) = id
@@ -642,10 +642,7 @@ foreign import ccall unsafe "gdk_x11_drawable_get_xid"
   gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
 #endif
 #else
-#if defined(WIN32)
-foreign import ccall unsafe "gdk_win32_drawable_get_handle"
-  gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
-#elif !defined(HAVE_QUARTZ_GTK)
+#if !defined(HAVE_QUARTZ_GTK) && !defined(WIN32)
 foreign import ccall unsafe "gdk_x11_window_get_xid" 
   gdk_x11_drawable_get_xid :: (Ptr DrawWindow) -> IO CInt
 #endif
@@ -664,7 +661,7 @@ drawableGetID d =
 #else
   (\(DrawWindow drawable) ->
 #endif
-#if defined(WIN32)
+#if defined(WIN32) && GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
 #else
      -- GTK-2.12 is a bit sloppy about the distinction between pointers and
@@ -672,7 +669,7 @@ drawableGetID d =
      liftM unsafeCoerce $
 #endif
      withForeignPtr drawable gdk_win32_drawable_get_handle
-#elif !defined(HAVE_QUARTZ_GTK)
+#elif !defined(HAVE_QUARTZ_GTK) && !defined(WIN32)
      withForeignPtr drawable gdk_x11_drawable_get_xid
 #else
      return $ Just (DrawWindow drawable)

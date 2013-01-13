@@ -1488,7 +1488,7 @@ windowSetIconFromFile :: WindowClass self => self
 windowSetIconFromFile self filename =
   propagateGError $ \errPtr ->
   withUTFString filename $ \filenamePtr -> do
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_window_set_icon_from_file_utf8 #}
 #else
   {# call gtk_window_set_icon_from_file #}

@@ -279,6 +279,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetRealized,
   widgetGetMapped,
 #endif
+#if GTK_MAJOR_VERSION >= 3
+  widgetGetStyleContext,
+#endif
 
 -- * Signals
   realize,
@@ -2618,7 +2621,18 @@ widgetGetMapped self =
   liftM toBool $
   {#call gtk_widget_get_mapped #}
     (toWidget self)
-  
+
+#endif
+
+#if GTK_MAJOR_VERSION >= 3
+-- | Returns the style context associated to @widget@.
+widgetGetStyleContext :: WidgetClass widget
+                      => widget          -- ^ @widget@ : a @Widget@
+                      -> IO StyleContext -- ^ a @StyleContext@
+widgetGetStyleContext widget =
+  makeNewGObject mkStyleContext $
+  {# call gtk_widget_get_style_context #}
+  (toWidget widget)
 #endif
 
 --------------------

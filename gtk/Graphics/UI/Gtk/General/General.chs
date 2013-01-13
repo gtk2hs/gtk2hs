@@ -141,6 +141,7 @@ unsafeInitGUIForThreadedRTS = initGUI
 --
 initGUI :: IO [String]
 initGUI = do
+  initialise
   when rtsSupportsBoundThreads initialiseGThreads
   -- note: initizliseGThreads calls 'threadsEnter'
   prog <- getProgName
@@ -163,6 +164,9 @@ initGUI = do
 --
 foreign import ccall "hsgthread.h gtk2hs_threads_initialise"
   initialiseGThreads :: IO ()
+
+foreign import ccall "hsgthread.h gtk2hs_initialise"
+  initialise :: IO ()
 
 -- | Post an action to be run in the main GUI thread.
 --

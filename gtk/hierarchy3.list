@@ -183,7 +183,10 @@
 		GtkCellRendererToggle
 		GtkCellRendererProgress	
         GtkFileFilter
-        GtkBuilder 
+        GtkBuilder
+        GtkStyleContext
+        GtkStyleProvider
+        GtkCssProvider
 # These are actually interfaces, but all objects that implement it are at
 # least GObjects.
 	GtkCellLayout			

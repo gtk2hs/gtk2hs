@@ -129,7 +129,7 @@ Flag have-quartz-gtk
 
 Flag gtk3
   Description: Use GTK3 rather than GTK2
-  Default: False
+  Default: True
 
 Library
         build-depends:  base >= 4 && < 5,
@@ -213,6 +213,7 @@ Library
           Graphics.UI.Gtk.Gdk.Region
           Graphics.UI.Gtk.Gdk.Screen
           Graphics.UI.Gtk.General.Clipboard
+          Graphics.UI.Gtk.General.CssProvider
           Graphics.UI.Gtk.General.Drag
           Graphics.UI.Gtk.General.General
           Graphics.UI.Gtk.General.IconFactory
@@ -222,6 +223,8 @@ Library
           Graphics.UI.Gtk.General.Settings
           Graphics.UI.Gtk.General.StockItems
           Graphics.UI.Gtk.General.Style
+          Graphics.UI.Gtk.General.StyleContext
+          Graphics.UI.Gtk.General.StyleProvider
           Graphics.UI.Gtk.Layout.Alignment
           Graphics.UI.Gtk.Layout.AspectFrame
           Graphics.UI.Gtk.Layout.Expander
