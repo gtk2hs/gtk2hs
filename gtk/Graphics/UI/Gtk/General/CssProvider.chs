@@ -104,9 +104,9 @@ cssProviderGetNamed name variant =
 
 -- | Loads @_data@ into @cssProvider@, making it clear any previously loaded information.
 cssProviderLoadFromData :: CssProviderClass cssProvider
-                      => cssProvider -- | ^ @cssProvider@ : a @CssProvider@
-                      -> Ptr CChar   -- | ^ @_data@ : CSS data loaded in memory. [array length=length][element-type guint8]
-                      -> Int         -- | ^ @length@ : the length of @_data@ in bytes, or -1 for NUL terminated
+                      => cssProvider -- ^ @cssProvider@ : a @CssProvider@
+                      -> Ptr CChar   -- ^ @_data@ : CSS data loaded in memory. [array length=length][element-type guint8]
+                      -> Int         -- ^ @length@ : the length of @_data@ in bytes, or -1 for NUL terminated
                                      -- strings. If @length@ is not -1, the code will assume it is
                                      -- not NUL terminated and will potentially do a copy.
                       -> IO ()
@@ -120,8 +120,8 @@ cssProviderLoadFromData cssProvider _data length =
 
 -- | Loads @css@ into @cssProvider@, making it clear any previously loaded information.
 cssProviderLoadFromString :: CssProviderClass cssProvider
-                          => cssProvider -- | ^ @cssProvider@ : a @CssProvider@
-                          -> String      -- | ^ @css@ : CSS data loaded in memory.
+                          => cssProvider -- ^ @cssProvider@ : a @CssProvider@
+                          -> String      -- ^ @css@ : CSS data loaded in memory.
                           -> IO ()
 cssProviderLoadFromString cssProvider css =
   withUTFStringLen css $ \(cssPtr, len) ->
@@ -130,8 +130,8 @@ cssProviderLoadFromString cssProvider css =
 -- |Loads the data contained in @path@ into @cssProvider@, making it clear any previously
 -- loaded information
 cssProviderLoadFromPath :: CssProviderClass cssProvider
-                        => cssProvider -- | ^ @cssProvider@ a @CssProvider@
-                        -> FilePath    -- | ^ the path of a filename to load
+                        => cssProvider -- ^ @cssProvider@ a @CssProvider@
+                        -> FilePath    -- ^ the path of a filename to load
                         -> IO ()
 cssProviderLoadFromPath cssProvider path =
   propagateGError $ \errPtrPtr ->
@@ -148,7 +148,7 @@ cssProviderLoadFromPath cssProvider path =
 -- on a new provider created with @cssProviderNew@ will basically create a
 -- duplicate of this @provider@.
 cssProviderToString :: CssProviderClass cssProvider
-                    => cssProvider -- | ^ @provider@ a @CssProvider@
+                    => cssProvider -- ^ @provider@ a @CssProvider@
                     -> IO String
 cssProviderToString provider =
   {# call gtk_css_provider_to_string #}

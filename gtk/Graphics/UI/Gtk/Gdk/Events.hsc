@@ -202,8 +202,8 @@ data Event =
     -- detailed information on the area that needs redrawing, use the
     -- next field.
     eventArea	:: Rectangle,
-    -- | A set of horizontal stripes that denote the invalid area.
 #if GTK_MAJOR_VERSION < 3
+    -- | A set of horizontal stripes that denote the invalid area.
     eventRegion      :: Region,
 #endif
 
