@@ -1787,9 +1787,9 @@ imageSurfaceGetData a = do
 --   big-endian machine, the first pixel is in the uppermost bit, on a
 --   little-endian machine the first pixel is in the least-significant bit.
 --
--- * To read or write a specific pixel use the formula:
---   @p = y * (rowstride `div` 4) + x@ for the pixel and force the array to
---   have 32-bit words or integers.
+-- * To read or write a specific pixel (and assuming 'FormatARGB32' or
+--   'FormatRGB24'), use the formula: @p = y * (rowstride `div` 4) + x@ for the
+--   pixel and force the array to have 32-bit words or integers.
 --
 -- * Calling this function without explicitly giving it a type will often lead
 --   to a compiler error since the type parameter @e@ is underspecified. If
@@ -1801,11 +1801,11 @@ imageSurfaceGetData a = do
 --   the same type signatures as 'readArray' and 'writeArray'. Note that these
 --   are internal functions that might change with GHC.
 --
--- * After each write access to the array, you need to inform Cairo that
+-- * After each write access to the array, you need to inform Cairo
 --   about the area that has changed using 'surfaceMarkDirty'.
 --
 -- * The function will return an error if the surface is not an image
---   surface of if 'surfaceFinish' has been called on the surface.
+--   surface or if 'surfaceFinish' has been called on the surface.
 -- 
 imageSurfaceGetPixels :: Storable e => Surface -> IO (SurfaceData Int e)
 imageSurfaceGetPixels pb = do
