@@ -1809,20 +1809,12 @@ imageSurfaceGetData a = do
 -- 
 imageSurfaceGetPixels :: Storable e => Surface -> IO (SurfaceData Int e)
 imageSurfaceGetPixels pb = do
-  pixPtr_ <- Internal.imageSurfaceGetData pb
-  when (pixPtr_==nullPtr) $ do
+  pixPtr <- Internal.imageSurfaceGetData pb
+  when (pixPtr==nullPtr) $ do
     fail "imageSurfaceGetPixels: image surface not available"
-  fmt <- imageSurfaceGetFormat pb
-  let bits = case fmt of
-               FormatARGB32 -> 32
-               FormatRGB24 -> 32
-               FormatA8 -> 8
-               FormatA1 -> 1
   h <- imageSurfaceGetHeight pb
   r <- imageSurfaceGetStride pb
-  let pixPtr = castPtr pixPtr_
-  let bytes = h*((r*bits)+7) `div` 8
-  return (mkSurfaceData pb pixPtr bytes)
+  return (mkSurfaceData pb (castPtr pixPtr) (h*r))
 
 -- | An array that stores the raw pixel data of an image 'Surface'.
 --
@@ -1833,7 +1825,7 @@ data SurfaceData i e = SurfaceData !Surface
 
 mkSurfaceData :: Storable e => Surface -> Ptr e -> Int -> SurfaceData Int e
 mkSurfaceData pb (ptr :: Ptr e) size =
-  SurfaceData pb ptr (0, count) count
+  SurfaceData pb ptr (0, count-1) count
   where count = fromIntegral (size `div` sizeOf (undefined :: e))
 
 #if __GLASGOW_HASKELL__ < 605
