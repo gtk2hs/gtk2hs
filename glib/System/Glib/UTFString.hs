@@ -173,7 +173,12 @@ toUTF (x:xs) | ord x<=0x007F = x:toUTF xs
 	     | ord x<=0x07FF = chr (0xC0 .|. ((ord x `shift` (-6)) .&. 0x1F)):
 			       chr (0x80 .|. (ord x .&. 0x3F)):
 			       toUTF xs
-	     | otherwise     = chr (0xE0 .|. ((ord x `shift` (-12)) .&. 0x0F)):
+	     | ord x<=0xFFFF = chr (0xE0 .|. ((ord x `shift` (-12)) .&. 0x0F)):
+			       chr (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
+			       chr (0x80 .|. (ord x .&. 0x3F)):
+			       toUTF xs
+	     | otherwise     = chr (0xF0 .|. ((ord x `shift` (-18)) .&. 0x07)):
+			       chr (0x80 .|. ((ord x `shift` (-12)) .&. 0x3F)):
 			       chr (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
 			       chr (0x80 .|. (ord x .&. 0x3F)):
 			       toUTF xs
@@ -188,6 +193,7 @@ fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
 		     | ord x<=0xBF = err
 		     | ord x<=0xDF = twoBytes all
 		     | ord x<=0xEF = threeBytes all
+		     | ord x<=0xF7 = fourBytes all
 		     | otherwise   = err
   where
     twoBytes (x1:x2:xs) = chr (((ord x1 .&. 0x1F) `shift` 6) .|.
@@ -197,8 +203,14 @@ fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
     threeBytes (x1:x2:x3:xs) = chr (((ord x1 .&. 0x0F) `shift` 12) .|.
 				    ((ord x2 .&. 0x3F) `shift` 6) .|.
 				    (ord x3 .&. 0x3F)):fromUTF xs
-    threeBytes _ = error "fromUTF: illegal three byte sequence" 
-    
+    threeBytes _ = error "fromUTF: illegal three byte sequence"
+
+    fourBytes (x1:x2:x3:x4:xs) = chr (((ord x1 .&. 0x07) `shift` 18) .|.
+				    ((ord x2 .&. 0x3F) `shift` 12) .|.
+				    ((ord x3 .&. 0x3F) `shift` 6) .|.
+				    (ord x4 .&. 0x3F)):fromUTF xs
+    fourBytes _ = error "fromUTF: illegal four byte sequence"
+
     err = error "fromUTF: illegal UTF-8 character"
 
 -- | Offset correction for String to UTF8 mapping.
@@ -213,7 +225,8 @@ genUTFOfs str = UTFCorrection (gUO 0 str)
   gUO n [] = []
   gUO n (x:xs) | ord x<=0x007F = gUO (n+1) xs
 	       | ord x<=0x07FF = n:gUO (n+1) xs
-	       | otherwise     = n:n:gUO (n+1) xs
+	       | ord x<=0xFFFF = n:n:gUO (n+1) xs
+	       | otherwise     = n:n:n:gUO (n+1) xs
 
 ofsToUTF :: Int -> UTFCorrection -> Int
 ofsToUTF n (UTFCorrection oc) = oTU oc
