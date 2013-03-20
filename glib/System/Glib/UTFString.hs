@@ -46,7 +46,8 @@ module System.Glib.UTFString (
   ofsFromUTF
   ) where
 
-import Control.Monad	(liftM)
+import Codec.Binary.UTF8.String
+import Control.Monad (liftM)
 import Data.Char (ord, chr)
 import Data.Maybe (maybe)
 
@@ -55,38 +56,38 @@ import System.Glib.FFI
 -- | Like 'withCString' but using the UTF-8 encoding.
 --
 withUTFString :: String -> (CString -> IO a) -> IO a
-withUTFString hsStr = withCAString (toUTF hsStr)
+withUTFString = withCAString . encodeString
 
 -- | Like 'withCStringLen' but using the UTF-8 encoding.
 --
 withUTFStringLen :: String -> (CStringLen -> IO a) -> IO a
-withUTFStringLen hsStr = withCAStringLen (toUTF hsStr)
+withUTFStringLen = withCAStringLen . encodeString
 
 -- | Like 'newCString' but using the UTF-8 encoding.
 --
 newUTFString :: String -> IO CString
-newUTFString = newCAString . toUTF
+newUTFString = newCAString . encodeString
 
 -- | Like  Define newUTFStringLen to emit UTF-8.
 --
 newUTFStringLen :: String -> IO CStringLen
-newUTFStringLen = newCAStringLen . toUTF
+newUTFStringLen = newCAStringLen . encodeString
 
 -- | Like 'peekCString' but using the UTF-8 encoding.
 --
 peekUTFString :: CString -> IO String
-peekUTFString strPtr = liftM fromUTF $ peekCAString strPtr
+peekUTFString = liftM decodeString . peekCAString
 
 -- | Like 'maybePeek' 'peekCString' but using the UTF-8 encoding to retrieve
 -- UTF-8 from a 'CString' which may be the 'nullPtr'.
 --
 maybePeekUTFString :: CString -> IO (Maybe String)
-maybePeekUTFString strPtr = liftM (maybe Nothing (Just . fromUTF)) $ maybePeek peekCAString strPtr
+maybePeekUTFString = liftM (maybe Nothing (Just . decodeString)) . maybePeek peekCAString
 
 -- | Like 'peekCStringLen' but using the UTF-8 encoding.
 --
 peekUTFStringLen :: CStringLen -> IO String
-peekUTFStringLen strPtr = liftM fromUTF $ peekCAStringLen strPtr
+peekUTFStringLen = liftM decodeString . peekCAStringLen
 
 -- | Like like 'peekUTFString' but then frees the string using g_free
 --
@@ -162,56 +163,6 @@ readUTFStringArray0 cStrArr | cStrArr == nullPtr = return []
 
 foreign import ccall unsafe "g_strfreev"
   g_strfreev :: Ptr a -> IO ()
-
--- | Encode a Haskell Unicode String as UTF-8
---
--- You should think of this as it it had type @String -> [Word8]@
---
-toUTF :: String -> String
-toUTF [] = []
-toUTF (x:xs) | ord x<=0x007F = x:toUTF xs
-	     | ord x<=0x07FF = chr (0xC0 .|. ((ord x `shift` (-6)) .&. 0x1F)):
-			       chr (0x80 .|. (ord x .&. 0x3F)):
-			       toUTF xs
-	     | ord x<=0xFFFF = chr (0xE0 .|. ((ord x `shift` (-12)) .&. 0x0F)):
-			       chr (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
-			       chr (0x80 .|. (ord x .&. 0x3F)):
-			       toUTF xs
-	     | otherwise     = chr (0xF0 .|. ((ord x `shift` (-18)) .&. 0x07)):
-			       chr (0x80 .|. ((ord x `shift` (-12)) .&. 0x3F)):
-			       chr (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
-			       chr (0x80 .|. (ord x .&. 0x3F)):
-			       toUTF xs
-
--- | Decode a UTF-8 string into a Haskell Unicode String.
---
--- You should think of this as it it had type @[Word8] -> String@
---
-fromUTF :: String -> String
-fromUTF [] = []
-fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
-		     | ord x<=0xBF = err
-		     | ord x<=0xDF = twoBytes all
-		     | ord x<=0xEF = threeBytes all
-		     | ord x<=0xF7 = fourBytes all
-		     | otherwise   = err
-  where
-    twoBytes (x1:x2:xs) = chr (((ord x1 .&. 0x1F) `shift` 6) .|.
-			       (ord x2 .&. 0x3F)):fromUTF xs
-    twoBytes _ = error "fromUTF: illegal two byte sequence"
-
-    threeBytes (x1:x2:x3:xs) = chr (((ord x1 .&. 0x0F) `shift` 12) .|.
-				    ((ord x2 .&. 0x3F) `shift` 6) .|.
-				    (ord x3 .&. 0x3F)):fromUTF xs
-    threeBytes _ = error "fromUTF: illegal three byte sequence"
-
-    fourBytes (x1:x2:x3:x4:xs) = chr (((ord x1 .&. 0x07) `shift` 18) .|.
-				    ((ord x2 .&. 0x3F) `shift` 12) .|.
-				    ((ord x3 .&. 0x3F) `shift` 6) .|.
-				    (ord x4 .&. 0x3F)):fromUTF xs
-    fourBytes _ = error "fromUTF: illegal four byte sequence"
-
-    err = error "fromUTF: illegal UTF-8 character"
 
 -- | Offset correction for String to UTF8 mapping.
 --
