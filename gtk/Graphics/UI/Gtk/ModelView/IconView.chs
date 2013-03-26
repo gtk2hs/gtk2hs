@@ -166,12 +166,6 @@ import Graphics.Rendering.Pango.Markup          (Markup)
 
 #if GTK_CHECK_VERSION(2,6,0)
 --------------------
--- Interfaces
-
--- %hash c:4792
-instance CellLayoutClass IconView
-
---------------------
 -- Constructors
 
 -- | Creates a new 'IconView' widget
