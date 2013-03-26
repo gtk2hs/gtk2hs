@@ -1,6 +1,7 @@
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
 
+{-# LANGUAGE FlexibleInstances #-}
 module SetupWrapper (setupWrapper) where
 
 import Distribution.Package
@@ -28,6 +29,13 @@ import Data.List
 import Data.Char
 import Control.Monad
 
+
+-- The former instance is for Cabal < 1.17; the latter for Cabal >= 1.17. We
+-- can't use CPP to check which version of Cabal we're up against here because
+-- this is the file that's generating those macros.
+class CompConf a where compConf :: a -> (Compiler, ProgramConfiguration)
+instance CompConf (Compiler, ProgramConfiguration) where compConf = id
+instance CompConf (Compiler, a, ProgramConfiguration) where compConf (c, a, p) = (c, p)
 
 setupWrapper :: FilePath -> IO ()
 setupWrapper setupHsFile = do
@@ -97,7 +105,7 @@ setupWrapper setupHsFile = do
       when outOfDate $ do
         debug verbosity "Setup script is out of date, compiling..."
 
-        (comp, conf)    <- configCompiler (Just GHC) Nothing Nothing
+        (comp, conf)    <- compConf `fmap` configCompiler (Just GHC) Nothing Nothing
                              defaultProgramConfiguration verbosity
         cabalLibVersion <- cabalLibVersionToUse comp conf
         let cabalPkgid = PackageIdentifier (PackageName "Cabal") cabalLibVersion

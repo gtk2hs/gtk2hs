@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, ViewPatterns #-}
 
 #ifndef CABAL_VERSION_CHECK
 #error This module has to be compiled via the Setup.hs program which generates the gtk2hs-macros.h file
@@ -29,7 +29,7 @@ import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                emptyBuildInfo, allBuildInfo,
                                                Library(..),
                                                libModules, hasLibs)
-import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..),
+import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDir, localPkgDescr, installedPkgs, withPrograms),
                                            InstallDirs(..),
                                            componentPackageDeps,
                                            absoluteInstallDirs)
@@ -60,8 +60,17 @@ import Data.List (isPrefixOf, isSuffixOf, stripPrefix, nub)
 import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
+import qualified Distribution.Simple.LocalBuildInfo as LBI
 
 import Control.Applicative ((<$>))
+
+#if CABAL_VERSION_CHECK(1,17,0)
+libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
+  [clbi] -> Just clbi
+  _ -> Nothing
+#else
+libraryConfig = LBI.libraryConfig
+#endif
 
 -- the name of the c2hs pre-compiled header file
 precompFile = "precompchs.bin"
@@ -141,8 +150,8 @@ registerHook pkg_descr localbuildinfo _ flags =
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
          -> IO ()
-register pkg@PackageDescription { library       = Just lib  }
-         lbi@LocalBuildInfo     { libraryConfig = Just clbi } regFlags
+register pkg@(library       -> Just lib )
+         lbi@(libraryConfig -> Just clbi) regFlags
   = do
 
     installedPkgInfoRaw <- generateRegistrationInfo
