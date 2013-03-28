@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   CellRendererClass,
   castToCellRenderer, gTypeCellRenderer,
   toCellRenderer,
-  CellRendererMode,
+  CellRendererMode(..),
 
 -- * Methods
 #if GTK_CHECK_VERSION(2,6,0)
