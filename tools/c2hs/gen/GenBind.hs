@@ -113,7 +113,7 @@ where
 
 -- standard libraries
 import Data.Char	  (toUpper, toLower, isSpace)
-import Data.List       (deleteBy, intersperse, isPrefixOf, find)
+import Data.List          (deleteBy, intersperse, isPrefixOf, find, nubBy)
 import Data.Maybe	  (isNothing, isJust, fromJust, fromMaybe)
 import Control.Monad	  (when, unless, liftM, mapAndUnzipM)
 
@@ -629,39 +629,34 @@ enumBody indent ((ide, _):list)  =
 --
 enumInst :: String -> [(String, Maybe CExpr)] -> String
 enumInst ident list =
-  "instance Enum " ++ ident ++ " where\n" 
-  ++ fromDef list 0 ++ "\n" ++ toDef list 0 ++ "\n"
+  "instance Enum " ++ ident ++ " where\n"
+  ++ fromDef flatList ++ "\n" ++ toDef flatList ++ "\n"
   ++ succDef names ++ "\n" ++ predDef names ++ "\n"
   ++ enumFromToDef names
   where
     names = map fst list
-    fromDef []                _ = ""
-    fromDef ((ide, exp):list) n = 
-      "  fromEnum " ++ ide ++ " = " ++ show' val ++ "\n" 
-      ++ fromDef list (val + 1)
+    flatList = flatten list 0
+
+    flatten []                n = []
+    flatten ((ide, exp):list) n = (ide, val) : flatten list (val + 1)
       where
         val = case exp of
-		Nothing                         -> n
-		Just (CConst (CIntConst m _) _) -> m
-		Just _		                -> 
-		  interr "GenBind.enumInst: Integer constant expected!"
-	--
-        show' x = if x < 0 then "(" ++ show x ++ ")" else show x
-    --
-    toDef []                _ = 
-      "  toEnum unmatched = error (\"" ++ ident 
+              Nothing                         -> n
+              Just (CConst (CIntConst m _) _) -> m
+              Just _ -> interr "GenBind.enumInst: Integer constant expected!"
+
+    show' x = if x < 0 then "(" ++ show x ++ ")" else show x
+    fromDef list = concat
+      [ "  fromEnum " ++ ide ++ " = " ++ show' val ++ "\n"
+      | (ide, val) <- list
+      ]
+    toDef list = concat
+      [ "  toEnum " ++ show' val ++ " = " ++ ide ++ "\n"
+      | (ide, val) <- nubBy (\x y -> snd x == snd y) list
+      ]
+      ++ "  toEnum unmatched = error (\"" ++ ident
       ++ ".toEnum: Cannot match \" ++ show unmatched)\n"
-    toDef ((ide, exp):list) n = 
-      "  toEnum " ++ show' val ++ " = " ++ ide ++ "\n" 
-      ++ toDef list (val + 1)
-      where
-        val = case exp of
-		Nothing                         -> n
-		Just (CConst (CIntConst m _) _) -> m
-		Just _		                -> 
-		  interr "GenBind.enumInst: Integer constant expected!"
-	--
-        show' x = if x < 0 then "(" ++ show x ++ ")" else show x
+
     succDef [] = "  succ _ = undefined\n"
     succDef [x] = "  succ _ = undefined\n"
     succDef (x:x':xs) =
