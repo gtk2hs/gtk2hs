@@ -419,12 +419,9 @@ expandHook (CHSEnum cide oalias chsTrans oprefix derive _) =
     -- convert the translation table and generate data type definition code
     --
     gprefix <- getPrefix
-    let prefix = case oprefix of
-		   Nothing -> gprefix
-		   Just pref -> pref
-
-    let trans = transTabToTransFun prefix chsTrans
-	hide  = identToLexeme . fromMaybe cide $ oalias
+    let prefix = fromMaybe gprefix oprefix
+        trans  = transTabToTransFun prefix chsTrans
+        hide   = identToLexeme . fromMaybe cide $ oalias
     enumDef enum hide trans (map identToLexeme derive)
 expandHook hook@(CHSCall isPure isUns isNol ide oalias pos) =
   do
