@@ -304,6 +304,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   accelClosuresChanged,
   screenChanged,
   queryTooltip,
+#if GTK_CHECK_VERSION(3,0,0)
+  draw,
+#endif
 
 -- * Events
   buttonPressEvent,
@@ -498,6 +501,10 @@ import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
 import Control.Monad.Reader ( runReaderT )
+#if GTK_CHECK_VERSION(3,0,0)
+import Graphics.Rendering.Cairo.Types (Cairo(..))
+import Graphics.Rendering.Cairo.Internal (Render(..))
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -2804,6 +2811,13 @@ queryTooltip =
            connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip" 
              after model (\widget x y keyb tooltip -> 
                               user widget (if keyb then Nothing else Just (x, y)) tooltip))
+
+#if GTK_CHECK_VERSION(3,0,0)
+draw :: WidgetClass self => Signal self (Render ())
+draw =
+  Signal (\after model (Render user) ->
+           connect_PTR__NONE "draw" after model (\ptr -> runReaderT user (Cairo ptr)))
+#endif
 
 -- * Events
 --

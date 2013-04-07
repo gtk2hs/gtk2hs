@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 {-# OPTIONS_HADDOCK hide #-}
 -----------------------------------------------------------------------------
 -- |
@@ -39,6 +40,11 @@ module Graphics.Rendering.Cairo.Types (
   , HintMetrics(..)
   , FontOptions(..), withFontOptions, mkFontOptions
   , Path(..), unPath
+#if CAIRO_CHECK_VERSION(1,10,0)
+  , RectangleInt(..)
+  , RegionOverlap(..)
+  , Region(..), withRegion, mkRegion
+#endif
   , Content(..)
   , Format(..)
   , Extend(..)
@@ -334,6 +340,54 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 --
 {#pointer *path_t as Path newtype#}
 unPath (Path x) = x
+
+#if CAIRO_CHECK_VERSION(1,10,0)
+
+{#pointer *rectangle_int_t as RectangleIntPtr -> RectangleInt#}
+
+-- | A data structure for holding a rectangle with integer coordinates.
+data RectangleInt = RectangleInt {
+    x      :: Int
+  , y      :: Int
+  , width  :: Int
+  , height :: Int
+  }
+
+instance Storable RectangleInt where
+  sizeOf _ = {#sizeof rectangle_int_t#}
+  alignment _ = alignment (undefined :: CInt)
+  peek p = do
+    x      <- {#get rectangle_int_t->x#}      p
+    y      <- {#get rectangle_int_t->y#}      p
+    width  <- {#get rectangle_int_t->width#}  p
+    height <- {#get rectangle_int_t->height#} p
+    return $ RectangleInt (fromIntegral x) (fromIntegral y) (fromIntegral width) (fromIntegral height)
+  poke p (RectangleInt {..}) = do
+    {#set rectangle_int_t->x#}      p (fromIntegral x)
+    {#set rectangle_int_t->y#}      p (fromIntegral y)
+    {#set rectangle_int_t->width#}  p (fromIntegral width)
+    {#set rectangle_int_t->height#} p (fromIntegral height)
+    return ()
+
+-- | Used as the return value for regionContainsRectangle.
+{#enum cairo_region_overlap_t as RegionOverlap {underscoreToCase} deriving(Eq,Show)#}
+
+-- | A Cairo region. Represents a set of integer-aligned rectangles.
+--
+-- It allows set-theoretical operations like regionUnion and regionIntersect to be performed on them.
+{#pointer *region_t as Region foreign newtype#}
+
+withRegion (Region fptr) = withForeignPtr fptr
+
+mkRegion :: Ptr Region -> IO Region
+mkRegion regionPtr = do
+  regionForeignPtr <- newForeignPtr regionDestroy regionPtr
+  return (Region regionForeignPtr)
+
+foreign import ccall unsafe "&cairo_region_destroy"
+  regionDestroy :: FinalizerPtr Region
+
+#endif
 
 {#enum content_t as Content {underscoreToCase} deriving(Eq,Show)#}
 

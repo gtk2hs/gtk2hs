@@ -243,6 +243,31 @@ module Graphics.Rendering.Cairo (
   , withSVGSurface
 #endif
 
+#if CAIRO_CHECK_VERSION(1,10,0)
+  -- * Regions
+  , regionCreate
+  , regionCreateRectangle
+  , regionCreateRectangles
+  , regionCopy
+  , regionGetExtents
+  , regionNumRectangles
+  , regionGetRectangle
+  , regionIsEmpty
+  , regionContainsPoint
+  , regionContainsRectangle
+  , regionEqual
+  , regionTranslate
+  , regionIntersect
+  , regionIntersectRectangle
+  , regionSubtract
+  , regionSubtractRectangle
+  , regionUnion
+  , regionUnionRectangle
+  , regionXor
+  , regionXorRectangle
+
+#endif
+
   -- * Utilities
 
   , liftIO
@@ -273,6 +298,11 @@ module Graphics.Rendering.Cairo (
   , HintMetrics(..)
   , FontOptions
   , Path
+#if CAIRO_CHECK_VERSION(1,10,0)
+  , RectangleInt(..)
+  , RegionOverlap(..)
+  , Region
+#endif
   , Content(..)
   , Format(..)
   , Extend(..)
@@ -1975,6 +2005,208 @@ withSVGSurface filename width height f =
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
+#endif
+
+#if CAIRO_CHECK_VERSION(1,10,0)
+
+-- | Allocates a new empty region object.
+--
+regionCreate :: MonadIO m => m Region
+regionCreate = liftIO $ Internal.regionCreate
+
+-- | Allocates a new region object containing @rectangle@.
+--
+regionCreateRectangle ::
+     MonadIO m =>
+     RectangleInt -- ^ @rectangle@
+  -> m Region
+regionCreateRectangle a = liftIO $ Internal.regionCreateRectangle a
+
+-- | Allocates a new region object containing the union of all given @rects@.
+--
+regionCreateRectangles ::
+     MonadIO m =>
+     [RectangleInt] -- ^ @rects@
+  -> m Region
+regionCreateRectangles a = liftIO $ Internal.regionCreateRectangles a
+
+-- | Allocates a new region object copying the area from @original@.
+--
+regionCopy ::
+     MonadIO m =>
+     Region -- ^ @original@
+  -> m Region
+regionCopy a = liftIO $ Internal.regionCopy a
+
+-- | Gets the bounding rectangle of @region@ as a RectanglInt.
+--
+regionGetExtents ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> m RectangleInt
+regionGetExtents a = liftIO $ Internal.regionGetExtents a
+
+-- | Returns the number of rectangles contained in @region@.
+--
+regionNumRectangles ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> m Int
+regionNumRectangles a = liftIO $ Internal.regionNumRectangles a
+
+-- | Gets the @nth@ rectangle from the @region@.
+--
+regionGetRectangle ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> Int    -- ^ @nth@
+  -> m RectangleInt
+regionGetRectangle a n = liftIO $ Internal.regionGetRectangle a n
+
+-- | Checks whether @region@ is empty.
+--
+regionIsEmpty ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> m Bool
+regionIsEmpty a = liftIO $ Internal.regionIsEmpty a
+
+-- | Checks whether (@x@, @y@) is contained in @region@.
+--
+regionContainsPoint ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> Int    -- ^ @x@
+  -> Int    -- ^ @y@
+  -> m Bool
+regionContainsPoint a x y = liftIO $ Internal.regionContainsPoint a x y
+
+-- | Checks whether @rectangle@ is inside, outside or partially contained in @region@.
+--
+regionContainsRectangle ::
+     MonadIO m =>
+     Region       -- ^ @region@
+  -> RectangleInt -- ^ @rectangle@
+  -> m RegionOverlap
+regionContainsRectangle a rect = liftIO $ Internal.regionContainsRectangle a rect
+
+-- | Compares whether @region_a@ is equivalent to @region_b@.
+--
+regionEqual ::
+     MonadIO m =>
+     Region -- ^ @region_a@
+  -> Region -- ^ @region_b@
+  -> m Bool
+regionEqual a b = liftIO $ Internal.regionEqual a b
+
+-- | Translates @region@ by (@dx@, @dy@).
+--
+regionTranslate ::
+     MonadIO m =>
+     Region -- ^ @region@
+  -> Int    -- ^ @dx@
+  -> Int    -- ^ @dy@
+  -> m ()
+regionTranslate a dx dy = liftIO $ Internal.regionTranslate a dx dy
+
+-- | Computes the intersection of @dst@ with @other@ and places the result in @dst@.
+--
+regionIntersect ::
+     MonadIO m =>
+     Region -- ^ @dst@
+  -> Region -- ^ @other@
+  -> m ()
+regionIntersect a b = liftIO $ do
+  status <- Internal.regionIntersect a b
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Computes the intersection of @dst@ with @rectangle@ and places the result in @dst@.
+--
+regionIntersectRectangle ::
+     MonadIO m =>
+     Region       -- ^ @dst@
+  -> RectangleInt -- ^ @rectangle@
+  -> m ()
+regionIntersectRectangle a rect = liftIO $ do
+  status <- Internal.regionIntersectRectangle a rect
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Subtracts @other@ from @dst@ and places the result in @dst@.
+--
+regionSubtract ::
+     MonadIO m =>
+     Region -- ^ @dst@
+  -> Region -- ^ @other@
+  -> m ()
+regionSubtract a b = liftIO $ do
+  status <- Internal.regionSubtract a b
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Subtracts @rectangle@ from @dst@ and places the result in @dst@.
+--
+regionSubtractRectangle ::
+     MonadIO m =>
+     Region       -- ^ @dst@
+  -> RectangleInt -- ^ @rectangle@
+  -> m ()
+regionSubtractRectangle a rect = liftIO $ do
+  status <- Internal.regionSubtractRectangle a rect
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Computes the union of @dst@ with @other@ and places the result in @dst@.
+--
+regionUnion ::
+     MonadIO m =>
+     Region -- ^ @dst@
+  -> Region -- ^ @other@
+  -> m ()
+regionUnion a b = liftIO $ do
+  status <- Internal.regionUnion a b
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Computes the union of @dst@ with @rectangle@ and places the result in @dst@.
+--
+regionUnionRectangle ::
+     MonadIO m =>
+     Region       -- ^ @dst@
+  -> RectangleInt -- ^ @rectangle@
+  -> m ()
+regionUnionRectangle a rect = liftIO $ do
+  status <- Internal.regionUnionRectangle a rect
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Computes the exclusive difference of @dst@ with @other@ and places the result in @dst@.
+-- That is, @dst@ will be set to contain all areas that are either in @dst@ or in @other@, but not in both.
+--
+regionXor ::
+     MonadIO m =>
+     Region -- ^ @dst@
+  -> Region -- ^ @other@
+  -> m ()
+regionXor a b = liftIO $ do
+  status <- Internal.regionXor a b
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Computes the exclusive difference of @dst@ with @rectangle@ and places the result in @dst@.
+-- That is, @dst@ will be set to contain all areas that are either in @dst@ or in @rectangle@, but not in both
+--
+regionXorRectangle ::
+     MonadIO m =>
+     Region       -- ^ @dst@
+  -> RectangleInt -- ^ @rectangle@
+  -> m ()
+regionXorRectangle a rect = liftIO $ do
+  status <- Internal.regionXorRectangle a rect
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
 #endif
 
 -- | Returns the version of the cairo library encoded in a single integer.

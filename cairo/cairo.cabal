@@ -69,6 +69,7 @@ Library
                           Graphics.Rendering.Cairo.Internal.Surfaces.PDF
                           Graphics.Rendering.Cairo.Internal.Surfaces.PS
                           Graphics.Rendering.Cairo.Internal.Surfaces.SVG
+                          Graphics.Rendering.Cairo.Internal.Region
         extensions:     ForeignFunctionInterface
         Include-dirs: .
         x-c2hs-Header:  cairo-gtk2hs.h

@@ -53,6 +53,8 @@ module Graphics.UI.Gtk.Cairo (
 #if GTK_MAJOR_VERSION < 3
   renderWithDrawable,
   region,
+#else
+  renderWithDrawWindow,
 #endif
   setSourceColor,
   setSourcePixbuf,
@@ -85,6 +87,7 @@ import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
 import qualified Graphics.Rendering.Cairo as Cairo
 import Graphics.Rendering.Cairo.Internal (Render(Render))
 import Control.Monad.Reader
+import Graphics.UI.Gtk.General.Structs (Rectangle(..))
 #endif
 
 {# context lib="gdk" prefix="gdk" #}
@@ -110,6 +113,23 @@ renderWithDrawable drawable m =
           (\context -> runReaderT (Cairo.Internal.runRender m) context)
 #endif
 
+#if GTK_MAJOR_VERSION >= 3
+-- | Creates a Cairo context for drawing to a 'DrawWindow'.
+--
+-- Removed in Gtk3.
+renderWithDrawWindow :: DrawWindowClass drawWindow =>
+    drawWindow -- ^ @drawWindow@ - a 'DrawWindow'
+ -> Render a -- ^ A newly created Cairo context.
+ -> IO a
+renderWithDrawWindow drawWindow m =
+  bracket (liftM Cairo.Cairo $ {#call unsafe gdk_cairo_create#} (toDrawWindow drawWindow))
+          (\context -> do status <- Cairo.Internal.status context
+                          Cairo.Internal.destroy context
+                          unless (status == Cairo.StatusSuccess) $
+                            fail =<< Cairo.Internal.statusToString status)
+          (\context -> runReaderT (Cairo.Internal.runRender m) context)
+#endif
+
 -- | Sets the given pixbuf as the source pattern for the Cairo context. The
 -- pattern has an extend mode of 'ExtendNone' and is aligned so that the
 -- origin of pixbuf is @(x, y)@.
@@ -127,6 +147,15 @@ setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
     (realToFrac pixbufX)
     (realToFrac pixbufY)
 
+-- | Adds the given region to the current path of the 'Render' context.
+rectangle :: Rectangle -> Render ()
+rectangle rect = Render $ do
+  cr <- ask
+  liftIO $ with rect $ \ rectPtr ->
+    {# call unsafe gdk_cairo_rectangle #}
+      cr
+      (castPtr rectPtr)
+
 #if GTK_MAJOR_VERSION < 3
 -- | Adds the given region to the current path of the 'Render' context.
 --
@@ -138,4 +167,18 @@ region region = Render $ do
     cr
     region
 #endif
+
+#if GTK_MAJOR_VERSION >= 3
+-- | Adds the given region to the current path of the 'Render' context.
+--
+-- Removed in Gtk3.
+region :: Region -> Render ()
+region region = Render $ do
+  cr <- ask
+  liftIO $ {# call unsafe gdk_cairo_region #}
+    cr
+    region
+
+#endif
+
 #endif

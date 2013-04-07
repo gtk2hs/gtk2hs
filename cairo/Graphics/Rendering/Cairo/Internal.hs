@@ -29,6 +29,7 @@ module Graphics.Rendering.Cairo.Internal (
   , module Graphics.Rendering.Cairo.Internal.Surfaces.PS
   , module Graphics.Rendering.Cairo.Internal.Surfaces.SVG
   , module Graphics.Rendering.Cairo.Internal.Surfaces.Surface
+  , module Graphics.Rendering.Cairo.Internal.Region
   , module Graphics.Rendering.Cairo.Internal.Utilities
 
   ) where
@@ -46,6 +47,7 @@ import Graphics.Rendering.Cairo.Internal.Surfaces.PNG
 import Graphics.Rendering.Cairo.Internal.Surfaces.PS
 import Graphics.Rendering.Cairo.Internal.Surfaces.SVG
 import Graphics.Rendering.Cairo.Internal.Surfaces.Surface
+import Graphics.Rendering.Cairo.Internal.Region
 import Graphics.Rendering.Cairo.Internal.Utilities
 
 import Control.Monad.Reader
