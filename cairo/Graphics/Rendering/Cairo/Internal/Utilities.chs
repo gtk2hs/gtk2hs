@@ -17,7 +17,9 @@ module Graphics.Rendering.Cairo.Internal.Utilities where
 
 import Foreign
 import Foreign.C
+#if __GLASGOW_HASKELL__ >= 707
 import System.IO.Unsafe (unsafePerformIO)
+#endif
 
 import Codec.Binary.UTF8.String
 import Data.Char (ord, chr)
