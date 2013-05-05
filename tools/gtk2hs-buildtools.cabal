@@ -115,3 +115,5 @@ Executable gtk2hsC2hs
           cpp-options:  -D_C2HS_CPP_LANG_SINGLE
         extensions:     ForeignFunctionInterface
                         BangPatterns
+        if impl(ghc >= 7.7)
+          build-depends: hashtables

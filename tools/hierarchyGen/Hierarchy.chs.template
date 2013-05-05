@@ -36,7 +36,12 @@ module @MODULE_NAME@ (
 @MODULE_EXPORTS@
   ) where
 
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
+import Foreign.ForeignPtr (ForeignPtr, castForeignPtr)
+#if __GLASGOW_HASKELL__ >= 707
+import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
+#else
+import Foreign.ForeignPtr (unsafeForeignPtrToPtr)
+#endif
 import Foreign.C.Types    (CULong(..), CUInt(..))
 import System.Glib.GType  (GType, typeInstanceIsA)
 @MODULE_IMPORTS@

@@ -17,6 +17,7 @@ module Graphics.Rendering.Cairo.Internal.Utilities where
 
 import Foreign
 import Foreign.C
+import System.IO.Unsafe (unsafePerformIO)
 
 import Codec.Binary.UTF8.String
 import Data.Char (ord, chr)

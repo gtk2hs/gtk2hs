@@ -60,9 +60,16 @@ import FastMutInt
 
 import Map (Map)
 import qualified Map as Map
-# if __GLASGOW_HASKELL__>=602
+#if __GLASGOW_HASKELL__>=602
+# if __GLASGOW_HASKELL__>=707
+import Data.HashTable.Class as HashTable
+              (HashTable)
+import Data.HashTable.IO as HashTable
+              (BasicHashTable, toList, new, insert, lookup)
+# else
 import Data.HashTable as HashTable
 # endif
+#endif
 import Data.Array.IO
 import Data.Array
 import Data.Bits
@@ -697,7 +704,11 @@ data UserData =
 		-- The next two fields are only used when writing
 	      ud_next :: IORef Int,	-- The next index to use
 #if __GLASGOW_HASKELL__>=602
+# if __GLASGOW_HASKELL__>=707
+	      ud_map  :: BasicHashTable String Int -- The index of each string
+# else
 	      ud_map  :: HashTable String Int -- The index of each string
+# endif
 #else
 	      ud_map  :: IORef (Map String Int)
 #endif
@@ -714,7 +725,11 @@ newWriteState :: IO UserData
 newWriteState = do
   j_r <- newIORef 0
 #if __GLASGOW_HASKELL__>=602
+# if __GLASGOW_HASKELL__>=707
+  out_r <- HashTable.new
+# else
   out_r <- HashTable.new (==) HashTable.hashString
+# endif
 #else
   out_r <- newIORef Map.empty
 #endif
