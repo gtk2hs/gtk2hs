@@ -115,8 +115,6 @@ renderWithDrawable drawable m =
 
 #if GTK_MAJOR_VERSION >= 3
 -- | Creates a Cairo context for drawing to a 'DrawWindow'.
---
--- Removed in Gtk3.
 renderWithDrawWindow :: DrawWindowClass drawWindow =>
     drawWindow -- ^ @drawWindow@ - a 'DrawWindow'
  -> Render a -- ^ A newly created Cairo context.
