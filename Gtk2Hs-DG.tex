@@ -1,0 +1,47 @@
+% Gtk2Hs-DG.tex
+\begin{hcarentry}[updated]{Gtk2Hs}
+\label{gtk2hs}
+\report{Daniel Wagner}%05/13
+\participants{Axel Simon, Duncan Coutts, Andy Stewart, and many others}
+\status{beta, actively developed}
+\makeheader
+
+Gtk2Hs is a set of Haskell bindings to many of the libraries included
+in the Gtk+/Gnome platform. Gtk+ is an extensive and mature
+multi-platform toolkit for creating graphical user interfaces.
+
+GUIs written using Gtk2Hs use themes to resemble the native look on
+Windows. Gtk is the toolkit used by Gnome, one of the two major GUI toolkits
+on Linux. On Mac OS programs written using Gtk2Hs are run by Apple's
+X11 server but may also be linked against a native Aqua implementation
+of Gtk.
+
+\Separate
+Gtk2Hs features:
+\begin{itemize}
+\item Automatic memory management (unlike some other C/C++ GUI
+libraries, Gtk+ provides proper support for garbage-collected languages)
+\item Unicode support
+\item High quality vector graphics using Cairo
+\item Extensive reference documentation
+\item An implementation of the ``Haskell School of Expression'' graphics
+API
+\item Bindings to many other libraries that build on Gtk: gio, GConf,
+  GtkSourceView 2.0, glade, gstreamer, vte, webkit
+\end{itemize}
+
+\Separate
+
+Since the last release, there have been many bugfixes, and Peter Davies and
+Hamish Mackenzie have begun adding experimental Gtk3 support, enabled by the
+``gtk3'' cabal flag.
+
+\FurtherReading
+\begin{compactitem}
+\item News and downloads:
+  \url{http://haskell.org/gtk2hs/}
+
+\item Development version:
+  \texttt{darcs get} \url{http://code.haskell.org/gtk2hs/}
+\end{compactitem}
+\end{hcarentry} 
