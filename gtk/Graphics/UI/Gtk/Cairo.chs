@@ -82,7 +82,11 @@ import System.Glib.FFI
 {#import Graphics.Rendering.Pango.Cairo#}
 
 #if GTK_CHECK_VERSION(2,8,0)
+#if GTK_MAJOR_VERSION < 3
+{#import Graphics.Rendering.Cairo.Types#} as Cairo hiding (Region)
+#else
 {#import Graphics.Rendering.Cairo.Types#} as Cairo
+#endif
 import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
 import qualified Graphics.Rendering.Cairo as Cairo
 import Graphics.Rendering.Cairo.Internal (Render(Render))
