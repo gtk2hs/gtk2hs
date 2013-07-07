@@ -23,6 +23,7 @@ Extra-Source-Files: hsgtk.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
                     hierarchy.list
+                    hierarchy3.list
                     
 x-Types-File:       Graphics/UI/Gtk/Types.chs
 x-Types-ModName:    Graphics.UI.Gtk.Types
