@@ -1,5 +1,5 @@
-Name:           gtk
-Version:        3.12.4.1
+Name:           gtk3
+Version:        0.12.4.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -22,7 +22,6 @@ Extra-Source-Files: hsgtk.h
                     template-hsc-gtk2hs.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
-                    hierarchy.list
                     hierarchy3.list
                     
 x-Types-File:       Graphics/UI/Gtk/Types.chs
@@ -115,11 +114,6 @@ Source-Repository head
   location:     http://code.haskell.org/gtk2hs/
   subdir:       gtk
 
-Flag deprecated
-  Description:  Include definitions in this library that are considered obsolete.
-  Default:      True
-  Manual:       True
-
 Flag have-gio
   Description: Depend on GIO package, thereby enabling certain features.
   Default:  True
@@ -127,10 +121,6 @@ Flag have-gio
 Flag have-quartz-gtk
   Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
   Default:  False
-
-Flag gtk3
-  Description: Use GTK3 rather than GTK2
-  Default: True
 
 Library
         build-depends:  base >= 4 && < 5,
@@ -186,7 +176,6 @@ Library
           Graphics.UI.Gtk.Display.Statusbar
           Graphics.UI.Gtk.Display.StatusIcon
           Graphics.UI.Gtk.Display.InfoBar
-          Graphics.UI.Gtk.Embedding.Embedding
           Graphics.UI.Gtk.Embedding.Plug
           Graphics.UI.Gtk.Embedding.Socket
           Graphics.UI.Gtk.Entry.Editable
@@ -201,17 +190,13 @@ Library
           Graphics.UI.Gtk.Gdk.Keymap
           Graphics.UI.Gtk.Gdk.Display
           Graphics.UI.Gtk.Gdk.DisplayManager
-          Graphics.UI.Gtk.Gdk.Drawable
           Graphics.UI.Gtk.Gdk.DrawWindow
           Graphics.UI.Gtk.Gdk.EventM
           Graphics.UI.Gtk.Gdk.Events
-          Graphics.UI.Gtk.Gdk.GC
           Graphics.UI.Gtk.Gdk.Gdk
           Graphics.UI.Gtk.Gdk.Keys
           Graphics.UI.Gtk.Gdk.Pixbuf
           Graphics.UI.Gtk.Gdk.PixbufAnimation
-          Graphics.UI.Gtk.Gdk.Pixmap
-          Graphics.UI.Gtk.Gdk.Region
           Graphics.UI.Gtk.Gdk.Screen
           Graphics.UI.Gtk.General.Clipboard
           Graphics.UI.Gtk.General.CssProvider
@@ -240,16 +225,13 @@ Library
           Graphics.UI.Gtk.Layout.VButtonBox
           Graphics.UI.Gtk.Layout.VPaned
           Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
-          Graphics.UI.Gtk.MenuComboToolbar.Combo
           Graphics.UI.Gtk.MenuComboToolbar.ComboBox
-          Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry
           Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem
           Graphics.UI.Gtk.MenuComboToolbar.Menu
           Graphics.UI.Gtk.MenuComboToolbar.MenuBar
           Graphics.UI.Gtk.MenuComboToolbar.MenuItem
           Graphics.UI.Gtk.MenuComboToolbar.MenuShell
           Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton
-          Graphics.UI.Gtk.MenuComboToolbar.OptionMenu
           Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem
           Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton
           Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem
@@ -272,7 +254,6 @@ Library
           Graphics.UI.Gtk.Misc.IMContextSimple
           Graphics.UI.Gtk.Misc.SizeGroup
           Graphics.UI.Gtk.Misc.Tooltip
-          Graphics.UI.Gtk.Misc.Tooltips
           Graphics.UI.Gtk.Misc.Viewport
           Graphics.UI.Gtk.ModelView
           Graphics.UI.Gtk.ModelView.CellEditable
@@ -331,14 +312,10 @@ Library
           Graphics.UI.Gtk.Selectors.FileChooserDialog
           Graphics.UI.Gtk.Selectors.FileChooserWidget
           Graphics.UI.Gtk.Selectors.FileFilter
-          Graphics.UI.Gtk.Selectors.FileSelection
           Graphics.UI.Gtk.Selectors.FontButton
           Graphics.UI.Gtk.Selectors.FontSelection
           Graphics.UI.Gtk.Selectors.FontSelectionDialog
           Graphics.UI.Gtk.Selectors.HSV
-          Graphics.UI.Gtk.Special.Ruler
-          Graphics.UI.Gtk.Special.HRuler
-          Graphics.UI.Gtk.Special.VRuler
           Graphics.UI.Gtk.Windows.AboutDialog
           Graphics.UI.Gtk.Windows.Assistant
           Graphics.UI.Gtk.Windows.Dialog
@@ -378,28 +355,18 @@ Library
         -- needs to be imported from this module:
         x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
-        if !flag(deprecated)
-          cpp-options:  -DDISABLE_DEPRECATED
-        else
-          x-Types-Tag:  deprecated 
+        cpp-options: -DDISABLE_DEPRECATED
         if os(windows)
           cpp-options:    -DWIN32
           extra-libraries: kernel32
-        
+
         x-c2hs-Header:  hsgtk.h
-        
-        if flag(gtk3)
-          x-Types-Hierarchy:  hierarchy3.list
-        else
-          x-Types-Hierarchy:  hierarchy.list
-        
+        x-Types-Hierarchy:  hierarchy3.list
+
         if os(windows) || flag(have-quartz-gtk)
           x-Types-Tag: default
         else
           x-Types-Tag: default plugNsocket
           cpp-options: -DHAVE_PLUG_AND_SOCKET
 
-        if flag(gtk3)
-          pkgconfig-depends: gthread-2.0, gtk+-3.0
-        else
-          pkgconfig-depends: gthread-2.0, gtk+-2.0
+        pkgconfig-depends: gthread-2.0, gtk+-3.0

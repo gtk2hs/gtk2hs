@@ -23,7 +23,6 @@ Extra-Source-Files: hsgtk.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
                     hierarchy.list
-                    hierarchy3.list
                     
 x-Types-File:       Graphics/UI/Gtk/Types.chs
 x-Types-ModName:    Graphics.UI.Gtk.Types
@@ -128,10 +127,6 @@ Flag have-quartz-gtk
   Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
   Default:  False
 
-Flag gtk3
-  Description: Use GTK3 rather than GTK2
-  Default: False
-
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, mtl, bytestring,
@@ -214,7 +209,6 @@ Library
           Graphics.UI.Gtk.Gdk.Region
           Graphics.UI.Gtk.Gdk.Screen
           Graphics.UI.Gtk.General.Clipboard
-          Graphics.UI.Gtk.General.CssProvider
           Graphics.UI.Gtk.General.Drag
           Graphics.UI.Gtk.General.General
           Graphics.UI.Gtk.General.IconFactory
@@ -224,8 +218,6 @@ Library
           Graphics.UI.Gtk.General.Settings
           Graphics.UI.Gtk.General.StockItems
           Graphics.UI.Gtk.General.Style
-          Graphics.UI.Gtk.General.StyleContext
-          Graphics.UI.Gtk.General.StyleProvider
           Graphics.UI.Gtk.Layout.Alignment
           Graphics.UI.Gtk.Layout.AspectFrame
           Graphics.UI.Gtk.Layout.Expander
@@ -385,21 +377,14 @@ Library
         if os(windows)
           cpp-options:    -DWIN32
           extra-libraries: kernel32
-        
+
         x-c2hs-Header:  hsgtk.h
-        
-        if flag(gtk3)
-          x-Types-Hierarchy:  hierarchy3.list
-        else
-          x-Types-Hierarchy:  hierarchy.list
-        
+        x-Types-Hierarchy:  hierarchy.list
+
         if os(windows) || flag(have-quartz-gtk)
           x-Types-Tag: default
         else
           x-Types-Tag: default plugNsocket
           cpp-options: -DHAVE_PLUG_AND_SOCKET
 
-        if flag(gtk3)
-          pkgconfig-depends: gthread-2.0, gtk+-3.0
-        else
-          pkgconfig-depends: gthread-2.0, gtk+-2.0
+        pkgconfig-depends: gthread-2.0, gtk+-2.0
