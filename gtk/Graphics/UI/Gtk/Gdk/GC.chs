@@ -92,7 +92,9 @@ import System.Glib.GObject		(wrapNewGObject)
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..), 
 					 CapStyle(..), JoinStyle(..))
+#if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(Region))
+#endif
 
 {# context lib="gtk" prefix="gdk" #}
 

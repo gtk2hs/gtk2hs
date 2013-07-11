@@ -57,13 +57,19 @@ module Graphics.UI.Gtk (
   -- * Drawing and other Low-Level Operations
   module Graphics.UI.Gtk.Gdk.AppLaunchContext,
   module Graphics.UI.Gtk.Gdk.Cursor,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Gdk.Drawable,
+#endif
   module Graphics.UI.Gtk.Gdk.DrawWindow,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Gdk.Region,
+#endif
 --  module Graphics.UI.Gtk.Gdk.GC,
   module Graphics.UI.Gtk.Gdk.EventM,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Gdk.Pixmap,
+#endif
   module Graphics.UI.Gtk.Gdk.Screen,
   module Graphics.UI.Gtk.Gdk.Keymap,
   module Graphics.UI.Gtk.Gdk.Display,
@@ -142,14 +148,20 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.ModelView.TreeViewColumn,
   -- * Menus, combo box, toolbar
   module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.MenuComboToolbar.Combo,
+#endif
   module Graphics.UI.Gtk.MenuComboToolbar.ComboBox,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry,
+#endif
   module Graphics.UI.Gtk.MenuComboToolbar.Menu,
   module Graphics.UI.Gtk.MenuComboToolbar.MenuBar,
   module Graphics.UI.Gtk.MenuComboToolbar.MenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.MenuShell,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu,
+#endif
   module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem,
@@ -174,17 +186,21 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Selectors.ColorSelection,
   module Graphics.UI.Gtk.Selectors.ColorSelectionDialog,
   module Graphics.UI.Gtk.Selectors.ColorButton,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Selectors.FileSelection,
+#endif
   module Graphics.UI.Gtk.Selectors.FontSelection,
   module Graphics.UI.Gtk.Selectors.FontSelectionDialog,
   module Graphics.UI.Gtk.Selectors.FontButton,
 #if GTK_CHECK_VERSION(2,14,0)
   module Graphics.UI.Gtk.Selectors.HSV,
 #endif
+#if GTK_MAJOR_VERSION < 3
   -- * Special-purpose features
   module Graphics.UI.Gtk.Special.Ruler,
   module Graphics.UI.Gtk.Special.HRuler,
   module Graphics.UI.Gtk.Special.VRuler,
+#endif
 --  module InputDialog,
   -- ** File chooser
   module Graphics.UI.Gtk.Selectors.FileChooser,
@@ -239,7 +255,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.IMContextSimple,
   module Graphics.UI.Gtk.Misc.SizeGroup,
   module Graphics.UI.Gtk.Misc.Tooltip,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Misc.Tooltips,
+#endif
   module Graphics.UI.Gtk.Misc.Viewport,
   -- * Abstract base classes
   module Graphics.UI.Gtk.Abstract.Box,
@@ -288,17 +306,19 @@ import Graphics.UI.Gtk.General.Style
 import Graphics.UI.Gtk.General.RcStyle
 import Graphics.UI.Gtk.Gdk.AppLaunchContext
 import Graphics.UI.Gtk.Gdk.Cursor
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Drawable
+#endif
 import Graphics.UI.Gtk.Gdk.DrawWindow
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
-#else
-import Graphics.UI.Gtk.Gdk.Region
 #endif
 --import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.UI.Gtk.Gdk.Pixbuf
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap
+#endif
 import Graphics.UI.Gtk.Gdk.Screen
 import Graphics.UI.Gtk.Gdk.Keymap
 import Graphics.UI.Gtk.Gdk.Display
@@ -381,15 +401,21 @@ import Graphics.UI.Gtk.ModelView.TreeStore
 import Graphics.UI.Gtk.ModelView.TreeView
 import Graphics.UI.Gtk.ModelView.TreeViewColumn
 -- menus, combo box, toolbar
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.MenuComboToolbar.Combo
+#endif
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry
+#endif
 -- import ItemFactory
 import Graphics.UI.Gtk.MenuComboToolbar.Menu
 import Graphics.UI.Gtk.MenuComboToolbar.MenuBar
 import Graphics.UI.Gtk.MenuComboToolbar.MenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.MenuShell
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.MenuComboToolbar.OptionMenu
+#endif
 import Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
@@ -415,7 +441,9 @@ import Graphics.UI.Gtk.ActionMenuToolbar.UIManager
 import Graphics.UI.Gtk.Selectors.ColorSelection
 import Graphics.UI.Gtk.Selectors.ColorSelectionDialog
 import Graphics.UI.Gtk.Selectors.ColorButton
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Selectors.FileSelection
+#endif
 import Graphics.UI.Gtk.Selectors.FileChooser
 import Graphics.UI.Gtk.Selectors.FileChooserDialog
 import Graphics.UI.Gtk.Selectors.FileChooserWidget
@@ -427,10 +455,12 @@ import Graphics.UI.Gtk.Selectors.FontButton
 #if GTK_CHECK_VERSION(2,14,0)
 import Graphics.UI.Gtk.Selectors.HSV
 #endif
+#if GTK_MAJOR_VERSION < 3
 -- Special-purpose features
 import Graphics.UI.Gtk.Special.Ruler
 import Graphics.UI.Gtk.Special.HRuler
 import Graphics.UI.Gtk.Special.VRuler
+#endif
 --import InputDialog
 -- layout containers
 import Graphics.UI.Gtk.Layout.Alignment
@@ -479,7 +509,9 @@ import Graphics.UI.Gtk.Misc.IMMulticontext
 import Graphics.UI.Gtk.Misc.IMContextSimple
 import Graphics.UI.Gtk.Misc.SizeGroup
 import Graphics.UI.Gtk.Misc.Tooltip
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Misc.Tooltips
+#endif
 import Graphics.UI.Gtk.Misc.Viewport
 --import Accessible
 -- abstract base classes

@@ -76,8 +76,6 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#} (Region(..))
-#else
-{#import Graphics.UI.Gtk.Gdk.Region#} ()
 #endif
 {#import Graphics.Rendering.Pango.Cairo#}
 

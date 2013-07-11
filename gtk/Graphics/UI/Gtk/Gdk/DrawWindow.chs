@@ -101,7 +101,9 @@ import System.Glib.Flags                (toFlags)
 import System.Glib.GObject              (wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
+#if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#}
+#endif
 {#import Graphics.UI.Gtk.Gdk.Cursor#}
 import Graphics.UI.Gtk.Gdk.EventM	(Modifier,
 #if GTK_MAJOR_VERSION < 3

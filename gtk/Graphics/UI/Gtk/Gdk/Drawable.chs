@@ -78,7 +78,9 @@ import Graphics.Rendering.Pango.Structs
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)
+#endif
 import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))
 
 {# context lib="gtk" prefix="gdk" #}

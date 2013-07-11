@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) New model-based tree/list widget system
 --
@@ -39,7 +40,9 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.CellRendererToggle,
   module Graphics.UI.Gtk.ModelView.CellView,
   module Graphics.UI.Gtk.MenuComboToolbar.ComboBox,
+#if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry,
+#endif
   module Graphics.UI.Gtk.ModelView.CustomStore,
   module Graphics.UI.Gtk.Entry.EntryCompletion,
   module Graphics.UI.Gtk.ModelView.IconView,
@@ -64,7 +67,9 @@ import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellRendererToggle
 import Graphics.UI.Gtk.ModelView.CellView
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox -- these moved back to MenuComboToolbar
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry
+#endif
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.Entry.EntryCompletion -- this moved back to Entry
 import Graphics.UI.Gtk.ModelView.IconView

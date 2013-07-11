@@ -435,16 +435,10 @@ import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..)
 #endif
     )
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
-{#import Graphics.UI.Gtk.Gdk.Region#}	(
 #if GTK_MAJOR_VERSION < 3
-    Region(..), makeNewRegion
+{#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
+{#import Graphics.UI.Gtk.Gdk.Pixmap#} (Bitmap)
 #endif
-    )
-{#import Graphics.UI.Gtk.Gdk.Pixmap#} (
-#if GTK_MAJOR_VERSION < 3
-    Bitmap
-#endif
-    )
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize(..)
                                         ,Point
