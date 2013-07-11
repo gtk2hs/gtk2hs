@@ -15,6 +15,7 @@ done;
 
 cd gtk;
 
+cp -f gtk.cabal-0 gtk.cabal;
 cabal build;
 cabal haddock;
 cabal copy;
@@ -25,5 +26,3 @@ cabal build;
 cabal haddock;
 cabal copy;
 cabal register;
-
-
