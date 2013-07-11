@@ -93,7 +93,7 @@ instance Flags TreeModelFlags
 -- | A 'CustomStore' is an instance of a Gtk+ 'TreeModel' and can thus be used
 --   for any widget that stores data in a 'TreeModel'. The user may either
 --   create an instance of a 'CustomStore' or use one of the pre-defined
---   models 'Graphics.UI.Gtk.ModelView.ListStore.ListStore' of
+--   models 'Graphics.UI.Gtk.ModelView.ListStore.ListStore' or
 --   'Graphics.UI.Gtk.ModelView.TreeStore.TreeStore'.
 newtype CustomStore private row = CustomStore (ForeignPtr (CustomStore private row))
 
