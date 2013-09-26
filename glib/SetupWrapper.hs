@@ -30,12 +30,23 @@ import Data.Char
 import Control.Monad
 
 
--- The former instance is for Cabal < 1.17; the latter for Cabal >= 1.17. We
--- can't use CPP to check which version of Cabal we're up against here because
--- this is the file that's generating those macros.
-class CompConf a where compConf :: a -> (Compiler, ProgramConfiguration)
-instance CompConf (Compiler, ProgramConfiguration) where compConf = id
-instance CompConf (Compiler, a, ProgramConfiguration) where compConf (c, a, p) = (c, p)
+-- moreRecentFile is implemented in Distribution.Simple.Utils, but only in
+-- Cabal >= 1.18. For backwards-compatibility, we implement a copy with a new
+-- name here. Some desirable alternate strategies don't work:
+-- * We can't use CPP to check which version of Cabal we're up against because
+--   this is the file that's generating the macros for doing that.
+-- * We can't use the name moreRecentFiles and use
+--   import D.S.U hiding (moreRecentFiles)
+--   because on old GHC's (and according to the Report) hiding a name that
+--   doesn't exist is an error.
+moreRecentFile' :: FilePath -> FilePath -> IO Bool
+moreRecentFile' a b = do
+  exists <- doesFileExist b
+  if not exists
+    then return True
+    else do tb <- getModificationTime b
+            ta <- getModificationTime a
+            return (ta > tb)
 
 setupWrapper :: FilePath -> IO ()
 setupWrapper setupHsFile = do
@@ -99,13 +110,13 @@ setupWrapper setupHsFile = do
     -- Currently this is GHC only. It should really be generalised.
     --
     compileSetupExecutable = do
-      setupHsNewer      <- setupHsFile      `moreRecentFile` setupProgFile
-      cabalVersionNewer <- setupVersionFile `moreRecentFile` setupProgFile
+      setupHsNewer      <- setupHsFile      `moreRecentFile'` setupProgFile
+      cabalVersionNewer <- setupVersionFile `moreRecentFile'` setupProgFile
       let outOfDate = setupHsNewer || cabalVersionNewer
       when outOfDate $ do
         debug verbosity "Setup script is out of date, compiling..."
 
-        (comp, conf)    <- compConf `fmap` configCompiler (Just GHC) Nothing Nothing
+        (comp, conf)    <- configCompiler (Just GHC) Nothing Nothing
                              defaultProgramConfiguration verbosity
         cabalLibVersion <- cabalLibVersionToUse comp conf
         let cabalPkgid = PackageIdentifier (PackageName "Cabal") cabalLibVersion
@@ -152,12 +163,3 @@ setupWrapper setupHsFile = do
                    Nothing Nothing Nothing
       exitCode <- waitForProcess process
       unless (exitCode == ExitSuccess) $ exitWith exitCode
-
-moreRecentFile :: FilePath -> FilePath -> IO Bool
-moreRecentFile a b = do
-  exists <- doesFileExist b
-  if not exists
-    then return True
-    else do tb <- getModificationTime b
-            ta <- getModificationTime a
-            return (ta > tb)

@@ -65,10 +65,13 @@ import qualified Distribution.Simple.LocalBuildInfo as LBI
 import Control.Applicative ((<$>))
 
 #if CABAL_VERSION_CHECK(1,17,0)
+import Distribution.Simple.Program.Find ( defaultProgramSearchPath )
+onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
   [clbi] -> Just clbi
   _ -> Nothing
 #else
+onDefaultSearchPath = id
 libraryConfig = LBI.libraryConfig
 #endif
 
@@ -433,7 +436,7 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
 checkGtk2hsBuildtools :: [Program] -> IO ()
 checkGtk2hsBuildtools programs = do
   programInfos <- mapM (\ prog -> do
-                         location <- programFindLocation prog normal
+                         location <- onDefaultSearchPath programFindLocation prog normal
                          return (programName prog, location)
                       ) programs
   let printError name = do
