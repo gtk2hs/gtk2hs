@@ -1,7 +1,6 @@
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
 
-{-# LANGUAGE FlexibleInstances #-}
 module SetupWrapper (setupWrapper) where
 
 import Distribution.Package
