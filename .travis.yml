@@ -1,0 +1,13 @@
+language: haskell
+before_install:
+  - travis_retry sudo apt-get update -qq
+  - travis_retry sudo apt-get --no-install-recommends install libgtk2.0-dev libgtk-3-dev
+  - travis_retry cabal install Cabal
+install:
+  - travis_retry cabal install cabal-meta cabal-src
+script:
+  - ./install-both.sh
+notifications:
+  irc:
+    channels: "irc.freenode.net#gtk2hs"
+  email: true
