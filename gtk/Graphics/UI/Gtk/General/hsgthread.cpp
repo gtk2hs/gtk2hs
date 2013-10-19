@@ -25,6 +25,8 @@
  * instead.
  */
 
+extern "C" {
+
 #define DEFINED_LPTYPELIB
 #define DEFINDE_LPTYPEINFO
 #define DEFINED_LPTYPECOMP
@@ -197,3 +199,4 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   return FALSE;
 }
 
+}
