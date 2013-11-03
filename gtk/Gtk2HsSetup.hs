@@ -61,6 +61,7 @@ import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Distribution.Simple.LocalBuildInfo as LBI
+import Distribution.Simple.Compiler (compilerVersion)
 
 import Control.Applicative ((<$>))
 
@@ -246,7 +247,10 @@ getCppOptions bi lbi
     = nub $
       ["-I" ++ dir | dir <- PD.includeDirs bi]
    ++ [opt | opt@('-':c:_) <- PD.cppOptions bi ++ PD.ccOptions bi, c `elem` "DIU"]
-   ++ ["-D__GLASGOW_HASKELL__="++show __GLASGOW_HASKELL__]
+   ++ ["-D__GLASGOW_HASKELL__="++show (ghcDefine . versionBranch . compilerVersion $ LBI.compiler lbi)]
+ where
+  ghcDefine (v1:v2:_) = v1 * 100 + v2
+  ghcDefine _ = __GLASGOW_HASKELL__
 
 installCHI :: PackageDescription -- ^information from the .cabal file
         -> LocalBuildInfo -- ^information from the configure step
