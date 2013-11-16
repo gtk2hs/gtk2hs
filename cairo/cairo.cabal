@@ -1,5 +1,5 @@
 Name:           cairo
-Version:        0.12.4.1
+Version:        0.12.5.0
 License:        BSD3
 License-file:   COPYRIGHT
 Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
@@ -31,8 +31,8 @@ Data-Files:		cairo-clock-icon.png
                 Text.hs
 				
 Source-Repository head
-  type:         darcs
-  location:     http://code.haskell.org/gtk2hs/
+  type:         git
+  location:     https://github.com/gtk2hs/gtk2hs
   subdir:       cairo
 
 Flag cairo_pdf
@@ -48,7 +48,7 @@ Library
         build-depends:  base >= 4 && < 5,
                         utf8-string >= 0.2 && < 0.4,
                         bytestring, mtl, array
-        build-tools:    gtk2hsC2hs >= 0.13.5
+        build-tools:    gtk2hsC2hs >= 0.13.8
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types
