@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
 -- * Detail
--- 
+--
 -- | 'ScrolledWindow' is a 'Bin' subclass: it's a container the accepts a
 -- single child widget. 'ScrolledWindow' adds scrollbars to the child widget
 -- and optionally draws a beveled frame around the child widget.
@@ -107,6 +107,12 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowGetHScrollbar,
   scrolledWindowGetVScrollbar,
 #endif
+#if GTK_CHECK_VERSION(3,4,0)
+  scrolledWindowSetKineticScrolling,
+  scrolledWindowGetKineticScrolling,
+  scrolledWindowSetCaptureButtonPress,
+  scrolledWindowGetCaptureButtonPress,
+#endif
 
 -- * Attributes
   scrolledWindowHAdjustment,
@@ -120,6 +126,9 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowMinContentHeight,
 #endif
   scrolledWindowPlacement,
+#if GTK_CHECK_VERSION(3,4,0)
+  scrolledWindowKineticScrolling,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -143,7 +152,7 @@ import Graphics.UI.Gtk.General.Enums	(PolicyType(..), CornerType(..), ShadowType
 -- @Nothing@ for the adjustments, which will cause the scrolled window to
 -- create them for you.
 --
-scrolledWindowNew :: 
+scrolledWindowNew ::
     Maybe Adjustment  -- ^ @hadjustment@ - Horizontal adjustment.
  -> Maybe Adjustment  -- ^ @vadjustment@ - Vertical adjustment.
  -> IO ScrolledWindow
@@ -351,6 +360,51 @@ scrolledWindowGetVScrollbar self =
     (toScrolledWindow self)
 #endif
 
+#if GTK_CHECK_VERSION(3,4,0)
+-- | Turns kinetic scrolling on or off. Kinetic scrolling only applies to
+--   devices with source GDK_SOURCE_TOUCHSCREEN.
+--
+scrolledWindowSetKineticScrolling :: ScrolledWindowClass self => self -> Bool -> IO ()
+scrolledWindowSetKineticScrolling self kineticScrolling =
+  {# call scrolled_window_set_kinetic_scrolling #}
+    (toScrolledWindow self)
+    (fromBool kineticScrolling)
+
+-- | Returns the specified kinetic scrolling behavior.
+--
+scrolledWindowGetKineticScrolling :: ScrolledWindowClass self => self -> IO Bool
+scrolledWindowGetKineticScrolling self =
+  liftM toBool $
+  {# call scrolled_window_get_kinetic_scrolling #}
+    (toScrolledWindow self)
+
+-- | Changes the behaviour of @scrolledWindow@ wrt. to the initial event that
+--   possibly starts kinetic scrolling. When @captureButtonPress@ is set to
+--   True, the event is captured by the scrolled window, and then later replayed
+--   if it is meant to go to the child widget.
+--
+--   This should be enabled if any child widgets perform non-reversible actions
+--   on "button-press-event". If they don't, and handle additionally handle
+--   "grab-broken-event", it might be better to set captureButtonPress to False.
+--
+--   This setting only has an effect if kinetic scrolling is enabled.
+--
+scrolledWindowSetCaptureButtonPress :: ScrolledWindowClass self => self -> Bool -> IO ()
+scrolledWindowSetCaptureButtonPress self captureButtonPress =
+  {# call gtk_scrolled_window_set_capture_button_press #}
+    (toScrolledWindow self)
+    (fromBool captureButtonPress)
+
+-- | Return whether button presses are captured during kinetic scrolling.
+--   See @scrolledWindowSetCaptureButtonPress@.
+--
+scrolledWindowGetCaptureButtonPress :: ScrolledWindowClass self => self -> IO Bool
+scrolledWindowGetCaptureButtonPress self =
+  liftM toBool $
+  {# call gtk_scrolled_window_get_capture_button_press #}
+    (toScrolledWindow self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -428,3 +482,14 @@ scrolledWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
 scrolledWindowPlacement = newAttr
   scrolledWindowGetPlacement
   scrolledWindowSetPlacement
+
+#if GTK_CHECK_VERSION(3,4,0)
+-- | The kinetic scrolling behavior flags. Kinetic scrolling only applies to
+--   devices with source GDK_SOURCE_TOUCHSCREEN
+--
+scrolledWindowKineticScrolling :: ScrolledWindowClass self => Attr self Bool
+scrolledWindowKineticScrolling = newAttr
+  scrolledWindowGetKineticScrolling
+  scrolledWindowSetKineticScrolling
+#endif
+
