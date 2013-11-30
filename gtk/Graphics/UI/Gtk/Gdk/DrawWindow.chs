@@ -91,6 +91,10 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowForeignNew,
 #endif
   drawWindowGetDefaultRootWindow,
+#if GTK_CHECK_VERSION(2,24,0)
+  drawWindowGetWidth,
+  drawWindowGetHeight,
+#endif
   ) where
 
 import Control.Monad    (liftM)
@@ -614,3 +618,25 @@ drawWindowGetDefaultRootWindow ::
 drawWindowGetDefaultRootWindow =
   makeNewGObject mkDrawWindow $
   {#call gdk_get_default_root_window #}
+
+#if GTK_CHECK_VERSION(2,24,0)
+-- | Returns the width of the window.
+--
+-- On the X11 platform the returned size is the size reported in the
+-- most-recently-processed configure event, rather than the current
+-- size on the X server.
+--
+drawWindowGetWidth :: DrawWindow -> IO Int
+drawWindowGetWidth self =
+  liftM fromIntegral $ {# call gdk_window_get_width #} (toDrawWindow self)
+
+-- | Returns the height of the window.
+--
+-- On the X11 platform the returned size is the size reported in the
+-- most-recently-processed configure event, rather than the current
+-- size on the X server.
+--
+drawWindowGetHeight :: DrawWindow -> IO Int
+drawWindowGetHeight self =
+  liftM fromIntegral $ {# call gdk_window_get_height #} (toDrawWindow self)
+#endif
