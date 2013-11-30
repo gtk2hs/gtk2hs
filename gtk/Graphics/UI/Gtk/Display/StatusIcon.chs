@@ -98,6 +98,22 @@ module Graphics.UI.Gtk.Display.StatusIcon (
   statusIconIsEmbedded,
   statusIconPositionMenu,
   statusIconGetGeometry,
+#if GTK_CHECK_VERSION(2,12,0)
+  statusIconSetScreen,
+  statusIconGetScreen,
+#endif
+#if GTK_CHECK_VERSION(2,16,0)
+  statusIconSetTooltipText,
+  statusIconGetTooltipText,
+  statusIconSetTooltipMarkup,
+  statusIconGetTooltipMarkup,
+  statusIconSetHasTooltip,
+  statusIconGetHasTooltip,
+#endif
+#if GTK_CHECK_VERSION(2,18,0)
+  statusIconSetTitle,
+  statusIconGetTitle,
+#endif
 #if GTK_CHECK_VERSION(2,20,0)
   statusIconSetName,
 #endif
@@ -113,6 +129,17 @@ module Graphics.UI.Gtk.Display.StatusIcon (
   statusIconBlinking,
 #endif
   statusIconVisible,
+#if GTK_CHECK_VERSION(2,12,0)
+  statusIconScreen,
+#endif
+#if GTK_CHECK_VERSION(2,16,0)
+  statusIconTooltipText,
+  statusIconTooltipMarkup,
+  statusIconHasTooltip,
+#endif
+#if GTK_CHECK_VERSION(2,18,0)
+  statusIconTitle,
+#endif
 
 -- * Signals
   statusIconSizeChanged,
@@ -299,7 +326,7 @@ statusIconGetPixbuf self = do
   ptr <- {# call gtk_status_icon_get_pixbuf #}
        (toStatusIcon self)
   maybePeek (makeNewGObject mkPixbuf . return) ptr
-  
+
 
 -- %hash c:ecce d:448 | Gets the id of the stock icon being displayed
 -- by the 'StatusIcon'. The storage type of the status icon must be
@@ -444,7 +471,7 @@ statusIconPositionMenu menu userData =
     yPtr
     pushInPtr
     (castPtr . unsafeForeignPtrToPtr . unStatusIcon $ toStatusIcon userData)
-  x <- peek xPtr 
+  x <- peek xPtr
   y <- peek yPtr
   pushIn <- peek pushInPtr
   return (fromIntegral x, fromIntegral y, toBool pushIn)
@@ -462,22 +489,141 @@ statusIconPositionMenu menu userData =
 statusIconGetGeometry :: StatusIconClass self => self -> IO (Maybe (Rectangle,Orientation))
 statusIconGetGeometry self =
   alloca $ \recPtr ->
-  alloca $ \orPtr -> 
+  alloca $ \orPtr ->
         (liftM toBool $ {# call gtk_status_icon_get_geometry #}
          (toStatusIcon self) nullPtr (castPtr recPtr) orPtr) >>= \b ->
-        if b 
+        if b
           then do
             rec_ <- peek recPtr
             or <- peek orPtr
             return $ Just (rec_,toEnum $ fromIntegral or)
         else return Nothing
 
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Sets the 'Screen' where status icon is displayed; if the icon is already
+--   mapped, it will be unmapped, and then remapped on the new screen.
+--
+statusIconSetScreen :: (StatusIconClass self, ScreenClass screen) => self
+ -> Maybe screen
+ -> IO ()
+statusIconSetScreen self screen =
+  {# call gtk_status_icon_set_screen #}
+    (toStatusIcon self)
+    (maybe (Screen nullForeignPtr) toScreen screen)
+
+-- | Returns the 'Screen' associated with the status icon.
+--
+statusIconGetScreen :: StatusIconClass self => self
+ -> IO (Maybe Screen)
+statusIconGetScreen self =
+  maybeNull (makeNewGObject mkScreen) $
+  {# call gtk_status_icon_get_screen #}
+    (toStatusIcon self)
+#endif
+
+#if GTK_CHECK_VERSION(2,16,0)
+-- | Sets text as the contents of the tooltip.
+--
+--   This function will take care of setting "has-tooltip" to 'True' and of the default
+--   handler for the "query-tooltip" signal.
+--
+--   See also the "tooltip-text" property and 'tooltipSetText'.
+--
+statusIconSetTooltipText :: StatusIconClass self => self
+ -> Maybe String
+ -> IO ()
+statusIconSetTooltipText self text =
+  maybeWith withUTFString text $ \textPtr ->
+  {# call gtk_status_icon_set_tooltip_text #}
+    (toStatusIcon self)
+    textPtr
+
+-- | Gets the contents of the tooltip for status icon.
+--
+statusIconGetTooltipText :: StatusIconClass self => self
+ -> IO (Maybe String)
+statusIconGetTooltipText self =
+  {# call gtk_status_icon_get_tooltip_text #}
+    (toStatusIcon self)
+  >>= maybePeek peekUTFString
+
+-- | Sets markup as the contents of the tooltip, which is marked up with the
+--   Pango text markup language.
+--
+--   This function will take care of setting 'statusIconHasTooltip' to 'True' and of the default
+--   handler for the 'queryTooltip' signal.
+--
+--   See also the 'tooltipMarkup' property and 'tooltipSetMarkup'.
+--
+statusIconSetTooltipMarkup :: StatusIconClass self => self
+ -> Maybe String
+ -> IO ()
+statusIconSetTooltipMarkup self markup =
+  maybeWith withUTFString markup $ \markupPtr ->
+  {# call gtk_status_icon_set_tooltip_markup #}
+    (toStatusIcon self)
+    markupPtr
+
+-- | Gets the contents of the tooltip for status icon.
+--
+statusIconGetTooltipMarkup :: StatusIconClass self => self
+ -> IO (Maybe String)
+statusIconGetTooltipMarkup self =
+  {# call gtk_status_icon_get_tooltip_markup #}
+    (toStatusIcon self)
+  >>= maybePeek peekUTFString
+
+-- | Sets the has-tooltip property on the status icon to @hasTooltip@.
+--   See 'statusIconHasTooltip' for more information.
+--
+statusIconSetHasTooltip :: StatusIconClass self => self
+ -> Bool
+ -> IO ()
+statusIconSetHasTooltip self hasTooltip =
+  {# call gtk_status_icon_set_has_tooltip #}
+    (toStatusIcon self)
+    (fromBool hasTooltip)
+
+-- | Returns the current value of the has-tooltip property. See 'statusIconHasTooltip' for more information.
+--
+statusIconGetHasTooltip :: StatusIconClass self => self
+ -> IO Bool
+statusIconGetHasTooltip self =
+  liftM toBool $
+  {# call gtk_status_icon_get_has_tooltip #}
+    (toStatusIcon self)
+#endif
+
+#if GTK_CHECK_VERSION(2,18,0)
+-- | Sets the title of this tray icon. This should be a short, human-readable, localized
+--   string describing the tray icon. It may be used by tools like screen readers to
+--   render the tray icon.
+--
+statusIconSetTitle :: StatusIconClass self => self
+ -> Maybe String
+ -> IO ()
+statusIconSetTitle self title =
+  maybeWith withUTFString title $ \titlePtr ->
+  {# call gtk_status_icon_set_title #}
+    (toStatusIcon self)
+    titlePtr
+
+-- | Gets the title of this tray icon. See 'statusIconSetTitle'.
+--
+statusIconGetTitle :: StatusIconClass self => self
+ -> IO (Maybe String)
+statusIconGetTitle self =
+  {# call gtk_status_icon_get_title #}
+    (toStatusIcon self)
+  >>= maybePeek peekUTFString
+#endif
+
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Sets the name of this tray icon. This should be a string identifying this icon. It is may be used
 -- for sorting the icons in the tray and will not be shown to the user.
 statusIconSetName :: StatusIconClass self => self -> String -> IO ()
 statusIconSetName self name =
-  withUTFString name $ \ namePtr -> 
+  withUTFString name $ \ namePtr ->
   {#call gtk_status_icon_set_name #}
     (toStatusIcon self)
     namePtr
@@ -555,6 +701,72 @@ statusIconBlinking = newAttrFromBoolProperty "blinking"
 statusIconVisible :: StatusIconClass self => Attr self Bool
 statusIconVisible = newAttrFromBoolProperty "visible"
 
+#if GTK_CHECK_VERSION(2,12,0)
+-- | The screen where this status icon will be displayed.
+statusIconScreen :: StatusIconClass self => Attr self Screen
+statusIconScreen = newAttrFromObjectProperty "screen"
+                          {# call pure unsafe gdk_screen_get_type #}
+#endif
+
+#if GTK_CHECK_VERSION(2,16,0)
+-- | Sets the text of tooltip to be the given string.
+--
+--   Also see 'tooltipSetText'.
+--
+--   This is a convenience property which will take care of getting the tooltip
+--   shown if the given value is not 'Nothing'. "has-tooltip" will automatically
+--   be set to 'True' and the default handler for the "query-tooltip" signal will
+--   take care of displaying the tooltip.
+--
+--   Note that some platforms have limitations on the length of tooltips that
+--   they allow on status icons, e.g. Windows only shows the first 64 characters.
+--
+--   Default value: 'Nothing'
+statusIconTooltipText :: StatusIconClass self => Attr self (Maybe String)
+statusIconTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
+
+-- | Sets the text of tooltip to be the given string, which is marked up with the
+--   Pango text markup language. Also see 'tooltipSetMarkup'.
+--
+--   This is a convenience property which will take care of getting the tooltip
+--   shown if the given value is not 'Nothing'. "has-tooltip" will automatically
+--   be set to 'True' and the default handler for the "query-tooltip" signal will
+--   take care of displaying the tooltip.
+--
+--   On some platforms, embedded markup will be ignored.
+--
+--   Default value: 'Nothing'
+statusIconTooltipMarkup :: StatusIconClass self => Attr self (Maybe String)
+statusIconTooltipMarkup = newAttrFromMaybeStringProperty "tooltip-markup"
+
+-- | Enables or disables the emission of "query-tooltip" on status_icon. A value
+--   of 'True' indicates that status_icon can have a tooltip, in this case the status
+--   icon will be queried using "query-tooltip" to determine whether it will provide
+--   a tooltip or not.
+--
+--   Note that setting this property to 'True' for the first time will change the
+--   event masks of the windows of this status icon to include leave-notify and
+--   motion-notify events. This will not be undone when the property is set to
+--   'False' again.
+--
+--   Whether this property is respected is platform dependent. For plain text
+--   tooltips, use "tooltip-text" in preference.
+--
+--   Default value: 'False'
+statusIconHasTooltip :: StatusIconClass self => Attr self Bool
+statusIconHasTooltip = newAttrFromBoolProperty "has-tooltip"
+#endif
+
+#if GTK_CHECK_VERSION(2,18,0)
+-- | The title of this tray icon. This should be a short, human-readable,
+--   localized string describing the tray icon. It may be used by tools
+--   like screen readers to render the tray icon.
+--
+--   Default value: 'Nothing'
+statusIconTitle :: StatusIconClass self => Attr self (Maybe String)
+statusIconTitle = newAttrFromMaybeStringProperty "title"
+#endif
+
 --------------------
 -- Signals
 
@@ -565,7 +777,7 @@ statusIconVisible = newAttrFromBoolProperty "visible"
 statusIconSizeChanged :: StatusIconClass self => Signal self (Int -> IO Bool)
 statusIconSizeChanged = Signal (connect_INT__BOOL "size-changed")
 
--- | Gets emitted when the user activates the status icon. 
+-- | Gets emitted when the user activates the status icon.
 -- If and how status icons can activated is platform-dependent.
 statusIconActivated :: StatusIconClass self => Signal self (IO ())
 statusIconActivated = Signal (connect_NONE__NONE "activate")
@@ -575,10 +787,10 @@ statusIconActivate :: StatusIconClass self => Signal self (IO ())
 statusIconActivate = statusIconActivated
 
 -- | Gets emitted when the user brings up the context menu
--- of the status icon. Whether status icons can have context 
+-- of the status icon. Whether status icons can have context
 -- menus and how these are activated is platform-dependent.
 --
--- The 'MouseButton' and 'TimeStamp' parameters should be 
+-- The 'MouseButton' and 'TimeStamp' parameters should be
 -- passed as the last to arguments to 'Graphics.UI.Gtk.menuPopup'.
 statusIconPopupMenu :: StatusIconClass self => Signal self (Maybe MouseButton -> TimeStamp -> IO ())
 statusIconPopupMenu = Signal wrap
@@ -609,7 +821,7 @@ afterActivate = connect_NONE__NONE "activate" True
 onPopupMenu :: StatusIconClass self => self
  -> (Maybe MouseButton -> TimeStamp -> IO ())
  -> IO (ConnectId self)
-onPopupMenu = wrap False 
+onPopupMenu = wrap False
 {-# DEPRECATED onPopupMenu "instead of 'onPopupMenu obj' use 'on obj popupMenu'" #-}
 
 -- %hash c:1904
