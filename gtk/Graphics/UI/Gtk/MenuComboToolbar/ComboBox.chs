@@ -71,8 +71,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 
 -- * Constructors
   comboBoxNew,
+#if GTK_CHECK_VERSION(2,24,0)
+  comboBoxNewWithEntry,
+#endif
   comboBoxNewText,
   comboBoxNewWithModel,
+#if GTK_CHECK_VERSION(2,24,0)
+  comboBoxNewWithModelAndEntry,
+#endif
 
 -- * Methods
 
@@ -137,6 +143,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 #endif
 #endif
 
+#if GTK_CHECK_VERSION(2,24,0)
+  comboBoxGetHasEntry,
+  comboBoxSetEntryTextColumn,
+  comboBoxGetEntryTextColumn,
+#endif
+
 -- * Signals
   changed,
   
@@ -187,6 +199,18 @@ comboBoxNew =
   liftM (castPtr :: Ptr Widget -> Ptr ComboBox) $
   {# call gtk_combo_box_new #}
 
+#if GTK_CHECK_VERSION(2,24,0)
+-- | Creates a new empty 'ComboBox' with an entry.
+--
+-- * Available since Gtk+ version 2.24
+--
+comboBoxNewWithEntry :: IO ComboBox
+comboBoxNewWithEntry =
+  makeNewObject mkComboBox $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBox) $
+  {# call gtk_combo_box_new_with_entry #}
+#endif
+
 -- | Convenience function which constructs a new text combo box that is a
 -- 'ComboBox' just displaying strings. This function internally calls
 -- 'comboBoxSetModelText' after creating a new combo box.
@@ -209,6 +233,21 @@ comboBoxNewWithModel model =
   {# call gtk_combo_box_new_with_model #}
     (toTreeModel model)
 
+#if GTK_CHECK_VERSION(2,24,0)
+-- | Creates a new empty 'ComboBox' with an entry and with the model initialized to @model@.
+--
+-- * Available since Gtk+ version 2.24
+--
+comboBoxNewWithModelAndEntry :: TreeModelClass model =>
+    model -- ^ @model@ - A 'TreeModel'.
+ -> IO ComboBox
+comboBoxNewWithModelAndEntry model =
+  makeNewObject mkComboBox $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBox) $
+  {# call gtk_combo_box_new_with_model_and_entry #}
+    (toTreeModel model)
+#endif
+
 --------------------
 -- Methods
 
@@ -228,12 +267,20 @@ comboBoxNewWithModel model =
 --
 comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore String)
 comboBoxSetModelText combo = do
+#if GTK_CHECK_VERSION(2,24,0)
+  store <- listStoreNew ([] :: [String])
+  comboBoxSetModel combo (Just store)
+  let colId = makeColumnIdString 0
+  customStoreSetColumn store colId id
+  comboBoxSetEntryTextColumn (toComboBox combo) colId
+#else
   cellLayoutClear (toComboBox combo)
   store <- listStoreNew ([] :: [String])
   comboBoxSetModel combo (Just store)
   ren <- cellRendererTextNew
   cellLayoutPackStart (toComboBox combo) ren True
   cellLayoutSetAttributes (toComboBox combo) ren store (\a -> [cellText := a])
+#endif
   objectSetAttribute comboQuark combo (Just store)
   return store
 
@@ -553,6 +600,48 @@ comboBoxGetTitle self =
   {# call gtk_combo_box_get_title #}
     (toComboBox self)
   >>= peekUTFString
+#endif
+
+#if GTK_CHECK_VERSION(2,24,0)
+-- | Returns whether the combo box has an entry.
+--
+-- * Available since Gtk+ version 2.24
+--
+comboBoxGetHasEntry :: ComboBoxClass self => self
+ -> IO Bool -- ^ returns whether there is an entry in @self@.
+comboBoxGetHasEntry self =
+  liftM toBool $
+  {# call gtk_combo_box_get_has_entry #}
+    (toComboBox self)
+
+-- | Sets the model column which combo_box should use to get strings from
+--   to be @textColumn@. The column text_column in the model of @comboBox@
+--   must be of type String.
+--
+--   This is only relevant if @comboBox@ has been created with "has-entry"
+--   as True.
+--
+-- * Available since Gtk+ version 2.24
+--
+comboBoxSetEntryTextColumn :: ComboBoxClass comboBox => comboBox
+ -> ColumnId row String -- ^ @textColumn@ - A column in model to get the strings from for the internal entry.
+ -> IO ()
+comboBoxSetEntryTextColumn comboBox textColumn =
+  {# call gtk_combo_box_set_entry_text_column #}
+    (toComboBox comboBox)
+    ((fromIntegral . columnIdToNumber) textColumn)
+
+-- | Returns the column which @comboBox@ is using to get the strings from to
+--   display in the internal entry.
+--
+-- * Available since Gtk+ version 2.24
+--
+comboBoxGetEntryTextColumn :: ComboBoxClass comboBox => comboBox
+ -> IO (ColumnId row String) -- ^ returns a column in the data source model of @comboBox@.
+comboBoxGetEntryTextColumn comboBox =
+  liftM (makeColumnIdString . fromIntegral) $
+  {# call gtk_combo_box_get_entry_text_column #}
+    (toComboBox comboBox)
 #endif
 
 -- %hash c:fe18
