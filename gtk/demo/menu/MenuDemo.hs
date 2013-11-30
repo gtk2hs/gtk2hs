@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Graphics.UI.Gtk
+import Control.Monad.IO.Class (MonadIO(..))
 
 {-
   widgets that go into making a menubar and submenus:
@@ -41,8 +42,8 @@ createMenuBar descr
           = do item <- menuItemNewWithLabelOrMnemonic name
                menuShellAppend menu item
                case action of
-                 Just act -> onActivateLeaf item act
-                 Nothing  -> onActivateLeaf item (return ())
+                 Just act -> on item menuItemActivate act
+                 Nothing  -> on item menuItemActivate (return ())
       menuItemNewWithLabelOrMnemonic name
           | elem '_' name = menuItemNewWithMnemonic name
           | otherwise     = menuItemNewWithLabel name
@@ -65,6 +66,6 @@ main =
        set window [ windowTitle := "Demo"
                   , containerChild := menuBar
                   ]
-       onDestroy window mainQuit
+       on window destroyEvent $ liftIO mainQuit >> return True
        widgetShowAll window
        mainGUI

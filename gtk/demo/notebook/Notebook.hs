@@ -5,7 +5,7 @@
 module Main where
 
 import Control.Monad
-import Control.Monad.Trans
+import Control.Monad.IO.Class
 import Data.Maybe
 import Graphics.UI.Gtk
 
@@ -40,7 +40,7 @@ main = do
          -- Create text view.
          textView <- textViewNew
          widgetShowAll textView -- must show before add notebook,
-                                -- otherwise notebook won't display child widget 
+                                -- otherwise notebook won't display child widget
                                 -- even have add in notebook.
 
          -- Create notebook tab.
@@ -62,11 +62,11 @@ main = do
            index ?>= \i -> notebookRemovePage notebook i
 
          return ()
-        
+
   -- Show window.
   window `containerAdd` notebook
   widgetShowAll window
-  onDestroy window mainQuit
+  on window deleteEvent $ liftIO mainQuit >> return False
   mainGUI
 
 -- | Create notebook tab.
@@ -77,7 +77,7 @@ notebookTabNew name size = do
   box <- hBoxNew False 0
   spinner <- spinnerNew
   label <- labelNew name
-  image <- imageNewFromIcon "gtk-close" iconSize
+  image <- imageNewFromIcon "window-close" iconSize
   closeButton <- toolButtonNew (Just image) Nothing
 
   -- Show.
@@ -89,7 +89,7 @@ notebookTabNew name size = do
 
 -- | Set tab name.
 notebookTabSetName :: NotebookTab -> String -> IO ()
-notebookTabSetName tab = 
+notebookTabSetName tab =
   labelSetText (ntLabel tab)
 
 -- | Start spinner animation.
@@ -108,11 +108,11 @@ notebookTabStop NotebookTab {ntBox     = box
   containerTryRemove box spinner
   spinnerStop spinner
 
--- | Create image widget with given icon name and size. 
+-- | Create image widget with given icon name and size.
 imageNewFromIcon :: String -> Int -> IO Image
 imageNewFromIcon iconName size = do
   iconTheme <- iconThemeGetDefault
-  pixbuf <- do 
+  pixbuf <- do
     -- Function 'iconThemeLoadIcon' can scale icon with specified size.
     pixbuf <- iconThemeLoadIcon iconTheme iconName size IconLookupUseBuiltin
     case pixbuf of
@@ -130,12 +130,12 @@ boxTryPack box widget packing order space = do
     boxPackStart box widget packing space
     order ?>= boxReorderChild box widget
 
--- | Try to remove child from parent.    
-containerTryRemove :: (ContainerClass parent, WidgetClass child) => parent -> child -> IO ()     
+-- | Try to remove child from parent.
+containerTryRemove :: (ContainerClass parent, WidgetClass child) => parent -> child -> IO ()
 containerTryRemove parent widget = do
   hasParent <- widgetGetParent widget
   unless (isNothing hasParent) $ containerRemove parent widget
 
 -- | Maybe.
-(?>=) :: Monad m => Maybe a -> (a -> m ()) -> m () 
+(?>=) :: Monad m => Maybe a -> (a -> m ()) -> m ()
 m ?>= f = maybe (return ()) f m

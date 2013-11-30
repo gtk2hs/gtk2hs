@@ -3,6 +3,7 @@ import Graphics.UI.Gtk
 
 import Data.Char
 import Control.Exception
+import Control.Applicative
 
 main :: IO ()
 main = do
@@ -10,10 +11,10 @@ main = do
   dia <- dialogNew
   dialogAddButton dia stockYes ResponseYes
   dialogAddButton dia stockNo ResponseNo
-  contain <- dialogGetUpper dia
+  contain <- castToBox <$> dialogGetContentArea dia
   theText <- labelNew Nothing
   labelSetMarkup theText arabic
-  boxPackStartDefaults contain theText
+  boxPackStart contain theText PackNatural 0
   widgetShowAll dia
   res <- dialogRun dia
   case res of
@@ -34,9 +35,9 @@ yell :: IO ()
 yell = do
   dia <- dialogNew
   dialogAddButton dia stockOk ResponseOk
-  contain <- dialogGetUpper dia
+  contain <- castToBox <$> dialogGetContentArea dia
   msg <- labelNew (Just "This is not an option.")
-  contain `boxPackStartDefaults` msg
+  boxPackStart contain msg PackNatural 0
   widgetShow msg
   dialogRun dia
   return ()

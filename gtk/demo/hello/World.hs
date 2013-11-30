@@ -2,6 +2,7 @@
 module Main (Main.main) where
 
 import Graphics.UI.Gtk
+import Control.Monad.IO.Class (MonadIO(..))
 
 main :: IO ()
 main = do
@@ -11,7 +12,7 @@ main = do
   -- Here we connect the "destroy" event to a signal handler.
   -- This event occurs when we call widgetDestroy on the window
   -- or if the user closes the window.
-  onDestroy window mainQuit
+  on window destroyEvent $ liftIO mainQuit >> return False
   -- Sets the border width and tile of the window. Note that border width
   -- attribute is in 'Container' from which 'Window' is derived.
   set window [ containerBorderWidth := 10, windowTitle := "Hello World" ]
@@ -20,11 +21,11 @@ main = do
   set button [ buttonLabel := "Hello World" ]
   -- When the button receives the "clicked" signal, it will call the
   -- function given as the second argument.
-  onClicked button (putStrLn "Hello World")
+  on button buttonActivated (putStrLn "Hello World")
   -- Gtk+ allows several callbacks for the same event.
   -- This one will cause the window to be destroyed by calling
   -- widgetDestroy. The callbacks are called in the sequence they were added.
-  onClicked button $ do
+  on button buttonActivated $ do
     putStrLn "A \"clicked\"-handler to say \"destroy\""
     widgetDestroy window
   -- Insert the hello-world button into the window.

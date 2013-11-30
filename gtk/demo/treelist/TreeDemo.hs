@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad.IO.Class
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.ModelView as New
 
@@ -11,7 +12,7 @@ main = do
   initGUI
 
   win <- windowNew
-  onDestroy win mainQuit
+  on win deleteEvent $ liftIO mainQuit >> return False
 
   -- create a new tree model
   model <- storeImpl

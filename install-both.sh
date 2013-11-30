@@ -15,5 +15,5 @@ rm -rf gtk/dist
 
 mv gtk/gtk3.cabal-renamed gtk/gtk3.cabal || true
 mv gtk/gtk.cabal gtk/gtk.cabal-renamed || true
-cabal install ./gtk --reinstall --force-reinstall;
+cabal install ./gtk -fbuild-demos --reinstall --force-reinstall;
 

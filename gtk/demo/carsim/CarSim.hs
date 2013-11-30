@@ -6,13 +6,13 @@
 module Main where
 import Data.Maybe
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.Rendering.Cairo
 import Control.Monad
 import Data.IORef
 import Data.List
 import Data.Time
 import Data.Complex
+import Control.Applicative ((<$>))
 
 -- Constants
 
@@ -26,7 +26,8 @@ drawSide = 5/2 :: Double
 
 eventWindowSize = do
     dr <- eventWindow
-    (w,h) <- liftIO $ drawableGetSize dr
+    w <- liftIO $ drawWindowGetWidth dr
+    h <- liftIO $ drawWindowGetHeight dr
     return $ if w*h > 1
         then (fromIntegral w, fromIntegral h)
         else (1,1)
@@ -108,12 +109,12 @@ updateCarList timestep jam list = zip newPositions' newSpeeds
 
 about = do
     ad <- aboutDialogNew
-    aboutDialogSetName ad "S.A.R.A.H."
-    aboutDialogSetVersion ad "1.0"
-    aboutDialogSetAuthors ad $ ["Maurício C. Antunes "
-        ++ "<mauricio.antunes@gmail.com>"]
-    aboutDialogSetComments ad $ "Software Automation of "
-        ++ "Road Automobile Headache"
+    set ad [ aboutDialogName := "S.A.R.A.H."
+           , aboutDialogVersion := "1.0"
+           , aboutDialogAuthors := ["Maurício C. Antunes "
+                                ++ "<mauricio.antunes@gmail.com>"]
+           , aboutDialogComments := "Software Automation of "
+                                ++ "Road Automobile Headache"]
     dialogRun ad
     widgetDestroy ad
 
@@ -157,24 +158,24 @@ main = do
     buttons <- do
 
         qr <- buttonNewFromStock stockClear
-        onClicked qr $ do
+        on qr buttonActivated $ do
             (liftM length) getCars >>= setCars . newCarList
             getCurrentTime >>= setTimeStamp
             widgetQueueDraw drawingArea
 
         qp <- toggleButtonNewWithLabel stockMediaPause
         buttonSetUseStock qp True
-        onToggled qp $ do
+        on qp toggled $ do
             p <- toggleButtonGetActive qp
             case p of
                 True -> pause
                 False -> resume
 
         qa <- buttonNewFromStock stockAbout
-        onClicked qa $ about
+        on qa buttonActivated $ about
 
         qq <- buttonNewFromStock stockQuit
-        onClicked qq (do
+        on qq buttonActivated (do
                        widgetDestroy mainWindow
                        mainQuit)
 
@@ -188,7 +189,7 @@ main = do
     howMany <- do
 
         sc <- vScaleNewWithRange 1 40 1
-        afterRangeValueChanged sc $ do
+        after sc valueChanged $ do
             v <- liftM floor $ rangeGetValue sc
             c <- getCars
             setCars $ newCarListFromList v c
@@ -196,7 +197,7 @@ main = do
 
         scaleSetValuePos sc PosTop
         scaleSetDigits sc 0
-        rangeSetUpdatePolicy sc UpdateDiscontinuous
+--        rangeSetUpdatePolicy sc UpdateDiscontinuous
         rangeSetValue sc =<< liftM (fromIntegral . length) getCars
 
         al <- alignmentNew 0.5 0.5 0 1
@@ -220,17 +221,15 @@ main = do
         on dr leaveNotifyEvent $ liftIO $
             setJam Nothing >> return True
 
-        on dr exposeEvent $ do
-            (w,h) <- eventWindowSize
-            dw <- eventWindow
-            liftIO $ do
-                jam <- getJam
-                cars <- getCars
-                renderWithDrawable dw $ do
-                    translate (w/2) (h/2)
-                    scale (w/drawSide) (h/drawSide)
-                    road2render jam cars
-            return True
+        on dr draw $ do
+            w <- liftIO $ (fromIntegral <$> widgetGetAllocatedWidth dr)
+            h <- liftIO $ (fromIntegral <$> widgetGetAllocatedHeight dr)
+            jam <- liftIO getJam
+            cars <- liftIO getCars
+            translate (w/2) (h/2)
+            scale (w/drawSide) (h/drawSide)
+            road2render jam cars
+            -- return True
 
         af <- aspectFrameNew 0.5 0.5 (Just 1)
         frameSetShadowType af ShadowNone
@@ -249,8 +248,9 @@ main = do
         boxPackStart hb vb PackGrow 0
         return hb
 
-    windowSetTitle mainWindow "S.A.R.A.H."
-    windowSetDefaultSize mainWindow 400 400
+    set mainWindow [ windowTitle := "S.A.R.A.H."
+                   , windowDefaultWidth := 400
+                   , windowDefaultHeight := 400 ]
     on mainWindow objectDestroy mainQuit
     containerAdd mainWindow layout
     widgetShowAll mainWindow

@@ -11,6 +11,7 @@
 import Graphics.UI.Gtk
 
 import Control.Concurrent
+import Control.Applicative ((<$>))
 
 main :: IO ()
 main = do
@@ -21,9 +22,9 @@ main = do
 
   dia <- dialogNew
   dialogAddButton dia stockClose ResponseClose
-  contain <- dialogGetUpper dia
+  contain <- castToBox <$> dialogGetContentArea dia
   pb <- progressBarNew
-  boxPackStartDefaults contain pb
+  boxPackStart contain pb PackNatural 0
   widgetShowAll dia
   forkIO (doTask pb)
 

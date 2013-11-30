@@ -1,4 +1,5 @@
 import Graphics.UI.Gtk
+import Control.Monad.IO.Class (liftIO)
 
 uiDef =
   "<ui>\
@@ -47,35 +48,35 @@ main = do
   newAct <- actionNew "NewAction" "New"
             (Just "Clear the spreadsheet area.")
             (Just stockNew)
-  newAct `onActionActivate` putStrLn "New activated."
+  on newAct actionActivated $ putStrLn "New activated."
   openAct <- actionNew "OpenAction" "Open"
             (Just "Open an existing spreadsheet.")
             (Just stockOpen)
-  openAct `onActionActivate` putStrLn "Open activated."
+  on openAct actionActivated $ putStrLn "Open activated."
   saveAct <- actionNew "SaveAction" "Save"
             (Just "Save the current spreadsheet.")
             (Just stockSave)
-  saveAct `onActionActivate` putStrLn "Save activated."
+  on saveAct actionActivated $ putStrLn "Save activated."
   saveAsAct <- actionNew "SaveAsAction" "SaveAs"
             (Just "Save spreadsheet under new name.")
             (Just stockSaveAs)
-  saveAsAct `onActionActivate` putStrLn "SaveAs activated."
+  on saveAsAct actionActivated $ putStrLn "SaveAs activated."
   exitAct <- actionNew "ExitAction" "Exit"
             (Just "Exit this application.")
             (Just stockSaveAs)
-  exitAct `onActionActivate` mainQuit
+  on exitAct actionActivated $ mainQuit
   cutAct <- actionNew "CutAction" "Cut"
             (Just "Cut out the current selection.")
             (Just stockCut)
-  cutAct `onActionActivate` putStrLn "Cut activated."
+  on cutAct actionActivated $ putStrLn "Cut activated."
   copyAct <- actionNew "CopyAction" "Copy"
             (Just "Copy the current selection.")
             (Just stockCopy)
-  copyAct `onActionActivate` putStrLn "Copy activated."
+  on copyAct actionActivated $ putStrLn "Copy activated."
   pasteAct <- actionNew "PasteAction" "Paste"
             (Just "Paste the current selection.")
             (Just stockPaste)
-  pasteAct `onActionActivate` putStrLn "Paste activated."
+  on pasteAct actionActivated $ putStrLn "Paste activated."
 
   standardGroup <- actionGroupNew "standard"
   mapM_ (actionGroupAddAction standardGroup) [fileAct, editAct]
@@ -87,8 +88,8 @@ main = do
   uiManagerInsertActionGroup ui standardGroup 0
 
   win <- windowNew
-  win `onDestroy` mainQuit
-  win `onSizeRequest` return (Requisition 200 100)
+  on win destroyEvent $ liftIO mainQuit >> return False
+  on win sizeRequest $ return (Requisition 200 100)
   (Just menuBar) <- uiManagerGetWidget ui "/ui/menubar"
   (Just toolBar) <- uiManagerGetWidget ui "/ui/toolbar"
 

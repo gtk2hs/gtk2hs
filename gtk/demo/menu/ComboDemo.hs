@@ -5,15 +5,18 @@ import Control.Concurrent.MVar
 import Control.Monad ( liftM )
 import Data.Maybe ( fromMaybe )
 import Data.List ( findIndex )
+import Control.Monad.IO.Class (MonadIO(..))
 
 
 main = do
   initGUI
 
   win <- windowNew
-  onDestroy win mainQuit
+  on win deleteEvent $ liftIO mainQuit >> return False
 
-  combo <- comboBoxEntryNewText
+  combo <- comboBoxNewWithEntry
+  comboBoxSetModelText combo
+
   mapM_ (comboBoxAppendText combo)
     (words "ice-cream turkey pasta sandwich steak")
 
@@ -26,7 +29,7 @@ main = do
 
   -- Whenever the user has completed editing the text, append the new
   -- text to the store unless it's already in there.
-  onEntryActivate entry $ do
+  on entry entryActivated $ do
     str <- entryGetText entry
     store <- comboBoxGetModelText combo
     elems <- listStoreToList store

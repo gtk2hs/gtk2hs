@@ -1,6 +1,7 @@
 module Main where
 
 import Graphics.UI.Gtk
+import Control.Monad.IO.Class (MonadIO(..))
 
 main = do
         initGUI
@@ -14,8 +15,8 @@ main = do
         button <- builderGetObject builder castToButton "button1"
 
         -- Basic user interation
-        button `onClicked` putStrLn "button pressed!"
-        window `onDestroy` mainQuit
+        on button buttonActivated $ putStrLn "button pressed!"
+        on window deleteEvent $ liftIO mainQuit >> return False
 
         -- Display the window
         widgetShowAll window

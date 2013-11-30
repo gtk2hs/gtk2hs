@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Graphics.UI.Gtk
+import Control.Monad.IO.Class (liftIO)
 
 main :: IO ()
 main = do
@@ -10,9 +11,7 @@ main = do
   window <- windowNew
 
   -- Here we connect the "destroy" event to a signal handler.
-  -- This event occurs when we call widgetDestroy on the window,
-  -- or if the user closes the window.
-  window `onDestroy` mainQuit
+  on window destroyEvent $ liftIO mainQuit >> return False
 
   -- Sets the border width of the window.
   set window [ containerBorderWidth := 10 ]

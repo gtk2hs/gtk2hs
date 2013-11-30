@@ -5,7 +5,7 @@ main = do
   initGUI
   icon <- statusIconNewFromStock stockQuit
   statusIconSetVisible icon True
-  statusIconSetTooltip icon "This is a test"
+  statusIconSetTooltipText icon $ Just "This is a test"
   menu <- mkmenu icon
   on icon statusIconPopupMenu $ \b a -> do
          widgetShowAll menu
@@ -17,9 +17,7 @@ main = do
 
 mkmenu s = do
   m <- menuNew
-  mapM_ (mkitem m) [("Let's blink!",statusIconSetBlinking s True)
-                   ,("Let's stop blink!",statusIconSetBlinking s False)
-                   ,("Quit",mainQuit)]
+  mapM_ (mkitem m) [("Quit",mainQuit)]
   return m
     where
         mkitem menu (label,act) =

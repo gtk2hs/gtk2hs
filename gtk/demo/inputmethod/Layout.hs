@@ -3,7 +3,6 @@
 import Data.IORef
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.Rendering.Cairo
 
 loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit,\
@@ -50,7 +49,7 @@ main = do
   -- Create a drawing area in which we can render text.
   area <- drawingAreaNew
   containerAdd win area
-  on area sizeRequest $ return (Requisition 100 100)
+  widgetSetSizeRequest area 100 100
 
   -- Our widget's data
   buffer <- newIORef defaultBuffer
@@ -83,7 +82,7 @@ main = do
     layoutSetWidth lay (Just (fromIntegral w))
 
   -- Setup the handler to draw the layout.
-  on area exposeEvent $ updateArea area lay
+  on area draw $ updateArea area lay
 
   -- Set up input method
   im <- imMulticontextNew
@@ -109,7 +108,7 @@ main = do
       return False
 
   on win realize $ do
-      imContextSetClientWindow im . Just =<< widgetGetDrawWindow win
+      imContextSetClientWindow im =<< widgetGetWindow win
   on win focusInEvent  $ liftIO (imContextFocusIn  im) >> return False
   on win focusOutEvent $ liftIO (imContextFocusOut im) >> return False
   on win keyReleaseEvent $ imContextFilterKeypress im
@@ -124,15 +123,10 @@ main = do
   widgetShowAll win
   mainGUI
 
-updateArea :: DrawingArea -> PangoLayout -> EventM EExpose Bool
+updateArea :: DrawingArea -> PangoLayout -> Render ()
 updateArea area lay = do
-  win <- eventWindow
-  liftIO $ do
-  renderWithDrawable win $ do
     moveTo 0 0
     showLayout lay
-
-  return True
 
 interpretKeyPress :: EventM EKey (Maybe (Buffer -> Buffer))
 interpretKeyPress = do
