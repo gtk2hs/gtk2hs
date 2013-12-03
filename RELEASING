@@ -40,38 +40,52 @@ At release time:
   Body:
 
   Today, we welcome into the world version X.X.X of Gtk2Hs[1], a set of Haskell
-  bindings to many of the libraries included in the Gtk+/Gnome platform. Gtk+
+  bindings to many of the libraries included in the GTK+/Gnome platform. GTK+
   is an extensive and mature multi-platform toolkit for creating graphical user
   interfaces.
 
   GUIs written using Gtk2Hs use themes to resemble the native look on Windows.
-  Gtk is the toolkit used by Gnome, one of the two major GUI toolkits on Linux.
-  On Mac OS programs written using Gtk2Hs are run by Apple's X11 server but may
-  also be linked against a native Aqua implementation of Gtk.
+  GTK+ is the toolkit used by Gnome, one of the two major GUI toolkits on
+  Linux. On Mac OS programs written using Gtk2Hs are run by Apple's X11 server
+  but may also be linked against a native Aqua implementation of GTK+.
 
   You can look forward to using the following improvements in this release:
 
   XXX
 
   This release has been tested on Linux and Windows with a variety of
-  combinations of Gtk+ and GHC versions.
+  combinations of GTK+ and GHC versions.
 
   Installation
   ------------
-  Assuming you have the necessary Gtk+ base libraries already installed, you
+  Assuming you have the necessary GTK+ base libraries already installed, you
   can get the basic set of Haskell bindings with these two commands:
 
   cabal install gtk2hs-buildtools
   cabal install gtk
 
-  Other available packages include gconf, glade, gnomevfs, gstreamer, gtkglext,
-  gtksourceview2, soegtk, svgcairo, vte, and webkit. There are longer-winded
-  instructions that include pointers on getting the Gtk+ base libraries
-  installed on the website [2].
+  or
+  
+  cabal install gtk2hs-buildtools
+  cabal install gtk3
+ 
+  Other available packages include
+    gconf
+    glade
+    gstreamer
+    gtkglext
+    gtksourceview2 (or gtksourceview3)
+    soegtk
+    svgcairo
+    vte
+    webkit (or webkitgtk3)
+    webkit-javascriptcore (or webkitgtk3-javascriptcore)
+  There are longer-winded instructions that include pointers on getting the
+  GTK+ base libraries installed on the website [2].
 
   Features
   --------
-  * Automatic memory management (unlike some other C/C++ GUI libraries, Gtk+
+  * Automatic memory management (unlike some other C/C++ GUI libraries, GTK+
     provides proper support for garbage-collected languages)
   * Unicode support
   * High quality vector graphics using Cairo
@@ -83,11 +97,9 @@ At release time:
   You can keep up with the latest developments on the mailing lists:
   * gtk2hs-users [3]: discussions about writing code that uses Gtk2Hs
   * gtk2hs-devel [4]: discussions about modifying the Gtk2Hs bindings
-  * gtk2hs-commit [5]: a read-only mailing list with announcements of every
-    patch to hit the darcs repository
 
   Check out the latest code via darcs:
-  darcs get http://code.haskell.org/gtk2hs/
+  git clone https://github.com/gtk2hs/gtk2hs.git
 
   Or complain on the bug tracker [6].
 
@@ -101,10 +113,13 @@ At release time:
   Hans van Thiel
   Daniel Wagner
   Bertram Felgenhauer
+  Peter Davies
+  Ian-Woo Kim
+  Hamish Mackenzie
   ...and many, many more
 
   [1] http://projects.haskell.org/gtk2hs/
-  [2] http://code.haskell.org/gtk2hs/INSTALL
+  [2] https://github.com/gtk2hs/gtk2hs/blob/master/INSTALL
   [3] https://lists.sourceforge.net/lists/listinfo/gtk2hs-users
   [4] https://lists.sourceforge.net/lists/listinfo/gtk2hs-devel
   [5] https://lists.sourceforge.net/lists/listinfo/gtk2hs-commit
