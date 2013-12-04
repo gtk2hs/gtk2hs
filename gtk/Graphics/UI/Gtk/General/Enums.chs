@@ -257,7 +257,7 @@ instance Flags DestDefaults
 -- * The 'Packing' parameter determines how the child behaves in the horizontal
 --   or vertical way in an 'Graphics.UI.Gtk.Layout.HBox' or
 --   'Graphics.UI.Gtk.Layout.VBox', respectively. 'PackNatural'
---   means the child is as big as it reqests. It will stay at the start of the
+--   means the child is as big as it requests. It will stay at the start or 
 --   end of a 'Graphics.UI.Gtk.Layout.Box' if there is more space available.
 --   All children packed with 'PackRepel' will be padded on both sides with
 --   additional space. 'PackGrow' will increase the size of a widget so that it
