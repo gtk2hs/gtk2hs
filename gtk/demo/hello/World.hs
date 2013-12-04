@@ -12,7 +12,7 @@ main = do
   -- Here we connect the "destroy" event to a signal handler.
   -- This event occurs when we call widgetDestroy on the window
   -- or if the user closes the window.
-  on window destroyEvent $ liftIO mainQuit >> return False
+  on window objectDestroy mainQuit
   -- Sets the border width and tile of the window. Note that border width
   -- attribute is in 'Container' from which 'Window' is derived.
   set window [ containerBorderWidth := 10, windowTitle := "Hello World" ]

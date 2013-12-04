@@ -66,6 +66,6 @@ main =
        set window [ windowTitle := "Demo"
                   , containerChild := menuBar
                   ]
-       on window destroyEvent $ liftIO mainQuit >> return True
+       on window objectDestroy mainQuit
        widgetShowAll window
        mainGUI

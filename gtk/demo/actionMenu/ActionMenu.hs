@@ -88,7 +88,7 @@ main = do
   uiManagerInsertActionGroup ui standardGroup 0
 
   win <- windowNew
-  on win destroyEvent $ liftIO mainQuit >> return False
+  on win objectDestroy mainQuit
   on win sizeRequest $ return (Requisition 200 100)
   (Just menuBar) <- uiManagerGetWidget ui "/ui/menubar"
   (Just toolBar) <- uiManagerGetWidget ui "/ui/toolbar"

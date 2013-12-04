@@ -16,7 +16,7 @@ main = do
 
         -- Basic user interation
         on button buttonActivated $ putStrLn "button pressed!"
-        on window deleteEvent $ liftIO mainQuit >> return False
+        on window objectDestroy mainQuit
 
         -- Display the window
         widgetShowAll window

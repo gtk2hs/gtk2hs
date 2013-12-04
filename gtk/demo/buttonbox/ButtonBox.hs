@@ -11,7 +11,7 @@ main = do
   window <- windowNew
 
   -- Here we connect the "destroy" event to a signal handler.
-  on window destroyEvent $ liftIO mainQuit >> return False
+  on window objectDestroy mainQuit
 
   -- Sets the border width of the window.
   set window [ containerBorderWidth := 10 ]

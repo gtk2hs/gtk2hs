@@ -66,7 +66,7 @@ main = do
   -- Show window.
   window `containerAdd` notebook
   widgetShowAll window
-  on window deleteEvent $ liftIO mainQuit >> return False
+  on window objectDestroy mainQuit
   mainGUI
 
 -- | Create notebook tab.

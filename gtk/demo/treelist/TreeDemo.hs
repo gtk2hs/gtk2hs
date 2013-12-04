@@ -12,7 +12,7 @@ main = do
   initGUI
 
   win <- windowNew
-  on win deleteEvent $ liftIO mainQuit >> return False
+  on win objectDestroy mainQuit
 
   -- create a new tree model
   model <- storeImpl
