@@ -51,13 +51,14 @@ import Graphics.Rendering.Cairo.Internal.Region
 import Graphics.Rendering.Cairo.Internal.Utilities
 
 import Control.Monad.Reader
+import Control.Applicative
 import Control.Exception (bracket)
 
 -- | The Render monad. All drawing operations take place in a Render context.
 -- You can obtain a Render context for a 'Surface' using 'renderWith'.
 --
 newtype Render m = Render { runRender :: ReaderT Cairo IO m }
-  deriving (Functor, Monad, MonadIO, MonadReader Cairo)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadReader Cairo)
 
 {-# INLINE bracketR #-}
 bracketR :: IO a -> (a -> IO b) -> (a -> Render c) -> Render c
