@@ -60,7 +60,8 @@ gboolean gtk2hs_run_finalizers(gpointer data);
 /* Initialize the default _fmode on WIN32. */
 void gtk2hs_initialise (void) {
 #if defined( WIN32 )
-    _fmode = _O_BINARY;
+    /* Temorary remove this to make gtk work on windows in ghci */
+    /* _fmode = _O_BINARY; */
 #endif
 }
 
