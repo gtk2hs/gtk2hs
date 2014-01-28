@@ -511,7 +511,8 @@ gtk2hs_store_iter_has_child (GtkTreeModel *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_has_child\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
-  g_return_val_if_fail (iter->stamp == store->stamp, FALSE);
+  /* don't check if iter->stamp == store->stamp; see the thread culminating in
+   * http://sourceforge.net/p/gtk2hs/mailman/message/31887332/ for details */
   
   gboolean result = gtk2hs_store_iter_has_child_impl(store->impl, iter);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_has_child\t=%s\n", result ? "TRUE" : "FALSE"));
