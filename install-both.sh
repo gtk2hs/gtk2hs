@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
 # Install both gtk and gtk3
 cabal install ./tools --reinstall --force-reinstall;
