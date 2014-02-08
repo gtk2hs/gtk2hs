@@ -361,7 +361,8 @@ Library
         include-dirs:   .
         cpp-options: -DDISABLE_DEPRECATED
         if os(windows)
-          cpp-options:    -DWIN32
+          cpp-options:    -DWIN32 -fno-exceptions
+          cc-options:     -fno-exceptions
           extra-libraries: kernel32
 
         x-c2hs-Header:  hsgtk.h
