@@ -1,5 +1,5 @@
 Name:           gtk
-Version:        0.12.5.1
+Version:        0.12.5.2
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -126,6 +126,13 @@ Flag have-gio
 Flag have-quartz-gtk
   Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
   Default:  False
+
+Flag fmode-binary
+  Description: Set the default file translation mode for file I/O operations to _O_BINARY.
+               Some GTK libraries open image files without specifing binary mode.
+               If you have trouble loading gtk in ghci, then it may help to turn this
+               option off.
+  Default: True
 
 Library
         build-depends:  base >= 4 && < 5,
@@ -387,5 +394,8 @@ Library
         else
           x-Types-Tag: default plugNsocket
           cpp-options: -DHAVE_PLUG_AND_SOCKET
+
+        if os(windows) && flag(fmode-binary)
+          cc-options: -DGTK2HS_SET_FMODE_BINARY
 
         pkgconfig-depends: gthread-2.0, gtk+-2.0

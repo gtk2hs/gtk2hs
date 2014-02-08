@@ -59,9 +59,10 @@ gboolean gtk2hs_run_finalizers(gpointer data);
 
 /* Initialize the default _fmode on WIN32. */
 void gtk2hs_initialise (void) {
-#if defined( WIN32 )
-    /* Temorary remove this to make gtk work on windows in ghci */
-    /* _fmode = _O_BINARY; */
+#if defined( WIN32 ) && defined( GTK2HS_SET_FMODE_BINARY )
+	/* Some Windows GTK binraries (current Fedora MinGW ones) do */
+	/* not open files in binary mode.  This is a work around.    */
+    _fmode = _O_BINARY;
 #endif
 }
 

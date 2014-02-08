@@ -126,6 +126,13 @@ Flag build-demos
   Description: Build the demo executables
   Default: False
 
+Flag fmode-binary
+  Description: Set the default file translation mode for file I/O operations to _O_BINARY.
+               Some GTK libraries open image files without specifing binary mode.
+               If you have trouble loading gtk in ghci, then it may help to turn this
+               option off.
+  Default: True
+
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, mtl, bytestring,
@@ -373,6 +380,9 @@ Library
         else
           x-Types-Tag: default plugNsocket
           cpp-options: -DHAVE_PLUG_AND_SOCKET
+
+        if os(windows) && flag(fmode-binary)
+          cc-options: -DGTK2HS_SET_FMODE_BINARY
 
         pkgconfig-depends: gthread-2.0, gtk+-3.0
 
