@@ -267,20 +267,17 @@ comboBoxNewWithModelAndEntry model =
 --
 comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore String)
 comboBoxSetModelText combo = do
-#if GTK_CHECK_VERSION(2,24,0)
-  store <- listStoreNew ([] :: [String])
-  comboBoxSetModel combo (Just store)
-  let colId = makeColumnIdString 0
-  customStoreSetColumn store colId id
-  comboBoxSetEntryTextColumn (toComboBox combo) colId
-#else
   cellLayoutClear (toComboBox combo)
   store <- listStoreNew ([] :: [String])
   comboBoxSetModel combo (Just store)
+#if GTK_CHECK_VERSION(2,24,0)
+  let colId = makeColumnIdString 0
+  customStoreSetColumn store colId id
+  comboBoxSetEntryTextColumn (toComboBox combo) colId
+#endif
   ren <- cellRendererTextNew
   cellLayoutPackStart (toComboBox combo) ren True
   cellLayoutSetAttributes (toComboBox combo) ren store (\a -> [cellText := a])
-#endif
   objectSetAttribute comboQuark combo (Just store)
   return store
 
