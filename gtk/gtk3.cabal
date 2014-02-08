@@ -1,5 +1,5 @@
 Name:           gtk3
-Version:        0.12.5.0
+Version:        0.12.5.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -23,7 +23,7 @@ Extra-Source-Files: hsgtk.h
                     SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
                     hierarchy3.list
-                    
+
 x-Types-File:       Graphics/UI/Gtk/Types.chs
 x-Types-ModName:    Graphics.UI.Gtk.Types
 x-Types-Forward:    *System.Glib.GObject Graphics.UI.Gtk.General.Threading
@@ -32,56 +32,56 @@ x-Types-Destructor: objectUnrefFromMainloop
 Data-Dir:       demo
 Data-Files:     actionMenu/ActionMenu.hs
                 actionMenu/Makefile
-                
+
                 buttonbox/ButtonBox.hs
                 buttonbox/Makefile
-                
+
                 carsim/CarSim.hs
                 carsim/Makefile
-                
+
                 concurrent/Makefile
                 concurrent/Progress.hs
                 concurrent/ProgressThreadedRTS.hs
-                
+
                 embedded/Embedded.hs
                 embedded/Makefile
                 embedded/MPlayer.hs
                 embedded/Notes.txt
                 embedded/Uzbl.hs
-                
+
                 fastdraw/FastDraw.hs
                 fastdraw/Makefile
-                
+
                 filechooser/FileChooserDemo.glade
                 filechooser/FileChooserDemo.hs
                 filechooser/Makefile
-                
+
                 fonts/Fonts.hs
                 fonts/Makefile
-                
+
                 graphic/Drawing.hs
                 graphic/Makefile
-                
+
                 gtkbuilder/GtkBuilderTest.hs
                 gtkbuilder/Makefile
                 gtkbuilder/simple.ui
-                
+
                 hello/Makefile
                 hello/World.hs
-                
+
                 inputmethod/Layout.hs
                 inputmethod/Makefile
-                
+
                 menu/ComboDemo.hs
                 menu/Makefile
                 menu/MenuDemo.hs
-                
+
                 notebook/Notebook.hs
                 notebook/Makefile
-                
+
                 statusicon/Makefile
                 statusicon/StatusIcon.hs
-                
+
                 treelist/Completion.hs
                 treelist/DirList.hs
                 treelist/FilterDemo.hs
@@ -96,19 +96,19 @@ Data-Files:     actionMenu/ActionMenu.hs
                 treelist/TreeSort.hs
                 treelist/TreeTest.glade
                 treelist/TreeTest.hs
-                
+
                 treelist/resListDND/desktop.png
                 treelist/resListDND/laptop.png
                 treelist/resListDND/laptopSmall.png
                 treelist/resListDND/printer.png
                 treelist/resListDND/server.png
                 treelist/resListDND/tower.png
-                
+
                 unicode/Arabic.hs
                 unicode/Makefile
-                
+
                 demos.txt
-                
+
 Source-Repository head
   type:         git
   location:     https://github.com/gtk2hs/gtk2hs
