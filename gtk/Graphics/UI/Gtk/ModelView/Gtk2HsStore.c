@@ -462,7 +462,6 @@ gtk2hs_store_iter_next (GtkTreeModel  *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_next\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
-  g_return_val_if_fail (iter->stamp == store->stamp, FALSE);
 
   gboolean result = gtk2hs_store_iter_next_impl(store->impl, iter);
   if (result) iter->stamp = store->stamp;
@@ -489,7 +488,6 @@ gtk2hs_store_iter_children (GtkTreeModel *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_children\t(%p, %p, %p)\n", tree_model, iter, parent));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
-  g_return_val_if_fail (parent == NULL || parent->stamp == store->stamp, FALSE);
 
   gboolean result = gtk2hs_store_iter_children_impl(store->impl, iter, parent);
   if (result) iter->stamp = store->stamp;
@@ -604,7 +602,6 @@ gtk2hs_store_ref_node (GtkTreeModel *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_ref_node\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_if_fail (GTK2HS_IS_STORE (tree_model));
-  g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_ref_node_impl(store->impl, iter);
 }
