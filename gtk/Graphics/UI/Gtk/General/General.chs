@@ -219,7 +219,7 @@ postGUIAsync action = do
 -- | Inquire the number of events pending on the event queue
 --
 eventsPending :: IO Int
-eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
+eventsPending  = liftM fromIntegral {#call events_pending#}
 
 -- | Run the Gtk+ main event loop.
 --

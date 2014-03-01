@@ -1,5 +1,5 @@
 Name:           gtk3
-Version:        0.12.5.3
+Version:        0.12.5.4
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -391,35 +391,35 @@ Executable gtk2hs-demo-actionMenu
     main-is: ActionMenu.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-buttonBox
     hs-source-dirs: demo/buttonbox
     main-is: ButtonBox.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-carsim
     hs-source-dirs: demo/carsim
     main-is: CarSim.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers, time, cairo
+    build-depends: gtk3==0.12.5.4, base, transformers, time, cairo
 
 Executable gtk2hs-demo-progress
     hs-source-dirs: demo/concurrent
     main-is: Progress.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-progressThreadedRTS
     hs-source-dirs: demo/concurrent
     main-is: ProgressThreadedRTS.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
     ghc-options: -threaded
 
 Executable gtk2hs-demo-fastDraw
@@ -427,68 +427,68 @@ Executable gtk2hs-demo-fastDraw
     main-is: FastDraw.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers, array, cairo
+    build-depends: gtk3==0.12.5.4, base, transformers, array, cairo
 
 Executable gtk2hs-demo-fonts
     hs-source-dirs: demo/fonts
     main-is: Fonts.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base
+    build-depends: gtk3==0.12.5.4, base
 
 Executable gtk2hs-demo-builder
     hs-source-dirs: demo/gtkbuilder
     main-is: GtkBuilderTest.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-helloworld
     hs-source-dirs: demo/hello
     main-is: World.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-layout
     hs-source-dirs: demo/inputmethod
     main-is: Layout.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers, cairo
+    build-depends: gtk3==0.12.5.4, base, transformers, cairo
 
 Executable gtk2hs-demo-menudemo
     hs-source-dirs: demo/menu
     main-is: MenuDemo.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-combodemo
     hs-source-dirs: demo/menu
     main-is: ComboDemo.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-notebook
     hs-source-dirs: demo/notebook
     main-is: Notebook.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-statusIcon
     hs-source-dirs: demo/statusicon
     main-is: StatusIcon.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
 Executable gtk2hs-demo-arabic
     hs-source-dirs: demo/unicode
     main-is: Arabic.hs
     if flag(build-demos)
       buildable: True
-    build-depends: gtk3==0.12.5.3, base, transformers
+    build-depends: gtk3==0.12.5.4, base, transformers
 
