@@ -55,8 +55,8 @@ import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExis
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
-import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList )
-import Data.List (isPrefixOf, isSuffixOf, stripPrefix, nub)
+import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList, catMaybes )
+import Data.List (isPrefixOf, isSuffixOf, stripPrefix, nub, tails )
 import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -247,10 +247,23 @@ getCppOptions bi lbi
     = nub $
       ["-I" ++ dir | dir <- PD.includeDirs bi]
    ++ [opt | opt@('-':c:_) <- PD.cppOptions bi ++ PD.ccOptions bi, c `elem` "DIU"]
-   ++ ["-D__GLASGOW_HASKELL__="++show (ghcDefine . versionBranch . compilerVersion $ LBI.compiler lbi)]
+   ++ ["-D__GLASGOW_HASKELL__="++show (ghcDefine . ghcVersion . compilerId $ LBI.compiler lbi)]
  where
   ghcDefine (v1:v2:_) = v1 * 100 + v2
   ghcDefine _ = __GLASGOW_HASKELL__
+
+  ghcVersion :: CompilerId -> [Int]
+-- This version is nicer, but we need to know the Cabal version that includes the new CompilerId
+-- #if CABAL_VERSION_CHECK(1,19,2)
+--   ghcVersion (CompilerId GHC v _) = versionBranch v
+--   ghcVersion (CompilerId _ _ (Just c)) = ghcVersion c
+-- #else
+--   ghcVersion (CompilerId GHC v) = versionBranch v
+-- #endif
+--   ghcVersion _ = []
+-- This version should work fine for now
+  ghcVersion = concat . take 1 . map (read . (++"]") . takeWhile (/=']')) . catMaybes
+               . map (stripPrefix "CompilerId GHC (Version {versionBranch = ") . tails . show
 
 installCHI :: PackageDescription -- ^information from the .cabal file
         -> LocalBuildInfo -- ^information from the configure step
