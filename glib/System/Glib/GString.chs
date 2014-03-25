@@ -28,11 +28,13 @@ module System.Glib.GString (
   GString,
   readGString,
   fromGString,
+  readGStringRaw
   ) where
 
 import Foreign
 import Control.Exception	(bracket)
 import Control.Monad		(foldM)
+import Data.Word                (Word8)
 
 import System.Glib.FFI
 
@@ -64,3 +66,12 @@ fromGString gstring
     _ <- {#call unsafe string_free#} gstring $ fromBool True
     return str
 
+-- Turn a GString into a String without interpreting Unicode, but don't destroy it.
+--
+readGStringRaw :: GString -> IO (Maybe String)
+readGStringRaw gstring
+  | gstring == nullPtr = return Nothing
+  | otherwise	       = do
+    gstr <- {#get GString->str#} gstring
+    len <- {#get GString->len#} gstring
+    fmap Just $ peekCAStringLen (gstr, fromIntegral len)
