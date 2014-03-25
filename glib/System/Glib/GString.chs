@@ -28,11 +28,13 @@ module System.Glib.GString (
   GString,
   readGString,
   fromGString,
+  readGStringRaw
   ) where
 
 import Foreign
 import Control.Exception	(bracket)
 import Control.Monad		(foldM)
+import Data.Word                (Word8)
 
 import System.Glib.FFI
 
@@ -49,7 +51,8 @@ readGString gstring
   | gstring == nullPtr = return Nothing
   | otherwise	       = do
     gstr <- {#get GString->str#} gstring
-    maybePeek peekCString gstr
+    len <- {#get GString->len#} gstring
+    fmap Just $ peekCStringLen (gstr, fromIntegral len)
 
 -- Turn a GList into a list of pointers (freeing the GList in the process).
 --
@@ -58,7 +61,17 @@ fromGString gstring
   | gstring == nullPtr = return Nothing
   | otherwise	       = do
     gstr <- {#get GString->str#} gstring
-    str  <- maybePeek peekCString gstr
+    len <- {#get GString->len#} gstring
+    str <- fmap Just $ peekCStringLen (gstr, fromIntegral len)
     _ <- {#call unsafe string_free#} gstring $ fromBool True
     return str
 
+-- Turn a GString into a String without interpreting Unicode, but don't destroy it.
+--
+readGStringRaw :: GString -> IO (Maybe String)
+readGStringRaw gstring
+  | gstring == nullPtr = return Nothing
+  | otherwise	       = do
+    gstr <- {#get GString->str#} gstring
+    len <- {#get GString->len#} gstring
+    fmap Just $ peekCAStringLen (gstr, fromIntegral len)
