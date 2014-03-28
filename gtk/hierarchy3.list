@@ -91,6 +91,7 @@
                                 GtkTearoffMenuItem
                                 GtkImageMenuItem
                                 GtkSeparatorMenuItem
+                        GtkOverlay
                         GtkWindow
 						    GtkAssistant		
 						    GtkOffscreenWindow	

@@ -231,6 +231,7 @@ Library
           Graphics.UI.Gtk.Layout.HPaned
           Graphics.UI.Gtk.Layout.Layout
           Graphics.UI.Gtk.Layout.Notebook
+          Graphics.UI.Gtk.Layout.Overlay
           Graphics.UI.Gtk.Layout.Table
           Graphics.UI.Gtk.Layout.VBox
           Graphics.UI.Gtk.Layout.VButtonBox

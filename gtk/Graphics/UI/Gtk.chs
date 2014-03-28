@@ -217,6 +217,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Layout.HPaned,
   module Graphics.UI.Gtk.Layout.Layout,
   module Graphics.UI.Gtk.Layout.Notebook,
+  module Graphics.UI.Gtk.Layout.Overlay,
   module Graphics.UI.Gtk.Layout.Expander,
   module Graphics.UI.Gtk.Layout.Table,
   module Graphics.UI.Gtk.Layout.VBox,
@@ -474,6 +475,7 @@ import Graphics.UI.Gtk.Layout.HPaned
 import Graphics.UI.Gtk.Layout.VPaned
 import Graphics.UI.Gtk.Layout.Layout
 import Graphics.UI.Gtk.Layout.Notebook
+import Graphics.UI.Gtk.Layout.Overlay
 import Graphics.UI.Gtk.Layout.Expander
 import Graphics.UI.Gtk.Layout.Table
 -- ornaments
