@@ -248,6 +248,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetParent,
   widgetWidthRequest,
   widgetHeightRequest,
+  widgetMarginLeft,
+  widgetMarginRight,
+  widgetMarginTop,
+  widgetMarginBottom,
   widgetVisible,
   widgetSensitive,
   widgetAppPaintable,
@@ -2363,6 +2367,18 @@ widgetEvent widget = do
 --
 widgetName :: WidgetClass self => Attr self (Maybe String)
 widgetName = newAttrFromMaybeStringProperty "name"
+
+widgetMarginLeft :: WidgetClass self => Attr self Int
+widgetMarginLeft = newAttrFromIntProperty "margin-left"
+
+widgetMarginRight :: WidgetClass self => Attr self Int
+widgetMarginRight = newAttrFromIntProperty "margin-right"
+
+widgetMarginTop :: WidgetClass self => Attr self Int
+widgetMarginTop = newAttrFromIntProperty "margin-top"
+
+widgetMarginBottom :: WidgetClass self => Attr self Int
+widgetMarginBottom = newAttrFromIntProperty "margin-bottom"
 
 -- %hash c:1533 d:3213
 -- | The parent widget of this widget. Must be a Container widget.
