@@ -253,6 +253,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetMarginTop,
   widgetMarginBottom,
   widgetVisible,
+  widgetOpacity,
   widgetSensitive,
   widgetAppPaintable,
   widgetCanFocus,
@@ -2415,6 +2416,13 @@ widgetHeightRequest = newAttrFromIntProperty "height-request"
 --
 widgetVisible :: WidgetClass self => Attr self Bool
 widgetVisible = newAttrFromBoolProperty "visible"
+
+-- | The opacity of the widget
+--
+-- Default value: @1.0@
+--
+widgetOpacity :: WidgetClass self => Attr self Double
+widgetOpacity = newAttrFromDoubleProperty "opacity"
 
 -- %hash c:4dd4 d:594e
 -- | Whether the widget responds to input.
