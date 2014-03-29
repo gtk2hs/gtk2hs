@@ -49,7 +49,8 @@ readGString gstring
   | gstring == nullPtr = return Nothing
   | otherwise	       = do
     gstr <- {#get GString->str#} gstring
-    maybePeek peekCString gstr
+    len <- {#get GString->len#} gstring
+    fmap Just $ peekCStringLen (gstr, fromIntegral len)
 
 -- Turn a GList into a list of pointers (freeing the GList in the process).
 --
@@ -58,7 +59,8 @@ fromGString gstring
   | gstring == nullPtr = return Nothing
   | otherwise	       = do
     gstr <- {#get GString->str#} gstring
-    str  <- maybePeek peekCString gstr
+    len <- {#get GString->len#} gstring
+    str <- fmap Just $ peekCStringLen (gstr, fromIntegral len)
     _ <- {#call unsafe string_free#} gstring $ fromBool True
     return str
 
