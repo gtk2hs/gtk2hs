@@ -231,6 +231,7 @@ Library
           Graphics.UI.Gtk.Layout.HPaned
           Graphics.UI.Gtk.Layout.Layout
           Graphics.UI.Gtk.Layout.Notebook
+          Graphics.UI.Gtk.Layout.Overlay
           Graphics.UI.Gtk.Layout.Table
           Graphics.UI.Gtk.Layout.VBox
           Graphics.UI.Gtk.Layout.VButtonBox
@@ -492,3 +493,9 @@ Executable gtk2hs-demo-arabic
       buildable: True
     build-depends: gtk3==0.12.5.6, base, transformers
 
+Executable gtk2hs-demo-overlay
+    hs-source-dirs: demo/overlay
+    main-is: Overlay.hs
+    if flag(build-demos)
+      buildable: True
+    build-depends: gtk3==0.12.5.6, base, transformers

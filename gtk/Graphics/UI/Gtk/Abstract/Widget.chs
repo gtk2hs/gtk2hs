@@ -248,7 +248,12 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetParent,
   widgetWidthRequest,
   widgetHeightRequest,
+  widgetMarginLeft,
+  widgetMarginRight,
+  widgetMarginTop,
+  widgetMarginBottom,
   widgetVisible,
+  widgetOpacity,
   widgetSensitive,
   widgetAppPaintable,
   widgetCanFocus,
@@ -2364,6 +2369,18 @@ widgetEvent widget = do
 widgetName :: WidgetClass self => Attr self (Maybe String)
 widgetName = newAttrFromMaybeStringProperty "name"
 
+widgetMarginLeft :: WidgetClass self => Attr self Int
+widgetMarginLeft = newAttrFromIntProperty "margin-left"
+
+widgetMarginRight :: WidgetClass self => Attr self Int
+widgetMarginRight = newAttrFromIntProperty "margin-right"
+
+widgetMarginTop :: WidgetClass self => Attr self Int
+widgetMarginTop = newAttrFromIntProperty "margin-top"
+
+widgetMarginBottom :: WidgetClass self => Attr self Int
+widgetMarginBottom = newAttrFromIntProperty "margin-bottom"
+
 -- %hash c:1533 d:3213
 -- | The parent widget of this widget. Must be a Container widget.
 --
@@ -2399,6 +2416,13 @@ widgetHeightRequest = newAttrFromIntProperty "height-request"
 --
 widgetVisible :: WidgetClass self => Attr self Bool
 widgetVisible = newAttrFromBoolProperty "visible"
+
+-- | The opacity of the widget
+--
+-- Default value: @1.0@
+--
+widgetOpacity :: WidgetClass self => Attr self Double
+widgetOpacity = newAttrFromDoubleProperty "opacity"
 
 -- %hash c:4dd4 d:594e
 -- | Whether the widget responds to input.
