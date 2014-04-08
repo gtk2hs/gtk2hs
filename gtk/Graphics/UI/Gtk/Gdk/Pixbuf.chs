@@ -77,6 +77,9 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 #if GTK_CHECK_VERSION(2,6,0)
   pixbufNewFromFileAtScale,
 #endif
+#if GTK_CHECK_VERSION(3,0,0)
+  pixbufNewFromSurface,
+#endif
   pixbufNewFromInline,
   InlineImage,
   pixbufNewSubpixbuf,
@@ -133,6 +136,8 @@ import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap, Pixmap)
 #endif
+import Graphics.Rendering.Cairo
+import Graphics.Rendering.Cairo.Types
 
 {# context prefix="gdk" #}
 
@@ -345,6 +350,18 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
     (fromIntegral height)
     (fromBool preserveAspectRatio)
     errPtrPtr
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+pixbufNewFromSurface :: Surface -> Int -> Int -> Int -> Int -> IO Pixbuf
+pixbufNewFromSurface surface srcX srcY width height =
+  withSurface surface $ \ss -> wrapNewGObject mkPixbuf $
+    {# call gdk_pixbuf_get_from_surface #}
+    (castPtr ss)
+    (fromIntegral srcX)
+    (fromIntegral srcY)
+    (fromIntegral width)
+    (fromIntegral height)
 #endif
 
 -- | A string representing an image file format.
