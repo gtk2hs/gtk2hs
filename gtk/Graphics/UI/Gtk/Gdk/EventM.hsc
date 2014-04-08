@@ -123,6 +123,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
   eventRootCoordinates,
   eventModifier,
   eventModifierAll,
+  eventModifierMouse,
   eventTime,
   eventKeyVal,
   eventKeyName,
