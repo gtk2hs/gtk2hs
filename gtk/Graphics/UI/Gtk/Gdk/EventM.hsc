@@ -359,23 +359,35 @@ instance HasModifier ECrossing
 -- | Query the modifier keys that were depressed when the event happened.
 --   Sticky modifiers such as CapsLock are omitted in the return value.
 --   Use 'eventModifierAll' your application requires all modifiers.
+--   Use 'eventModifierMouse' if you just need the mouse buttons.
 --
 eventModifier :: HasModifier t => EventM t [Modifier]
-eventModifier = eM False
+eventModifier = eM defModMask
 
 -- | Query the modifier keys that were depressed when the event happened.
 --   The result includes sticky modifiers such as CapsLock. Normally,
 --   'eventModifier' is more appropriate in applications.
 --
 eventModifierAll :: HasModifier t => EventM t [Modifier]
-eventModifierAll = eM True
+eventModifierAll = eM allModMask
+
+-- | Query the mouse buttons that were depressed when the event happened.
+--
+eventModifierMouse :: HasModifier t => EventM t [Modifier]
+eventModifierMouse = eM mouseModMask
+
+allModMask = -1
 
 foreign import ccall safe "gtk_accelerator_get_default_mod_mask"
   defModMask :: #gtk2hs_type guint
 
-eM allModifs = do
-  let mask | allModifs = -1
-           | otherwise = defModMask
+mouseModMask = #{const GDK_BUTTON1_MASK}
+           .|. #{const GDK_BUTTON2_MASK}
+           .|. #{const GDK_BUTTON3_MASK}
+           .|. #{const GDK_BUTTON4_MASK}
+           .|. #{const GDK_BUTTON5_MASK}
+
+eM mask = do
   ptr <- ask
   liftIO $ do
     (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
