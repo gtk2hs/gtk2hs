@@ -77,6 +77,9 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 #if GTK_CHECK_VERSION(2,6,0)
   pixbufNewFromFileAtScale,
 #endif
+#if GTK_CHECK_VERSION(3,0,0)
+  pixbufNewFromSurface,
+#endif
   pixbufNewFromInline,
   InlineImage,
   pixbufNewSubpixbuf,
@@ -133,6 +136,8 @@ import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap, Pixmap)
 #endif
+import Graphics.Rendering.Cairo
+import Graphics.Rendering.Cairo.Types
 
 {# context prefix="gdk" #}
 
@@ -345,6 +350,23 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
     (fromIntegral height)
     (fromBool preserveAspectRatio)
     errPtrPtr
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Creates a new pixbuf from a cairo Surface.
+--
+-- Transfers image data from a cairo Surface and converts it to an RGB(A) representation inside a Pixbuf. This allows you to efficiently read individual pixels from cairo surfaces. For GdkWindows, use gdk_pixbuf_get_from_window() instead.
+-- 
+-- This function will create an RGB pixbuf with 8 bits per channel. The pixbuf will contain an alpha channel if the surface contains one.
+pixbufNewFromSurface :: Surface -> Int -> Int -> Int -> Int -> IO Pixbuf
+pixbufNewFromSurface surface srcX srcY width height =
+  withSurface surface $ \ss -> wrapNewGObject mkPixbuf $
+    {# call gdk_pixbuf_get_from_surface #}
+    (castPtr ss)
+    (fromIntegral srcX)
+    (fromIntegral srcY)
+    (fromIntegral width)
+    (fromIntegral height)
 #endif
 
 -- | A string representing an image file format.
