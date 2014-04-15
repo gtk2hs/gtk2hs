@@ -6,15 +6,16 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get --no-install-recommends install libgtk2.0-dev alex happy
   - sudo apt-get install cabal-install-1.18 ghc-$GHCVER
+  - export CABAL=cabal-1.18
   - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHCVER/bin:$PATH
-  - cabal-1.18 update
+  - $CABAL update
   - |
     if [ $GHCVER = "head" ] || [ $GHCVER = "7.8.2" ]; then
-      cabal-1.18 install happy alex
+      $CABAL install happy alex
     fi
-  - cabal-1.18 install Cabal
+  - $CABAL install Cabal
 install:
-  - cabal-1.18 install cabal-meta cabal-src
+  - $CABAL install cabal-meta cabal-src
 script:
   - ./install-both.sh
 notifications:
