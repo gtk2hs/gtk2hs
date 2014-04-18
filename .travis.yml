@@ -1,25 +1,31 @@
 env:
+  - GHCVER=7.4.1
+  - GHCVER=7.4.2
   - GHCVER=7.6.3
   - GHCVER=7.8.2
+
 before_install:
   - sudo add-apt-repository -y ppa:hvr/ghc
   - sudo apt-get update -qq
-  - sudo apt-get --no-install-recommends install libgtk2.0-dev libgtk-3-dev alex happy
-  - sudo apt-get install cabal-install-1.18 ghc-$GHCVER
-  - export CABAL=cabal-1.18
-  - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHCVER/bin:$PATH
-  - $CABAL update
+  - sudo apt-get --no-install-recommends install libgtk2.0-dev libgtk-3-dev
+  - sudo apt-get install cabal-install-1.20 ghc-$GHCVER
+  - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/1.20/bin:$PATH
+  - cabal update
   - |
-    if [ $GHCVER = "head" ] || [ $GHCVER = "7.8.2" ]; then
-      $CABAL install happy alex
+    if [ $GHCVER = "head" ] || [ ${GHCVER%.*} = "7.8" ]; then
+      sudo apt-get install happy-1.19.3 alex-3.1.3
+      export PATH=/opt/alex/3.1.3/bin:/opt/happy/1.19.3/bin:$PATH
+    else
+      sudo apt-get install happy alex
     fi
-  - $CABAL install Cabal
+
 install:
-  - $CABAL install cabal-meta cabal-src
+  - cabal install Cabal
+
 script:
   - ./install-both.sh
+
 notifications:
   irc:
     channels: "irc.freenode.net#gtk2hs"
-    skip_join: true
   email: true
