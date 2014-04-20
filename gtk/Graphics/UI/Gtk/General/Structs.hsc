@@ -78,7 +78,6 @@ module Graphics.UI.Gtk.General.Structs (
 #endif
   widgetGetDrawWindow,
   widgetGetSize,
-  layoutGetDrawWindow,
   windowGetFrame,
 #endif
   styleGetForeground,
@@ -809,16 +808,6 @@ widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
     (height :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, height}
 				(#{ptr GtkWidget, allocation} wPtr)
     return (fromIntegral width, fromIntegral height)
-
--- Layout related methods
-
--- | Retrieves the 'Drawable' part.
---
--- Removed in Gtk3.
-layoutGetDrawWindow :: Layout -> IO DrawWindow
-layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
-  withForeignPtr (unLayout lay) $
-  \lay' -> liftM castPtr $ #{peek GtkLayout, bin_window} lay'
 
 -- Window related methods
 

@@ -63,9 +63,7 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutGetVAdjustment,
   layoutSetHAdjustment,
   layoutSetVAdjustment,
-#if GTK_MAJOR_VERSION < 3
   layoutGetDrawWindow,
-#endif
 
 -- * Attributes
   layoutHAdjustment,
@@ -91,9 +89,6 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-#if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.General.Structs	(layoutGetDrawWindow)
-#endif
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
@@ -229,6 +224,13 @@ layoutSetVAdjustment self adjustment =
   {# call layout_set_vadjustment #}
     (toLayout self)
     adjustment
+
+-- | Retrieves the 'Drawable' part of the layout used for drawing operations.
+--
+layoutGetDrawWindow :: Layout -> IO DrawWindow
+layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
+  {# call layout_get_bin_window #}
+    (toLayout lay)
 
 --------------------
 -- Attributes
