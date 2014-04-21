@@ -41,6 +41,9 @@ module Graphics.UI.Gtk.General.Enums (
 #endif
   DirectionType(..),
   Justification(..),
+#if GTK_CHECK_VERSION(3,6,0)
+  LevelBarMode(..),
+#endif
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
   MatchType(..),
@@ -223,6 +226,10 @@ instance Flags DestDefaults
 -- | Justification for label and maybe other widgets (text?)
 --
 {#enum Justification {underscoreToCase} deriving (Eq,Show)#}
+
+#if GTK_CHECK_VERSION(3,6,0)
+{#enum LevelBarMode {underscoreToCase} deriving (Eq,Show)#}
+#endif
 
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
