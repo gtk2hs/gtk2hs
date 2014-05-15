@@ -1814,9 +1814,13 @@ attribute
 
 attribute_params :: { () }
 attribute_params
-  : constant_expression					{ () }
-  | attribute_params ',' constant_expression		{ () }
+  : attribute_param					{ () }
+  | attribute_params ',' attribute_param		{ () }
 
+attribute_param :: { () }
+attribute_param
+  : constant_expression					{ () }
+  | ident '=' cfloat					{ () }
 
 {
 
