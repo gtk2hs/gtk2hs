@@ -39,6 +39,7 @@ module Graphics.UI.Gtk.Display.LevelBar (
 -- @
 
 -- * Types
+#if GTK_CHECK_VERSION(3,6,0)
   LevelBar,
   LevelBarClass,
   castToLevelBar, gTypeLevelBar,
@@ -55,12 +56,16 @@ module Graphics.UI.Gtk.Display.LevelBar (
   levelBarGetOffsetValue,
 
 -- * Attributes
+#if GTK_CHECK_VERSION(3,8,0)
   levelBarInverted,
+#endif
   levelBarMaxValue,
   levelBarMinValue,
   levelBarValue,
+#endif
   ) where
 
+#if GTK_CHECK_VERSION(3,6,0)
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -139,6 +144,7 @@ levelBarGetOffsetValue self name =
 --------------------
 -- Attributes
 
+#if GTK_CHECK_VERSION(3,8,0)
 -- | Level bars normally grow from top to bottom or left to right. Inverted level bars grow in the opposite direction.
 --
 -- Default value: FALSE
@@ -146,6 +152,7 @@ levelBarGetOffsetValue self name =
 -- Since 3.8
 levelBarInverted :: LevelBarClass self => Attr self Bool
 levelBarInverted = newAttrFromBoolProperty "inverted"
+#endif
 
 -- | The "value" property determines the currently filled value of the level bar.
 --
@@ -184,3 +191,5 @@ levelBarMaxValue = newAttrFromDoubleProperty "max-value"
 -- Default value: LevelBarModeContinuous
 levelBarMode :: LevelBarClass self => Attr self LevelBarMode
 levelBarMode = newAttr levelBarGetMode levelBarSetMode
+
+#endif
