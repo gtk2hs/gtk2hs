@@ -98,7 +98,7 @@ The next line, ``widgetShowAll window`` places the window onto the screen.
 Note that there is no need to say how large the window is. Gtk+ will
 allocated enough space for the window (and user interface elements inside
 it) so that that everything fits into the window. The allocation of sizes
-happens when the when ``widgetShowAll`` is called.
+happens when ``widgetShowAll`` is called.
 
 ++ Widgets, Events and Signals ++
 
