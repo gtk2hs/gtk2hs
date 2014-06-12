@@ -203,7 +203,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.Rendering.Pango.Attributes ( withAttrList, fromAttrList)
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
-import Graphics.UI.Gtk.General.Enums    (Justification(..))
+import Graphics.UI.Gtk.General.Enums    (Justification(..), MovementStep (..))
 import Graphics.Rendering.Pango.Markup
 {#import Graphics.Rendering.Pango.BasicTypes#}  (PangoLayout(PangoLayout),
                                          makeNewPangoString, PangoString(..) )
@@ -213,6 +213,7 @@ import Graphics.Rendering.Pango.Enums   (PangoAttribute)
 import Graphics.Rendering.Pango.Enums   (EllipsizeMode(..))
 #endif
 import Data.IORef ( newIORef )
+{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -950,3 +951,44 @@ labelText :: LabelClass self => Attr self String
 labelText = newAttr
   labelGetText
   labelSetText
+
+--------------------
+-- Signals
+
+-- | The 'labelActiveCurrentLink' signal a keybinding signal which gets emitted when the user activates
+-- a link in the label.
+labelActiveCurrentLink :: LabelClass self => Signal self (IO ())
+labelActiveCurrentLink = Signal (connect_NONE__NONE "activate-current-link")
+
+-- | The 'labelActiveLink' signal is emitted when a URI is activated. Default is to use showURI.
+labelActiveLink :: LabelClass self => Signal self (String -> IO ())
+labelActiveLink = Signal (connect_STRING__NONE "activate-link")
+
+-- | The 'labelCopyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
+-- clipboard.
+labelCopyClipboard :: LabelClass self => Signal self (IO ())
+labelCopyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
+
+-- | The 'labelMoveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
+-- movement. If the cursor is not visible in label, this signal causes the viewport to be moved
+-- instead.
+--
+-- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
+-- control the cursor programmatically.
+--
+-- The default bindings for this signal come in two variants, the variant with the Shift modifier
+-- extends the selection, the variant without the Shift modifer does not. There are too many key
+-- combinations to list them all here.
+--
+--   * Arrow keys move by individual characters\/lines
+--   * Ctrl-arrow key combinations move by words\/paragraphs
+--   * Home\/End keys move to the ends of the buffer
+labelMoveCursor :: LabelClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
+labelMoveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
+
+-- | The 'labelPopulatePopup' signal gets emitted before showing the context menu of the label.
+--
+-- If you need to add items to the context menu, connect to this signal and append your menuitems to
+-- the menu.
+labelPopulatePopup :: LabelClass self=> Signal self (Menu -> IO ())
+labelPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
