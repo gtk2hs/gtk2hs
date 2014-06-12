@@ -33,7 +33,7 @@ Install the latest Cabal and cabal-meta (make sure cabal-meta winds up in your P
 
 Clone the repo from github
 
-    cabal clone https://github.com/gtk2hs/gtk2hs
+    git clone https://github.com/gtk2hs/gtk2hs
     cd gtk2hs
 
 Install gtk2hs-buildtools from the repo (make sure they also wind up in your PATH)
