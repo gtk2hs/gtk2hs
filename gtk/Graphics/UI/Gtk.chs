@@ -90,6 +90,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Display.AccelLabel,
   module Graphics.UI.Gtk.Display.Image,
   module Graphics.UI.Gtk.Display.Label,
+#if GTK_CHECK_VERSION(3,6,0)
+  module Graphics.UI.Gtk.Display.LevelBar,
+#endif
   module Graphics.UI.Gtk.Display.ProgressBar,
   module Graphics.UI.Gtk.Display.Spinner,
   module Graphics.UI.Gtk.Display.Statusbar,
@@ -342,6 +345,9 @@ import Graphics.UI.Gtk.Windows.WindowGroup
 import Graphics.UI.Gtk.Display.AccelLabel
 import Graphics.UI.Gtk.Display.Image
 import Graphics.UI.Gtk.Display.Label
+#if GTK_CHECK_VERSION(3,6,0)
+import Graphics.UI.Gtk.Display.LevelBar
+#endif
 import Graphics.UI.Gtk.Display.ProgressBar
 import Graphics.UI.Gtk.Display.Spinner
 import Graphics.UI.Gtk.Display.Statusbar

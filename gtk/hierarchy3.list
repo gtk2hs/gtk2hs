@@ -165,6 +165,7 @@
                     GtkVSeparator
                 GtkInvisible
                 GtkProgressBar
+                GtkLevelBar if gtk-3.6
         GtkAdjustment
         GtkIMContext
                 GtkIMMulticontext
