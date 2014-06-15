@@ -17,8 +17,9 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Paths where
 
 import Foreign
 import Foreign.C
+import Data.Text
 
-import Graphics.Rendering.Cairo.Internal.Utilities (withUTFString)
+import Graphics.Rendering.Cairo.Internal.Utilities (CairoString(..))
 
 {#context lib="cairo" prefix="cairo"#}
 
@@ -31,7 +32,11 @@ import Graphics.Rendering.Cairo.Internal.Utilities (withUTFString)
 {#fun line_to           as lineTo          { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun move_to           as moveTo          { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun rectangle         as rectangle       { unCairo `Cairo', `Double', `Double', `Double', `Double' } -> `()'#}
-{#fun text_path         as textPath        { unCairo `Cairo', withUTFString* `String' } -> `()'#}
+textPath :: CairoString string => Cairo -> string -> IO ()
+textPath c string =
+    withUTFString string $ \string' ->
+    {# call text_path #}
+        c string'
 {#fun rel_curve_to      as relCurveTo      { unCairo `Cairo', `Double', `Double', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun rel_line_to       as relLineTo       { unCairo `Cairo', `Double', `Double' } -> `()'#}
 {#fun rel_move_to       as relMoveTo       { unCairo `Cairo', `Double', `Double' } -> `()'#}

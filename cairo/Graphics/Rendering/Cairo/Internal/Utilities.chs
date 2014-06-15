@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Cairo.Internal.Utilities
@@ -23,6 +24,8 @@ import System.IO.Unsafe (unsafePerformIO)
 
 import Codec.Binary.UTF8.String
 import Data.Char (ord, chr)
+import Data.Text (Text)
+import qualified Data.Text.Foreign as T (withCStringLen)
 
 {#context lib="cairo" prefix="cairo"#}
 
@@ -30,5 +33,11 @@ import Data.Char (ord, chr)
 {#fun pure version        as version        {} -> `Int'#}
 {#fun pure version_string as versionString  {} -> `String'#}
 
-withUTFString :: String -> (CString -> IO a) -> IO a
-withUTFString = withCAString . encodeString
+class CairoString s where
+    withUTFString :: s -> (CString -> IO a) -> IO a
+
+instance CairoString [Char] where
+    withUTFString = withCAString . encodeString
+
+instance CairoString Text where
+    withUTFString s f = T.withCStringLen s (f . fst)

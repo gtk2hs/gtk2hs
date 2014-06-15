@@ -273,6 +273,7 @@ module Graphics.Rendering.Cairo (
   , liftIO
   , version
   , versionString
+  , CairoString(..)
 
   -- * Types
 
@@ -334,6 +335,7 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 import Graphics.Rendering.Cairo.Internal (imageSurfaceCreateFromPNG)
 
 import Graphics.Rendering.Cairo.Types
+import Graphics.Rendering.Cairo.Internal.Utilities (CairoString(..))
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
 
@@ -937,7 +939,8 @@ rectangle = liftRender4 Internal.rectangle
 -- * See 'showText' for why you should use Gtk functions.
 -- 
 textPath ::
-     String -- ^ -
+     CairoString string
+  => string -- ^ -
   -> Render ()
 textPath = liftRender1 Internal.textPath
 
@@ -1330,7 +1333,8 @@ deviceToUserDistance = liftRender2 Internal.deviceToUserDistance
 -- text layout library in addition to cairo.
 --
 selectFontFace ::
-     String     -- ^ @family@ - a font family name
+     CairoString string
+  => string     -- ^ @family@ - a font family name
   -> FontSlant  -- ^ @slant@ - the slant for the font
   -> FontWeight -- ^ @weight@ - the weight of the font
   -> Render ()
@@ -1392,7 +1396,8 @@ setFontOptions = liftRender1 Internal.setFontOptions
 -- applications.
 --
 showText ::
-     String -- ^ a string of text
+     CairoString string
+  => string -- ^ a string of text
   -> Render ()
 showText = liftRender1 Internal.showText
 
@@ -1415,7 +1420,8 @@ fontExtents = liftRender0 Internal.fontExtents
 -- 'textExtentsYadvance' values.
 --
 textExtents ::
-     String -- ^ a string of text
+     CairoString string
+  => string -- ^ a string of text
   -> Render TextExtents
 textExtents = liftRender1 Internal.textExtents
 
