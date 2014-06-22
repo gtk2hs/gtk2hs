@@ -49,7 +49,7 @@ module System.Glib.Properties (
   objectSetPropertyString,
   objectGetPropertyString,
   objectSetPropertyMaybeString,
-  objectGetPropertyMaybeString,  
+  objectGetPropertyMaybeString,
   objectSetPropertyBoxedOpaque,
   objectGetPropertyBoxedOpaque,
   objectSetPropertyBoxedStorable,
@@ -87,7 +87,7 @@ module System.Glib.Properties (
   newAttrFromMaybeObjectProperty,
   writeAttrFromMaybeObjectProperty,
   readAttrFromMaybeObjectProperty,
-  
+
   -- TODO: do not export these once we dump the old TreeList API:
   objectGetPropertyInternal,
   objectSetPropertyInternal,
@@ -96,6 +96,7 @@ module System.Glib.Properties (
 import Control.Monad (liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags	(Flags)
 {#import System.Glib.Types#}
 {#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
@@ -189,16 +190,16 @@ objectSetPropertyDouble = objectSetPropertyInternal GType.double valueSetDouble
 objectGetPropertyDouble :: GObjectClass gobj => String -> gobj -> IO Double
 objectGetPropertyDouble = objectGetPropertyInternal GType.double valueGetDouble
 
-objectSetPropertyString :: GObjectClass gobj => String -> gobj -> String -> IO ()
+objectSetPropertyString :: (GObjectClass gobj, GlibString string) => String -> gobj -> string -> IO ()
 objectSetPropertyString = objectSetPropertyInternal GType.string valueSetString
 
-objectGetPropertyString :: GObjectClass gobj => String -> gobj -> IO String
+objectGetPropertyString :: (GObjectClass gobj, GlibString string) => String -> gobj -> IO string
 objectGetPropertyString = objectGetPropertyInternal GType.string valueGetString
 
-objectSetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> Maybe String -> IO ()
+objectSetPropertyMaybeString :: (GObjectClass gobj, GlibString string) => String -> gobj -> Maybe string -> IO ()
 objectSetPropertyMaybeString = objectSetPropertyInternal GType.string valueSetMaybeString
 
-objectGetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> IO (Maybe String)
+objectGetPropertyMaybeString :: (GObjectClass gobj, GlibString string) => String -> gobj -> IO (Maybe string)
 objectGetPropertyMaybeString = objectGetPropertyInternal GType.string valueGetMaybeString
 
 objectSetPropertyBoxedOpaque :: GObjectClass gobj => (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> GType -> String -> gobj -> boxed -> IO ()
@@ -282,27 +283,27 @@ newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> GType -
 newAttrFromFlagsProperty propName gtype =
   newNamedAttr propName (objectGetPropertyFlags gtype propName) (objectSetPropertyFlags gtype propName)
 
-newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
+newAttrFromStringProperty :: (GObjectClass gobj, GlibString string) => String -> Attr gobj string
 newAttrFromStringProperty propName =
   newNamedAttr propName (objectGetPropertyString propName) (objectSetPropertyString propName)
 
-readAttrFromStringProperty :: GObjectClass gobj => String -> ReadAttr gobj String
+readAttrFromStringProperty :: (GObjectClass gobj, GlibString string) => String -> ReadAttr gobj string
 readAttrFromStringProperty propName =
   readNamedAttr propName (objectGetPropertyString propName)
 
-writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj String
+writeAttrFromStringProperty :: (GObjectClass gobj, GlibString string) => String -> WriteAttr gobj string
 writeAttrFromStringProperty propName =
   writeNamedAttr propName (objectSetPropertyString propName)
 
-newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
+newAttrFromMaybeStringProperty :: (GObjectClass gobj, GlibString string) => String -> Attr gobj (Maybe string)
 newAttrFromMaybeStringProperty propName =
   newNamedAttr propName (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
 
-readAttrFromMaybeStringProperty :: GObjectClass gobj => String -> ReadAttr gobj (Maybe String)
+readAttrFromMaybeStringProperty :: (GObjectClass gobj, GlibString string) => String -> ReadAttr gobj (Maybe string)
 readAttrFromMaybeStringProperty propName =
   readNamedAttr propName (objectGetPropertyMaybeString propName)
 
-writeAttrFromMaybeStringProperty :: GObjectClass gobj => String -> WriteAttr gobj (Maybe String)
+writeAttrFromMaybeStringProperty :: (GObjectClass gobj, GlibString string) => String -> WriteAttr gobj (Maybe string)
 writeAttrFromMaybeStringProperty propName =
   writeNamedAttr propName (objectSetPropertyMaybeString propName)
 
@@ -337,7 +338,7 @@ readAttrFromObjectProperty propName gtype =
 newAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj (Maybe gobj') (Maybe gobj'')
 newAttrFromMaybeObjectProperty propName gtype =
   newNamedAttr propName (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
- 
+
 writeAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj (Maybe gobj')
 writeAttrFromMaybeObjectProperty propName gtype =
   writeNamedAttr propName (objectSetPropertyMaybeGObject gtype propName)

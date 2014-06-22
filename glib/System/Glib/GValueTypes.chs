@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) GValueTypes
 --
@@ -160,19 +161,19 @@ valueGetFlags gvalue =
   liftM (toFlags . fromIntegral) $
   {# call unsafe value_get_flags #} gvalue
 
-valueSetString :: GValue -> String -> IO ()
+valueSetString :: GlibString string => GValue -> string -> IO ()
 valueSetString gvalue str =
   withUTFString str $ \strPtr ->
   {# call unsafe value_set_string #} gvalue strPtr
 
-valueGetString :: GValue -> IO String
+valueGetString :: GlibString string => GValue -> IO string
 valueGetString gvalue = do
   strPtr <- {# call unsafe value_get_string #} gvalue
   if strPtr == nullPtr
     then return ""
     else peekUTFString strPtr
 
-valueSetMaybeString :: GValue -> Maybe String -> IO ()
+valueSetMaybeString :: GlibString string => GValue -> Maybe string -> IO ()
 valueSetMaybeString gvalue (Just str) =
   withUTFString str $ \strPtr ->
   {# call unsafe value_set_string #} gvalue strPtr
@@ -180,7 +181,7 @@ valueSetMaybeString gvalue (Just str) =
 valueSetMaybeString gvalue Nothing =
   {# call unsafe value_set_static_string #} gvalue nullPtr
 
-valueGetMaybeString :: GValue -> IO (Maybe String)
+valueGetMaybeString :: GlibString string => GValue -> IO (Maybe string)
 valueGetMaybeString gvalue =
   {# call unsafe value_get_string #} gvalue
   >>= maybePeek peekUTFString

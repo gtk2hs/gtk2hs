@@ -41,7 +41,7 @@ module System.Glib.GObject (
   makeNewGObject,
   constructNewGObject,
   wrapNewGObject,
-  
+
   -- ** GType queries
   gTypeGObject,
   isA,
@@ -133,7 +133,7 @@ makeNewGObject (constr, objectUnref) generator = do
 -- versions >= 2.10). On non-floating objects, this function behaves
 -- exactly the same as "makeNewGObject".
 --
-constructNewGObject :: GObjectClass obj => 
+constructNewGObject :: GObjectClass obj =>
   (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
 constructNewGObject (constr, objectUnref) generator = do
   objPtr <- generator
@@ -150,7 +150,7 @@ constructNewGObject (constr, objectUnref) generator = do
 -- reference). Since newly created 'GObject's have a reference count of
 -- one, they don't need ref'ing.
 --
-wrapNewGObject :: GObjectClass obj => 
+wrapNewGObject :: GObjectClass obj =>
   (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
 wrapNewGObject (constr, objectUnref) generator = do
   objPtr <- generator
@@ -172,7 +172,7 @@ uniqueCnt :: MVar Int
 uniqueCnt = unsafePerformIO $ newMVar 0
 
 -- | Create a unique id based on the given string.
-quarkFromString :: String -> IO Quark
+quarkFromString :: GlibString string => string -> IO Quark
 quarkFromString name = withUTFString name {#call unsafe quark_from_string#}
 
 -- | Add an attribute to this object.
@@ -187,7 +187,7 @@ objectCreateAttribute = do
   let propName = "Gtk2HsAttr"++show cnt
   attr <- quarkFromString propName
   return (newNamedAttr propName (objectGetAttributeUnsafe attr)
-	                        (objectSetAttribute attr)) 
+	                        (objectSetAttribute attr))
 
 -- | The address of a function freeing a 'StablePtr'. See 'destroyFunPtr'.
 foreign import ccall unsafe "&hs_free_stable_ptr" destroyStablePtr :: DestroyNotify
@@ -217,7 +217,7 @@ objectGetAttributeUnsafe attr obj = do
 -- | Determine if this is an instance of a particular GTK type
 --
 isA :: GObjectClass o => o -> GType -> Bool
-isA obj gType = 
+isA obj gType =
 	typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj) gType
 
 -- at this point we would normally implement the notify signal handler;

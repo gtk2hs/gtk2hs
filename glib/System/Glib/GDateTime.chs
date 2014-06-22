@@ -6,7 +6,7 @@
 --
 --  Created: July 2007
 --
---  Copyright (C) 2007 Peter Gavin 
+--  Copyright (C) 2007 Peter Gavin
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -104,7 +104,8 @@ gTimeValAdd time microseconds =
            peek ptr
 
 #if GLIB_CHECK_VERSION(2,12,0)
-gTimeValFromISO8601 :: String
+gTimeValFromISO8601 :: GlibString string
+                    => string
                     -> Maybe GTimeVal
 gTimeValFromISO8601 isoDate =
     unsafePerformIO $ withUTFString isoDate $ \cISODate ->
@@ -114,8 +115,9 @@ gTimeValFromISO8601 isoDate =
                    then liftM Just $ peek ptr
                    else return Nothing
 
-gTimeValToISO8601 :: GTimeVal
-                  -> String
+gTimeValToISO8601 :: GlibString string
+                  => GTimeVal
+                  -> string
 gTimeValToISO8601 time =
     unsafePerformIO $ with time $ \ptr ->
         {# call g_time_val_to_iso8601 #} (castPtr ptr) >>= readUTFString
@@ -234,7 +236,8 @@ gDateNewTimeVal timeVal =
            peek ptr
 #endif
 
-gDateParse :: String
+gDateParse :: GlibString string
+           => string
            -> IO (Maybe GDate)
 gDateParse str =
     alloca $ \ptr ->

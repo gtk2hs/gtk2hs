@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 --  GIMP Toolkit (GTK) UTF aware string marshalling
 --
 --  Author : Axel Simon
@@ -27,8 +28,6 @@
 
 module System.Glib.UTFString (
   GlibString(..),
-  newUTFString,
-  newUTFStringLen,
   readUTFString,
   readCString,
   withUTFStrings,
@@ -46,13 +45,16 @@ import Codec.Binary.UTF8.String
 import Control.Monad (liftM)
 import Data.Char (ord, chr)
 import Data.Maybe (maybe)
-
+import Data.String (IsString)
+import Data.Monoid (Monoid)
 import System.Glib.FFI
-import qualified Data.Text as T (unpack, Text)
+import qualified Data.Text as T (replace, length, unpack, Text)
 import qualified Data.Text.Foreign as T
        (withCStringLen, peekCStringLen)
+import Data.ByteString (useAsCString)
+import Data.Text.Encoding (encodeUtf8)
 
-class GlibString s where
+class (IsString s, Monoid s, Show s) => GlibString s where
     -- | Like 'withCString' but using the UTF-8 encoding.
     --
     withUTFString :: s -> (CString -> IO a) -> IO a
@@ -74,9 +76,24 @@ class GlibString s where
     --
     peekUTFStringLen :: CStringLen -> IO s
 
+    -- | Like 'newCString' but using the UTF-8 encoding.
+    --
+    newUTFString :: s -> IO CString
+
+    -- | Like  Define newUTFStringLen to emit UTF-8.
+    --
+    newUTFStringLen :: s -> IO CStringLen
+
     -- | Create a list of offset corrections.
     --
     genUTFOfs :: s -> UTFCorrection
+
+    -- | Length of the string in characters
+    --
+    stringLength :: s -> Int
+
+    -- Escape percent signs (used in MessageDialog)
+    unPrintf :: s -> s
 
 instance GlibString [Char] where
     withUTFString = withCAString . encodeString
@@ -84,6 +101,8 @@ instance GlibString [Char] where
     peekUTFString = liftM decodeString . peekCAString
     maybePeekUTFString = liftM (maybe Nothing (Just . decodeString)) . maybePeek peekCAString
     peekUTFStringLen = liftM decodeString . peekCAStringLen
+    newUTFString = newCAString . encodeString
+    newUTFStringLen = newCAStringLen . encodeString
     genUTFOfs str = UTFCorrection (gUO 0 str)
       where
       gUO n [] = []
@@ -91,29 +110,28 @@ instance GlibString [Char] where
                    | ord x<=0x07FF = n:gUO (n+1) xs
                    | ord x<=0xFFFF = n:n:gUO (n+1) xs
                    | otherwise     = n:n:n:gUO (n+1) xs
+    stringLength = length
+    unPrintf s = s >>= replace
+        where
+            replace '%' = "%%"
+            replace c = return c
 
-foreign import ccall unsafe "g_utf8_strlen"
-  g_utf8_strlen :: Ptr a -> CLong -> IO CLong
+foreign import ccall unsafe "string.h strlen" c_strlen
+    :: CString -> IO CSize
 
 instance GlibString T.Text where
-    withUTFString s f = T.withCStringLen s (f . fst)
+    withUTFString = useAsCString . encodeUtf8
     withUTFStringLen = T.withCStringLen
     peekUTFString s = do
-        len <- g_utf8_strlen s (-1)
+        len <- c_strlen s
         T.peekCStringLen (s, fromIntegral len)
     maybePeekUTFString = maybePeek peekUTFString
     peekUTFStringLen = T.peekCStringLen
-    genUTFOfs = genUTFOfs . T.unpack
-
--- | Like 'newCString' but using the UTF-8 encoding.
---
-newUTFString :: String -> IO CString
-newUTFString = newCAString . encodeString
-
--- | Like  Define newUTFStringLen to emit UTF-8.
---
-newUTFStringLen :: String -> IO CStringLen
-newUTFStringLen = newCAStringLen . encodeString
+    newUTFString = newUTFString . T.unpack -- TODO optimize
+    newUTFStringLen = newUTFStringLen . T.unpack -- TODO optimize
+    genUTFOfs = genUTFOfs . T.unpack -- TODO optimize
+    stringLength = T.length
+    unPrintf = T.replace "%" "%%"
 
 -- | Like like 'peekUTFString' but then frees the string using g_free
 --
