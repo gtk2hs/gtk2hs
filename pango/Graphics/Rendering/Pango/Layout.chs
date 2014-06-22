@@ -152,7 +152,7 @@ layoutEmpty pc = do
 
 -- | Create a new layout.
 --
-layoutText :: PangoContext -> String -> IO PangoLayout
+layoutText :: GlibString string => PangoContext -> string -> IO PangoLayout
 layoutText pc txt = do
   pl <- wrapNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
@@ -189,7 +189,7 @@ layoutContextChanged (PangoLayout _ pl) =
 
 -- | Set the string in the layout.
 --
-layoutSetText :: PangoLayout -> String -> IO ()
+layoutSetText :: GlibString string => PangoLayout -> string -> IO ()
 layoutSetText (PangoLayout psRef pl) txt = do
   withUTFStringLen txt $ \(strPtr,len) ->
     {#call unsafe layout_set_text#} pl strPtr (fromIntegral len)
@@ -198,7 +198,7 @@ layoutSetText (PangoLayout psRef pl) txt = do
 
 -- | Retrieve the string in the layout.
 --
-layoutGetText :: PangoLayout -> IO String
+layoutGetText :: GlibString string => PangoLayout -> IO string
 layoutGetText (PangoLayout _ pl) =
   {#call unsafe layout_get_text#} pl >>= peekUTFString
 
@@ -209,7 +209,8 @@ layoutGetText (PangoLayout _ pl) =
 --
 -- The function returns  the text that is actually shown.
 --
-layoutSetMarkup :: PangoLayout -> Markup -> IO String
+layoutSetMarkup :: (GlibString markup, GlibString string)
+    => PangoLayout -> markup -> IO string
 layoutSetMarkup pl@(PangoLayout psRef plr) txt = do
   withUTFStringLen txt $ \(strPtr,len) ->
     {#call unsafe layout_set_markup#} plr strPtr (fromIntegral len)
@@ -224,7 +225,7 @@ layoutSetMarkup pl@(PangoLayout psRef plr) txt = do
 --   function is strict in that it forces all characters in the input string
 --   as soon as a single output character is requested.
 --
-escapeMarkup :: String -> String
+escapeMarkup :: GlibString string => string -> string
 escapeMarkup str = unsafePerformIO $ withUTFStringLen str $ \(strPtr,l) -> do
   resPtr <- {#call unsafe g_markup_escape_text#} strPtr (fromIntegral l)
   res <- peekUTFString resPtr
@@ -242,9 +243,10 @@ escapeMarkup str = unsafePerformIO $ withUTFStringLen str $ \(strPtr,l) -> do
 --   returned so it can be used to add the actual keyboard shortcut.
 --   The second element is the string after parsing.
 --
-layoutSetMarkupWithAccel :: PangoLayout -> Markup -> IO (Char, String)
+layoutSetMarkupWithAccel :: (GlibString markup, GlibString string)
+    => PangoLayout -> markup -> IO (Char, string)
 layoutSetMarkupWithAccel pl@(PangoLayout psRef plr) txt = do
-  modif <- alloca $ \chrPtr -> 
+  modif <- alloca $ \chrPtr ->
     withUTFStringLen txt $ \(strPtr,len) -> do
       {#call unsafe layout_set_markup_with_accel#} plr strPtr
         (fromIntegral len) (fromIntegral (ord '_')) chrPtr
@@ -353,7 +355,7 @@ layoutGetWidth (PangoLayout _ pl) = do
 --   a word if it is the only one on this line and it exceeds the
 --   specified width.
 --
-{#enum PangoWrapMode as LayoutWrapMode 
+{#enum PangoWrapMode as LayoutWrapMode
   {underscoreToCase,
   PANGO_WRAP_WORD as WrapWholeWords,
   PANGO_WRAP_CHAR as WrapAnywhere,
@@ -407,7 +409,7 @@ layoutSetIndent (PangoLayout _ pl) indent =
 --   is indented.
 --
 layoutGetIndent :: PangoLayout -> IO Double
-layoutGetIndent (PangoLayout _ pl) = 
+layoutGetIndent (PangoLayout _ pl) =
   liftM intToPu $ {#call unsafe layout_get_indent#} pl
 
 
@@ -420,7 +422,7 @@ layoutSetSpacing (PangoLayout _ pl) spacing =
 -- | Gets the spacing between the lines.
 --
 layoutGetSpacing :: PangoLayout -> IO Double
-layoutGetSpacing (PangoLayout _ pl) = 
+layoutGetSpacing (PangoLayout _ pl) =
   liftM intToPu $ {#call unsafe layout_get_spacing#} pl
 
 -- | Set if text should be streched to fit width.
@@ -433,7 +435,7 @@ layoutGetSpacing (PangoLayout _ pl) =
 -- * Note that  as of Pango 1.4, this functionality is not yet implemented.
 --
 layoutSetJustify :: PangoLayout -> Bool -> IO ()
-layoutSetJustify (PangoLayout _ pl) j = 
+layoutSetJustify (PangoLayout _ pl) j =
   {#call unsafe layout_set_justify#} pl (fromBool j)
 
 -- | Retrieve the justification flag.
@@ -441,7 +443,7 @@ layoutSetJustify (PangoLayout _ pl) j =
 -- * See 'layoutSetJustify'.
 --
 layoutGetJustify :: PangoLayout -> IO Bool
-layoutGetJustify (PangoLayout _ pl) = 
+layoutGetJustify (PangoLayout _ pl) =
   liftM toBool $ {#call unsafe layout_get_justify#} pl
 
 #if PANGO_VERSION_CHECK(1,4,0)
@@ -464,7 +466,7 @@ layoutGetJustify (PangoLayout _ pl) =
 --   'AlignLeft' and 'AlignRight' are swapped.
 --
 layoutSetAutoDir :: PangoLayout -> Bool -> IO ()
-layoutSetAutoDir (PangoLayout _ pl) j = 
+layoutSetAutoDir (PangoLayout _ pl) j =
   {#call unsafe layout_set_auto_dir#} pl (fromBool j)
 
 -- | Retrieve the auto direction flag.
@@ -472,7 +474,7 @@ layoutSetAutoDir (PangoLayout _ pl) j =
 -- * See 'layoutSetAutoDir'.
 --
 layoutGetAutoDir :: PangoLayout -> IO Bool
-layoutGetAutoDir (PangoLayout _ pl) = 
+layoutGetAutoDir (PangoLayout _ pl) =
   liftM toBool $ {#call unsafe layout_get_auto_dir#} pl
 #endif
 
@@ -551,7 +553,7 @@ layoutGetTabs (PangoLayout _ pl) = do
 --   single text line.
 --
 layoutSetSingleParagraphMode :: PangoLayout -> Bool -> IO ()
-layoutSetSingleParagraphMode (PangoLayout _ pl) honor = 
+layoutSetSingleParagraphMode (PangoLayout _ pl) honor =
   {#call unsafe layout_set_single_paragraph_mode#} pl (fromBool honor)
 
 -- | Retrieve if newlines are honored.
@@ -559,7 +561,7 @@ layoutSetSingleParagraphMode (PangoLayout _ pl) honor =
 -- * See 'layoutSetSingleParagraphMode'.
 --
 layoutGetSingleParagraphMode :: PangoLayout -> IO Bool
-layoutGetSingleParagraphMode (PangoLayout _ pl) = 
+layoutGetSingleParagraphMode (PangoLayout _ pl) =
   liftM toBool $ {#call unsafe layout_get_single_paragraph_mode#} pl
 
 -- a function is missing here
@@ -583,7 +585,7 @@ layoutGetSingleParagraphMode (PangoLayout _ pl) =
 layoutXYToIndex :: PangoLayout -> Double -- ^ the @x@ position
                 -> Double -- ^ the @y@ position
                 -> IO (Bool, Int, Int)
-layoutXYToIndex (PangoLayout psRef pl) x y = 
+layoutXYToIndex (PangoLayout psRef pl) x y =
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
     res <- {#call unsafe layout_xy_to_index#} pl (puToInt x) (puToInt y)
       idxPtr trailPtr
@@ -705,7 +707,7 @@ layoutGetExtents :: PangoLayout
                  -> IO (PangoRectangle, PangoRectangle) -- ^ @(ink, logical)@
 layoutGetExtents (PangoLayout _ pl) =
   twoRect $ {#call unsafe layout_get_extents#} pl
-  
+
 -- | Compute the physical size of the layout.
 --
 -- * Computes the ink and the logical size of the 'Layout' in device units,
@@ -745,7 +747,7 @@ layoutGetLine (PangoLayout psRef pl) idx = do
     {#call unsafe layout_get_line#}
 #endif
       pl (fromIntegral idx)
-  if llPtr==nullPtr then 
+  if llPtr==nullPtr then
      throwIO (IndexOutOfBounds
       ("Graphics.Rendering.Pango.Layout.layoutGetLine: "++
        "no line at index "++show idx)) else do
@@ -840,7 +842,7 @@ layoutIterGetIndex (LayoutIter psRef li) = do
 --   left of the entire layout).
 --
 layoutIterGetBaseline :: LayoutIter -> IO Double
-layoutIterGetBaseline (LayoutIter _ li) = 
+layoutIterGetBaseline (LayoutIter _ li) =
   liftM intToPu $ {#call unsafe pango_layout_iter_get_baseline#} li
 
 #if PANGO_VERSION_CHECK(1,2,0)
@@ -883,10 +885,10 @@ layoutIterGetLine (LayoutIter psRef li) = do
 -- * Get the extents of the current character
 --   (origin is the top left of the entire layout). Only logical extents
 --   can sensibly be obtained for characters; ink extents make sense only
---   down to the level of clusters. 
+--   down to the level of clusters.
 --
 layoutIterGetCharExtents :: LayoutIter -> IO PangoRectangle
-layoutIterGetCharExtents (LayoutIter _ li) = alloca $ \logPtr -> 
+layoutIterGetCharExtents (LayoutIter _ li) = alloca $ \logPtr ->
   {#call unsafe layout_iter_get_char_extents#} li (castPtr logPtr) >>
   peek logPtr
 
@@ -946,7 +948,7 @@ layoutIterGetLineExtents (LayoutIter _ li) =
 
 -- | Compute the physical size of the line.
 --
--- * Computes the ink and the logical size of the 'LayoutLine'. 
+-- * Computes the ink and the logical size of the 'LayoutLine'.
 --   See 'layoutGetExtents'.
 --
 layoutLineGetExtents :: LayoutLine -> IO (PangoRectangle, PangoRectangle)
@@ -955,7 +957,7 @@ layoutLineGetExtents (LayoutLine _ ll) =
 
 -- | Compute the physical size of the line.
 --
--- * Computes the ink and the logical size of the 'LayoutLine'. 
+-- * Computes the ink and the logical size of the 'LayoutLine'.
 --   See 'layoutGetExtents'. The returned values are in device units, that
 --   is, pixels for the screen and points for printers.
 --
@@ -971,7 +973,7 @@ layoutLineGetPixelExtents (LayoutLine _ ll) =
 --
 layoutLineIndexToX :: LayoutLine
                    -> Int -- ^ the index into the string
-                   -> Bool -- ^ return the beginning (@False@) or the end 
+                   -> Bool -- ^ return the beginning (@False@) or the end
                             -- of the character
                    -> IO Double
 layoutLineIndexToX (LayoutLine psRef ll) pos beg =
@@ -1000,7 +1002,7 @@ layoutLineIndexToX (LayoutLine psRef ll) pos beg =
 --   @trailing@ indicates where in a cluster the @x@ position lay. It is
 --   0 for the trailing edge of the cluster.
 --
-layoutLineXToIndex :: LayoutLine 
+layoutLineXToIndex :: LayoutLine
                    -> Double -- ^ The @x@ position.
                    -> IO (Bool, Int, Int)
 layoutLineXToIndex (LayoutLine psRef ll) pos =
@@ -1028,10 +1030,10 @@ layoutLineGetXRanges :: LayoutLine -- ^ The line of interest.
                             -- (counting from 0). If this value is
                             -- less than the start index for the line,
                             -- then the first range will extend all the
-                            -- way to the leading edge of the layout. 
+                            -- way to the leading edge of the layout.
                             -- Otherwise it will start at the leading
                             -- edge of the first character.
-                     -> Int -- ^ The index after the last character. 
+                     -> Int -- ^ The index after the last character.
                             -- If this value is greater than the end
                             -- index for the line, then the last range
                             -- will extend all the way to the trailing

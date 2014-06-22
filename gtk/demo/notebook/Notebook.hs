@@ -45,7 +45,7 @@ main = do
 
          -- Create notebook tab.
          tab <- notebookTabNew (Just "Cool tab") Nothing
-         menuLabel <- labelNew Nothing
+         menuLabel <- labelNew (Nothing :: Maybe String)
 
          -- Add widgets in notebook.
          notebookAppendPageMenu notebook textView (ntBox tab) menuLabel
@@ -78,7 +78,7 @@ notebookTabNew name size = do
   spinner <- spinnerNew
   label <- labelNew name
   image <- imageNewFromIcon "window-close" iconSize
-  closeButton <- toolButtonNew (Just image) Nothing
+  closeButton <- toolButtonNew (Just image) (Nothing :: Maybe String)
 
   -- Show.
   boxPackStart box label PackNatural 0

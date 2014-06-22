@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Windows.AboutDialog (
 -- * Detail
--- 
+--
 -- | The 'AboutDialog' offers a simple way to display information about a
 -- program like its logo, name, copyright, website and license. It is also
 -- possible to give credits to the authors, documenters, translators and
@@ -170,8 +170,8 @@ aboutDialogNew =
 
 -- | Returns the program name displayed in the about dialog.
 --
-aboutDialogGetName :: AboutDialogClass self => self
- -> IO String -- ^ returns The program name.
+aboutDialogGetName :: (AboutDialogClass self, GlibString string) => self
+ -> IO string -- ^ returns The program name.
 aboutDialogGetName self =
 #if GTK_CHECK_VERSION(2,12,0)
   {# call gtk_about_dialog_get_program_name #}
@@ -184,8 +184,8 @@ aboutDialogGetName self =
 -- | Sets the name to display in the about dialog. If this is not set, it
 -- defaults to the program executable name.
 --
-aboutDialogSetName :: AboutDialogClass self => self
- -> String -- ^ @name@ - the program name
+aboutDialogSetName :: (AboutDialogClass self, GlibString string) => self
+ -> string -- ^ @name@ - the program name
  -> IO ()
 aboutDialogSetName self name =
   withUTFString name $ \namePtr ->
@@ -199,7 +199,7 @@ aboutDialogSetName self name =
 
 -- | Returns the version string.
 --
-aboutDialogGetVersion :: AboutDialogClass self => self -> IO String
+aboutDialogGetVersion :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetVersion self =
   {# call gtk_about_dialog_get_version #}
     (toAboutDialog self)
@@ -207,7 +207,7 @@ aboutDialogGetVersion self =
 
 -- | Sets the version string to display in the about dialog.
 --
-aboutDialogSetVersion :: AboutDialogClass self => self -> String -> IO ()
+aboutDialogSetVersion :: (AboutDialogClass self, GlibString string) => self -> string -> IO ()
 aboutDialogSetVersion self version =
   withUTFString version $ \versionPtr ->
   {# call gtk_about_dialog_set_version #}
@@ -216,7 +216,7 @@ aboutDialogSetVersion self version =
 
 -- | Returns the copyright string.
 --
-aboutDialogGetCopyright :: AboutDialogClass self => self -> IO String
+aboutDialogGetCopyright :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetCopyright self =
   {# call gtk_about_dialog_get_copyright #}
     (toAboutDialog self)
@@ -225,7 +225,7 @@ aboutDialogGetCopyright self =
 -- | Sets the copyright string to display in the about dialog. This should be
 -- a short string of one or two lines.
 --
-aboutDialogSetCopyright :: AboutDialogClass self => self -> String -> IO ()
+aboutDialogSetCopyright :: (AboutDialogClass self, GlibString string) => self -> string -> IO ()
 aboutDialogSetCopyright self copyright =
   withUTFString copyright $ \copyrightPtr ->
   {# call gtk_about_dialog_set_copyright #}
@@ -234,7 +234,7 @@ aboutDialogSetCopyright self copyright =
 
 -- | Returns the comments string.
 --
-aboutDialogGetComments :: AboutDialogClass self => self -> IO String
+aboutDialogGetComments :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetComments self =
   {# call gtk_about_dialog_get_comments #}
     (toAboutDialog self)
@@ -243,7 +243,7 @@ aboutDialogGetComments self =
 -- | Sets the comments string to display in the about dialog. This should be a
 -- short string of one or two lines.
 --
-aboutDialogSetComments :: AboutDialogClass self => self -> String -> IO ()
+aboutDialogSetComments :: (AboutDialogClass self, GlibString string) => self -> string -> IO ()
 aboutDialogSetComments self comments =
   withUTFString comments $ \commentsPtr ->
   {# call gtk_about_dialog_set_comments #}
@@ -252,7 +252,7 @@ aboutDialogSetComments self comments =
 
 -- | Returns the license information.
 --
-aboutDialogGetLicense :: AboutDialogClass self => self -> IO (Maybe String)
+aboutDialogGetLicense :: (AboutDialogClass self, GlibString string) => self -> IO (Maybe string)
 aboutDialogGetLicense self =
   {# call gtk_about_dialog_get_license #}
     (toAboutDialog self)
@@ -261,8 +261,8 @@ aboutDialogGetLicense self =
 -- | Sets the license information to be displayed in the secondary license
 -- dialog. If @license@ is @Nothing@, the license button is hidden.
 --
-aboutDialogSetLicense :: AboutDialogClass self => self
- -> Maybe String -- ^ @license@ - the license information or @Nothing@
+aboutDialogSetLicense :: (AboutDialogClass self, GlibString string) => self
+ -> Maybe string -- ^ @license@ - the license information or @Nothing@
  -> IO ()
 aboutDialogSetLicense self license =
   maybeWith withUTFString license $ \licensePtr ->
@@ -272,7 +272,7 @@ aboutDialogSetLicense self license =
 
 -- | Returns the website URL.
 --
-aboutDialogGetWebsite :: AboutDialogClass self => self -> IO String
+aboutDialogGetWebsite :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetWebsite self =
   {# call gtk_about_dialog_get_website #}
     (toAboutDialog self)
@@ -280,8 +280,8 @@ aboutDialogGetWebsite self =
 
 -- | Sets the URL to use for the website link.
 --
-aboutDialogSetWebsite :: AboutDialogClass self => self
- -> String -- ^ @website@ - a URL string starting with \"http:\/\/\"
+aboutDialogSetWebsite :: (AboutDialogClass self, GlibString string) => self
+ -> string -- ^ @website@ - a URL string starting with \"http:\/\/\"
  -> IO ()
 aboutDialogSetWebsite self website =
   withUTFString website $ \websitePtr ->
@@ -291,7 +291,7 @@ aboutDialogSetWebsite self website =
 
 -- | Returns the label used for the website link.
 --
-aboutDialogGetWebsiteLabel :: AboutDialogClass self => self -> IO String
+aboutDialogGetWebsiteLabel :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetWebsiteLabel self =
   {# call gtk_about_dialog_get_website_label #}
     (toAboutDialog self)
@@ -300,7 +300,7 @@ aboutDialogGetWebsiteLabel self =
 -- | Sets the label to be used for the website link. It defaults to the
 -- website URL.
 --
-aboutDialogSetWebsiteLabel :: AboutDialogClass self => self -> String -> IO ()
+aboutDialogSetWebsiteLabel :: (AboutDialogClass self, GlibString string) => self -> string -> IO ()
 aboutDialogSetWebsiteLabel self websiteLabel =
   withUTFString websiteLabel $ \websiteLabelPtr ->
   {# call gtk_about_dialog_set_website_label #}
@@ -310,8 +310,8 @@ aboutDialogSetWebsiteLabel self websiteLabel =
 -- | Sets the strings which are displayed in the authors tab of the secondary
 -- credits dialog.
 --
-aboutDialogSetAuthors :: AboutDialogClass self => self
- -> [String] -- ^ @authors@ - a list of author names
+aboutDialogSetAuthors :: (AboutDialogClass self, GlibString string) => self
+ -> [string] -- ^ @authors@ - a list of author names
  -> IO ()
 aboutDialogSetAuthors self authors =
   withUTFStringArray0 authors $ \authorsPtr ->
@@ -322,7 +322,7 @@ aboutDialogSetAuthors self authors =
 -- | Returns the string which are displayed in the authors tab of the
 -- secondary credits dialog.
 --
-aboutDialogGetAuthors :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetAuthors :: (AboutDialogClass self, GlibString string) => self -> IO [string]
 aboutDialogGetAuthors self =
   {# call gtk_about_dialog_get_authors #}
     (toAboutDialog self)
@@ -331,8 +331,8 @@ aboutDialogGetAuthors self =
 -- | Sets the strings which are displayed in the artists tab of the secondary
 -- credits dialog.
 --
-aboutDialogSetArtists :: AboutDialogClass self => self
- -> [String] -- ^ @artists@ - a list of artist names
+aboutDialogSetArtists :: (AboutDialogClass self, GlibString string) => self
+ -> [string] -- ^ @artists@ - a list of artist names
  -> IO ()
 aboutDialogSetArtists self artists =
   withUTFStringArray0 artists $ \artistsPtr ->
@@ -343,7 +343,7 @@ aboutDialogSetArtists self artists =
 -- | Returns the string which are displayed in the artists tab of the
 -- secondary credits dialog.
 --
-aboutDialogGetArtists :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetArtists :: (AboutDialogClass self, GlibString string) => self -> IO [string]
 aboutDialogGetArtists self =
   {# call gtk_about_dialog_get_artists #}
     (toAboutDialog self)
@@ -352,8 +352,8 @@ aboutDialogGetArtists self =
 -- | Sets the strings which are displayed in the documenters tab of the
 -- secondary credits dialog.
 --
-aboutDialogSetDocumenters :: AboutDialogClass self => self
- -> [String] -- ^ @artists@ - a list of documenter names
+aboutDialogSetDocumenters :: (AboutDialogClass self, GlibString string) => self
+ -> [string] -- ^ @artists@ - a list of documenter names
  -> IO ()
 aboutDialogSetDocumenters self documenters =
   withUTFStringArray0 documenters $ \documentersPtr ->
@@ -364,7 +364,7 @@ aboutDialogSetDocumenters self documenters =
 -- | Returns the string which are displayed in the documenters tab of the
 -- secondary credits dialog.
 --
-aboutDialogGetDocumenters :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetDocumenters :: (AboutDialogClass self, GlibString string) => self -> IO [string]
 aboutDialogGetDocumenters self =
   {# call gtk_about_dialog_get_documenters #}
     (toAboutDialog self)
@@ -373,7 +373,7 @@ aboutDialogGetDocumenters self =
 -- | Returns the translator credits string which is displayed in the
 -- translators tab of the secondary credits dialog.
 --
-aboutDialogGetTranslatorCredits :: AboutDialogClass self => self -> IO String
+aboutDialogGetTranslatorCredits :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetTranslatorCredits self =
   {# call gtk_about_dialog_get_translator_credits #}
     (toAboutDialog self)
@@ -385,7 +385,7 @@ aboutDialogGetTranslatorCredits self =
 -- The intended use for this string is to display the translator of the
 -- language which is currently used in the user interface.
 --
-aboutDialogSetTranslatorCredits :: AboutDialogClass self => self -> String -> IO ()
+aboutDialogSetTranslatorCredits :: (AboutDialogClass self, GlibString string) => self -> string -> IO ()
 aboutDialogSetTranslatorCredits self translatorCredits =
   withUTFString translatorCredits $ \translatorCreditsPtr ->
   {# call gtk_about_dialog_set_translator_credits #}
@@ -414,7 +414,7 @@ aboutDialogSetLogo self logo =
 
 -- | Returns the icon name displayed as logo in the about dialog.
 --
-aboutDialogGetLogoIconName :: AboutDialogClass self => self -> IO String
+aboutDialogGetLogoIconName :: (AboutDialogClass self, GlibString string) => self -> IO string
 aboutDialogGetLogoIconName self =
   {# call gtk_about_dialog_get_logo_icon_name #}
     (toAboutDialog self)
@@ -424,8 +424,8 @@ aboutDialogGetLogoIconName self =
 -- @Nothing@, the default window icon set with 'windowSetDefaultIcon' will be
 -- used.
 --
-aboutDialogSetLogoIconName :: AboutDialogClass self => self
- -> Maybe String -- ^ @iconName@ - an icon name, or @Nothing@
+aboutDialogSetLogoIconName :: (AboutDialogClass self, GlibString string) => self
+ -> Maybe string -- ^ @iconName@ - an icon name, or @Nothing@
  -> IO ()
 aboutDialogSetLogoIconName self iconName =
   maybeWith withUTFString iconName $ \iconNamePtr ->
@@ -438,8 +438,8 @@ aboutDialogSetLogoIconName self iconName =
 -- email link in an about dialog.
 --
 -- Removed in Gtk3.
-aboutDialogSetEmailHook :: 
-    (String -> IO ()) -- ^ @(\url -> ...)@ - a function to call when an email
+aboutDialogSetEmailHook ::
+    (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when an email
                       -- link is activated.
  -> IO ()
 aboutDialogSetEmailHook func = do
@@ -457,8 +457,8 @@ aboutDialogSetEmailHook func = do
 -- link in an about dialog.
 --
 -- Removed in Gtk3.
-aboutDialogSetUrlHook :: 
-    (String -> IO ()) -- ^ @(\url -> ...)@ - a function to call when a URL link
+aboutDialogSetUrlHook ::
+    (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when a URL link
                       -- is activated.
  -> IO ()
 aboutDialogSetUrlHook func = do
@@ -509,35 +509,35 @@ aboutDialogSetWrapLicense self wrapLicense =
 -- | The name of the program. If this is not set, it defaults to
 -- 'gGetApplicationName'.
 --
-aboutDialogName :: AboutDialogClass self => Attr self String
+aboutDialogName :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogName = newAttrFromStringProperty "name"
 
 -- | The name of the program. If this is not set, it defaults to
 -- 'gGetApplicationName'.
 --
 #if GTK_CHECK_VERSION(2,12,0)
-aboutDialogProgramName :: AboutDialogClass self => Attr self String
+aboutDialogProgramName :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogProgramName = newAttrFromStringProperty "program-name"
 #else
-aboutDialogProgramName :: AboutDialogClass self => Attr self String
+aboutDialogProgramName :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogProgramName = newAttrFromStringProperty "name"
 #endif
 
 -- | The version of the program.
 --
-aboutDialogVersion :: AboutDialogClass self => Attr self String
+aboutDialogVersion :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogVersion = newAttrFromStringProperty "version"
 
 -- | Copyright information for the program.
 --
-aboutDialogCopyright :: AboutDialogClass self => Attr self String
+aboutDialogCopyright :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogCopyright = newAttrFromStringProperty "copyright"
 
 -- | Comments about the program. This string is displayed in a label in the
 -- main dialog, thus it should be a short explanation of the main purpose of
 -- the program, not a detailed list of features.
 --
-aboutDialogComments :: AboutDialogClass self => Attr self String
+aboutDialogComments :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogComments = newAttrFromStringProperty "comments"
 
 -- | The license of the program. This string is displayed in a text view in a
@@ -548,26 +548,26 @@ aboutDialogComments = newAttrFromStringProperty "comments"
 --
 -- Default value: @Nothing@
 --
-aboutDialogLicense :: AboutDialogClass self => Attr self (Maybe String)
+aboutDialogLicense :: (AboutDialogClass self, GlibString string) => Attr self (Maybe string)
 aboutDialogLicense = newAttrFromMaybeStringProperty "license"
 
 -- | The URL for the link to the website of the program. This should be a
 -- string starting with \"http:\/\/.
 --
-aboutDialogWebsite :: AboutDialogClass self => Attr self String
+aboutDialogWebsite :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogWebsite = newAttrFromStringProperty "website"
 
 -- | The label for the link to the website of the program. If this is not set,
 -- it defaults to the URL specified in the website property.
 --
-aboutDialogWebsiteLabel :: AboutDialogClass self => Attr self String
+aboutDialogWebsiteLabel :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogWebsiteLabel = newAttrFromStringProperty "website-label"
 
 -- | The authors of the program. Each string may
 -- contain email addresses and URLs, which will be displayed as links, see the
 -- introduction for more details.
 --
-aboutDialogAuthors :: AboutDialogClass self => Attr self [String]
+aboutDialogAuthors :: (AboutDialogClass self, GlibString string) => Attr self [string]
 aboutDialogAuthors = newAttr
   aboutDialogGetAuthors
   aboutDialogSetAuthors
@@ -576,7 +576,7 @@ aboutDialogAuthors = newAttr
 -- Each string may contain email addresses and URLs, which will be displayed as
 -- links, see the introduction for more details.
 --
-aboutDialogDocumenters :: AboutDialogClass self => Attr self [String]
+aboutDialogDocumenters :: (AboutDialogClass self, GlibString string) => Attr self [string]
 aboutDialogDocumenters = newAttr
   aboutDialogGetDocumenters
   aboutDialogSetDocumenters
@@ -585,7 +585,7 @@ aboutDialogDocumenters = newAttr
 -- Each string may contain email addresses and URLs, which will be
 -- displayed as links, see the introduction for more details.
 --
-aboutDialogArtists :: AboutDialogClass self => Attr self [String]
+aboutDialogArtists :: (AboutDialogClass self, GlibString string) => Attr self [string]
 aboutDialogArtists = newAttr
   aboutDialogGetArtists
   aboutDialogSetArtists
@@ -594,7 +594,7 @@ aboutDialogArtists = newAttr
 -- The string may contain email addresses and URLs, which will be displayed as
 -- links, see the introduction for more details.
 --
-aboutDialogTranslatorCredits :: AboutDialogClass self => Attr self String
+aboutDialogTranslatorCredits :: (AboutDialogClass self, GlibString string) => Attr self string
 aboutDialogTranslatorCredits = newAttrFromStringProperty "translator-credits"
 
 -- | A logo for the about box. If this is not set, it defaults to
@@ -610,7 +610,7 @@ aboutDialogLogo = newAttr
 --
 -- Default value: @Nothing@
 --
-aboutDialogLogoIconName :: AboutDialogClass self => ReadWriteAttr self String (Maybe String)
+aboutDialogLogoIconName :: (AboutDialogClass self, GlibString string) => ReadWriteAttr self string (Maybe string)
 aboutDialogLogoIconName = newAttr
   aboutDialogGetLogoIconName
   aboutDialogSetLogoIconName

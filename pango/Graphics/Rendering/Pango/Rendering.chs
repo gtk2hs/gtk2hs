@@ -46,7 +46,7 @@ module Graphics.Rendering.Pango.Rendering (
   pangoItemGetFontMetrics,
   pangoItemGetFont,
   pangoItemGetLanguage,
-  
+
   -- * 'GlyphItem': Turn text segments into glyph sequences.
   GlyphItem,
   pangoShape,
@@ -61,6 +61,7 @@ module Graphics.Rendering.Pango.Rendering (
   ) where
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import Graphics.Rendering.Pango.Structs  ( pangoItemRawAnalysis, intToPu,
   pangoItemRawGetOffset, pangoItemRawGetLength,
   pangoItemGetFont, pangoItemGetLanguage)
@@ -79,7 +80,7 @@ import Graphics.Rendering.Pango.GlyphStorage
 --   and shaping engine. The generated list of items will be in logical order
 --   (the start offsets of the items are ascending).
 --
-pangoItemize :: PangoContext -> String -> [PangoAttribute] -> IO [PangoItem]
+pangoItemize :: GlibString string => PangoContext -> string -> [PangoAttribute] -> IO [PangoItem]
 pangoItemize pc str attrs = do
   ps <- makeNewPangoString str
   withAttrList ps attrs $ \alPtr -> do

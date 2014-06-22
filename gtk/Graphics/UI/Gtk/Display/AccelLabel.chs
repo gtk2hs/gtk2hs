@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Display.AccelLabel (
 -- * Detail
--- 
+--
 -- | The 'AccelLabel' widget is a subclass of 'Label' that also displays an
 -- accelerator key on the right of the label text, e.g. \'Ctl+S\'. It is
 -- commonly used in menus to show the keyboard short-cuts for commands.
@@ -42,7 +42,7 @@ module Graphics.UI.Gtk.Display.AccelLabel (
 -- 'accelLabelSetAccelWidget' is called with the 'MenuItem' as the second
 -- argument. The 'AccelLabel' will now display \'Ctl+S\' after its label.
 --
--- Note that creating a 'MenuItem' with 
+-- Note that creating a 'MenuItem' with
 -- 'Graphics.UI.Gtk.MenuComboToolbar.MenuItem.menuItemNewWithLabel' (or one of
 -- the similar functions for 'CheckMenuItem' and 'RadioMenuItem') automatically
 -- adds a 'AccelLabel' to the 'MenuItem' and calls 'accelLabelSetAccelWidget'
@@ -98,8 +98,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'AccelLabel'.
 --
-accelLabelNew :: 
-    String        -- ^ @string@ - the label string.
+accelLabelNew :: GlibString string
+ => string        -- ^ @string@ - the label string.
  -> IO AccelLabel
 accelLabelNew string =
   makeNewObject mkAccelLabel $

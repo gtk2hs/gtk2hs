@@ -114,7 +114,7 @@ module Graphics.UI.Gtk.Printing.PrintSettings (
 #endif
 
 -- * Attributes
-  printSettingsPrinter,  
+  printSettingsPrinter,
   printSettingsOrientation,
   printSettingsPaperSize,
   printSettingsUseColor,
@@ -196,7 +196,7 @@ printSettingsNewFromFile ::
 printSettingsNewFromFile fileName =
   wrapNewGObject mkPrintSettings $
   propagateGError $ \errorPtr ->
-  withUTFString fileName $ \fileNamePtr -> 
+  withUTFString fileName $ \fileNamePtr ->
   {# call gtk_print_settings_new_from_file #}
         fileNamePtr
         errorPtr
@@ -217,8 +217,8 @@ printSettingsCopy self =
 
 -- | Returns @True@, if a value is associated with @key@.
 --
-printSettingsHasKey :: PrintSettingsClass self => self
- -> String  -- ^ @key@ - a key
+printSettingsHasKey :: (PrintSettingsClass self, GlibString string) => self
+ -> string  -- ^ @key@ - a key
  -> IO Bool -- ^ returns @True@, if @key@ has a value
 printSettingsHasKey self key =
   liftM toBool $
@@ -229,9 +229,9 @@ printSettingsHasKey self key =
 
 -- | Looks up the string value associated with @key@.
 --
-printSettingsGet :: PrintSettingsClass self => self
- -> String    -- ^ @key@ - a key
- -> IO String -- ^ returns the string value for @key@
+printSettingsGet :: (PrintSettingsClass self, GlibString string) => self
+ -> string    -- ^ @key@ - a key
+ -> IO string -- ^ returns the string value for @key@
 printSettingsGet self key =
   withUTFString key $ \keyPtr ->
   {# call gtk_print_settings_get #}
@@ -241,9 +241,9 @@ printSettingsGet self key =
 
 -- | Associates @value@ with @key@.
 --
-printSettingsSet :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
- -> String -- ^ @value@ - a string value
+printSettingsSet :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
+ -> string -- ^ @value@ - a string value
  -> IO ()
 printSettingsSet self key value =
   withUTFString value $ \valuePtr ->
@@ -255,8 +255,8 @@ printSettingsSet self key value =
 
 -- | Removes any value associated with @key@
 --
-printSettingsUnset :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsUnset :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> IO ()
 printSettingsUnset self key =
   withUTFString key $ \keyPtr ->
@@ -280,17 +280,17 @@ printSettingsForeach self func = do
 
 {#pointer PrintSettingsFunc#}
 
-foreign import ccall "wrapper" mkPrintSettingsFunc :: 
+foreign import ccall "wrapper" mkPrintSettingsFunc ::
   (CString -> CString -> Ptr () -> IO ())
-  -> IO PrintSettingsFunc 
+  -> IO PrintSettingsFunc
 
 -- | Returns the boolean represented by the value that is associated with
 -- @key@.
 --
 -- The string \"true\" represents @True@, any other string @False@.
 --
-printSettingsGetBool :: PrintSettingsClass self => self
- -> String  -- ^ @key@ - a key
+printSettingsGetBool :: (PrintSettingsClass self, GlibString string) => self
+ -> string  -- ^ @key@ - a key
  -> IO Bool -- ^ returns @True@, if @key@ maps to a true value.
 printSettingsGetBool self key =
   liftM toBool $
@@ -301,8 +301,8 @@ printSettingsGetBool self key =
 
 -- | Sets @key@ to a boolean value.
 --
-printSettingsSetBool :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsSetBool :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> Bool   -- ^ @value@ - a boolean
  -> IO ()
 printSettingsSetBool self key value =
@@ -314,8 +314,8 @@ printSettingsSetBool self key value =
 
 -- | Returns the double value associated with @key@, or 0.
 --
-printSettingsGetDouble :: PrintSettingsClass self => self
- -> String    -- ^ @key@ - a key
+printSettingsGetDouble :: (PrintSettingsClass self, GlibString string) => self
+ -> string    -- ^ @key@ - a key
  -> IO Double -- ^ returns the double value of @key@
 printSettingsGetDouble self key =
   liftM realToFrac $
@@ -330,8 +330,8 @@ printSettingsGetDouble self key =
 --
 -- Floating point numbers are parsed with 'gAsciiStrtod'.
 --
-printSettingsGetDoubleWithDefault :: PrintSettingsClass self => self
- -> String    -- ^ @key@ - a key
+printSettingsGetDoubleWithDefault :: (PrintSettingsClass self, GlibString string) => self
+ -> string    -- ^ @key@ - a key
  -> Double    -- ^ @def@ - the default value
  -> IO Double -- ^ returns the floating point number associated with @key@
 printSettingsGetDoubleWithDefault self key def =
@@ -344,8 +344,8 @@ printSettingsGetDoubleWithDefault self key def =
 
 -- | Sets @key@ to a double value.
 --
-printSettingsSetDouble :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsSetDouble :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> Double -- ^ @value@ - a double value
  -> IO ()
 printSettingsSetDouble self key value =
@@ -358,8 +358,8 @@ printSettingsSetDouble self key value =
 -- | Returns the value associated with @key@, interpreted as a length. The
 -- returned value is converted to @units@.
 --
-printSettingsGetLength :: PrintSettingsClass self => self
- -> String    -- ^ @key@ - a key
+printSettingsGetLength :: (PrintSettingsClass self, GlibString string) => self
+ -> string    -- ^ @key@ - a key
  -> Unit      -- ^ @unit@ - the unit of the return value
  -> IO Double -- ^ returns the length value of @key@, converted to @unit@
 printSettingsGetLength self key unit =
@@ -372,8 +372,8 @@ printSettingsGetLength self key unit =
 
 -- | Associates a length in units of @unit@ with @key@.
 --
-printSettingsSetLength :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsSetLength :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> Double -- ^ @value@ - a length
  -> Unit   -- ^ @unit@ - the unit of @length@
  -> IO ()
@@ -387,8 +387,8 @@ printSettingsSetLength self key value unit =
 
 -- | Returns the integer value of @key@, or 0.
 --
-printSettingsGetInt :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsGetInt :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> IO Int -- ^ returns the integer value of @key@
 printSettingsGetInt self key =
   liftM fromIntegral $
@@ -400,8 +400,8 @@ printSettingsGetInt self key =
 -- | Returns the value of @key@, interpreted as an integer, or the default
 -- value.
 --
-printSettingsGetIntWithDefault :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsGetIntWithDefault :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> Int    -- ^ @def@ - the default value
  -> IO Int -- ^ returns the integer value of @key@
 printSettingsGetIntWithDefault self key def =
@@ -414,8 +414,8 @@ printSettingsGetIntWithDefault self key def =
 
 -- | Sets @key@ to an integer value.
 --
-printSettingsSetInt :: PrintSettingsClass self => self
- -> String -- ^ @key@ - a key
+printSettingsSetInt :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @key@ - a key
  -> Int    -- ^ @value@ - an integer
  -> IO ()
 printSettingsSetInt self key value =
@@ -426,16 +426,16 @@ printSettingsSetInt self key value =
     (fromIntegral value)
 
 -- | Convenience function to obtain the value of ''PrintSettingsPrinter''.
-printSettingsGetPrinter :: PrintSettingsClass self => self
- -> IO String -- ^ returns the printer name
+printSettingsGetPrinter :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the printer name
 printSettingsGetPrinter self =
   {# call gtk_print_settings_get_printer #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Convenience function to obtain the value of ''PrintSettingsPrinter''.
-printSettingsSetPrinter :: PrintSettingsClass self => self
- -> String -- ^ @printer@ - the printer name
+printSettingsSetPrinter :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @printer@ - the printer name
  -> IO ()
 printSettingsSetPrinter self printer =
   withUTFString printer $ \printerPtr ->
@@ -463,7 +463,7 @@ printSettingsSetOrientation self orientation =
 -- | Gets the value of 'PrintSettingsPaperFormat', converted to a 'PaperSize'.
 printSettingsGetPaperSize :: PrintSettingsClass self => self
  -> IO PaperSize -- ^ returns the paper size
-printSettingsGetPaperSize self = 
+printSettingsGetPaperSize self =
   {# call gtk_print_settings_get_paper_size #}
             (toPrintSettings self)
   >>= mkPaperSize . castPtr
@@ -773,7 +773,7 @@ printSettingsSetPrintPages self pages =
 -- | Gets the value of 'PrintSettingsPageRanges'.
 --
 -- printSettingsGetPageRanges :: PrintSettingsClass self => self
---  -> IO [PageRange]               -- ^ returns an array of 'PageRange'. 
+--  -> IO [PageRange]               -- ^ returns an array of 'PageRange'.
 -- printSettingsGetPageRanges self =
 --   alloca $ \numRangesPtr -> do
 --   rangeListPtr <- {# call gtk_print_settings_get_page_ranges #}
@@ -791,8 +791,8 @@ printSettingsSetPrintPages self pages =
 --  -> [PageRange]                  -- ^ @pageRanges@ - an array of 'PageRange'
 --  -> IO ()
 -- printSettingsSetPageRanges self rangeList =
---   withArrayLen (concatMap (\(PageRange x y) -> [fromIntegral x, fromIntegral y]) rangeList) 
---       $ \rangeLen rangeListPtr -> 
+--   withArrayLen (concatMap (\(PageRange x y) -> [fromIntegral x, fromIntegral y]) rangeList)
+--       $ \rangeLen rangeListPtr ->
 --           {# call gtk_print_settings_set_page_ranges #}
 --              (toPrintSettings self)
 --              (castPtr rangeListPtr)
@@ -816,16 +816,16 @@ printSettingsSetPageSet self pageSet =
     ((fromIntegral . fromEnum) pageSet)
 
 -- | Gets the value of 'PrintSettingsDefaultSource'.
-printSettingsGetDefaultSource :: PrintSettingsClass self => self
- -> IO String -- ^ returns the default source
+printSettingsGetDefaultSource :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the default source
 printSettingsGetDefaultSource self =
   {# call gtk_print_settings_get_default_source #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Sets the value of 'PrintSettingsDefaultSource'.
-printSettingsSetDefaultSource :: PrintSettingsClass self => self
- -> String -- ^ @defaultSource@ - the default source
+printSettingsSetDefaultSource :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @defaultSource@ - the default source
  -> IO ()
 printSettingsSetDefaultSource self defaultSource =
   withUTFString defaultSource $ \defaultSourcePtr ->
@@ -834,16 +834,16 @@ printSettingsSetDefaultSource self defaultSource =
     defaultSourcePtr
 
 -- | Gets the value of 'PrintSettingsMediaType'.
-printSettingsGetMediaType :: PrintSettingsClass self => self
- -> IO String -- ^ returns the media type
+printSettingsGetMediaType :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the media type
 printSettingsGetMediaType self =
   {# call gtk_print_settings_get_media_type #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Sets the value of 'PrintSettingsMediaType'.
-printSettingsSetMediaType :: PrintSettingsClass self => self
- -> String -- ^ @mediaType@ - the media type
+printSettingsSetMediaType :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @mediaType@ - the media type
  -> IO ()
 printSettingsSetMediaType self mediaType =
   withUTFString mediaType $ \mediaTypePtr ->
@@ -852,16 +852,16 @@ printSettingsSetMediaType self mediaType =
     mediaTypePtr
 
 -- | Gets the value of 'PrintSettingsDither'.
-printSettingsGetDither :: PrintSettingsClass self => self
- -> IO String -- ^ returns the dithering that is used
+printSettingsGetDither :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the dithering that is used
 printSettingsGetDither self =
   {# call gtk_print_settings_get_dither #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Sets the value of 'PrintSettingsDither'.
-printSettingsSetDither :: PrintSettingsClass self => self
- -> String -- ^ @dither@ - the dithering that is used
+printSettingsSetDither :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @dither@ - the dithering that is used
  -> IO ()
 printSettingsSetDither self dither =
   withUTFString dither $ \ditherPtr ->
@@ -870,16 +870,16 @@ printSettingsSetDither self dither =
     ditherPtr
 
 -- | Gets the value of 'PrintSettingsFinishings'.
-printSettingsGetFinishings :: PrintSettingsClass self => self
- -> IO String -- ^ returns the finishings
+printSettingsGetFinishings :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the finishings
 printSettingsGetFinishings self =
   {# call gtk_print_settings_get_finishings #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Sets the value of 'PrintSettingsFinishings'.
-printSettingsSetFinishings :: PrintSettingsClass self => self
- -> String -- ^ @finishings@ - the finishings
+printSettingsSetFinishings :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @finishings@ - the finishings
  -> IO ()
 printSettingsSetFinishings self finishings =
   withUTFString finishings $ \finishingsPtr ->
@@ -888,16 +888,16 @@ printSettingsSetFinishings self finishings =
     finishingsPtr
 
 -- | Gets the value of 'PrintSettingsOutputBin'.
-printSettingsGetOutputBin :: PrintSettingsClass self => self
- -> IO String -- ^ returns the output bin
+printSettingsGetOutputBin :: (PrintSettingsClass self, GlibString string) => self
+ -> IO string -- ^ returns the output bin
 printSettingsGetOutputBin self =
   {# call gtk_print_settings_get_output_bin #}
     (toPrintSettings self)
   >>= peekUTFString
 
 -- | Sets the value of 'PrintSettingsOutputBin'.
-printSettingsSetOutputBin :: PrintSettingsClass self => self
- -> String -- ^ @outputBin@ - the output bin
+printSettingsSetOutputBin :: (PrintSettingsClass self, GlibString string) => self
+ -> string -- ^ @outputBin@ - the output bin
  -> IO ()
 printSettingsSetOutputBin self outputBin =
   withUTFString outputBin $ \outputBinPtr ->
@@ -911,8 +911,8 @@ printSettingsSetOutputBin self outputBin =
 --
 -- * Available since Gtk+ version 2.14
 --
-printSettingsLoadFile :: PrintSettingsClass self => self
- -> String  -- ^ @fileName@ - the filename to read the settings from
+printSettingsLoadFile :: (PrintSettingsClass self, GlibString string) => self
+ -> string  -- ^ @fileName@ - the filename to read the settings from
  -> IO Bool -- ^ returns @True@ on success
 printSettingsLoadFile self fileName =
   liftM toBool $
@@ -930,8 +930,8 @@ printSettingsLoadFile self fileName =
 --
 -- * Available since Gtk+ version 2.12
 --
-printSettingsToFile :: PrintSettingsClass self => self
- -> String  -- ^ @fileName@ - the file to save to
+printSettingsToFile :: (PrintSettingsClass self, GlibString string) => self
+ -> string  -- ^ @fileName@ - the file to save to
  -> IO Bool -- ^ returns @True@ on success
 printSettingsToFile self fileName =
   liftM toBool $
@@ -944,7 +944,7 @@ printSettingsToFile self fileName =
 #endif
 
 -- | Obtain the value of 'PrintSettingsPrinter'.
-printSettingsPrinter :: PrintSettingsClass self => Attr self String
+printSettingsPrinter :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsPrinter = newAttr
   printSettingsGetPrinter
   printSettingsSetPrinter
@@ -1028,31 +1028,31 @@ printSettingsPageSet = newAttr
   printSettingsSetPageSet
 
 -- | The value of 'PrintSettingsDefaultSource'.
-printSettingsDefaultSource :: PrintSettingsClass self => Attr self String
+printSettingsDefaultSource :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsDefaultSource = newAttr
   printSettingsGetDefaultSource
   printSettingsSetDefaultSource
 
 -- | The value of 'PrintSettingsMediaType'.
-printSettingsMediaType :: PrintSettingsClass self => Attr self String
+printSettingsMediaType :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsMediaType = newAttr
   printSettingsGetMediaType
   printSettingsSetMediaType
 
 -- | The value of 'PrintSettingsDither'.
-printSettingsDither :: PrintSettingsClass self => Attr self String
+printSettingsDither :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsDither = newAttr
   printSettingsGetDither
   printSettingsSetDither
 
 -- | The value of 'PrintSettingsFinishings'.
-printSettingsFinishings :: PrintSettingsClass self => Attr self String
+printSettingsFinishings :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsFinishings = newAttr
   printSettingsGetFinishings
   printSettingsSetFinishings
 
 -- | The value of 'PrintSettingsOutputBin'.
-printSettingsOutputBin :: PrintSettingsClass self => Attr self String
+printSettingsOutputBin :: (PrintSettingsClass self, GlibString string) => Attr self string
 printSettingsOutputBin = newAttr
   printSettingsGetOutputBin
   printSettingsSetOutputBin

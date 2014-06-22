@@ -37,27 +37,27 @@ module Graphics.UI.Gtk.General.IconTheme (
 -- Icon Theme Specification. There is a default icon theme, named hicolor where applications should
 -- install their icons, but more additional application themes can be installed as operating system
 -- vendors and users choose.
--- 
+--
 -- Named icons are similar to the Themeable Stock Images facility, and the distinction between the
 -- two may be a bit confusing. A few things to keep in mind:
--- 
+--
 --   * Stock images usually are used in conjunction with Stock Items, such as ''StockOk'' or
 --     ''StockOpen''. Named icons are easier to set up and therefore are more useful for new icons
 --     that an application wants to add, such as application icons or window icons.
---    
+--
 --   * Stock images can only be loaded at the symbolic sizes defined by the 'IconSize' enumeration, or
 --     by custom sizes defined by 'iconSizeRegister', while named icons are more flexible and any
 --     pixel size can be specified.
---    
+--
 --   * Because stock images are closely tied to stock items, and thus to actions in the user interface,
 --     stock images may come in multiple variants for different widget states or writing directions.
---    
+--
 -- A good rule of thumb is that if there is a stock image for what you want to use, use it, otherwise
 -- use a named icon. It turns out that internally stock images are generally defined in terms of one or
 -- more named icons. (An example of the more than one case is icons that depend on writing direction;
 -- ''StockGoForward'' uses the two themed icons 'gtkStockGoForwardLtr' and
 -- 'gtkStockGoForwardRtl'.)
--- 
+--
 -- In many cases, named themes are used indirectly, via 'Image' or stock items, rather than directly,
 -- but looking up icons directly is also simple. The 'IconTheme' object acts as a database of all the
 -- icons in the current theme. You can create new 'IconTheme' objects, but its much more efficient to
@@ -186,7 +186,7 @@ iconThemeNew =
 iconThemeGetDefault ::
     IO IconTheme -- ^ returns A unique 'IconTheme' associated with the default
                  -- screen. This icon theme is associated with the screen and
-                 -- can be used as long as the screen is open. 
+                 -- can be used as long as the screen is open.
 iconThemeGetDefault =
   makeNewGObject mkIconTheme $
   {# call gtk_icon_theme_get_default #}
@@ -201,7 +201,7 @@ iconThemeGetDefault =
 iconThemeGetForScreen ::
     Screen       -- ^ @screen@ - a 'Screen'
  -> IO IconTheme -- ^ returns A unique 'IconTheme' associated with the given
-                 -- screen. 
+                 -- screen.
 iconThemeGetForScreen screen =
   makeNewGObject mkIconTheme $
   {# call gtk_icon_theme_get_for_screen #}
@@ -247,11 +247,11 @@ iconThemeSetSearchPath self path nElements =
 -- | Gets the current search path. See 'iconThemeSetSearchPath'.
 --
 iconThemeGetSearchPath :: IconThemeClass self => self
- -> IO ([FilePath], Int)         -- ^ @(path, nElements)@ 
+ -> IO ([FilePath], Int)         -- ^ @(path, nElements)@
                                 -- @path@ - location to store a list of icon theme path
-                                -- directories. 
+                                -- directories.
 iconThemeGetSearchPath self =
-  alloca $ \nElementsPtr -> 
+  alloca $ \nElementsPtr ->
   allocaArray 0 $ \pathPtr -> do
   {# call gtk_icon_theme_get_search_path #}
     (toIconTheme self)
@@ -288,8 +288,8 @@ iconThemePrependSearchPath self path =
 -- theme objects returned from 'iconThemeGetDefault' and
 -- 'iconThemeGetForScreen'.
 --
-iconThemeSetCustomTheme :: IconThemeClass self => self
- -> (Maybe String) -- ^ @themeName@ name of icon theme to use instead of configured theme, or 'Nothing' to unset a previously set custom theme
+iconThemeSetCustomTheme :: (IconThemeClass self, GlibString string) => self
+ -> (Maybe string) -- ^ @themeName@ name of icon theme to use instead of configured theme, or 'Nothing' to unset a previously set custom theme
  -> IO ()
 iconThemeSetCustomTheme self themeName =
   maybeWith withUTFString themeName $ \themeNamePtr ->
@@ -299,8 +299,8 @@ iconThemeSetCustomTheme self themeName =
 
 -- | Checks whether an icon theme includes an icon for a particular name.
 --
-iconThemeHasIcon :: IconThemeClass self => self
- -> String  -- ^ @iconName@ - the name of an icon
+iconThemeHasIcon :: (IconThemeClass self, GlibString string) => self
+ -> string  -- ^ @iconName@ - the name of an icon
  -> IO Bool -- ^ returns @True@ if @iconTheme@ includes an icon for
             -- @iconName@.
 iconThemeHasIcon self iconName =
@@ -315,14 +315,14 @@ iconThemeHasIcon self iconName =
 -- using 'iconInfoLoadIcon'. ('iconThemeLoadIcon' combines these two steps if
 -- all you need is the pixbuf.)
 --
-iconThemeLookupIcon :: IconThemeClass self => self
- -> String              -- ^ @iconName@ - the name of the icon to lookup
+iconThemeLookupIcon :: (IconThemeClass self, GlibString string) => self
+ -> string              -- ^ @iconName@ - the name of the icon to lookup
  -> Int                 -- ^ @size@ - desired icon size
  -> IconLookupFlags   -- ^ @flags@ - flags modifying the behavior of the
                         -- icon lookup
  -> IO (Maybe IconInfo)        -- ^ returns a 'IconInfo'
                         -- structure containing information about the icon, or
-                         -- 'Nothing' if the icon wasn't found. 
+                         -- 'Nothing' if the icon wasn't found.
 iconThemeLookupIcon self iconName size flags =
   withUTFString iconName $ \iconNamePtr -> do
   iiPtr <- {# call gtk_icon_theme_lookup_icon #}
@@ -330,7 +330,7 @@ iconThemeLookupIcon self iconName size flags =
           iconNamePtr
           (fromIntegral size)
           ((fromIntegral . fromEnum) flags)
-  if iiPtr == nullPtr 
+  if iiPtr == nullPtr
      then return Nothing
      else liftM Just (mkIconInfo (castPtr iiPtr))
 
@@ -345,14 +345,14 @@ iconThemeLookupIcon self iconName size flags =
 --
 -- * Available since Gtk+ version 2.12
 --
-iconThemeChooseIcon :: IconThemeClass self => self
- -> [String]              -- ^ @iconNames@ terminated list of icon names to lookup
+iconThemeChooseIcon :: (IconThemeClass self, GlibString string) => self
+ -> [string]              -- ^ @iconNames@ terminated list of icon names to lookup
  -> Int                 -- ^ @size@ - desired icon size
  -> IconLookupFlags   -- ^ @flags@ - flags modifying the behavior of the
                         -- icon lookup
  -> IO (Maybe IconInfo)        -- ^ returns a 'IconInfo'
                         -- structure containing information about the icon, or
-                         -- 'Nothing' if the icon wasn't found. 
+                         -- 'Nothing' if the icon wasn't found.
 iconThemeChooseIcon self iconNames size flags =
   withUTFStringArray0 iconNames $ \iconNamesPtr -> do
   iiPtr <- {# call gtk_icon_theme_choose_icon #}
@@ -360,7 +360,7 @@ iconThemeChooseIcon self iconNames size flags =
           iconNamesPtr
           (fromIntegral size)
           ((fromIntegral . fromEnum) flags)
-  if iiPtr == nullPtr 
+  if iiPtr == nullPtr
      then return Nothing
      else liftM Just (mkIconInfo (castPtr iiPtr))
 
@@ -379,14 +379,14 @@ iconThemeLookupByGIcon :: (IconThemeClass self, IconClass icon) => self
                         -- icon lookup
  -> IO (Maybe IconInfo)        -- ^ returns a 'IconInfo'
                         -- structure containing information about the icon, or
-                        -- 'Nothing' if the icon wasn't found. 
+                        -- 'Nothing' if the icon wasn't found.
 iconThemeLookupByGIcon self icon size flags = do
     iiPtr <- {# call gtk_icon_theme_lookup_by_gicon #}
             (toIconTheme self)
             (toIcon icon)
             (fromIntegral size)
             ((fromIntegral . fromEnum) flags)
-    if iiPtr == nullPtr 
+    if iiPtr == nullPtr
        then return Nothing
        else liftM Just (mkIconInfo (castPtr iiPtr))
 #endif
@@ -405,15 +405,15 @@ iconThemeLookupByGIcon self icon size flags = do
 -- of the pixbuf returned by this function. Otherwise Gtk+ may need to keep the
 -- old icon theme loaded, which would be a waste of memory.
 --
-iconThemeLoadIcon :: IconThemeClass self => self
- -> String            -- ^ @iconName@ - the name of the icon to lookup
+iconThemeLoadIcon :: (IconThemeClass self, GlibString string) => self
+ -> string            -- ^ @iconName@ - the name of the icon to lookup
  -> Int               -- ^ @size@ - the desired icon size. The resulting icon
                       -- may not be exactly this size; see 'iconInfoLoadIcon'.
  -> IconLookupFlags -- ^ @flags@ - flags modifying the behavior of the icon
                       -- lookup
  -> IO (Maybe Pixbuf)  -- ^ returns the rendered icon; this may be a newly
                       -- created icon or a new reference to an internal icon,
-                      -- so you must not modify the icon. 
+                      -- so you must not modify the icon.
                       -- `Nothing` if the icon isn't found.
 iconThemeLoadIcon self iconName size flags =
   maybeNull (wrapNewGObject mkPixbuf) $
@@ -432,14 +432,14 @@ iconThemeLoadIcon self iconName size flags =
 --
 -- * Available since Gtk+ version 2.12
 --
-iconThemeListContexts :: IconThemeClass self => self
- -> IO [String] -- ^ returns a String list
+iconThemeListContexts :: (IconThemeClass self, GlibString string) => self
+ -> IO [string] -- ^ returns a String list
                             -- holding the names of all the contexts in the
-                            -- theme. 
+                            -- theme.
 iconThemeListContexts self = do
   glistPtr <- {# call gtk_icon_theme_list_contexts #} (toIconTheme self)
   list <- fromGList glistPtr
-  result <- mapM readUTFString list       
+  result <- mapM readUTFString list
   {#call unsafe g_list_free #} (castPtr glistPtr)
   return result
 #endif
@@ -449,9 +449,9 @@ iconThemeListContexts self = do
 -- string is system dependent, but will typically include such values as
 -- \"Applications\" and \"MimeTypes\".
 --
-iconThemeListIcons :: IconThemeClass self => self
- -> (Maybe String) -- ^ @context@    a string identifying a particular type of icon, or 'Nothing' to list all icons.
- -> IO [String] -- ^ returns a String list
+iconThemeListIcons :: (IconThemeClass self, GlibString string) => self
+ -> (Maybe string) -- ^ @context@    a string identifying a particular type of icon, or 'Nothing' to list all icons.
+ -> IO [string] -- ^ returns a String list
                -- holding the names of all the icons in the theme.
 iconThemeListIcons self context =
   maybeWith withUTFString context $ \contextPtr -> do
@@ -459,7 +459,7 @@ iconThemeListIcons self context =
              (toIconTheme self)
              contextPtr
   list <- fromGList glistPtr
-  result <- mapM readUTFString list       
+  result <- mapM readUTFString list
   {#call unsafe g_list_free#} (castPtr glistPtr)
   return result
 
@@ -470,10 +470,10 @@ iconThemeListIcons self context =
 --
 -- * Available since Gtk+ version 2.6
 --
-iconThemeGetIconSizes :: IconThemeClass self => self
- -> String       -- ^ @iconName@ - the name of an icon
+iconThemeGetIconSizes :: (IconThemeClass self, GlibString string) => self
+ -> string       -- ^ @iconName@ - the name of an icon
  -> IO [Int] -- ^ returns An newly allocated list describing the sizes at
-            -- which the icon is available. 
+            -- which the icon is available.
 iconThemeGetIconSizes self iconName =
   withUTFString iconName $ \iconNamePtr -> do
   listPtr <- {# call gtk_icon_theme_get_icon_sizes #}
@@ -487,8 +487,8 @@ iconThemeGetIconSizes self iconName =
 -- | Gets the name of an icon that is representative of the current theme (for
 -- instance, to use when presenting a list of themes to the user.)
 --
-iconThemeGetExampleIconName :: IconThemeClass self => self
- -> IO (Maybe String)            -- ^ returns the name of an example icon or `Nothing'
+iconThemeGetExampleIconName :: (IconThemeClass self, GlibString string) => self
+ -> IO (Maybe string)            -- ^ returns the name of an example icon or `Nothing'
 iconThemeGetExampleIconName self = do
   namePtr <- {# call gtk_icon_theme_get_example_icon_name #} (toIconTheme self)
   if namePtr == nullPtr
@@ -518,8 +518,8 @@ iconThemeRescanIfNeeded self =
 -- This function will generally be used with pixbufs loaded via
 -- 'pixbufNewFromInline'.
 --
-iconThemeAddBuiltinIcon ::
-    String -- ^ @iconName@ - the name of the icon to register
+iconThemeAddBuiltinIcon :: GlibString string =>
+    string -- ^ @iconName@ - the name of the icon to register
  -> Int    -- ^ @size@ - the size at which to register the icon (different
            -- images can be registered for the same icon name at different
            -- sizes.)
@@ -548,7 +548,7 @@ foreign import ccall unsafe "&gtk_icon_info_free"
 
 -- | Helper function for build 'IconInfo'
 mkIconInfo :: Ptr IconInfo -> IO IconInfo
-mkIconInfo infoPtr = 
+mkIconInfo infoPtr =
   liftM IconInfo $ newForeignPtr infoPtr icon_info_free
 
 --------------------
@@ -558,7 +558,7 @@ mkIconInfo infoPtr =
 -- |
 --
 iconInfoNewForPixbuf :: IconThemeClass iconTheme => iconTheme -> Pixbuf -> IO IconInfo
-iconInfoNewForPixbuf iconTheme pixbuf = 
+iconInfoNewForPixbuf iconTheme pixbuf =
   {# call gtk_icon_info_new_for_pixbuf #}
           (toIconTheme iconTheme)
           pixbuf
@@ -571,7 +571,7 @@ iconInfoNewForPixbuf iconTheme pixbuf =
 -- |
 --
 iconInfoCopy :: IconInfo -> IO IconInfo
-iconInfoCopy self = 
+iconInfoCopy self =
   {# call gtk_icon_info_copy #} self
   >>= mkIconInfo
 
@@ -579,14 +579,14 @@ iconInfoCopy self =
 -- used as anchor points for attaching emblems or overlays to the icon.
 iconInfoGetAttachPoints :: IconInfo -> IO (Maybe [Point])
 iconInfoGetAttachPoints self =
-  alloca $ \arrPtrPtr -> 
+  alloca $ \arrPtrPtr ->
   alloca $ \nPointsPtr -> do
-  success <- liftM toBool $ 
+  success <- liftM toBool $
             {# call gtk_icon_info_get_attach_points #}
               self
               (castPtr arrPtrPtr)
               nPointsPtr
-  if success 
+  if success
      then do
        arrPtr <- peek arrPtrPtr
        nPoints <- peek nPointsPtr
@@ -599,16 +599,16 @@ iconInfoGetAttachPoints self =
 -- theme creator. This may be different than the actual size of image; an example of this is small
 -- emblem icons that can be attached to a larger icon. These icons will be given the same base size as
 -- the larger icons to which they are attached.
--- 
+--
 iconInfoGetBaseSize :: IconInfo -> IO Int
-iconInfoGetBaseSize self = 
+iconInfoGetBaseSize self =
   liftM fromIntegral $
   {# call gtk_icon_info_get_base_size #} self
 
 -- | Gets the built-in image for this icon, if any. To allow GTK+ to use built in icon images, you must
 -- pass the ''IconLookupUseBuiltin'' to 'iconThemeLookupIcon'.
-iconInfoGetBuiltinPixbuf :: IconInfo 
- -> IO (Maybe Pixbuf) -- ^ returns the built-in image pixbuf, or 'Nothing'. 
+iconInfoGetBuiltinPixbuf :: IconInfo
+ -> IO (Maybe Pixbuf) -- ^ returns the built-in image pixbuf, or 'Nothing'.
 iconInfoGetBuiltinPixbuf self = do
   pixbufPtr <- {# call gtk_icon_info_get_builtin_pixbuf #} self
   if pixbufPtr == nullPtr
@@ -617,19 +617,19 @@ iconInfoGetBuiltinPixbuf self = do
 
 -- | Gets the display name for an icon. A display name is a string to be used in place of the icon name
 -- in a user visible context like a list of icons.
-iconInfoGetDisplayName :: IconInfo 
- -> IO (Maybe String) -- ^ returns the display name for the icon or 'Nothing', if the icon doesn't have a specified display name. 
+iconInfoGetDisplayName :: GlibString string => IconInfo
+ -> IO (Maybe string) -- ^ returns the display name for the icon or 'Nothing', if the icon doesn't have a specified display name.
 iconInfoGetDisplayName self = do
   strPtr <- {# call gtk_icon_info_get_display_name #} self
-  if strPtr == nullPtr 
+  if strPtr == nullPtr
      then return Nothing
      else liftM Just $ peekUTFString strPtr
 
 -- | Gets the coordinates of a rectangle within the icon that can be used for display of information such
 -- as a preview of the contents of a text file. See 'iconInfoSetRawCoordinates' for further
 -- information about the coordinate system.
-iconInfoGetEmbeddedRect :: IconInfo 
- -> IO (Maybe Rectangle)  -- ^ @rectangle@ 'Rectangle' in which to store embedded 
+iconInfoGetEmbeddedRect :: IconInfo
+ -> IO (Maybe Rectangle)  -- ^ @rectangle@ 'Rectangle' in which to store embedded
                          -- rectangle coordinates.
 iconInfoGetEmbeddedRect self =
   alloca $ \rectPtr -> do
@@ -644,19 +644,19 @@ iconInfoGetEmbeddedRect self =
 -- | Gets the filename for the icon. If the ''IconLookupUseBuiltin'' flag was passed to
 -- 'iconThemeLookupIcon', there may be no filename if a builtin icon is returned; in this case,
 -- you should use 'iconInfoGetBuiltinPixbuf'.
-iconInfoGetFilename :: IconInfo 
- -> IO (Maybe String) -- ^ returns the filename for the icon, 
-                     -- or 'Nothing' if 'iconInfoGetBuiltinPixbuf' should be used instead. 
+iconInfoGetFilename :: GlibString string => IconInfo
+ -> IO (Maybe string) -- ^ returns the filename for the icon,
+                     -- or 'Nothing' if 'iconInfoGetBuiltinPixbuf' should be used instead.
 iconInfoGetFilename self = do
   namePtr <- {# call gtk_icon_info_get_filename #} self
   if namePtr == nullPtr
-     then return Nothing 
+     then return Nothing
      else liftM Just $ peekUTFString namePtr
 
 -- | Looks up an icon in an icon theme, scales it to the given size and renders it into a pixbuf. This is
 -- a convenience function; if more details about the icon are needed, use 'iconThemeLookupIcon'
 -- followed by 'iconInfoLoadIcon'.
--- 
+--
 -- Note that you probably want to listen for icon theme changes and update the icon. This is usually
 -- done by connecting to the 'styleSet' signal. If for some reason you do not want to update
 -- the icon when the icon theme changes, you should consider using 'pixbufCopy' to make a private
@@ -673,17 +673,17 @@ iconInfoLoadIcon self =
 -- | Sets whether the coordinates returned by 'iconInfoGetEmbeddedRect' and
 -- 'iconInfoGetAttachPoints' should be returned in their original form as specified in the icon
 -- theme, instead of scaled appropriately for the pixbuf returned by 'iconInfoLoadIcon'.
--- 
+--
 -- Raw coordinates are somewhat strange; they are specified to be with respect to the unscaled pixmap
 -- for PNG and XPM icons, but for SVG icons, they are in a 1000x1000 coordinate space that is scaled to
 -- the final size of the icon. You can determine if the icon is an SVG icon by using
 -- 'iconInfoGetFilename', and seeing if it is non-'Nothing' and ends in '.svg'.
--- 
+--
 -- This function is provided primarily to allow compatibility wrappers for older API's, and is not
 -- expected to be useful for applications.
-iconInfoSetRawCoordinates :: IconInfo 
- -> Bool  -- ^ @rawCoordinates@ whether the coordinates of 
-         -- embedded rectangles and attached points should be returned in their original   
+iconInfoSetRawCoordinates :: IconInfo
+ -> Bool  -- ^ @rawCoordinates@ whether the coordinates of
+         -- embedded rectangles and attached points should be returned in their original
  -> IO ()
 iconInfoSetRawCoordinates self rawCoordinates =
   {# call gtk_icon_info_set_raw_coordinates #}

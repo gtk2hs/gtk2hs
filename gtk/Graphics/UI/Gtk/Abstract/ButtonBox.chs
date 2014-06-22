@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.ButtonBox (
 -- * Detail
--- 
+--
 -- | The primary purpose of this class is to keep track of the various
 -- properties of 'HButtonBox' and 'VButtonBox' widgets.
 --
@@ -77,12 +77,19 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
 #if GTK_CHECK_VERSION(2,4,0)
   buttonBoxGetChildSecondary,
 #endif
+#if GTK_CHECK_VERSION(3,2,0)
+  buttonBoxSetChildNonHomogeneous,
+  buttonBoxGetChildNonHomogeneous,
+#endif
 
 -- * Attributes
   buttonBoxLayoutStyle,
 
 -- * Child Attributes
   buttonBoxChildSecondary,
+#if GTK_CHECK_VERSION(3,2,0)
+  buttonBoxChildNonHomogeneous,
+#endif
   ) where
 
 import Control.Monad (liftM)
@@ -118,6 +125,31 @@ buttonBoxGetChildSecondary :: (ButtonBoxClass self, WidgetClass child) => self
 buttonBoxGetChildSecondary self child =
   liftM toBool $
   {# call gtk_button_box_get_child_secondary #}
+    (toButtonBox self)
+    (toWidget child)
+#endif
+
+#if GTK_CHECK_VERSION(3,2,0)
+-- | Sets whether the child is exempted from homogeous sizing.
+--
+buttonBoxSetChildNonHomogeneous :: (ButtonBoxClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - a child of the button box widget
+ -> Bool  -- ^ @nonHomogeneous@
+ -> IO ()
+buttonBoxSetChildNonHomogeneous self child nonHomogeneous =
+  {# call gtk_button_box_set_child_non_homogeneous #}
+    (toButtonBox self)
+    (toWidget child)
+    (fromBool nonHomogeneous)
+
+-- | Returns whether the child is exempted from homogenous sizing.
+--
+buttonBoxGetChildNonHomogeneous :: (ButtonBoxClass self, WidgetClass child) => self
+ -> child   -- ^ @child@ - a child of the button box widget
+ -> IO Bool
+buttonBoxGetChildNonHomogeneous self child =
+  liftM toBool $
+  {# call gtk_button_box_get_child_non_homogeneous #}
     (toButtonBox self)
     (toWidget child)
 #endif
@@ -178,3 +210,12 @@ buttonBoxLayoutStyle = newAttr
 --
 buttonBoxChildSecondary :: (ButtonBoxClass self, WidgetClass child) => child -> Attr self Bool
 buttonBoxChildSecondary = newAttrFromContainerChildBoolProperty "secondary"
+
+#if GTK_CHECK_VERSION(3,2,0)
+-- | If @True@, the child will not be subject to homogeneous sizing.
+--
+-- Default value: @False@
+--
+buttonBoxChildNonHomogeneous :: (ButtonBoxClass self, WidgetClass child) => child -> Attr self Bool
+buttonBoxChildNonHomogeneous = newAttrFromContainerChildBoolProperty "non-homogeneous"
+#endif

@@ -37,7 +37,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.Menu (
 -- * Detail
--- 
+--
 -- | A 'Menu' is a 'MenuShell' that implements a drop down menu consisting of
 -- a list of 'MenuItem' objects which can be navigated and activated by the
 -- user to perform application functions.
@@ -157,7 +157,7 @@ menuReorderChild self child position =
     (toWidget child)
     (fromIntegral position)
 
--- | Popup a context menu where a button press occurred. 
+-- | Popup a context menu where a button press occurred.
 --
 -- * This function must be called in response to a button click. It opens
 --   the given menu at a place determined by the last emitted event (hence
@@ -232,8 +232,8 @@ menuGetAccelGroup self =
 -- accelerators at runtime. More details about accelerator paths and their
 -- default setups can be found at 'accelMapAddEntry'.
 --
-menuSetAccelPath :: MenuClass self => self
- -> String -- ^ @accelPath@ - a valid accelerator path
+menuSetAccelPath :: (MenuClass self, GlibString string) => self
+ -> string -- ^ @accelPath@ - a valid accelerator path
  -> IO ()
 menuSetAccelPath self accelPath =
   withUTFString accelPath $ \accelPathPtr ->
@@ -244,7 +244,7 @@ menuSetAccelPath self accelPath =
 -- | Sets the title string for the menu. The title is displayed when the menu
 -- is shown as a tearoff menu.
 --
-menuSetTitle :: MenuClass self => self -> String -> IO ()
+menuSetTitle :: (MenuClass self, GlibString string) => self -> string -> IO ()
 menuSetTitle self title =
   withUTFString title $ \titlePtr ->
   {# call unsafe menu_set_title #}
@@ -253,8 +253,8 @@ menuSetTitle self title =
 
 -- | Returns the title of the menu. See 'menuSetTitle'.
 --
-menuGetTitle :: MenuClass self => self
- -> IO (Maybe String) -- ^ returns the title of the menu, or @Nothing@ if the
+menuGetTitle :: (MenuClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns the title of the menu, or @Nothing@ if the
                       -- menu has no title set on it.
 menuGetTitle self =
   {# call unsafe menu_get_title #}
@@ -344,7 +344,7 @@ menuDetach self =
 menuGetAttachWidget :: MenuClass self => self -> IO (Maybe Widget)
 menuGetAttachWidget self = do
   wPtr <- {#call unsafe menu_get_attach_widget#} (toMenu self)
-  if wPtr==nullPtr then return Nothing else liftM Just $ 
+  if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkWidget (return wPtr)
 
 #if GTK_CHECK_VERSION(2,2,0)
@@ -412,7 +412,7 @@ menuAttach self child leftAttach rightAttach topAttach bottomAttach =
 --
 -- * Available since Gtk+ version 2.6
 --
-menuGetForAttachWidget :: WidgetClass widget => 
+menuGetForAttachWidget :: WidgetClass widget =>
     widget                  -- ^ @widget@ - a 'Widget'
  -> IO [Menu]
 menuGetForAttachWidget widget =
@@ -430,7 +430,7 @@ menuGetForAttachWidget widget =
 --
 -- Default value: \"\"
 --
-menuTitle :: MenuClass self => Attr self String
+menuTitle :: (MenuClass self, GlibString string) => Attr self string
 menuTitle = newAttrFromStringProperty "tearoff-title"
 
 #if GTK_CHECK_VERSION(2,6,0)

@@ -42,16 +42,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup (
 -- |               +----'Container'
 -- |                     +----'ToolItemGroup'
 -- @
-  
+
 #if GTK_CHECK_VERSION(2,20,0)
--- * Types  
+-- * Types
   ToolItemGroup,
   ToolItemGroupClass,
   castToToolItemGroup,
   toToolItemGroup,
 
 -- * Constructors
-  toolItemGroupNew,  
+  toolItemGroupNew,
 
 -- * Methods
   toolItemGroupGetDropItem,
@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup (
   toolItemGroupGetNthItem,
   toolItemGroupInsert,
   toolItemGroupSetItemPosition,
-  
+
 -- * Attributes
   toolItemGroupCollapsed,
   toolItemGroupEllipsize,
@@ -97,12 +97,12 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 -- * Available since Gtk+ version 2.20
 --
-toolItemGroupNew :: String -- ^ @label@   the label of the new group 
-                 -> IO ToolItemGroup -- ^ returns a new 'ToolItemGroup'.    
+toolItemGroupNew :: GlibString string => string -- ^ @label@   the label of the new group
+                 -> IO ToolItemGroup -- ^ returns a new 'ToolItemGroup'.
 toolItemGroupNew label =
   makeNewObject mkToolItemGroup $
   liftM (castPtr :: Ptr Widget -> Ptr ToolItemGroup) $
-  withUTFString label $ \ labelPtr -> 
+  withUTFString label $ \ labelPtr ->
     {#call gtk_tool_item_group_new #}
       labelPtr
 
@@ -113,7 +113,7 @@ toolItemGroupNew label =
 toolItemGroupGetDropItem :: ToolItemGroupClass self => self
                          -> (Int, Int)
                          -> IO ToolItem
-toolItemGroupGetDropItem group (x, y) = 
+toolItemGroupGetDropItem group (x, y) =
   makeNewObject mkToolItem $
   {#call gtk_tool_item_group_get_drop_item #}
     (toToolItemGroup group)
@@ -125,9 +125,9 @@ toolItemGroupGetDropItem group (x, y) =
 -- * Available since Gtk+ version 2.20
 --
 toolItemGroupGetItemPosition :: (ToolItemGroupClass group, ToolItemClass item)
-                               => group -- ^ @group@   a 'ToolItemGroup'                                            
-                               -> item -- ^ @item@    a 'ToolItem'                                                 
-                               -> IO Int -- ^ returns the index of item in group or -1 if item is no child of group 
+                               => group -- ^ @group@   a 'ToolItemGroup'
+                               -> item -- ^ @item@    a 'ToolItem'
+                               -> IO Int -- ^ returns the index of item in group or -1 if item is no child of group
 toolItemGroupGetItemPosition group item =
     liftM fromIntegral $
     {#call gtk_tool_item_group_get_item_position #}
@@ -139,7 +139,7 @@ toolItemGroupGetItemPosition group item =
 -- * Available since Gtk+ version 2.20
 --
 toolItemGroupGetNItems :: ToolItemGroupClass group => group
-                       -> IO Int -- ^ returns the number of tool items in group 
+                       -> IO Int -- ^ returns the number of tool items in group
 toolItemGroupGetNItems group =
     liftM fromIntegral $
     {#call gtk_tool_item_group_get_n_items #}
@@ -150,8 +150,8 @@ toolItemGroupGetNItems group =
 -- * Available since Gtk+ version 2.20
 --
 toolItemGroupGetNthItem :: ToolItemGroupClass group => group
-                        -> Int  -- ^ @index@   the index                
-                        -> IO ToolItem  -- ^ returns the 'ToolItem' at index 
+                        -> Int  -- ^ @index@   the index
+                        -> IO ToolItem  -- ^ returns the 'ToolItem' at index
 toolItemGroupGetNthItem group index =
   makeNewObject mkToolItem $
   {#call gtk_tool_item_group_get_nth_item #}
@@ -162,10 +162,10 @@ toolItemGroupGetNthItem group index =
 --
 -- * Available since Gtk+ version 2.20
 --
-toolItemGroupInsert :: (ToolItemGroupClass group, ToolItemClass item) 
+toolItemGroupInsert :: (ToolItemGroupClass group, ToolItemClass item)
                      => group -- ^ @group@    a 'ToolItemGroup'
                      -> item -- ^ @item@     the 'ToolItem' to insert into group
-                     -> Int -- ^ @position@ the position of item in group, starting with 0. 
+                     -> Int -- ^ @position@ the position of item in group, starting with 0.
                            -- The position -1 means end of list.
                      -> IO ()
 toolItemGroupInsert group item position =
@@ -183,14 +183,14 @@ toolItemGroupSetItemPosition :: (ToolItemGroupClass group, ToolItemClass item)
                                -> item -- ^ @item@     the 'ToolItem' to move to a new position, should be a child of group.
                                -> Int  -- ^ @position@ the new position of item in group, starting with 0. The position -1 means end of list.
                                -> IO ()
-toolItemGroupSetItemPosition group item position = 
+toolItemGroupSetItemPosition group item position =
   {#call gtk_tool_item_group_set_item_position #}
     (toToolItemGroup group)
     (toToolItem item)
     (fromIntegral position)
 
 -- | Wether the group has been collapsed and items are hidden.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.20
@@ -200,7 +200,7 @@ toolItemGroupCollapsed =
   newAttrFromBoolProperty "collapsed"
 
 -- | Ellipsize for item group headers.
--- 
+--
 -- Default value: EllipsizeNone
 --
 -- * Available since Gtk+ version 2.20
@@ -211,7 +211,7 @@ toolItemGroupEllipsize =
      {# call pure unsafe pango_ellipsize_mode_get_type #}
 
 -- | Relief of the group header button.
--- 
+--
 -- Default value: 'ReliefNormal'
 --
 -- * Available since Gtk+ version 2.20
@@ -222,12 +222,12 @@ toolItemGroupHeaderRelief =
      {# call pure unsafe gtk_relief_style_get_type #}
 
 -- | The human-readable title of this item group.
--- 
+--
 -- Default value: \"\"
 --
 -- * Available since Gtk+ version 2.20
 --
-toolItemGroupLabel :: ToolItemGroupClass group => Attr group String
+toolItemGroupLabel :: GlibString string => ToolItemGroupClass group => Attr group string
 toolItemGroupLabel =
   newAttrFromStringProperty "label"
 
@@ -241,7 +241,7 @@ toolItemGroupLabelWidget =
       {# call pure unsafe gtk_widget_get_type #}
 
 -- | Whether the item should receive extra space when the group grows.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.20
@@ -251,7 +251,7 @@ toolItemGroupChildExpand =
   newAttrFromBoolProperty "expand"
 
 -- | Whether the item should fill the available space.
--- 
+--
 -- Default value: 'True'
 --
 -- * Available since Gtk+ version 2.20
@@ -261,7 +261,7 @@ toolItemGroupChildFill =
   newAttrFromBoolProperty "fill"
 
 -- | Whether the item should be the same size as other homogeneous items.
--- 
+--
 -- Default value: 'True'
 --
 -- * Available since Gtk+ version 2.20
@@ -271,7 +271,7 @@ toolItemGroupChildHomogeneous =
   newAttrFromBoolProperty "homogeneous"
 
 -- | Whether the item should start a new row.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.20
@@ -281,9 +281,9 @@ toolItemGroupChildNewRow =
   newAttrFromBoolProperty "new-row"
 
 -- | Position of the item within this group.
--- 
+--
 -- Allowed values: >= 0
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.20

@@ -31,7 +31,6 @@
 -- Portability : portable (depends on GHC)
 --
 module Graphics.Rendering.Pango.Structs (
-  Markup,
   PangoUnit,
   Color(..),
   Rectangle(..),
@@ -66,14 +65,7 @@ import System.Glib.GObject		(makeNewGObject)
 import Graphics.Rendering.Pango.Types
 import Graphics.Rendering.Pango.BasicTypes
 
--- | Define a synonym for text with embedded markup commands.
---
--- * Markup strings are just simple strings. But it's easier to tell if a
---   method expects text with or without markup.
---
-type Markup = String
-
--- A pango unit is an internal euclidian metric, that is, a measure for 
+-- A pango unit is an internal euclidian metric, that is, a measure for
 -- lengths and position.
 --
 -- * Deprecated. Replaced by Double.
@@ -342,7 +334,7 @@ data PangoAttribute
   --
   -- * Available in Pango 1.6.0 and higher.
   --
-  | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
+  | AttrLetterSpacing { paStart :: Int, paEnd :: Int,
 			paLetterSpacing :: Double }
 #endif
 #if PANGO_VERSION_CHECK(1,16,0)
@@ -355,14 +347,14 @@ data PangoAttribute
   --
   -- * Available in Pango 1.16.0 and higher.
   --
-  | AttrGravity { paStart :: Int, paEnd :: Int, 
+  | AttrGravity { paStart :: Int, paEnd :: Int,
 			paGravity :: PangoGravity }
 
 	-- | Set the way horizontal scripts behave in a vertical context.
   --
   -- * Available in Pango 1.16.0 and higher.
   --
-	| AttrGravityHint  { paStart :: Int, paEnd :: Int, 
+	| AttrGravityHint  { paStart :: Int, paEnd :: Int,
 			paGravityHint :: PangoGravityHint }
 #endif
   deriving Show

@@ -35,7 +35,7 @@
 --
 module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
 -- * Detail
--- 
+--
 -- | A 'RadioAction' is similar to 'RadioMenuItem'. A number of radio actions
 -- can be linked together so that only one may be active at any one time.
 
@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
 
 -- * Signals
   radioActionChanged,
-  
+
 #ifndef DISABLE_DEPRECATED
 -- * Deprecated
   onRadioActionChanged,
@@ -103,11 +103,11 @@ import Graphics.UI.Gtk.General.StockItems
 -- and set the accelerator for the action, call
 -- 'Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup.actionGroupAddActionWithAccel'.
 --
-radioActionNew :: 
-    String         -- ^ @name@ - A unique name for the action
- -> String         -- ^ @label@ - The label displayed in menu items and on
+radioActionNew :: GlibString string
+ => string         -- ^ @name@ - A unique name for the action
+ -> string         -- ^ @label@ - The label displayed in menu items and on
                    -- buttons
- -> Maybe String   -- ^ @tooltip@ - A tooltip for this action
+ -> Maybe string   -- ^ @tooltip@ - A tooltip for this action
  -> Maybe StockId  -- ^ @stockId@ - The stock icon to display in widgets
                    -- representing this action
  -> Int            -- ^ @value@ - The value which 'radioActionGetCurrentValue'

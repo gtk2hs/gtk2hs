@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Buttons.CheckButton (
 -- * Detail
--- 
+--
 -- | A 'CheckButton' places a discrete 'ToggleButton' next to a widget,
 -- (usually a 'Label'). See the section on 'ToggleButton' widgets for more
 -- information about toggle\/check buttons.
@@ -82,8 +82,8 @@ checkButtonNew =
 
 -- | Creates a new 'CheckButton' with a 'Label' to the right of it.
 --
-checkButtonNewWithLabel :: 
-    String         -- ^ @label@ - the text for the check button.
+checkButtonNewWithLabel :: GlibString string
+ => string         -- ^ @label@ - the text for the check button.
  -> IO CheckButton
 checkButtonNewWithLabel label =
   makeNewObject mkCheckButton $
@@ -96,8 +96,8 @@ checkButtonNewWithLabel label =
 -- using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so underscores
 -- in @label@ indicate the mnemonic for the check button.
 --
-checkButtonNewWithMnemonic :: 
-    String         -- ^ @label@ - The text of the button, with an underscore
+checkButtonNewWithMnemonic :: GlibString string
+ => string         -- ^ @label@ - The text of the button, with an underscore
                    -- in front of the mnemonic character
  -> IO CheckButton
 checkButtonNewWithMnemonic label =

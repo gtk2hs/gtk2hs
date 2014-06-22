@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 -- * Detail
--- 
+--
 -- | 'FileChooserWidget' is a widget suitable for selecting files. It is the
 -- main building block of a 'FileChooserDialog'. Most applications will only
 -- need to use the latter; you can use 'FileChooserWidget' as part of a larger
@@ -89,7 +89,7 @@ instance FileChooserClass FileChooserWidget
 -- be embedded in custom windows, and it is the same widget that is used by
 -- 'FileChooserDialog'.
 --
-fileChooserWidgetNew :: 
+fileChooserWidgetNew ::
     FileChooserAction    -- ^ @action@ - Open or save mode for the widget
  -> IO FileChooserWidget
 fileChooserWidgetNew action =
@@ -105,7 +105,7 @@ fileChooserWidgetNew action =
 -- and it is the same widget that is used by 'FileChooserDialog'.
 --
 -- Removed in Gtk3.
-fileChooserWidgetNewWithBackend :: 
+fileChooserWidgetNewWithBackend ::
     FileChooserAction    -- ^ @action@ - Open or save mode for the widget
  -> String               -- ^ @backend@ - The name of the specific filesystem
                          -- backend to use.

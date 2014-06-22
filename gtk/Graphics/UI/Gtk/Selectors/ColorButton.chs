@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Selectors.ColorButton (
 -- * Detail
--- 
+--
 -- | The 'ColorButton' is a button which displays the currently selected color
 -- an allows to open a color selection dialog to change the color. It is
 -- suitable widget for selecting a color in a preference dialog.
@@ -108,7 +108,7 @@ colorButtonNew =
 
 -- | Creates a new color button.
 --
-colorButtonNewWithColor :: 
+colorButtonNewWithColor ::
     Color          -- ^ @color@ - A 'Color' to set the current color with.
  -> IO ColorButton
 colorButtonNewWithColor color =
@@ -185,8 +185,8 @@ colorButtonGetUseAlpha self =
 
 -- | Sets the title for the color selection dialog.
 --
-colorButtonSetTitle :: ColorButtonClass self => self
- -> String -- ^ @title@ - String containing new window title.
+colorButtonSetTitle :: (ColorButtonClass self, GlibString string) => self
+ -> string -- ^ @title@ - String containing new window title.
  -> IO ()
 colorButtonSetTitle self title =
   withUTFString title $ \titlePtr ->
@@ -196,8 +196,8 @@ colorButtonSetTitle self title =
 
 -- | Gets the title of the color selection dialog.
 --
-colorButtonGetTitle :: ColorButtonClass self => self
- -> IO String -- ^ returns An internal string, do not free the return value
+colorButtonGetTitle :: (ColorButtonClass self, GlibString string) => self
+ -> IO string -- ^ returns An internal string, do not free the return value
 colorButtonGetTitle self =
   {# call gtk_color_button_get_title #}
     (toColorButton self)
@@ -221,7 +221,7 @@ colorButtonUseAlpha = newAttr
 --
 -- Default value: \"Pick a Color\"
 --
-colorButtonTitle :: ColorButtonClass self => Attr self String
+colorButtonTitle :: (ColorButtonClass self, GlibString string) => Attr self string
 colorButtonTitle = newAttr
   colorButtonGetTitle
   colorButtonSetTitle

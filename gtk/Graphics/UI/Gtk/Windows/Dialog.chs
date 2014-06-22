@@ -25,13 +25,13 @@
 -- Portability : portable (depends on GHC)
 --
 -- Create popup windows
--- 
--- NOTE: 
+--
+-- NOTE:
 --     Now FFI haven't support variadic function `gtk_dialog_set_alternative_button_order`
 --
 module Graphics.UI.Gtk.Windows.Dialog (
 -- * Detail
--- 
+--
 -- | Dialog boxes are a convenient way to prompt the user for a small amount
 -- of input, e.g. to display a message, ask a question, or anything else that
 -- does not require extensive effort on the user's part.
@@ -69,7 +69,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- recursive main loop and waits for the user to respond to the dialog,
 -- returning the response ID corresponding to the button the user clicked.
 --
--- For a simple message box, you probably want to use 
+-- For a simple message box, you probably want to use
 -- 'Graphics.UI.Gtk.Windows.MessageDialog.MessageDialog' which provides
 -- convenience functions
 -- for creating standard dialogs containing simple messages to inform
@@ -235,8 +235,8 @@ dialogResponse self responseId =
 -- the end of the dialog's action area. The button widget is returned, but
 -- usually you don't need it.
 --
-dialogAddButton :: DialogClass self => self
- -> String     -- ^ @buttonText@ - text of button, or stock ID
+dialogAddButton :: (DialogClass self, GlibString string) => self
+ -> string     -- ^ @buttonText@ - text of button, or stock ID
  -> ResponseId -- ^ @responseId@ - response ID for the button
  -> IO Button  -- ^ returns the button widget that was added
 dialogAddButton self buttonText responseId =
@@ -316,30 +316,30 @@ dialogSetResponseSensitive self responseId setting =
 
 -- | Gets the response id of a widget in the action area of a dialog.
 dialogGetResponseForWidget :: (DialogClass self, WidgetClass widget) => self
- -> widget  -- ^ @widget@ - a widget in the action area of dialog                                                     
- -> IO ResponseId  -- ^ return the response id of widget, or 'ResponseNone' if widget doesn't have a response id set. 
+ -> widget  -- ^ @widget@ - a widget in the action area of dialog
+ -> IO ResponseId  -- ^ return the response id of widget, or 'ResponseNone' if widget doesn't have a response id set.
 dialogGetResponseForWidget self widget = liftM toResponse $
   {# call dialog_get_response_for_widget #}
     (toDialog self)
     (toWidget widget)
 
--- | Returns @True@ if dialogs are expected to use an alternative button order on the screen screen. 
+-- | Returns @True@ if dialogs are expected to use an alternative button order on the screen screen.
 -- See 'dialogSetAlternativeButtonOrder' for more details about alternative button order.
 --
 -- If you need to use this function, you should probably connect to the 'alternativeButtonOrder' signal on the GtkSettings object associated to  screen, in order to be notified if the button order setting changes.
 --
 -- * Available since Gtk+ version 2.6
 --
-dialogAlternativeDialogButtonOrder :: 
-   Maybe Screen  -- ^ @screen@ - a 'Screen', or @Nothing@ to use the default screen      
- -> IO Bool   -- ^ returns whether the alternative button order should be used 
+dialogAlternativeDialogButtonOrder ::
+   Maybe Screen  -- ^ @screen@ - a 'Screen', or @Nothing@ to use the default screen
+ -> IO Bool   -- ^ returns whether the alternative button order should be used
 dialogAlternativeDialogButtonOrder (Just screen) = liftM toBool $
   {# call alternative_dialog_button_order #} screen
 dialogAlternativeDialogButtonOrder Nothing = liftM toBool $
   {# call alternative_dialog_button_order #} (Screen nullForeignPtr)
 
 -- | Sets an alternative button order.
---  
+--
 -- If the 'alternativeButtonOrder' setting is set to @True@, the dialog
 -- buttons are reordered according to the order of the response ids in
 -- @newOrder@.
@@ -351,9 +351,9 @@ dialogAlternativeDialogButtonOrder Nothing = liftM toBool $
 -- * Available since Gtk+ version 2.6
 --
 dialogSetAlternativeButtonOrderFromArray :: DialogClass self => self
- -> [ResponseId]  -- ^ @newOrder@ - an array of response ids of dialog's buttons 
+ -> [ResponseId]  -- ^ @newOrder@ - an array of response ids of dialog's buttons
  -> IO ()
-dialogSetAlternativeButtonOrderFromArray self newOrder = 
+dialogSetAlternativeButtonOrderFromArray self newOrder =
   withArray (map fromResponse newOrder) $ \newOrderPtr ->
   {# call dialog_set_alternative_button_order_from_array #}
     (toDialog self)
@@ -362,9 +362,9 @@ dialogSetAlternativeButtonOrderFromArray self newOrder =
 
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Gets the widget button that uses the given response ID in the action area of a dialog.
-dialogGetWidgetForResponse :: DialogClass self => self 
-                           -> ResponseId -- ^ @responseId@ the response ID used by the dialog widget                   
-                           -> IO (Maybe Widget) -- ^ returns     the widget button that uses the given @responseId@, or 'Nothing'. 
+dialogGetWidgetForResponse :: DialogClass self => self
+                           -> ResponseId -- ^ @responseId@ the response ID used by the dialog widget
+                           -> IO (Maybe Widget) -- ^ returns     the widget button that uses the given @responseId@, or 'Nothing'.
 dialogGetWidgetForResponse self responseId =
     maybeNull (makeNewObject mkWidget) $
     {#call gtk_dialog_get_widget_for_response #}
@@ -435,7 +435,7 @@ dialogButtonSpacing = readAttrFromIntProperty "button-spacing"
 dialogContentAreaBorder :: DialogClass self => ReadAttr self Int
 dialogContentAreaBorder = readAttrFromIntProperty "content-area-border"
 
--- | The default spacing used between elements of the content area of the dialog, 
+-- | The default spacing used between elements of the content area of the dialog,
 -- as returned by 'dialogSetContentArea', unless 'boxSetSpacing' was called on that widget directly.
 --
 -- Allowed values: >= 0

@@ -125,8 +125,8 @@ recentFilterNew =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterGetName :: RecentFilterClass self => self
- -> IO String -- ^ returns the name of the filter
+recentFilterGetName :: (RecentFilterClass self, GlibString string) => self
+ -> IO string -- ^ returns the name of the filter
 recentFilterGetName self =
   {# call gtk_recent_filter_get_name #}
     (toRecentFilter self)
@@ -137,8 +137,8 @@ recentFilterGetName self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterSetName :: RecentFilterClass self => self
- -> String -- ^ @name@ - then human readable name of @filter@
+recentFilterSetName :: (RecentFilterClass self, GlibString string) => self
+ -> string -- ^ @name@ - then human readable name of @filter@
  -> IO ()
 recentFilterSetName self name =
   withUTFString name $ \namePtr ->
@@ -150,8 +150,8 @@ recentFilterSetName self name =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterAddMimeType :: RecentFilterClass self => self
- -> String -- ^ @mimeType@ - a MIME type
+recentFilterAddMimeType :: (RecentFilterClass self, GlibString string) => self
+ -> string -- ^ @mimeType@ - a MIME type
  -> IO ()
 recentFilterAddMimeType self mimeType =
   withUTFString mimeType $ \mimeTypePtr ->
@@ -164,8 +164,8 @@ recentFilterAddMimeType self mimeType =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterAddPattern :: RecentFilterClass self => self
- -> String -- ^ @pattern@ - a file pattern
+recentFilterAddPattern :: (RecentFilterClass self, GlibString string) => self
+ -> string -- ^ @pattern@ - a file pattern
  -> IO ()
 recentFilterAddPattern self pattern =
   withUTFString pattern $ \patternPtr ->
@@ -186,8 +186,8 @@ recentFilterAddPixbufFormats self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterAddApplication :: RecentFilterClass self => self
- -> String -- ^ @application@ - an application name
+recentFilterAddApplication :: (RecentFilterClass self, GlibString string) => self
+ -> string -- ^ @application@ - an application name
  -> IO ()
 recentFilterAddApplication self application =
   withUTFString application $ \applicationPtr ->
@@ -201,8 +201,8 @@ recentFilterAddApplication self application =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentFilterAddGroup :: RecentFilterClass self => self
- -> String -- ^ @group@ - a group name
+recentFilterAddGroup :: (RecentFilterClass self, GlibString string) => self
+ -> string -- ^ @group@ - a group name
  -> IO ()
 recentFilterAddGroup self group =
   withUTFString group $ \groupPtr ->

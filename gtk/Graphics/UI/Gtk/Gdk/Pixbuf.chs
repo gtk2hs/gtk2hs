@@ -252,7 +252,7 @@ pixbufGetRowstride pb = liftM fromIntegral $
 -- * Looks up if some information was stored under the @key@ when
 --   this image was saved.
 --
-pixbufGetOption :: Pixbuf -> String -> IO (Maybe String)
+pixbufGetOption :: (GlibString string) => Pixbuf -> string -> IO (Maybe string)
 pixbufGetOption pb key = withUTFString key $ \strPtr -> do
   resPtr <- {#call unsafe pixbuf_get_option#} pb strPtr
   if (resPtr==nullPtr) then return Nothing else
@@ -297,7 +297,7 @@ pixbufNewFromFile fname =
 --
 -- * Available since Gtk+ version 2.4
 --
-pixbufNewFromFileAtSize :: String -> Int -> Int -> IO Pixbuf
+pixbufNewFromFileAtSize :: GlibString string => string -> Int -> Int -> IO Pixbuf
 pixbufNewFromFileAtSize filename width height =
   wrapNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
@@ -330,8 +330,8 @@ pixbufNewFromFileAtSize filename width height =
 --
 -- * Available since Gtk+ version 2.6
 --
-pixbufNewFromFileAtScale ::
-     String -- ^ the name of the file
+pixbufNewFromFileAtScale :: GlibString string
+  => string -- ^ the name of the file
   -> Int -- ^ target width
   -> Int -- ^ target height
   -> Bool -- ^ whether to preserve the aspect ratio
@@ -356,7 +356,7 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
 -- | Creates a new pixbuf from a cairo Surface.
 --
 -- Transfers image data from a cairo Surface and converts it to an RGB(A) representation inside a Pixbuf. This allows you to efficiently read individual pixels from cairo surfaces. For GdkWindows, use gdk_pixbuf_get_from_window() instead.
--- 
+--
 -- This function will create an RGB pixbuf with 8 bits per channel. The pixbuf will contain an alpha channel if the surface contains one.
 pixbufNewFromSurface :: Surface -> Int -> Int -> Int -> Int -> IO Pixbuf
 pixbufNewFromSurface surface srcX srcY width height =
@@ -394,7 +394,7 @@ pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'PixbufError'.
 --
-pixbufSave :: Pixbuf -> FilePath -> ImageFormat -> [(String, String)] ->
+pixbufSave :: GlibString string => Pixbuf -> FilePath -> ImageFormat -> [(string, string)] ->
 	      IO ()
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
@@ -442,11 +442,11 @@ pixbufNewFromData imData cSpace hasAlpha bitsPerSample width height rowStride
        (fromIntegral rowStride)
        nullFunPtr nullPtr
 
--- | Create a new image from a String.
+-- | Create a new image from a string.
 --
 -- * Creates a new pixbuf from a string description.
 --
-pixbufNewFromXPMData :: [String] -> IO Pixbuf
+pixbufNewFromXPMData :: GlibString string => [string] -> IO Pixbuf
 pixbufNewFromXPMData s =
   withUTFStringArray0 s $ \strsPtr ->
     wrapNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
@@ -476,7 +476,7 @@ data InlineImage = InlineImage
 -- > extern guint8 my_image[];
 --
 --   and save it in the current directory.
---   The created file can be compiled with: 
+--   The created file can be compiled with:
 --
 -- > cc -c my_image.c `pkg-config --cflags gdk-2.0`
 --
@@ -555,16 +555,16 @@ pixbufCopy pb = wrapNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 -- | Scale an image.
 --
--- * Creates a new 'Pixbuf' containing a copy of 
+-- * Creates a new 'Pixbuf' containing a copy of
 --   @src@ scaled to the given measures. Leaves @src@
---   unaffected. 
+--   unaffected.
 --
 -- * @interp@ affects the quality and speed of the scaling function.
 --   'InterpNearest' is the fastest option but yields very poor quality
 --   when scaling down. 'InterpBilinear' is a good trade-off between
 --   speed and quality and should thus be used as a default.
 --
-pixbufScaleSimple :: 
+pixbufScaleSimple ::
   Pixbuf -- ^ @src@ - the source image
   -> Int -- ^ @width@ - the target width
   -> Int -- ^ @height@ the target height
@@ -587,16 +587,16 @@ pixbufScaleSimple pb width height interp =
 -- 'pixbufComposite' if you need to blend the source image onto the
 -- destination.
 --
-pixbufScale :: 
+pixbufScale ::
     Pixbuf     -- ^ @src@ - the source pixbuf
  -> Pixbuf     -- ^ @dest@ - the pixbuf into which to render the results
  -> Int        -- ^ @destX@ - the left coordinate for region to render
- -> Int        -- ^ @destY@ - the top coordinate for region to render 
+ -> Int        -- ^ @destY@ - the top coordinate for region to render
  -> Int        -- ^ @destWidth@ - the width of the region to render
  -> Int        -- ^ @destHeight@ - the height of the region to render
  -> Double     -- ^ @offsetX@ - the offset in the X direction (currently
                -- rounded to an integer)
- -> Double     -- ^ @offsetY@ - the offset in the Y direction 
+ -> Double     -- ^ @offsetY@ - the offset in the Y direction
                -- (currently rounded to an integer)
  -> Double     -- ^ @scaleX@ - the scale factor in the X direction
  -> Double     -- ^ @scaleY@ - the scale factor in the Y direction
@@ -624,12 +624,12 @@ pixbufComposite ::
      Pixbuf     -- ^ @src@ - the source pixbuf
   -> Pixbuf     -- ^ @dest@ - the pixbuf into which to render the results
   -> Int        -- ^ @destX@ - the left coordinate for region to render
-  -> Int        -- ^ @destY@ - the top coordinate for region to render 
+  -> Int        -- ^ @destY@ - the top coordinate for region to render
   -> Int        -- ^ @destWidth@ - the width of the region to render
   -> Int        -- ^ @destHeight@ - the height of the region to render
   -> Double     -- ^ @offsetX@ - the offset in the X direction (currently
                 -- rounded to an integer)
-  -> Double     -- ^ @offsetY@ - the offset in the Y direction 
+  -> Double     -- ^ @offsetY@ - the offset in the Y direction
                 -- (currently rounded to an integer)
   -> Double     -- ^ @scaleX@ - the scale factor in the X direction
   -> Double     -- ^ @scaleY@ - the scale factor in the Y direction

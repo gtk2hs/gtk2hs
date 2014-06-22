@@ -56,14 +56,14 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeView (
 -- * Description
--- 
+--
 -- | Widget that displays any object that implements the 'TreeModel'
 -- interface.
 --
--- The widget supports scrolling natively. This implies that pixel 
+-- The widget supports scrolling natively. This implies that pixel
 -- coordinates can be given in two formats: relative to the current view's
 -- upper left corner or relative to the whole list's coordinates. The former
--- are called widget coordinates while the letter are called tree 
+-- are called widget coordinates while the letter are called tree
 -- coordinates.
 
 -- * Class Hierarchy
@@ -234,7 +234,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   rowActivated,
   testCollapseRow,
   testExpandRow,
-  
+
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
 #if GTK_MAJOR_VERSION < 3
@@ -296,7 +296,7 @@ treeViewNew =
   liftM (castPtr :: Ptr Widget -> Ptr TreeView) $
   {# call tree_view_new #}
 
--- | Create a new 'TreeView' 
+-- | Create a new 'TreeView'
 -- widget with @model@ as the storage model.
 --
 treeViewNewWithModel :: TreeModelClass model => model -> IO TreeView
@@ -471,9 +471,9 @@ treeViewInsertColumn self column position =
 --
 treeViewGetColumn :: TreeViewClass self => self -> Int -> IO (Maybe TreeViewColumn)
 treeViewGetColumn self pos = do
-  tvcPtr <- {# call unsafe tree_view_get_column #} (toTreeView self) 
+  tvcPtr <- {# call unsafe tree_view_get_column #} (toTreeView self)
     (fromIntegral pos)
-  if tvcPtr==nullPtr then return Nothing else 
+  if tvcPtr==nullPtr then return Nothing else
     liftM Just $ makeNewObject mkTreeViewColumn (return tvcPtr)
 
 -- | Return all 'TreeViewColumn's in this 'TreeView'.
@@ -609,7 +609,7 @@ treeViewScrollToPoint self treeX treeY =
 
 -- | Scroll to a cell.
 --
--- * Scroll to a cell as specified by @path@ and @tvc@. 
+-- * Scroll to a cell as specified by @path@ and @tvc@.
 --   The cell is aligned within the 'TreeView' widget as
 --   follows: horizontally by @hor@ from left (@0.0@) to
 --   right (@1.0@) and vertically by @ver@ from top
@@ -626,10 +626,10 @@ treeViewScrollToCell self path column (Just (ver,hor)) =
     (toTreeView self)
     path
     column
-    1 
+    1
     (realToFrac ver)
     (realToFrac hor)
-treeViewScrollToCell self path column Nothing = 
+treeViewScrollToCell self path column Nothing =
   withTreePath path $ \path ->
   {# call tree_view_scroll_to_cell #}
     (toTreeView self)
@@ -645,7 +645,7 @@ treeViewScrollToCell self path column Nothing =
 --   selects it.  This is useful when you want to focus the user\'s
 --   attention on a particular row.  If @focusColumn@ is given,
 --   then the input focus is given to the column specified by
---   it. Additionally, if @focusColumn@ is specified, and 
+--   it. Additionally, if @focusColumn@ is specified, and
 --   @startEditing@ is @True@,
 --   then editing will be started in the
 --   specified cell.  This function is often followed by a
@@ -908,7 +908,7 @@ treeViewGetCellArea self Nothing tvc =
     tvc
     (castPtr (rPtr :: Ptr Rectangle))
     >> peek rPtr
-treeViewGetCellArea self (Just tp) tvc = 
+treeViewGetCellArea self (Just tp) tvc =
   withTreePath tp $ \tp ->
   alloca $ \rPtr -> do
   {# call unsafe tree_view_get_cell_area #}
@@ -926,7 +926,7 @@ treeViewGetCellArea self (Just tp) tvc =
 --   If @path@ is @Nothing@ or points to a path not
 --   currently displayed, the @y@ and @height@ fields of
 --   the 'Rectangle' will be filled with @0@. The background
---   areas tile the widget's area to cover the entire tree window 
+--   areas tile the widget's area to cover the entire tree window
 --   (except for the area used for header buttons). Contrast this with
 --   'treeViewGetCellArea'.
 --
@@ -942,7 +942,7 @@ treeViewGetBackgroundArea self Nothing tvc =
     tvc
     (castPtr (rPtr :: Ptr Rectangle))
   >> peek rPtr
-treeViewGetBackgroundArea self (Just tp) tvc = 
+treeViewGetBackgroundArea self (Just tp) tvc =
   withTreePath tp $ \tp -> alloca $ \rPtr ->
   {# call unsafe tree_view_get_background_area #}
     (toTreeView self)
@@ -970,7 +970,7 @@ treeViewGetVisibleRect self =
 -- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
 -- bin window coordinates to coordinates relative to bin window, please see
 -- 'treeViewConvertBinWindowToWidgetCoords'.
--- 
+--
 -- Converts tree coordinates (coordinates in full scrollable area of the tree) to bin window
 -- coordinates.
 --
@@ -995,7 +995,7 @@ treeViewTreeToWidgetCoords self (tx, ty) =
 -- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
 -- coordinates relative to the widget to bin window coordinates, please see
 -- 'treeViewConvertWidgetToBinWindowCoords'.
--- 
+--
 -- Converts bin window coordinates to coordinates for the tree (the full scrollable area of the tree).
 --
 -- Removed in Gtk3.
@@ -1021,7 +1021,7 @@ treeViewWidgetToTreeCoords self (wx, wy) =
 -- | Converts bin window coordinates to coordinates for the tree (the full scrollable area of the tree).
 treeViewConvertBinWindowToTreeCoords :: TreeViewClass self => self
  -> Point -- ^ @(bx, by)@ - bin window X and Y coordinates
- -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates 
+ -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates
 treeViewConvertBinWindowToTreeCoords self (bx, by) =
   alloca $ \txPtr ->
   alloca $ \tyPtr -> do
@@ -1038,7 +1038,7 @@ treeViewConvertBinWindowToTreeCoords self (bx, by) =
 -- | Converts bin window coordinates (see 'treeViewGetBinWindow' to widget relative coordinates.
 treeViewConvertBinWindowToWidgetCoords :: TreeViewClass self => self
  -> Point -- ^ @(bx, by)@ - bin window X and Y coordinates
- -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates 
+ -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates
 treeViewConvertBinWindowToWidgetCoords self (bx, by) =
   alloca $ \wxPtr ->
   alloca $ \wyPtr -> do
@@ -1056,7 +1056,7 @@ treeViewConvertBinWindowToWidgetCoords self (bx, by) =
 -- coordinates.
 treeViewConvertTreeToBinWindowCoords :: TreeViewClass self => self
  -> Point -- ^ @(tx, ty)@ - tree X and Y coordinates
- -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates 
+ -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates
 treeViewConvertTreeToBinWindowCoords self (tx, ty) =
   alloca $ \bxPtr ->
   alloca $ \byPtr -> do
@@ -1073,7 +1073,7 @@ treeViewConvertTreeToBinWindowCoords self (tx, ty) =
 -- | Converts tree coordinates (coordinates in full scrollable area of the tree) to widget coordinates.
 treeViewConvertTreeToWidgetCoords :: TreeViewClass self => self
  -> Point -- ^ @(tx, ty)@ - tree X and Y coordinates
- -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates 
+ -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates
 treeViewConvertTreeToWidgetCoords self (wx, wy) =
   alloca $ \bxPtr ->
   alloca $ \byPtr -> do
@@ -1090,7 +1090,7 @@ treeViewConvertTreeToWidgetCoords self (wx, wy) =
 -- | Converts widget coordinates to coordinates for the window (see 'treeViewGetBinWindow' ).
 treeViewConvertWidgetToBinWindowCoords :: TreeViewClass self => self
  -> Point -- ^ @(wx, wy)@ - widget X and Y coordinates
- -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates 
+ -> IO Point -- ^ @(bx, by)@ returns bin window X and Y coordinates
 treeViewConvertWidgetToBinWindowCoords self (wx, wy) =
   alloca $ \bxPtr ->
   alloca $ \byPtr -> do
@@ -1107,7 +1107,7 @@ treeViewConvertWidgetToBinWindowCoords self (wx, wy) =
 -- | Converts widget coordinates to coordinates for the tree (the full scrollable area of the tree).
 treeViewConvertWidgetToTreeCoords :: TreeViewClass self => self
  -> Point -- ^ @(wx, wy)@ - bin window X and Y coordinates
- -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates 
+ -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates
 treeViewConvertWidgetToTreeCoords self (wx, wy) =
   alloca $ \txPtr ->
   alloca $ \tyPtr -> do
@@ -1168,8 +1168,8 @@ treeViewSetEnableSearch self enableSearch =
 -- %hash c:ecc5 d:bed6
 -- | Gets the column searched on by the interactive search code.
 --
-treeViewGetSearchColumn :: TreeViewClass self => self
- -> IO (ColumnId row String) -- ^ returns the column the interactive search code searches in.
+treeViewGetSearchColumn :: (TreeViewClass self, GlibString string) => self
+ -> IO (ColumnId row string) -- ^ returns the column the interactive search code searches in.
 treeViewGetSearchColumn self =
   liftM (makeColumnIdString . fromIntegral) $
   {# call unsafe tree_view_get_search_column #}
@@ -1187,8 +1187,8 @@ treeViewGetSearchColumn self =
 -- search column is not used if a comparison function is set, see
 -- 'treeViewSetSearchEqualFunc'.
 --
-treeViewSetSearchColumn :: TreeViewClass self => self
- -> (ColumnId row String) -- ^ @column@ - the column of the model to search in, or -1 to disable
+treeViewSetSearchColumn :: (TreeViewClass self, GlibString string) => self
+ -> (ColumnId row string) -- ^ @column@ - the column of the model to search in, or -1 to disable
         -- searching
  -> IO ()
 treeViewSetSearchColumn self column =
@@ -1204,15 +1204,15 @@ treeViewSetSearchColumn self column =
 --   the 'treeViewSearchColumn' (which isn't used anyway when a comparison
 --   function is installed).
 --
-treeViewSetSearchEqualFunc :: TreeViewClass self => self
- -> Maybe (String -> TreeIter -> IO Bool)
+treeViewSetSearchEqualFunc :: (TreeViewClass self, GlibString string) => self
+ -> Maybe (string -> TreeIter -> IO Bool)
  -> IO ()
 treeViewSetSearchEqualFunc self (Just pred) = do
   fPtr <- mkTreeViewSearchEqualFunc (\_ _ keyPtr iterPtr _ -> do
     key <- peekUTFString keyPtr
     iter <- peek iterPtr
     liftM (fromBool . not) $ pred key iter)
-  {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
+  {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr
     (castFunPtrToPtr fPtr) destroyFunPtr
   {# call tree_view_set_search_column #} (toTreeView self) 0
 treeViewSetSearchEqualFunc self Nothing = do
@@ -1342,7 +1342,7 @@ treeViewGetVisibleRange self  = alloca $ \startPtr -> alloca $ \endPtr -> do
     startPath <- fromTreePath startTPPtr
     endPath <- fromTreePath endTPPtr
     return (startPath, endPath)
-    
+
 #endif
 
 #if GTK_CHECK_VERSION(2,10,0)
@@ -1471,7 +1471,7 @@ treeViewSetRowSeparatorFunc self (Just func) = do
 foreign import ccall "wrapper" mkTreeViewRowSeparatorFunc ::
   (Ptr TreeModel -> Ptr TreeIter -> Ptr () -> IO {#type gboolean#}) ->
   IO TreeViewRowSeparatorFunc
-  
+
 #if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:778a d:eacd
 -- | Returns whether rubber banding is turned on for @treeView@. If the
@@ -1608,11 +1608,11 @@ treeViewGetTooltipContext :: TreeViewClass self => self
   -> Maybe Point -- ^ @point@ - the coordinates of the mouse or @Nothing@
                  --   if a keyboard tooltip is to be generated
   -> IO (Maybe TreeIter) -- ^ @Just iter@ if a tooltip should be shown for that row
-treeViewGetTooltipContext self (Just (x,y)) = 
+treeViewGetTooltipContext self (Just (x,y)) =
   alloca $ \xPtr -> alloca $ \yPtr -> receiveTreeIter $
     {#call gtk_tree_view_get_tooltip_context#} (toTreeView self)
     xPtr yPtr 0 nullPtr nullPtr
-treeViewGetTooltipContext self Nothing = 
+treeViewGetTooltipContext self Nothing =
   receiveTreeIter $
     {#call gtk_tree_view_get_tooltip_context#} (toTreeView self)
     nullPtr nullPtr 1 nullPtr nullPtr
@@ -1697,7 +1697,7 @@ treeViewEnableSearch = newAttr
 --
 -- Default value: 'invalidColumnId'
 --
-treeViewSearchColumn :: TreeViewClass self => Attr self (ColumnId row String)
+treeViewSearchColumn :: (TreeViewClass self, GlibString string) => Attr self (ColumnId row string)
 treeViewSearchColumn = newAttr
   treeViewGetSearchColumn
   treeViewSetSearchColumn
@@ -1829,7 +1829,7 @@ treeViewSearchEntry = newAttr
 --
 -- Default value: 'invalidColumnId'
 --
-treeViewTooltipColumn :: TreeViewClass self => Attr self (ColumnId row String)
+treeViewTooltipColumn :: (TreeViewClass self, GlibString string) => Attr self (ColumnId row string)
 treeViewTooltipColumn = newAttr
   (\self -> liftM (makeColumnIdString . fromIntegral) $
   {# call unsafe tree_view_get_tooltip_column #}
@@ -1918,9 +1918,9 @@ afterCursorChanged = connect_NONE__NONE "cursor_changed" True
 onRowActivated, afterRowActivated :: TreeViewClass self => self
  -> (TreePath -> TreeViewColumn -> IO ())
  -> IO (ConnectId self)
-onRowActivated = connect_BOXED_OBJECT__NONE "row_activated" 
+onRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
 		   readNTP False
-afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated" 
+afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
 		      readNTP True
 
 -- | Children of this node were hidden.
@@ -1948,7 +1948,7 @@ afterRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
 -- * Connect to this signal if you want to provide you own search facility.
 --   Note that you must handle all keyboard input yourself.
 --
-onStartInteractiveSearch, afterStartInteractiveSearch :: 
+onStartInteractiveSearch, afterStartInteractiveSearch ::
   TreeViewClass self => self -> IO () -> IO (ConnectId self)
 
 #if GTK_CHECK_VERSION(2,2,0)
@@ -1962,7 +1962,7 @@ afterStartInteractiveSearch self fun =
 
 onStartInteractiveSearch =
   connect_NONE__NONE "start_interactive_search" False
-afterStartInteractiveSearch = 
+afterStartInteractiveSearch =
   connect_NONE__NONE "start_interactive_search" True
 
 #endif

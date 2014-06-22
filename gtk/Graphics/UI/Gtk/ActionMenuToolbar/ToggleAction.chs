@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
 -- * Detail
--- 
+--
 -- | A 'ToggleAction' corresponds roughly to a 'CheckMenuItem'. It has an
 -- \"active\" state specifying whether the action has been checked or not.
 
@@ -98,11 +98,11 @@ import Graphics.UI.Gtk.General.StockItems
 -- and set the accelerator for the action, call
 -- 'Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup.actionGroupAddActionWithAccel'.
 --
-toggleActionNew :: 
-    String          -- ^ @name@ - A unique name for the action
- -> String          -- ^ @label@ - The label displayed in menu items and on
+toggleActionNew :: GlibString string
+ => string          -- ^ @name@ - A unique name for the action
+ -> string          -- ^ @label@ - The label displayed in menu items and on
                     -- buttons
- -> Maybe String    -- ^ @tooltip@ - A tooltip for the action
+ -> Maybe string    -- ^ @tooltip@ - A tooltip for the action
  -> Maybe StockId   -- ^ @stockId@ - The stock icon to display in widgets
                     -- representing the action
  -> IO ToggleAction

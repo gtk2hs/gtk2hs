@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.Printing.PageSetup (
 -- resulting page setup.
 --
 -- Printing support was added in Gtk+ 2.10.
---   
+--
 
 -- * Class Hierarchy
 --
@@ -128,8 +128,8 @@ pageSetupNew =
 --
 -- * Available since Gtk+ version 2.12
 --
-pageSetupNewFromFile ::
-    String -- ^ @fileName@ - the filename to read the page setup from
+pageSetupNewFromFile :: GlibString string
+ => string -- ^ @fileName@ - the filename to read the page setup from
  -> IO PageSetup
 pageSetupNewFromFile fileName =
   propagateGError $ \errorPtr ->
@@ -137,7 +137,7 @@ pageSetupNewFromFile fileName =
   setupPtr <- {# call gtk_page_setup_new_from_file #}
              fileNamePtr
              errorPtr
-  wrapNewGObject mkPageSetup (return setupPtr) 
+  wrapNewGObject mkPageSetup (return setupPtr)
 
 #endif
 
@@ -350,8 +350,8 @@ pageSetupGetPageHeight self unit =
 --
 -- * Available since Gtk+ version 2.14
 --
-pageSetupLoadFile :: PageSetupClass self => self
- -> String  -- ^ @fileName@ - the filename to read the page setup from
+pageSetupLoadFile :: (PageSetupClass self, GlibString string) => self
+ -> string  -- ^ @fileName@ - the filename to read the page setup from
  -> IO Bool -- ^ returns @True@ on success
 pageSetupLoadFile self fileName =
   liftM toBool $
@@ -369,8 +369,8 @@ pageSetupLoadFile self fileName =
 --
 -- * Available since Gtk+ version 2.12
 --
-pageSetupToFile :: PageSetupClass self => self
- -> String  -- ^ @fileName@ - the file to save to
+pageSetupToFile :: (PageSetupClass self, GlibString string) => self
+ -> string  -- ^ @fileName@ - the file to save to
  -> IO Bool -- ^ returns @True@ on success
 pageSetupToFile self fileName =
   liftM toBool $

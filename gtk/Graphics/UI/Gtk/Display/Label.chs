@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Label
 --
@@ -28,13 +29,13 @@
 --
 module Graphics.UI.Gtk.Display.Label (
 -- * Detail
--- 
+--
 -- | The 'Label' widget displays a small amount of text. As the name implies,
 -- most labels are used to label another widget such as a 'Button', a
 -- 'MenuItem', or a 'OptionMenu'.
 
 -- ** Mnemonics
--- 
+--
 -- | Labels may contain mnemonics. Mnemonics are underlined characters in the
 -- label, used for keyboard navigation. Mnemonics are created by providing a
 -- string with an underscore before the mnemonic character, such as
@@ -49,7 +50,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- label already inside: To create a mnemonic for a widget alongside the label,
 -- such as a 'Entry', you have to point the label at the entry with
 -- 'labelSetMnemonicWidget':
--- 
+--
 -- >   -- Pressing Alt+H will activate this button
 -- >   button <- buttonNew
 -- >   label <- labelNewWithMnemonic "_Hello"
@@ -64,7 +65,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- >   labelSetMnemonicWidget label entry
 
 -- ** Markup (styled text)
--- 
+--
 -- | To make it easy to format text in a label (changing colors, fonts, etc.),
 -- label text can be provided in a simple markup format. Here's how to create a
 -- label with a small font: (See complete documentation of available tags in
@@ -80,14 +81,14 @@ module Graphics.UI.Gtk.Display.Label (
 -- want to escape it with 'Graphics.Rendering.Pango.Layout.escapeMarkup'.
 
 -- ** Selectable labels
--- 
+--
 -- | Labels can be made selectable with 'labelSetSelectable'. Selectable
 -- labels allow the user to copy the label contents to the clipboard. Only
 -- labels that contain useful-to-copy information - such as error messages -
 -- should be made selectable.
 
 -- ** Text layout
--- 
+--
 -- | A label can contain any number of paragraphs, but will have performance
 -- problems if it contains more than a small number. Paragraphs are separated
 -- by newlines or other paragraph separators understood by Pango.
@@ -97,7 +98,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- 'labelSetJustify' sets how the lines in a label align with one another.
 -- If you want to set how the label as a whole aligns in its available space,
 -- see 'Graphics.UI.Gtk.Abstract.Misc.miscSetAlignment'.
--- 
+--
 
 -- * Class Hierarchy
 -- |
@@ -192,6 +193,7 @@ module Graphics.UI.Gtk.Display.Label (
   ) where
 
 import Control.Monad    (liftM)
+import Data.Text        (Text)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -223,7 +225,7 @@ import Data.IORef ( newIORef )
 -- | Creates a new label with the given text inside it. You can pass @Nothing@
 -- to get an empty label widget.
 --
-labelNew :: Maybe String -> IO Label
+labelNew :: GlibString string => Maybe string -> IO Label
 labelNew str =
   makeNewObject mkLabel $
   liftM (castPtr :: Ptr Widget -> Ptr Label) $
@@ -245,8 +247,8 @@ labelNew str =
 -- if the label is inside a button or menu item, the button or menu item will
 -- automatically become the mnemonic widget and be activated by the mnemonic.
 --
-labelNewWithMnemonic :: 
-    String   -- ^ @str@ - The text of the label, with an underscore in front
+labelNewWithMnemonic :: GlibString string
+ => string   -- ^ @str@ - The text of the label, with an underscore in front
              -- of the mnemonic character
  -> IO Label
 labelNewWithMnemonic str =
@@ -264,7 +266,7 @@ labelNewWithMnemonic str =
 --
 -- This will also clear any previously set mnemonic accelerators.
 --
-labelSetText :: LabelClass self => self -> String -> IO ()
+labelSetText :: (LabelClass self, GlibString string) => self -> string -> IO ()
 labelSetText self str =
   withUTFString str $ \strPtr ->
   {# call label_set_text #}
@@ -275,7 +277,7 @@ labelSetText self str =
 -- embedded underlines and\/or Pango markup depending on the markup and
 -- underline properties.
 --
-labelSetLabel :: LabelClass self => self -> String -> IO ()
+labelSetLabel :: (LabelClass self, GlibString string) => self -> string -> IO ()
 labelSetLabel self str =
   withUTFString str $ \strPtr ->
   {# call label_set_label #}
@@ -291,23 +293,23 @@ labelSetLabel self str =
 -- with manually set attributes, if you must; know that the attributes will be
 -- applied to the label after the markup string is parsed.
 --
-labelSetAttributes :: LabelClass self => self 
+labelSetAttributes :: LabelClass self => self
  -> [PangoAttribute]   -- ^ @attr@ 'PangoAttribute'
  -> IO ()
 labelSetAttributes self attrs = do
-  txt <- labelGetText self
+  (txt :: Text) <- labelGetText self
   ps <- makeNewPangoString txt
   withAttrList ps attrs $ \alPtr ->
     {#call unsafe label_set_attributes #} (toLabel self) alPtr
 
--- | Gets the attribute list that was set on the label using 'labelSetAttributes', if any. 
--- This function does not reflect attributes that come from the labels markup (see 'labelSetMarkup'). 
+-- | Gets the attribute list that was set on the label using 'labelSetAttributes', if any.
+-- This function does not reflect attributes that come from the labels markup (see 'labelSetMarkup').
 -- If you want to get the effective attributes for the label, use 'layoutGetAttributes' ('labelGetLayout' (label)).
 --
 labelGetAttributes :: LabelClass self => self
- -> IO [PangoAttribute]          -- ^ return the attribute list, or Emtpy if none was set. 
+ -> IO [PangoAttribute]          -- ^ return the attribute list, or Emtpy if none was set.
 labelGetAttributes self = do
-  txt <- labelGetText self
+  (txt :: Text) <- labelGetText self
   (PangoString correct _ _ ) <- makeNewPangoString txt
   attrListPtr <- {# call unsafe label_get_attributes #} (toLabel self)
   attr <- fromAttrList correct attrListPtr
@@ -318,8 +320,8 @@ labelGetAttributes self = do
 -- setting the label's text and attribute list based on the parse results. If
 -- the @str@ is external data, you may need to escape it.
 --
-labelSetMarkup :: LabelClass self => self
- -> Markup -- ^ @str@ - a markup string (see Pango markup format)
+labelSetMarkup :: (LabelClass self, GlibString markup) => self
+ -> markup -- ^ @str@ - a markup string (see Pango markup format)
  -> IO ()
 labelSetMarkup self str =
   withUTFString str $ \strPtr ->
@@ -336,8 +338,8 @@ labelSetMarkup self str =
 -- The mnemonic key can be used to activate another widget, chosen
 -- automatically, or explicitly using 'labelSetMnemonicWidget'.
 --
-labelSetMarkupWithMnemonic :: LabelClass self => self
- -> Markup -- ^ @str@ - a markup string (see Pango markup format)
+labelSetMarkupWithMnemonic :: (LabelClass self, GlibString markup) => self
+ -> markup -- ^ @str@ - a markup string (see Pango markup format)
  -> IO ()
 labelSetMarkupWithMnemonic self str =
   withUTFString str $ \strPtr ->
@@ -382,9 +384,9 @@ labelGetJustify self =
 --
 labelGetLayout :: LabelClass self => self -> IO PangoLayout
 labelGetLayout self = do
-  plr <- makeNewGObject mkPangoLayoutRaw $ 
+  plr <- makeNewGObject mkPangoLayoutRaw $
     {# call unsafe label_get_layout #} (toLabel self)
-  txt <- labelGetText self
+  (txt :: Text) <- labelGetText self
   ps <- makeNewPangoString txt
   psRef <- newIORef ps
   return (PangoLayout psRef plr)
@@ -412,13 +414,13 @@ labelGetLineWrap self =
   {# call unsafe label_get_line_wrap #}
     (toLabel self)
 
--- | If line wrapping is on (see 'labelSetLineWrap') this controls how the line wrapping is done. 
+-- | If line wrapping is on (see 'labelSetLineWrap') this controls how the line wrapping is done.
 -- The default is 'WrapWholeWords' which means wrap on word boundaries.
 --
 -- * Available since Gtk+ version 2.10
 --
 labelSetLineWrapMode :: LabelClass self => self
- -> LayoutWrapMode  -- ^ @wrapMode@ - the line wrapping mode 
+ -> LayoutWrapMode  -- ^ @wrapMode@ - the line wrapping mode
  -> IO ()
 labelSetLineWrapMode self wrapMode =
   {# call label_set_line_wrap_mode #}
@@ -431,7 +433,7 @@ labelSetLineWrapMode self wrapMode =
 --
 labelGetLineWrapMode :: LabelClass self => self
  -> IO LayoutWrapMode  -- ^ return the line wrapping mode
-labelGetLineWrapMode self = liftM (toEnum . fromIntegral) $  
+labelGetLineWrapMode self = liftM (toEnum . fromIntegral) $
   {# call label_get_line_wrap_mode #}
     (toLabel self)
 
@@ -516,7 +518,7 @@ labelGetUseUnderline self =
 -- does not include any embedded underlines indicating mnemonics or Pango
 -- markup. (See 'labelGetLabel')
 --
-labelGetText :: LabelClass self => self -> IO String
+labelGetText :: (LabelClass self, GlibString string) => self -> IO string
 labelGetText self =
   {# call unsafe label_get_text #}
     (toLabel self)
@@ -525,7 +527,7 @@ labelGetText self =
 -- | Gets the text from a label widget including any embedded underlines
 -- indicating mnemonics and Pango markup. (See 'labelGetText').
 --
-labelGetLabel :: LabelClass self => self -> IO String
+labelGetLabel :: (LabelClass self, GlibString string) => self -> IO string
 labelGetLabel self =
   {# call unsafe label_get_label #}
     (toLabel self)
@@ -618,7 +620,7 @@ labelSetSelectable self setting =
 -- used to activate another widget, chosen automatically, or explicitly using
 -- 'labelSetMnemonicWidget'.
 --
-labelSetTextWithMnemonic :: LabelClass self => self -> String -> IO ()
+labelSetTextWithMnemonic :: (LabelClass self, GlibString string) => self -> string -> IO ()
 labelSetTextWithMnemonic self str =
   withUTFString str $ \strPtr ->
   {# call label_set_text_with_mnemonic #}
@@ -754,7 +756,7 @@ labelSetAngle self angle =
 
 -- | The text of the label.
 --
-labelLabel :: LabelClass self => Attr self String
+labelLabel :: (LabelClass self, GlibString string) => Attr self string
 labelLabel = newAttr
   labelGetLabel
   labelSetLabel
@@ -780,7 +782,7 @@ labelUseUnderline = newAttr
 
 -- | The alignment of the lines in the text of the label relative to each
 -- other. This does NOT affect the alignment of the label within its
--- allocation. 
+-- allocation.
 --
 -- Default value: 'JustifyLeft'
 --
@@ -796,7 +798,7 @@ labelJustify = newAttr
 labelWrap :: LabelClass self => Attr self Bool
 labelWrap = newAttrFromBoolProperty "wrap"
 
--- | If line wrapping is on (see the 'labelWrap' property) this controls how the line wrapping is done. 
+-- | If line wrapping is on (see the 'labelWrap' property) this controls how the line wrapping is done.
 -- The default is 'WrapWholeWords', which means wrap on word boundaries.
 --
 -- Default value: 'WrapWholeWords'
@@ -834,7 +836,7 @@ labelMnemonicKeyval = readAttrFromIntProperty "mnemonic-keyval"
 --
 -- Default value: "\\"
 --
-labelPattern :: LabelClass self => WriteAttr self String
+labelPattern :: (LabelClass self, GlibString string) => WriteAttr self string
 labelPattern = writeAttrFromStringProperty "pattern"
 
 -- | The current position of the insertion cursor in chars.
@@ -947,7 +949,7 @@ labelLineWrap = newAttr
 
 -- | \'text\' property. See 'labelGetText' and 'labelSetText'
 --
-labelText :: LabelClass self => Attr self String
+labelText :: (LabelClass self, GlibString string) => Attr self string
 labelText = newAttr
   labelGetText
   labelSetText
@@ -961,7 +963,7 @@ labelActiveCurrentLink :: LabelClass self => Signal self (IO ())
 labelActiveCurrentLink = Signal (connect_NONE__NONE "activate-current-link")
 
 -- | The 'labelActiveLink' signal is emitted when a URI is activated. Default is to use showURI.
-labelActiveLink :: LabelClass self => Signal self (String -> IO ())
+labelActiveLink :: (LabelClass self, GlibString string) => Signal self (string -> IO ())
 labelActiveLink = Signal (connect_STRING__NONE "activate-link")
 
 -- | The 'labelCopyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the

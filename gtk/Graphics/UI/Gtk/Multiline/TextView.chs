@@ -20,7 +20,7 @@
 --
 -- TODO
 --
--- If PangoTabArray is bound: 
+-- If PangoTabArray is bound:
 --    Fucntions: textViewSetTabs and textViewGetTabs
 --    Properties: textViewTabs
 --
@@ -39,7 +39,7 @@
 --
 module Graphics.UI.Gtk.Multiline.TextView (
 -- * Detail
--- 
+--
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
@@ -191,6 +191,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties           (newAttrFromStringProperty)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -309,7 +310,7 @@ textViewScrollToIter :: TextViewClass self => self
              -- vertical alignment of mark within visible area (if @Nothing@,
              -- scroll just enough to get the iterator onscreen)
  -> IO Bool  -- ^ returns @True@ if scrolling occurred
-textViewScrollToIter self iter withinMargin align = 
+textViewScrollToIter self iter withinMargin align =
   let (useAlign, xalign, yalign) = case align of
         Nothing -> (False, 0, 0)
         Just (xalign, yalign) -> (True, xalign, yalign)
@@ -1046,7 +1047,7 @@ textViewGetVadjustment self =
 -- | Allow the 'TextView' input method to internally handle key press and release events. If this
 -- function returns 'True', then no further processing should be done for this key event. See
 -- 'imContextFilterKeypress'.
--- 
+--
 -- Note that you are expected to call this function from your handler when overriding key event
 -- handling. This is needed in the case when you need to insert your own key handling between the input
 -- method and the default key event handling of the 'TextView'.
@@ -1062,7 +1063,7 @@ textViewImContextFilterKeypress self = do
       (castPtr ptr)
 
 -- | Reset the input method context of the text view if needed.
--- 
+--
 -- This can be necessary in the case where modifying the buffer would confuse on-going input method
 -- behavior.
 --
@@ -1121,13 +1122,13 @@ textViewEditable = newAttr
   textViewSetEditable
 
 -- | Which IM (input method) module should be used for this entry. See GtkIMContext.
--- Setting this to a non-empty value overrides the system-wide IM module setting. 
+-- Setting this to a non-empty value overrides the system-wide IM module setting.
 -- See the GtkSettings "gtk-im-module" property.
 --
 -- Default value: \"\"
 --
 textViewImModule :: TextViewClass self => Attr self String
-textViewImModule = 
+textViewImModule =
   newAttrFromStringProperty "im-module"
 
 -- | Whether to wrap lines never, at word boundaries, or at character
@@ -1229,7 +1230,7 @@ backspace = Signal (connect_NONE__NONE "on-backspace")
 
 -- | Copying to the clipboard.
 --
--- * This signal is emitted when a selection is copied to the clipboard. 
+-- * This signal is emitted when a selection is copied to the clipboard.
 --
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
@@ -1265,7 +1266,7 @@ deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
-insertAtCursor :: TextViewClass self => Signal self (String -> IO ())
+insertAtCursor :: (TextViewClass self, GlibString string) => Signal self (string -> IO ())
 insertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 
 -- | Moving the cursor.
@@ -1279,11 +1280,11 @@ insertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 moveCursor :: TextViewClass self => Signal self (MovementStep -> Int -> Bool -> IO ())
 moveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
 
--- | The 'moveViewport' signal is a keybinding signal which can be bound to key combinations 
--- to allow the user to move the viewport, i.e. 
+-- | The 'moveViewport' signal is a keybinding signal which can be bound to key combinations
+-- to allow the user to move the viewport, i.e.
 -- change what part of the text view is visible in a containing scrolled window.
 -- There are no default bindings for this signal.
--- 
+--
 moveViewport :: TextViewClass self => Signal self (ScrollStep -> Int -> IO ())
 moveViewport = Signal (connect_ENUM_INT__NONE "move-viewport")
 
@@ -1310,7 +1311,7 @@ pageHorizontally = Signal (connect_INT_BOOL__NONE "page-horizontally")
 
 -- | Pasting from the clipboard.
 --
--- * This signal is emitted when something is pasted from the clipboard. 
+-- * This signal is emitted when something is pasted from the clipboard.
 --
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
@@ -1329,7 +1330,7 @@ populatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 
 -- | Inserting an anchor.
 --
--- * This signal is emitted when anchor is inserted into the text. 
+-- * This signal is emitted when anchor is inserted into the text.
 --
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
@@ -1342,14 +1343,14 @@ selectAll = Signal (connect_BOOL__NONE "select-all")
 setAnchor :: TextViewClass self => Signal self (IO ())
 setAnchor = Signal (connect_NONE__NONE "set-anchor")
 
--- | The 'setTextViewScrollAdjustments' signal is a keybinding signal which 
+-- | The 'setTextViewScrollAdjustments' signal is a keybinding signal which
 -- gets emitted to toggle the visibility of the cursor.
 -- The default binding for this signal is F7.
 --
 setTextViewScrollAdjustments :: TextViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
 setTextViewScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")
 
--- | The 'toggleCursorVisible' signal is a keybinding signal 
+-- | The 'toggleCursorVisible' signal is a keybinding signal
 -- which gets emitted to toggle the visibility of the cursor.
 -- The default binding for this signal is F7.
 --
@@ -1359,7 +1360,7 @@ toggleCursorVisible = Signal (connect_NONE__NONE "toggle-cursor-visible")
 -- | Insert Overwrite mode has changed.
 --
 -- * This signal is emitted when the 'TextView' changes from
---   inserting mode to overwriting mode and vice versa. 
+--   inserting mode to overwriting mode and vice versa.
 --
 -- * The action itself happens when the 'TextView' processes this
 --   signal.
@@ -1369,8 +1370,8 @@ toggleOverwrite = Signal (connect_NONE__NONE "toggle-overwrite")
 
 -- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
 -- you are interested in the text, connect to this signal.
--- 
+--
 -- This signal is only emitted if the text at the given position is actually editable.
-textViewPreeditChanged :: TextViewClass self => Signal self (String -> IO ())
+textViewPreeditChanged :: (TextViewClass self, GlibString string) => Signal self (string -> IO ())
 textViewPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
 

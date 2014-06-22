@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- * Detail
--- 
+--
 -- | This widget underwent a signficant overhaul in gtk 2.4 and the
 -- recommended api changed substantially. The old interface is still supported
 -- but it is not recommended.
@@ -199,11 +199,11 @@ toolbarNew =
   liftM (castPtr :: Ptr Widget -> Ptr Toolbar) $
   {# call unsafe toolbar_new #}
 
--- Make tooltips or not? 
+-- Make tooltips or not?
 --
-mkToolText :: Maybe (String,String) -> (CString -> CString -> IO a) -> IO a
+mkToolText :: GlibString string => Maybe (string,string) -> (CString -> CString -> IO a) -> IO a
 mkToolText Nothing               fun = fun nullPtr nullPtr
-mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr -> 
+mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
   withUTFString private $ \prvPtr -> fun txtPtr prvPtr
 
 --------------------
@@ -221,7 +221,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 -- If you whish to have 'Tooltips' added to this button you can
 -- specify @Just (tipText, tipPrivate)@ , otherwise specify @Nothing@.
 --
--- The newly created 'Button' is returned. Use this button to 
+-- The newly created 'Button' is returned. Use this button to
 -- add an action function with @\"connectToClicked\"@.
 --
 -- * Warning: this function is deprecated and should not be used in
@@ -231,12 +231,12 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 toolbarInsertNewButton :: ToolbarClass self => self
  -> Int
  -> StockId
- -> Maybe (String,String)
+ -> Maybe (string,string)
  -> IO Button
-toolbarInsertNewButton self pos stockId tooltips = 
+toolbarInsertNewButton self pos stockId tooltips =
   withUTFString stockId $ \stockPtr ->
   mkToolText tooltips $ \textPtr privPtr ->
-  makeNewObject mkButton $ liftM castPtr $ 
+  makeNewObject mkButton $ liftM castPtr $
   {# call unsafe toolbar_insert_stock #}
     (toToolbar self)
     stockPtr
@@ -254,9 +254,9 @@ toolbarInsertNewButton self pos stockId tooltips =
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarAppendNewButton :: ToolbarClass self => self
- -> String
- -> Maybe (String, String)
+toolbarAppendNewButton :: (ToolbarClass self, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> IO Button
 toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
 
@@ -268,9 +268,9 @@ toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarPrependNewButton :: ToolbarClass self => self
- -> String
- -> Maybe (String, String)
+toolbarPrependNewButton :: (ToolbarClass self, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> IO Button
 toolbarPrependNewButton self = toolbarInsertNewButton self 0
 
@@ -282,10 +282,10 @@ toolbarPrependNewButton self = toolbarInsertNewButton self 0
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarInsertNewToggleButton :: ToolbarClass self => self
+toolbarInsertNewToggleButton :: (ToolbarClass self, GlibString string) => self
  -> Int
  -> StockId
- -> Maybe (String, String)
+ -> Maybe (string, string)
  -> IO ToggleButton
 toolbarInsertNewToggleButton self pos stockId tooltips = do
   mItem <- stockLookupItem stockId
@@ -297,8 +297,8 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
   image <- imageNewFromStock stockId size
   makeNewObject mkToggleButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
-    {#call unsafe toolbar_insert_element#} (toToolbar self) 
-    toolbarChildToggleButton (Widget nullForeignPtr) lblPtr 
+    {#call unsafe toolbar_insert_element#} (toToolbar self)
+    toolbarChildToggleButton (Widget nullForeignPtr) lblPtr
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
 
 -- | Append a new 'ToggleButton' to the 'Toolbar'.
@@ -309,9 +309,9 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarAppendNewToggleButton :: ToolbarClass self => self
- -> String
- -> Maybe (String, String)
+toolbarAppendNewToggleButton :: (ToolbarClass self, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> IO ToggleButton
 toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
 
@@ -323,9 +323,9 @@ toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarPrependNewToggleButton :: ToolbarClass self => self
- -> String
- -> Maybe (String, String)
+toolbarPrependNewToggleButton :: (ToolbarClass self, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> IO ToggleButton
 toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 
@@ -337,7 +337,7 @@ toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 -- newly-written code.
 --
 -- The @parent@ argument must be set to another
--- 'RadioButton' in the group. If @Nothing@ is given, 
+-- 'RadioButton' in the group. If @Nothing@ is given,
 -- a new group is generated (which is the desired behavious for the
 -- first button of a group).
 --
@@ -345,10 +345,10 @@ toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarInsertNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
+toolbarInsertNewRadioButton :: (ToolbarClass self, RadioButtonClass rb, GlibString string) => self
  -> Int
  -> StockId
- -> Maybe (String,String)
+ -> Maybe (string,string)
  -> Maybe rb
  -> IO RadioButton
 toolbarInsertNewRadioButton self pos stockId tooltips rb = do
@@ -361,8 +361,8 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
   image <- imageNewFromStock stockId size
   makeNewObject mkRadioButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
-    {#call unsafe toolbar_insert_element#} (toToolbar self) 
-    toolbarChildRadioButton (maybe (Widget nullForeignPtr) toWidget rb) 
+    {#call unsafe toolbar_insert_element#} (toToolbar self)
+    toolbarChildRadioButton (maybe (Widget nullForeignPtr) toWidget rb)
       lblPtr  textPtr privPtr (toWidget image) nullFunPtr nullPtr
       (fromIntegral pos)
 
@@ -374,9 +374,9 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarAppendNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
- -> String
- -> Maybe (String, String)
+toolbarAppendNewRadioButton :: (ToolbarClass self, RadioButtonClass rb, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> Maybe rb
  -> IO RadioButton
 toolbarAppendNewRadioButton self = toolbarInsertNewRadioButton self (-1)
@@ -389,9 +389,9 @@ toolbarAppendNewRadioButton self = toolbarInsertNewRadioButton self (-1)
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarPrependNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
- -> String
- -> Maybe (String, String)
+toolbarPrependNewRadioButton :: (ToolbarClass self, RadioButtonClass rb, GlibString string) => self
+ -> string
+ -> Maybe (string, string)
  -> Maybe rb
  -> IO RadioButton
 toolbarPrependNewRadioButton self = toolbarInsertNewRadioButton self 0
@@ -406,12 +406,12 @@ toolbarPrependNewRadioButton self = toolbarInsertNewRadioButton self 0
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarInsertNewWidget :: (ToolbarClass self, WidgetClass w) => self
+toolbarInsertNewWidget :: (ToolbarClass self, WidgetClass w, GlibString string) => self
  -> Int
  -> w
- -> Maybe (String,String)
+ -> Maybe (string,string)
  -> IO ()
-toolbarInsertNewWidget self pos w tooltips = 
+toolbarInsertNewWidget self pos w tooltips =
   mkToolText tooltips $ \textPtr privPtr ->
   {# call unsafe toolbar_insert_widget #}
     (toToolbar self)
@@ -428,9 +428,9 @@ toolbarInsertNewWidget self pos w tooltips =
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarAppendNewWidget :: (ToolbarClass self, WidgetClass w) => self
+toolbarAppendNewWidget :: (ToolbarClass self, WidgetClass w, GlibString string) => self
  -> w
- -> Maybe (String, String)
+ -> Maybe (string, string)
  -> IO ()
 toolbarAppendNewWidget self = toolbarInsertNewWidget self (-1)
 
@@ -442,9 +442,9 @@ toolbarAppendNewWidget self = toolbarInsertNewWidget self (-1)
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarPrependNewWidget :: (ToolbarClass self, WidgetClass w) => self
- -> w 
- -> Maybe (String, String)
+toolbarPrependNewWidget :: (ToolbarClass self, WidgetClass w, GlibString string) => self
+ -> w
+ -> Maybe (string, string)
  -> IO ()
 toolbarPrependNewWidget self = toolbarInsertNewWidget self 0
 #endif

@@ -62,6 +62,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererProgress (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes			(Attr)
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
@@ -101,6 +102,6 @@ cellProgressValue = newAttrFromIntProperty "value"
 --
 -- Default value: @Nothing@
 --
-cellProgressText :: CellRendererProgressClass self => Attr self (Maybe String)
+cellProgressText :: (CellRendererProgressClass self, GlibString string) => Attr self (Maybe string)
 cellProgressText = newAttrFromMaybeStringProperty "text"
 #endif

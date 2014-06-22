@@ -30,12 +30,12 @@
 --
 --     gtk_text_buffer_insert_with_tags equivalent to calling textBufferInsert,
 --     then textBufferApplyTag on the inserted text.
--- 
+--
 --     gtk_text_buffer_insert_with_tags_by_name same as gtk_text_buffer_insert_with_tags,
---     just use textTagName handle tag name.     
+--     just use textTagName handle tag name.
 --
 --     gtk_text_buffer_create_tag Equivalent to calling textTagNew
---     and then adding the tag to the buffer's tag table. 
+--     and then adding the tag to the buffer's tag table.
 --
 -- The following functions do not make sense due to Haskell's wide character
 --   representation of Unicode:
@@ -53,7 +53,7 @@
 --
 module Graphics.UI.Gtk.Multiline.TextBuffer (
 -- * Detail
--- 
+--
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
@@ -261,9 +261,9 @@ textBufferGetTagTable self =
 -- the signal. @iter@ is invalidated when insertion occurs (because the buffer
 -- contents change).
 --
-textBufferInsert :: TextBufferClass self => self
+textBufferInsert :: (TextBufferClass self, GlibString string) => self
  -> TextIter -- ^ @iter@ - a position in the buffer
- -> String   -- ^ @text@ - text to insert
+ -> string   -- ^ @text@ - text to insert
  -> IO ()
 textBufferInsert self iter text =
   withUTFStringLen text $ \(textPtr, len) ->
@@ -293,7 +293,7 @@ textBufferInsertByteString self iter text =
 -- | Simply calls 'textBufferInsert', using the current cursor position as the
 -- insertion point.
 --
-textBufferInsertAtCursor :: TextBufferClass self => self -> String -> IO ()
+textBufferInsertAtCursor :: (TextBufferClass self, GlibString string) => self -> string -> IO ()
 textBufferInsertAtCursor self text =
   withUTFStringLen text $ \(textPtr, len) ->
   {# call text_buffer_insert_at_cursor #}
@@ -323,9 +323,9 @@ textBufferInsertByteStringAtCursor self text =
 -- decide if the text should be inserted. This value could be set to the result
 -- of 'Graphics.UI.Gtk.Multiline.TextView.textViewGetEditable'.
 --
-textBufferInsertInteractive :: TextBufferClass self => self
+textBufferInsertInteractive :: (TextBufferClass self, GlibString string) => self
  -> TextIter -- ^ @iter@ - a position in @buffer@
- -> String   -- ^ @text@ - the text to insert
+ -> string   -- ^ @text@ - the text to insert
  -> Bool     -- ^ @defaultEditable@ - default editability of buffer
  -> IO Bool  -- ^ returns whether text was actually inserted
 textBufferInsertInteractive self iter text defaultEditable =
@@ -359,8 +359,8 @@ textBufferInsertByteStringInteractive self iter text defaultEditable =
 
 -- | Calls 'textBufferInsertInteractive' at the cursor position.
 --
-textBufferInsertInteractiveAtCursor :: TextBufferClass self => self
- -> String  -- ^ @text@ - the text to insert
+textBufferInsertInteractiveAtCursor :: (TextBufferClass self, GlibString string) => self
+ -> string  -- ^ @text@ - the text to insert
  -> Bool    -- ^ @defaultEditable@ - default editability of buffer
  -> IO Bool -- ^ returns whether text was actually inserted
 textBufferInsertInteractiveAtCursor self text defaultEditable =
@@ -470,8 +470,8 @@ textBufferDeleteInteractive self startIter endIter defaultEditable =
 
 -- | Deletes current contents of @buffer@, and inserts @text@ instead.
 --
-textBufferSetText :: TextBufferClass self => self
- -> String -- ^ @text@ - text to insert
+textBufferSetText :: (TextBufferClass self, GlibString string) => self
+ -> string -- ^ @text@ - text to insert
  -> IO ()
 textBufferSetText self text =
   withUTFStringLen text $ \(textPtr, len) ->
@@ -487,11 +487,11 @@ textBufferSetText self text =
 -- /not/ correspond to character indexes into the buffer. Contrast
 -- with 'textBufferGetSlice'.
 --
-textBufferGetText :: TextBufferClass self => self
+textBufferGetText :: (TextBufferClass self, GlibString string) => self
  -> TextIter  -- ^ @start@ - start of a range
  -> TextIter  -- ^ @end@ - end of a range
  -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
- -> IO String
+ -> IO string
 textBufferGetText self start end includeHiddenChars =
   {# call unsafe text_buffer_get_text #}
     (toTextBuffer self)
@@ -509,11 +509,11 @@ textBufferGetText self start end includeHiddenChars =
 -- that @(chr 0xFFFC)@ can occur in normal text as well, so it is not a reliable
 -- indicator that a pixbuf or widget is in the buffer.
 --
-textBufferGetSlice :: TextBufferClass self => self
+textBufferGetSlice :: (TextBufferClass self, GlibString string) => self
  -> TextIter  -- ^ @start@ - start of a range
  -> TextIter  -- ^ @end@ - end of a range
  -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
- -> IO String
+ -> IO string
 textBufferGetSlice self start end includeHiddenChars =
   {# call unsafe text_buffer_get_slice #}
     (toTextBuffer self)
@@ -622,7 +622,7 @@ textBufferCreateMark self markName where_ leftGravity =
     (fromBool leftGravity)
 
 #if GTK_CHECK_VERSION(2,12,0)
--- | Adds the mark at position given by the 'TextIter'. 
+-- | Adds the mark at position given by the 'TextIter'.
 -- The mark may not be added to any other buffer.
 --
 -- Emits the 'markSet' signal as notification of the mark's initial placement.
@@ -857,7 +857,7 @@ textBufferGetIterAtOffset self charOffset = do
     iter
     (fromIntegral charOffset)
   return iter
-  
+
 -- | Create an iterator at a specific line.
 --
 textBufferGetIterAtLine :: TextBufferClass self => self
@@ -1171,7 +1171,7 @@ textBufferCutClipboard self clipboard defaultEditable =
     (fromBool defaultEditable)
 #endif
 
--- | Adds clipboard to the list of clipboards in which the selection contents of @self@ are available. 
+-- | Adds clipboard to the list of clipboards in which the selection contents of @self@ are available.
 -- In most cases, @clipboard@ will be the 'Clipboard' of type 'selectionPrimary' for a view of @self@.
 --
 textBufferAddSelectionClipboard :: TextBufferClass self => self
@@ -1185,7 +1185,7 @@ textBufferAddSelectionClipboard self clipboard =
 textBufferRemoveSelectionClipboard :: TextBufferClass self => self
  -> Clipboard  -- ^ @clipboard@ -        the 'Clipboard' object to remove
  -> IO ()
-textBufferRemoveSelectionClipboard self clipboard =  
+textBufferRemoveSelectionClipboard self clipboard =
   {# call text_buffer_remove_selection_clipboard #} (toTextBuffer self) clipboard
 
 --------------------
@@ -1204,7 +1204,7 @@ textBufferTagTable = newAttrFromObjectProperty "tag-table"
 --
 -- Default value: \"\"
 --
-textBufferText :: TextBufferClass self => Attr self String
+textBufferText :: (TextBufferClass self, GlibString string) => Attr self string
 textBufferText = newAttrFromStringProperty "text"
 #endif
 
@@ -1221,7 +1221,7 @@ textBufferModified = newAttr
 
 -- | A 'TextTag' was applied to a region of text.
 --
-applyTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ()) 
+applyTag :: TextBufferClass self => Signal self (TextTag -> TextIter -> TextIter -> IO ())
 applyTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "apply-tag" mkTextIterCopy mkTextIterCopy)
 
 -- | A new atomic user action is started.
@@ -1256,7 +1256,7 @@ endUserAction = Signal (connect_NONE__NONE "end-user-action")
 insertPixbuf :: TextBufferClass self => Signal self (TextIter -> Pixbuf -> IO ())
 insertPixbuf = Signal (connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy)
 
--- | The 'insertChildAnchor' signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'. 
+-- | The 'insertChildAnchor' signal is emitted to insert a 'TextChildAnchor' in a 'TextBuffer'.
 -- Insertion actually occurs in the default handler.
 --
 -- * See note in 'bufferInsertText'.
@@ -1272,7 +1272,7 @@ insertChildAnchor = Signal (connect_BOXED_OBJECT__NONE "insert-child-anchor" mkT
 --   to prevent the default handler from running. If additional text should
 --   be inserted, this can be done using the 'after' function to connect.
 --
-bufferInsertText :: TextBufferClass self => Signal self (TextIter -> String -> IO ())
+bufferInsertText :: (TextBufferClass self, GlibString string) => Signal self (TextIter -> string -> IO ())
 bufferInsertText = Signal $ \after obj handler ->
   connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy after obj
   (\iter strPtr strLen -> peekUTFStringLen (strPtr, strLen) >>= handler iter)
@@ -1290,8 +1290,8 @@ markSet = Signal (connect_BOXED_OBJECT__NONE "mark-set" mkTextIterCopy)
 modifiedChanged :: TextBufferClass self => Signal self (IO ())
 modifiedChanged = Signal (connect_NONE__NONE "modified-changed")
 
--- | The 'pasteDone' signal is emitted after paste operation has been completed. 
--- This is useful to properly scroll the view to the end of the pasted text. 
+-- | The 'pasteDone' signal is emitted after paste operation has been completed.
+-- This is useful to properly scroll the view to the end of the pasted text.
 -- See 'textBufferPasteClipboard' for more details.
 pasteDone :: TextBufferClass self => Signal self (Clipboard -> IO ())
 pasteDone = Signal (connect_OBJECT__NONE "paste-done")
@@ -1311,9 +1311,9 @@ removeTag = Signal (connect_OBJECT_BOXED_BOXED__NONE "remove-tag" mkTextIterCopy
 onApplyTag, afterApplyTag :: TextBufferClass self => self
  -> (TextTag -> TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
-onApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
+onApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag"
   mkTextIterCopy mkTextIterCopy False
-afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
+afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag"
   mkTextIterCopy mkTextIterCopy True
 
 -- | A new atomic user action is started.
@@ -1367,19 +1367,19 @@ afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert-pixbuf" mkTextIterCopy Tr
 
 -- | Some text was inserted.
 --
-onBufferInsertText, afterBufferInsertText :: TextBufferClass self => self
- -> (TextIter -> String -> IO ())
+onBufferInsertText, afterBufferInsertText :: (TextBufferClass self, GlibString string) => self
+ -> (TextIter -> string -> IO ())
  -> IO (ConnectId self)
-onBufferInsertText self user = 
+onBufferInsertText self user =
   connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy False self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
-      user iter str 
-afterBufferInsertText self user = 
+      user iter str
+afterBufferInsertText self user =
   connect_BOXED_PTR_INT__NONE "insert-text" mkTextIterCopy True self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
-      user iter str 
+      user iter str
 
 -- | A 'TextMark' within the buffer was deleted.
 --
@@ -1410,9 +1410,9 @@ afterModifiedChanged = connect_NONE__NONE "modified-changed" True
 onRemoveTag, afterRemoveTag :: TextBufferClass self => self
  -> (TextTag -> TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
-onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag" 
+onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag"
   mkTextIterCopy mkTextIterCopy False
-afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag" 
+afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove-tag"
   mkTextIterCopy mkTextIterCopy True
 
 #endif

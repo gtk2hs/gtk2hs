@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 import Graphics.UI.Gtk
 import Control.Monad.IO.Class (liftIO)
 
@@ -80,7 +81,7 @@ main = do
 
   standardGroup <- actionGroupNew "standard"
   mapM_ (actionGroupAddAction standardGroup) [fileAct, editAct]
-  mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act Nothing)
+  mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act (Nothing::Maybe String))
     [newAct, openAct, saveAct, saveAsAct, exitAct, cutAct, copyAct, pasteAct]
 
   ui <- uiManagerNew

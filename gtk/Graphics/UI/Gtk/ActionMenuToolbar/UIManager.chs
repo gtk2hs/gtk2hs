@@ -33,13 +33,13 @@
 --
 module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- * Detail
--- 
+--
 -- | A 'UIManager' constructs a user interface (menus and toolbars) from one
 -- or more UI definitions, which reference actions from one or more action
 -- groups.
 
 -- ** UI Definitions
--- 
+--
 -- | #XML-UI# The UI definitions are specified in an XML format which can be roughly
 -- described by the following DTD.
 --
@@ -53,11 +53,11 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- > <!ELEMENT toolitem     EMPTY >
 -- > <!ELEMENT separator    EMPTY >
 -- > <!ELEMENT accelerator  EMPTY >
--- > <!ATTLIST menubar      name                  #IMPLIED 
+-- > <!ATTLIST menubar      name                  #IMPLIED
 -- >                        action                #IMPLIED >
--- > <!ATTLIST toolbar      name                  #IMPLIED 
+-- > <!ATTLIST toolbar      name                  #IMPLIED
 -- >                        action                #IMPLIED >
--- > <!ATTLIST popup        name                  #IMPLIED 
+-- > <!ATTLIST popup        name                  #IMPLIED
 -- >                        action                #IMPLIED >
 -- > <!ATTLIST placeholder  name                  #IMPLIED
 -- >                        action                #IMPLIED
@@ -144,7 +144,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- \"top\", the widget is prepended, otherwise it is appended.
 
 -- ** UI Merging
--- 
+--
 -- | The most remarkable feature of 'UIManager' is that it can overlay a set
 -- of menuitems and toolitems over another one, and demerge them later.
 --
@@ -156,14 +156,14 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- @\/ui\/toolbar1\/JustifyToolItems\/Left@.
 
 -- ** Accelerators
--- 
+--
 -- | Every action has an accelerator path. Accelerators are installed together
 -- with menuitem proxies, but they can also be explicitly added with
 -- \<accelerator> elements in the UI definition. This makes it possible to have
 -- accelerators for actions even if they have no visible proxies.
 
 -- ** Smart Separators
--- 
+--
 -- | The separators created by 'UIManager' are \"smart\", i.e. they do not
 -- show up in the UI unless they end up between two visible menu or tool items.
 -- Separators which are located at the very beginning or end of the menu or
@@ -177,7 +177,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- following an expanding separator are effectively right-aligned.
 
 -- ** Empty Menus
--- 
+--
 -- | Submenus pose similar problems to separators inconnection with merging.
 -- It is impossible to know in advance whether they will end up empty after
 -- merging. 'UIManager' offers two ways to treat empty submenus:
@@ -188,7 +188,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 --
 -- The behaviour is chosen based on the \"hide_if_empty\" property of the
 -- action to which the submenu is associated.
--- 
+--
 
 -- * Class Hierarchy
 -- |
@@ -375,8 +375,8 @@ uiManagerGetAccelGroup self =
 -- Note that the widget found by following a path that ends in a \<menu>
 -- element is the menuitem to which the menu is attached, not the menu itself.
 --
-uiManagerGetWidget :: UIManager
- -> String            -- ^ @path@ - a path
+uiManagerGetWidget :: GlibString string => UIManager
+ -> string            -- ^ @path@ - a path
  -> IO (Maybe Widget) -- ^ returns the widget found by following the path, or
                       -- @Nothing@ if no widget was found.
 uiManagerGetWidget self path =
@@ -405,8 +405,8 @@ uiManagerGetToplevels self types =
 -- | Looks up an action by following a path. See 'uiManagerGetWidget' for more
 -- information about paths.
 --
-uiManagerGetAction :: UIManager
- -> String            -- ^ @path@ - a path
+uiManagerGetAction :: GlibString string => UIManager
+ -> string            -- ^ @path@ - a path
  -> IO (Maybe Action) -- ^ returns the action whose proxy widget is found by
                       -- following the path, or @Nothing@ if no widget was
                       -- found.
@@ -422,8 +422,8 @@ uiManagerGetAction self path =
 --
 -- If a parse error occurres, an exception is thrown.
 --
-uiManagerAddUiFromString :: UIManager
- -> String    -- ^ @buffer@ - the string to parse
+uiManagerAddUiFromString :: GlibString string => UIManager
+ -> string    -- ^ @buffer@ - the string to parse
  -> IO MergeId -- ^ returns The merge id for the merged UI. The merge id can be
                -- used to unmerge the UI with 'uiManagerRemoveUi'.
 uiManagerAddUiFromString self buffer =
@@ -441,8 +441,8 @@ uiManagerAddUiFromString self buffer =
 --
 -- If a parse or IO error occurres, an exception is thrown.
 --
-uiManagerAddUiFromFile :: UIManager
- -> String    -- ^ @filename@ - the name of the file to parse
+uiManagerAddUiFromFile :: GlibString string => UIManager
+ -> string    -- ^ @filename@ - the name of the file to parse
  -> IO MergeId -- ^ returns The merge id for the merged UI. The merge id can be
               -- used to unmerge the UI with 'uiManagerRemoveUi'.
 uiManagerAddUiFromFile self filename =
@@ -468,12 +468,12 @@ uiManagerAddUiFromFile self filename =
 -- If @path@ points to a menuitem or toolitem, the new element will be
 -- inserted before or after this item, depending on @top@.
 --
-uiManagerAddUi :: UIManager
+uiManagerAddUi :: GlibString string => UIManager
  -> MergeId             -- ^ @mergeId@ - the merge id for the merged UI, see
                         -- 'uiManagerNewMergeId'
- -> String              -- ^ @path@ - a path
- -> String              -- ^ @name@ - the name for the added UI element
- -> Maybe String        -- ^ @action@ - the name of the action to be proxied,
+ -> string              -- ^ @path@ - a path
+ -> string              -- ^ @name@ - the name for the added UI element
+ -> Maybe string        -- ^ @action@ - the name of the action to be proxied,
                         -- or @Nothing@ to add a separator
  -> [UIManagerItemType] -- ^ @type@ - the type of UI element to add.
  -> Bool                -- ^ @top@ - if @True@, the UI element is added before
@@ -506,8 +506,8 @@ uiManagerRemoveUi self mergeId =
 
 -- | Creates a UI definition of the merged UI.
 --
-uiManagerGetUi :: UIManager
- -> IO String -- ^ returns string containing an XML representation of the
+uiManagerGetUi :: GlibString string => UIManager
+ -> IO string -- ^ returns string containing an XML representation of the
               -- merged UI.
 uiManagerGetUi self =
   {# call gtk_ui_manager_get_ui #}
@@ -520,7 +520,7 @@ uiManagerGetUi self =
 -- an idle function. A typical example where this function is useful is to
 -- enforce that the menubar and toolbar have been added to the main window
 -- before showing it:
--- 
+--
 -- > do
 -- >   containerAdd window vbox
 -- >   onAddWidget merge (addWidget vbox)
@@ -554,7 +554,7 @@ uiManagerAddTearoffs = newAttr
 --
 -- Default value: @\"\<ui\>\\n\<\/ui\>\\n\"@
 --
-uiManagerUi :: ReadAttr UIManager String
+uiManagerUi :: GlibString string => ReadAttr UIManager string
 uiManagerUi = readAttrFromStringProperty "ui"
 
 --------------------

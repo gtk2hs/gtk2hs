@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
 -- * Detail
--- 
+--
 -- | The 'FontSelectionDialog' widget is a dialog box for selecting a font.
 --
 -- To set the font which is initially selected, use
@@ -92,8 +92,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'FontSelectionDialog'.
 --
-fontSelectionDialogNew :: 
-    String                 -- ^ @title@ - the title of the dialog box.
+fontSelectionDialogNew :: GlibString string
+ => string                 -- ^ @title@ - the title of the dialog box.
  -> IO FontSelectionDialog
 fontSelectionDialogNew title =
   makeNewObject mkFontSelectionDialog $
@@ -107,8 +107,8 @@ fontSelectionDialogNew title =
 
 -- | Gets the currently-selected font name.
 --
-fontSelectionDialogGetFontName :: FontSelectionDialogClass self => self
- -> IO (Maybe String) -- ^ returns the currently-selected font name, or
+fontSelectionDialogGetFontName :: (FontSelectionDialogClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns the currently-selected font name, or
                       -- @Nothing@ if no font is selected.
 fontSelectionDialogGetFontName self =
   {# call font_selection_dialog_get_font_name #}
@@ -117,8 +117,8 @@ fontSelectionDialogGetFontName self =
 
 -- | Sets the currently-selected font.
 --
-fontSelectionDialogSetFontName :: FontSelectionDialogClass self => self
- -> String  -- ^ @fontname@ - a fontname.
+fontSelectionDialogSetFontName :: (FontSelectionDialogClass self, GlibString string) => self
+ -> string  -- ^ @fontname@ - a fontname.
  -> IO Bool -- ^ returns @True@ if the font was found.
 fontSelectionDialogSetFontName self fontname =
   liftM toBool $
@@ -129,7 +129,7 @@ fontSelectionDialogSetFontName self fontname =
 
 -- | Gets the text displayed in the preview area.
 --
-fontSelectionDialogGetPreviewText :: FontSelectionDialogClass self => self -> IO String
+fontSelectionDialogGetPreviewText :: (FontSelectionDialogClass self, GlibString string) => self -> IO string
 fontSelectionDialogGetPreviewText self =
   {# call unsafe font_selection_dialog_get_preview_text #}
     (toFontSelectionDialog self)
@@ -137,7 +137,7 @@ fontSelectionDialogGetPreviewText self =
 
 -- | Sets the text displayed in the preview area.
 --
-fontSelectionDialogSetPreviewText :: FontSelectionDialogClass self => self -> String -> IO ()
+fontSelectionDialogSetPreviewText :: (FontSelectionDialogClass self, GlibString string) => self -> string -> IO ()
 fontSelectionDialogSetPreviewText self text =
   withUTFString text $ \textPtr ->
   {# call font_selection_dialog_set_preview_text #}
@@ -150,8 +150,8 @@ fontSelectionDialogSetPreviewText self text =
 -- * Available since Gtk+ version 2.14
 --
 fontSelectionDialogGetCancelButton :: FontSelectionDialogClass self => self
-                                    -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'Cancel' button. 
-fontSelectionDialogGetCancelButton self = 
+                                    -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'Cancel' button.
+fontSelectionDialogGetCancelButton self =
   makeNewObject mkWidget $
   {#call gtk_font_selection_dialog_get_cancel_button #}
      (toFontSelectionDialog self)
@@ -161,8 +161,8 @@ fontSelectionDialogGetCancelButton self =
 -- * Available since Gtk+ version 2.14
 --
 fontSelectionDialogGetOkButton :: FontSelectionDialogClass self => self
-                               -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'OK' button. 
-fontSelectionDialogGetOkButton self = 
+                               -> IO Widget -- ^ returns the 'Widget' used in the dialog for the 'OK' button.
+fontSelectionDialogGetOkButton self =
   makeNewObject mkWidget $
   {#call gtk_font_selection_dialog_get_ok_button #}
      (toFontSelectionDialog self)
@@ -175,8 +175,8 @@ fontSelectionDialogGetOkButton self =
 -- * Available since Gtk+ version 2.22
 --
 fontSelectionDialogGetFontSelection :: FontSelectionDialogClass self => self
-                                    -> IO FontSelection -- ^ returns the embedded 'FontSelection' 
-fontSelectionDialogGetFontSelection self = 
+                                    -> IO FontSelection -- ^ returns the embedded 'FontSelection'
+fontSelectionDialogGetFontSelection self =
   makeNewObject mkFontSelection $
   liftM (castPtr :: Ptr Widget -> Ptr FontSelection) $
   {#call gtk_font_selection_dialog_get_font_selection #}
@@ -189,7 +189,7 @@ fontSelectionDialogGetFontSelection self =
 -- | \'previewText\' property. See 'fontSelectionDialogGetPreviewText' and
 -- 'fontSelectionDialogSetPreviewText'
 --
-fontSelectionDialogPreviewText :: FontSelectionDialogClass self => Attr self String
+fontSelectionDialogPreviewText :: (FontSelectionDialogClass self, GlibString string) => Attr self string
 fontSelectionDialogPreviewText = newAttr
   fontSelectionDialogGetPreviewText
   fontSelectionDialogSetPreviewText

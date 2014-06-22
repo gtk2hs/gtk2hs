@@ -19,7 +19,7 @@
 --  Lesser General Public License for more details.
 --
 -- TODO
--- 
+--
 --     Didn't bind `textTagTabs` properties, we need to bind PangoTab first (in `pango-tabs.c`)
 --
 -- |
@@ -31,7 +31,7 @@
 --
 module Graphics.UI.Gtk.Multiline.TextTag (
 -- * Detail
--- 
+--
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
@@ -157,6 +157,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(wrapNewGObject)
@@ -193,7 +194,7 @@ textTagNew (Just name) =
     namePtr
 textTagNew Nothing =
   wrapNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
-    
+
 
 --------------------
 -- Methods
@@ -238,13 +239,13 @@ textAttributesNew =
 
 -- | Copies src and returns a new 'TextAttributes'.
 --
-textAttributesCopy :: 
-  TextAttributes  -- ^ @src@ - a 'TextAttributes' to be copied 
+textAttributesCopy ::
+  TextAttributes  -- ^ @src@ - a 'TextAttributes' to be copied
  -> IO TextAttributes
 textAttributesCopy src =
   {#call text_attributes_copy#} src >>= makeNewTextAttributes
 
--- | Copies the values from src to dest so that dest has the same values as src. 
+-- | Copies the values from src to dest so that dest has the same values as src.
 --
 textAttributesCopyValues :: TextAttributes -> TextAttributes -> IO ()
 textAttributesCopyValues src dest =
@@ -266,14 +267,14 @@ foreign import ccall unsafe "&gtk_text_attributes_unref"
 --
 -- Default value: @Nothing@
 --
-textTagName :: TextTagClass self => Attr self (Maybe String)
+textTagName :: (TextTagClass self, GlibString string) => Attr self (Maybe string)
 textTagName = newAttrFromMaybeStringProperty "name"
 
 -- | Background color as a string.
 --
 -- Default value: \"\"
 --
-textTagBackground :: TextTagClass self => WriteAttr self String
+textTagBackground :: (TextTagClass self, GlibString string) => WriteAttr self string
 textTagBackground = writeAttrFromStringProperty "background"
 
 -- | Whether this tag affects the background color.
@@ -294,7 +295,7 @@ textTagBackgroundFullHeight = newAttrFromBoolProperty "background-full-height"
 -- | Whether this tag affects background height.
 --
 -- Default value: @False@
--- 
+--
 textTagBackgroundFullHeightSet :: TextTagClass self => Attr self Bool
 textTagBackgroundFullHeightSet = newAttrFromBoolProperty "background-full-height-set"
 
@@ -314,7 +315,7 @@ textTagBackgroundStipple = newAttrFromObjectProperty "background-stipple"
   {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | Whether this tag affects the background stipple.
--- 
+--
 -- Default value: @False@
 --
 -- Removed in Gtk3.
@@ -326,11 +327,11 @@ textTagBackgroundStippleSet = newAttrFromBoolProperty "background-stipple-set"
 --
 -- Default value: \"\"
 --
-textTagForeground :: TextTagClass self => WriteAttr self String
+textTagForeground :: (TextTagClass self, GlibString string) => WriteAttr self string
 textTagForeground = writeAttrFromStringProperty "foreground"
 
 -- | Whether this tag affects the foreground color.
--- 
+--
 -- Default value: @False@
 --
 textTagForegroundSet :: TextTagClass self => Attr self Bool
@@ -352,7 +353,7 @@ textTagForegroundStipple = newAttrFromObjectProperty "foreground-stipple"
   {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | Whether this tag affects the foreground stipple.
--- 
+--
 -- Default value: @False@
 --
 -- Removed in Gtk3.
@@ -376,7 +377,7 @@ textTagEditable :: TextTagClass self => Attr self Bool
 textTagEditable = newAttrFromBoolProperty "editable"
 
 -- | Whether this tag affects text editability.
--- 
+--
 -- Default value: @False@
 --
 textTagEditableSet :: TextTagClass self => Attr self Bool
@@ -386,7 +387,7 @@ textTagEditableSet = newAttrFromBoolProperty "editable-set"
 --
 -- Default value: \"\"
 --
-textTagFont :: TextTagClass self => Attr self String
+textTagFont :: (TextTagClass self, GlibString string) => Attr self string
 textTagFont = newAttrFromStringProperty "font"
 
 -- | Font description as a 'FontDescription' struct.
@@ -400,11 +401,11 @@ textTagFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
 --
 -- Default value: \"\"
 --
-textTagFamily :: TextTagClass self => Attr self String
+textTagFamily :: (TextTagClass self, GlibString string) => Attr self string
 textTagFamily = newAttrFromStringProperty "family"
 
 -- | Whether this tag affects the font family.
--- 
+--
 -- Default value: @False@
 --
 textTagFamilySet :: TextTagClass self => Attr self Bool
@@ -419,7 +420,7 @@ textTagStyle = newAttrFromEnumProperty "style"
   {# call pure unsafe pango_style_get_type #}
 
 -- | Whether this tag affects the font style.
--- 
+--
 -- Default value: @False@
 --
 textTagStyleSet :: TextTagClass self => Attr self Bool
@@ -429,7 +430,7 @@ textTagStyleSet = newAttrFromBoolProperty "style-set"
 -- textTagTabs :: TextTagClass self => Attr self TabArray
 
 -- | Whether this tag affects tabs.
--- 
+--
 -- Default value: @False@
 --
 textTagTabsSet :: TextTagClass self => Attr self Bool
@@ -444,7 +445,7 @@ textTagVariant = newAttrFromEnumProperty "variant"
   {# call pure unsafe pango_variant_get_type #}
 
 -- | Whether this tag affects the font variant.
--- 
+--
 -- Default value: @False@
 --
 textTagVariantSet :: TextTagClass self => Attr self Bool
@@ -461,7 +462,7 @@ textTagWeight :: TextTagClass self => Attr self Int
 textTagWeight = newAttrFromIntProperty "weight"
 
 -- | Whether this tag affects the font weight.
--- 
+--
 -- Default value: @False@
 --
 textTagWeightSet :: TextTagClass self => Attr self Bool
@@ -489,7 +490,7 @@ textTagSize :: TextTagClass self => Attr self Int
 textTagSize = newAttrFromIntProperty "size"
 
 -- | Whether this tag affects the font size.
--- 
+--
 -- Default value: @False@
 --
 textTagSizeSet :: TextTagClass self => Attr self Bool
@@ -506,7 +507,7 @@ textTagScale :: TextTagClass self => Attr self Double
 textTagScale = newAttrFromDoubleProperty "scale"
 
 -- | Whether this tag scales the font size by a factor.
--- 
+--
 -- Default value: @False@
 --
 textTagScaleSet :: TextTagClass self => Attr self Bool
@@ -530,7 +531,7 @@ textTagJustification = newAttrFromEnumProperty "justification"
   {# call pure unsafe gtk_justification_get_type #}
 
 -- | Whether this tag affects paragraph justification.
--- 
+--
 -- Default value: @False@
 --
 textTagJustificationSet :: TextTagClass self => Attr self Bool
@@ -542,11 +543,11 @@ textTagJustificationSet = newAttrFromBoolProperty "justification-set"
 --
 -- Default value: \"\"
 --
-textTagLanguage :: TextTagClass self => Attr self String
+textTagLanguage :: (TextTagClass self, GlibString string) => Attr self string
 textTagLanguage = newAttrFromStringProperty "language"
 
 -- | Whether this tag affects the language the text is rendered as.
--- 
+--
 -- Default value: @False@
 --
 textTagLanguageSet :: TextTagClass self => Attr self Bool
@@ -562,7 +563,7 @@ textTagLeftMargin :: TextTagClass self => Attr self Int
 textTagLeftMargin = newAttrFromIntProperty "left-margin"
 
 -- | Whether this tag affects the left margin.
--- 
+--
 -- Default value: @False@
 --
 textTagLeftMarginSet :: TextTagClass self => Attr self Bool
@@ -578,7 +579,7 @@ textTagRightMargin :: TextTagClass self => Attr self Int
 textTagRightMargin = newAttrFromIntProperty "right-margin"
 
 -- | Whether this tag affects the right margin.
--- 
+--
 -- Default value: @False@
 --
 textTagRightMarginSet :: TextTagClass self => Attr self Bool
@@ -592,7 +593,7 @@ textTagIndent :: TextTagClass self => Attr self Int
 textTagIndent = newAttrFromIntProperty "indent"
 
 -- | Whether this tag affects indentation.
--- 
+--
 -- Default value: @False@
 --
 textTagIndentSet :: TextTagClass self => Attr self Bool
@@ -620,7 +621,7 @@ textTagPixelsAboveLines :: TextTagClass self => Attr self Int
 textTagPixelsAboveLines = newAttrFromIntProperty "pixels-above-lines"
 
 -- | Whether this tag affects the number of pixels above lines.
--- 
+--
 -- Default value: @False@
 --
 textTagPixelsAboveLinesSet :: TextTagClass self => Attr self Bool
@@ -636,7 +637,7 @@ textTagPixelsBelowLines :: TextTagClass self => Attr self Int
 textTagPixelsBelowLines = newAttrFromIntProperty "pixels-below-lines"
 
 -- | Whether this tag affects the number of pixels below lines.
--- 
+--
 -- Default value: @False@
 --
 textTagPixelsBelowLinesSet :: TextTagClass self => Attr self Bool
@@ -652,7 +653,7 @@ textTagPixelsInsideWrap :: TextTagClass self => Attr self Int
 textTagPixelsInsideWrap = newAttrFromIntProperty "pixels-inside-wrap"
 
 -- | Whether this tag affects the number of pixels between wrapped lines.
--- 
+--
 -- Default value: @False@
 --
 textTagPixelsInsideWrapSet :: TextTagClass self => Attr self Bool
@@ -666,7 +667,7 @@ textTagStrikethrough :: TextTagClass self => Attr self Bool
 textTagStrikethrough = newAttrFromBoolProperty "strikethrough"
 
 -- | Whether this tag affects strikethrough.
--- 
+--
 -- Default value: @False@
 --
 textTagStrikethroughSet :: TextTagClass self => Attr self Bool
@@ -681,7 +682,7 @@ textTagUnderline = newAttrFromEnumProperty "underline"
   {# call pure unsafe pango_underline_get_type #}
 
 -- | Whether this tag affects underlining.
--- 
+--
 -- Default value: @False@
 --
 textTagUnderlineSet :: TextTagClass self => Attr self Bool
@@ -697,7 +698,7 @@ textTagWrapMode = newAttrFromEnumProperty "wrap-mode"
   {# call pure unsafe gtk_wrap_mode_get_type #}
 
 -- | Whether this tag affects line wrap mode.
--- 
+--
 -- Default value: @False@
 --
 textTagWrapModeSet :: TextTagClass self => Attr self Bool
@@ -716,7 +717,7 @@ textTagInvisible :: TextTagClass self => Attr self Bool
 textTagInvisible = newAttrFromBoolProperty "invisible"
 
 -- | Whether this tag affects text visibility.
--- 
+--
 -- Default value: @False@
 --
 textTagInvisibleSet :: TextTagClass self => Attr self Bool
@@ -726,11 +727,11 @@ textTagInvisibleSet = newAttrFromBoolProperty "invisible-set"
 --
 -- Default value: \"\"
 --
-textTagParagraphBackground :: TextTagClass self => WriteAttr self String
+textTagParagraphBackground :: (TextTagClass self, GlibString string) => WriteAttr self string
 textTagParagraphBackground = writeAttrFromStringProperty "paragraph-background"
 
 -- | Whether this tag affects the paragraph background color.
--- 
+--
 -- Default value: @False@
 --
 textTagParagraphBackgroundSet :: TextTagClass self => Attr self Bool
@@ -739,7 +740,7 @@ textTagParagraphBackgroundSet = newAttrFromBoolProperty "paragraph-background-se
 -- | The paragraph background color as a as a (possibly unallocated) 'Color'.
 --
 textTagParagraphBackgroundGdk :: TextTagClass self => Attr self Color
-textTagParagraphBackgroundGdk = 
+textTagParagraphBackgroundGdk =
   newAttrFromBoxedStorableProperty "paragraph-background-gdk"
   {# call pure unsafe gdk_color_get_type #}
 #endif

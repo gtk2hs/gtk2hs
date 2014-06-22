@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.Builder
 -- A 'Builder' holds a reference to all objects that it has constructed and
 -- drops these references when it is finalized. This finalization can cause
 -- the destruction of non-widget objects or widgets which are not contained
--- in a toplevel window. For toplevel windows constructed by a builder, it 
+-- in a toplevel window. For toplevel windows constructed by a builder, it
 -- is the responsibility of the user to perform 'widgetDestroy' to get rid
 -- of them and all the widgets they contain.
 --
@@ -138,7 +138,7 @@ builderAddFromFile builder path =
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'BuilderError'.
 --
-builderAddFromString :: Builder -> String -> IO ()
+builderAddFromString :: GlibString string => Builder -> string -> IO ()
 builderAddFromString builder str =
   propagateGError $ \errPtrPtr ->
   withUTFStringLen str $ \(strPtr, strLen) ->
@@ -155,10 +155,10 @@ builderAddFromString builder str =
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'BuilderError'.
 --
-builderAddObjectsFromFile ::
-    Builder
+builderAddObjectsFromFile :: GlibString string
+ => Builder
  -> FilePath
- -> [String] -- ^ Object IDs
+ -> [string] -- ^ Object IDs
  -> IO ()
 builderAddObjectsFromFile builder path ids =
   propagateGError $ \errPtrPtr ->
@@ -176,10 +176,10 @@ builderAddObjectsFromFile builder path ids =
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'BuilderError'.
 --
-builderAddObjectsFromString ::
-    Builder
- -> String
- -> [String] -- ^ Object IDs
+builderAddObjectsFromString :: GlibString string
+ => Builder
+ -> string
+ -> [string] -- ^ Object IDs
  -> IO ()
 builderAddObjectsFromString builder str ids =
   propagateGError $ \errPtrPtr ->
@@ -195,8 +195,8 @@ builderAddObjectsFromString builder str ids =
 
 -- | Gets the object with the given name. Note that this computation does
 -- not increment the reference count of the returned object.
-builderGetObjectRaw :: Builder
- -> String           -- The ID of the object in the UI file, eg \"button1\".
+builderGetObjectRaw :: GlibString string => Builder
+ -> string           -- The ID of the object in the UI file, eg \"button1\".
  -> IO (Maybe GObject)
 builderGetObjectRaw builder name =
   withUTFString name $ \namePtr ->
@@ -211,11 +211,11 @@ builderGetObjectRaw builder name =
 -- If the object with the given ID is not of the requested type, an
 -- exception will be thrown.
 --
-builderGetObject :: GObjectClass cls =>
+builderGetObject :: (GObjectClass cls, GlibString string) =>
     Builder
  -> (GObject -> cls) -- ^ A dynamic cast function which returns an object
                      -- of the expected type, eg 'castToButton'
- -> String           -- The ID of the object in the UI file, eg \"button1\".
+ -> string           -- The ID of the object in the UI file, eg \"button1\".
  -> IO cls
 builderGetObject builder cast name = do
   raw <- builderGetObjectRaw builder name
@@ -235,14 +235,14 @@ builderGetObjects builder =
     >>= mapM (makeNewGObject mkGObject . return)
 
 -- | Sets the translation domain of the 'Builder'.
-builderSetTranslationDomain :: Builder -> Maybe String -> IO ()
+builderSetTranslationDomain :: GlibString string => Builder -> Maybe string -> IO ()
 builderSetTranslationDomain builder domain =
   maybeWith withUTFString domain $ \domainPtr ->
   {# call unsafe builder_set_translation_domain #}
     builder domainPtr
 
 -- | Gets the translation domain of the 'Builder'.
-builderGetTranslationDomain :: Builder -> IO (Maybe String)
+builderGetTranslationDomain :: GlibString string => Builder -> IO (Maybe string)
 builderGetTranslationDomain builder =
   {# call unsafe builder_get_translation_domain #}
     builder

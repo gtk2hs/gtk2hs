@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Selectors.ColorSelectionDialog (
 -- * Detail
--- 
+--
 -- | The 'ColorSelectionDialog' provides a standard dialog which allows the
 -- user to select a color much like the 'FileSelection' provides a standard
 -- dialog for file selection.
@@ -83,8 +83,8 @@ import Graphics.UI.Gtk.General.Structs	(colorSelectionDialogGetColor,
 
 -- | Creates a new 'ColorSelectionDialog'.
 --
-colorSelectionDialogNew :: 
-    String                  -- ^ @title@ - a string containing the title text
+colorSelectionDialogNew :: GlibString string
+ => string                  -- ^ @title@ - a string containing the title text
                             -- for the dialog.
  -> IO ColorSelectionDialog
 colorSelectionDialogNew title =

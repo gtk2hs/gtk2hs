@@ -30,7 +30,7 @@
 --
 module Graphics.Rendering.Pango.BasicTypes (
   GInt,
-  
+
   Language(Language),
   emptyLanguage,
   languageFromString,
@@ -106,13 +106,13 @@ emptyLanguage = Language nullPtr
 --   lowercase, mapping \'_\' to \'-\', and stripping all characters
 --   other than letters and \'-\'.
 --
-languageFromString :: String -> IO Language
+languageFromString :: GlibString string => string -> IO Language
 languageFromString language = liftM Language $
   withUTFString language {#call language_from_string#}
 
 -- | The style of a font.
 --
--- * 'StyleOblique' is a slanted font like 'StyleItalic', 
+-- * 'StyleOblique' is a slanted font like 'StyleItalic',
 --   but in a roman style.
 --
 {#enum Style as FontStyle {underscoreToCase} deriving (Eq)#}
@@ -207,7 +207,7 @@ instance Show PangoGravity where
   show PangoGravityNorth = "north"
   show PangoGravityWest = "west"
   show PangoGravityAuto = "auto"
-  
+
 -- | The 'PangoGravityHint' defines how horizontal scripts should behave in a
 -- vertical context.
 --
@@ -234,14 +234,14 @@ instance Show PangoGravityHint where
 -- A string that is stored with each GlyphString, PangoItem
 data PangoString = PangoString UTFCorrection CInt (ForeignPtr CChar)
 
-makeNewPangoString :: String -> IO PangoString
+makeNewPangoString :: GlibString string => string -> IO PangoString
 makeNewPangoString str = do
   let correct = genUTFOfs str
   (strPtr, len) <- newUTFStringLen str
   let cLen = fromIntegral len
   liftM (PangoString correct cLen) $ newForeignPtr strPtr finalizerFree
 
-withPangoString :: PangoString -> 
+withPangoString :: PangoString ->
 		   (UTFCorrection -> CInt -> Ptr CChar -> IO a) -> IO a
 withPangoString (PangoString c l ptr) act = withForeignPtr ptr $ \strPtr ->
   act c l strPtr
@@ -297,9 +297,9 @@ data PangoItem = PangoItem PangoString PangoItemRaw
 -- * A glyph item contains the graphical representation of a 'PangoItem'.
 --   Clusters (like @e@ and an accent modifier) as well as legatures
 --   (such as @ffi@ turning into a single letter that omits the dot over the
---   @i@) are usually represented as a single glyph. 
+--   @i@) are usually represented as a single glyph.
 --
-data GlyphItem = GlyphItem PangoItem GlyphStringRaw 
+data GlyphItem = GlyphItem PangoItem GlyphStringRaw
 
 -- | A rendered paragraph.
 data PangoLayout = PangoLayout (IORef PangoString) PangoLayoutRaw

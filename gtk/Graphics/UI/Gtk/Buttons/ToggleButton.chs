@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Buttons.ToggleButton (
 -- * Detail
--- 
+--
 -- | A 'ToggleButton' is a 'Button' which will remain \'pressed-in\' when
 -- clicked. Clicking again will cause the toggle button to return to its normal
 -- state.
@@ -118,8 +118,8 @@ toggleButtonNew =
 
 -- | Creates a new toggle button with a text label.
 --
-toggleButtonNewWithLabel :: 
-    String          -- ^ @label@ - a string containing the message to be
+toggleButtonNewWithLabel :: GlibString string
+ => string          -- ^ @label@ - a string containing the message to be
                     -- placed in the toggle button.
  -> IO ToggleButton
 toggleButtonNewWithLabel label =
@@ -134,8 +134,8 @@ toggleButtonNewWithLabel label =
 -- so underscores in @label@ indicate the
 -- mnemonic for the button.
 --
-toggleButtonNewWithMnemonic :: 
-    String          -- ^ @label@ - the text of the button, with an underscore
+toggleButtonNewWithMnemonic :: GlibString string
+ => string          -- ^ @label@ - the text of the button, with an underscore
                     -- in front of the mnemonic character
  -> IO ToggleButton
 toggleButtonNewWithMnemonic label =

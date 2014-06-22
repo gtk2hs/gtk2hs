@@ -88,8 +88,8 @@ foreign import ccall unsafe "&gtk_recent_info_unref"
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoExists :: RecentInfo 
-                 -> IO Bool -- ^ returns 'True' if the resource exists 
+recentInfoExists :: RecentInfo
+                 -> IO Bool -- ^ returns 'True' if the resource exists
 recentInfoExists self =
   liftM toBool $
   {# call gtk_recent_info_exists #}
@@ -100,7 +100,7 @@ recentInfoExists self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetAdded :: RecentInfo 
+recentInfoGetAdded :: RecentInfo
                    -> IO Int -- ^ returns the number of seconds elapsed from system's Epoch when the resource was added to the list, or -1 on failure.
 recentInfoGetAdded self =
   liftM fromIntegral $
@@ -111,7 +111,7 @@ recentInfoGetAdded self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetAge :: RecentInfo 
+recentInfoGetAge :: RecentInfo
                  -> IO Int -- ^ returns a positive integer containing the number of days elapsed since the time this resource was last modified.
 recentInfoGetAge self =
   liftM fromIntegral $
@@ -119,22 +119,22 @@ recentInfoGetAge self =
     self
 
 -- | Gets the data regarding the application that has registered the resource pointed by info.
--- 
+--
 -- If the command line contains any escape characters defined inside the storage specification, they
 -- will be expanded.
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetApplicationInfo :: RecentInfo 
-                             -> String  -- ^ @appName@ the name of the application that has registered this item
-                             -> IO (Maybe ([String], Int, Int))
+recentInfoGetApplicationInfo :: GlibString string => RecentInfo
+                             -> string  -- ^ @appName@ the name of the application that has registered this item
+                             -> IO (Maybe ([string], Int, Int))
                               -- ^ @appExec@ return location for the string containing the command line. transfer none.
                               -- ^ @count@    return location for the number of times this item was registered. out.
                               -- ^ @time@    out. out.
 recentInfoGetApplicationInfo self appName =
   alloca $ \countPtr ->
   alloca $ \timePtr ->
-  allocaArray 0 $ \execPtr -> 
+  allocaArray 0 $ \execPtr ->
   withUTFString appName $ \appNamePtr -> do
     success <- liftM toBool $
               {# call gtk_recent_info_get_application_info #}
@@ -143,7 +143,7 @@ recentInfoGetApplicationInfo self appName =
                 execPtr
                 countPtr
                 timePtr
-    if success 
+    if success
        then do
          exec <- mapM peekUTFString =<< peekArray 0 execPtr
          count <- peek countPtr
@@ -155,8 +155,8 @@ recentInfoGetApplicationInfo self appName =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetApplications :: RecentInfo -> IO [String]
-recentInfoGetApplications self = 
+recentInfoGetApplications :: GlibString string => RecentInfo -> IO [string]
+recentInfoGetApplications self =
   alloca $ \lengthPtr -> do
     str <- {# call gtk_recent_info_get_applications #} self lengthPtr
     length <- peek lengthPtr
@@ -166,8 +166,8 @@ recentInfoGetApplications self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetDescription :: RecentInfo 
-                         -> IO String -- ^ returns the description of the resource. 
+recentInfoGetDescription :: GlibString string => RecentInfo
+                         -> IO string -- ^ returns the description of the resource.
 recentInfoGetDescription self =
   {# call gtk_recent_info_get_description #}
     self
@@ -177,19 +177,19 @@ recentInfoGetDescription self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetDisplayName :: RecentInfo 
-                         -> IO String -- ^ returns the display name of the resource. 
+recentInfoGetDisplayName :: GlibString string => RecentInfo
+                         -> IO string -- ^ returns the display name of the resource.
 recentInfoGetDisplayName self =
   {# call gtk_recent_info_get_display_name #}
     self
   >>= peekUTFString
 
--- | Returns all groups registered for the recently used item info. 
+-- | Returns all groups registered for the recently used item info.
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetGroups :: RecentInfo -> IO [String]
-recentInfoGetGroups self = 
+recentInfoGetGroups :: GlibString string => RecentInfo -> IO [string]
+recentInfoGetGroups self =
   alloca $ \lengthPtr -> do
     str <- {# call gtk_recent_info_get_groups #} self lengthPtr
     length <- peek lengthPtr
@@ -199,7 +199,7 @@ recentInfoGetGroups self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetIcon :: RecentInfo 
+recentInfoGetIcon :: RecentInfo
                   -> Int  -- ^ @size@    the size of the icon in pixels
                   -> IO (Maybe Pixbuf) -- ^ returns a 'Pixbuf' containing the icon, or 'Nothing'
 recentInfoGetIcon self size =
@@ -212,8 +212,8 @@ recentInfoGetIcon self size =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetMimeType :: RecentInfo 
-                      -> IO String -- ^ returns the MIME type of the resource. 
+recentInfoGetMimeType :: GlibString string => RecentInfo
+                      -> IO string -- ^ returns the MIME type of the resource.
 recentInfoGetMimeType self =
   {# call gtk_recent_info_get_mime_type #}
     self
@@ -223,7 +223,7 @@ recentInfoGetMimeType self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetModified :: RecentInfo 
+recentInfoGetModified :: RecentInfo
                       -> IO Int -- ^ returns the number of seconds elapsed from system's Epoch when the resource was last modified, or -1 on failure.
 recentInfoGetModified self =
   liftM fromIntegral $
@@ -235,8 +235,8 @@ recentInfoGetModified self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetPrivateHint :: RecentInfo 
-                         -> IO Bool -- ^ returns 'True' if the private flag was found, 'False' otherwise. 
+recentInfoGetPrivateHint :: RecentInfo
+                         -> IO Bool -- ^ returns 'True' if the private flag was found, 'False' otherwise.
 recentInfoGetPrivateHint self =
   liftM toBool $
   {# call gtk_recent_info_get_private_hint #}
@@ -247,8 +247,8 @@ recentInfoGetPrivateHint self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetShortName :: RecentInfo 
-                       -> IO String
+recentInfoGetShortName :: GlibString string => RecentInfo
+                       -> IO string
 recentInfoGetShortName self =
   {# call gtk_recent_info_get_short_name #}
     self
@@ -258,8 +258,8 @@ recentInfoGetShortName self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetURI :: RecentInfo 
-                 -> IO String -- ^ returns the URI of the resource. 
+recentInfoGetURI :: GlibString string => RecentInfo
+                 -> IO string -- ^ returns the URI of the resource.
 recentInfoGetURI self =
   {# call gtk_recent_info_get_uri #}
     self
@@ -270,7 +270,7 @@ recentInfoGetURI self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetURIDisplay :: RecentInfo -> IO String
+recentInfoGetURIDisplay :: GlibString string => RecentInfo -> IO string
 recentInfoGetURIDisplay self =
   {# call gtk_recent_info_get_uri_display #}
     self
@@ -280,7 +280,7 @@ recentInfoGetURIDisplay self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoGetVisited :: RecentInfo 
+recentInfoGetVisited :: RecentInfo
                      -> IO Int -- ^ returns the number of seconds elapsed from system's Epoch when the resource was last visited, or -1 on failure.
 recentInfoGetVisited self =
   liftM fromIntegral $
@@ -291,8 +291,8 @@ recentInfoGetVisited self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoHasApplication :: RecentInfo 
-                         -> String  -- ^ @appName@ a string containing an application name                              
+recentInfoHasApplication :: GlibString string => RecentInfo
+                         -> string  -- ^ @appName@ a string containing an application name
                          -> IO Bool -- ^ returns  'True' if an application with name @appName@ was found, 'False' otherwise.
 recentInfoHasApplication self appName =
   liftM toBool $
@@ -305,9 +305,9 @@ recentInfoHasApplication self appName =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoHasGroup :: RecentInfo 
-                   -> String  -- ^ @groupName@ name of a group              
-                   -> IO Bool -- ^ returns    'True' if the group was found. 
+recentInfoHasGroup :: GlibString string => RecentInfo
+                   -> string  -- ^ @groupName@ name of a group
+                   -> IO Bool -- ^ returns    'True' if the group was found.
 recentInfoHasGroup self groupName =
   liftM toBool $
   withUTFString groupName $ \groupNamePtr ->
@@ -319,8 +319,8 @@ recentInfoHasGroup self groupName =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoIsLocal :: RecentInfo 
-                  -> IO Bool -- ^ returns 'True' if the resource is local. 
+recentInfoIsLocal :: RecentInfo
+                  -> IO Bool -- ^ returns 'True' if the resource is local.
 recentInfoIsLocal self =
   liftM toBool $
   {# call gtk_recent_info_is_local #}
@@ -331,8 +331,8 @@ recentInfoIsLocal self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoLastApplication :: RecentInfo 
-                          -> IO String -- ^ returns an application name. 
+recentInfoLastApplication :: GlibString string => RecentInfo
+                          -> IO string -- ^ returns an application name.
 recentInfoLastApplication self =
   {# call gtk_recent_info_last_application #}
     self
@@ -342,7 +342,7 @@ recentInfoLastApplication self =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentInfoMatch :: RecentInfo -> RecentInfo 
+recentInfoMatch :: RecentInfo -> RecentInfo
                 -> IO Bool -- ^ returns 'True' if both 'RecentInfo' structures point to se same resource, 'False' otherwise.
 recentInfoMatch self infoB =
   liftM toBool $

@@ -228,8 +228,8 @@ printOperationGetError self =
 -- If you don't set a job name, Gtk+ picks a default one by numbering
 -- successive print jobs.
 --
-printOperationSetJobName :: PrintOperationClass self => self
- -> String -- ^ @jobName@ - a string that identifies the print job
+printOperationSetJobName :: (PrintOperationClass self, GlibString string) => self
+ -> string -- ^ @jobName@ - a string that identifies the print job
  -> IO ()
 printOperationSetJobName self jobName =
   withUTFString jobName $ \jobNamePtr ->
@@ -242,7 +242,7 @@ printOperationSetJobName self jobName =
 -- This /must/ be set to a positive number before the rendering starts. It
 -- may be set in a 'beginPrint' signal hander.
 --
--- Note that the page numbers passed to the 'requestPageSetup' 
+-- Note that the page numbers passed to the 'requestPageSetup'
 -- and 'drawPage' signals
 -- are 0-based, i.e. if the user chooses to print all pages, the last
 -- 'draw-page' signal will be for page @nPages@ - 1.
@@ -325,8 +325,8 @@ printOperationSetUnit self unit =
 -- the user pick the \"Print to PDF\" item from the list of printers in the
 -- print dialog.
 --
-printOperationSetExportFilename :: PrintOperationClass self => self
- -> String -- ^ @filename@ - the filename for the exported file
+printOperationSetExportFilename :: (PrintOperationClass self, GlibString string) => self
+ -> string -- ^ @filename@ - the filename for the exported file
  -> IO ()
 printOperationSetExportFilename self filename =
   withUTFString filename $ \filenamePtr ->
@@ -363,8 +363,8 @@ printOperationSetTrackPrintStatus self trackStatus =
 
 -- | Sets the label for the tab holding custom widgets.
 --
-printOperationSetCustomTabLabel :: PrintOperationClass self => self
- -> String -- ^ @label@ - the label to use, or empty to use the default
+printOperationSetCustomTabLabel :: (PrintOperationClass self, GlibString string) => self
+ -> string -- ^ @label@ - the label to use, or empty to use the default
            -- label
  -> IO ()
 printOperationSetCustomTabLabel self label =
@@ -381,7 +381,7 @@ printOperationSetCustomTabLabel self label =
 -- progress of the print operation. Furthermore, it may use a recursive
 -- mainloop to show the print dialog.
 --
--- If you call 'printOperationSetAllowAsync' or set the 'allowAsync' 
+-- If you call 'printOperationSetAllowAsync' or set the 'allowAsync'
 -- property the operation will run asynchronously
 -- if this is supported on the platform. The 'done' signal will be emitted with the result of the operation when
 -- the it is done (i.e. when the dialog is canceled, or when the print succeeds
@@ -464,8 +464,8 @@ printOperationGetStatus self =
 -- Use 'printOperationGetStatus' to obtain a status value that is suitable
 -- for programmatic use.
 --
-printOperationGetStatusString :: PrintOperationClass self => self
- -> IO String -- ^ returns a string representation of the status of the print
+printOperationGetStatusString :: (PrintOperationClass self, GlibString string) => self
+ -> IO string -- ^ returns a string representation of the status of the print
               -- operation
 printOperationGetStatusString self =
   {# call gtk_print_operation_get_status_string #}
@@ -490,15 +490,15 @@ printOperationIsFinished self =
 -- | Runs a page setup dialog, letting the user modify the values from @pageSetup@. If the user cancels
 -- the dialog, the returned 'PageSetup' is identical to the passed in @pageSetup@, otherwise it
 -- contains the modifications done in the dialog.
--- 
+--
 -- Note that this function may use a recursive mainloop to show the page setup dialog. See
 -- 'printRunPageSetupDialogAsync' if this is a problem.
-printRunPageSetupDialog :: (WindowClass window, PageSetupClass pageSetup, PrintSettingsClass setting) 
-                          => window -- ^ @parent@     transient parent. 
-                          -> pageSetup -- ^ @pageSetup@ an existing 'PageSetup'. 
-                          -> setting -- ^ @settings@   a 'PrintSettings'                    
-                          -> IO PageSetup  -- ^ returns    a new 'PageSetup'                    
-printRunPageSetupDialog window pageSetup setting = 
+printRunPageSetupDialog :: (WindowClass window, PageSetupClass pageSetup, PrintSettingsClass setting)
+                          => window -- ^ @parent@     transient parent.
+                          -> pageSetup -- ^ @pageSetup@ an existing 'PageSetup'.
+                          -> setting -- ^ @settings@   a 'PrintSettings'
+                          -> IO PageSetup  -- ^ returns    a new 'PageSetup'
+printRunPageSetupDialog window pageSetup setting =
   wrapNewGObject mkPageSetup $
   {#call gtk_print_run_page_setup_dialog #}
      (toWindow window)
@@ -512,14 +512,14 @@ foreign import ccall "wrapper" mkGtkPageSetupDoneFunc ::
   -> IO PageSetupDoneFunc
 
 -- | Runs a page setup dialog, letting the user modify the values from @pageSetup@.
--- 
+--
 -- In contrast to 'printRunPageSetupDialog', this function returns after showing the page setup
 -- dialog on platforms that support this, and calls @doneCb@ from a signal handler for the 'response'
 -- signal of the dialog.
 printRunPageSetupDialogAsync :: (WindowClass window, PageSetupClass pageSetup, PrintSettingsClass setting)
-                               => window -- ^ @parent@     transient parent. 
-                               -> pageSetup -- ^ @pageSetup@ an existing 'PageSetup'. 
-                               -> setting -- ^ @settings@   a 'PrintSettings'                    
+                               => window -- ^ @parent@     transient parent.
+                               -> pageSetup -- ^ @pageSetup@ an existing 'PageSetup'.
+                               -> setting -- ^ @settings@   a 'PrintSettings'
                                -> (PageSetup -> IO ()) -- ^ @doneCb@    a function to call when the user saves the modified page setup
                                -> IO ()
 printRunPageSetupDialogAsync window pageSetup setting doneCb = do
@@ -534,20 +534,20 @@ printRunPageSetupDialogAsync window pageSetup setting doneCb = do
      nullPtr
 
 -- | Ends a preview.
--- 
+--
 -- This function must be called to finish a custom print preview.
-printOperationPreviewEndPreview :: PrintOperationPreviewClass self 
-                                  => self 
+printOperationPreviewEndPreview :: PrintOperationPreviewClass self
+                                  => self
                                   -> IO ()
 printOperationPreviewEndPreview self =
   {# call gtk_print_operation_preview_end_preview #}
     (toPrintOperationPreview self)
 
 -- | Returns whether the given page is included in the set of pages that have been selected for printing.
-printOperationPreviewIsSelected :: PrintOperationPreviewClass self 
-                                  => self  -- ^ @preview@ a 'PrintOperationPreview'                      
-                                  -> Int  -- ^ @pageNr@ a page number                                   
-                                  -> IO Bool -- ^ returns 'True' if the page has been selected for printing 
+printOperationPreviewIsSelected :: PrintOperationPreviewClass self
+                                  => self  -- ^ @preview@ a 'PrintOperationPreview'
+                                  -> Int  -- ^ @pageNr@ a page number
+                                  -> IO Bool -- ^ returns 'True' if the page has been selected for printing
 printOperationPreviewIsSelected self pageNr =
   liftM toBool $
   {# call gtk_print_operation_preview_is_selected #}
@@ -556,14 +556,14 @@ printOperationPreviewIsSelected self pageNr =
 
 -- | Renders a page to the preview, using the print context that was passed to the "preview" handler
 -- together with preview.
--- 
+--
 -- A custom iprint preview should use this function in its 'expose' handler to render the currently
 -- selected page.
--- 
+--
 -- Note that this function requires a suitable cairo context to be associated with the print context.
-printOperationPreviewRenderPage :: PrintOperationPreviewClass self 
-                                  => self  -- ^ @preview@ a 'PrintOperationPreview' 
-                                  -> Int  -- ^ @pageNr@ the page to render         
+printOperationPreviewRenderPage :: PrintOperationPreviewClass self
+                                  => self  -- ^ @preview@ a 'PrintOperationPreview'
+                                  -> Int  -- ^ @pageNr@ the page to render
                                   -> IO ()
 printOperationPreviewRenderPage self pageNr =
   {# call gtk_print_operation_preview_render_page #}
@@ -574,63 +574,63 @@ printOperationPreviewRenderPage self pageNr =
 -- Attributes
 
 -- | The 'PageSetup' used by default.
--- 
+--
 -- This page setup will be used by 'printOperationRun', but it can be overridden on a per-page
 -- basis by connecting to the 'requestPageSetup' signal.
--- 
+--
 -- Since 2.10
 printOperationDefaultPageSetup :: (PrintOperationClass self, PageSetupClass pageSetup) => ReadWriteAttr self PageSetup pageSetup
 printOperationDefaultPageSetup = newAttrFromObjectProperty "default-page-setup"
                                    {# call pure unsafe gtk_page_setup_get_type #}
 
 -- | The 'PrintSettings' used for initializing the dialog.
--- 
+--
 -- Setting this property is typically used to re-establish print settings from a previous print
 -- operation, see 'printOperationRun'.
--- 
+--
 -- Since 2.10
 printOperationPrintSettings :: (PrintOperationClass self, PrintSettingsClass printSettings) => ReadWriteAttr self PrintSettings printSettings
 printOperationPrintSettings = newAttrFromObjectProperty "print-settings"
                                 {# call pure unsafe gtk_print_settings_get_type #}
 
 -- | A string used to identify the job (e.g. in monitoring applications like eggcups).
--- 
+--
 -- If you don't set a job name, GTK+ picks a default one by numbering successive print jobs.
--- 
+--
 -- Default value: \"\"
--- 
+--
 -- Since 2.10
-printOperationJobName :: PrintOperationClass self => Attr self String
+printOperationJobName :: (PrintOperationClass self, GlibString string) => Attr self string
 printOperationJobName = newAttrFromStringProperty "job-name"
 
 -- | The number of pages in the document.
--- 
+--
 -- This must be set to a positive number before the rendering starts. It may be set in a 'beginPrint'
 -- signal hander.
--- 
+--
 -- Note that the page numbers passed to the 'requestPageSetup' and 'drawPage' signals are 0-based,
 -- i.e. if the user chooses to print all pages, the last 'drawPage' signal will be for page @nPages@ -
 -- 1.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: -1
--- 
+--
 -- Since 2.10
 printOperationNPages :: PrintOperationClass self => Attr self Int
 printOperationNPages = newAttrFromIntProperty "n-pages"
 
 -- | The current page in the document.
--- 
+--
 -- If this is set before 'printOperationRun', the user will be able to select to print only the
 -- current page.
--- 
+--
 -- Note that this only makes sense for pre-paginated documents.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: -1
--- 
+--
 -- Since 2.10
 printOperationCurrentPage :: PrintOperationClass self => Attr self Int
 printOperationCurrentPage = newAttrFromIntProperty "current-page"
@@ -639,9 +639,9 @@ printOperationCurrentPage = newAttrFromIntProperty "current-page"
 -- the top left corner of the page (which may not be the top left corner of the sheet, depending on
 -- page orientation and the number of pages per sheet). Otherwise, the origin is at the top left corner
 -- of the imageable area (i.e. inside the margins).
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.10
 printOperationUseFullPage :: PrintOperationClass self => Attr self Bool
 printOperationUseFullPage = newAttrFromBoolProperty "use-full-page"
@@ -650,66 +650,66 @@ printOperationUseFullPage = newAttrFromBoolProperty "use-full-page"
 -- printer queues and printer. This can allow your application to show things like "out of paper"
 -- issues, and when the print job actually reaches the printer. However, this is often implemented
 -- using polling, and should not be enabled unless needed.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.10
 printOperationTrackPrintStatus :: PrintOperationClass self => Attr self Bool
 printOperationTrackPrintStatus = newAttrFromBoolProperty "track-print-status"
 
 -- | The transformation for the cairo context obtained from 'PrintContext' is set up in such a way that
 -- distances are measured in units of unit.
--- 
+--
 -- Default value: ''UnitPixel''
--- 
+--
 -- Since 2.10
--- 
+--
 printOperationUnit :: PrintOperationClass self => Attr self Unit
 printOperationUnit = newAttrFromEnumProperty "unit"
                        {# call pure unsafe gtk_unit_get_type #}
 
 -- | Determines whether to show a progress dialog during the print operation.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.10
 printOperationShowProgress :: PrintOperationClass self => Attr self Bool
 printOperationShowProgress = newAttrFromBoolProperty "show-progress"
 
 -- | Determines whether the print operation may run asynchronously or not.
--- 
+--
 -- Some systems don't support asynchronous printing, but those that do will return
 -- ''PrintOperationResultInProgress'' as the status, and emit the "done" signal when the operation
 -- is actually done.
--- 
+--
 -- The Windows port does not support asynchronous operation at all (this is unlikely to change). On
 -- other platforms, all actions except for ''PrintOperationActionExport'' support asynchronous
 -- operation.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.10
 printOperationAllowAsync :: PrintOperationClass self => Attr self Bool
 printOperationAllowAsync = newAttrFromBoolProperty "allow-async"
 
 -- | The name of a file to generate instead of showing the print dialog. Currently, PDF is the only
 -- supported format.
--- 
+--
 -- The intended use of this property is for implementing "Export to PDF" actions.
--- 
+--
 -- "Print to PDF" support is independent of this and is done by letting the user pick the "Print to
 -- PDF" item from the list of printers in the print dialog.
--- 
+--
 -- Default value: 'Nothing'
--- 
+--
 -- Since 2.10
-printOperationExportFilename :: PrintOperationClass self => Attr self String
+printOperationExportFilename :: (PrintOperationClass self, GlibString string) => Attr self string
 printOperationExportFilename = newAttrFromStringProperty "export-filename"
 
 -- | The status of the print operation.
--- 
+--
 -- Default value: ''PrintStatusInitial''
--- 
+--
 -- Since 2.10
 printOperationStatus :: PrintOperationClass self => ReadAttr self PrintStatus
 printOperationStatus = readAttrFromEnumProperty "status"
@@ -717,65 +717,65 @@ printOperationStatus = readAttrFromEnumProperty "status"
 
 -- | A string representation of the status of the print operation. The string is translated and suitable
 -- for displaying the print status e.g.  in a 'Statusbar'.
--- 
+--
 -- See the 'printOperationStatus' property for a status value that is suitable for programmatic use.
--- 
+--
 -- Default value: \"\"
--- 
+--
 -- Since 2.10
-printOperationStatusString :: PrintOperationClass self => ReadAttr self String
+printOperationStatusString :: (PrintOperationClass self, GlibString string) => ReadAttr self string
 printOperationStatusString = readAttrFromStringProperty "status-string"
 
 -- | Used as the label of the tab containing custom widgets. Note that this property may be ignored on
 -- some platforms.
--- 
+--
 -- If this is 'Nothing', GTK+ uses a default label.
--- 
+--
 -- Default value: 'Nothing'
--- 
+--
 -- Since 2.10
-printOperationCustomTabLabel :: PrintOperationClass self => Attr self String
+printOperationCustomTabLabel :: (PrintOperationClass self, GlibString string) => Attr self string
 printOperationCustomTabLabel = newAttrFromStringProperty "custom-tab-label"
 
 #if GTK_CHECK_VERSION(2,18,0)
 -- | If 'True', the print operation will support print of selection. This allows the print dialog to show a
 -- "Selection" button.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.18
 printOperationSupportSelection :: PrintOperationClass self => Attr self Bool
 printOperationSupportSelection = newAttrFromBoolProperty "support-selection"
 
 -- | Determines whether there is a selection in your application. This can allow your application to
 -- print the selection. This is typically used to make a "Selection" button sensitive.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.18
 printOperationHasSelection :: PrintOperationClass self => Attr self Bool
 printOperationHasSelection = newAttrFromBoolProperty "has-selection"
 
 -- | If 'True', page size combo box and orientation combo box are embedded into page setup page.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.18
 printOperationEmbedPageSetup :: PrintOperationClass self => Attr self Bool
 printOperationEmbedPageSetup = newAttrFromBoolProperty "embed-page-setup"
 
 -- | The number of pages that will be printed.
--- 
+--
 -- Note that this value is set during print preparation phase (''PrintStatusPreparing''), so this
 -- value should never be get before the data generation phase (''PrintStatusGeneratingData''). You
 -- can connect to the 'statusChanged' signal and call 'printOperationGetNPagesToPrint' when
 -- print status is ''PrintStatusGeneratingData''. This is typically used to track the progress of
 -- print operation.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: -1
--- 
+--
 -- Since 2.18
 printOperationNPagesToPrint :: PrintOperationClass self => ReadAttr self Int
 printOperationNPagesToPrint = readAttrFromIntProperty "n-pages-to-print"
@@ -921,13 +921,13 @@ printOptPreview :: PrintOperationClass self => Signal self (PrintOperationPrevie
 printOptPreview = Signal (connect_OBJECT_OBJECT_OBJECT__BOOL "preview")
 
 -- | The 'ready' signal gets emitted once per preview operation, before the first page is rendered.
--- 
+--
 -- A handler for this signal can be used for setup tasks.
 printOptReady :: PrintOperationPreviewClass self => Signal self (PrintContext -> IO ())
 printOptReady = Signal (connect_OBJECT__NONE "ready")
 
 -- | The 'gotPageSize' signal is emitted once for each page that gets rendered to the preview.
--- 
+--
 -- A handler for this signal should update the context according to @pageSetup@ and set up a suitable
 -- cairo context, using 'printContextSetCairoContext'.
 printOptGotPageSize :: PrintOperationPreviewClass self => Signal self (PrintContext -> PageSetup -> IO ())

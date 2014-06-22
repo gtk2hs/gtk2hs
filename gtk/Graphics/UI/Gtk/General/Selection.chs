@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.General.Selection (
 -- * Constructors
   atomNew,
   targetListNew,
-  
+
 -- * Methods
   targetListAdd,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -101,6 +101,7 @@ module Graphics.UI.Gtk.General.Selection (
   ) where
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags	(fromFlags)
 import System.Glib.Signals
 import System.Glib.GObject
@@ -285,7 +286,7 @@ selectionDataGet_target selPtr = {#get SelectionData -> target#} selPtr
 --   the size or the type tag does not match, @Nothing@ is returned.
 --
 -- Removed in Gtk3.
-selectionDataGet :: (Integral a, Storable a) => 
+selectionDataGet :: (Integral a, Storable a) =>
                     SelectionTypeTag -> SelectionDataM (Maybe [a])
 selectionDataGet tagPtr = do
   selPtr <- ask
@@ -304,7 +305,7 @@ selectionDataGet tagPtr = do
 selectionDataGetLength :: SelectionDataM Int
 selectionDataGetLength = do
   selPtr <- ask
-  liftIO $ liftM fromIntegral $ selectionDataGet_length selPtr    
+  liftIO $ liftM fromIntegral $ selectionDataGet_length selPtr
 
 -- | Check if the currently stored data is valid.
 --
@@ -316,7 +317,7 @@ selectionDataIsValid :: SelectionDataM Bool
 selectionDataIsValid = do
   len <- selectionDataGetLength
   return (len>=0)
-  
+
 -- %hash c:9bdf d:af3f
 -- | Sets the contents of the selection from a string. The
 -- string is converted to the form determined by the allowed targets of the
@@ -324,7 +325,7 @@ selectionDataIsValid = do
 --
 -- * Returns @True@ if setting the text was successful.
 --
-selectionDataSetText :: String -> SelectionDataM Bool
+selectionDataSetText :: GlibString string => string -> SelectionDataM Bool
 selectionDataSetText str = do
   selPtr <- ask
   liftM toBool $ liftIO $ withUTFStringLen str $ \(strPtr,len) ->
@@ -333,7 +334,7 @@ selectionDataSetText str = do
 -- %hash c:90e0 d:af3f
 -- | Gets the contents of the selection data as a string.
 --
-selectionDataGetText :: SelectionDataM (Maybe String)
+selectionDataGetText :: GlibString string => SelectionDataM (Maybe string)
 selectionDataGetText = do
   selPtr <- ask
   liftIO $ do
@@ -373,19 +374,19 @@ selectionDataGetPixbuf = do
 --
 -- * Returns @True@ if setting the URIs was successful. Since Gtk 2.6.
 --
-selectionDataSetURIs :: [String] -> SelectionDataM Bool
+selectionDataSetURIs :: GlibString string => [string] -> SelectionDataM Bool
 selectionDataSetURIs uris = do
   selPtr <- ask
   liftIO $ liftM toBool $ withUTFStringArray0 uris $ \strPtrPtr ->
       {#call unsafe gtk_selection_data_set_uris #} selPtr strPtrPtr
-    
+
 -- %hash c:472f d:af3f
 -- | Gets the contents of the selection data as list of URIs. Returns
 -- @Nothing@ if the selection did not contain any URIs.
 --
 -- * Since Gtk 2.6.
 --
-selectionDataGetURIs :: SelectionDataM (Maybe [String])
+selectionDataGetURIs :: GlibString string => SelectionDataM (Maybe [string])
 selectionDataGetURIs = do
   selPtr <- ask
   liftIO $ do
@@ -423,7 +424,7 @@ selectionDataGetTargets :: SelectionDataM [TargetTag]
 selectionDataGetTargets = do
   selPtr <- ask
   liftIO $ alloca $ \nAtomsPtr -> alloca $ \targetPtrPtr -> do
-    valid <- liftM toBool $ 
+    valid <- liftM toBool $
       {#call unsafe gtk_selection_data_get_targets #} selPtr targetPtrPtr nAtomsPtr
     if not valid then return [] else do
       len <- peek nAtomsPtr
@@ -431,7 +432,7 @@ selectionDataGetTargets = do
       targetPtrs <- peekArray (fromIntegral len) targetPtr
       {#call unsafe g_free#} (castPtr targetPtr)
       return (map Atom targetPtrs)
-      
+
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:5a8 d:af3f
 -- | Given a 'SelectionDataM' holding a list of targets, determines if any of
@@ -449,7 +450,7 @@ selectionDataTargetsIncludeImage writable = do
     {#call unsafe gtk_selection_data_targets_include_image #}
     selPtr
     (fromBool writable)
-#endif 
+#endif
 
 -- %hash c:abe8 d:af3f
 -- | Given a 'SelectionDataM' holding a list of targets, determines if any of
@@ -512,5 +513,5 @@ selectionGet :: WidgetClass self =>
 selectionGet = Signal (\after object handler -> do
     connect_PTR_WORD_WORD__NONE "selection-get" after object $
       \dataPtr info time -> do
-      runReaderT (handler (fromIntegral info) (fromIntegral time)) dataPtr >> 
+      runReaderT (handler (fromIntegral info) (fromIntegral time)) dataPtr >>
                   return ())

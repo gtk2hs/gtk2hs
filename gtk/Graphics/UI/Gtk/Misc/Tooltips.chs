@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.Tooltips (
 -- * Detail
--- 
+--
 -- | Tooltips are the messages that appear next to a widget when the mouse
 -- pointer is held over it for a short amount of time. They are especially
 -- helpful for adding more verbose descriptions of things such as buttons in a
@@ -140,10 +140,10 @@ tooltipsSetDelay self delay =
 -- | Adds a tooltip containing the message @tipText@ to the specified
 -- 'Widget'.
 --
-tooltipsSetTip :: (TooltipsClass self, WidgetClass widget) => self
+tooltipsSetTip :: (TooltipsClass self, WidgetClass widget, GlibString string) => self
  -> widget -- ^ @widget@ - the 'Widget' you wish to associate the tip with.
- -> String -- ^ @tipText@ - a string containing the tip itself.
- -> String -- ^ @tipPrivate@ - a string of any further information that may be
+ -> string -- ^ @tipText@ - a string containing the tip itself.
+ -> string -- ^ @tipPrivate@ - a string of any further information that may be
            -- useful if the user gets stuck.
  -> IO ()
 tooltipsSetTip self widget tipText tipPrivate =
@@ -159,7 +159,7 @@ tooltipsSetTip self widget tipText tipPrivate =
 
 -- | Retrieves any 'Tooltips' previously associated with the given widget.
 --
-tooltipsDataGet :: WidgetClass w => w -> IO (Maybe (Tooltips, String, String))
+tooltipsDataGet :: (WidgetClass w, GlibString string) => w -> IO (Maybe (Tooltips, string, string))
 tooltipsDataGet w = do
   tipDataPtr <- {#call unsafe tooltips_data_get#} (toWidget w)
   if tipDataPtr == nullPtr

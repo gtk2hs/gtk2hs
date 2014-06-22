@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Button
 --
@@ -27,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Buttons.Button (
 -- * Detail
--- 
+--
 -- | The 'Button' widget is generally used to attach a function to that is
 -- called when the button is pressed. The various signals and how to use them
 -- are outlined below.
@@ -164,8 +165,8 @@ buttonNew =
 
 -- | Creates a 'Button' widget with a 'Label' child containing the given text.
 --
-buttonNewWithLabel :: 
-    String    -- ^ @label@ - The text you want the 'Label' to hold.
+buttonNewWithLabel :: GlibString string
+ => string    -- ^ @label@ - The text you want the 'Label' to hold.
  -> IO Button
 buttonNewWithLabel label =
   makeNewObject mkButton $
@@ -180,8 +181,8 @@ buttonNewWithLabel label =
 -- underlined character represents a keyboard accelerator called a mnemonic.
 -- Pressing Alt and that key activates the button.
 --
-buttonNewWithMnemonic :: 
-    String    -- ^ @label@ - The text of the button, with an underscore in
+buttonNewWithMnemonic :: GlibString string
+ => string    -- ^ @label@ - The text of the button, with an underscore in
               -- front of the mnemonic character
  -> IO Button
 buttonNewWithMnemonic label =
@@ -196,14 +197,14 @@ buttonNewWithMnemonic label =
 -- If @stockId@ is unknown, then it will be treated as a mnemonic label (as
 -- for 'buttonNewWithMnemonic').
 --
-buttonNewFromStock :: 
+buttonNewFromStock ::
     StockId   -- ^ @stockId@ - the name of the stock item
  -> IO Button
 buttonNewFromStock stockId =
   makeNewObject mkButton $
   liftM (castPtr :: Ptr Widget -> Ptr Button) $
   withUTFString stockId $ \stockIdPtr ->
-  throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
+  throwIfNull "buttonNewFromStock: Invalid stock identifier." $
   {# call unsafe button_new_from_stock #}
     stockIdPtr
 
@@ -303,7 +304,7 @@ buttonYAlign = newAttrFromFloatProperty "yalign"
 --
 -- This will also clear any previously set labels.
 --
-buttonSetLabel :: ButtonClass self => self -> String -> IO ()
+buttonSetLabel :: (ButtonClass self, GlibString string) => self -> string -> IO ()
 buttonSetLabel self label =
   withUTFString label $ \labelPtr ->
   {# call button_set_label #}
@@ -316,7 +317,7 @@ buttonSetLabel self label =
 -- This will be the case if you create an empty button with 'buttonNew' to use
 -- as a container.
 --
-buttonGetLabel :: ButtonClass self => self -> IO String
+buttonGetLabel :: (ButtonClass self, GlibString string) => self -> IO string
 buttonGetLabel self = do
   strPtr <- {# call unsafe button_get_label #}
     (toButton self)
@@ -497,11 +498,11 @@ buttonGetImagePosition self =
 #endif
 
 #if GTK_CHECK_VERSION(2,22,0)
--- | Returns the button's event window if it is realized, 'Nothing' otherwise.  
+-- | Returns the button's event window if it is realized, 'Nothing' otherwise.
 --
 -- * Available since Gtk+ version 2.22
 --
-buttonGetEventWindow :: ButtonClass self => self 
+buttonGetEventWindow :: ButtonClass self => self
                        -> IO (Maybe DrawWindow) -- ^ returns button's event window or 'Nothing'
 buttonGetEventWindow self =
   maybeNull (makeNewGObject mkDrawWindow) $
@@ -517,7 +518,7 @@ buttonGetEventWindow self =
 --
 -- Default value: @\"\"@
 --
-buttonLabel :: ButtonClass self => Attr self String
+buttonLabel :: (ButtonClass self, GlibString string) => Attr self string
 buttonLabel = newAttr
   buttonGetLabel
   buttonSetLabel

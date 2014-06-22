@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRendererToggle (
 -- * Detail
--- 
+--
 -- | 'CellRendererToggle' renders a toggle button in a cell. The button is
 -- drawn as a radio or checkbutton, depending on the radio property. When
 -- activated, it emits the toggled signal.
@@ -76,6 +76,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererToggle (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes                   (Attr)
 import System.Glib.Properties			(newAttrFromBoolProperty,
 						 newAttrFromIntProperty)
@@ -210,7 +211,7 @@ cellToggleIndicatorSize = newAttrFromIntProperty "indicator-size"
 --   represents a 'TreePath' into the model and can be converted using
 --   'stringToTreePath'.
 --
-cellToggled :: CellRendererToggleClass self => Signal self (String -> IO ())
+cellToggled :: (CellRendererToggleClass self, GlibString string) => Signal self (string -> IO ())
 cellToggled = Signal (connect_STRING__NONE "toggled")
 
 --------------------
@@ -218,15 +219,15 @@ cellToggled = Signal (connect_STRING__NONE "toggled")
 
 #ifndef DISABLE_DEPRECATED
 -- %hash c:21f7
-onCellToggled :: CellRendererToggleClass self => self
- -> (String -> IO ())
+onCellToggled :: (CellRendererToggleClass self, GlibString string) => self
+ -> (string -> IO ())
  -> IO (ConnectId self)
 onCellToggled = connect_STRING__NONE "toggled" False
 {-# DEPRECATED onCellToggled "instead of 'onCellToggled obj' use 'on obj cellToggled'" #-}
 
 -- %hash c:82f6
-afterCellToggled :: CellRendererToggleClass self => self
- -> (String -> IO ())
+afterCellToggled :: (CellRendererToggleClass self, GlibString string) => self
+ -> (string -> IO ())
  -> IO (ConnectId self)
 afterCellToggled = connect_STRING__NONE "toggled" True
 {-# DEPRECATED afterCellToggled "instead of 'afterCellToggled obj' use 'after obj cellToggled'" #-}

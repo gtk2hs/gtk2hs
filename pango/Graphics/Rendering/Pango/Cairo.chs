@@ -23,7 +23,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 
+--
 -- Pango specific functions to for redering with Cairo.
 --
 -- Cairo is a graphics library that supports vector graphics and image
@@ -56,6 +56,7 @@ module Graphics.Rendering.Pango.Cairo (
 import Control.Exception    (bracket)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.GObject		(wrapNewGObject, makeNewGObject,
   objectRef, objectUnref)
 {#import Graphics.Rendering.Pango.Types#}
@@ -100,7 +101,7 @@ setSourceColor (Color red green blue) =
 --   @10pt * (1\/72 pt\/inch) * (96 pixel\/inch) = 13.3 pixel@.
 --
 cairoFontMapGetDefault :: IO FontMap
-cairoFontMapGetDefault = 
+cairoFontMapGetDefault =
   makeNewGObject mkFontMap $ {#call unsafe pango_cairo_font_map_get_default#}
 
 -- | Set the scaling factor between font size and Cairo units.
@@ -197,7 +198,7 @@ updateContext pc =  Render $ do
 --   If the transformation or target surface of the 'Render' context
 --   change, 'updateLayout' has to be called on this layout.
 --
-createLayout :: String -> Render PangoLayout
+createLayout :: GlibString string => string -> Render PangoLayout
 createLayout text = Render $ do
   cr <- ask
   liftIO $ do

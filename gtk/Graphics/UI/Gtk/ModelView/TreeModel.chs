@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE Rank2Types #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) TreeModel
 --
@@ -27,7 +28,7 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeModel (
 -- * Detail
---               
+--
 -- | The 'TreeModel' interface defines a generic storage object for use by the
 -- 'TreeView' and similar widgets. Specifically, the functions in defined here
 -- are used by Gtk's widgets to access the stored data. Thus, rather than
@@ -105,7 +106,7 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   TypedTreeModel,
   TypedTreeModelClass,
   toTypedTreeModel,
-  
+
   TreeIter(..),
   TreePath,
 
@@ -197,7 +198,7 @@ makeColumnIdBool :: Int -> ColumnId row Bool
 makeColumnIdBool = ColumnId valueGetBool CABool
 
 -- | Create a 'ColumnId' to extract an string.
-makeColumnIdString :: Int -> ColumnId row String
+makeColumnIdString :: GlibString string => Int -> ColumnId row string
 makeColumnIdString = ColumnId valueGetString CAString
 
 -- | Create a 'ColumnId' to extract an 'Pixbuf'.
@@ -219,7 +220,7 @@ instance Eq (ColumnId row ty) where
 
 instance Show (ColumnId row ty) where
   show (ColumnId _ _ i) = show i
-  
+
 
 --------------------
 -- Methods
@@ -242,8 +243,8 @@ treeModelGetFlags self =
 -- * Returns @Nothing@ if the string is not a colon separated list of numbers
 --   that references a valid node.
 --
-treeModelGetIterFromString :: TreeModelClass self => self
- -> String   -- ^ @pathString@ - A string representation of a 'TreePath'.
+treeModelGetIterFromString :: (TreeModelClass self, GlibString string) => self
+ -> string   -- ^ @pathString@ - A string representation of a 'TreePath'.
  -> IO (Maybe TreeIter)
 treeModelGetIterFromString self pathString =
   receiveTreeIter $ \iterPtr ->
@@ -313,7 +314,7 @@ treeModelGetValue self iter (ColumnId getter _ colId) =
     iterPtr
     (fromIntegral colId)
     gVal
-  getter gVal  
+  getter gVal
 
 -- %hash c:5c12 d:d7db
 -- | Retrieve an iterator to the node following it at the current level. If
@@ -438,9 +439,9 @@ foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
 --
 -- * Available since Gtk+ version 2.2
 --
-treeModelGetStringFromIter :: TreeModelClass self => self
+treeModelGetStringFromIter :: (TreeModelClass self, GlibString string) => self
  -> TreeIter  -- ^ @iter@ - An 'TreeIter'.
- -> IO String -- ^ the returned string representation
+ -> IO string -- ^ the returned string representation
 treeModelGetStringFromIter self iter = with iter $ \iter ->
   {# call gtk_tree_model_get_string_from_iter #}
     (toTreeModel self)
@@ -582,11 +583,11 @@ treeModelRowsReordered :: TreeModelClass self => self
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the tree node whose
              -- children have been reordered
  -> Maybe TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the node whose
-                   -- children have been reordered, or @Nothing@ if 
+                   -- children have been reordered, or @Nothing@ if
                    -- @path@ is @[]@.
  -> [Int]   -- ^ @newOrder@ - a list of integers giving the previous position
             -- of each node at this hierarchy level.
- 
+
  -> IO ()
 treeModelRowsReordered self path iter array = do
   n <- treeModelIterNChildren self iter

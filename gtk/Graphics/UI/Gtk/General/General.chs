@@ -36,7 +36,7 @@ module Graphics.UI.Gtk.General.General (
   postGUIAsync,
   threadsEnter,
   threadsLeave,
-  
+
   -- * Main event loop
   mainGUI,
   mainQuit,
@@ -54,12 +54,12 @@ module Graphics.UI.Gtk.General.General (
   quitAdd,
   quitRemove,
 #endif
-  
+
   -- * Grab widgets
   grabAdd,
   grabGetCurrent,
   grabRemove,
-  
+
   -- * Timeout and idle callbacks
   Priority,
   priorityLow,
@@ -104,7 +104,7 @@ import Control.Monad.Trans (liftIO)
 -- * This function returns a String which's pointer can be used later on for
 --   comarisions.
 --
---getDefaultLanguage :: IO String
+--getDefaultLanguage :: GlibString string => IO string
 --getDefaultLanguage = do
 --  strPtr <- {#call unsafe get_default_language#}
 --  str <- peekUTFString strPtr
@@ -150,7 +150,7 @@ initGUI = do
   withMany withUTFString allArgs $ \addrs  ->
     withArrayLen       addrs   $ \argc argv ->
     with	       argv    $ \argvp ->
-    with	       argc    $ \argcp -> do 
+    with	       argc    $ \argcp -> do
       res <- {#call unsafe init_check#} (castPtr argcp) (castPtr argvp)
       if (toBool res) then do
         argc'   <- peek argcp
@@ -256,42 +256,42 @@ mainIteration  = liftM toBool {#call main_iteration#}
 -- * Returns @True@ if the 'mainQuit' was called while processing the event.
 --
 mainIterationDo :: Bool -> IO Bool
-mainIterationDo blocking = 
+mainIterationDo blocking =
   liftM toBool $ {#call main_iteration_do#} (fromBool blocking)
 
 -- | Processes a single GDK event. This is public only to allow filtering of events between GDK and
 -- GTK+. You will not usually need to call this function directly.
--- 
+--
 -- While you should not call this function directly, you might want to know how exactly events are
 -- handled. So here is what this function does with the event:
--- 
+--
 --  1. Compress enter\/leave notify events. If the event passed build an enter\/leave pair together with
 --     the next event (peeked from GDK) both events are thrown away. This is to avoid a backlog of
 --     (de-)highlighting widgets crossed by the pointer.
---    
+--
 --  2. Find the widget which got the event. If the widget can't be determined the event is thrown away
 --     unless it belongs to a INCR transaction. In that case it is passed to
 --     'selectionIncrEvent'.
---    
+--
 --  3. Then the event is passed on a stack so you can query the currently handled event with
 --  'getCurrentEvent'.
---    
+--
 --  4. The event is sent to a widget. If a grab is active all events for widgets that are not in the
 --     contained in the grab widget are sent to the latter with a few exceptions:
---    
+--
 --       * Deletion and destruction events are still sent to the event widget for obvious reasons.
---        
+--
 --       * Events which directly relate to the visual representation of the event widget.
---        
+--
 --       * Leave events are delivered to the event widget if there was an enter event delivered to it
 --         before without the paired leave event.
---        
+--
 --       * Drag events are not redirected because it is unclear what the semantics of that would be.
---        
+--
 --     Another point of interest might be that all key events are first passed through the key snooper
 --     functions if there are any. Read the description of 'keySnooperInstall' if you need this
 --     feature.
---    
+--
 --  5. After finishing the delivery the event is popped from the event stack.
 mainDoEvent :: EventM t ()
 mainDoEvent = do
@@ -302,11 +302,11 @@ mainDoEvent = do
 -- | Trigger destruction of object in case the mainloop at level @mainLevel@ is quit.
 --
 -- Removed in Gtk3.
-quitAddDestroy :: ObjectClass obj 
-                 => Int -- ^ @mainLevel@ Level of the mainloop which shall trigger the destruction. 
-                 -> obj -- ^ @object@     Object to be destroyed.                                    
+quitAddDestroy :: ObjectClass obj
+                 => Int -- ^ @mainLevel@ Level of the mainloop which shall trigger the destruction.
+                 -> obj -- ^ @object@     Object to be destroyed.
                  -> IO ()
-quitAddDestroy mainLevel obj = 
+quitAddDestroy mainLevel obj =
   {#call quit_add_destroy #}
      (fromIntegral mainLevel)
      (toObject obj)
@@ -314,14 +314,14 @@ quitAddDestroy mainLevel obj =
 -- | Registers a function to be called when an instance of the mainloop is left.
 --
 -- Removed in Gtk3.
-quitAdd :: Int -- ^ @mainLevel@ Level at which termination the function shall be called. You can pass 0 here to have the function run at the current mainloop.                                                                           
+quitAdd :: Int -- ^ @mainLevel@ Level at which termination the function shall be called. You can pass 0 here to have the function run at the current mainloop.
         -> (IO Bool) -- ^ @function@   The function to call. This should return 'False' to be removed from the list of quit handlers. Otherwise the function might be called again.
         -> IO Int -- ^ returns    A handle for this quit handler (you need this for 'quitRemove')
 quitAdd mainLevel func = do
-  funcPtr <- mkGtkFunction $ \ _ -> 
+  funcPtr <- mkGtkFunction $ \ _ ->
     liftM fromBool func
   liftM fromIntegral $
-            {#call quit_add #} 
+            {#call quit_add #}
               (fromIntegral mainLevel)
               funcPtr
               nullPtr
@@ -334,7 +334,7 @@ foreign import ccall "wrapper" mkGtkFunction ::
 -- | Removes a quit handler by its identifier.
 --
 -- Removed in Gtk3.
-quitRemove :: Int -- ^ @quitHandlerId@ Identifier for the handler returned when installing it.  
+quitRemove :: Int -- ^ @quitHandlerId@ Identifier for the handler returned when installing it.
            -> IO ()
 quitRemove quitHandlerId =
   {#call quit_remove #} (fromIntegral quitHandlerId)
@@ -350,7 +350,7 @@ grabAdd  = {#call grab_add#} . toWidget
 grabGetCurrent :: IO (Maybe Widget)
 grabGetCurrent  = do
   wPtr <- {#call grab_get_current#}
-  if (wPtr==nullPtr) then return Nothing else 
+  if (wPtr==nullPtr) then return Nothing else
     liftM Just $ makeNewObject mkWidget (return wPtr)
 
 -- | remove a grab widget

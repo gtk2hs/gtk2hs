@@ -125,7 +125,7 @@ crAttr c AttrShape { paStart=s, paEnd=e, paInk = rect1, paLogical = rect2 } =
     {#call unsafe attr_shape_new#} (castPtr rect1Ptr) (castPtr rect2Ptr)
 #endif
 crAttr c AttrScale { paStart=s, paEnd=e, paScale = scale } =
-  setAttrPos c s e $ 
+  setAttrPos c s e $
   {#call unsafe attr_scale_new#} (realToFrac scale)
 #if PANGO_VERSION_CHECK(1,4,0)
 crAttr c AttrFallback { paStart=s, paEnd=e, paFallback = fb } =
@@ -163,9 +163,11 @@ crAttr c AttrGravityHint { paStart=s, paEnd=e, paGravityHint = g } =
 --
 -- * If a parsing error occurs a 'System.Glib.GError.GError' is thrown.
 --
-parseMarkup :: Markup -- ^ the string containing markup
+parseMarkup ::
+     (GlibString markup, GlibString string)
+  => markup -- ^ the string containing markup
   -> Char -- ^ @accelMarker@ - the character that prefixes an accelerator
-  -> IO ([[PangoAttribute]], Char, String) -- ^ list of attributes, the accelerator character found and the input string
+  -> IO ([[PangoAttribute]], Char, string) -- ^ list of attributes, the accelerator character found and the input string
   -- without markup
 parseMarkup markup accelMarker = propagateGError $ \errPtr ->
   withUTFStringLen markup $ \(markupPtr,markupLen) ->

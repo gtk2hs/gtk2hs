@@ -27,7 +27,7 @@
 --  eventModifier   :: [Modifier],
 --  eventIsHint  (this needs to be True in order to avoid gdk_event_get_screen to be called (which causes havoc))
 --  eventXRoot,
---  eventYRoot  :: Double } 
+--  eventYRoot  :: Double }
 -- Button {
 --  eventClick  :: Click,
 --  eventTime  :: TimeStamp,
@@ -68,14 +68,14 @@ module Graphics.UI.Gtk.General.Drag (
 #endif
   castToDragContext, gTypeDragContext,
   toDragContext,
-  
+
 -- * Methods
 #if GTK_MAJOR_VERSION < 3
   dragContextActions,
   dragContextSuggestedAction,
   dragContextAction,
 #endif
-  
+
   dragDestSet,
   dragDestSetProxy,
   dragDestUnset,
@@ -135,6 +135,7 @@ module Graphics.UI.Gtk.General.Drag (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags
 import System.Glib.UTFString ( withUTFString )
 import System.Glib.GObject		(makeNewGObject)
@@ -151,7 +152,7 @@ import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..)
 #endif
                                      )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
-import Graphics.UI.Gtk.General.Structs ( Point, 
+import Graphics.UI.Gtk.General.Structs ( Point,
 #if GTK_MAJOR_VERSION < 3
   dragContextGetActions, dragContextSetActions,
   dragContextGetSuggestedAction, dragContextSetSuggestedAction,
@@ -163,7 +164,7 @@ import Control.Monad.Reader (runReaderT)
 
 {# context lib="gtk" prefix="gtk" #}
 
-  
+
 --------------------
 -- Methods
 
@@ -272,7 +273,7 @@ dragDestGetTargetList :: WidgetClass widget => widget -> IO (Maybe TargetList)
 dragDestGetTargetList widget = do
   tlPtr <- {# call gtk_drag_dest_get_target_list #} (toWidget widget)
   if tlPtr==nullPtr then return Nothing else liftM Just (mkTargetList tlPtr)
-  
+
 -- %hash c:5c89 d:af3f
 -- | Sets the target types that this widget can accept from drag-and-drop. The
 -- widget must first be made into a drag destination with 'dragDestSet'.
@@ -346,9 +347,9 @@ dragFinish context success del time =
 -- implicitely because the 'DestDefaultDrop' was set, then the widget will
 -- not receive notification of failed drops.
 --
-dragGetData :: (WidgetClass widget, DragContextClass context) 
+dragGetData :: (WidgetClass widget, DragContextClass context)
   => widget -- ^ The widget that will receive the 'dragDataReceived' signal.
-  -> context 
+  -> context
   -> TargetTag -- ^ The target (form of the data) to retrieve.
   -> TimeStamp -- ^ A timestamp for retrieving the data. This will generally be
                -- the time received in a 'dragMotion' or 'dragDrop' signal.
@@ -426,7 +427,7 @@ dragSetIconPixbuf context pixbuf hotX hotY =
 -- %hash c:f73f d:af3f
 -- | Sets the icon for a given drag from a stock ID.
 --
-dragSetIconStock :: DragContextClass context => context -> StockId 
+dragSetIconStock :: DragContextClass context => context -> StockId
   -> Int -- ^ x hot-spot
   -> Int -- ^ y hot-spot
   -> IO ()
@@ -445,8 +446,8 @@ dragSetIconStock context stockId hotX hotY =
 -- icon theme (the icon is loaded at the DND size), thus x and y hot-spots
 -- have to be used with care. Since Gtk 2.8.
 --
-dragSetIconName :: DragContextClass context => context 
-  -> String
+dragSetIconName :: (DragContextClass context, GlibString string) => context
+  -> string
   -> Int -- ^ x hot-spot
   -> Int -- ^ y hot-spot
   -> IO ()
@@ -504,7 +505,7 @@ dragSourceSet widget startButtonMask actions =
 
 -- %hash c:63f5 d:af3f
 -- | Sets the icon that will be used for drags from a particular widget from a
--- 'Pixbuf'. 
+-- 'Pixbuf'.
 --
 dragSourceSetIconPixbuf :: WidgetClass widget => widget -> Pixbuf -> IO ()
 dragSourceSetIconPixbuf widget pixbuf =
@@ -528,7 +529,7 @@ dragSourceSetIconStock widget stockId =
 -- | Sets the icon that will be used for drags from a particular source to a
 -- themed icon. See the docs for 'IconTheme' for more details.
 --
-dragSourceSetIconName :: WidgetClass widget => widget -> String -> IO ()
+dragSourceSetIconName :: (WidgetClass widget, GlibString string) => widget -> string -> IO ()
 dragSourceSetIconName widget iconName =
   withUTFString iconName $ \iconNamePtr ->
   {# call gtk_drag_source_set_icon_name #}
@@ -620,7 +621,7 @@ dragStatus :: DragContext -> Maybe DragAction -> TimeStamp -> IO ()
 dragStatus ctxt mAction ts =
   {# call gdk_drag_status #} ctxt (maybe 0 (fromIntegral . fromEnum) mAction)
     (fromIntegral ts)
-  
+
 -- %hash c:fcf8 d:b945
 -- | The 'dragBegin' signal is emitted on the drag source when a drag is
 -- started. A typical reason to connect to this signal is to set up a custom
@@ -651,7 +652,7 @@ dragDataGet :: WidgetClass self =>
 dragDataGet = Signal (\after object handler -> do
       connect_OBJECT_PTR_WORD_WORD__NONE "drag-data-get" after object $
         \ctxt dataPtr info time -> do
-        runReaderT (handler ctxt (fromIntegral info) (fromIntegral time)) dataPtr >> 
+        runReaderT (handler ctxt (fromIntegral info) (fromIntegral time)) dataPtr >>
                     return ())
 
 -- %hash c:9251 d:a6d8

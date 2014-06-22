@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
 -- * Detail
--- 
+--
 -- | Actions are organised into groups. An action group is essentially a map
 -- from names to 'Action' objects.
 --
@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
   ActionEntry(..),
   ToggleActionEntry(..),
   RadioActionEntry(..),
-      
+
 -- * Constructors
   actionGroupNew,
 
@@ -131,8 +131,8 @@ import Graphics.UI.Gtk.ActionMenuToolbar.RadioAction
 -- | Creates a new 'ActionGroup' object. The name of the action group is used
 -- when associating keybindings with the actions.
 --
-actionGroupNew :: 
-    String         -- ^ @name@ - the name of the action group.
+actionGroupNew :: GlibString string
+ => string         -- ^ @name@ - the name of the action group.
  -> IO ActionGroup
 actionGroupNew name =
   wrapNewGObject mkActionGroup $
@@ -145,8 +145,8 @@ actionGroupNew name =
 
 -- | Gets the name of the action group.
 --
-actionGroupGetName :: ActionGroup
- -> IO String   -- ^ returns the name of the action group.
+actionGroupGetName :: GlibString string => ActionGroup
+ -> IO string   -- ^ returns the name of the action group.
 actionGroupGetName self =
   {# call gtk_action_group_get_name #}
     self
@@ -190,8 +190,8 @@ actionGroupSetVisible self visible =
 
 -- | Looks up an action in the action group by name.
 --
-actionGroupGetAction :: ActionGroup
- -> String            -- ^ @actionName@ - the name of the action
+actionGroupGetAction :: GlibString string => ActionGroup
+ -> string            -- ^ @actionName@ - the name of the action
  -> IO (Maybe Action) -- ^ returns the action, or @Nothing@ if no action by
                       -- that name exists
 actionGroupGetAction self actionName =
@@ -230,9 +230,9 @@ actionGroupAddAction self action =
 --
 -- Accel paths are set to @\<Actions>\/group-name\/action-name@.
 --
-actionGroupAddActionWithAccel :: ActionClass action => ActionGroup
+actionGroupAddActionWithAccel :: (ActionClass action, GlibString string) => ActionGroup
  -> action       -- ^ @action@ - the action to add
- -> Maybe String -- ^ @accelerator@ - the accelerator for the action, in the
+ -> Maybe string -- ^ @accelerator@ - the accelerator for the action, in the
                  -- format understood by 'acceleratorParse', or \"\" for no
                  -- accelerator, or @Nothing@ to use the stock accelerator
  -> IO ()
@@ -357,8 +357,8 @@ actionGroupAddRadioActions self entries value onChange = do
 -- If you\'re using \'gettext\', it is enough to set the translation domain
 -- with 'actionGroupSetTranslationDomain'.
 --
-actionGroupSetTranslateFunc :: ActionGroup
- -> (String -> IO String) -- ^ @(\label -> ...)@ - a translation function
+actionGroupSetTranslateFunc :: GlibString string => ActionGroup
+ -> (string -> IO string) -- ^ @(\label -> ...)@ - a translation function
  -> IO ()
 actionGroupSetTranslateFunc self func = do
   funcPtr <- mkTranslateFunc $ \strPtr _ -> do
@@ -382,8 +382,8 @@ foreign import ccall "wrapper" mkTranslateFunc ::
 -- If you\'re not using \'gettext\' for localization, see
 -- 'actionGroupSetTranslateFunc'.
 --
-actionGroupSetTranslationDomain :: ActionGroup
- -> String      -- ^ @domain@ - the translation domain to use for \'dgettext\'
+actionGroupSetTranslationDomain :: GlibString string => ActionGroup
+ -> string      -- ^ @domain@ - the translation domain to use for \'dgettext\'
                 -- calls
  -> IO ()
 actionGroupSetTranslationDomain self domain =
@@ -397,9 +397,9 @@ actionGroupSetTranslationDomain self domain =
 --
 -- * Available since Gtk+ version 2.6
 --
-actionGroupTranslateString :: ActionGroup
- -> String      -- ^ @string@ - a string
- -> IO String   -- ^ returns the translation of @string@
+actionGroupTranslateString :: GlibString string => ActionGroup
+ -> string      -- ^ @string@ - a string
+ -> IO string   -- ^ returns the translation of @string@
 actionGroupTranslateString self string =
   withUTFString string $ \stringPtr ->
   {# call gtk_action_group_translate_string #}
@@ -415,7 +415,7 @@ actionGroupTranslateString self string =
 --
 -- Default value: \"\"
 --
-actionGroupName :: Attr ActionGroup String
+actionGroupName :: GlibString string => Attr ActionGroup string
 actionGroupName = newAttrFromStringProperty "name"
 
 -- | Whether the action group is enabled.

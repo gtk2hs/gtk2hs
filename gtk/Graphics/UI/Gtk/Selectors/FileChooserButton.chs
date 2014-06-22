@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FileChooserButton (
 -- * Detail
--- 
+--
 -- | The 'FileChooserButton' is a widget that lets the user select a file. It
 -- implements the 'FileChooser' interface. Visually, it is a file name with a
 -- button to bring up a 'FileChooserDialog'. The user can then use that dialog
@@ -102,8 +102,8 @@ instance FileChooserClass FileChooserButton
 
 -- | Creates a new file-selecting button widget.
 --
-fileChooserButtonNew :: 
-    String               -- ^ @title@ - the title of the browse dialog.
+fileChooserButtonNew :: GlibString string
+ => string               -- ^ @title@ - the title of the browse dialog.
  -> FileChooserAction    -- ^ @action@ - the open mode for the widget.
  -> IO FileChooserButton
 fileChooserButtonNew title action =
@@ -118,10 +118,10 @@ fileChooserButtonNew title action =
 -- | Creates a new file-selecting button widget using @backend@.
 --
 -- Removed in Gtk3.
-fileChooserButtonNewWithBackend :: 
-    String               -- ^ @title@ - the title of the browse dialog.
+fileChooserButtonNewWithBackend :: GlibString string
+ => string               -- ^ @title@ - the title of the browse dialog.
  -> FileChooserAction    -- ^ @action@ - the open mode for the widget.
- -> String               -- ^ @backend@ - the name of the file system backend
+ -> string               -- ^ @backend@ - the name of the file system backend
                          -- to use.
  -> IO FileChooserButton
 fileChooserButtonNewWithBackend title action backend =
@@ -138,7 +138,7 @@ fileChooserButtonNewWithBackend title action backend =
 -- | Creates a 'FileChooserButton' widget which uses @dialog@ as it's
 -- file-picking window.
 --
-fileChooserButtonNewWithDialog :: FileChooserDialogClass dialog => 
+fileChooserButtonNewWithDialog :: FileChooserDialogClass dialog =>
     dialog               -- ^ @dialog@ - the 'FileChooserDialog' widget to
                          -- use.
  -> IO FileChooserButton
@@ -153,8 +153,8 @@ fileChooserButtonNewWithDialog dialog =
 
 -- | Retrieves the title of the browse dialog used by the button.
 --
-fileChooserButtonGetTitle :: FileChooserButtonClass self => self
- -> IO String -- ^ returns a pointer to the browse dialog's title.
+fileChooserButtonGetTitle :: (FileChooserButtonClass self, GlibString string) => self
+ -> IO string -- ^ returns a pointer to the browse dialog's title.
 fileChooserButtonGetTitle self =
   {# call gtk_file_chooser_button_get_title #}
     (toFileChooserButton self)
@@ -162,8 +162,8 @@ fileChooserButtonGetTitle self =
 
 -- | Modifies the @title@ of the browse dialog used by the button.
 --
-fileChooserButtonSetTitle :: FileChooserButtonClass self => self
- -> String -- ^ @title@ - the new browse dialog title.
+fileChooserButtonSetTitle :: (FileChooserButtonClass self, GlibString string) => self
+ -> string -- ^ @title@ - the new browse dialog title.
  -> IO ()
 fileChooserButtonSetTitle self title =
   withUTFString title $ \titlePtr ->
@@ -205,12 +205,12 @@ fileChooserButtonDialog = writeAttrFromObjectProperty "dialog"
 --
 -- Default value: \"Select A File\"
 --
-fileChooserButtonTitle :: FileChooserButtonClass self => Attr self String
+fileChooserButtonTitle :: (FileChooserButtonClass self, GlibString string) => Attr self string
 fileChooserButtonTitle = newAttr
   fileChooserButtonGetTitle
   fileChooserButtonSetTitle
 
--- | 
+-- |
 --
 fileChooserButtonWidthChars :: FileChooserButtonClass self => Attr self Int
 fileChooserButtonWidthChars = newAttr

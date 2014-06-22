@@ -27,7 +27,7 @@
 --   only functions are bound that allow loading images from disc or by stock
 --   names.
 --
--- Another function for extracting the 'Pixbuf' is added for 
+-- Another function for extracting the 'Pixbuf' is added for
 --   'CellRenderer'.
 --
 -- |
@@ -39,7 +39,7 @@
 --
 module Graphics.UI.Gtk.Display.Image (
 -- * Detail
--- 
+--
 -- | The 'Image' widget displays an image. Various kinds of object can be
 -- displayed as an image; most typically, you would load a 'Pixbuf' (\"pixel
 -- buffer\") from a file, and then display that. There's a convenience function
@@ -92,7 +92,7 @@ module Graphics.UI.Gtk.Display.Image (
   castToImage, gTypeImage,
   toImage,
   ImageType(..),
-  
+
 -- * Constructors
   imageNewFromFile,
   imageNewFromPixbuf,
@@ -247,8 +247,8 @@ imageNew =
 --
 -- * Available since Gtk+ version 2.6
 --
-imageNewFromIconName ::
-    String   -- ^ @iconName@ - an icon name
+imageNewFromIconName :: GlibString string
+ => string   -- ^ @iconName@ - an icon name
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO Image
 imageNewFromIconName iconName size =
@@ -319,8 +319,8 @@ imageSetFromStock self stockId size =
 --
 -- * Available since Gtk+ version 2.6
 --
-imageSetFromIconName :: Image
- -> String   -- ^ @iconName@ - an icon name
+imageSetFromIconName :: GlibString string => Image
+ -> string   -- ^ @iconName@ - an icon name
  -> IconSize -- ^ @size@ - an icon size
  -> IO ()
 imageSetFromIconName self iconName size =
@@ -404,14 +404,14 @@ imageImage = newAttrFromObjectProperty "image"
 --
 -- Default value: \"\"
 --
-imageFile :: Attr Image String
+imageFile :: GlibString string => Attr Image string
 imageFile = newAttrFromStringProperty "file"
 
 -- | Stock ID for a stock image to display.
 --
 -- Default value: \"\"
 --
-imageStock :: Attr Image String
+imageStock :: GlibString string => Attr Image string
 imageStock = newAttrFromStringProperty "stock"
 
 -- | Symbolic size to use for stock icon, icon set or named icon.
@@ -443,7 +443,7 @@ imagePixelSize = newAttr
 --
 -- Default value: \"\"
 --
-imageIconName :: Attr Image String
+imageIconName :: GlibString string => Attr Image string
 imageIconName = newAttrFromStringProperty "icon-name"
 #endif
 

@@ -42,6 +42,7 @@ module Graphics.UI.Gtk.Abstract.ContainerChildProperties (
 import Control.Monad (liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GType
@@ -147,8 +148,8 @@ newAttrFromContainerChildFlagsProperty propName gtype child = newAttr
   (containerChildSetPropertyInternal gtype valueSetFlags propName child)
 
 newAttrFromContainerChildStringProperty ::
- (ContainerClass container, WidgetClass child)
- => String -> child -> Attr container String
+ (ContainerClass container, WidgetClass child, GlibString string)
+ => String -> child -> Attr container string
 newAttrFromContainerChildStringProperty propName child = newAttr
   (containerChildGetPropertyInternal GType.string valueGetString propName child)
   (containerChildSetPropertyInternal GType.string valueSetString propName child)

@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Display.Statusbar (
 -- * Detail
--- 
+--
 -- | A 'Statusbar' is usually placed along the bottom of an application's main
 -- 'Window'. It may provide a regular commentary of the application's status
 -- (as is usually the case in a web browser, for example), or may be used to
@@ -142,8 +142,8 @@ type ContextId = {#type guint#}
 -- | Returns a new context identifier, given a description of the actual
 -- context. This id can be used to later remove entries form the Statusbar.
 --
-statusbarGetContextId :: StatusbarClass self => self
- -> String       -- ^ @contextDescription@ - textual description of what context the
+statusbarGetContextId :: (StatusbarClass self, GlibString string) => self
+ -> string       -- ^ @contextDescription@ - textual description of what context the
                  -- new message is being used in.
  -> IO ContextId -- ^ returns an id that can be used to later remove entries
                  -- ^ from the Statusbar.
@@ -158,10 +158,10 @@ newtype MessageId = MessageId {#type guint#}
 -- | Pushes a new message onto the Statusbar's stack. It will
 -- be displayed as long as it is on top of the stack.
 --
-statusbarPush :: StatusbarClass self => self
+statusbarPush :: (StatusbarClass self, GlibString string) => self
  -> ContextId    -- ^ @contextId@ - the message's context id, as returned by
                  -- 'statusbarGetContextId'.
- -> String       -- ^ @text@ - the message to add to the statusbar.
+ -> string       -- ^ @text@ - the message to add to the statusbar.
  -> IO MessageId -- ^ returns the message's new message id for use with
                  -- 'statusbarRemove'.
 statusbarPush self contextId text =
@@ -231,10 +231,10 @@ statusbarGetMessageArea self =
 --
 -- * Available since Gtk+ version 2.22
 --
-statusbarRemoveAll :: StatusbarClass self => self 
-                   -> Int -- ^ @contextId@ a context identifier 
+statusbarRemoveAll :: StatusbarClass self => self
+                   -> Int -- ^ @contextId@ a context identifier
                    -> IO ()
-statusbarRemoveAll self contextId = 
+statusbarRemoveAll self contextId =
   {#call gtk_statusbar_remove_all #}
     (toStatusbar self)
     (fromIntegral contextId)
@@ -261,13 +261,13 @@ statusbarHasResizeGrip = newAttr
 -- %hash c:4eb7 d:d0ef
 -- | Is emitted whenever a new message gets pushed onto a statusbar's stack.
 --
-textPushed :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
+textPushed :: (StatusbarClass self, GlibString string) => Signal self (ContextId -> string -> IO ())
 textPushed = Signal (\a self user -> connect_WORD_STRING__NONE "text-pushed" a self (\w s -> user (fromIntegral w) s))
 
 -- %hash c:2614 d:c1d2
 -- | Is emitted whenever a new message is popped off a statusbar's stack.
 --
-textPopped :: StatusbarClass self => Signal self (ContextId -> String -> IO ())
+textPopped :: (StatusbarClass self, GlibString string) => Signal self (ContextId -> string -> IO ())
 textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text-popped" a self (\w s -> user (fromIntegral w) s))
 
 --------------------
@@ -276,8 +276,8 @@ textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text-popped" a s
 #ifndef DISABLE_DEPRECATED
 -- | Called if a message is removed.
 --
-onTextPopped, afterTextPopped :: StatusbarClass self => self
- -> (ContextId -> String -> IO ())
+onTextPopped, afterTextPopped :: (StatusbarClass self, GlibString string) => self
+ -> (ContextId -> string -> IO ())
  -> IO (ConnectId self)
 onTextPopped self user = connect_WORD_STRING__NONE "text-popped" False self (user . fromIntegral)
 afterTextPopped self user = connect_WORD_STRING__NONE "text-popped" True self (user . fromIntegral)
@@ -285,8 +285,8 @@ afterTextPopped self user = connect_WORD_STRING__NONE "text-popped" True self (u
 -- | Called if a message is pushed on top of the
 -- stack.
 --
-onTextPushed, afterTextPushed :: StatusbarClass self => self
- -> (ContextId -> String -> IO ())
+onTextPushed, afterTextPushed :: (StatusbarClass self, GlibString string) => self
+ -> (ContextId -> string -> IO ())
  -> IO (ConnectId self)
 onTextPushed self user = connect_WORD_STRING__NONE "text-pushed" False self (user . fromIntegral)
 afterTextPushed self user = connect_WORD_STRING__NONE "text-pushed" True self (user . fromIntegral)

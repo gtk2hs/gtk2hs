@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRendererText (
 -- * Detail
--- 
+--
 -- | A 'CellRendererText' renders a given text in its cell, using the font,
 -- color and style information provided by its attributes. The text will be
 -- ellipsized if it is too long and the ellipsize property allows it.
@@ -121,6 +121,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Properties
 import System.Glib.Attributes (Attr, WriteAttr)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
@@ -175,7 +176,7 @@ cellRendererTextSetFixedHeightFromFont self numberOfRows =
 --
 -- Default value: @\"\"@
 --
-cellTextBackground :: CellRendererClass self => WriteAttr self String
+cellTextBackground :: (CellRendererClass self, GlibString string) => WriteAttr self string
 cellTextBackground = writeAttrFromStringProperty "background"
 
 -- | Text background color as a 'Color'.
@@ -224,7 +225,7 @@ cellTextEllipsizeSet = newAttrFromBoolProperty "ellipsize-set"
 
 -- | Name of the font family, e.g. Sans, Helvetica, Times, Monospace.
 --
-cellTextFamily :: CellRendererTextClass self => Attr self String
+cellTextFamily :: (CellRendererTextClass self, GlibString string) => Attr self string
 cellTextFamily = newAttrFromStringProperty "family"
 
 -- | Determines if 'cellTextFamily' has an effect.
@@ -234,7 +235,7 @@ cellTextFamilySet = newAttrFromBoolProperty "family-set"
 
 -- | Font description as a string.
 --
-cellTextFont :: CellRendererTextClass self => Attr self String
+cellTextFont :: (CellRendererTextClass self, GlibString string) => Attr self string
 cellTextFont = newAttrFromStringProperty "font"
 
 -- | Font description as a 'Graphics.Rendering.Pango.FontDescription'.
@@ -248,7 +249,7 @@ cellTextFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
 --
 -- Default value: @\"\"@
 --
-cellTextForeground :: CellRendererClass self => WriteAttr self String
+cellTextForeground :: (CellRendererClass self, GlibString string) => WriteAttr self string
 cellTextForeground = writeAttrFromStringProperty "foreground"
 
 -- | Text foreground color as a 'Color'.
@@ -268,7 +269,7 @@ cellTextForegroundSet = newAttrFromBoolProperty "foreground-set"
 --   a hint when rendering the text. If you don't understand this parameter,
 --   you probably don't need it.
 --
-cellTextLanguage :: CellRendererTextClass self => Attr self (Maybe String)
+cellTextLanguage :: (CellRendererTextClass self, GlibString string) => Attr self (Maybe string)
 cellTextLanguage = newAttrFromMaybeStringProperty "language"
 
 -- | Whether the 'cellTextLanguage' tag is used, default is @False@.
@@ -278,7 +279,7 @@ cellTextLanguageSet = newAttrFromBoolProperty "language-set"
 
 -- | Define a markup string instead of a text. See 'cellText'.
 --
-cellTextMarkup :: CellRendererTextClass cr => WriteAttr cr (Maybe String)
+cellTextMarkup :: (CellRendererTextClass cr, GlibString string) => WriteAttr cr (Maybe string)
 cellTextMarkup  = writeAttrFromMaybeStringProperty "markup"
 
 -- %hash c:4e25 d:f7c6
@@ -370,7 +371,7 @@ cellTextStyleSet = newAttrFromBoolProperty "style-set"
 -- | Define the attribute that specifies the text to be rendered. See
 --   also 'cellTextMarkup'.
 --
-cellText :: CellRendererTextClass cr => Attr cr String
+cellText :: (CellRendererTextClass cr, GlibString string) => Attr cr string
 cellText  = newAttrFromStringProperty "text"
 
 -- | Style of underline for this text.
@@ -472,12 +473,12 @@ cellTextAlignment = newAttrFromEnumProperty "alignment"
 -- indicates that the model should be updated with the supplied value.
 -- The value is always a string which matches the 'cellText' attribute of
 -- 'CellRendererText' (and its derivates like 'CellRendererCombo').
--- 
--- * This signal is not emitted when editing is disabled (see 
+--
+-- * This signal is not emitted when editing is disabled (see
 --   'cellTextEditable') or when the user aborts editing.
 --
-edited :: CellRendererTextClass self =>
-	  Signal self (TreePath -> String -> IO ())
+edited :: (CellRendererTextClass self, GlibString string) =>
+	  Signal self (TreePath -> string -> IO ())
 edited = Signal internalEdited
 
 --------------------
@@ -485,23 +486,23 @@ edited = Signal internalEdited
 
 #ifndef DISABLE_DEPRECATED
 -- %hash c:76ed
-onEdited :: CellRendererTextClass self => self
- -> (TreePath -> String -> IO ())
+onEdited :: (CellRendererTextClass self, GlibString string) => self
+ -> (TreePath -> string -> IO ())
  -> IO (ConnectId self)
 onEdited = internalEdited False
 {-# DEPRECATED onEdited "instead of 'onEdited obj' use 'on obj edited'" #-}
 
 -- %hash c:f70c
-afterEdited :: CellRendererTextClass self => self
- -> (TreePath -> String -> IO ())
+afterEdited :: (CellRendererTextClass self, GlibString string) => self
+ -> (TreePath -> string -> IO ())
  -> IO (ConnectId self)
 afterEdited = internalEdited True
 {-# DEPRECATED afterEdited "instead of 'afterEdited obj' use 'after obj edited'" #-}
 #endif
 
-internalEdited :: CellRendererTextClass cr =>
+internalEdited :: (CellRendererTextClass cr, GlibString string) =>
 		  Bool -> cr ->
-                  (TreePath -> String -> IO ()) ->
+                  (TreePath -> string -> IO ()) ->
                   IO (ConnectId cr)
 internalEdited after cr user =
   connect_STRING_STRING__NONE "edited" after cr $ \path string -> do

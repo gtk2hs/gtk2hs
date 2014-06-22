@@ -31,12 +31,12 @@
 -- A text entry field with a dropdown list
 --
 -- * Warning: this module is deprecated and should not be used in
--- newly-written code. 
+-- newly-written code.
 --
 -- This module is empty in Gtk3 as Combo has been removed.
 module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 -- * Detail
--- 
+--
 -- | The 'Combo' widget consists of a single-line text entry field and a
 -- drop-down list. The drop-down list is displayed when the user clicks on a
 -- small arrow button to the right of the entry field.
@@ -129,12 +129,12 @@ comboNew =
 -- | Insert a set of Strings into the
 -- 'Combo' drop down list.
 --
-comboSetPopdownStrings :: ComboClass self => self -> [String] -> IO ()
+comboSetPopdownStrings :: (ComboClass self, GlibString string) => self -> [string] -> IO ()
 comboSetPopdownStrings self strs = do
   list <- comboGetList (toCombo self)
   {#call list_clear_items#} list  0 (-1)
   mapM_ (\str -> do
-    li <- makeNewObject mkWidget $ liftM castPtr $ 
+    li <- makeNewObject mkWidget $ liftM castPtr $
       withUTFString str {#call unsafe list_item_new_with_label#}
     widgetShow li
     containerAdd list li)

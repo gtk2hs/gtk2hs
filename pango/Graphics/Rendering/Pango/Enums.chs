@@ -49,7 +49,6 @@ module Graphics.Rendering.Pango.Enums (
 #endif
 
   -- these will not be exported from this module in the future
-  Markup,
   Language,
   emptyLanguage,
   languageFromString,

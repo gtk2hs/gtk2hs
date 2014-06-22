@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Display.ProgressBar (
 -- * Detail
--- 
+--
 -- | The 'ProgressBar' is typically used to display the progress of a long
 -- running operation. It provides a visual clue that processing is underway.
 -- The 'ProgressBar' can be used in two different modes: percentage mode and
@@ -144,7 +144,7 @@ progressBarPulse self =
 
 -- | Causes the given @text@ to appear superimposed on the progress bar.
 --
-progressBarSetText :: ProgressBarClass self => self -> String -> IO ()
+progressBarSetText :: (ProgressBarClass self, GlibString string) => self -> string -> IO ()
 progressBarSetText self text =
   withUTFString text $ \textPtr ->
   {# call unsafe progress_bar_set_text #}
@@ -194,8 +194,8 @@ progressBarGetPulseStep self =
 -- | Retrieves the text displayed superimposed on the progress bar, if any,
 -- otherwise @Nothing@.
 --
-progressBarGetText :: ProgressBarClass self => self
- -> IO (Maybe String) -- ^ returns text, or @Nothing@
+progressBarGetText :: (ProgressBarClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns text, or @Nothing@
 progressBarGetText self =
   {# call unsafe progress_bar_get_text #}
     (toProgressBar self)
@@ -294,7 +294,7 @@ progressBarPulseStep = newAttr
 --
 -- Default value: \"%P %%\"
 --
-progressBarText :: ProgressBarClass self => ReadWriteAttr self (Maybe String) String
+progressBarText :: (ProgressBarClass self, GlibString string) => ReadWriteAttr self (Maybe string) string
 progressBarText = newAttr
   progressBarGetText
   progressBarSetText

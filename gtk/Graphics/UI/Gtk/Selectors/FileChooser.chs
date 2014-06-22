@@ -30,7 +30,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FileChooser (
 -- * Detail
--- 
+--
 -- | 'FileChooser' is an interface that can be implemented by file selection
 -- widgets. In Gtk+, the main objects that implement this interface are
 -- 'FileChooserWidget', 'FileChooserDialog', and 'FileChooserButton'. You do
@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- and in various flavours, so lets explain the terminology here:
 
 -- ** File Names and Encodings
--- 
+--
 -- | When the user is finished selecting files in a 'FileChooser', your
 -- program can get the selected names either as filenames or as URIs. For URIs,
 -- the normal escaping rules are applied if the URI contains non-ASCII
@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- Glib documentation for more details about this variable.
 
 -- ** Adding a Preview Widget
--- 
+--
 -- | You can add a custom preview widget to a file chooser and then get
 -- notification about when the preview needs to be updated. To install a
 -- preview widget, use 'fileChooserSetPreviewWidget'. Then, connect to the
@@ -66,14 +66,14 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- that indicates whether your callback could successfully generate a preview.
 
 -- ** Adding Extra Widgets
--- 
+--
 -- | You can add extra widgets to a file chooser to provide options that are
 -- not present in the default design. For example, you can add a toggle button
 -- to give the user the option to open a file in read-only mode. You can use
 -- 'fileChooserSetExtraWidget' to insert additional widgets in a file chooser.
 
 -- ** Key Bindings
--- 
+--
 -- | Internally, Gtk+ implements a file chooser's graphical user interface
 -- with the private GtkFileChooserDefaultClass. This widget has several key
 -- bindings and their associated signals. This section describes the available
@@ -111,10 +111,10 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- > 		"home-folder-folder" ()
 -- > 	}
 -- > }
--- > 
+-- >
 -- > class "GtkFileChooserDefault" binding "my-own-gtkfilechooser-bindings"
 -- > 	
--- 
+--
 
 -- * Class Hierarchy
 -- |

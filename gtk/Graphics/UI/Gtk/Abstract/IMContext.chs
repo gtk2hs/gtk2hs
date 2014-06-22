@@ -72,7 +72,7 @@ import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString (readUTFString, withUTFString, genUTFOfs,
-                              ofsToUTF, ofsFromUTF)
+                              ofsToUTF, ofsFromUTF, GlibString)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.EventM (EventM, EKey)
@@ -103,8 +103,8 @@ imContextSetClientWindow self window =
 -- attributes to apply to the string. This string should be displayed inserted
 -- at the insertion point.
 --
-imContextGetPreeditString :: IMContextClass self => self
- -> IO (String, [[PangoAttribute]], Int)
+imContextGetPreeditString :: (IMContextClass self, GlibString string) => self
+ -> IO (string, [[PangoAttribute]], Int)
                     -- ^ @(str, attrs, cursorPos)@ Retrieved string,
                     -- attributes to apply to the string, position of cursor.
 imContextGetPreeditString self =
@@ -195,8 +195,8 @@ imContextSetUsePreedit self usePreedit =
 -- 'imContextRetrieveSurrounding' signal, and will likely have no effect if
 -- called at other times.
 --
-imContextSetSurrounding :: IMContextClass self => self
- -> String -- ^ @text@ - text surrounding the insertion point, as UTF-8. the
+imContextSetSurrounding :: (IMContextClass self, GlibString string) => self
+ -> string -- ^ @text@ - text surrounding the insertion point, as UTF-8. the
            -- preedit string should not be included within @text@.
  -> Int    -- ^ @cursorIndex@ - the index of the insertion cursor within
            -- @text@.
@@ -221,8 +221,8 @@ imContextSetSurrounding self text cursorIndex =
 -- is no obligation for a widget to respond to the 'imContextRetrieveSurrounding'
 -- signal, so input methods must be prepared to function without context.
 --
-imContextGetSurrounding :: IMContextClass self => self
- -> IO (Maybe (String, Int)) -- ^ @Maybe (text,cursorIndex)@ Text holding
+imContextGetSurrounding :: (IMContextClass self, GlibString string) => self
+ -> IO (Maybe (string, Int)) -- ^ @Maybe (text,cursorIndex)@ Text holding
                              -- context around the insertion point and the
                              -- index of the insertion cursor within @text@.
                              -- 'Nothing' if  no surrounding text was
@@ -295,7 +295,7 @@ imContextPreeditChanged = Signal (connect_NONE__NONE "preedit-changed")
 -- key press or the final result of preediting. Parameters:
 --
 -- @str@ - the completed character(s) entered by the user
-imContextCommit :: IMContextClass self => Signal self (String -> IO ())
+imContextCommit :: (IMContextClass self, GlibString string) => Signal self (string -> IO ())
 imContextCommit = Signal (connect_STRING__NONE "commit")
 
 -- | This signal is emitted when the input method requires the context

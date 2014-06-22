@@ -1,4 +1,6 @@
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE MagicHash #-}
+{-# LANGUAGE Rank2Types #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) CustomStore TreeModel
@@ -33,18 +35,18 @@ module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModelClass,
   toTypedTreeModel,
   unsafeTreeModelToGeneric,
-  
+
   TypedTreeModelSort(..),
   unsafeTreeModelSortToGeneric,
   TypedTreeModelFilter(..),
   unsafeTreeModelFilterToGeneric,
-  
+
   -- TreeIter
   TreeIter(..),
   receiveTreeIter,
   peekTreeIter,
   treeIterSetStamp,
-  
+
   -- TreePath
   TreePath,
   NativeTreePath(..),
@@ -53,18 +55,19 @@ module Graphics.UI.Gtk.ModelView.Types (
   peekTreePath,
   fromTreePath,
   stringToTreePath,
-  
+
   -- Columns
   ColumnAccess(..),
   ColumnId(..),
-  
+
   -- Storing the model in a ComboBox
-  comboQuark,  
+  comboQuark,
   ) where
 
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.GValue         (GValue)
 import System.Glib.GObject        (Quark, quarkFromString)
 {#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
@@ -238,20 +241,20 @@ stringToTreePath path = getNum 0 (dropWhile (not . isDigit) path)
   getNum acc xs = acc:stringToTreePath (dropWhile (not . isDigit) xs)
 
 -- | Accessing a row for a specific value. Used for 'ColumnMap'.
-data ColumnAccess row
-  = CAInvalid
-  | CAInt (row -> Int)
-  | CABool (row -> Bool)
-  | CAString (row -> String)
-  | CAPixbuf (row -> Pixbuf)
+data ColumnAccess row where
+  CAInvalid :: ColumnAccess row
+  CAInt     :: (row -> Int) -> ColumnAccess row
+  CABool    :: (row -> Bool) -> ColumnAccess row
+  CAString  :: GlibString string => (row -> string) -> ColumnAccess row
+  CAPixbuf  :: (row -> Pixbuf) -> ColumnAccess row
 
 -- | The type of a tree column.
-data ColumnId row ty 
+data ColumnId row ty
   = ColumnId (GValue -> IO ty) ((row -> ty) -> ColumnAccess row) Int
 
 -- it shouldn't matter if the following function is actually inlined
-{-# NOINLINE comboQuark #-}  
+{-# NOINLINE comboQuark #-}
 comboQuark :: Quark
 comboQuark =
   unsafePerformIO $ quarkFromString "comboBoxHaskellStringModelQuark"
-  
+

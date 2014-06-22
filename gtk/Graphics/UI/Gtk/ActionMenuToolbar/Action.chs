@@ -30,7 +30,7 @@
 --
 module Graphics.UI.Gtk.ActionMenuToolbar.Action (
 -- * Detail
--- 
+--
 -- | Actions represent operations that the user can be perform, along with
 -- some information how it should be presented in the interface. Each action
 -- provides methods to create icons, menu items and toolbar items representing
@@ -171,11 +171,11 @@ import Graphics.UI.Gtk.General.StockItems
 -- See "Graphics.UI.Gtk.ActionMenuToolbar.UIManager#XML-UI" for information on
 -- allowed action names.
 --
-actionNew :: 
-    String        -- ^ @name@ - A unique name for the action
- -> String        -- ^ @label@ - the label displayed in menu items and on
+actionNew :: GlibString string
+ => string        -- ^ @name@ - A unique name for the action
+ -> string        -- ^ @label@ - the label displayed in menu items and on
                   -- buttons
- -> Maybe String  -- ^ @tooltip@ - a tooltip for the action
+ -> Maybe string  -- ^ @tooltip@ - a tooltip for the action
  -> Maybe StockId -- ^ @stockId@ - the stock icon to display in widgets
                   -- representing the action
  -> IO Action
@@ -196,7 +196,7 @@ actionNew name label tooltip stockId =
 
 -- | Returns the name of the action.
 --
-actionGetName :: ActionClass self => self -> IO String
+actionGetName :: (ActionClass self, GlibString string) => self -> IO string
 actionGetName self =
   {# call gtk_action_get_name #}
     (toAction self)
@@ -301,7 +301,7 @@ actionCreateToolItem self =
   makeNewObject mkWidget $
   {# call gtk_action_create_tool_item #}
     (toAction self)
-    
+
 #if GTK_MAJOR_VERSION < 3
 -- | Connects a widget to an action object as a proxy. Synchronises various
 -- properties of the action with the widget (such as label text, icon, tooltip,
@@ -366,8 +366,8 @@ actionDisconnectAccelerator self =
 --
 -- * Available since Gtk+ version 2.6
 --
-actionGetAccelPath :: ActionClass self => self
- -> IO (Maybe String) -- ^ returns the accel path for this action, or
+actionGetAccelPath :: (ActionClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns the accel path for this action, or
                       -- @Nothing@ if none is set.
 actionGetAccelPath self =
   {# call gtk_action_get_accel_path #}
@@ -379,8 +379,8 @@ actionGetAccelPath self =
 -- the action will have this accel path, so that their accelerators are
 -- consistent.
 --
-actionSetAccelPath :: ActionClass self => self
- -> String -- ^ @accelPath@ - the accelerator path
+actionSetAccelPath :: (ActionClass self, GlibString string) => self
+ -> string -- ^ @accelPath@ - the accelerator path
  -> IO ()
 actionSetAccelPath self accelPath =
   withUTFString accelPath $ \accelPathPtr ->
@@ -404,35 +404,35 @@ actionSetAccelGroup self accelGroup =
 --
 -- Default value: \"\"
 --
-actionName :: ActionClass self => Attr self String
+actionName :: GlibString string => ActionClass self => Attr self string
 actionName = newAttrFromStringProperty "name"
 
 -- | The label used for menu items and buttons that activate this action.
 --
 -- Default value: \"\"
 --
-actionLabel :: ActionClass self => Attr self String
+actionLabel :: GlibString string => ActionClass self => Attr self string
 actionLabel = newAttrFromStringProperty "label"
 
 -- | A shorter label that may be used on toolbar buttons.
 --
 -- Default value: \"\"
 --
-actionShortLabel :: ActionClass self => Attr self String
+actionShortLabel :: GlibString string => ActionClass self => Attr self string
 actionShortLabel = newAttrFromStringProperty "short-label"
 
 -- | A tooltip for this action.
 --
 -- Default value: @Nothing@
 --
-actionTooltip :: ActionClass self => Attr self (Maybe String)
+actionTooltip :: GlibString string => ActionClass self => Attr self (Maybe string)
 actionTooltip = newAttrFromMaybeStringProperty "tooltip"
 
 -- | The stock icon displayed in widgets representing this action.
 --
 -- Default value: @Nothing@
 --
-actionStockId :: ActionClass self => Attr self (Maybe String)
+actionStockId :: GlibString string => ActionClass self => Attr self (Maybe string)
 actionStockId = newAttrFromMaybeStringProperty "stock_id"
 
 -- | Whether the toolbar item is visible when the toolbar is in a horizontal
@@ -506,7 +506,7 @@ actionVisible = newAttr
 --
 -- * Available since Gtk+ version 2.6
 --
-actionAccelPath :: ActionClass self => ReadWriteAttr self (Maybe String) String
+actionAccelPath :: GlibString string => ActionClass self => ReadWriteAttr self (Maybe string) string
 actionAccelPath = newAttr
   actionGetAccelPath
   actionSetAccelPath
@@ -515,11 +515,11 @@ actionAccelPath = newAttr
 #if GTK_CHECK_VERSION(2,20,0)
 -- | If 'True', the action's menu item proxies will ignore the 'menuImages' setting and always show
 -- their image, if available.
--- 
+--
 -- Use this property if the menu item would be useless or hard to use without their image.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- Since 2.20
 actionAlwaysShowImage :: ActionClass self => Attr self Bool
 actionAlwaysShowImage = newAttrFromBoolProperty "always-show-image"

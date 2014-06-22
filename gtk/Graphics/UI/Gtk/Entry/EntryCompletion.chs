@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- * Detail
--- 
+--
 -- | 'EntryCompletion' is an auxiliary object to be used in conjunction with
 -- 'Entry' to provide the completion functionality. It implements the
 -- 'CellLayout' interface, to allow the user to add extra cells to the
@@ -205,13 +205,13 @@ entryCompletionGetModel self =
 -- | Convenience function for setting up the most used case of this code: a
 -- completion list with just strings. This function will set up @completion@ to
 -- have a list displaying all (and just) strings in the completion list, and to
--- get those strings from @model@. This functions creates and adds a 
+-- get those strings from @model@. This functions creates and adds a
 -- 'CellRendererText' which retrieves its content from the given model.
 --
-entryCompletionSetTextModel :: (TreeModelClass (model String),
-                                TypedTreeModelClass model)
+entryCompletionSetTextModel :: (TreeModelClass (model string),
+                                TypedTreeModelClass model, GlibString string)
  => EntryCompletion -- ^ @completion@
- -> model String    -- ^ the model containing 'String's
+ -> model string    -- ^ the model containing 'string's
  -> IO ()
 entryCompletionSetTextModel self model = do
   let strCol = makeColumnIdString 0
@@ -230,7 +230,8 @@ entryCompletionSetTextModel self model = do
 --   or as a single precomposed character. If this is not appropriate you
 --   can extract the original text from the entry.
 --
-entryCompletionSetMatchFunc :: EntryCompletion -> (String -> TreeIter -> IO Bool) -> IO ()
+entryCompletionSetMatchFunc :: GlibString string
+ => EntryCompletion -> (string -> TreeIter -> IO Bool) -> IO ()
 entryCompletionSetMatchFunc ec handler = do
   hPtr <- mkHandler_GtkEntryCompletionMatchFunc
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
@@ -251,7 +252,7 @@ type GtkEntryCompletionMatchFunc =
   IO {#type gboolean#}
 
 foreign import ccall "wrapper" mkHandler_GtkEntryCompletionMatchFunc ::
-  GtkEntryCompletionMatchFunc -> 
+  GtkEntryCompletionMatchFunc ->
   IO (FunPtr GtkEntryCompletionMatchFunc)
 
 -- | Requires the length of the search key for @completion@ to be at least
@@ -290,9 +291,9 @@ entryCompletionComplete self =
 -- with text @text@. If you want the action item to have markup, use
 -- 'entryCompletionInsertActionMarkup'.
 --
-entryCompletionInsertActionText :: EntryCompletion
+entryCompletionInsertActionText :: GlibString string => EntryCompletion
  -> Int             -- ^ @index@ - The index of the item to insert.
- -> String          -- ^ @text@ - Text of the item to insert.
+ -> string          -- ^ @text@ - Text of the item to insert.
  -> IO ()
 entryCompletionInsertActionText self index text =
   withUTFString text $ \textPtr ->
@@ -304,9 +305,9 @@ entryCompletionInsertActionText self index text =
 -- | Inserts an action in @completion@'s action item list at position @index@
 -- with markup @markup@.
 --
-entryCompletionInsertActionMarkup :: EntryCompletion
+entryCompletionInsertActionMarkup :: GlibString string => EntryCompletion
  -> Int             -- ^ @index@ - The index of the item to insert.
- -> String          -- ^ @markup@ - Markup of the item to insert.
+ -> string          -- ^ @markup@ - Markup of the item to insert.
  -> IO ()
 entryCompletionInsertActionMarkup self index markup =
   withUTFString markup $ \markupPtr ->
@@ -333,8 +334,8 @@ entryCompletionDeleteAction self index =
 -- This functions creates and adds a 'CellRendererText' for the selected
 -- column.
 --
-entryCompletionSetTextColumn :: EntryCompletion
- -> ColumnId row String -- ^ @column@ - The column in the model of @completion@ to
+entryCompletionSetTextColumn :: GlibString string => EntryCompletion
+ -> ColumnId row string -- ^ @column@ - The column in the model of @completion@ to
                         -- get strings from.
  -> IO ()
 entryCompletionSetTextColumn self column =
@@ -356,8 +357,8 @@ entryCompletionInsertPrefix self =
 --
 -- * Available since Gtk+ version 2.6
 --
-entryCompletionGetTextColumn :: EntryCompletion
- -> IO (ColumnId row String)  -- ^ returns the column containing the strings
+entryCompletionGetTextColumn :: GlibString string => EntryCompletion
+ -> IO (ColumnId row string)  -- ^ returns the column containing the strings
 entryCompletionGetTextColumn self =
   liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_entry_completion_get_text_column #}
@@ -495,7 +496,7 @@ entryCompletionMinimumKeyLength = newAttr
 --
 -- Default value: 'Graphics.UI.Gtk.ModelView.CustomStore.invalidColumnId'
 --
-entryCompletionTextColumn :: Attr EntryCompletion (ColumnId row String)
+entryCompletionTextColumn :: GlibString string => Attr EntryCompletion (ColumnId row string)
 entryCompletionTextColumn = newAttr
   entryCompletionGetTextColumn
   entryCompletionSetTextColumn
@@ -559,7 +560,7 @@ entryCompletionPopupSingleMatch = newAttr
 --
 -- * Available since Gtk+ version 2.6
 --
-insertPrefix :: EntryCompletionClass self => Signal self (String -> IO Bool)
+insertPrefix :: (EntryCompletionClass self, GlibString string) => Signal self (string -> IO Bool)
 insertPrefix = Signal (connect_STRING__BOOL "insert-prefix")
 #endif
 
@@ -587,8 +588,8 @@ completionActionActivated = Signal (connect_INT__NONE "action-activated")
 -- part of the @prefix@ into the entry - e.g. the entry used in the
 -- 'FileChooser' inserts only the part of the prefix up to the next \'\/\'.
 --
-onInsertPrefix, afterInsertPrefix :: EntryCompletionClass self => self
- -> (String -> IO Bool)
+onInsertPrefix, afterInsertPrefix :: (EntryCompletionClass self, GlibString string) => self
+ -> (string -> IO Bool)
  -> IO (ConnectId self)
 onInsertPrefix = connect_STRING__BOOL "insert_prefix" False
 afterInsertPrefix = connect_STRING__BOOL "insert_prefix" True

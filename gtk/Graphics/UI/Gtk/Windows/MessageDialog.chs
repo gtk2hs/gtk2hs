@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget MessageDialog
 --
@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Windows.MessageDialog (
 -- * Detail
--- 
+--
 -- | 'MessageDialog' presents a dialog with an image representing the type of
 -- message (Error, Question, etc.) alongside some message text. It's simply a
 -- convenience widget; you could construct the equivalent of 'MessageDialog'
@@ -60,13 +60,13 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
   MessageType(..),
   ButtonsType(..),
   DialogFlags(..),
-  
+
 -- * Constructors
   messageDialogNew,
 #if GTK_CHECK_VERSION(2,4,0)
   messageDialogNewWithMarkup,
 #endif
-  
+
 -- * Methods
 #if GTK_CHECK_VERSION(2,4,0)
   messageDialogSetMarkup,
@@ -103,7 +103,6 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.Flags	(Flags, fromFlags)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.Rendering.Pango.Markup (Markup)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -144,26 +143,27 @@ instance Flags DialogFlags
 --------------------
 -- Constructors
 
--- | Create a new message dialog, which is a simple dialog with an icon 
---   indicating the dialog type (error, warning, etc.) and some text the 
+-- | Create a new message dialog, which is a simple dialog with an icon
+--   indicating the dialog type (error, warning, etc.) and some text the
 --   user may want to see. When the user clicks a button a \"response\" signal
 --   is emitted with response IDs from 'ResponseType'. See 'Dialog' for more
 --   details.
--- 
+--
 messageDialogNew
-  :: Maybe Window  -- ^ Transient parent of the dialog (or none)
+  :: GlibString string
+  => Maybe Window  -- ^ Transient parent of the dialog (or none)
   -> [DialogFlags]
   -> MessageType
   -> ButtonsType
-  -> String        -- ^ The text of the message
+  -> string        -- ^ The text of the message
   -> IO MessageDialog
 messageDialogNew mWindow flags mType bType msg =
   withUTFString (unPrintf msg) $ \msgPtr ->
   makeNewObject mkMessageDialog $
   liftM (castPtr :: Ptr Widget -> Ptr MessageDialog) $
   call_message_dialog_new mWindow flags mType bType msgPtr
-	  			 
-	  			 
+	  			
+	  			
 call_message_dialog_new :: Maybe Window -> [DialogFlags] ->
 			   MessageType -> ButtonsType -> Ptr CChar ->
 			   IO (Ptr Widget)
@@ -191,11 +191,12 @@ foreign import ccall unsafe "gtk_message_dialog_new"
 -- * Available since Gtk+ version 2.4
 --
 messageDialogNewWithMarkup
-  :: Maybe Window  -- ^ Transient parent of the dialog (or none)
+  :: (Monad m, GlibString (m Char))
+  => Maybe Window  -- ^ Transient parent of the dialog (or none)
   -> [DialogFlags]
   -> MessageType
   -> ButtonsType
-  -> Markup        -- ^ The text of the message
+  -> m Char        -- ^ The text of the message
   -> IO MessageDialog
 messageDialogNewWithMarkup mWindow flags mType bType msg = do
   md <- makeNewObject mkMessageDialog $
@@ -204,7 +205,7 @@ messageDialogNewWithMarkup mWindow flags mType bType msg = do
   messageDialogSetMarkup md msg
   return md
 #endif
-  
+
 --------------------
 -- Methods
 
@@ -214,8 +215,8 @@ messageDialogNewWithMarkup mWindow flags mType bType msg = do
 --
 -- * Available since Gtk+ version 2.4
 --
-messageDialogSetMarkup :: MessageDialogClass self => self
- -> Markup -- ^ @str@ - markup string (see Pango markup format)
+messageDialogSetMarkup :: (MessageDialogClass self, Monad m, GlibString (m Char)) => self
+ -> m Char -- ^ @str@ - markup string (see Pango markup format)
  -> IO ()
 messageDialogSetMarkup self str =
   withUTFString (unPrintf str) $ \strPtr ->
@@ -225,8 +226,8 @@ messageDialogSetMarkup self str =
 #endif
 
 #if GTK_CHECK_VERSION(2,6,0)
-messageDialogSetSecondaryMarkup :: MessageDialogClass self => self
- -> String -- ^ @str@ - markup string (see Pango markup format)
+messageDialogSetSecondaryMarkup :: (MessageDialogClass self, GlibString string) => self
+ -> string -- ^ @str@ - markup string (see Pango markup format)
  -> IO ()
 messageDialogSetSecondaryMarkup self str =
   withUTFString (unPrintf str) $ \strPtr ->
@@ -235,11 +236,11 @@ messageDialogSetSecondaryMarkup self str =
   message_dialog_format_secondary_markup ptr strPtr
 
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_markup"
-  message_dialog_format_secondary_markup :: Ptr MessageDialog -> 
+  message_dialog_format_secondary_markup :: Ptr MessageDialog ->
   					   Ptr CChar -> IO ()
   					
-messageDialogSetSecondaryText :: MessageDialogClass self => self
- -> String -- ^ @str@ - text to be shown as second line
+messageDialogSetSecondaryText :: (MessageDialogClass self, GlibString string) => self
+ -> string -- ^ @str@ - text to be shown as second line
  -> IO ()
 messageDialogSetSecondaryText self str =
   withUTFString str $ \strPtr ->
@@ -248,7 +249,7 @@ messageDialogSetSecondaryText self str =
   message_dialog_format_secondary_text ptr strPtr
 
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_text"
-  message_dialog_format_secondary_text :: Ptr MessageDialog -> 
+  message_dialog_format_secondary_text :: Ptr MessageDialog ->
  					 Ptr CChar -> IO ()
 
 #if GTK_CHECK_VERSION(2,10,0)
@@ -288,7 +289,7 @@ messageDialogMessageType = newAttrFromEnumProperty "message-type"
 --
 -- * Available since Gtk+ version 2.10
 --
-messageDialogText :: MessageDialogClass self => Attr self (Maybe String)
+messageDialogText :: (MessageDialogClass self, GlibString string) => Attr self (Maybe string)
 messageDialogText = newAttrFromMaybeStringProperty "text"
 
 -- %hash c:e1dd d:ca3
@@ -308,7 +309,7 @@ messageDialogUseMarkup = newAttrFromBoolProperty "use-markup"
 --
 -- * Available since Gtk+ version 2.10
 --
-messageDialogSecondaryText :: MessageDialogClass self => Attr self (Maybe String)
+messageDialogSecondaryText :: (MessageDialogClass self, GlibString string) => Attr self (Maybe string)
 messageDialogSecondaryText = newAttrFromMaybeStringProperty "secondary-text"
 
 -- %hash c:1ce2 d:ca3
@@ -338,7 +339,7 @@ messageDialogButtons = writeAttrFromEnumProperty "buttons"
   {#call pure unsafe gtk_buttons_type_get_type #}
 
 #if GTK_CHECK_VERSION(2,22,0)
--- | The 'VBox' that corresponds to the message area of this dialog. 
+-- | The 'VBox' that corresponds to the message area of this dialog.
 --
 -- * Available since Gtk+ version 2.22
 --
@@ -347,11 +348,3 @@ messageDialogMessageArea = readAttrFromObjectProperty "message-area"
   {# call pure unsafe gtk_vbox_get_type #}
 #endif
 
---------------------
--- helpers
-
--- Escape percent signs
-unPrintf :: String -> String
-unPrintf [] = []
-unPrintf ('%':xs) = '%':'%':unPrintf xs
-unPrintf (x:xs) = x:unPrintf xs

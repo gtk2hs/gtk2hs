@@ -27,13 +27,13 @@
 --
 module Graphics.UI.Gtk.ModelView.ListStore (
 
--- * Types 
+-- * Types
   ListStore,
 
 -- * Constructors
   listStoreNew,
   listStoreNewDND,
-  
+
 -- * Implementation of Interfaces
   listStoreDefaultDragSourceIface,
   listStoreDefaultDragDestIface,
@@ -41,6 +41,7 @@ module Graphics.UI.Gtk.ModelView.ListStore (
 -- * Methods
   listStoreIterToIndex,
   listStoreGetValue,
+  listStoreSafeGetValue,
   listStoreSetValue,
   listStoreToList,
   listStoreGetSize,
@@ -101,7 +102,7 @@ listStoreNewDND xs mDSource mDDest = do
                                              Just (TreeIter 0 (fromIntegral n) 0 0)),
       treeModelIfaceGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
       treeModelIfaceGetRow        = \(TreeIter _ n _ _) ->
-                                 readIORef rows >>= \rows -> 
+                                 readIORef rows >>= \rows ->
                                  if inRange (0, Seq.length rows - 1) (fromIntegral n)
                                    then return (rows `Seq.index` fromIntegral n)
                                    else fail "ListStore.getRow: iter does not refer to a valid entry",
@@ -175,6 +176,15 @@ listStoreGetValue :: ListStore a -> Int -> IO a
 listStoreGetValue (ListStore model) index =
   readIORef (customStoreGetPrivate model) >>= return . (`Seq.index` index)
 
+-- | Extract the value at the given index.
+--
+listStoreSafeGetValue :: ListStore a -> Int -> IO (Maybe a)
+listStoreSafeGetValue (ListStore model) index = do
+  seq <- readIORef (customStoreGetPrivate model)
+  return $ if index >=0 && index < Seq.length seq
+                then Just $ seq `Seq.index` index
+                else Nothing
+
 -- | Update the value at the given index. The index must exist.
 --
 listStoreSetValue :: ListStore a -> Int -> a -> IO ()
@@ -199,7 +209,7 @@ listStoreToList (ListStore model) =
 listStoreGetSize :: ListStore a -> IO Int
 listStoreGetSize (ListStore model) =
   liftM Seq.length $ readIORef (customStoreGetPrivate model)
-  
+
 -- | Insert an element in front of the given element. The element is appended
 -- if the index is greater or equal to the size of the list.
 listStoreInsert :: ListStore a -> Int -> a -> IO ()
@@ -248,7 +258,7 @@ listStoreAppendList (ListStore model) values = do
       endIndex = startIndex + Seq.length seq' - 1
   writeIORef (customStoreGetPrivate model) (seq Seq.>< seq')
   stamp <- customStoreGetStamp model
-  flip mapM [startIndex..endIndex] $ \index ->    
+  flip mapM [startIndex..endIndex] $ \index ->
     treeModelRowInserted model [index] (TreeIter stamp (fromIntegral index) 0 0)
 -}
 

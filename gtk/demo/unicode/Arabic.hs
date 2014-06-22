@@ -12,7 +12,7 @@ main = do
   dialogAddButton dia stockYes ResponseYes
   dialogAddButton dia stockNo ResponseNo
   contain <- castToBox <$> dialogGetContentArea dia
-  theText <- labelNew Nothing
+  theText <- labelNew (Nothing :: Maybe String)
   labelSetMarkup theText arabic
   boxPackStart contain theText PackNatural 0
   widgetShowAll dia
@@ -21,7 +21,7 @@ main = do
     ResponseNo -> yell
     _ -> return ()
 
-arabic :: Markup
+arabic :: String
 arabic = markSpan [FontSize (SizePoint 36)]  $
  --"Is Haskell a "++markSpan [FontForeground "red"] "fantastic"++" language?"++
  -- Do you find Haskell a fantastic language? (language has a grammatical

@@ -145,6 +145,7 @@ module Graphics.UI.Gtk.ModelView.IconView (
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList                        (fromGList)
@@ -160,7 +161,6 @@ import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
-import Graphics.Rendering.Pango.Markup          (Markup)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -222,8 +222,8 @@ iconViewGetModel self =
 -- source is set using 'iconViewSetMarkupSource', then the text source is
 -- ignored.
 --
-iconViewSetTextColumn :: IconViewClass self => self
- -> ColumnId row String -- ^ @column@ - A column in the currently used model.
+iconViewSetTextColumn :: (IconViewClass self, GlibString string) => self
+ -> ColumnId row string -- ^ @column@ - A column in the currently used model.
  -> IO ()
 iconViewSetTextColumn self column =
   {# call gtk_icon_view_set_text_column #}
@@ -232,21 +232,21 @@ iconViewSetTextColumn self column =
 
 -- | Returns the column with text for @iconView@.
 --
-iconViewGetTextColumn :: IconViewClass self => self
- -> IO (ColumnId row String) -- ^ returns the text column, or 'invalidColumnId' if it's unset.
+iconViewGetTextColumn :: (IconViewClass self, GlibString string) => self
+ -> IO (ColumnId row string) -- ^ returns the text column, or 'invalidColumnId' if it's unset.
 iconViewGetTextColumn self =
   liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_icon_view_get_text_column #}
     (toIconView self)
-    
+
 
 -- %hash c:995f d:801c
 -- | Sets the column of the text for entries in the 'IconView' as a markup
 -- string (see 'Graphics.Rendering.Pango.Markup'). A text source that is set
 -- using 'iconViewSetTextSource' is ignored once a markup source is set.
 --
-iconViewSetMarkupColumn :: IconViewClass self => self
- -> ColumnId row Markup -- ^ @column@ - A column in the currently used model.
+iconViewSetMarkupColumn :: (IconViewClass self, GlibString markup) => self
+ -> ColumnId row markup -- ^ @column@ - A column in the currently used model.
  -> IO ()
 iconViewSetMarkupColumn self column =
   {# call gtk_icon_view_set_markup_column #}
@@ -255,8 +255,8 @@ iconViewSetMarkupColumn self column =
 
 -- | Returns the column with markup text for @iconView@.
 --
-iconViewGetMarkupColumn :: IconViewClass self => self
- -> IO (ColumnId row Markup) -- ^ returns the markup column, or 'invalidColumnId' if it's unset.
+iconViewGetMarkupColumn :: (IconViewClass self, GlibString markup) => self
+ -> IO (ColumnId row markup) -- ^ returns the markup column, or 'invalidColumnId' if it's unset.
 iconViewGetMarkupColumn self =
   liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_icon_view_get_markup_column #}
@@ -592,7 +592,7 @@ iconViewItemActivated self path =
 iconViewGetItemAtPos :: IconViewClass self => self
  -> Int                   -- ^ @x@ - The x position to be identified
  -> Int                   -- ^ @y@ - The y position to be identified
- -> IO (Maybe (TreePath, CellRenderer)) 
+ -> IO (Maybe (TreePath, CellRenderer))
                           -- specified position
 iconViewGetItemAtPos self x y =
   alloca $ \pathPtrPtr -> alloca $ \crPtrPtr -> do
@@ -833,8 +833,8 @@ iconViewGetReorderable self =
 -- * Available since Gtk+ version 2.22
 --
 iconViewGetItemRow :: IconViewClass self => self
-                   -> TreePath -- ^ @path@      the 'TreePath' of the item            
-                   -> IO Int -- ^ returns   The row in which the item is displayed 
+                   -> TreePath -- ^ @path@      the 'TreePath' of the item
+                   -> IO Int -- ^ returns   The row in which the item is displayed
 iconViewGetItemRow self path =
   liftM fromIntegral $
   withTreePath path $ \path ->
@@ -847,8 +847,8 @@ iconViewGetItemRow self path =
 -- * Available since Gtk+ version 2.22
 --
 iconViewGetItemColumn :: IconViewClass self => self
-                   -> TreePath -- ^ @path@      the 'TreePath' of the item            
-                   -> IO Int -- ^ returns   The column in which the item is displayed 
+                   -> TreePath -- ^ @path@      the 'TreePath' of the item
+                   -> IO Int -- ^ returns   The column in which the item is displayed
 iconViewGetItemColumn self path =
   liftM fromIntegral $
   withTreePath path $ \path ->
@@ -892,7 +892,7 @@ iconViewPixbufColumn = newAttr
 --
 -- Default value: 'invalidColumnId'
 --
-iconViewTextColumn :: IconViewClass self => Attr self (ColumnId row String)
+iconViewTextColumn :: (IconViewClass self, GlibString string) => Attr self (ColumnId row string)
 iconViewTextColumn = newAttr
   iconViewGetTextColumn
   iconViewSetTextColumn
@@ -905,7 +905,7 @@ iconViewTextColumn = newAttr
 --
 -- Default value: 'invalidColumnId'
 --
-iconViewMarkupColumn :: IconViewClass self => Attr self (ColumnId row Markup)
+iconViewMarkupColumn :: (IconViewClass self, GlibString markup) => Attr self (ColumnId row markup)
 iconViewMarkupColumn = newAttr
   iconViewGetMarkupColumn
   iconViewSetMarkupColumn
@@ -1012,7 +1012,7 @@ iconViewReorderable = newAttrFromBoolProperty "reorderable"
 #if GTK_CHECK_VERSION(2,22,0)
 -- | The item-orientation property specifies how the cells (i.e. the icon and the text) of the item are
 -- positioned relative to each other.
--- 
+--
 -- Default value: 'OrientationVertical'
 --
 -- * Available since Gtk+ version 2.22

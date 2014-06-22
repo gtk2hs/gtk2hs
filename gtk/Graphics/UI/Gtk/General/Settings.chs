@@ -100,11 +100,11 @@ settingsGetForScreen screen =
 #endif
 
 settingsSetLongProperty ::
-    SettingsClass settings
+    (SettingsClass settings, GlibString string)
  => settings
- -> String
+ -> string
  -> Int
- -> String
+ -> string
  -> IO ()
 settingsSetLongProperty settings name value origin =
   withUTFString name $ \namePtr ->
@@ -116,11 +116,11 @@ settingsSetLongProperty settings name value origin =
     originPtr
 
 settingsSetStringProperty ::
-    SettingsClass settings
+    (SettingsClass settings, GlibString string)
  => settings
- -> String
- -> String
- -> String
+ -> string
+ -> string
+ -> string
  -> IO ()
 settingsSetStringProperty settings name value origin =
   withUTFString name $ \namePtr ->

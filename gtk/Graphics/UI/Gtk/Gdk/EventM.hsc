@@ -211,11 +211,11 @@ import System.IO.Error (isUserError, ioeGetErrorString)
 import Control.Exception (catch, throw,
                           Exception(PatternMatchFail,IOException) )
 #endif
- 
+
 
 -- | A monad providing access to data in an event.
 --
-type EventM t a = ReaderT (Ptr t) IO a 
+type EventM t a = ReaderT (Ptr t) IO a
 
 -- | A tag for events that do not carry any event-specific information.
 data EAny = EAny
@@ -242,14 +242,14 @@ data EVisibility = EVisibility
 data ECrossing = ECrossing
 
 -- | A tag for /Focus/ events.
-data EFocus = EFocus      
+data EFocus = EFocus
 
 -- | A tag for /Configure/ events.
 data EConfigure = EConfigure
- 
+
 -- | A tag for /Property/ events.
 data EProperty = EProperty
-           
+
 -- | A tag for /Proximity/ events.
 data EProximity = EProximity
 
@@ -478,8 +478,8 @@ eventTime = do
 
 -- | The key value. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
 eventKeyVal :: EventM EKey KeyVal
-eventKeyVal = ask >>= \ptr -> liftIO $ liftM fromIntegral 
-  (#{peek GdkEventKey, keyval} ptr :: IO #{gtk2hs_type guint})  
+eventKeyVal = ask >>= \ptr -> liftIO $ liftM fromIntegral
+  (#{peek GdkEventKey, keyval} ptr :: IO #{gtk2hs_type guint})
 
 -- | The key value as a string. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
 eventKeyName :: EventM EKey String
@@ -487,17 +487,17 @@ eventKeyName = liftM keyName $ eventKeyVal
 
 -- | The hardware key code.
 eventHardwareKeycode :: EventM EKey KeyCode
-eventHardwareKeycode = ask >>= \ptr -> liftIO $ liftM fromIntegral 
+eventHardwareKeycode = ask >>= \ptr -> liftIO $ liftM fromIntegral
   (#{peek GdkEventKey, hardware_keycode} ptr :: IO #{gtk2hs_type guint16})
 
 -- | The keyboard group.
 eventKeyboardGroup :: EventM EKey Word8
-eventKeyboardGroup = ask >>= \ptr -> liftIO $ liftM fromIntegral 
+eventKeyboardGroup = ask >>= \ptr -> liftIO $ liftM fromIntegral
   (#{peek GdkEventKey, group} ptr :: IO #{gtk2hs_type guint8})
 
 -- | Query the mouse buttons.
 eventButton :: EventM EButton MouseButton
-eventButton = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
+eventButton = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
   (#{peek GdkEventButton, button} ptr :: IO #{gtk2hs_type guint})
 
 --- | Query the mouse click.
@@ -515,13 +515,13 @@ eventClick = do
 
 -- | Query the direction of scrolling.
 eventScrollDirection :: EventM EScroll ScrollDirection
-eventScrollDirection = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
+eventScrollDirection = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
   (#{peek GdkEventScroll, direction} ptr :: IO #{gtk2hs_type GdkScrollDirection})
 
 -- | Check if the motion event is only a hint rather than the full mouse
 --   movement information.
 eventIsHint :: EventM EMotion Bool
-eventIsHint = ask >>= \ptr -> liftIO $ liftM toBool 
+eventIsHint = ask >>= \ptr -> liftIO $ liftM toBool
   (#{peek GdkEventMotion, is_hint} ptr :: IO #{gtk2hs_type gint16})
 
 #if GTK_CHECK_VERSION(2,12,0)
@@ -569,12 +569,12 @@ foreign import ccall "gdk_region_copy"
 
 -- | Get the visibility status of a window.
 eventVisibilityState :: EventM EVisibility VisibilityState
-eventVisibilityState = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
+eventVisibilityState = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
   (#{peek GdkEventVisibility, state} ptr :: IO #{gtk2hs_type GdkVisibilityState})
 
 -- | Get the mode of the mouse cursor crossing a window.
 eventCrossingMode :: EventM ECrossing CrossingMode
-eventCrossingMode = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
+eventCrossingMode = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
   (#{peek GdkEventCrossing, mode} ptr :: IO #{gtk2hs_type GdkCrossingMode})
 
 -- | Get the notify type of the mouse cursor crossing a window.
@@ -589,7 +589,7 @@ eventCrossingFocus = ask >>= \ptr -> liftIO $ liftM toBool
 
 -- | Query if a window gained focus (@True@) or lost the focus (@False@).
 eventFocusIn :: EventM EFocus Bool
-eventFocusIn = ask >>= \ptr -> liftIO $ liftM toBool 
+eventFocusIn = ask >>= \ptr -> liftIO $ liftM toBool
   (#{peek GdkEventFocus, in} ptr :: IO #{gtk2hs_type gint16})
 
 -- | Get the @(x,y)@ position of the window within the parent window.
@@ -607,33 +607,33 @@ eventSize = ask >>= \ptr -> liftIO $ do
   return (fromIntegral x, fromIntegral y)
 
 eventProperty :: EventM EProperty Atom
-eventProperty = ask >>= \ptr -> liftIO $ liftM Atom 
-  (#{peek GdkEventProperty, atom} ptr :: IO (Ptr ())) 
+eventProperty = ask >>= \ptr -> liftIO $ liftM Atom
+  (#{peek GdkEventProperty, atom} ptr :: IO (Ptr ()))
 
 -- | Query which window state bits have changed.
 eventWindowStateChanged :: EventM EWindowState [WindowState]
-eventWindowStateChanged = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral) 
+eventWindowStateChanged = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral)
   (#{peek GdkEventWindowState, changed_mask} ptr :: IO #{gtk2hs_type GdkWindowState})
 
 -- | Query the new window state.
 eventWindowState :: EventM EWindowState [WindowState]
-eventWindowState = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral) 
+eventWindowState = ask >>= \ptr -> liftIO $ liftM (toFlags . fromIntegral)
   (#{peek GdkEventWindowState, new_window_state} ptr :: IO #{gtk2hs_type GdkWindowState})
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Query why a seleciton changed its owner.
 eventChangeReason :: EventM EOwnerChange OwnerChange
-eventChangeReason = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral) 
+eventChangeReason = ask >>= \ptr -> liftIO $ liftM (toEnum . fromIntegral)
   (#{peek GdkEventOwnerChange, reason} ptr :: IO #{gtk2hs_type GdkOwnerChange})
-  
+
 -- | Query what selection changed its owner.
 eventSelection :: EventM EOwnerChange SelectionTag
-eventSelection = ask >>= \ptr -> liftIO $ liftM Atom 
+eventSelection = ask >>= \ptr -> liftIO $ liftM Atom
   (#{peek GdkEventOwnerChange, selection} ptr :: IO (Ptr ()))
 
 -- | Query the time when the selection was taken over.
 eventSelectionTime :: EventM EOwnerChange TimeStamp
-eventSelectionTime = ask >>= \ptr -> liftIO $ liftM fromIntegral 
+eventSelectionTime = ask >>= \ptr -> liftIO $ liftM fromIntegral
   (#{peek GdkEventOwnerChange, selection_time} ptr :: IO (#{gtk2hs_type guint32}))
 #endif
 
@@ -641,12 +641,12 @@ eventSelectionTime = ask >>= \ptr -> liftIO $ liftM fromIntegral
 -- | Check if a keyboard (@True@) or a mouse pointer grap (@False@) was
 --   broken.
 eventKeyboardGrab :: EventM EGrabBroken Bool
-eventKeyboardGrab = ask >>= \ptr -> liftIO $ liftM toBool 
+eventKeyboardGrab = ask >>= \ptr -> liftIO $ liftM toBool
   (#{peek GdkEventGrabBroken, keyboard} ptr :: IO #{gtk2hs_type gboolean})
 
 -- | Check if a grab was broken implicitly.
 eventImplicit :: EventM EGrabBroken Bool
-eventImplicit = ask >>= \ptr -> liftIO $ liftM toBool 
+eventImplicit = ask >>= \ptr -> liftIO $ liftM toBool
   (#{peek GdkEventGrabBroken, implicit} ptr :: IO #{gtk2hs_type gboolean})
 
 -- | Get the new window that owns the grab or @Nothing@ if the window

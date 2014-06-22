@@ -191,7 +191,7 @@ assistantGetNPages self =
 assistantGetNthPage :: AssistantClass self => self
  -> Int       -- ^ @pageNum@ - The index of a page in the @assistant@, or -1
               -- to get the last page;
- -> IO (Maybe Widget)            -- ^ returns The child widget, or 'Nothing' if @pageNum@ is out of bounds.          
+ -> IO (Maybe Widget)            -- ^ returns The child widget, or 'Nothing' if @pageNum@ is out of bounds.
 assistantGetNthPage self pageNum =
   maybeNull (makeNewObject mkWidget) $
   {# call gtk_assistant_get_nth_page #}
@@ -252,7 +252,7 @@ assistantInsertPage self page position =
 -- * Available since Gtk+ version 2.10
 --
 assistantSetForwardPageFunc :: AssistantClass self => self
- -> Maybe (Int -> IO Int)             -- ^ @pageFunc@ - the 'AssistantPage', or 'Nothing' to use the default one. 
+ -> Maybe (Int -> IO Int)             -- ^ @pageFunc@ - the 'AssistantPage', or 'Nothing' to use the default one.
  -> IO ()
 assistantSetForwardPageFunc self Nothing = do
   {# call gtk_assistant_set_forward_page_func #}
@@ -313,9 +313,9 @@ assistantGetPageType self page =
 --
 -- * Available since Gtk+ version 2.10
 --
-assistantSetPageTitle :: (AssistantClass self, WidgetClass page) => self
+assistantSetPageTitle :: (AssistantClass self, WidgetClass page, GlibString string) => self
  -> page   -- ^ @page@ - a page of @assistant@
- -> String -- ^ @title@ - the new title for @page@
+ -> string -- ^ @title@ - the new title for @page@
  -> IO ()
 assistantSetPageTitle self page title =
   withUTFString title $ \titlePtr ->
@@ -329,9 +329,9 @@ assistantSetPageTitle self page title =
 --
 -- * Available since Gtk+ version 2.10
 --
-assistantGetPageTitle :: (AssistantClass self, WidgetClass page) => self
+assistantGetPageTitle :: (AssistantClass self, WidgetClass page, GlibString string) => self
  -> page      -- ^ @page@ - a page of @assistant@
- -> IO String -- ^ returns the title for @page@.
+ -> IO string -- ^ returns the title for @page@.
 assistantGetPageTitle self page =
   {# call gtk_assistant_get_page_title #}
     (toAssistant self)
@@ -431,7 +431,7 @@ assistantGetPageComplete self page =
 #if GTK_CHECK_VERSION(2,22,0)
 -- | Erases the visited page history so the back button is not shown on the current page, and removes the
 -- cancel button from subsequent pages.
--- 
+--
 -- Use this when the information provided up to the current page is hereafter deemed permanent and
 -- cannot be modified or undone. For example, showing a progress page to track a long-running,
 -- unreversible operation after the user has clicked apply on a confirmation page.
@@ -515,7 +515,7 @@ assistantCurrentPage = newAttr
 -- * Available since Gtk+ version 2.10
 --
 assistantChildPageType :: AssistantClass self => Attr self AssistantPageType
-assistantChildPageType = 
+assistantChildPageType =
     newAttrFromEnumProperty "page-type" {#call pure unsafe assistant_page_type_get_type#}
 
 -- | The title that is displayed in the page header.
@@ -525,7 +525,7 @@ assistantChildPageType =
 --
 -- * Available since Gtk+ version 2.10
 --
-assistantChildTitle :: AssistantClass self => Attr self String
+assistantChildTitle :: (AssistantClass self, GlibString string) => Attr self string
 assistantChildTitle = newAttrFromStringProperty "title"
 
 -- | The image that is displayed next to the page.

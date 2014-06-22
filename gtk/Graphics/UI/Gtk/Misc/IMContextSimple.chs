@@ -76,12 +76,12 @@ imContextSimpleNew =
 -- | Adds an additional table to search to the input context. Each row of the table consists of
 -- @maxSeqLen@ key symbols followed by two 'Int' interpreted as the high and low words of a gunicode
 -- value. Tables are searched starting from the last added.
--- 
+--
 -- The table must be sorted in dictionary order on the numeric value of the key symbol fields. (Values
 -- beyond the length of the sequence should be zero.)
 --
-imContextSimpleAddTable :: IMContextSimpleClass self => self
- -> Map String String -- ^ @data@ - the table
+imContextSimpleAddTable :: (IMContextSimpleClass self, GlibString string) => self
+ -> Map string string -- ^ @data@ - the table
  -> Int          -- ^ @maxSeqLen@ - Maximum length of a sequence in the table
                  -- (cannot be greater than 'MaxComposeLen')
  -> Int          -- ^ @nSeqs@ - number of sequences in the table
@@ -91,7 +91,7 @@ imContextSimpleAddTable self table maxSeqLen nSeqs = do
                        nx <- newUTFString x
                        ny <- newUTFString y
                        return (nx, ny)) (M.toList table)
-  withArray (concatMap (\(x,y) -> [x, y]) tableList) $ \(tablePtr :: Ptr CString) -> 
+  withArray (concatMap (\(x,y) -> [x, y]) tableList) $ \(tablePtr :: Ptr CString) ->
       {# call gtk_im_context_simple_add_table #}
         (toIMContextSimple self)
         (castPtr tablePtr)

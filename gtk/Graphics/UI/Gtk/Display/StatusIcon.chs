@@ -209,8 +209,8 @@ statusIconNewFromPixbuf pixbuf =
 -- The image will be scaled down to fit in the available space in the
 -- notification area, if necessary.
 --
-statusIconNewFromFile ::
-    String -- ^ @filename@ - a filename
+statusIconNewFromFile :: GlibString string
+ => string -- ^ @filename@ - a filename
  -> IO StatusIcon
 statusIconNewFromFile filename =
   wrapNewGObject mkStatusIcon $
@@ -237,8 +237,8 @@ statusIconNewFromStock stockId =
 -- | Creates a status icon displaying an icon from the current icon theme. If
 -- the current icon theme is changed, the icon will be updated appropriately.
 --
-statusIconNewFromIconName ::
-    String -- ^ @iconName@ - an icon name
+statusIconNewFromIconName :: GlibString string
+ => string -- ^ @iconName@ - an icon name
  -> IO StatusIcon
 statusIconNewFromIconName iconName =
   wrapNewGObject mkStatusIcon $
@@ -265,8 +265,8 @@ statusIconSetFromPixbuf self pixbuf =
 -- | Makes @statusIcon@ display the file @filename@. See
 -- 'statusIconNewFromFile' for details.
 --
-statusIconSetFromFile :: StatusIconClass self => self
- -> String -- ^ @filename@ - a filename
+statusIconSetFromFile :: (StatusIconClass self, GlibString string) => self
+ -> string -- ^ @filename@ - a filename
  -> IO ()
 statusIconSetFromFile self filename =
   withUTFString filename $ \filenamePtr ->
@@ -291,8 +291,8 @@ statusIconSetFromStock self stockId =
 -- | Makes @statusIcon@ display the icon named @iconName@ from the current
 -- icon theme. See 'statusIconNewFromIconName' for details.
 --
-statusIconSetFromIconName :: StatusIconClass self => self
- -> String -- ^ @iconName@ - an icon name
+statusIconSetFromIconName :: (StatusIconClass self, GlibString string) => self
+ -> string -- ^ @iconName@ - an icon name
  -> IO ()
 statusIconSetFromIconName self iconName =
   withUTFString iconName $ \iconNamePtr ->
@@ -350,8 +350,8 @@ statusIconGetStock self =
 -- 'statusIconGetStorageType'). The returned string is owned by the
 -- 'StatusIcon' and should not be freed or modified.
 --
-statusIconGetIconName :: StatusIconClass self => self
- -> IO (Maybe String) -- ^ returns name of the displayed icon, or @Nothing@
+statusIconGetIconName :: (StatusIconClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns name of the displayed icon, or @Nothing@
                       -- if the image is empty.
 statusIconGetIconName self =
   {# call gtk_status_icon_get_icon_name #}
@@ -376,8 +376,8 @@ statusIconGetSize self =
 -- | Sets the tooltip of the status icon.
 --
 -- Removed in Gtk3.
-statusIconSetTooltip :: StatusIconClass self => self
- -> String -- ^ @tooltipText@ - the tooltip text
+statusIconSetTooltip :: (StatusIconClass self, GlibString string) => self
+ -> string -- ^ @tooltipText@ - the tooltip text
  -> IO ()
 statusIconSetTooltip self tooltipText =
   withUTFString tooltipText $ \tooltipTextPtr ->
@@ -529,8 +529,8 @@ statusIconGetScreen self =
 --
 --   See also the "tooltip-text" property and 'tooltipSetText'.
 --
-statusIconSetTooltipText :: StatusIconClass self => self
- -> Maybe String
+statusIconSetTooltipText :: (StatusIconClass self, GlibString string) => self
+ -> Maybe string
  -> IO ()
 statusIconSetTooltipText self text =
   maybeWith withUTFString text $ \textPtr ->
@@ -540,8 +540,8 @@ statusIconSetTooltipText self text =
 
 -- | Gets the contents of the tooltip for status icon.
 --
-statusIconGetTooltipText :: StatusIconClass self => self
- -> IO (Maybe String)
+statusIconGetTooltipText :: (StatusIconClass self, GlibString string) => self
+ -> IO (Maybe string)
 statusIconGetTooltipText self =
   {# call gtk_status_icon_get_tooltip_text #}
     (toStatusIcon self)
@@ -555,8 +555,8 @@ statusIconGetTooltipText self =
 --
 --   See also the 'tooltipMarkup' property and 'tooltipSetMarkup'.
 --
-statusIconSetTooltipMarkup :: StatusIconClass self => self
- -> Maybe String
+statusIconSetTooltipMarkup :: (StatusIconClass self, GlibString string) => self
+ -> Maybe string
  -> IO ()
 statusIconSetTooltipMarkup self markup =
   maybeWith withUTFString markup $ \markupPtr ->
@@ -566,8 +566,8 @@ statusIconSetTooltipMarkup self markup =
 
 -- | Gets the contents of the tooltip for status icon.
 --
-statusIconGetTooltipMarkup :: StatusIconClass self => self
- -> IO (Maybe String)
+statusIconGetTooltipMarkup :: (StatusIconClass self, GlibString string) => self
+ -> IO (Maybe string)
 statusIconGetTooltipMarkup self =
   {# call gtk_status_icon_get_tooltip_markup #}
     (toStatusIcon self)
@@ -599,8 +599,8 @@ statusIconGetHasTooltip self =
 --   string describing the tray icon. It may be used by tools like screen readers to
 --   render the tray icon.
 --
-statusIconSetTitle :: StatusIconClass self => self
- -> Maybe String
+statusIconSetTitle :: (StatusIconClass self, GlibString string) => self
+ -> Maybe string
  -> IO ()
 statusIconSetTitle self title =
   maybeWith withUTFString title $ \titlePtr ->
@@ -610,8 +610,8 @@ statusIconSetTitle self title =
 
 -- | Gets the title of this tray icon. See 'statusIconSetTitle'.
 --
-statusIconGetTitle :: StatusIconClass self => self
- -> IO (Maybe String)
+statusIconGetTitle :: (StatusIconClass self, GlibString string) => self
+ -> IO (Maybe string)
 statusIconGetTitle self =
   {# call gtk_status_icon_get_title #}
     (toStatusIcon self)
@@ -621,7 +621,7 @@ statusIconGetTitle self =
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Sets the name of this tray icon. This should be a string identifying this icon. It is may be used
 -- for sorting the icons in the tray and will not be shown to the user.
-statusIconSetName :: StatusIconClass self => self -> String -> IO ()
+statusIconSetName :: (StatusIconClass self, GlibString string) => self -> string -> IO ()
 statusIconSetName self name =
   withUTFString name $ \ namePtr ->
   {#call gtk_status_icon_set_name #}
@@ -644,7 +644,7 @@ statusIconPixbuf = newAttrFromObjectProperty "pixbuf"
 --
 -- Default value: @Nothing@
 --
-statusIconFile :: StatusIconClass self => WriteAttr self (Maybe String)
+statusIconFile :: (StatusIconClass self, GlibString string) => WriteAttr self (Maybe string)
 statusIconFile = writeAttrFromMaybeStringProperty "file"
 
 -- %hash c:3fc3 d:7ec1
@@ -652,7 +652,7 @@ statusIconFile = writeAttrFromMaybeStringProperty "file"
 --
 -- Default value: @Nothing@
 --
-statusIconStock :: StatusIconClass self => Attr self (Maybe String)
+statusIconStock :: (StatusIconClass self, GlibString string) => Attr self (Maybe string)
 statusIconStock = newAttrFromMaybeStringProperty "stock"
 
 -- %hash c:3502 d:9b7a
@@ -660,7 +660,7 @@ statusIconStock = newAttrFromMaybeStringProperty "stock"
 --
 -- Default value: @Nothing@
 --
-statusIconIconName :: StatusIconClass self => Attr self (Maybe String)
+statusIconIconName :: (StatusIconClass self, GlibString string) => Attr self (Maybe string)
 statusIconIconName = newAttrFromMaybeStringProperty "icon-name"
 
 -- %hash c:570e d:983f
@@ -722,7 +722,7 @@ statusIconScreen = newAttrFromObjectProperty "screen"
 --   they allow on status icons, e.g. Windows only shows the first 64 characters.
 --
 --   Default value: 'Nothing'
-statusIconTooltipText :: StatusIconClass self => Attr self (Maybe String)
+statusIconTooltipText :: (StatusIconClass self, GlibString string) => Attr self (Maybe string)
 statusIconTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
 
 -- | Sets the text of tooltip to be the given string, which is marked up with the
@@ -736,7 +736,7 @@ statusIconTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
 --   On some platforms, embedded markup will be ignored.
 --
 --   Default value: 'Nothing'
-statusIconTooltipMarkup :: StatusIconClass self => Attr self (Maybe String)
+statusIconTooltipMarkup :: (StatusIconClass self, GlibString string) => Attr self (Maybe string)
 statusIconTooltipMarkup = newAttrFromMaybeStringProperty "tooltip-markup"
 
 -- | Enables or disables the emission of "query-tooltip" on status_icon. A value
@@ -763,7 +763,7 @@ statusIconHasTooltip = newAttrFromBoolProperty "has-tooltip"
 --   like screen readers to render the tray icon.
 --
 --   Default value: 'Nothing'
-statusIconTitle :: StatusIconClass self => Attr self (Maybe String)
+statusIconTitle :: (StatusIconClass self, GlibString string) => Attr self (Maybe string)
 statusIconTitle = newAttrFromMaybeStringProperty "title"
 #endif
 

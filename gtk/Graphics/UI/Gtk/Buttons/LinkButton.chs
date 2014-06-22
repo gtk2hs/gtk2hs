@@ -103,8 +103,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'LinkButton' with the URI as its text.
 --
-linkButtonNew ::
-    String -- ^ @uri@ - a valid URI
+linkButtonNew :: GlibString string
+ => string -- ^ @uri@ - a valid URI
  -> IO LinkButton
 linkButtonNew uri =
   makeNewObject mkLinkButton $
@@ -115,9 +115,9 @@ linkButtonNew uri =
 
 -- | Creates a new 'LinkButton' containing a label.
 --
-linkButtonNewWithLabel ::
-    String -- ^ @uri@ - a valid URI
- -> String -- ^ @label@ - the text of the button
+linkButtonNewWithLabel :: GlibString string
+ => string -- ^ @uri@ - a valid URI
+ -> string -- ^ @label@ - the text of the button
  -> IO LinkButton
 linkButtonNewWithLabel uri label =
   makeNewObject mkLinkButton $
@@ -145,7 +145,7 @@ linkButtonSetUriHook func = do
       func str
   {# call link_button_set_uri_hook #} pfPtr (castFunPtrToPtr pfPtr) destroyFunPtr
   freeHaskellFunPtr pfPtr
-  
+
 {#pointer LinkButtonUriFunc#}
 
 foreign import ccall "wrapper" mkLinkButtonUriFunc ::
@@ -157,19 +157,19 @@ foreign import ccall "wrapper" mkLinkButtonUriFunc ::
 -- Attributes
 
 -- | The URI bound to this button.
--- 
+--
 -- Default value: \"\"
--- 
+--
 -- * Available since Gtk+ version 2.10
 --
-linkButtonURI :: LinkButtonClass self => Attr self String
+linkButtonURI :: (LinkButtonClass self, GlibString string) => Attr self string
 linkButtonURI = newAttrFromStringProperty "uri"
 
 #if GTK_CHECK_VERSION(2,14,0)
 -- | The 'visited' state of this button. A visited link is drawn in a different color.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- * Available since Gtk+ version 2.14
 --
 linkButtonVisited :: LinkButtonClass self => Attr self Bool

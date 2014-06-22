@@ -273,7 +273,7 @@ module Graphics.Rendering.Cairo (
   , liftIO
   , version
   , versionString
-  , CairoString(..)
+  , CairoString
 
   -- * Types
 

@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 -- * Detail
--- 
+--
 -- | A 'CheckMenuItem' is a menu item that maintains the state of a boolean
 -- value in addition to a 'MenuItem's usual role in activating application
 -- code.
@@ -106,8 +106,8 @@ checkMenuItemNew =
 
 -- | Creates a new 'CheckMenuItem' with a label.
 --
-checkMenuItemNewWithLabel :: 
-    String           -- ^ @label@ - the string to use for the label.
+checkMenuItemNewWithLabel :: GlibString string
+ => string           -- ^ @label@ - the string to use for the label.
  -> IO CheckMenuItem
 checkMenuItemNewWithLabel label =
   makeNewObject mkCheckMenuItem $
@@ -120,8 +120,8 @@ checkMenuItemNewWithLabel label =
 -- created using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so
 -- underscores in @label@ indicate the mnemonic for the menu item.
 --
-checkMenuItemNewWithMnemonic :: 
-    String           -- ^ @label@ - The text of the button, with an underscore
+checkMenuItemNewWithMnemonic :: GlibString string
+ => string           -- ^ @label@ - The text of the button, with an underscore
                      -- in front of the mnemonic character
  -> IO CheckMenuItem
 checkMenuItemNewWithMnemonic label =

@@ -151,7 +151,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
 
 -- * Signals
   changed,
-  
+
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
   onChanged,
@@ -176,14 +176,14 @@ import System.Glib.GObject              (makeNewGObject,
                                             receiveTreeIter,
                                             comboQuark)
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#} 
-{#import Graphics.UI.Gtk.ModelView.TreeModel#} 
+{#import Graphics.UI.Gtk.ModelView.CustomStore#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew,
   listStoreInsert, listStorePrepend, listStoreAppend, listStoreRemove,
-  listStoreGetValue )
+  listStoreSafeGetValue )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
                                               cellLayoutPackStart, cellLayoutClear )
-import Graphics.UI.Gtk.ModelView.CellRendererText ( cellRendererTextNew, 
+import Graphics.UI.Gtk.ModelView.CellRendererText ( cellRendererTextNew,
                                                     cellText)
 {# context lib="gtk" prefix="gtk" #}
 
@@ -297,7 +297,7 @@ comboBoxAppendText :: ComboBoxClass self => self -> String -> IO Int
 comboBoxAppendText self text = do
   store <- comboBoxGetModelText self
   listStoreAppend store text
-  
+
 -- %hash c:41de d:8ab0
 -- | Inserts @string@ at @position@ in the list of strings stored in
 -- @comboBox@. Note that you can only use this function with combo boxes
@@ -310,7 +310,7 @@ comboBoxInsertText :: ComboBoxClass self => self
 comboBoxInsertText self position text = do
   store <- comboBoxGetModelText self
   listStoreInsert store position text
-  
+
 -- %hash c:98ea d:9fab
 -- | Prepends @string@ to the list of strings stored in @comboBox@. Note that
 -- you can only use this function with combo boxes constructed with
@@ -343,8 +343,7 @@ comboBoxGetActiveText self = do
     then return Nothing
     else do
       listStore <- comboBoxGetModelText self
-      value <- listStoreGetValue listStore activeId
-      return $ Just value
+      listStoreSafeGetValue listStore activeId
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash d:566e
@@ -576,8 +575,8 @@ comboBoxGetAddTearoffs self =
 --
 -- * Available since Gtk+ version 2.10
 --
-comboBoxSetTitle :: ComboBoxClass self => self
- -> String -- ^ @title@ - a title for the menu in tearoff mode.
+comboBoxSetTitle :: (ComboBoxClass self, GlibString string) => self
+ -> string -- ^ @title@ - a title for the menu in tearoff mode.
  -> IO ()
 comboBoxSetTitle self title =
   withUTFString title $ \titlePtr ->
@@ -591,8 +590,8 @@ comboBoxSetTitle self title =
 --
 -- * Available since Gtk+ version 2.10
 --
-comboBoxGetTitle :: ComboBoxClass self => self
- -> IO String -- ^ returns the menu's title in tearoff mode.
+comboBoxGetTitle :: (ComboBoxClass self, GlibString string) => self
+ -> IO string -- ^ returns the menu's title in tearoff mode.
 comboBoxGetTitle self =
   {# call gtk_combo_box_get_title #}
     (toComboBox self)
@@ -775,7 +774,7 @@ comboBoxFocusOnClick = newAttrFromBoolProperty "focus-on-click"
 --
 -- * Available since Gtk+ version 2.10
 --
-comboBoxTearoffTitle :: ComboBoxClass self => Attr self String
+comboBoxTearoffTitle :: (ComboBoxClass self, GlibString string) => Attr self string
 comboBoxTearoffTitle = newAttrFromStringProperty "tearoff-title"
 
 -- %hash c:efa9 d:89e5
@@ -794,7 +793,7 @@ comboBoxPopupShown = readAttrFromBoolProperty "popup-shown"
 --
 -- * Available since Gtk+ version 2.10
 --
-comboBoxTitle :: ComboBoxClass self => Attr self String
+comboBoxTitle :: (ComboBoxClass self, GlibString string) => Attr self string
 comboBoxTitle = newAttr
   comboBoxGetTitle
   comboBoxSetTitle

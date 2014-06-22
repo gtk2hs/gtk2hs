@@ -27,7 +27,7 @@
 --
 -- * Module available since Gtk+ version 2.10
 --
--- TODO: 
+-- TODO:
 --      GtkRecentData
 --      gtk_recent_manager_add_full
 --
@@ -128,7 +128,7 @@ recentManagerNew =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerGetDefault :: IO RecentManager -- ^ returns A unique 'RecentManager'. 
+recentManagerGetDefault :: IO RecentManager -- ^ returns A unique 'RecentManager'.
 recentManagerGetDefault =
   makeNewGObject mkRecentManager $
   {# call gtk_recent_manager_get_default #}
@@ -146,8 +146,8 @@ recentManagerGetDefault =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerAddItem :: RecentManagerClass self => self
- -> String  -- ^ @uri@ - a valid URI
+recentManagerAddItem :: (RecentManagerClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - a valid URI
  -> IO Bool -- ^ returns @True@ if the new item was successfully added to the
             -- recently used resources list
 recentManagerAddItem self uri =
@@ -163,8 +163,8 @@ recentManagerAddItem self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerRemoveItem :: RecentManagerClass self => self
- -> String  -- ^ @uri@ - the URI of the item you wish to remove
+recentManagerRemoveItem :: (RecentManagerClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - the URI of the item you wish to remove
  -> IO Bool -- ^ returns @True@ if the item pointed by @uri@ has been
             -- successfully removed by the recently used resources list, and
             -- @False@ otherwise.
@@ -185,14 +185,14 @@ recentManagerRemoveItem self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerLookupItem :: RecentManagerClass self => self
- -> String                -- ^ @uri@ - a URI
+recentManagerLookupItem :: (RecentManagerClass self, GlibString string) => self
+ -> string                -- ^ @uri@ - a URI
  -> IO RecentInfo -- ^ returns a 'RecentInfo'
                           -- structure containing information about the
                           -- resource pointed by @uri@, or {@NULL@, FIXME: this
                           -- should probably be converted to a Maybe data type}
                           -- if the URI was not registered in the recently used
-                          -- resources list. 
+                          -- resources list.
 recentManagerLookupItem self uri =
   propagateGError $ \errorPtr ->
   withUTFString uri $ \uriPtr -> do
@@ -208,8 +208,8 @@ recentManagerLookupItem self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerHasItem :: RecentManagerClass self => self
- -> String  -- ^ @uri@ - a URI
+recentManagerHasItem :: (RecentManagerClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - a URI
  -> IO Bool -- ^ returns @True@ if the resource was found, @False@ otherwise.
 recentManagerHasItem self uri =
   liftM toBool $
@@ -226,9 +226,9 @@ recentManagerHasItem self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentManagerMoveItem :: RecentManagerClass self => self
- -> String  -- ^ @uri@ - the URI of a recently used resource
- -> String  -- ^ @newUri@ - the new URI of the recently used resource to remove the item pointed by @uri@ in the list
+recentManagerMoveItem :: (RecentManagerClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - the URI of a recently used resource
+ -> string  -- ^ @newUri@ - the new URI of the recently used resource to remove the item pointed by @uri@ in the list
  -> IO Bool -- ^ returns @True@ on success.
 recentManagerMoveItem self uri newUri =
   checkGError ( \errorPtr ->
@@ -249,7 +249,7 @@ recentManagerMoveItem self uri newUri =
 --
 recentManagerGetItems :: RecentManagerClass self => self
  -> IO [RecentInfo]                        -- ^ returns a list of newly allocated
-                            -- 'RecentInfo' objects. 
+                            -- 'RecentInfo' objects.
 recentManagerGetItems self = do
   glist <- {# call gtk_recent_manager_get_items #}
             (toRecentManager self)
@@ -275,20 +275,20 @@ recentManagerPurgeItems self =
 -- Attributes
 
 -- | The full path to the file to be used to store and read the recently used resources list
--- 
+--
 -- Default value: 'Nothing'
--- 
+--
 -- * Available since Gtk+ version 2.10
 --
-recentManagerFilename :: RecentManagerClass self => ReadAttr self String
+recentManagerFilename :: (RecentManagerClass self, GlibString string) => ReadAttr self string
 recentManagerFilename = readAttrFromStringProperty "filename"
 
 -- | The maximum number of items to be returned by the 'recentManagerGetItems' function.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: -1
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -296,11 +296,11 @@ recentManagerLimit :: RecentManagerClass self => Attr self Int
 recentManagerLimit = newAttrFromIntProperty "limit"
 
 -- | The size of the recently used resources list.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: 0
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --

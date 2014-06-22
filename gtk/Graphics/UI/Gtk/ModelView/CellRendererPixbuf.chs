@@ -75,6 +75,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes                   (Attr)
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
@@ -107,7 +108,7 @@ cellPixbuf = newAttrFromObjectProperty "pixbuf"
 cellPixbufExpanderOpen :: CellRendererPixbufClass self => Attr self Pixbuf
 cellPixbufExpanderOpen = newAttrFromObjectProperty "pixbuf-expander-open"
   {# call pure unsafe gdk_pixbuf_get_type #}
-  
+
 -- | Pixbuf for closed expander.
 --
 cellPixbufExpanderClosed :: CellRendererPixbufClass self => Attr self Pixbuf
@@ -118,7 +119,7 @@ cellPixbufExpanderClosed = newAttrFromObjectProperty "pixbuf-expander-closed"
 --
 -- Default value: @\"\"@
 --
-cellPixbufStockId :: CellRendererPixbufClass self => Attr self String
+cellPixbufStockId :: (CellRendererPixbufClass self, GlibString string) => Attr self string
 cellPixbufStockId = newAttrFromStringProperty "stock-id"
 
 -- | The 'IconSize' value that specifies the size of the rendered icon.
@@ -132,7 +133,7 @@ cellPixbufStockSize = newAttrFromUIntProperty "stock-size"
 --
 -- Default value: @\"\"@
 --
-cellPixbufStockDetail :: CellRendererPixbufClass self => Attr self String
+cellPixbufStockDetail :: (CellRendererPixbufClass self, GlibString string) => Attr self string
 cellPixbufStockDetail = newAttrFromStringProperty "stock-detail"
 
 #if GTK_CHECK_VERSION(2,8,0)
@@ -141,7 +142,7 @@ cellPixbufStockDetail = newAttrFromStringProperty "stock-detail"
 --
 -- Default value: @\"\"@
 --
-cellPixbufIconName :: CellRendererPixbufClass self => Attr self String
+cellPixbufIconName :: (CellRendererPixbufClass self, GlibString string) => Attr self string
 cellPixbufIconName = newAttrFromStringProperty "icon-name"
 
 -- | Specifies whether the rendered pixbuf should be colorized according to

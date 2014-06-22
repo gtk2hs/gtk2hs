@@ -132,8 +132,8 @@ import Graphics.UI.Gtk.General.DNDTypes (SelectionTag, TargetTag, Atom(..))
 
 -- | Opens a display.
 --
-displayOpen ::
-    String     -- ^ @displayName@ - the name of the display to open
+displayOpen :: GlibString string
+ => string     -- ^ @displayName@ - the name of the display to open
  -> IO (Maybe Display)
                -- ^ returns a 'Display', or @Nothing@ if the display
                -- could not be opened.
@@ -156,8 +156,8 @@ displayGetDefault =
 
 -- | Gets the name of the display.
 --
-displayGetName :: Display
- -> IO String -- ^ returns a string representing the display name
+displayGetName :: GlibString string => Display
+ -> IO string -- ^ returns a string representing the display name
 displayGetName self =
   {# call gdk_display_get_name #}
     self

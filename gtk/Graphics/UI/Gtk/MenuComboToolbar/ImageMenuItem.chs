@@ -31,7 +31,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
 -- * Detail
--- 
+--
 -- | A 'ImageMenuItem' is a menu item which has an icon next to the text
 -- label.
 --
@@ -96,7 +96,7 @@ imageMenuItemNew =
 -- | Creates a new 'ImageMenuItem' containing the image and text from a stock
 -- item.
 --
-imageMenuItemNewFromStock :: 
+imageMenuItemNewFromStock ::
     StockId          -- ^ @stockId@ - the name of the stock item.
  -> IO ImageMenuItem
 imageMenuItemNewFromStock stockId =
@@ -109,8 +109,8 @@ imageMenuItemNewFromStock stockId =
 
 -- | Creates a new 'ImageMenuItem' containing a label.
 --
-imageMenuItemNewWithLabel :: 
-    String           -- ^ @label@ - the text of the menu item.
+imageMenuItemNewWithLabel :: GlibString string
+ => string           -- ^ @label@ - the text of the menu item.
  -> IO ImageMenuItem
 imageMenuItemNewWithLabel label =
   makeNewObject mkImageMenuItem $
@@ -123,8 +123,8 @@ imageMenuItemNewWithLabel label =
 -- created using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so
 -- underscores in @label@ indicate the mnemonic for the menu item.
 --
-imageMenuItemNewWithMnemonic :: 
-    String           -- ^ @label@ - the text of the menu item, with an
+imageMenuItemNewWithMnemonic :: GlibString string
+ => string           -- ^ @label@ - the text of the menu item, with an
                      -- underscore in front of the mnemonic character
  -> IO ImageMenuItem
 imageMenuItemNewWithMnemonic label =

@@ -42,7 +42,7 @@ module Graphics.UI.Gtk.Display.InfoBar (
 -- at the bottom, 'InfoBar' has a vertical action area at the side.
 --
 -- The API of 'InfoBar' is very similar to 'Dialog', allowing you to add
--- buttons to the action area with 'infoBarAddButton'. 
+-- buttons to the action area with 'infoBarAddButton'.
 -- The sensitivity of action widgets can be controlled
 -- with 'infoBarSetResponseSensitive'. To add widgets to the main content area
 -- of a 'InfoBar', use 'infoBarGetContentArea' and add your widgets to the
@@ -153,8 +153,8 @@ infoBarAddActionWidget self child responseId =
 --
 -- * Available since Gtk+ version 2.18
 --
-infoBarAddButton :: InfoBarClass self => self
- -> String    -- ^ @buttonText@ - text of button, or stock ID
+infoBarAddButton :: (InfoBarClass self, GlibString string) => self
+ -> string    -- ^ @buttonText@ - text of button, or stock ID
  -> Int       -- ^ @responseId@ - response ID for the button
  -> IO Button -- ^ returns the button widget that was added
 infoBarAddButton self buttonText responseId =
@@ -234,13 +234,13 @@ infoBarGetContentArea self =
 -- Attributes
 
 -- | The type of the message.
--- 
--- The type is used to determine the colors to use in the info bar. 
--- 
+--
+-- The type is used to determine the colors to use in the info bar.
+--
 -- If the type is 'MessageOther', no info bar is painted but the colors are still set.
--- 
+--
 -- Default value: 'MessageInfo'
--- 
+--
 -- * Available since Gtk+ version 2.18
 --
 infoBarMessageType :: InfoBarClass self => Attr self MessageType
@@ -252,13 +252,13 @@ infoBarMessageType = newAttrFromEnumProperty "message-type"
 
 -- | The 'close' signal is a keybinding signal which gets emitted when the user uses a keybinding to
 -- dismiss the info bar.
--- 
+--
 -- The default binding for this signal is the Escape key.
--- 
+--
 -- Since 2.18
 infoBarClose :: InfoBarClass self => Signal self (IO ())
 infoBarClose = Signal (connect_NONE__NONE "close")
-      
+
 
 -- | Emitted when an action widget is clicked or the application programmer
 -- calls 'dialogResponse'. The @responseId@ depends on which action widget was

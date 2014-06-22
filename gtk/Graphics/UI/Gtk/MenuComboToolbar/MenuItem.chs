@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget MenuItem
 --
@@ -26,7 +27,7 @@
 --
 -- TODO
 --
--- figure out what the signals \"toggle-size-allocate\" and 
+-- figure out what the signals \"toggle-size-allocate\" and
 --   \"toggle-size-request\" are good for and bind them if useful
 --
 -- figure out if the connectToToggle signal is useful at all
@@ -40,7 +41,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 -- * Detail
--- 
+--
 -- | The 'MenuItem' widget and the derived widgets are the only valid childs
 -- for menus. Their function is to correctly handle highlighting, alignment,
 -- events and submenus.
@@ -150,8 +151,8 @@ menuItemNew =
 
 -- | Creates a new 'MenuItem' whose child is a 'Label'.
 --
-menuItemNewWithLabel :: 
-    String      -- ^ @label@ - the text for the label
+menuItemNewWithLabel :: GlibString string
+ => string      -- ^ @label@ - the text for the label
  -> IO MenuItem
 menuItemNewWithLabel label =
   makeNewObject mkMenuItem $
@@ -164,8 +165,8 @@ menuItemNewWithLabel label =
 -- using 'labelNewWithMnemonic', so underscores in @label@ indicate the
 -- mnemonic for the menu item.
 --
-menuItemNewWithMnemonic :: 
-    String      -- ^ @label@ - The text of the label, with an underscore in
+menuItemNewWithMnemonic :: GlibString string
+ => string      -- ^ @label@ - The text of the label, with an underscore in
                 -- front of the mnemonic character
  -> IO MenuItem
 menuItemNewWithMnemonic label =
@@ -180,12 +181,12 @@ menuItemNewWithMnemonic label =
 #if GTK_CHECK_VERSION(2,16,0)
 -- | Sets text on the MenuItem label
 
-menuItemSetLabel :: (MenuItemClass self) => self -> String -> IO ()
+menuItemSetLabel :: (MenuItemClass self, GlibString string) => self -> string -> IO ()
 menuItemSetLabel self label =
   withUTFString label $ {# call gtk_menu_item_set_label #} (toMenuItem self)
 
 -- | Gets text on the MenuItem label
-menuItemGetLabel :: (MenuItemClass self) => self -> IO String
+menuItemGetLabel :: (MenuItemClass self, GlibString string) => self -> IO string
 menuItemGetLabel self =
   {# call gtk_menu_item_get_label #}
     (toMenuItem self)
@@ -293,8 +294,8 @@ menuItemGetRightJustified self =
 -- Note that you do need to set an accelerator on the parent menu with
 -- 'menuSetAccelGroup' for this to work.
 --
-menuItemSetAccelPath :: MenuItemClass self => self
- -> Maybe String -- ^ @accelPath@ - accelerator path, corresponding to this
+menuItemSetAccelPath :: (MenuItemClass self, GlibString string) => self
+ -> Maybe string -- ^ @accelPath@ - accelerator path, corresponding to this
                  -- menu item's functionality, or @Nothing@ to unset the
                  -- current path.
  -> IO ()
@@ -325,12 +326,12 @@ menuItemRightJustified = newAttr
 #if GTK_CHECK_VERSION(2,16,0)
 -- | \'label\' property. See 'menuItemSetLabel' and 'menuItemGetLabel'
 --
-menuItemLabel :: MenuItemClass self => Attr self String
+menuItemLabel :: (MenuItemClass self, GlibString string) => Attr self string
 menuItemLabel = newAttr
   menuItemGetLabel
   menuItemSetLabel
 
--- | \'useUnderline\' property. See 'menuItemSetUseUnderline' and 
+-- | \'useUnderline\' property. See 'menuItemSetUseUnderline' and
 -- 'menuItemGetUseEUnderline'
 --
 menuItemUseUnderline :: MenuItemClass self => Attr self Bool

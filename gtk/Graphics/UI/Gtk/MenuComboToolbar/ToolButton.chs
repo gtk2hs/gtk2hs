@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget ToolButton
 --
@@ -29,7 +30,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ToolButton (
 -- * Detail
--- 
+--
 -- | 'ToolButton's are 'ToolItems' containing buttons.
 --
 -- Use 'toolButtonNew' to create a new 'ToolButton'. Use
@@ -126,10 +127,10 @@ import Graphics.UI.Gtk.General.StockItems
 -- | Creates a new 'ToolButton' using @iconWidget@ as icon and @label@ as
 -- label.
 --
-toolButtonNew :: WidgetClass iconWidget => 
+toolButtonNew :: (WidgetClass iconWidget, GlibString string) =>
     Maybe iconWidget -- ^ @iconWidget@ - a widget that will be used as icon
                      -- widget, or @Nothing@
- -> Maybe String     -- ^ @label@ - a string that will be used as label, or
+ -> Maybe string     -- ^ @label@ - a string that will be used as label, or
                      -- @Nothing@
  -> IO ToolButton
 toolButtonNew iconWidget label =
@@ -145,7 +146,7 @@ toolButtonNew iconWidget label =
 --
 -- It is an error if @stockId@ is not a name of a stock item.
 --
-toolButtonNewFromStock :: 
+toolButtonNewFromStock ::
     StockId       -- ^ @stockId@ - the name of the stock item
  -> IO ToolButton
 toolButtonNewFromStock stockId =
@@ -165,8 +166,8 @@ toolButtonNewFromStock stockId =
 -- property. If the \"stock_id\" property is also @Nothing@, @button@ will not
 -- have a label.
 --
-toolButtonSetLabel :: ToolButtonClass self => self
- -> Maybe String -- ^ @label@ - a string that will be used as label, or
+toolButtonSetLabel :: (ToolButtonClass self, GlibString string) => self
+ -> Maybe string -- ^ @label@ - a string that will be used as label, or
                  -- @Nothing@.
  -> IO ()
 toolButtonSetLabel self label =
@@ -178,7 +179,7 @@ toolButtonSetLabel self label =
 -- | Returns the label used by the tool button, or @Nothing@ if the tool
 -- button doesn't have a label. or uses a the label from a stock item.
 --
-toolButtonGetLabel :: ToolButtonClass self => self -> IO (Maybe String)
+toolButtonGetLabel :: (ToolButtonClass self, GlibString string) => self -> IO (Maybe string)
 toolButtonGetLabel self =
   {# call gtk_tool_button_get_label #}
     (toToolButton self)
@@ -223,7 +224,7 @@ toolButtonSetStockId self stockId =
 
 -- | Returns the name of the stock item. See 'toolButtonSetStockId'.
 --
-toolButtonGetStockId :: ToolButtonClass self => self -> IO (Maybe String)
+toolButtonGetStockId :: ToolButtonClass self => self -> IO (Maybe StockId)
 toolButtonGetStockId self =
   {# call gtk_tool_button_get_stock_id #}
     (toToolButton self)
@@ -286,8 +287,8 @@ toolButtonGetLabelWidget self =
 --
 -- * Available since Gtk+ version 2.8
 --
-toolButtonSetIconName :: ToolButtonClass self => self
- -> String -- ^ @iconName@ - the name of the themed icon
+toolButtonSetIconName :: (ToolButtonClass self, GlibString string) => self
+ -> string -- ^ @iconName@ - the name of the themed icon
  -> IO ()
 toolButtonSetIconName self iconName =
   withUTFString iconName $ \iconNamePtr ->
@@ -300,8 +301,8 @@ toolButtonSetIconName self iconName =
 --
 -- * Available since Gtk+ version 2.8
 --
-toolButtonGetIconName :: ToolButtonClass self => self
- -> IO String -- ^ returns the icon name or @\"\"@ if the tool button has no
+toolButtonGetIconName :: (ToolButtonClass self, GlibString string) => self
+ -> IO string -- ^ returns the icon name or @\"\"@ if the tool button has no
               -- themed icon.
 toolButtonGetIconName self =
   {# call gtk_tool_button_get_icon_name #}
@@ -318,7 +319,7 @@ toolButtonGetIconName self =
 --
 -- Default value: @Nothing@
 --
-toolButtonLabel :: ToolButtonClass self => Attr self (Maybe String)
+toolButtonLabel :: (ToolButtonClass self, GlibString string) => Attr self (Maybe string)
 toolButtonLabel = newAttr
   toolButtonGetLabel
   toolButtonSetLabel
@@ -345,7 +346,7 @@ toolButtonLabelWidget = newAttr
 --
 -- Default value: @Nothing@
 --
-toolButtonStockId :: ToolButtonClass self => ReadWriteAttr self (Maybe String) (Maybe String)
+toolButtonStockId :: ToolButtonClass self => ReadWriteAttr self (Maybe StockId) (Maybe StockId)
 toolButtonStockId = newAttr
   toolButtonGetStockId
   toolButtonSetStockId
@@ -357,7 +358,7 @@ toolButtonStockId = newAttr
 --
 -- Default value: \"\"
 --
-toolButtonIconName :: ToolButtonClass self => Attr self String
+toolButtonIconName :: (ToolButtonClass self, GlibString string) => Attr self string
 toolButtonIconName = newAttr
   toolButtonGetIconName
   toolButtonSetIconName

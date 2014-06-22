@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FontSelection (
 -- * Detail
--- 
+--
 -- | The 'FontSelection' widget lists the available fonts, styles and sizes,
 -- allowing the user to select a font. It is used in the 'FontSelectionDialog'
 -- widget to provide a dialog box for selecting fonts.
@@ -99,8 +99,8 @@ fontSelectionNew =
 
 -- | Gets the currently-selected font name.
 --
-fontSelectionGetFontName :: FontSelectionClass self => self
- -> IO (Maybe String) -- ^ returns the name of the currently selected font, or
+fontSelectionGetFontName :: (FontSelectionClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns the name of the currently selected font, or
                       -- @Nothing@ if no font is selected.
 fontSelectionGetFontName self =
   {# call unsafe font_selection_get_font_name #}
@@ -109,8 +109,8 @@ fontSelectionGetFontName self =
 
 -- | Sets the currently-selected font.
 --
-fontSelectionSetFontName :: FontSelectionClass self => self
- -> String  -- ^ @fontname@ - a fontname.
+fontSelectionSetFontName :: (FontSelectionClass self, GlibString string) => self
+ -> string  -- ^ @fontname@ - a fontname.
  -> IO Bool -- ^ returns @True@ if the font was found.
 fontSelectionSetFontName self fontname =
   liftM toBool $
@@ -121,7 +121,7 @@ fontSelectionSetFontName self fontname =
 
 -- | Gets the text displayed in the preview area.
 --
-fontSelectionGetPreviewText :: FontSelectionClass self => self -> IO String
+fontSelectionGetPreviewText :: (FontSelectionClass self, GlibString string) => self -> IO string
 fontSelectionGetPreviewText self =
   {# call unsafe font_selection_get_preview_text #}
     (toFontSelection self)
@@ -129,7 +129,7 @@ fontSelectionGetPreviewText self =
 
 -- | Sets the text displayed in the preview area.
 --
-fontSelectionSetPreviewText :: FontSelectionClass self => self -> String -> IO ()
+fontSelectionSetPreviewText :: (FontSelectionClass self, GlibString string) => self -> string -> IO ()
 fontSelectionSetPreviewText self text =
   withUTFString text $ \textPtr ->
   {# call font_selection_set_preview_text #}
@@ -143,14 +143,14 @@ fontSelectionSetPreviewText self text =
 --
 -- Default value: \"\"
 --
-fontSelectionFontName :: FontSelectionClass self => Attr self String
+fontSelectionFontName :: (FontSelectionClass self, GlibString string) => Attr self string
 fontSelectionFontName = newAttrFromStringProperty "font_name"
 
 -- | The text to display in order to demonstrate the selected font.
 --
 -- Default value: \"abcdefghijk ABCDEFGHIJK\"
 --
-fontSelectionPreviewText :: FontSelectionClass self => Attr self String
+fontSelectionPreviewText :: (FontSelectionClass self, GlibString string) => Attr self string
 fontSelectionPreviewText = newAttr
   fontSelectionGetPreviewText
   fontSelectionSetPreviewText

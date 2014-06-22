@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Entry.Entry (
 -- * Detail
--- 
+--
 -- | The 'Entry' widget is a single line text entry widget. A fairly large set
 -- of key bindings are supported by default. If the entered text is longer than
 -- the allocation of the widget, the widget will scroll so that the cursor
@@ -234,7 +234,7 @@ entrySetBuffer self =
 -- | Sets the text in the widget to the given value, replacing the current
 -- contents.
 --
-entrySetText :: EntryClass self => self -> String -> IO ()
+entrySetText :: (EntryClass self, GlibString string) => self -> string -> IO ()
 entrySetText self text =
   withUTFString text $ \textPtr ->
   {# call entry_set_text #}
@@ -244,7 +244,7 @@ entrySetText self text =
 -- | Retrieves the contents of the entry widget.
 -- See also 'Graphics.UI.Gtk.Display.Entry.Editable.editableGetChars'.
 --
-entryGetText :: EntryClass self => self -> IO String
+entryGetText :: (EntryClass self, GlibString string) => self -> IO string
 entryGetText self =
   {# call entry_get_text #}
     (toEntry self)
@@ -257,7 +257,7 @@ entryGetText self =
 -- newly-written code.
 --
 -- Removed in Gtk3.
-entryAppendText :: EntryClass self => self -> String -> IO ()
+entryAppendText :: (EntryClass self, GlibString string) => self -> string -> IO ()
 entryAppendText self text =
   withUTFString text $ \textPtr ->
   {# call entry_append_text #}
@@ -270,7 +270,7 @@ entryAppendText self text =
 -- newly-written code.
 --
 -- Removed in Gtk3.
-entryPrependText :: EntryClass self => self -> String -> IO ()
+entryPrependText :: (EntryClass self, GlibString string) => self -> string -> IO ()
 entryPrependText self text =
   withUTFString text $ \textPtr ->
   {# call entry_prepend_text #}
@@ -487,26 +487,26 @@ entryGetCompletion self =
 -- | Returns the 'Window' which contains the entry's icon at @iconPos@. This function is useful when
 -- drawing something to the entry in an 'eventExpose' callback because it enables the callback to
 -- distinguish between the text window and entry's icon windows.
--- 
+--
 -- See also 'entryGetTextWindow'.
 -- Removed in Gtk3.
 entryGetIconWindow :: EntryClass self => self
-                   -> EntryIconPosition  -- ^ @iconPos@ Icon position                        
-                   -> IO DrawWindow -- ^ returns  the entry's icon window at @iconPos@. 
+                   -> EntryIconPosition  -- ^ @iconPos@ Icon position
+                   -> IO DrawWindow -- ^ returns  the entry's icon window at @iconPos@.
 entryGetIconWindow entry iconPos =
     makeNewGObject mkDrawWindow $
     {#call gtk_entry_get_icon_window #}
        (toEntry entry)
        ((fromIntegral . fromEnum) iconPos)
-       
+
 -- | Returns the 'Window' which contains the text. This function is useful when drawing something to the
 -- entry in an 'eventExpose' callback because it enables the callback to distinguish between the text
 -- window and entry's icon windows.
--- 
+--
 -- See also 'entryGetIconWindow'.
 -- Removed in Gtk3.
 entryGetTextWindow :: EntryClass self => self
-                   -> IO DrawWindow  -- ^ returns the entry's text window. 
+                   -> IO DrawWindow  -- ^ returns the entry's text window.
 entryGetTextWindow entry =
     makeNewGObject mkDrawWindow $
     {#call gtk_entry_get_text_window #}
@@ -518,7 +518,7 @@ entryGetTextWindow entry =
 -- | Allow the 'Entry' input method to internally handle key press and release events. If this function
 -- returns 'True', then no further processing should be done for this key event. See
 -- 'imContextFilterKeypress'.
--- 
+--
 -- Note that you are expected to call this function from your handler when overriding key event
 -- handling. This is needed in the case when you need to insert your own key handling between the input
 -- method and the default key event handling of the 'Entry'. See 'textViewResetImContext' for
@@ -535,7 +535,7 @@ entryImContextFilterKeypress self = do
       (castPtr ptr)
 
 -- | Reset the input method context of the entry if needed.
--- 
+--
 -- This can be necessary in the case where modifying the buffer would confuse on-going input method
 -- behavior.
 --
@@ -648,7 +648,7 @@ entryScrollOffset = readAttrFromIntProperty "scroll-offset"
 --
 -- Default value: \"\"
 --
-entryText :: EntryClass self => Attr self String
+entryText :: (EntryClass self, GlibString string) => Attr self string
 entryText = newAttr
   entryGetText
   entrySetText
@@ -695,7 +695,7 @@ entryBuffer = newAttr
 -- Signals
 
 -- | A keybinding signal which gets emitted when the user activates the entry.
--- 
+--
 -- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
 -- control activation programmatically.
 entryActivated :: EntryClass ec => Signal ec (IO ())
@@ -706,31 +706,31 @@ entryActivate :: EntryClass ec => Signal ec (IO ())
 entryActivate = entryActivated
 
 -- | The 'entryBackspace' signal is a keybinding signal which gets emitted when the user asks for it.
--- 
+--
 -- The default bindings for this signal are Backspace and Shift-Backspace.
 entryBackspace :: EntryClass ec => Signal ec (IO ())
 entryBackspace = Signal (connect_NONE__NONE "backspace")
 
 -- | The 'entryCopyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
 -- clipboard.
--- 
+--
 -- The default bindings for this signal are Ctrl-c and Ctrl-Insert.
 entryCopyClipboard :: EntryClass ec => Signal ec (IO ())
 entryCopyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
 
 -- | The 'entryCutClipboard' signal is a keybinding signal which gets emitted to cut the selection to the
 -- clipboard.
--- 
+--
 -- The default bindings for this signal are Ctrl-x and Shift-Delete.
 entryCutClipboard :: EntryClass ec => Signal ec (IO ())
 entryCutClipboard = Signal (connect_NONE__NONE "cut-clipboard")
 
 -- | The 'entryDeleteFromCursor' signal is a keybinding signal which gets emitted when the user initiates a
 -- text deletion.
--- 
+--
 -- If the type is 'DeleteChars', GTK+ deletes the selection if there is one, otherwise it deletes
 -- the requested number of characters.
--- 
+--
 -- The default bindings for this signal are Delete for deleting a character and Ctrl-Delete for
 -- deleting a word.
 entryDeleteFromCursor :: EntryClass ec => Signal ec (DeleteType -> Int -> IO ())
@@ -738,35 +738,35 @@ entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 
 -- | The 'entryInsertAtCursor' signal is a keybinding signal which gets emitted when the user initiates the
 -- insertion of a fixed string at the cursor.
-entryInsertAtCursor :: EntryClass ec => Signal ec (String -> IO ())
+entryInsertAtCursor :: (EntryClass ec, GlibString string) => Signal ec (string -> IO ())
 entryInsertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
 
 -- | The 'entryMoveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
 -- movement. If the cursor is not visible in entry, this signal causes the viewport to be moved
 -- instead.
--- 
+--
 -- Applications should not connect to it, but may emit it with 'signalEmitByName' if they need to
 -- control the cursor programmatically.
--- 
+--
 -- The default bindings for this signal come in two variants, the variant with the Shift modifier
 -- extends the selection, the variant without the Shift modifer does not. There are too many key
 -- combinations to list them all here.
--- 
---   * Arrow keys move by individual characters\/lines 
---   * Ctrl-arrow key combinations move by words\/paragraphs 
+--
+--   * Arrow keys move by individual characters\/lines
+--   * Ctrl-arrow key combinations move by words\/paragraphs
 --   * Home\/End keys move to the ends of the buffer
 entryMoveCursor :: EntryClass ec => Signal ec (MovementStep -> Int -> Bool -> IO ())
 entryMoveCursor = Signal (connect_ENUM_INT_BOOL__NONE "move-cursor")
 
 -- | The 'entryPasteClipboard' signal is a keybinding signal which gets emitted to paste the contents of the
 -- clipboard into the text view.
--- 
+--
 -- The default bindings for this signal are Ctrl-v and Shift-Insert.
 entryPasteClipboard :: EntryClass ec => Signal ec (IO ())
 entryPasteClipboard = Signal (connect_NONE__NONE "paste-clipboard")
 
 -- | The 'entryPopulatePopup' signal gets emitted before showing the context menu of the entry.
--- 
+--
 -- If you need to add items to the context menu, connect to this signal and append your menuitems to
 -- the menu.
 entryPopulatePopup :: EntryClass ec => Signal ec (Menu -> IO ())
@@ -775,7 +775,7 @@ entryPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 #if GTK_CHECK_VERSION(2,20,0)
 -- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
 -- you are interested in the text, connect to this signal.
-entryPreeditChanged :: EntryClass ec => Signal ec (String -> IO ())
+entryPreeditChanged :: (EntryClass ec, GlibString string) => Signal ec (string -> IO ())
 entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
 #endif
 
@@ -798,7 +798,7 @@ entryIconRelease = Signal $ \after obj f ->
 
 -- | The 'entryToggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
 -- of the entry.
--- 
+--
 -- The default bindings for this signal is Insert.
 entryToggleOverwirte :: EntryClass ec => Signal ec (IO ())
 entryToggleOverwirte = Signal (connect_NONE__NONE "toggle-overwrite")

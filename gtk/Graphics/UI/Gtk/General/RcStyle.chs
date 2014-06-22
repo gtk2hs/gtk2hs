@@ -494,7 +494,7 @@ rcStyleCopy self =
 
 -- | Adds a file to the list of files to be parsed at the end of 'initGUI'.
 --
-rcAddDefaultFile :: String -> IO ()
+rcAddDefaultFile :: GlibString string => string -> IO ()
 rcAddDefaultFile filename =
   withUTFString filename $ \filenamePtr ->
   {# call gtk_rc_add_default_file #}
@@ -503,7 +503,7 @@ rcAddDefaultFile filename =
 -- | etrieves the current list of RC files that will be parsed at the end of
 -- 'initGUI'.
 --
-rcGetDefaultFiles :: IO [String]
+rcGetDefaultFiles :: GlibString string => IO [string]
 rcGetDefaultFiles = do
   aPtr <- {# call gtk_rc_get_default_files #}
   sPtrs <- peekArray0 nullPtr (castPtr aPtr)
@@ -512,14 +512,14 @@ rcGetDefaultFiles = do
 -- | Obtains the path to the IM modules file. See the documentation of the
 -- @GTK_IM_MODULE_FILE@ environment variable for more details.
 --
-rcGetImModuleFile :: IO String
+rcGetImModuleFile :: GlibString string => IO string
 rcGetImModuleFile =
   {# call gtk_rc_get_im_module_file #}
   >>= readUTFString
 
 -- | Returns a directory in which GTK+ looks for theme engines.
 --
-rcGetModuleDir :: IO String
+rcGetModuleDir :: GlibString string => IO string
 rcGetModuleDir =
   {# call gtk_rc_get_module_dir #}
   >>= readUTFString
@@ -540,11 +540,11 @@ rcGetStyle widget =
 -- pseudo-widgets that should be themed like widgets but don't actually have
 -- corresponding GTK+ widgets.
 --
-rcGetStyleByPaths :: Settings
-  -> Maybe String
+rcGetStyleByPaths :: GlibString string => Settings
+  -> Maybe string
   -- ^ @widgetPath@ : the widget path to use when looking up the style, or
   -- @Nothing@ if no matching against the widget path should be done
-  -> Maybe String
+  -> Maybe string
   -- ^ @classPath@ :  the class path to use when looking up the style, or
   -- @Nothing@ if no matching against the class path should be done.
   -> GType
@@ -568,14 +568,14 @@ rcGetStyleByPaths settings mWidgetPath mClassPath type_ =
 -- | Returns the standard directory in which themes should be installed. (GTK+
 -- does not actually use this directory itself.)
 --
-rcGetThemeDir :: IO String
+rcGetThemeDir :: GlibString string => IO string
 rcGetThemeDir =
   {# call gtk_rc_get_theme_dir #}
   >>= readUTFString
 
 -- | Parses a given resource file.
 --
-rcParse :: String
+rcParse :: GlibString string => string
   -- ^ @filename@ : the @filename@ of a file to parse. If @filename@ is not
   -- absolute, it is searched in the current directory.
     -> IO ()
@@ -586,7 +586,7 @@ rcParse filename =
 
 -- | Parses resource information directly from a string.
 --
-rcParseString :: String -> IO ()
+rcParseString :: GlibString string => string -> IO ()
 rcParseString rcString =
   withUTFString rcString $ \rcStringPtr ->
   {# call gtk_rc_parse_string #}
@@ -630,7 +630,7 @@ rcResetStyles settings =
 
 -- | Sets the list of files that GTK+ will read at the end of 'initGUI'.
 --
-rcSetDefaultFiles :: [String] -> IO ()
+rcSetDefaultFiles :: GlibString string => [string] -> IO ()
 rcSetDefaultFiles files =
   withUTFStringArray0 files $ \ssPtr ->
   {# call gtk_rc_set_default_files #} ssPtr

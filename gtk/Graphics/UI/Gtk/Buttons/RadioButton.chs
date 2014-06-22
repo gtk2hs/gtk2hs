@@ -33,7 +33,7 @@
 --
 module Graphics.UI.Gtk.Buttons.RadioButton (
 -- * Detail
--- 
+--
 -- | A single radio button performs the same basic function as a
 -- 'CheckButton', as its position in the object hierarchy reflects. It is only
 -- when multiple radio buttons are grouped together that they become a
@@ -58,27 +58,27 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
 --
 -- * How to create a group of two radio buttons.
 --
--- > 
+-- >
 -- > createRadioButtons :: IO ()
 -- > createRadioButtons = do
 -- >   window <- windowNew
 -- >   box <- vBoxNew True 2
--- >   
+-- >
 -- >   -- Create a radio button with a Entry widget
 -- >   radio1 <- radioButtonNew
 -- >   entry <- entryNew
 -- >   containerAdd radio1 entry
--- >   
+-- >
 -- >   -- Create a radio button with a label
 -- >   radio2 <- radioButtonNewWithLabelFromWidget
 -- >               radio1 "I'm the second radio button."
--- >   
+-- >
 -- >   -- Pack them into a box, then show all the widgets
 -- >   boxPackStart box radio1 PackGrow 2
 -- >   boxPackStart box radio2 PackGrow 2
 -- >   containerAdd window box
 -- >   widgetShowAll window
--- > 
+-- >
 --
 -- When an unselected button in the group is clicked the clicked button
 -- receives the \"toggled\" signal, as does the previously selected button.
@@ -167,7 +167,7 @@ radioButtonNew =
 
 -- | Creates a new 'RadioButton' with a text label.
 --
-radioButtonNewWithLabel :: String -> IO RadioButton
+radioButtonNewWithLabel :: GlibString string => string -> IO RadioButton
 radioButtonNewWithLabel label =
   makeNewObject mkRadioButton $
   liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
@@ -181,8 +181,8 @@ radioButtonNewWithLabel label =
 -- so underscores in @label@ indicate the mnemonic
 -- for the button.
 --
-radioButtonNewWithMnemonic :: 
-    String         -- ^ @label@ - the text of the button, with an underscore
+radioButtonNewWithMnemonic :: GlibString string
+ => string         -- ^ @label@ - the text of the button, with an underscore
                    -- in front of the mnemonic character
  -> IO RadioButton
 radioButtonNewWithMnemonic label =
@@ -197,7 +197,7 @@ radioButtonNewWithMnemonic label =
 -- which @groupMember@ belongs. As with 'radioButtonNew', a widget should be
 -- packed into the radio button.
 --
-radioButtonNewFromWidget :: 
+radioButtonNewFromWidget ::
     RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
  -> IO RadioButton
@@ -210,10 +210,10 @@ radioButtonNewFromWidget group =
 -- | Creates a new 'RadioButton' with a text label, adding it to the same group
 -- as the group to which @groupMember@ belongs.
 --
-radioButtonNewWithLabelFromWidget :: 
-    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+radioButtonNewWithLabelFromWidget :: GlibString string
+ => RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
- -> String         -- ^ @label@ - a text string to display next to the radio
+ -> string         -- ^ @label@ - a text string to display next to the radio
                    -- button.
  -> IO RadioButton
 radioButtonNewWithLabelFromWidget group label =
@@ -229,10 +229,10 @@ radioButtonNewWithLabelFromWidget group label =
 -- 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic',
 -- so underscores in @label@ indicate the mnemonic for the button.
 --
-radioButtonNewWithMnemonicFromWidget :: 
-    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+radioButtonNewWithMnemonicFromWidget :: GlibString string
+ => RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
- -> String         -- ^ @label@ - the text of the button, with an underscore
+ -> string         -- ^ @label@ - the text of the button, with an underscore
                    -- in front of the mnemonic character
  -> IO RadioButton
 radioButtonNewWithMnemonicFromWidget group label =
@@ -244,7 +244,7 @@ radioButtonNewWithMnemonicFromWidget group label =
     labelPtr
 
 -- | Alias for 'radioButtonNewFromWidget'.
-radioButtonNewJoinGroup :: 
+radioButtonNewJoinGroup ::
     RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
  -> IO RadioButton
@@ -252,20 +252,20 @@ radioButtonNewJoinGroup = radioButtonNewFromWidget
 {-# DEPRECATED radioButtonNewJoinGroup "use radioButtonNewFromWidget instead" #-}
 
 -- | Alias for 'radioButtonNewWithLabelFromWidget'.
-radioButtonNewJoinGroupWithLabel :: 
-    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+radioButtonNewJoinGroupWithLabel :: GlibString string
+ => RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
- -> String         -- ^ @label@ - a text string to display next to the radio
+ -> string         -- ^ @label@ - a text string to display next to the radio
                    -- button.
  -> IO RadioButton
 radioButtonNewJoinGroupWithLabel = radioButtonNewWithLabelFromWidget
 {-# DEPRECATED radioButtonNewJoinGroupWithLabel "use radioButtonNewWithLabelFromWidget instead" #-}
 
 -- | Alias for 'radioButtonNewWithMnemonicFromWidget'.
-radioButtonNewJoinGroupWithMnemonic :: 
-    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+radioButtonNewJoinGroupWithMnemonic :: GlibString string
+ => RadioButton    -- ^ @groupMember@ - a member of an existing radio button
                    -- group, to which the new radio button will be added.
- -> String         -- ^ @label@ - the text of the button, with an underscore
+ -> string         -- ^ @label@ - the text of the button, with an underscore
                    -- in front of the mnemonic character
  -> IO RadioButton
 radioButtonNewJoinGroupWithMnemonic = radioButtonNewWithMnemonicFromWidget

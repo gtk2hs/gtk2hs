@@ -430,7 +430,6 @@ import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 import System.Glib.GType      (GType)
 import System.Glib.GList      (GList, fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.Rendering.Pango.Markup
 import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -494,7 +493,7 @@ import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   )
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 AccelFlags(..), DirectionType(..), Modifier)
-{#import Graphics.Rendering.Pango.Types#} 
+{#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout), makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)
@@ -679,8 +678,8 @@ widgetSizeAllocate self rect = with rect $ \rectPtr ->
 -- user, use 'accelMapAddEntry' and 'widgetSetAccelPath' or
 -- 'menuItemSetAccelPath' instead.
 --
-widgetAddAccelerator :: WidgetClass self => self
- -> String         -- ^ @accelSignal@ - widget signal to emit on accelerator
+widgetAddAccelerator :: (WidgetClass self, GlibString string) => self
+ -> string         -- ^ @accelSignal@ - widget signal to emit on accelerator
                    -- activation
  -> AccelGroup     -- ^ @accelGroup@ - accel group for this widget, added to
                    -- its toplevel
@@ -735,8 +734,8 @@ widgetRemoveAccelerator self accelGroup accelKey accelMods =
 -- accelerators on menu items 'menuItemSetAccelPath' provides a somewhat more
 -- convenient interface.
 --
-widgetSetAccelPath :: WidgetClass self => self
- -> String     -- ^ @accelPath@ - path used to look up the accelerator
+widgetSetAccelPath :: (WidgetClass self, GlibString string) => self
+ -> string     -- ^ @accelPath@ - path used to look up the accelerator
  -> AccelGroup -- ^ @accelGroup@ - a 'AccelGroup'.
  -> IO ()
 widgetSetAccelPath self accelPath accelGroup =
@@ -801,7 +800,7 @@ widgetIntersect self area =
 widgetHasIntersection :: WidgetClass self => self
  -> Rectangle -- ^ @area@ - a rectangle
  -> IO Bool   -- ^ returns @True@ if there was an intersection
-widgetHasIntersection self area = 
+widgetHasIntersection self area =
   liftM toBool $
   with area $ \areaPtr ->
   {# call unsafe widget_intersect #}
@@ -853,8 +852,8 @@ widgetGrabDefault self =
 -- Note that widget names are separated by periods in paths (see
 -- 'widgetPath'), so names with embedded periods may cause confusion.
 --
-widgetSetName :: WidgetClass self => self
- -> String -- ^ @name@ - name for the widget
+widgetSetName :: (WidgetClass self, GlibString string) => self
+ -> string -- ^ @name@ - name for the widget
  -> IO ()
 widgetSetName self name =
   withUTFString name $ \namePtr ->
@@ -865,7 +864,7 @@ widgetSetName self name =
 -- | Retrieves the name of a widget. See 'widgetSetName' for the significance
 -- of widget names.
 --
-widgetGetName :: WidgetClass self => self -> IO String
+widgetGetName :: (WidgetClass self, GlibString string) => self -> IO string
 widgetGetName self =
   {# call unsafe widget_get_name #}
     (toWidget self)
@@ -884,7 +883,7 @@ widgetSetSensitive self sensitive =
   {# call gtk_widget_set_sensitive #}
     (toWidget self)
     (fromBool sensitive)
-                                                        
+
 -- bad spelling backwards compatability definition
 widgetSetSensitivity :: WidgetClass self => self -> Bool -> IO ()
 widgetSetSensitivity = widgetSetSensitive
@@ -985,7 +984,7 @@ widgetGetExtensionEvents self =
 -- @widget@ is a part of. If @widget@ has no parent widgets, it will be
 -- returned as the topmost widget.
 --
-widgetGetToplevel :: WidgetClass self => 
+widgetGetToplevel :: WidgetClass self =>
     self      -- ^ @widget@ - the widget in question
  -> IO Widget -- ^ returns the topmost ancestor of @widget@, or @widget@
               -- itself if there's no ancestor.
@@ -1210,7 +1209,7 @@ widgetGetDirection self =
 -- | Sets the default reading direction for widgets where the direction has
 -- not been explicitly set by 'widgetSetDirection'.
 --
-widgetSetDefaultDirection :: 
+widgetSetDefaultDirection ::
     TextDirection -- ^ @dir@ - the new default direction. This cannot be
                   -- 'TextDirNone'.
  -> IO ()
@@ -1276,7 +1275,7 @@ widgetInputShapeCombineMask self shapeMask offsetX offsetY =
 #if GTK_CHECK_VERSION(2,12,0)
 -- | Returns the 'Window' of the current tooltip. This can be the 'Window' created by default, or the
 -- custom tooltip window set using 'widgetSetTooltipWindow'.
--- 
+--
 -- * Available since Gtk+ version 2.12
 --
 widgetGetTooltipWindow :: WidgetClass self => self
@@ -1289,14 +1288,14 @@ widgetGetTooltipWindow self =
 -- | Replaces the default, usually yellow, window used for displaying tooltips with @customWindow@. GTK+
 -- will take care of showing and hiding @customWindow@ at the right moment, to behave likewise as the
 -- default tooltip window. If @customWindow@ is 'Nothing', the default tooltip window will be used.
--- 
+--
 -- If the custom window should have the default theming it needs to have the name 'gtk-tooltip', see
 -- 'widgetSetName'.
 --
 -- * Available since Gtk+ version 2.12
--- 
+--
 widgetSetTooltipWindow :: (WidgetClass self, WindowClass customWindow) => self
- -> Maybe customWindow -- ^ @customWindow@ a 'Window', or 'Nothing'. allow-none. 
+ -> Maybe customWindow -- ^ @customWindow@ a 'Window', or 'Nothing'. allow-none.
  -> IO ()
 widgetSetTooltipWindow self customWindow =
   {# call gtk_widget_set_tooltip_window #}
@@ -1329,16 +1328,16 @@ widgetGetWindow self =
 #if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
 -- | Create a 'Pixmap' of the contents of the widget and its children.
--- 
+--
 -- Works even if the widget is obscured. The depth and visual of the resulting pixmap is dependent on
 -- the widget being snapshot and likely differs from those of a target widget displaying the
 -- pixmap. The function 'pixbufGetFromDrawable' can be used to convert the pixmap to a visual
 -- independant representation.
--- 
+--
 -- The snapshot area used by this function is the widget's allocation plus any extra space occupied by
 -- additional windows belonging to this widget (such as the arrows of a spin button). Thus, the
 -- resulting snapshot pixmap is possibly larger than the allocation.
--- 
+--
 -- The resulting pixmap is shrunken to match the specified @clipRect@. The
 -- (x,y) coordinates of @clipRect@ are interpreted widget relative. If width or height of @clipRect@ are
 -- 0 or negative, the width or height of the resulting pixmap will be shrunken by the respective
@@ -1346,14 +1345,14 @@ widgetGetWindow self =
 -- snapshot pixmap. @clipRect@ will contain the exact widget-relative snapshot coordinates
 -- upon return. A @clipRect@ of { -1, -1, 0, 0 } can be used to preserve the auto-grown snapshot area
 -- and use @clipRect@ as a pure output parameter.
--- 
+--
 -- The returned pixmap can be 'Nothing', if the resulting @clipArea@ was empty.
 widgetGetSnapshot :: WidgetClass self => self
                   -> Rectangle
-                  -> IO (Maybe Pixmap) -- ^ returns   'Pixmap' snapshot of the widget    
-widgetGetSnapshot widget clipRect = 
+                  -> IO (Maybe Pixmap) -- ^ returns   'Pixmap' snapshot of the widget
+widgetGetSnapshot widget clipRect =
   maybeNull (wrapNewGObject mkPixmap) $
-  with clipRect $ \ clipRectPtr -> 
+  with clipRect $ \ clipRectPtr ->
   {#call gtk_widget_get_snapshot #}
      (toWidget widget)
      (castPtr clipRectPtr)
@@ -1372,8 +1371,8 @@ widgetGetSnapshot widget clipRect =
 -- order, i.e. starting with the widget's name instead of starting with the
 -- name of the widget's outermost ancestor.
 --
-widgetPath :: WidgetClass self => self
- -> IO (Int, String, String) -- ^ @(pathLength, path, pathReversed)@ - length
+widgetPath :: (WidgetClass self, GlibString string) => self
+ -> IO (Int, string, string) -- ^ @(pathLength, path, pathReversed)@ - length
                              -- of the path, path string and reverse path
                              -- string
 widgetPath self =
@@ -1395,8 +1394,8 @@ widgetPath self =
 -- | Same as 'widgetPath', but always uses the name of a widget's type, never
 -- uses a custom name set with 'widgetSetName'.
 --
-widgetClassPath :: WidgetClass self => self
- -> IO (Int, String, String) -- ^ @(pathLength, path, pathReversed)@ - length
+widgetClassPath :: (WidgetClass self, GlibString string) => self
+ -> IO (Int, string, string) -- ^ @(pathLength, path, pathReversed)@ - length
                              -- of the path, path string and reverse path
                              -- string
 widgetClassPath self =
@@ -1417,8 +1416,8 @@ widgetClassPath self =
 -- %hash c:769e
 -- | Obtains the composite name of a widget.
 --
-widgetGetCompositeName :: WidgetClass self => self
- -> IO (Maybe String) -- ^ returns the composite name of @widget@, or
+widgetGetCompositeName :: (WidgetClass self, GlibString string) => self
+ -> IO (Maybe string) -- ^ returns the composite name of @widget@, or
                       -- @Nothing@ if @widget@ is not a composite child.
 widgetGetCompositeName self =
   {# call gtk_widget_get_composite_name #}
@@ -1661,8 +1660,8 @@ widgetGetPangoContext self =
 -- > w `onDirectionChanged` update
 -- > w `onStyleChanged` update
 --
-widgetCreateLayout :: WidgetClass self => self
- -> String    -- ^ @text@ - text to set on the layout
+widgetCreateLayout :: (WidgetClass self, GlibString string) => self
+ -> string    -- ^ @text@ - text to set on the layout
  -> IO PangoLayout
 widgetCreateLayout self text = do
   pl <- wrapNewGObject mkPangoLayoutRaw $
@@ -1689,10 +1688,10 @@ widgetCreateLayout self text = do
 -- shared with the rest of the
 -- application and should not be modified.
 --
-widgetRenderIcon :: WidgetClass self => self
- -> String            -- ^ @stockId@ - a stock ID
+widgetRenderIcon :: (WidgetClass self, GlibString string) => self
+ -> string            -- ^ @stockId@ - a stock ID
  -> IconSize          -- ^ @size@ - a stock size
- -> String            -- ^ @detail@ - render detail to pass to theme engine
+ -> string            -- ^ @detail@ - render detail to pass to theme engine
  -> IO (Maybe Pixbuf) -- ^ returns a new pixbuf, or @Nothing@ if the stock ID
                       -- wasn't known
 widgetRenderIcon self stockId size detail =
@@ -1832,8 +1831,8 @@ widgetSetRedrawOnAllocate self redrawOnAllocate =
 --   composite if it serves as an internal widget and, thus, is not
 --   added by the user.
 --
-widgetSetCompositeName :: WidgetClass self => self
- -> String -- ^ @name@ - the name to set.
+widgetSetCompositeName :: (WidgetClass self, GlibString string) => self
+ -> string -- ^ @name@ - the name to set.
  -> IO ()
 widgetSetCompositeName self name =
   withUTFString name $ \namePtr ->
@@ -1848,7 +1847,7 @@ widgetSetCompositeName self name =
 -- returns @False@. Widgets that don't support scrolling can be scrolled by
 -- placing them in a 'Viewport', which does support scrolling.
 --
--- Removed in Gtk3. 
+-- Removed in Gtk3.
 widgetSetScrollAdjustments :: WidgetClass self => self
  -> Maybe Adjustment -- ^ @hadjustment@ - an adjustment for horizontal scrolling, or
                -- @Nothing@
@@ -1959,7 +1958,7 @@ widgetGetChildVisible self =
 -- * Returns the parent container of @widget@ if it has one.
 --
 widgetGetParent :: WidgetClass self => self
- -> IO (Maybe Widget) 
+ -> IO (Maybe Widget)
 widgetGetParent self = do
   parentPtr <- {# call gtk_widget_get_parent #} (toWidget self)
   if parentPtr==nullPtr then return Nothing else
@@ -1991,13 +1990,13 @@ widgetGetClipboard :: WidgetClass self => self
                                        -- to use. 'selectionClipboard' gives the
                                        -- default clipboard. Another common value
                                        -- is 'selectionPrimary', which gives
-                                       -- the primary X selection. 
+                                       -- the primary X selection.
                    -> IO Clipboard -- ^ returns the appropriate clipboard object. If no
                                    -- clipboard already exists, a new one will
-                                   -- be created. 
-widgetGetClipboard self (Atom tagPtr) = 
+                                   -- be created.
+widgetGetClipboard self (Atom tagPtr) =
   makeNewGObject mkClipboard $
-  {#call gtk_widget_get_clipboard #} 
+  {#call gtk_widget_get_clipboard #}
     (toWidget self)
     tagPtr
 
@@ -2306,7 +2305,7 @@ widgetGetCanFocus = objectGetPropertyBool "can_focus"
 --
 widgetGetAllocation :: WidgetClass self => self -> IO Allocation
 widgetGetAllocation widget =
-  alloca $ \ allocationPtr -> do 
+  alloca $ \ allocationPtr -> do
      {#call widget_get_allocation#} (toWidget widget) (castPtr allocationPtr)
      peek allocationPtr
 #endif
@@ -2366,7 +2365,7 @@ widgetEvent widget = do
 --
 -- Default value: @Nothing@
 --
-widgetName :: WidgetClass self => Attr self (Maybe String)
+widgetName :: (WidgetClass self, GlibString string) => Attr self (Maybe string)
 widgetName = newAttrFromMaybeStringProperty "name"
 
 widgetMarginLeft :: WidgetClass self => Attr self Int
@@ -2565,7 +2564,7 @@ widgetColormap = newAttr
 -- | \'compositeName\' property. See 'widgetGetCompositeName' and
 -- 'widgetSetCompositeName'
 --
-widgetCompositeName :: WidgetClass self => ReadWriteAttr self (Maybe String) String
+widgetCompositeName :: (WidgetClass self, GlibString string) => ReadWriteAttr self (Maybe string) string
 widgetCompositeName = newAttr
   widgetGetCompositeName
   widgetSetCompositeName
@@ -2580,43 +2579,43 @@ widgetDirection = newAttr
 
 -- | Sets the text of tooltip to be the given string, which is marked up with the Pango text markup
 -- language. Also see 'tooltipSetMarkup'.
--- 
+--
 -- This is a convenience property which will take care of getting the tooltip shown if the given string
 -- is not \"\": 'hasTooltip' will automatically be set to 'True' and there will be taken care of
 -- 'queryTooltip' in the default signal handler.
--- 
+--
 -- Default value: \"\"
--- 
+--
 -- * Available since Gtk+ version 2.12
 --
-widgetTooltipMarkup :: WidgetClass self => Attr self (Maybe Markup)
+widgetTooltipMarkup :: (WidgetClass self, GlibString markup) => Attr self (Maybe markup)
 widgetTooltipMarkup = newAttrFromMaybeStringProperty "tooltip-markup"
 
 -- | Sets the text of tooltip to be the given string.
--- 
+--
 -- Also see 'tooltipSetText'.
--- 
+--
 -- This is a convenience property which will take care of getting the tooltip shown if the given string
 -- is not \"\": 'hasTooltip' will automatically be set to 'True' and there will be taken care of
 -- 'queryTooltip' in the default signal handler.
--- 
+--
 -- Default value: \"\"
--- 
+--
 -- * Available since Gtk+ version 2.12
 --
-widgetTooltipText :: WidgetClass self => Attr self (Maybe String)
+widgetTooltipText :: (WidgetClass self, GlibString string) => Attr self (Maybe string)
 widgetTooltipText = newAttrFromMaybeStringProperty "tooltip-text"
 
 -- | Enables or disables the emission of 'queryTooltip' on widget. A value of 'True' indicates that widget
 -- can have a tooltip, in this case the widget will be queried using 'queryTooltip' to determine
 -- whether it will provide a tooltip or not.
--- 
+--
 -- Note that setting this property to 'True' for the first time will change the event masks of the
 -- 'Windows' of this widget to include leave-notify and motion-notify events. This cannot and will not
 -- be undone when the property is set to 'False' again.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- * Available since Gtk+ version 2.12
 --
 widgetHasTooltip :: WidgetClass self => Attr self Bool
@@ -2624,24 +2623,24 @@ widgetHasTooltip = newAttrFromBoolProperty "has-tooltip"
 
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Determines if the widget style has been looked up through the rc mechanism.
-widgetHasRcStyle :: WidgetClass self => self 
+widgetHasRcStyle :: WidgetClass self => self
                  -> IO Bool -- ^ returns 'True' if the widget has been looked up through the rc mechanism, 'False' otherwise.
-widgetHasRcStyle self =                 
+widgetHasRcStyle self =
   liftM toBool $
   {#call gtk_widget_has_rc_style #}
     (toWidget self)
 
 -- | Determines whether widget is realized.
 widgetGetRealized :: WidgetClass self => self
-                  -> IO Bool  -- ^ returns 'True' if widget is realized, 'False' otherwise 
+                  -> IO Bool  -- ^ returns 'True' if widget is realized, 'False' otherwise
 widgetGetRealized self =
   liftM toBool $
   {#call gtk_widget_get_realized #}
     (toWidget self)
-  
+
 -- | Whether the widget is mapped.
 widgetGetMapped :: WidgetClass self => self
-                -> IO Bool  -- ^ returns 'True' if the widget is mapped, 'False' otherwise. 
+                -> IO Bool  -- ^ returns 'True' if the widget is mapped, 'False' otherwise.
 widgetGetMapped self =
   liftM toBool $
   {#call gtk_widget_get_mapped #}
@@ -2814,20 +2813,20 @@ screenChanged = Signal (connect_OBJECT__NONE "screen-changed")
 
 -- | Emitted when 'hasTooltip' is 'True' and the 'gtkTooltipTimeout' has expired with the cursor
 -- hovering "above" widget; or emitted when widget got focus in keyboard mode.
--- 
+--
 -- Using the given coordinates, the signal handler should determine whether a tooltip should be shown
--- for widget. If this is the case 'True' should be returned, 'False' otherwise. 
+-- for widget. If this is the case 'True' should be returned, 'False' otherwise.
 -- Note if widget got focus in keyboard mode, 'Point' is 'Nothing'.
--- 
+--
 -- The signal handler is free to manipulate tooltip with the therefore destined function calls.
 --
 -- * Available since Gtk+ version 2.12
 --
 queryTooltip :: WidgetClass self => Signal self (Widget -> Maybe Point -> Tooltip -> IO Bool)
 queryTooltip =
-  Signal (\after model user -> 
-           connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip" 
-             after model (\widget x y keyb tooltip -> 
+  Signal (\after model user ->
+           connect_OBJECT_INT_INT_BOOL_OBJECT__BOOL "query-tooltip"
+             after model (\widget x y keyb tooltip ->
                               user widget (if keyb then Nothing else Just (x, y)) tooltip))
 
 #if GTK_CHECK_VERSION(3,0,0)
@@ -3032,7 +3031,7 @@ propertyNotifyEvent :: WidgetClass self => Signal self (EventM EProperty Bool)
 propertyNotifyEvent = Signal (eventM "property_notify_event" [PropertyChangeMask])
 {- not sure if these are useful
 -- %hash c:58cc d:af3f
--- | 
+-- |
 --
 selectionClearEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} Bool)
 selectionClearEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_clear_event")
@@ -3106,7 +3105,7 @@ windowStateEvent = Signal (eventM "window_state_event" [])
 grabBrokenEvent :: WidgetClass self => Signal self (EventM EGrabBroken Bool)
 grabBrokenEvent = Signal (eventM "grab_broken_event" [])
 #endif
-             
+
 --------------------
 -- Deprecated Signals and Events
 
@@ -3136,7 +3135,7 @@ onButtonRelease, afterButtonRelease :: WidgetClass w => w ->
 onButtonRelease = event "button_release_event" [ButtonReleaseMask] False
 afterButtonRelease = event "button_release_event" [ButtonReleaseMask] True
 
--- | 
+-- |
 --
 onClient, afterClient :: WidgetClass w => w -> (Event -> IO Bool) ->
                          IO (ConnectId w)
@@ -3163,7 +3162,7 @@ afterDelete = event "delete_event" [] True
 --
 -- * The widget received a destroy event from the window manager.
 --
-onDestroyEvent, afterDestroyEvent :: WidgetClass w => 
+onDestroyEvent, afterDestroyEvent :: WidgetClass w =>
 				     w -> (Event -> IO Bool) ->
 				     IO (ConnectId w)
 onDestroyEvent = event "destroy_event" [] False
@@ -3223,7 +3222,7 @@ onExposeRect, afterExposeRect ::
     WidgetClass w => w -> (Rectangle -> IO ()) -> IO (ConnectId w)
 onExposeRect w act = connect_BOXED__BOOL "expose_event"
   marshExposeRect False w (\r -> act r >> return True)
-afterExposeRect w act = connect_BOXED__BOOL "expose_event" 
+afterExposeRect w act = connect_BOXED__BOOL "expose_event"
   marshExposeRect True w (\r -> act r >> return True)
 
 -- | This signal is called if the widget receives the input focus.
@@ -3302,7 +3301,7 @@ onKeyRelease, afterKeyRelease :: WidgetClass w => w -> (Event -> IO Bool) ->
 onKeyRelease = event "key_release_event" [KeyReleaseMask] False
 afterKeyRelease = event "key_release_event" [KeyReleaseMask] True
 
--- | 
+-- |
 --
 onMnemonicActivate, afterMnemonicActivate :: WidgetClass w => w ->
                                              (Bool -> IO Bool) ->
@@ -3319,23 +3318,23 @@ afterMnemonicActivate = connect_BOOL__BOOL "mnemonic_activate" True
 --   calling 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer'.
 --
 onMotionNotify, afterMotionNotify :: WidgetClass w => w -> Bool ->
-                                     (Event -> IO Bool) -> 
+                                     (Event -> IO Bool) ->
                                      IO (ConnectId w)
-onMotionNotify w hint = event "motion_notify_event" 
+onMotionNotify w hint = event "motion_notify_event"
   (if hint then [PointerMotionMask, PointerMotionHintMask]
            else [PointerMotionMask]) False w
-afterMotionNotify w hint = event "motion_notify_event" 
+afterMotionNotify w hint = event "motion_notify_event"
   (if hint then [PointerMotionMask, PointerMotionHintMask]
            else [PointerMotionMask]) True w
 
--- | 
+-- |
 --
 onParentSet, afterParentSet :: (WidgetClass w, WidgetClass old) => w ->
                                (old -> IO ()) -> IO (ConnectId w)
 onParentSet = connect_OBJECT__NONE "parent_set"  False
 afterParentSet = connect_OBJECT__NONE "parent_set"  True
 
--- | 
+-- |
 --
 onPopupMenu, afterPopupMenu :: WidgetClass w => w -> IO () -> IO (ConnectId w)
 onPopupMenu = connect_NONE__NONE "popup_menu" False
@@ -3411,9 +3410,9 @@ onSizeRequest w fun = connect_PTR__NONE "size_request" False w (\rqPtr -> do
   unless (rqPtr==nullPtr) $ poke rqPtr req)
 afterSizeRequest w fun = connect_PTR__NONE "size_request" True w (\rqPtr -> do
   req <- fun
-  unless (rqPtr==nullPtr) $ poke rqPtr req) 
+  unless (rqPtr==nullPtr) $ poke rqPtr req)
 
--- | 
+-- |
 --
 onStateChanged, afterStateChanged :: WidgetClass w => w ->
                                      (StateType -> IO ()) -> IO (ConnectId w)
@@ -3433,17 +3432,17 @@ onUnrealize, afterUnrealize :: WidgetClass w => w -> IO () -> IO (ConnectId w)
 onUnrealize = connect_NONE__NONE "unrealize" False
 afterUnrealize = connect_NONE__NONE "unrealize" True
 
--- | 
+-- |
 --
 onVisibilityNotify, afterVisibilityNotify :: WidgetClass w => w ->
                                              (Event -> IO Bool) ->
                                              IO (ConnectId w)
-onVisibilityNotify = 
+onVisibilityNotify =
   event "visibility_notify_event" [VisibilityNotifyMask] False
-afterVisibilityNotify = 
+afterVisibilityNotify =
   event "visibility_notify_event" [VisibilityNotifyMask] True
 
--- | 
+-- |
 --
 onWindowState, afterWindowState :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)

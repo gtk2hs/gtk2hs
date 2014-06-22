@@ -51,10 +51,9 @@
 --
 -- [@tt@] Monospace font
 --
--- [@u@] Underline 
+-- [@u@] Underline
 --
 module Graphics.Rendering.Pango.Markup (
-  Pango.Markup,
   SpanAttribute(..),
   markSpan,
   parseMarkup
@@ -82,7 +81,7 @@ data SpanAttribute
   -- * The constuctor takes the size in points (pt) or a predefined
   --   sizes. Setting the absolute size 12.5pt can be achieved by passing
   --   'FontSize' ('SizePoint' 12.5) to 'markSpan'. Next to predefined
-  --   absolute sizes such as 'Pango.SizeSmall' the size can be changed by 
+  --   absolute sizes such as 'Pango.SizeSmall' the size can be changed by
   --   asking for the next larger or smaller front with
   --   'Pango.SizeLarger' and 'Pango.SizeSmaller', respectively.
   | FontSize Pango.Size
@@ -113,7 +112,7 @@ data SpanAttribute
   -- | Foreground color.
   --
   -- * This constructor and 'FontBackground' take both a description
-  --   of the color to be used for rendering. The name is either a 
+  --   of the color to be used for rendering. The name is either a
   --   hex code of the form \"#RRGGBB\" or an X11 color name like
   --   \"dark olive green\".
   --
@@ -142,11 +141,11 @@ data SpanAttribute
 #if PANGO_VERSION_CHECK(1,16,0)
   -- | Gravity of text, use for ratation.
   | FontGravity Pango.PangoGravity
-  
+
   -- | Intensity of gravity.
   | FontGravityHint Pango.PangoGravityHint
 #endif
-  
+
 instance Show SpanAttribute where
   showsPrec _ (FontDescr str)    = showString " font_desc=".shows str
   showsPrec _ (FontFamily str)	 = showString " font_family=".shows str
@@ -158,14 +157,14 @@ instance Show SpanAttribute where
   showsPrec _ (FontForeground c) = showString " foreground=".shows c
   showsPrec _ (FontBackground c) = showString " background=".shows c
   showsPrec _ (FontUnderline u)	 = showString " underline=".shows u
-  showsPrec _ (FontRise r)	 = showString " rise=".shows 
+  showsPrec _ (FontRise r)	 = showString " rise=".shows
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
 #if PANGO_VERSION_CHECK(1,16,0)
   showsPrec _ (FontGravity g) = showString " gravity=".shows g
   showsPrec _ (FontGravityHint h) = showString " gravity_hint".shows h
 #endif
-  
+
 -- | Create the most generic span attribute.
 --
 markSpan :: [SpanAttribute] -> String -> String

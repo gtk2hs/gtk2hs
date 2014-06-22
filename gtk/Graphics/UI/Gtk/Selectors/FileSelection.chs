@@ -30,7 +30,7 @@
 -- This module is empty in Gtk3.
 module Graphics.UI.Gtk.Selectors.FileSelection (
 -- * Detail
--- 
+--
 -- | 'FileSelection' should be used to retrieve file or directory names from
 -- the user. It will create a new dialog window containing a directory list,
 -- and a file list corresponding to the current working directory. The
@@ -113,8 +113,8 @@ import Graphics.UI.Gtk.General.Structs	(fileSelectionGetButtons)
 -- listing. Operation buttons that allow the user to create a directory, delete
 -- files and rename files, are also present.
 --
-fileSelectionNew :: 
-    String           -- ^ @title@ - a message that will be placed in the file
+fileSelectionNew :: GlibString string
+ => string           -- ^ @title@ - a message that will be placed in the file
                      -- requestor's titlebar.
  -> IO FileSelection
 fileSelectionNew title =
@@ -135,7 +135,7 @@ fileSelectionNew title =
 -- working directory and an empty filename, @filename@ must have a trailing
 -- directory separator.
 --
-fileSelectionSetFilename :: FileSelectionClass self => self
+fileSelectionSetFilename :: (FileSelectionClass self, GlibString string) => self
  -> String -- ^ @filename@ - a string to set as the default file name.
  -> IO ()
 fileSelectionSetFilename self filename =
@@ -152,7 +152,7 @@ fileSelectionSetFilename self filename =
 --
 -- If no file is selected then the selected directory path is returned.
 --
-fileSelectionGetFilename :: FileSelectionClass self => self
+fileSelectionGetFilename :: (FileSelectionClass self, GlibString string) => self
  -> IO String -- ^ returns currently-selected filename
 fileSelectionGetFilename self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -187,7 +187,7 @@ fileSelectionHideFileopButtons self =
 -- have been partially matched, and the \"Folders\" list those directories
 -- which have been partially matched.
 --
-fileSelectionComplete :: FileSelectionClass self => self
+fileSelectionComplete :: (FileSelectionClass self, GlibString string) => self
  -> String -- ^ @pattern@ - a string of characters which may or may not match
            -- any filenames in the current directory.
  -> IO ()
@@ -201,7 +201,7 @@ fileSelectionComplete self pattern =
 -- box. This function is intended for use when the user can select multiple
 -- files in the file list.
 --
-fileSelectionGetSelections :: FileSelectionClass self => self -> IO [String]
+fileSelectionGetSelections :: (FileSelectionClass self, GlibString string) => self -> IO [String]
 fileSelectionGetSelections self = do
   cStrArr <-
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -244,7 +244,7 @@ fileSelectionGetSelectMultiple self =
 -- | The currently selected filename.
 --
 --
-fileSelectionFilename :: FileSelectionClass self => Attr self String
+fileSelectionFilename :: (FileSelectionClass self, GlibString string) => Attr self String
 fileSelectionFilename = newAttr
   fileSelectionGetFilename
   fileSelectionSetFilename

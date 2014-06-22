@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Graphics.UI.Gtk
@@ -6,7 +7,7 @@ import Control.Monad ( liftM )
 import Data.Maybe ( fromMaybe )
 import Data.List ( findIndex )
 import Control.Monad.IO.Class (MonadIO(..))
-
+import Data.Text (Text)
 
 main = do
   initGUI

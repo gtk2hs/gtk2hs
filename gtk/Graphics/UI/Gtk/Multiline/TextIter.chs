@@ -34,7 +34,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- An iterator is an abstract datatype representing a pointer into a 
+-- An iterator is an abstract datatype representing a pointer into a
 -- 'TextBuffer'.
 --
 module Graphics.UI.Gtk.Multiline.TextIter (
@@ -216,7 +216,7 @@ textIterGetChar ti = do
 -- Note that 0xFFFC can occur in normal text as well, so it is not a reliable
 -- indicator that a pixbuf or widget is in the buffer.
 --
-textIterGetSlice :: TextIter -> TextIter -> IO String
+textIterGetSlice :: GlibString string => TextIter -> TextIter -> IO string
 textIterGetSlice end start = do
   cStr <- {#call text_iter_get_slice#} start end
   str <- peekUTFString cStr
@@ -228,7 +228,7 @@ textIterGetSlice end start = do
 -- * Pictures (and other objects) are stripped form the output. Thus, this
 --   function does not preserve offsets.
 --
-textIterGetText :: TextIter -> TextIter -> IO String
+textIterGetText :: GlibString string => TextIter -> TextIter -> IO string
 textIterGetText start end = do
   cStr <- {#call text_iter_get_text#} start end
   str <- peekUTFString cStr
@@ -239,7 +239,7 @@ textIterGetText start end = do
 -- text is usually invisible because a 'TextTag' with the \"invisible\"
 -- attribute turned on has been applied to it.
 --
-textIterGetVisibleSlice :: TextIter -> TextIter -> IO String
+textIterGetVisibleSlice :: GlibString string => TextIter -> TextIter -> IO string
 textIterGetVisibleSlice start end = do
   cStr <- {#call text_iter_get_visible_slice#} start end
   str <- peekUTFString cStr
@@ -250,7 +250,7 @@ textIterGetVisibleSlice start end = do
 -- text is usually invisible because a 'TextTag' with the \"invisible\"
 -- attribute turned on has been applied to it.
 --
-textIterGetVisibleText :: TextIter -> TextIter -> IO String
+textIterGetVisibleText :: GlibString string => TextIter -> TextIter -> IO string
 textIterGetVisibleText start end = do
   cStr <- {#call text_iter_get_visible_text#} start end
   str <- peekUTFString cStr
@@ -265,8 +265,8 @@ textIterGetPixbuf it = do
   if pbPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkPixbuf (return pbPtr)
 
--- | If the location at @iter@ contains a child anchor, 
--- the anchor is returned (with no new reference count added). 
+-- | If the location at @iter@ contains a child anchor,
+-- the anchor is returned (with no new reference count added).
 -- Otherwise, @Nothing@ is returned.
 --
 textIterGetChildAnchor :: TextIter -> IO (Maybe TextChildAnchor)
@@ -330,7 +330,7 @@ textIterEndsTag ti Nothing = liftM toBool $
   {#call unsafe text_iter_ends_tag#} ti (TextTag nullForeignPtr)
 
 -- | Query if the 'TextIter' is at the
--- beginning or the end of a 'TextTag'. This is equivalent to 
+-- beginning or the end of a 'TextTag'. This is equivalent to
 -- ('textIterBeginsTag' || 'textIterEndsTag'), i.e. it
 -- tells you whether a range with @tag@ applied to it begins /or/ ends at
 -- @iter@.
@@ -375,7 +375,7 @@ textIterGetTags self =
 -- 'textIterCanInsert' to handle this case.
 --
 textIterEditable :: TextIter -> Bool -> IO Bool
-textIterEditable ti def = liftM toBool $ 
+textIterEditable ti def = liftM toBool $
   {#call unsafe text_iter_editable#} ti (fromBool def)
 
 -- | Check if new text can be inserted at 'TextIter'.
@@ -392,7 +392,7 @@ textIterEditable ti def = liftM toBool $
 -- if you want to insert text depending on the current editable status.
 --
 textIterCanInsert :: TextIter -> Bool -> IO Bool
-textIterCanInsert ti def = liftM toBool $ 
+textIterCanInsert ti def = liftM toBool $
   {#call unsafe text_iter_can_insert#} ti (fromBool def)
 
 -- | Determine if 'TextIter' begins a new
@@ -435,28 +435,28 @@ textIterEndsLine ti = liftM toBool $ {#call unsafe text_iter_ends_line#} ti
 -- sentence.
 --
 textIterStartsSentence :: TextIter -> IO Bool
-textIterStartsSentence ti = liftM toBool $ 
+textIterStartsSentence ti = liftM toBool $
   {#call unsafe text_iter_starts_sentence#} ti
 
 -- | Determine if 'TextIter' ends a
 -- sentence.
 --
 textIterEndsSentence :: TextIter -> IO Bool
-textIterEndsSentence ti = liftM toBool $ 
+textIterEndsSentence ti = liftM toBool $
   {#call unsafe text_iter_ends_sentence#} ti
 
 -- | Determine if 'TextIter' is inside
 -- a sentence.
 --
 textIterInsideSentence :: TextIter -> IO Bool
-textIterInsideSentence ti = liftM toBool $ 
+textIterInsideSentence ti = liftM toBool $
   {#call unsafe text_iter_inside_sentence#} ti
 
 -- | Determine if 'TextIter' is at a
 -- cursor position.
 --
 textIterIsCursorPosition :: TextIter -> IO Bool
-textIterIsCursorPosition ti = liftM toBool $ 
+textIterIsCursorPosition ti = liftM toBool $
   {#call unsafe text_iter_is_cursor_position#} ti
 
 -- | Return number of characters in this line.
@@ -467,17 +467,17 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- | Computes the effect of any tags applied to this spot in the text. 
--- The values parameter should be initialized to the default settings you wish to use if no tags are in effect. 
--- You'd typically obtain the defaults from 'textViewGetDefaultAttributes'. 
--- 'textIterGetAttributes' will modify values, applying the effects of any tags present at iter. 
+-- | Computes the effect of any tags applied to this spot in the text.
+-- The values parameter should be initialized to the default settings you wish to use if no tags are in effect.
+-- You'd typically obtain the defaults from 'textViewGetDefaultAttributes'.
+-- 'textIterGetAttributes' will modify values, applying the effects of any tags present at iter.
 -- If any tags affected values, the function returns @True@.
 --
 textIterGetAttributes :: TextIter -> TextAttributes -> IO Bool
 textIterGetAttributes ti ta = liftM toBool $
   {#call unsafe text_iter_get_attributes#} ti ta
 
--- | A convenience wrapper around 'textIterGetAttributes', which returns the language in effect at iter. 
+-- | A convenience wrapper around 'textIterGetAttributes', which returns the language in effect at iter.
 -- If no tags affecting language apply to iter, the return value is identical to that of 'getDefaultLanguage'.
 --
 textIterGetLanguage :: TextIter -> IO Language
@@ -488,14 +488,14 @@ textIterGetLanguage ti = liftM Language $
 -- the buffer.
 --
 textIterIsEnd :: TextIter -> IO Bool
-textIterIsEnd ti = liftM toBool $ 
+textIterIsEnd ti = liftM toBool $
   {#call unsafe text_iter_is_end#} ti
 
 -- | Determine if 'TextIter' is at the
 -- beginning of the buffer.
 --
 textIterIsStart :: TextIter -> IO Bool
-textIterIsStart ti = liftM toBool $ 
+textIterIsStart ti = liftM toBool $
   {#call unsafe text_iter_is_start#} ti
 
 -- | Move 'TextIter' forwards.
@@ -503,7 +503,7 @@ textIterIsStart ti = liftM toBool $
 -- * Retuns True if the iterator is pointing to a character.
 --
 textIterForwardChar :: TextIter -> IO Bool
-textIterForwardChar ti = liftM toBool $ 
+textIterForwardChar ti = liftM toBool $
   {#call unsafe text_iter_forward_char#} ti
 
 -- | Move 'TextIter' backwards.
@@ -511,7 +511,7 @@ textIterForwardChar ti = liftM toBool $
 -- * Retuns True if the movement was possible.
 --
 textIterBackwardChar :: TextIter -> IO Bool
-textIterBackwardChar ti = liftM toBool $ 
+textIterBackwardChar ti = liftM toBool $
   {#call unsafe text_iter_backward_char#} ti
 
 -- | Move 'TextIter' forwards by
@@ -525,7 +525,7 @@ textIterBackwardChar ti = liftM toBool $
 -- move onto an image instead of a character.
 --
 textIterForwardChars :: TextIter -> Int -> IO Bool
-textIterForwardChars ti n = liftM toBool $ 
+textIterForwardChars ti n = liftM toBool $
   {#call unsafe text_iter_forward_chars#} ti (fromIntegral n)
 
 -- | Move 'TextIter' backwards by
@@ -535,7 +535,7 @@ textIterForwardChars ti n = liftM toBool $
 --   the iterator points to a picture or has not moved).
 --
 textIterBackwardChars :: TextIter -> Int -> IO Bool
-textIterBackwardChars ti n = liftM toBool $ 
+textIterBackwardChars ti n = liftM toBool $
   {#call unsafe text_iter_backward_chars#} ti (fromIntegral n)
 
 
@@ -548,7 +548,7 @@ textIterBackwardChars ti n = liftM toBool $
 --   beginning of the buffer.
 --
 textIterForwardLine :: TextIter -> IO Bool
-textIterForwardLine ti = liftM toBool $ 
+textIterForwardLine ti = liftM toBool $
   {#call unsafe text_iter_forward_line#} ti
 
 -- | Move 'TextIter' backwards.
@@ -560,7 +560,7 @@ textIterForwardLine ti = liftM toBool $
 --   of the buffer.
 --
 textIterBackwardLine :: TextIter -> IO Bool
-textIterBackwardLine ti = liftM toBool $ 
+textIterBackwardLine ti = liftM toBool $
   {#call unsafe text_iter_backward_line#} ti
 
 
@@ -576,7 +576,7 @@ textIterBackwardLine ti = liftM toBool $
 -- * @n@ can be negative.
 --
 textIterForwardLines :: TextIter -> Int -> IO Bool
-textIterForwardLines ti n = liftM toBool $ 
+textIterForwardLines ti n = liftM toBool $
   {#call unsafe text_iter_forward_lines#} ti (fromIntegral n)
 
 -- | Move 'TextIter' backwards by
@@ -591,7 +591,7 @@ textIterForwardLines ti n = liftM toBool $
 -- * @n@ can be negative.
 --
 textIterBackwardLines :: TextIter -> Int -> IO Bool
-textIterBackwardLines ti n = liftM toBool $ 
+textIterBackwardLines ti n = liftM toBool $
   {#call unsafe text_iter_backward_lines#} ti (fromIntegral n)
 
 -- | Move 'TextIter' forwards by
@@ -600,7 +600,7 @@ textIterBackwardLines ti n = liftM toBool $
 -- * Retuns True if the iterator is pointing to a new word end.
 --
 textIterForwardWordEnds :: TextIter -> Int -> IO Bool
-textIterForwardWordEnds ti n = liftM toBool $ 
+textIterForwardWordEnds ti n = liftM toBool $
   {#call unsafe text_iter_forward_word_ends#} ti (fromIntegral n)
 
 -- | Move 'TextIter' backwards by
@@ -609,7 +609,7 @@ textIterForwardWordEnds ti n = liftM toBool $
 -- * Retuns True if the iterator is pointing to a new word start.
 --
 textIterBackwardWordStarts :: TextIter -> Int -> IO Bool
-textIterBackwardWordStarts ti n = liftM toBool $ 
+textIterBackwardWordStarts ti n = liftM toBool $
   {#call unsafe text_iter_backward_word_starts#} ti (fromIntegral n)
 
 -- | Move 'TextIter' forwards to the
@@ -618,7 +618,7 @@ textIterBackwardWordStarts ti n = liftM toBool $
 -- * Retuns True if the iterator has moved to a new word end.
 --
 textIterForwardWordEnd :: TextIter -> IO Bool
-textIterForwardWordEnd ti = liftM toBool $ 
+textIterForwardWordEnd ti = liftM toBool $
   {#call unsafe text_iter_forward_word_end#} ti
 
 -- | Move 'TextIter' backwards to
@@ -627,7 +627,7 @@ textIterForwardWordEnd ti = liftM toBool $
 -- * Retuns True if the iterator has moved to a new word beginning.
 --
 textIterBackwardWordStart :: TextIter -> IO Bool
-textIterBackwardWordStart ti = liftM toBool $ 
+textIterBackwardWordStart ti = liftM toBool $
   {#call unsafe text_iter_backward_word_start#} ti
 
 -- | Move 'TextIter' forwards to
@@ -663,7 +663,7 @@ textIterBackwardCursorPosition ti = liftM toBool $
 --   to an object).
 --
 textIterForwardCursorPositions :: TextIter -> Int -> IO Bool
-textIterForwardCursorPositions ti n = liftM toBool $ 
+textIterForwardCursorPositions ti n = liftM toBool $
   {#call unsafe text_iter_forward_cursor_positions#} ti (fromIntegral n)
 
 -- | Move 'TextIter' backwards
@@ -673,7 +673,7 @@ textIterForwardCursorPositions ti n = liftM toBool $
 --   to an object).
 --
 textIterBackwardCursorPositions :: TextIter -> Int -> IO Bool
-textIterBackwardCursorPositions ti n = liftM toBool $ 
+textIterBackwardCursorPositions ti n = liftM toBool $
   {#call unsafe text_iter_backward_cursor_positions#} ti (fromIntegral n)
 
 
@@ -683,7 +683,7 @@ textIterBackwardCursorPositions ti n = liftM toBool $
 -- * Retuns True if the iterator is pointing to a new sentence end.
 --
 textIterForwardSentenceEnds :: TextIter -> Int -> IO Bool
-textIterForwardSentenceEnds ti n = liftM toBool $ 
+textIterForwardSentenceEnds ti n = liftM toBool $
   {#call unsafe text_iter_forward_sentence_ends#} ti (fromIntegral n)
 
 -- | Move 'TextIter' backwards
@@ -692,7 +692,7 @@ textIterForwardSentenceEnds ti n = liftM toBool $
 -- * Retuns True if the iterator is pointing to a new sentence start.
 --
 textIterBackwardSentenceStarts :: TextIter -> Int -> IO Bool
-textIterBackwardSentenceStarts ti n = liftM toBool $ 
+textIterBackwardSentenceStarts ti n = liftM toBool $
   {#call unsafe text_iter_backward_sentence_starts#} ti (fromIntegral n)
 
 -- | Move 'TextIter' forwards to
@@ -701,7 +701,7 @@ textIterBackwardSentenceStarts ti n = liftM toBool $
 -- * Retuns True if the iterator has moved to a new sentence end.
 --
 textIterForwardSentenceEnd :: TextIter -> IO Bool
-textIterForwardSentenceEnd ti = liftM toBool $ 
+textIterForwardSentenceEnd ti = liftM toBool $
   {#call unsafe text_iter_forward_sentence_end#} ti
 
 -- | Move 'TextIter' backwards
@@ -710,14 +710,14 @@ textIterForwardSentenceEnd ti = liftM toBool $
 -- * Retuns True if the iterator has moved to a new sentence beginning.
 --
 textIterBackwardSentenceStart :: TextIter -> IO Bool
-textIterBackwardSentenceStart ti = liftM toBool $ 
+textIterBackwardSentenceStart ti = liftM toBool $
   {#call unsafe text_iter_backward_sentence_start#} ti
 
 -- | Set 'TextIter' to an offset within the
 -- buffer.
 --
 textIterSetOffset :: TextIter -> Int -> IO ()
-textIterSetOffset ti n = 
+textIterSetOffset ti n =
   {#call unsafe text_iter_set_offset#} ti (fromIntegral n)
 
 -- | Set 'TextIter' to a line within the
@@ -727,7 +727,7 @@ textIterSetOffset ti n =
 --   moves @iter@ to the start of the last line in the buffer.
 --
 textIterSetLine :: TextIter -> Int -> IO ()
-textIterSetLine ti n = 
+textIterSetLine ti n =
   {#call unsafe text_iter_set_line#} ti (fromIntegral n)
 
 -- | Set 'TextIter' to an offset within the line.
@@ -738,14 +738,14 @@ textIterSetLine ti n =
 --   next line.
 --
 textIterSetLineOffset :: TextIter -> Int -> IO ()
-textIterSetLineOffset ti n = 
+textIterSetLineOffset ti n =
   {#call unsafe text_iter_set_line_offset#} ti (fromIntegral n)
 
 -- | Like 'textIterSetLineOffset', but the offset is in visible characters,
 -- i.e. text with a tag making it invisible is not counted in the offset.
 --
 textIterSetVisibleLineOffset :: TextIter -> Int -> IO ()
-textIterSetVisibleLineOffset ti n = 
+textIterSetVisibleLineOffset ti n =
   {#call unsafe text_iter_set_visible_line_offset#} ti (fromIntegral n)
 
 -- | Moves @iter@ forward to the \"end iterator,\" which points one past the
@@ -775,7 +775,7 @@ textIterForwardToLineEnd ti = liftM toBool $
 --
 textIterForwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterForwardToTagToggle ti tt = liftM toBool $
-  {#call unsafe text_iter_forward_to_tag_toggle#} ti 
+  {#call unsafe text_iter_forward_to_tag_toggle#} ti
     (fromMaybe (TextTag nullForeignPtr) tt)
 
 -- | Moves 'TextIter' backward to
@@ -787,7 +787,7 @@ textIterForwardToTagToggle ti tt = liftM toBool $
 --
 textIterBackwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterBackwardToTagToggle ti tt = liftM toBool $
-  {#call unsafe text_iter_backward_to_tag_toggle#} ti 
+  {#call unsafe text_iter_backward_to_tag_toggle#} ti
     (fromMaybe (TextTag nullForeignPtr) tt)
 
 -- Setup a callback for a predicate function.
@@ -811,7 +811,7 @@ textIterForwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
                            IO Bool
 textIterForwardFindChar ti pred limit = do
   fPtr <- mkTextCharPredicate (\c _ -> return $ fromBool $ pred (chr (fromIntegral c)))
-  res <- liftM toBool $ {#call text_iter_forward_find_char#} 
+  res <- liftM toBool $ {#call text_iter_forward_find_char#}
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr
   return res
@@ -828,7 +828,7 @@ textIterBackwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
                             IO Bool
 textIterBackwardFindChar ti pred limit = do
   fPtr <- mkTextCharPredicate (\c _ -> return $ fromBool $ pred (chr (fromIntegral c)))
-  res <- liftM toBool $ {#call text_iter_backward_find_char#} 
+  res <- liftM toBool $ {#call text_iter_backward_find_char#}
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr
   return res
@@ -842,14 +842,14 @@ textIterBackwardFindChar ti pred limit = do
 --
 -- * Returns the start and end position of the string found.
 --
-textIterForwardSearch :: TextIter -> String -> [TextSearchFlags] ->
+textIterForwardSearch :: GlibString string => TextIter -> string -> [TextSearchFlags] ->
                          Maybe TextIter -> IO (Maybe (TextIter, TextIter))
 textIterForwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
   found <- liftM toBool $ withUTFString str $ \cStr ->
-    {#call unsafe text_iter_forward_search#} ti cStr 
-    ((fromIntegral.fromFlags) flags) start end 
+    {#call unsafe text_iter_forward_search#} ti cStr
+    ((fromIntegral.fromFlags) flags) start end
     (fromMaybe (TextIter nullForeignPtr) limit)
   return $ if found then Just (start,end) else Nothing
 
@@ -862,14 +862,14 @@ textIterForwardSearch ti str flags limit = do
 --
 -- * Returns the start and end position of the string found.
 --
-textIterBackwardSearch :: TextIter -> String -> [TextSearchFlags] ->
+textIterBackwardSearch :: GlibString string => TextIter -> string -> [TextSearchFlags] ->
                           Maybe TextIter -> IO (Maybe (TextIter, TextIter))
 textIterBackwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
   found <- liftM toBool $ withUTFString str $ \cStr ->
-    {#call unsafe text_iter_backward_search#} ti cStr 
-    ((fromIntegral.fromFlags) flags) start end 
+    {#call unsafe text_iter_backward_search#} ti cStr
+    ((fromIntegral.fromFlags) flags) start end
     (fromMaybe (TextIter nullForeignPtr) limit)
   return $ if found then Just (start,end) else Nothing
 
@@ -946,10 +946,10 @@ textIterBackwardVisibleLines self count =
 
 -- | Calls 'textIterForwardVisibleWordEnd' up to count times.
 --
-textIterForwardVisibleWordEnds :: TextIter 
- -> Int   -- ^ @couter@ - number of times to move                        
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
-textIterForwardVisibleWordEnds self count = 
+textIterForwardVisibleWordEnds :: TextIter
+ -> Int   -- ^ @couter@ - number of times to move
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
+textIterForwardVisibleWordEnds self count =
   liftM toBool $
   {# call text_iter_forward_visible_word_ends #}
     self
@@ -957,76 +957,76 @@ textIterForwardVisibleWordEnds self count =
 
 -- | Calls 'textIterBackwardVisibleWordStart' up to count times.
 --
-textIterBackwardVisibleWordStarts :: TextIter 
- -> Int   -- ^ @couter@ - number of times to move                        
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleWordStarts :: TextIter
+ -> Int   -- ^ @couter@ - number of times to move
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleWordStarts self count =
   liftM toBool $
   {# call text_iter_backward_visible_word_starts #}
     self
     (fromIntegral count)
 
--- | Moves forward to the next visible word end. 
--- (If iter is currently on a word end, moves forward to the next one after that.) 
--- Word breaks are determined by Pango and should be correct for nearly any language 
+-- | Moves forward to the next visible word end.
+-- (If iter is currently on a word end, moves forward to the next one after that.)
+-- Word breaks are determined by Pango and should be correct for nearly any language
 -- (if not, the correct fix would be to the Pango word break algorithms).
 --
 textIterForwardVisibleWordEnd :: TextIter
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterForwardVisibleWordEnd self =
   liftM toBool $
   {# call text_iter_forward_visible_word_end #}
     self
 
--- | Moves backward to the previous visible word start. 
--- (If iter is currently on a word start, moves backward to the next one after that.) 
--- Word breaks are determined by Pango and should be correct for nearly any language 
+-- | Moves backward to the previous visible word start.
+-- (If iter is currently on a word start, moves backward to the next one after that.)
+-- Word breaks are determined by Pango and should be correct for nearly any language
 -- (if not, the correct fix would be to the Pango word break algorithms).
--- 
+--
 textIterBackwardVisibleWordStart :: TextIter
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleWordStart self =
   liftM toBool $
   {# call text_iter_backward_visible_word_start #}
     self
 
--- | Moves iter forward to the next visible cursor position. 
+-- | Moves iter forward to the next visible cursor position.
 -- See 'textIterForwardCursorPosition' for details.
 --
 textIterForwardVisibleCursorPosition :: TextIter
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterForwardVisibleCursorPosition self =
   liftM toBool $
   {# call text_iter_forward_visible_cursor_position #}
     self
 
--- | Moves iter forward to the previous visible cursor position. 
+-- | Moves iter forward to the previous visible cursor position.
 -- See 'textIterBackwardCursorPosition' for details.
--- 
+--
 textIterBackwardVisibleCursorPosition :: TextIter
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleCursorPosition self =
   liftM toBool $
   {# call text_iter_backward_visible_cursor_position #}
     self
 
--- | Moves up to count visible cursor positions. 
+-- | Moves up to count visible cursor positions.
 -- See 'textIterForwardCursorPosition' for details.
 textIterForwardVisibleCursorPositions :: TextIter
- -> Int   -- ^ @couter@ - number of times to move                        
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+ -> Int   -- ^ @couter@ - number of times to move
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterForwardVisibleCursorPositions self count =
   liftM toBool $
   {# call text_iter_forward_visible_cursor_positions #}
     self
     (fromIntegral count)
 
--- | Moves up to count visible cursor positions. 
+-- | Moves up to count visible cursor positions.
 -- See 'textIterBackwardCursorPosition' for details.
 --
-textIterBackwardVisibleCursorPositions :: TextIter 
- -> Int   -- ^ @couter@ - number of times to move                        
- -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator   
+textIterBackwardVisibleCursorPositions :: TextIter
+ -> Int   -- ^ @couter@ - number of times to move
+ -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleCursorPositions self count =
   liftM toBool $
   {# call text_iter_backward_visible_cursor_positions #}
@@ -1048,23 +1048,23 @@ textIterCompare ti2 ti1 = do
     0	   -> EQ
     1	   -> GT
 
--- | Checks whether iter falls in the range [start, end). 
+-- | Checks whether iter falls in the range [start, end).
 -- start and end must be in ascending order.
 --
-textIterInRange :: TextIter 
+textIterInRange :: TextIter
  -> TextIter -- ^ @start@ start of range
  -> TextIter -- ^ @end@ end of range
  -> IO Bool  -- ^ @True@ if iter is in the range
 textIterInRange ti start end = liftM toBool $
   {# call unsafe text_iter_in_range #} ti start end
 
--- | Swaps the value of first and second if second comes before first in the buffer. 
--- That is, ensures that first and second are in sequence. 
--- Most text buffer functions that take a range call this automatically on your behalf, so there's no real reason to call it yourself in those cases. 
+-- | Swaps the value of first and second if second comes before first in the buffer.
+-- That is, ensures that first and second are in sequence.
+-- Most text buffer functions that take a range call this automatically on your behalf, so there's no real reason to call it yourself in those cases.
 -- There are some exceptions, such as 'textIterInRange', that expect a pre-sorted range.
 --
 textIterOrder :: TextIter -> TextIter -> IO ()
-textIterOrder first second = 
+textIterOrder first second =
   {# call text_iter_order #} first second
 
 --------------------

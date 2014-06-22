@@ -43,7 +43,7 @@
 --
 module Graphics.UI.Gtk.Layout.Notebook (
 -- * Detail
--- 
+--
 -- | The 'Notebook' widget is a 'Container' whose children are pages that can
 -- be switched between using tab labels along one edge.
 --
@@ -233,9 +233,9 @@ notebookNew =
 --
 -- * This function returned @()@ in Gtk+ version 2.2.X and earlier
 --
-notebookAppendPage :: (NotebookClass self, WidgetClass child) => self
+notebookAppendPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> IO Int   -- ^ returns the index (starting from 0) of the appended page in
              -- the notebook, or -1 if function fails
 notebookAppendPage self child tabLabel = do
@@ -256,9 +256,9 @@ notebookAppendPage self child tabLabel = do
 --
 -- * This function returns @Int@ in Gtk+ version 2.4.0 and later.
 --
-notebookAppendPage :: (NotebookClass self, WidgetClass child) => self
+notebookAppendPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> IO ()
 notebookAppendPage self child tabLabel = do
   tab <- labelNew (Just tabLabel)
@@ -331,9 +331,9 @@ notebookAppendPageMenu self child tabLabel menuLabel =
 --
 -- * This function returned @()@ in Gtk version 2.2.X and earlier
 --
-notebookPrependPage :: (NotebookClass self, WidgetClass child) => self
+notebookPrependPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> IO Int   -- ^ returns the index (starting from 0) of the prepended page in
              -- the notebook, or -1 if function fails
 notebookPrependPage self child tabLabel = do
@@ -354,9 +354,9 @@ notebookPrependPage self child tabLabel = do
 --
 -- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookPrependPage :: (NotebookClass self, WidgetClass child) => self
+notebookPrependPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> IO ()
 notebookPrependPage self child tabLabel = do
   tab <- labelNew (Just tabLabel)
@@ -428,9 +428,9 @@ notebookPrependPageMenu self child tabLabel menuLabel =
 --
 -- * This function returned @()@ in Gtk version 2.2.X and earlier
 --
-notebookInsertPage :: (NotebookClass self, WidgetClass child) => self
+notebookInsertPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> Int      -- ^ @position@ - the index (starting at 0) at which to insert
              -- the page, or -1 to append the page after all other pages.
  -> IO Int   -- ^ returns the index (starting from 0) of the inserted page in
@@ -454,9 +454,9 @@ notebookInsertPage self child tabLabel position = do
 --
 -- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookInsertPage :: (NotebookClass self, WidgetClass child) => self
+notebookInsertPage :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child    -- ^ @child@ - the 'Widget' to use as the contents of the page.
- -> String   -- ^ @tabLabel@ - the label for the page
+ -> string   -- ^ @tabLabel@ - the label for the page
  -> Int      -- ^ @position@ - the index (starting at 0) at which to insert
              -- the page, or -1 to append the page after all other pages.
  -> IO ()
@@ -507,7 +507,7 @@ notebookInsertPageMenu self child tabLabel menuLabel position =
 --
 -- * This function returns @Int@ in Gtk version 2.4.0 and later
 --
-notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child, 
+notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child,
    WidgetClass tab, WidgetClass menu) => nb
   -> child  -- ^ Widget to use as the contents of the page
   -> tab    -- ^ Tab label widget for the page.
@@ -552,7 +552,7 @@ notebookPageNum nb child =
 --   Use @-1@ to request the last page.
 --
 -- * Note that due to historical reasons, GtkNotebook refuses
---   to switch to a page unless the child widget is visible. 
+--   to switch to a page unless the child widget is visible.
 --   Therefore, it is recommended to show child widgets before
 --   adding them to a notebook.
 --
@@ -777,9 +777,9 @@ notebookGetMenuLabel self child =
 
 -- | Creates a new label and sets it as the menu label of @child@.
 --
-notebookSetMenuLabelText :: (NotebookClass self, WidgetClass child) => self
+notebookSetMenuLabelText :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child  -- ^ @child@ - the child widget
- -> String -- ^ @menuText@ - the label text
+ -> string -- ^ @menuText@ - the label text
  -> IO ()
 notebookSetMenuLabelText self child menuText =
   withUTFString menuText $ \menuTextPtr ->
@@ -790,10 +790,10 @@ notebookSetMenuLabelText self child menuText =
 
 -- | Retrieves the text of the menu label for the page containing @child@.
 --
-notebookGetMenuLabelText :: (NotebookClass self, WidgetClass child) => self
+notebookGetMenuLabelText :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child             -- ^ @child@ - the child widget of a page of the
                       -- notebook.
- -> IO (Maybe String) -- ^ returns value: the text of the tab label, or
+ -> IO (Maybe string) -- ^ returns value: the text of the tab label, or
                       -- @Nothing@ if the widget does not have a menu label
                       -- other than the default menu label, or the menu label
                       -- widget is not a 'Label'.
@@ -843,10 +843,10 @@ notebookGetTabLabel self child =
 
 -- | Retrieves the text of the tab label for the page containing @child@.
 --
-notebookGetTabLabelText :: (NotebookClass self, WidgetClass child) => self
+notebookGetTabLabelText :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child             -- ^ @child@ - a widget contained in a page of
                       -- @notebook@
- -> IO (Maybe String) -- ^ returns value: the text of the tab label, or
+ -> IO (Maybe string) -- ^ returns value: the text of the tab label, or
                       -- @Nothing@ if the tab label widget is not a 'Label'.
 notebookGetTabLabelText self child =
   {# call unsafe notebook_get_tab_label_text #}
@@ -892,7 +892,7 @@ notebookSetTabLabelPacking self child pack packType =
     (toNotebook self)
     (toWidget child)
     (fromBool expand)
-    (fromBool fill) 
+    (fromBool fill)
     ((fromIntegral . fromEnum) packType)
   where (expand, fill) = fromPacking pack
 
@@ -928,9 +928,9 @@ notebookSetTabLabel self child tabLabel =
 -- | Creates a new label and sets it as the tab label for the page containing
 -- @child@.
 --
-notebookSetTabLabelText :: (NotebookClass self, WidgetClass child) => self
+notebookSetTabLabelText :: (NotebookClass self, WidgetClass child, GlibString string) => self
  -> child  -- ^ @child@ - the page
- -> String -- ^ @tabText@ - the label text
+ -> string -- ^ @tabText@ - the label text
  -> IO ()
 notebookSetTabLabelText self child tabText =
   withUTFString tabText $ \tabTextPtr ->
@@ -946,7 +946,7 @@ notebookSetTabLabelText self child tabText =
 --
 notebookSetTabReorderable :: (NotebookClass self, WidgetClass child) => self
  -> child   -- ^ @child@ - a child page
- -> Bool   -- ^ @reorderable@ - whether the tab is reorderable or not. 
+ -> Bool   -- ^ @reorderable@ - whether the tab is reorderable or not.
  -> IO ()
 notebookSetTabReorderable self child reorderable =
   {# call notebook_set_tab_reorderable #}
@@ -960,7 +960,7 @@ notebookSetTabReorderable self child reorderable =
 --
 notebookGetTabReorderable :: (NotebookClass self, WidgetClass child) => self
  -> child  -- ^ @child@ - the child page
- -> IO Bool  -- ^ return @True@ if the tab is reorderable. 
+ -> IO Bool  -- ^ return @True@ if the tab is reorderable.
 notebookGetTabReorderable self child = liftM toBool $
   {# call notebook_get_tab_reorderable #}
     (toNotebook self)
@@ -970,7 +970,7 @@ notebookGetTabReorderable self child = liftM toBool $
 --
 -- Note that 2 notebooks must share a common group identificator (see gtk_notebook_set_group_id()) to allow automatic tabs interchange between them.
 --
--- If you want a widget to interact with a notebook through DnD (i.e.: accept dragged tabs from it) it must be set as a drop destination and accept the target "GTK_NOTEBOOK_TAB". 
+-- If you want a widget to interact with a notebook through DnD (i.e.: accept dragged tabs from it) it must be set as a drop destination and accept the target "GTK_NOTEBOOK_TAB".
 -- The notebook will fill the selection with a GtkWidget** pointing to the child widget that corresponds to the dropped tab.
 --
 -- If you want a notebook to accept drags from other widgets, you will have to set your own DnD code to do it.
@@ -979,7 +979,7 @@ notebookGetTabReorderable self child = liftM toBool $
 --
 notebookSetTabDetachable :: (NotebookClass self, WidgetClass child) => self
  -> child  -- ^ @child@ - the child page
- -> Bool  -- ^ @detachable@ - whether the tab is detachable or not 
+ -> Bool  -- ^ @detachable@ - whether the tab is detachable or not
  -> IO ()
 notebookSetTabDetachable self child detachable =
   {# call notebook_set_tab_detachable #}
@@ -993,8 +993,8 @@ notebookSetTabDetachable self child detachable =
 --
 notebookGetTabDetachable :: (NotebookClass self, WidgetClass child) => self
  -> child  -- ^ @child@ - the child page
- -> IO Bool  -- ^ return @True@ if the tab is detachable. 
-notebookGetTabDetachable self child = liftM toBool $ 
+ -> IO Bool  -- ^ return @True@ if the tab is detachable.
+notebookGetTabDetachable self child = liftM toBool $
   {# call notebook_get_tab_detachable #}
     (toNotebook self)
     (toWidget child)
@@ -1004,7 +1004,7 @@ notebookGetTabDetachable self child = liftM toBool $
 -- | Sets widget as one of the action widgets. Depending on the pack type the widget will be placed
 -- before or after the tabs. You can use a 'Box' if you need to pack more than one widget on the same
 -- side.
--- 
+--
 -- Note that action widgets are "internal" children of the notebook and thus not included in the list
 -- returned from 'containerForeach'.
 --
@@ -1012,7 +1012,7 @@ notebookGetTabDetachable self child = liftM toBool $
 --
 notebookSetActionWidget :: (NotebookClass self, WidgetClass widget) => self
                         -> widget
-                        -> PackType -- ^ @packType@ pack type of the action widget 
+                        -> PackType -- ^ @packType@ pack type of the action widget
                         -> IO ()
 notebookSetActionWidget self widget packType =
   {#call gtk_notebook_set_action_widget #}
@@ -1138,14 +1138,14 @@ notebookCurrentPage = newAttr
 --
 -- Default value: @Nothing@
 --
-notebookChildTabLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
+notebookChildTabLabel :: (NotebookClass self, WidgetClass child, GlibString string) => child -> Attr self string
 notebookChildTabLabel = newAttrFromContainerChildStringProperty "tab-label"
 
 -- | The string displayed in the child's menu entry.
 --
 -- Default value: @Nothing@
 --
-notebookChildMenuLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
+notebookChildMenuLabel :: (NotebookClass self, WidgetClass child, GlibString string) => child -> Attr self string
 notebookChildMenuLabel = newAttrFromContainerChildStringProperty "menu-label"
 
 -- | The index of the child in the parent.
@@ -1313,7 +1313,7 @@ pageRemoved = Signal (connect_OBJECT_INT__NONE "page-removed")
 pageAdded :: NotebookClass self => Signal self (Widget -> Int -> IO ())
 pageAdded = Signal (connect_OBJECT_INT__NONE "page-added")
 #endif
-  
+
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
 
@@ -1322,11 +1322,11 @@ pageAdded = Signal (connect_OBJECT_INT__NONE "page-added")
 --
 onSwitchPage, afterSwitchPage :: NotebookClass nb => nb -> (Int -> IO ()) ->
                                  IO (ConnectId nb)
-onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
-		      (const $ return ()) False nb 
+onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
+		      (const $ return ()) False nb
 		      (\_ page -> fun (fromIntegral page))
-afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
-			 (const $ return ()) True nb 
+afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
+			 (const $ return ()) True nb
 			 (\_ page -> fun (fromIntegral page))
 
 #endif

@@ -101,15 +101,15 @@ import System.Glib.Properties
 --
 -- * Available since Gtk+ version 2.18
 --
-entryBufferNew ::
-    Maybe String                -- ^ @initialChars@ - initial buffer text or 'Nothing'
+entryBufferNew :: GlibString string
+ => Maybe string                -- ^ @initialChars@ - initial buffer text or 'Nothing'
  -> IO EntryBuffer
 entryBufferNew initialChars =
   wrapNewGObject mkEntryBuffer $
   maybeWith withUTFString initialChars $ \initialCharsPtr -> do
     let chars = if initialCharsPtr == nullPtr
                    then (-1)
-                   else length $ fromJust initialChars
+                   else stringLength $ fromJust initialChars
     {# call gtk_entry_buffer_new #}
       initialCharsPtr
       (fromIntegral chars)
@@ -124,7 +124,7 @@ entryBufferNew initialChars =
 entryBufferGetBytes :: EntryBufferClass self => self
  -> IO Int -- ^ returns The byte length of the buffer.
 entryBufferGetBytes self =
-  liftM fromIntegral $ 
+  liftM fromIntegral $
   {# call gtk_entry_buffer_get_bytes #}
     (toEntryBuffer self)
 
@@ -133,9 +133,9 @@ entryBufferGetBytes self =
 --
 -- * Available since Gtk+ version 2.18
 --
-entryBufferInsertText :: EntryBufferClass self => self
+entryBufferInsertText :: (EntryBufferClass self, GlibString string) => self
  -> Int    -- ^ @position@ - the position at which to insert text.
- -> String -- ^ @chars@ - the text to insert into the buffer.
+ -> string -- ^ @chars@ - the text to insert into the buffer.
  -> IO Int -- ^ returns The number of characters actually inserted.
 entryBufferInsertText self position chars =
   liftM fromIntegral $
@@ -181,9 +181,9 @@ entryBufferEmitDeletedText self position nChars =
 --
 -- * Available since Gtk+ version 2.18
 --
-entryBufferEmitInsertedText :: EntryBufferClass self => self
+entryBufferEmitInsertedText :: (EntryBufferClass self, GlibString string) => self
  -> Int    -- ^ @position@ - position at which text was inserted
- -> String -- ^ @chars@ - text that was inserted
+ -> string -- ^ @chars@ - text that was inserted
  -> Int    -- ^ @nChars@ - number of characters inserted
  -> IO ()
 entryBufferEmitInsertedText self position chars nChars =
@@ -198,18 +198,18 @@ entryBufferEmitInsertedText self position chars nChars =
 -- Attributes
 
 -- | The contents of the buffer.
--- 
+--
 -- Default value: \"\"
 --
 -- * Available since Gtk+ version 2.18
 --
-entryBufferText :: EntryBufferClass self => Attr self String
+entryBufferText :: (EntryBufferClass self, GlibString string) => Attr self string
 entryBufferText = newAttrFromStringProperty "text"
 
 -- | The length of the text in buffer.
--- 
+--
 -- Allowed values: <= 65535
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.18
@@ -218,9 +218,9 @@ entryBufferLength :: EntryBufferClass self => ReadAttr self Int
 entryBufferLength = readAttrFromIntProperty "length"
 
 -- | The maximum length of the text in the buffer.
--- 
+--
 -- Allowed values: [0,65535]
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.18
@@ -235,7 +235,7 @@ entryBufferMaxLength = newAttrFromIntProperty "max-length"
 --
 -- * Available since Gtk+ version 2.18
 --
-entryBufferInsertedText :: EntryBufferClass self => Signal self (Int -> String -> Int -> IO ())
+entryBufferInsertedText :: (EntryBufferClass self, GlibString string) => Signal self (Int -> string -> Int -> IO ())
 entryBufferInsertedText = Signal (connect_INT_STRING_INT__NONE "inserted_text")
 
 -- |

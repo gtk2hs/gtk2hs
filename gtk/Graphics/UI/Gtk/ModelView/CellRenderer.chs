@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Detail
---	 
+--	
 -- | The 'CellRenderer' is a base class of a set of objects used for rendering
 -- a cell to a 'Drawable'. These objects are used primarily by the 'TreeView'
 -- widget, though they aren't tied to them in any specific way. It is worth
@@ -114,6 +114,7 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   ) where
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes ( Attr, WriteAttr )
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
@@ -267,7 +268,7 @@ cellIsExpanded = newAttrFromBoolProperty "is-expanded"
 --
 -- Default value: @\"\"@
 --
-cellBackground :: CellRendererClass self => WriteAttr self String
+cellBackground :: (CellRendererClass self, GlibString string) => WriteAttr self string
 cellBackground = writeAttrFromStringProperty "cell-background"
 
 #if GTK_MAJOR_VERSION < 3

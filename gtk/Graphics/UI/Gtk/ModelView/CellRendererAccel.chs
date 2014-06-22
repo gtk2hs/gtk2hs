@@ -76,6 +76,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererAccel (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Gdk.Enums (Modifier)
@@ -107,9 +108,9 @@ cellRendererAccelNew =
 -- Attributes
 
 -- | The keyval of the accelerator.
--- 
+--
 -- Allowed values: <= GMaxint
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.10
@@ -127,9 +128,9 @@ cellRendererAccelAccelMods = newAttrFromFlagsProperty "accel-mods"
 
 -- | The hardware keycode of the accelerator. Note that the hardware keycode is only relevant if the key
 -- does not have a keyval.  Normally, the keyboard configuration should assign keyvals to all keys.
--- 
+--
 -- Allowed values: <= GMaxint
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.10
@@ -140,7 +141,7 @@ cellRendererAccelKeycode = newAttrFromUIntProperty "keycode"
 -- | Determines if the edited accelerators are GTK+ accelerators. If they are, consumed modifiers are
 -- suppressed, only accelerators accepted by GTK+ are allowed, and the accelerators are rendered in the
 -- same way as they are in menus.
--- 
+--
 -- Default value: 'CellRendererAccelModeGtk'
 --
 -- * Available since Gtk+ version 2.10
@@ -156,15 +157,15 @@ cellRendererAccelAccelMode = newAttrFromEnumProperty "accel-mode"
 --
 -- * Available since Gtk+ version 2.10
 --
-accelEdited :: CellRendererAccelClass self => Signal self (String -> KeyVal -> Modifier -> KeyCode -> IO ())
+accelEdited :: (CellRendererAccelClass self, GlibString string) => Signal self (string -> KeyVal -> Modifier -> KeyCode -> IO ())
 accelEdited = Signal (\after obj user -> connect_STRING_INT_ENUM_INT__NONE "accel_edited" after obj
-                      (\ path keyval modifier keycode -> 
+                      (\ path keyval modifier keycode ->
                         user path (fromIntegral keyval) modifier (fromIntegral keycode)))
 
 -- | Gets emitted when the user has removed the accelerator.
 --
 -- * Available since Gtk+ version 2.10
 --
-accelCleared :: CellRendererAccelClass self => Signal self (String -> IO ())
+accelCleared :: (CellRendererAccelClass self, GlibString string) => Signal self (string -> IO ())
 accelCleared = Signal (connect_STRING__NONE "accel_cleared")
 #endif

@@ -84,15 +84,15 @@ import System.Glib.GObject		(wrapNewGObject)
 -- and set the accelerator for the action, call
 -- 'actionGroupAddActionWithAccel'.
 --
-recentActionNew ::
-    String -- ^ @name@ - a unique name for the action
- -> Maybe String -- ^ @label@ - the label displayed in menu items and on buttons, or 'Nothing'
- -> Maybe String -- ^ @tooltip@ - a tooltip for the action, or 'Nothing' 
- -> Maybe String -- ^ @stockId@ - the stock icon to display in widgets representing
+recentActionNew :: GlibString string
+ => string -- ^ @name@ - a unique name for the action
+ -> Maybe string -- ^ @label@ - the label displayed in menu items and on buttons, or 'Nothing'
+ -> Maybe string -- ^ @tooltip@ - a tooltip for the action, or 'Nothing'
+ -> Maybe string -- ^ @stockId@ - the stock icon to display in widgets representing
            -- the action, or 'Nothing'
  -> IO RecentAction
 recentActionNew name label tooltip stockId =
-  wrapNewGObject mkRecentAction $ 
+  wrapNewGObject mkRecentAction $
   liftM castPtr $
   withUTFString name $ \namePtr ->
   maybeWith withUTFString label $ \labelPtr ->
@@ -108,12 +108,12 @@ recentActionNew name label tooltip stockId =
 -- and set the accelerator for the action, call
 -- 'actionGroupAddActionWithAccel'.
 --
-recentActionNewForManager :: RecentManagerClass manager =>
-    String  -- ^ @name@ - a unique name for the action
- -> Maybe String  -- ^ @label@ - the label displayed in menu items and on buttons,
+recentActionNewForManager :: (RecentManagerClass manager, GlibString string) =>
+    string  -- ^ @name@ - a unique name for the action
+ -> Maybe string  -- ^ @label@ - the label displayed in menu items and on buttons,
             -- or 'Nothing'
- -> Maybe String  -- ^ @tooltip@ - a tooltip for the action, or 'Nothing'
- -> Maybe String  -- ^ @stockId@ - the stock icon to display in widgets representing
+ -> Maybe string  -- ^ @tooltip@ - a tooltip for the action, or 'Nothing'
+ -> Maybe string  -- ^ @stockId@ - the stock icon to display in widgets representing
             -- the action, or 'Nothing'
  -> Maybe manager -- ^ @manager@ - a 'RecentManager', or 'Nothing' for the
             -- default 'RecentManager'

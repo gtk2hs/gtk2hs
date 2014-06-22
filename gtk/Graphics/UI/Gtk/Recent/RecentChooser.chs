@@ -155,8 +155,8 @@ foreign import ccall "wrapper" mkRecentSortFunc ::
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserSetCurrentURI :: RecentChooserClass self => self
- -> String  -- ^ @uri@ - a URI
+recentChooserSetCurrentURI :: (RecentChooserClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - a URI
  -> IO Bool -- ^ returns @True@ if the URI was found.
 recentChooserSetCurrentURI self uri =
   checkGError ( \errorPtr ->
@@ -173,8 +173,8 @@ recentChooserSetCurrentURI self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserGetCurrentURI :: RecentChooserClass self => self
- -> IO String -- ^ returns a newly string holding a URI.
+recentChooserGetCurrentURI :: (RecentChooserClass self, GlibString string) => self
+ -> IO string -- ^ returns a newly string holding a URI.
 recentChooserGetCurrentURI self =
   {# call gtk_recent_chooser_get_current_uri #}
     (toRecentChooser self)
@@ -199,8 +199,8 @@ recentChooserGetCurrentItem self = do
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserSelectURI :: RecentChooserClass self => self
- -> String  -- ^ @uri@ - a URI
+recentChooserSelectURI :: (RecentChooserClass self, GlibString string) => self
+ -> string  -- ^ @uri@ - a URI
  -> IO Bool -- ^ returns @True@ if @uri@ was found.
 recentChooserSelectURI self uri =
   checkGError ( \errorPtr ->
@@ -217,8 +217,8 @@ recentChooserSelectURI self uri =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserUnselectURI :: RecentChooserClass self => self
- -> String -- ^ @uri@ - a URI
+recentChooserUnselectURI :: (RecentChooserClass self, GlibString string) => self
+ -> string -- ^ @uri@ - a URI
  -> IO ()
 recentChooserUnselectURI self uri =
   withUTFString uri $ \uriPtr ->
@@ -253,7 +253,7 @@ recentChooserUnselectAll self =
 -- \"limit\" properties of @chooser@.
 --
 recentChooserGetItems :: RecentChooserClass self => self
- -> IO [RecentInfo] -- ^ returns A list of 'RecentInfo' objects. 
+ -> IO [RecentInfo] -- ^ returns A list of 'RecentInfo' objects.
 recentChooserGetItems self = do
   glist <- {# call gtk_recent_chooser_get_items #} (toRecentChooser self)
   list <- fromGList glist
@@ -267,9 +267,9 @@ recentChooserGetItems self = do
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserGetURIs :: RecentChooserClass self => self
- -> IO [String]
-recentChooserGetURIs self = 
+recentChooserGetURIs :: (RecentChooserClass self, GlibString string) => self
+ -> IO [string]
+recentChooserGetURIs self =
   alloca $ \lengthPtr -> do
   str <- {# call gtk_recent_chooser_get_uris #}
           (toRecentChooser self)
@@ -321,7 +321,7 @@ recentChooserListFilters self = do
 -- Attributes
 
 -- | Whether the private items should be displayed.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.10
@@ -331,9 +331,9 @@ recentChooserShowPrivate = newAttrFromBoolProperty "show-private"
 
 -- | Whether this 'RecentChooser' should display a tooltip containing the full path of the recently used
 -- resources.
--- 
+--
 -- Default value: 'False'
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -341,9 +341,9 @@ recentChooserShowTips :: RecentChooserClass self => Attr self Bool
 recentChooserShowTips = newAttrFromBoolProperty "show-tips"
 
 -- | Whether this 'RecentChooser' should display an icon near the item.
--- 
+--
 -- Default value: 'True'
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -353,9 +353,9 @@ recentChooserShowIcons = newAttrFromBoolProperty "show-icons"
 -- | Whether this 'RecentChooser' should display the recently used resources even if not present
 -- anymore. Setting this to 'False' will perform a potentially expensive check on every local resource
 -- (every remote resource will always be displayed).
--- 
+--
 -- Default value: 'True'
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -363,9 +363,9 @@ recentChooserShowNotFound :: RecentChooserClass self => Attr self Bool
 recentChooserShowNotFound = newAttrFromBoolProperty "show-not-found"
 
 -- | Allow the user to select multiple resources.
--- 
+--
 -- Default value: 'False'
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -373,9 +373,9 @@ recentChooserSelectMultiple :: RecentChooserClass self => Attr self Bool
 recentChooserSelectMultiple = newAttrFromBoolProperty "select-multiple"
 
 -- | Whether this 'RecentChooser' should display only local (file:) resources.
--- 
+--
 -- Default value: 'True'
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -385,11 +385,11 @@ recentChooserLocalOnly = newAttrFromBoolProperty "local-only"
 -- | The maximum number of recently used resources to be displayed, or -1 to display all items. By
 -- default, the 'Setting':gtk-recent-files-limit setting is respected: you can override that limit on
 -- a particular instance of 'RecentChooser' by setting this property.
--- 
+--
 -- Allowed values: >= 'GMaxulong'
--- 
+--
 -- Default value: -1
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -397,9 +397,9 @@ recentChooserLimit :: RecentChooserClass self => Attr self Int
 recentChooserLimit = newAttrFromIntProperty "limit"
 
 -- | Sorting order to be used when displaying the recently used resources.
--- 
+--
 -- Default value: ''RecentSortNone''
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -408,7 +408,7 @@ recentChooserSortType = newAttrFromEnumProperty "sort-type"
                           {# call pure unsafe gtk_recent_sort_type_get_type #}
 
 -- | The 'RecentFilter' object to be used when displaying the recently used resources.
--- 
+--
 --
 -- * Available since Gtk+ version 2.10
 --

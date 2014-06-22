@@ -73,12 +73,12 @@ import Graphics.Rendering.Pango.BasicTypes
 -- * All field are unset.
 --
 fontDescriptionNew :: IO FontDescription
-fontDescriptionNew = {#call unsafe new#} >>= makeNewFontDescription 
+fontDescriptionNew = {#call unsafe new#} >>= makeNewFontDescription
 
 -- | Make a deep copy of a font description.
 --
 fontDescriptionCopy :: FontDescription -> IO FontDescription
-fontDescriptionCopy fd = {#call unsafe copy#} fd >>= makeNewFontDescription 
+fontDescriptionCopy fd = {#call unsafe copy#} fd >>= makeNewFontDescription
 
 -- | Set the font famliy.
 --
@@ -87,7 +87,7 @@ fontDescriptionCopy fd = {#call unsafe copy#} fd >>= makeNewFontDescription
 --
 -- * In some contexts a comma separated list of font families can be used.
 --
-fontDescriptionSetFamily :: FontDescription -> String -> IO ()
+fontDescriptionSetFamily :: GlibString string => FontDescription -> string -> IO ()
 fontDescriptionSetFamily fd family = withUTFString family $ \strPtr ->
   {#call unsafe set_family#} fd strPtr
 
@@ -95,7 +95,7 @@ fontDescriptionSetFamily fd family = withUTFString family $ \strPtr ->
 --
 -- * 'Nothing' is returned if the font family is not set.
 --
-fontDescriptionGetFamily :: FontDescription -> IO (Maybe String)
+fontDescriptionGetFamily :: GlibString string => FontDescription -> IO (Maybe string)
 fontDescriptionGetFamily fd = do
   strPtr <- {#call unsafe get_family#} fd
   if strPtr==nullPtr then return Nothing else
@@ -165,7 +165,7 @@ fontDescriptionGetStretch :: FontDescription -> IO (Maybe Stretch)
 fontDescriptionGetStretch fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskStretch) .&. (fromIntegral fields) /=0
-     then liftM (Just . toEnum . fromIntegral) $ 
+     then liftM (Just . toEnum . fromIntegral) $
 	      {#call unsafe get_stretch#} fd
      else return Nothing
 
@@ -174,7 +174,7 @@ fontDescriptionGetStretch fd = do
 -- * The given size is in points (pts). One point is 1\/72 inch.
 --
 fontDescriptionSetSize :: FontDescription -> Double -> IO ()
-fontDescriptionSetSize fd p = 
+fontDescriptionSetSize fd p =
   {#call unsafe set_size#} fd (puToInt p)
 
 -- | Get the size field.
@@ -182,7 +182,7 @@ fontDescriptionGetSize :: FontDescription -> IO (Maybe Double)
 fontDescriptionGetSize fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskSize) .&. (fromIntegral fields) /=0
-     then liftM (\x -> Just (intToPu x)) $ 
+     then liftM (\x -> Just (intToPu x)) $
 	      {#call unsafe get_size#} fd
      else return Nothing
 
@@ -218,14 +218,14 @@ fontDescriptionIsMatch fdA fdB = unsafePerformIO $ liftM toBool $
 -- * Approximate matching is done on weight and style. If the other
 --   attributes do not match, the function returns @False@.
 --
-fontDescriptionBetterMatch :: FontDescription -> FontDescription -> 
+fontDescriptionBetterMatch :: FontDescription -> FontDescription ->
 			      FontDescription -> Bool
 fontDescriptionBetterMatch fd fdA fdB = unsafePerformIO $ liftM toBool $
   {#call unsafe better_match#} fd fdA fdB
 
 -- | Create a font description from a string.
 --
--- * The given argument must have the form 
+-- * The given argument must have the form
 --   @[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]@ where @FAMILY_LIST@ is a comma
 --   separated list of font families optionally terminated by a comma,
 --   @STYLE_OPTIONS@ is a whitespace separated list of words where each
@@ -234,7 +234,7 @@ fontDescriptionBetterMatch fd fdA fdB = unsafePerformIO $ liftM toBool $
 --   these fields is absent, the resulting 'FontDescription' will have
 --   the corresponing fields unset.
 --
-fontDescriptionFromString :: String -> IO FontDescription
+fontDescriptionFromString :: GlibString string => string -> IO FontDescription
 fontDescriptionFromString descr = withUTFString descr $ \strPtr ->
   {#call unsafe from_string#} strPtr >>= makeNewFontDescription
 
@@ -243,7 +243,7 @@ fontDescriptionFromString descr = withUTFString descr $ \strPtr ->
 -- * Creates a string representation of a font description. See
 --   'fontDescriptionFromString' for the format of the string.
 --
-fontDescriptionToString :: FontDescription -> IO String
+fontDescriptionToString :: GlibString string => FontDescription -> IO string
 fontDescriptionToString fd = do
   strPtr <- {#call unsafe to_string#} fd
   str <- peekUTFString strPtr

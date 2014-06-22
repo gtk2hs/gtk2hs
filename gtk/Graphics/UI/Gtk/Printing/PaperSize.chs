@@ -111,8 +111,8 @@ foreign import ccall unsafe "&gtk_paper_size_free"
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeNew ::
-    Maybe String -- ^ @name@ - a paper size name, or 'Nothing'
+paperSizeNew :: GlibString string
+ => Maybe string -- ^ @name@ - a paper size name, or 'Nothing'
  -> IO PaperSize
 paperSizeNew name =
   maybeWith withUTFString name $ \namePtr ->
@@ -128,9 +128,9 @@ paperSizeNew name =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeNewFromPpd ::
-    String -- ^ @ppdName@ - a PPD paper name
- -> String -- ^ @ppdDisplayName@ - the corresponding human-readable name
+paperSizeNewFromPpd :: GlibString string
+ => string -- ^ @ppdName@ - a PPD paper name
+ -> string -- ^ @ppdDisplayName@ - the corresponding human-readable name
  -> Double -- ^ @width@ - the paper width, in points
  -> Double -- ^ @height@ - the paper height in points
  -> IO PaperSize
@@ -149,9 +149,9 @@ paperSizeNewFromPpd ppdName ppdDisplayName width height =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeNewCustom ::
-    String -- ^ @name@ - the paper name
- -> String -- ^ @displayName@ - the human-readable name
+paperSizeNewCustom :: GlibString string
+ => string -- ^ @name@ - the paper name
+ -> string -- ^ @displayName@ - the human-readable name
  -> Double -- ^ @width@ - the paper width, in units of @unit@
  -> Double -- ^ @height@ - the paper height, in units of @unit@
  -> Unit   -- ^ @unit@ - the unit for @width@ and @height@
@@ -198,8 +198,8 @@ paperSizeIsEqual self size2 =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeGetName :: PaperSize
- -> IO String -- ^ returns the name of @size@
+paperSizeGetName :: GlibString string => PaperSize
+ -> IO string -- ^ returns the name of @size@
 paperSizeGetName self =
   {# call gtk_paper_size_get_name #}
     self
@@ -209,8 +209,8 @@ paperSizeGetName self =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeGetDisplayName :: PaperSize
- -> IO String -- ^ returns the human-readable name of @size@
+paperSizeGetDisplayName :: GlibString string => PaperSize
+ -> IO string -- ^ returns the human-readable name of @size@
 paperSizeGetDisplayName self =
   {# call gtk_paper_size_get_display_name #}
     self
@@ -220,8 +220,8 @@ paperSizeGetDisplayName self =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeGetPpdName :: PaperSize
- -> IO (Maybe String)            -- ^ returns the PPD name of @size@, or 'Nothing'
+paperSizeGetPpdName :: GlibString string => PaperSize
+ -> IO (Maybe string)            -- ^ returns the PPD name of @size@, or 'Nothing'
 paperSizeGetPpdName self =
   {# call gtk_paper_size_get_ppd_name #}
     self
@@ -337,8 +337,8 @@ paperSizeGetDefaultRightMargin self unit =
 --
 -- * Available since Gtk+ version 2.10
 --
-paperSizeGetDefault ::
-    IO String -- ^ returns the name of the default paper size.
+paperSizeGetDefault :: GlibString string
+ => IO string -- ^ returns the name of the default paper size.
 paperSizeGetDefault =
   {# call gtk_paper_size_get_default #}
   >>= peekUTFString

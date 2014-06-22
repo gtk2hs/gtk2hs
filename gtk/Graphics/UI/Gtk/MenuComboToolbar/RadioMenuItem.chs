@@ -31,7 +31,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
 -- * Detail
--- 
+--
 -- | A radio menu item is a check menu item that belongs to a group. At each
 -- instant exactly one of the radio menu items from a group is selected.
 
@@ -92,7 +92,7 @@ radioMenuItemNew =
 
 -- | Creates a new 'RadioMenuItem' whose child is a simple 'Label'.
 --
-radioMenuItemNewWithLabel :: String -> IO RadioMenuItem
+radioMenuItemNewWithLabel :: GlibString string => string -> IO RadioMenuItem
 radioMenuItemNewWithLabel label =
   makeNewObject mkRadioMenuItem $
   liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
@@ -105,7 +105,7 @@ radioMenuItemNewWithLabel label =
 -- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
 -- mnemonic for the menu item.
 --
-radioMenuItemNewWithMnemonic :: String -> IO RadioMenuItem
+radioMenuItemNewWithMnemonic :: GlibString string => string -> IO RadioMenuItem
 radioMenuItemNewWithMnemonic label =
   makeNewObject mkRadioMenuItem $
   liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
@@ -117,7 +117,7 @@ radioMenuItemNewWithMnemonic label =
 -- | Create a new radio button, adding it to the same group as the group to
 -- which @groupMember@ belongs.
 --
-radioMenuItemNewFromWidget :: 
+radioMenuItemNewFromWidget ::
     RadioMenuItem    -- ^ @groupMember@ - a member of an existing radio button
                      -- group, to which the new radio button will be added.
  -> IO RadioMenuItem
@@ -131,10 +131,10 @@ radioMenuItemNewFromWidget groupMember =
 -- | Create a new radio button with a label, adding it to the same group as the
 -- group to which @groupMember@ belongs.
 --
-radioMenuItemNewWithLabelFromWidget :: 
-    RadioMenuItem    -- ^ @groupMember@ - a member of an existing radio button
+radioMenuItemNewWithLabelFromWidget :: GlibString string
+ => RadioMenuItem    -- ^ @groupMember@ - a member of an existing radio button
                      -- group, to which the new radio button will be added.
- -> String
+ -> string
  -> IO RadioMenuItem
 radioMenuItemNewWithLabelFromWidget groupMember label =
   {# call unsafe radio_menu_item_get_group #} groupMember >>= \groupPtr ->
@@ -149,12 +149,12 @@ radioMenuItemNewWithLabelFromWidget groupMember label =
 -- another radio button. Underscores in the label string indicate the mnemonic
 -- for the menu item.
 --
-radioMenuItemNewWithMnemonicFromWidget :: RadioMenuItem
- -> String
+radioMenuItemNewWithMnemonicFromWidget :: GlibString string => RadioMenuItem
+ -> string
  -> IO RadioMenuItem
 radioMenuItemNewWithMnemonicFromWidget groupMember label =
   {# call unsafe radio_menu_item_get_group #} groupMember >>= \groupPtr ->
-  withUTFString label $ \strPtr -> 
+  withUTFString label $ \strPtr ->
   makeNewObject mkRadioMenuItem $
   liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
   {# call unsafe radio_menu_item_new_with_mnemonic #}
@@ -168,7 +168,9 @@ radioMenuItemNewWithMnemonicFromWidget groupMember label =
 radioMenuItemNewJoinGroup = radioMenuItemNewFromWidget
 
 -- | Alias for 'radioMenuItemNewWithLabelFromWidget'.
+radioMenuItemNewJoinGroupWithLabel :: GlibString string => RadioMenuItem -> string -> IO RadioMenuItem
 radioMenuItemNewJoinGroupWithLabel = radioMenuItemNewWithLabelFromWidget
 
 -- | Alias for 'radioMenuItemNewWithMnemonicFromWidget'.
+radioMenuItemNewJoinGroupWithMnemonic :: GlibString string => RadioMenuItem -> string -> IO RadioMenuItem
 radioMenuItemNewJoinGroupWithMnemonic = radioMenuItemNewWithMnemonicFromWidget

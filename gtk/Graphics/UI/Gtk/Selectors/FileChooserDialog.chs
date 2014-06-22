@@ -30,7 +30,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 -- * Detail
--- 
+--
 -- | 'FileChooserDialog' is a dialog box suitable for use with \"File\/Open\"
 -- or \"File\/Save as\" commands. This widget works by putting a
 -- 'FileChooserWidget' inside a 'Dialog'. It exposes the 'FileChooser',
@@ -42,7 +42,7 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 -- Instead, you should use the functions that work on a 'FileChooser'.
 
 -- ** Response Codes
--- 
+--
 -- | 'FileChooserDialog' inherits from 'Dialog', so buttons that go in its
 -- action area have response codes such as 'ResponseAccept' and
 -- 'ResponseCancel'.
@@ -77,6 +77,7 @@ import Control.Monad (liftM, when)
 import Data.Maybe (isJust, fromJust)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Selectors.FileChooser#}
 import System.Glib.GObject (objectNew)
@@ -101,10 +102,11 @@ instance FileChooserClass FileChooserDialog
 -- | Creates a new 'FileChooserDialog'.
 --
 fileChooserDialogNew
-  :: Maybe String            -- ^ Title of the dialog (or default)
+  :: GlibString string
+  => Maybe string            -- ^ Title of the dialog (or default)
   -> Maybe Window            -- ^ Transient parent of the dialog (or none)
   -> FileChooserAction       -- ^ Open or save mode for the dialog
-  -> [(String, ResponseId)]  -- ^ Buttons and their response codes
+  -> [(string, ResponseId)]  -- ^ Buttons and their response codes
   -> IO FileChooserDialog
 fileChooserDialogNew title parent action buttons =
   internalFileChooserDialogNew title parent action buttons Nothing
@@ -114,11 +116,12 @@ fileChooserDialogNew title parent action buttons =
 -- files and you use a more expressive vfs, such as gnome-vfs, to load files.
 --
 fileChooserDialogNewWithBackend
-  :: Maybe String              -- ^ Title of the dialog (or default)
+  :: GlibString string
+  => Maybe string              -- ^ Title of the dialog (or default)
   -> Maybe Window              -- ^ Transient parent of the dialog (or none)
   -> FileChooserAction         -- ^ Open or save mode for the dialog
-  -> [(String, ResponseId)]    -- ^ Buttons and their response codes
-  -> String                    -- ^ The name of the filesystem backend to use
+  -> [(string, ResponseId)]    -- ^ Buttons and their response codes
+  -> string                    -- ^ The name of the filesystem backend to use
   -> IO FileChooserDialog
 fileChooserDialogNewWithBackend title parent action buttons backend =
   internalFileChooserDialogNew title parent action buttons (Just backend)
@@ -128,12 +131,12 @@ fileChooserDialogNewWithBackend title parent action buttons backend =
 -- bug, see <http://bugzilla.gnome.org/show_bug.cgi?id=141004>
 -- The solution is to call objectNew and add the buttons manually.
 
-internalFileChooserDialogNew ::
-  Maybe String ->           -- Title of the dialog (or default)
+internalFileChooserDialogNew :: GlibString string =>
+  Maybe string ->           -- Title of the dialog (or default)
   Maybe Window ->           -- Transient parent of the dialog (or none)
   FileChooserAction ->      -- Open or save mode for the dialog
-  [(String, ResponseId)] -> -- Buttons and their response codes
-  Maybe String ->           -- The name of the backend to use (optional)
+  [(string, ResponseId)] -> -- Buttons and their response codes
+  Maybe string ->           -- The name of the backend to use (optional)
   IO FileChooserDialog
 internalFileChooserDialogNew title parent action buttons backend = do
   objType <- {# call unsafe gtk_file_chooser_dialog_get_type #}

@@ -26,7 +26,7 @@
 --
 module Graphics.UI.Gtk.Display.LevelBar (
 -- * Detail
--- 
+--
 -- | The 'LevelBar' is typically used to display level indicator
 
 -- * Class Hierarchy
@@ -107,8 +107,8 @@ levelBarGetMode self =
 
 -- | Add a new offset marker at the position specified by @value
 --
-levelBarAddOffsetValue :: LevelBarClass self => self
- -> String -- ^ @name@ - Offset name
+levelBarAddOffsetValue :: (LevelBarClass self, GlibString string) => self
+ -> string -- ^ @name@ - Offset name
  -> Double -- ^ @value@ - Offset position
  -> IO ()
 levelBarAddOffsetValue self name value =
@@ -120,8 +120,8 @@ levelBarAddOffsetValue self name value =
 
 -- | Add a new offset marker at the position specified by @value
 --
-levelBarRemoveOffsetValue :: LevelBarClass self => self
- -> String
+levelBarRemoveOffsetValue :: (LevelBarClass self, GlibString string) => self
+ -> string
  -> IO ()
 levelBarRemoveOffsetValue self name =
   withUTFString name $ \namePtr ->
@@ -131,8 +131,8 @@ levelBarRemoveOffsetValue self name =
 
 -- | Returns the current fraction of the task that's been completed.
 --
-levelBarGetOffsetValue :: LevelBarClass self => self
- -> String
+levelBarGetOffsetValue :: (LevelBarClass self, GlibString string) => self
+ -> string
  -> IO Double -- ^ returns the value of the offset
 levelBarGetOffsetValue self name =
   alloca $ \dPtr ->

@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 -- * Detail
---       
+--
 -- | 'CellRendererCombo' renders text in a cell like
 -- 'Graphics.UI.Gtk.ModelView.CellRendererText' from which it is derived. But
 -- while 'Graphics.UI.Gtk.ModelView.CellRendererText' offers a simple entry to
@@ -73,6 +73,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes                   (Attr, WriteAttr, writeAttr)
 import System.Glib.Properties
 import System.Glib.GObject                      (constructNewGObject)
@@ -88,7 +89,7 @@ import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 -- Constructors
 
 -- | Creates a new 'CellRendererCombo'. This 'Renderer' allows for displaying
---   a fixed set of options the user can choose from. 
+--   a fixed set of options the user can choose from.
 --
 cellRendererComboNew :: IO CellRendererCombo
 cellRendererComboNew = do
@@ -112,12 +113,13 @@ cellComboHasEntry = newAttrFromBoolProperty "has-entry"
 --   tree model can be a datum in the tree model that is used to populate the
 --   view in which the 'CellRendererCombo' is part of. In other words, it is
 --   possible that every 'CellRendererCombo' can show a different set of
---   options on each row. 
+--   options on each row.
 --
 cellComboTextModel :: ( TreeModelClass (model row),
                         TypedTreeModelClass model,
-                        CellRendererComboClass self) =>
-                        WriteAttr self (model row, ColumnId row String)
+                        CellRendererComboClass self,
+                        GlibString string) =>
+                        WriteAttr self (model row, ColumnId row string)
 cellComboTextModel = writeAttr setter
   where
   setter cr (model, col) = do

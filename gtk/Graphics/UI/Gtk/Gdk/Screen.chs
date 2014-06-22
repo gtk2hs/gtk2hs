@@ -128,7 +128,7 @@ import System.Glib.Properties
 import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
-import Graphics.Rendering.Cairo.Types ( FontOptions(..), mkFontOptions, 
+import Graphics.Rendering.Cairo.Types ( FontOptions(..), mkFontOptions,
                                         withFontOptions)
 import Graphics.UI.Gtk.General.Structs ( Rectangle(..) )
 
@@ -328,8 +328,8 @@ screenGetToplevelWindows self =
 -- | Determines the name to pass to 'displayOpen' to get a 'Display' with this
 -- screen as the default screen.
 --
-screenMakeDisplayName :: Screen
- -> IO String -- ^ returns a newly allocated string
+screenMakeDisplayName :: GlibString string => Screen
+ -> IO string -- ^ returns a newly allocated string
 screenMakeDisplayName self =
   {# call gdk_screen_make_display_name #}
     self
@@ -422,9 +422,9 @@ screenGetMonitorWidthMm self monitorNum =
 --
 -- * Available since Gdk version 2.14
 --
-screenGetMonitorPlugName :: Screen
+screenGetMonitorPlugName :: GlibString string => Screen
  -> Int       -- ^ @monitorNum@ - number of the monitor
- -> IO (Maybe String) -- ^ returns a newly-allocated string containing the name of the
+ -> IO (Maybe string) -- ^ returns a newly-allocated string containing the name of the
               -- monitor, or @Nothing@ if the name cannot be determined
 screenGetMonitorPlugName self monitorNum = do
   sPtr <-
@@ -440,8 +440,8 @@ screenGetMonitorPlugName self monitorNum = do
 --
 -- FIXME needs a list of valid settings here, or a link to more information.
 --
-screenGetSetting :: Screen
- -> String      -- ^ @name@ - the name of the setting
+screenGetSetting :: GlibString string => Screen
+ -> string      -- ^ @name@ - the name of the setting
  -> {-GValue*-} -- ^ @value@ - location to store the value of the setting
  -> IO Bool     -- ^ returns @True@ if the setting existed and a value was
                 -- stored in @value@, @False@ otherwise.

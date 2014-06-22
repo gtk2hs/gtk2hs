@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Entry.Editable (
 -- * Detail
--- 
+--
 -- | The 'Editable' interface is an interface which should be implemented by
 -- text editing widgets, such as 'Entry'.
 -- It contains functions for generically manipulating an editable
@@ -138,11 +138,11 @@ editableGetSelectionBounds self =
 
 -- | Inserts text at a given position.
 --
-editableInsertText :: EditableClass self => self
- -> String -- ^ @newText@ - the text to insert.
+editableInsertText :: (EditableClass self, GlibString string) => self
+ -> string -- ^ @newText@ - the text to insert.
  -> Int    -- ^ @position@ - the position at which to insert the text.
  -> IO Int -- ^ returns the position after the newly inserted text.
-editableInsertText self newText position = 
+editableInsertText self newText position =
   with (fromIntegral position) $ \positionPtr ->
   withUTFStringLen newText $ \(newTextPtr, newTextLength) -> do
   {# call editable_insert_text #}
@@ -173,10 +173,10 @@ editableDeleteText self startPos endPos =
 -- @endPos@. If @endPos@ is negative, then the the characters retrieved will be
 -- those characters from @startPos@ to the end of the text.
 --
-editableGetChars :: EditableClass self => self
+editableGetChars :: (EditableClass self, GlibString string) => self
  -> Int       -- ^ @startPos@ - the starting position.
  -> Int       -- ^ @endPos@ - the end position.
- -> IO String -- ^ returns the characters in the indicated region.
+ -> IO string -- ^ returns the characters in the indicated region.
 editableGetChars self startPos endPos =
   {# call unsafe editable_get_chars #}
     (toEditable self)
@@ -300,7 +300,7 @@ editableChanged = Signal (connect_NONE__NONE "changed")
 --
 -- * See 'insertText' for information on how to use this signal.
 --
-deleteText :: EditableClass self 
+deleteText :: EditableClass self
              => Signal self (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
 deleteText = Signal (connect_INT_INT__NONE "delete-text")
 
@@ -339,7 +339,7 @@ stopDeleteText (ConnectId _ obj) =
 --   Note that binding 'insertText' using 'after' is not very useful, except to
 --   track editing actions.
 --
-insertText :: EditableClass self => Signal self (String -> Int -> IO Int)
+insertText :: (EditableClass self, GlibString string) => Signal self (string -> Int -> IO Int)
 insertText = Signal $ \after obj handler ->
   connect_PTR_INT_PTR__NONE "insert-text" after obj
   (\strPtr strLen posPtr -> do
@@ -349,7 +349,7 @@ insertText = Signal $ \after obj handler ->
     pos' <- handler str (fromIntegral pos)
     poke (posPtr :: Ptr {#type gint#}) (fromIntegral pos')
   )
- 
+
 -- | Stop the current signal that inserts text.
 stopInsertText :: EditableClass self => ConnectId self -> IO ()
 stopInsertText (ConnectId _ obj) =
@@ -370,8 +370,8 @@ onDeleteText, afterDeleteText :: EditableClass self => self
 onDeleteText = connect_INT_INT__NONE "delete_text" False
 afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
-onInsertText, afterInsertText :: EditableClass self => self
- -> (String -> Int -> IO Int)
+onInsertText, afterInsertText :: (EditableClass self, GlibString string) => self
+ -> (string -> Int -> IO Int)
  -> IO (ConnectId self)
 onInsertText obj handler =
   connect_PTR_INT_PTR__NONE "insert_text" False obj

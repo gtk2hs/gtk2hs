@@ -29,7 +29,7 @@ module Graphics.UI.Gtk.Gdk.AppLaunchContext (
 -- * Types
   AppLaunchContext,
   AppLaunchContextClass,
-  castToAppLaunchContext, 
+  castToAppLaunchContext,
   gTypeAppLaunchContext,
   toAppLaunchContext,
 
@@ -67,7 +67,7 @@ import Graphics.UI.Gtk.Gdk.EventM (TimeStamp)
 
 -- | Creates a new 'AppLaunchContext'.
 appLaunchContextNew :: IO AppLaunchContext
-appLaunchContextNew = 
+appLaunchContextNew =
   wrapNewGObject mkAppLaunchContext $
   {# call gdk_app_launch_context_new #}
 
@@ -77,7 +77,7 @@ appLaunchContextNew =
 -- | Sets the workspace on which applications will be launched when using this context when running under
 -- a window manager that supports multiple workspaces, as described in the Extended Window Manager
 -- Hints.
--- 
+--
 -- When the workspace is not specified or desktop is set to -1, it is up to the window manager to pick
 -- one, typically it will be the current workspace.
 appLaunchContextSetDesktop :: AppLaunchContext -> Int -> IO ()
@@ -96,7 +96,7 @@ appLaunchContextSetDisplay self display =
 
 #ifdef HAVE_GIO
 -- | Sets the icon for applications that are launched with this context.
--- 
+--
 -- Window Managers can use this information when displaying startup notification.
 appLaunchContextSetIcon :: IconClass icon => AppLaunchContext -> icon -> IO ()
 appLaunchContextSetIcon self icon =
@@ -108,11 +108,11 @@ appLaunchContextSetIcon self icon =
 -- | Sets the icon for applications that are launched with this context. The @iconName@ will be
 -- interpreted in the same way as the Icon field in desktop files. See also
 -- 'appLaunchContextSetIcon'.
--- 
+--
 -- If both icon and @iconName@ are set, the @iconName@ takes priority. If neither icon or @iconName@ is
 -- set, the icon is taken from either the file that is passed to launched application or from the
 -- GAppInfo for the launched application itself.
-appLaunchContextSetIconName :: AppLaunchContext -> String -> IO ()
+appLaunchContextSetIconName :: GlibString string => AppLaunchContext -> string -> IO ()
 appLaunchContextSetIconName self iconName =
   withUTFString iconName $ \iconNamePtr ->
   {# call gdk_app_launch_context_set_icon_name #}
@@ -121,7 +121,7 @@ appLaunchContextSetIconName self iconName =
 
 -- | Sets the screen on which applications will be launched when using this context. See also
 -- 'appLaunchContextSetDisplay'.
--- 
+--
 -- If both screen and display are set, the screen takes priority. If neither screen or display are set,
 -- the default screen and display are used.
 appLaunchContextSetScreen :: AppLaunchContext -> Screen -> IO ()
@@ -132,7 +132,7 @@ appLaunchContextSetScreen self screen =
 
 -- | Sets the timestamp of context. The timestamp should ideally be taken from the event that triggered
 -- the launch.
--- 
+--
 -- Window managers can use this information to avoid moving the focus to the newly launched application
 -- when the user is busy typing in another window. This is also known as 'focus stealing prevention'.
 appLaunchContextSetTimestamp :: AppLaunchContext -> TimeStamp -> IO ()

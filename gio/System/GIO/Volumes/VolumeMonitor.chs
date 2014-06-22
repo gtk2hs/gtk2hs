@@ -10,20 +10,20 @@
 --  modify it under the terms of the GNU Lesser General Public License
 --  as published by the Free Software Foundation, either version 3 of
 --  the License, or (at your option) any later version.
---  
+--
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
---  
+--
 --  You should have received a copy of the GNU Lesser General Public
 --  License along with this program.  If not, see
 --  <http://www.gnu.org/licenses/>.
---  
+--
 --  GIO, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GIO documentation.
---  
+--
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
@@ -32,11 +32,11 @@ module System.GIO.Volumes.VolumeMonitor (
 --
 -- | 'VolumeMonitor' is for listing the user interesting devices and volumes on the computer. In other
 -- words, what a file selector or file manager would show in a sidebar.
--- 
+--
 -- 'VolumeMonitor' is not thread-default-context aware, and so should not be used other than from the
 -- main thread, with no thread-default-context active.
 
--- * Types  
+-- * Types
     VolumeMonitor(..),
     VolumeMonitorClass,
 
@@ -116,21 +116,21 @@ volumeMonitorGetMounts monitor = do
   mapM (wrapNewGObject mkDrive . return) mountPtrs
 
 -- | Finds a 'Mount' object by its UUID (see 'mountGetUuid'
-volumeMonitorGetMountForUUID :: VolumeMonitorClass monitor => monitor
- -> String -- ^ @uuid@           the UUID to look for
+volumeMonitorGetMountForUUID :: (VolumeMonitorClass monitor, GlibString string) => monitor
+ -> string -- ^ @uuid@           the UUID to look for
  -> IO (Maybe Mount)               -- ^ returns        a 'Mount' or 'Nothing' if no such mount is available.
-volumeMonitorGetMountForUUID monitor uuid =  
+volumeMonitorGetMountForUUID monitor uuid =
   maybeNull (wrapNewGObject mkMount) $
-  withUTFString uuid $ \ uuidPtr -> 
+  withUTFString uuid $ \ uuidPtr ->
   {#call g_volume_monitor_get_mount_for_uuid#} (toVolumeMonitor monitor) uuidPtr
 
 -- | Finds a 'Volume' object by its UUID (see 'volumeGetUuid')
-volumeMonitorGetVolumeForUUID :: VolumeMonitorClass monitor => monitor
- -> String -- ^ @uuid@           the UUID to look for
+volumeMonitorGetVolumeForUUID :: (VolumeMonitorClass monitor, GlibString string) => monitor
+ -> string -- ^ @uuid@           the UUID to look for
  -> IO (Maybe Volume)               -- ^ returns        a 'Volume' or 'Nothing' if no such volume is available.
-volumeMonitorGetVolumeForUUID monitor uuid =  
-  maybeNull (wrapNewGObject mkVolume) $ 
-  withUTFString uuid $ \ uuidPtr -> 
+volumeMonitorGetVolumeForUUID monitor uuid =
+  maybeNull (wrapNewGObject mkVolume) $
+  withUTFString uuid $ \ uuidPtr ->
   {#call g_volume_monitor_get_volume_for_uuid#} (toVolumeMonitor monitor) uuidPtr
 
 --------------------

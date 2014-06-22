@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellView (
 -- * Detail
--- 
+--
 -- | A 'CellView' displays a single row of a 'TreeModel', using cell renderers
 -- just like 'TreeView'. 'CellView' doesn't support some of the more complex
 -- features of 'TreeView', like cell editing and drag and drop.
@@ -98,8 +98,8 @@ cellViewNew =
 -- makes its show @markup@. The text can be marked up with the Pango
 -- text markup language.
 --
-cellViewNewWithMarkup :: 
-    String      -- ^ @markup@ - the text to display in the cell view
+cellViewNewWithMarkup :: GlibString string
+ => string      -- ^ @markup@ - the text to display in the cell view
  -> IO CellView
 cellViewNewWithMarkup markup =
   makeNewObject mkCellView $
@@ -111,7 +111,7 @@ cellViewNewWithMarkup markup =
 -- | Creates a new 'CellView' widget, adds a 'CellRendererPixbuf' to it, and
 -- makes its show @pixbuf@.
 --
-cellViewNewWithPixbuf :: 
+cellViewNewWithPixbuf ::
     Pixbuf      -- ^ @pixbuf@ - the image to display in the cell view
  -> IO CellView
 cellViewNewWithPixbuf pixbuf =
@@ -123,8 +123,8 @@ cellViewNewWithPixbuf pixbuf =
 -- | Creates a new 'CellView' widget, adds a 'CellRendererText' to it, and
 -- makes its show @text@.
 --
-cellViewNewWithText :: 
-    String      -- ^ @text@ - the text to display in the cell view
+cellViewNewWithText :: GlibString string
+ => string      -- ^ @text@ - the text to display in the cell view
  -> IO CellView
 cellViewNewWithText text =
   makeNewObject mkCellView $
@@ -193,7 +193,7 @@ cellViewGetCellRenderers self =
 --
 -- Default value: @\"\"@
 --
-cellViewBackground :: CellViewClass self => WriteAttr self String
+cellViewBackground :: (CellViewClass self, GlibString string) => WriteAttr self string
 cellViewBackground = writeAttrFromStringProperty "background"
 
 #endif

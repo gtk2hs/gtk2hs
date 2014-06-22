@@ -93,8 +93,9 @@ cssProviderGetDefault =
   makeNewGObject mkCssProvider {# call gtk_css_provider_get_default #}
 
 -- | Loads a theme from the usual theme paths
-cssProviderGetNamed :: String                 -- ^ @name@ : A theme name
-                    -> Maybe String           -- ^ @variant@ to load, for example, "dark"
+cssProviderGetNamed :: GlibString string
+                    => string                 -- ^ @name@ : A theme name
+                    -> Maybe string           -- ^ @variant@ to load, for example, "dark"
                     -> IO (Maybe CssProvider) -- ^ a @CssProvider@ with the theme loaded
 cssProviderGetNamed name variant =
   maybeNull (makeNewGObject mkCssProvider) $
@@ -119,9 +120,9 @@ cssProviderLoadFromData cssProvider _data length =
   errPtrPtr >> return ()
 
 -- | Loads @css@ into @cssProvider@, making it clear any previously loaded information.
-cssProviderLoadFromString :: CssProviderClass cssProvider
+cssProviderLoadFromString :: (CssProviderClass cssProvider, GlibString string)
                           => cssProvider -- ^ @cssProvider@ : a @CssProvider@
-                          -> String      -- ^ @css@ : CSS data loaded in memory.
+                          -> string      -- ^ @css@ : CSS data loaded in memory.
                           -> IO ()
 cssProviderLoadFromString cssProvider css =
   withUTFStringLen css $ \(cssPtr, len) ->
@@ -147,9 +148,9 @@ cssProviderLoadFromPath cssProvider path =
 -- Using @cssProviderLoadFromString@ with the return value from this function
 -- on a new provider created with @cssProviderNew@ will basically create a
 -- duplicate of this @provider@.
-cssProviderToString :: CssProviderClass cssProvider
+cssProviderToString :: (CssProviderClass cssProvider, GlibString string)
                     => cssProvider -- ^ @provider@ a @CssProvider@
-                    -> IO String
+                    -> IO string
 cssProviderToString provider =
   {# call gtk_css_provider_to_string #}
   (toCssProvider provider) >>= peekUTFString

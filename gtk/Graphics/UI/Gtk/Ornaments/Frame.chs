@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Ornaments.Frame (
 -- * Detail
--- 
+--
 -- | The frame widget is a Bin that surrounds its child with a decorative
 -- frame and an optional label. If present, the label is drawn in a gap in the
 -- top side of the frame. The position of the label can be controlled with
@@ -104,8 +104,8 @@ frameNew =
 
 -- | Sets the text of the label.
 --
-frameSetLabel :: FrameClass self => self
- -> String -- ^ @label@ - the text to use as the label of the frame
+frameSetLabel :: (FrameClass self, GlibString string) => self
+ -> string -- ^ @label@ - the text to use as the label of the frame
  -> IO ()
 frameSetLabel self label =
   withUTFString label $ \labelPtr ->
@@ -185,9 +185,9 @@ frameGetShadowType self =
 -- | If the frame's label widget is a 'Label', returns the text in the label
 -- widget.
 --
-frameGetLabel :: FrameClass self => self
- -> IO String -- ^ returns the text in the label, or if there was no label
-              -- widget or the lable widget was not a 'Label' then an 
+frameGetLabel :: (FrameClass self, GlibString string) => self
+ -> IO string -- ^ returns the text in the label, or if there was no label
+              -- widget or the lable widget was not a 'Label' then an
               -- exception is thrown
 frameGetLabel self =
   throwIfNull "frameGetLabel: the title of the frame was not a Label widget."
@@ -200,7 +200,7 @@ frameGetLabel self =
 
 -- | Text of the frame's label.
 --
-frameLabel :: FrameClass self => Attr self String
+frameLabel :: (FrameClass self, GlibString string) => Attr self string
 frameLabel = newAttr
   frameGetLabel
   frameSetLabel

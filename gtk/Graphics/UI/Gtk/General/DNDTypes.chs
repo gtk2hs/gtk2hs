@@ -36,14 +36,15 @@ module Graphics.UI.Gtk.General.DNDTypes (
   TargetList(TargetList),
   SelectionData,
   SelectionDataM,
-  
+
 -- * Constructors
   atomNew,
   targetListNew,
-  mkTargetList  
+  mkTargetList
   ) where
 
 import System.Glib.FFI
+import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#} ()
 import System.Glib.UTFString ( readUTFString, withUTFString )
 import Control.Monad ( liftM )
@@ -111,7 +112,7 @@ atomToString ptr = unsafePerformIO $ do
 --   different applications. Note that the name of an 'Atom' can be printed
 --   by 'show' though comparing the atom is merely an integer comparison.
 --
-atomNew :: String -> IO Atom
+atomNew :: GlibString string => string -> IO Atom
 atomNew name = withUTFString name $ \strPtr ->
   liftM Atom $ {#call unsafe gdk_atom_intern#} strPtr 0
 

@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FontButton (
 -- * Detail
--- 
+--
 -- | The 'FontButton' is a button which displays the currently selected font
 -- an allows to open a font selection dialog to change the font. It is suitable
 -- widget for selecting a font in a preference dialog.
@@ -111,8 +111,8 @@ fontButtonNew =
 
 -- | Creates a new font picker widget.
 --
-fontButtonNewWithFont :: 
-    String        -- ^ @fontname@ - Name of font to display in font selection
+fontButtonNewWithFont :: GlibString string
+ => string        -- ^ @fontname@ - Name of font to display in font selection
                   -- dialog
  -> IO FontButton
 fontButtonNewWithFont fontname =
@@ -127,8 +127,8 @@ fontButtonNewWithFont fontname =
 
 -- | Sets or updates the currently-displayed font in font picker dialog.
 --
-fontButtonSetFontName :: FontButtonClass self => self
- -> String  -- ^ @fontname@ - Name of font to display in font selection dialog
+fontButtonSetFontName :: (FontButtonClass self, GlibString string) => self
+ -> string  -- ^ @fontname@ - Name of font to display in font selection dialog
  -> IO Bool -- ^ returns Return value of 'Graphics.UI.Gtk.Selectors.FontSelectionDialog.fontSelectionDialogSetFontName' if
             -- the font selection dialog exists, otherwise @False@.
 fontButtonSetFontName self fontname =
@@ -140,8 +140,8 @@ fontButtonSetFontName self fontname =
 
 -- | Retrieves the name of the currently selected font.
 --
-fontButtonGetFontName :: FontButtonClass self => self
- -> IO String -- ^ returns an internal copy of the font name which must not be
+fontButtonGetFontName :: (FontButtonClass self, GlibString string) => self
+ -> IO string -- ^ returns an internal copy of the font name which must not be
               -- freed.
 fontButtonGetFontName self =
   {# call gtk_font_button_get_font_name #}
@@ -233,8 +233,8 @@ fontButtonGetUseSize self =
 
 -- | Sets the title for the font selection dialog.
 --
-fontButtonSetTitle :: FontButtonClass self => self
- -> String -- ^ @title@ - a string containing the font selection dialog title
+fontButtonSetTitle :: (FontButtonClass self, GlibString string) => self
+ -> string -- ^ @title@ - a string containing the font selection dialog title
  -> IO ()
 fontButtonSetTitle self title =
   withUTFString title $ \titlePtr ->
@@ -244,8 +244,8 @@ fontButtonSetTitle self title =
 
 -- | Retrieves the title of the font selection dialog.
 --
-fontButtonGetTitle :: FontButtonClass self => self
- -> IO String -- ^ returns an internal copy of the title string which must not
+fontButtonGetTitle :: (FontButtonClass self, GlibString string) => self
+ -> IO string -- ^ returns an internal copy of the title string which must not
               -- be freed.
 fontButtonGetTitle self =
   {# call gtk_font_button_get_title #}
@@ -259,7 +259,7 @@ fontButtonGetTitle self =
 --
 -- Default value: \"Pick a Font\"
 --
-fontButtonTitle :: FontButtonClass self => Attr self String
+fontButtonTitle :: (FontButtonClass self, GlibString string) => Attr self string
 fontButtonTitle = newAttr
   fontButtonGetTitle
   fontButtonSetTitle
@@ -268,7 +268,7 @@ fontButtonTitle = newAttr
 --
 -- Default value: \"Sans 12\"
 --
-fontButtonFontName :: FontButtonClass self => Attr self String
+fontButtonFontName :: (FontButtonClass self, GlibString string) => Attr self string
 fontButtonFontName = newAttrFromStringProperty "font-name"
 
 -- | If this property is set to @True@, the label will be drawn in the

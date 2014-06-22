@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Selectors.FileFilter (
 -- * Detail
--- 
+--
 -- | A 'FileFilter' can be used to restrict the files being shown in a
 -- 'FileChooser'. Files can be filtered based on their name (with
 -- 'fileFilterAddPattern'), on their mime type (with 'fileFilterAddMimeType'),
@@ -117,8 +117,9 @@ fileFilterNew =
 -- be displayed in the file selector user interface if there is a selectable
 -- list of filters.
 --
-fileFilterSetName :: FileFilter
- -> String -- ^ @name@ - the human-readable-name for the filter
+fileFilterSetName :: GlibString string
+ => FileFilter
+ -> string -- ^ @name@ - the human-readable-name for the filter
  -> IO ()
 fileFilterSetName self name =
   withUTFString name $ \namePtr ->
@@ -128,8 +129,9 @@ fileFilterSetName self name =
 
 -- | Gets the human-readable name for the filter. See 'fileFilterSetName'.
 --
-fileFilterGetName :: FileFilter
- -> IO String -- ^ returns The human-readable name of the filter
+fileFilterGetName :: GlibString string
+ => FileFilter
+ -> IO string -- ^ returns The human-readable name of the filter
 fileFilterGetName self =
   {# call gtk_file_filter_get_name #}
     self
@@ -137,8 +139,9 @@ fileFilterGetName self =
 
 -- | Adds a rule allowing a given mime type to @filter@.
 --
-fileFilterAddMimeType :: FileFilter
- -> String     -- ^ @mimeType@ - name of a MIME type
+fileFilterAddMimeType :: GlibString string
+ => FileFilter
+ -> string     -- ^ @mimeType@ - name of a MIME type
  -> IO ()
 fileFilterAddMimeType self mimeType =
   withUTFString mimeType $ \mimeTypePtr ->
@@ -148,8 +151,9 @@ fileFilterAddMimeType self mimeType =
 
 -- | Adds a rule allowing a shell style glob to a filter.
 --
-fileFilterAddPattern :: FileFilter
- -> String     -- ^ @pattern@ - a shell style glob
+fileFilterAddPattern :: GlibString string
+ => FileFilter
+ -> string     -- ^ @pattern@ - a shell style glob
  -> IO ()
 fileFilterAddPattern self pattern =
   withUTFString pattern $ \patternPtr ->
@@ -163,13 +167,13 @@ fileFilterAddPattern self pattern =
 -- Gtk+ to avoid retrieving expensive information when it isn't needed by the
 -- filter.
 --
-fileFilterAddCustom :: FileFilter
+fileFilterAddCustom :: GlibString string => FileFilter
  -> [FileFilterFlags]     -- ^ @needed@ - list of flags indicating the
                           -- information that the custom filter function needs.
- -> (   Maybe String      -- filename
-     -> Maybe String      -- uri
-     -> Maybe String      -- display name
-     -> Maybe String      -- mime type
+ -> (   Maybe string      -- filename
+     -> Maybe string      -- uri
+     -> Maybe string      -- display name
+     -> Maybe string      -- mime type
      -> IO Bool)          -- ^ @(\filename uri displayName mimeType -> ...)@ -
                           -- filter function; if the function
                           -- returns @True@, then the file will be displayed.
@@ -201,7 +205,7 @@ type GtkFileFilterFunc =
   IO CInt
 
 foreign import ccall "wrapper" mkHandler_GtkFileFilterFunc ::
-  GtkFileFilterFunc -> 
+  GtkFileFilterFunc ->
   IO (FunPtr GtkFileFilterFunc)
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -220,7 +224,7 @@ fileFilterAddPixbufFormats self =
 
 -- | \'name\' property. See 'fileFilterGetName' and 'fileFilterSetName'
 --
-fileFilterName :: Attr FileFilter String
+fileFilterName :: GlibString string => Attr FileFilter string
 fileFilterName = newAttr
   fileFilterGetName
   fileFilterSetName

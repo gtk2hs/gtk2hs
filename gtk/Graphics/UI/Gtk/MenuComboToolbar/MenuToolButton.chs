@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton (
 -- * Detail
--- 
+--
 -- | A 'MenuToolButton' is a 'ToolItem' that contains a button and a small
 -- additional button with an arrow. When clicked, the arrow button pops up a
 -- dropdown menu.
@@ -102,10 +102,10 @@ import Graphics.Rendering.Pango.Markup
 -- | Creates a new 'MenuToolButton' using @iconWidget@ as icon and @label@ as
 -- label.
 --
-menuToolButtonNew :: WidgetClass iconWidget => 
+menuToolButtonNew :: (WidgetClass iconWidget, GlibString string) =>
     Maybe iconWidget  -- ^ @iconWidget@ - a widget that will be used as icon
                       -- widget, or @Nothing@
- -> Maybe String      -- ^ @label@ - a string that will be used as label, or
+ -> Maybe string      -- ^ @label@ - a string that will be used as label, or
                       -- @Nothing@
  -> IO MenuToolButton
 menuToolButtonNew iconWidget label =
@@ -119,7 +119,7 @@ menuToolButtonNew iconWidget label =
 -- | Creates a new 'MenuToolButton'. The new 'MenuToolButton' will contain an
 -- icon and label from the stock item indicated by @stockId@.
 --
-menuToolButtonNewFromStock :: 
+menuToolButtonNewFromStock ::
     StockId           -- ^ @stockId@ - the name of a stock item
  -> IO MenuToolButton
 menuToolButtonNewFromStock stockId =
@@ -157,10 +157,10 @@ menuToolButtonGetMenu self =
 -- menu. See 'Graphics.UI.Gtk.MenuComboToolbar.ToolItem.toolItemSetTooltip'
 -- for setting a tooltip on the whole 'MenuToolButton'.
 --
-menuToolButtonSetArrowTooltip :: MenuToolButtonClass self => self
+menuToolButtonSetArrowTooltip :: (MenuToolButtonClass self, GlibString string) => self
  -> Tooltips -- ^ @tooltips@ - the 'Tooltips' object to be used
- -> String   -- ^ @tipText@ - text to be used as tooltip text for tool item
- -> String   -- ^ @tipPrivate@ - text to be used as private tooltip text
+ -> string   -- ^ @tipText@ - text to be used as tooltip text for tool item
+ -> string   -- ^ @tipPrivate@ - text to be used as private tooltip text
  -> IO ()
 menuToolButtonSetArrowTooltip self tooltips tipText tipPrivate =
   withUTFString tipPrivate $ \tipPrivatePtr ->
@@ -179,8 +179,8 @@ menuToolButtonSetArrowTooltip self tooltips tipText tipPrivate =
 --
 -- * Available since Gtk+ version 2.12
 --
-menuToolButtonSetArrowTooltipText :: MenuToolButtonClass self => self
- -> String -- ^ @text@ - text to be used as tooltip text for button's arrow
+menuToolButtonSetArrowTooltipText :: (MenuToolButtonClass self, GlibString string) => self
+ -> string -- ^ @text@ - text to be used as tooltip text for button's arrow
            -- button
  -> IO ()
 menuToolButtonSetArrowTooltipText self text =
@@ -195,8 +195,8 @@ menuToolButtonSetArrowTooltipText self text =
 --
 -- * Available since Gtk+ version 2.12
 --
-menuToolButtonSetArrowTooltipMarkup :: MenuToolButtonClass self => self
- -> Markup -- ^ @markup@ - markup text to be used as tooltip text for button's
+menuToolButtonSetArrowTooltipMarkup :: (MenuToolButtonClass self, GlibString markup) => self
+ -> markup -- ^ @markup@ - markup text to be used as tooltip text for button's
            -- arrow button
  -> IO ()
 menuToolButtonSetArrowTooltipMarkup self markup =
@@ -219,7 +219,7 @@ menuToolButtonMenu = newAttr
 --------------------
 -- Signals
 
--- | 
+-- |
 --
 onShowMenu, afterShowMenu :: MenuToolButtonClass self => self
  -> IO ()

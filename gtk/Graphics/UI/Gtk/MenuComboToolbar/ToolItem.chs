@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 -- * Detail
--- 
+--
 -- | 'ToolItem's are widgets that can appear on a toolbar. To create a toolbar
 -- item that contain something else than a button, use 'toolItemNew'. Use
 -- 'containerAdd' to add a child widget to the tool item.
@@ -181,10 +181,10 @@ toolItemGetExpand self =
 -- 'tooltipsSetTip'.
 --
 -- Removed in Gtk3.
-toolItemSetTooltip :: ToolItemClass self => self
+toolItemSetTooltip :: (ToolItemClass self, GlibString string) => self
  -> Tooltips -- ^ @tooltips@ - The 'Tooltips' object to be used
- -> String   -- ^ @tipText@ - text to be used as tooltip text for @toolItem@
- -> String   -- ^ @tipPrivate@ - text to be used as private tooltip text
+ -> string   -- ^ @tipText@ - text to be used as tooltip text for @toolItem@
+ -> string   -- ^ @tipPrivate@ - text to be used as private tooltip text
  -> IO ()
 toolItemSetTooltip self tooltips tipText tipPrivate =
   withUTFString tipPrivate $ \tipPrivatePtr ->
@@ -327,15 +327,15 @@ toolItemRetrieveProxyMenuItem self =
 -- | If @menuItemId@ matches the string passed to 'toolItemSetProxyMenuItem'
 -- return the corresponding 'MenuItem'.
 --
-toolItemGetProxyMenuItem :: ToolItemClass self => self
- -> String            -- ^ @menuItemId@ - a string used to identify the menu
+toolItemGetProxyMenuItem :: (ToolItemClass self, GlibString string) => self
+ -> string            -- ^ @menuItemId@ - a string used to identify the menu
                       -- item
  -> IO (Maybe Widget) -- ^ returns The 'MenuItem' passed to
                       -- 'toolItemSetProxyMenuItem', if the @menuItemId@s
                       -- match.
 toolItemGetProxyMenuItem self menuItemId =
   maybeNull (makeNewObject mkWidget) $
-  withCString menuItemId $ \menuItemIdPtr ->
+  withUTFString menuItemId $ \menuItemIdPtr ->
   {# call unsafe tool_item_get_proxy_menu_item #}
     (toToolItem self)
     menuItemIdPtr
@@ -344,12 +344,12 @@ toolItemGetProxyMenuItem self menuItemId =
 -- is used to identify the caller of this function and should also be used with
 -- 'toolItemGetProxyMenuItem'.
 --
-toolItemSetProxyMenuItem :: (ToolItemClass self, MenuItemClass menuItem) => self
- -> String   -- ^ @menuItemId@ - a string used to identify @menuItem@
+toolItemSetProxyMenuItem :: (ToolItemClass self, MenuItemClass menuItem, GlibString string) => self
+ -> string   -- ^ @menuItemId@ - a string used to identify @menuItem@
  -> menuItem -- ^ @menuItem@ - a 'MenuItem' to be used in the overflow menu
  -> IO ()
 toolItemSetProxyMenuItem self menuItemId menuItem =
-  withCString menuItemId $ \menuItemIdPtr ->
+  withUTFString menuItemId $ \menuItemIdPtr ->
   {# call tool_item_set_proxy_menu_item #}
     (toToolItem self)
     menuItemIdPtr
@@ -363,14 +363,14 @@ toolItemSetProxyMenuItem self menuItemId menuItem =
 --
 toolItemGetEllipsizeMode :: ToolItemClass item => item
                          -> IO EllipsizeMode  -- ^ returns   a PangoEllipsizeMode indicating how text in @toolItem@ should be ellipsized.
-toolItemGetEllipsizeMode item = 
+toolItemGetEllipsizeMode item =
   liftM (toEnum . fromIntegral) $
   {#call gtk_tool_item_get_ellipsize_mode #}
     (toToolItem item)
 
 -- | Returns the text alignment used for @toolItem@. Custom subclasses of 'ToolItem' should call this
 -- function to find out how text should be aligned.
-toolItemGetTextAlignment :: ToolItemClass item => item 
+toolItemGetTextAlignment :: ToolItemClass item => item
                          -> IO Double -- ^ returns   a gfloat indicating the horizontal text alignment used for @toolItem@
 toolItemGetTextAlignment item =
   liftM realToFrac $
@@ -380,7 +380,7 @@ toolItemGetTextAlignment item =
 -- | Returns the text orientation used for @toolItem@. Custom subclasses of 'ToolItem' should call this
 -- function to find out how text should be orientated.
 toolItemGetTextOrientation :: ToolItemClass item => item
-                           -> IO Orientation -- ^ returns   a 'Orientation' indicating the orientation used for @toolItem@ 
+                           -> IO Orientation -- ^ returns   a 'Orientation' indicating the orientation used for @toolItem@
 toolItemGetTextOrientation item =
   liftM (toEnum . fromIntegral) $
   {#call gtk_tool_item_get_text_orientation #}

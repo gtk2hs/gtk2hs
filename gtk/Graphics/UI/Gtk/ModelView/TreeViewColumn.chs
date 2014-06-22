@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeViewColumn (
 -- * Detail
--- 
+--
 -- | The 'TreeViewColumn' object represents a visible column in a 'TreeView'
 -- widget. It allows to set properties of the column header, and functions as a
 -- holding pen for the cell renderers which determine how the data in the
@@ -151,7 +151,7 @@ import Graphics.UI.Gtk.General.Structs          (SortColumnId)
 -- | Generate a new TreeViewColumn widget.
 --
 treeViewColumnNew :: IO TreeViewColumn
-treeViewColumnNew  = makeNewObject mkTreeViewColumn 
+treeViewColumnNew  = makeNewObject mkTreeViewColumn
   {# call tree_view_column_new #}
 
 
@@ -347,7 +347,7 @@ treeViewColumnClicked self =
 
 -- | Set the widget's title if a custom widget has not been set.
 --
-treeViewColumnSetTitle :: TreeViewColumn -> String -> IO ()
+treeViewColumnSetTitle :: GlibString string => TreeViewColumn -> string -> IO ()
 treeViewColumnSetTitle self title =
   withUTFString title $ \titlePtr ->
   {# call tree_view_column_set_title #}
@@ -356,7 +356,7 @@ treeViewColumnSetTitle self title =
 
 -- | Get the widget's title.
 --
-treeViewColumnGetTitle :: TreeViewColumn -> IO (Maybe String)
+treeViewColumnGetTitle :: GlibString string => TreeViewColumn -> IO (Maybe string)
 treeViewColumnGetTitle self =
   {# call unsafe tree_view_column_get_title #}
     self
@@ -392,7 +392,7 @@ treeViewColumnSetWidget self widget =
 -- showing the column title. In case only a text title was set this will be a
 -- 'Alignment' widget with a 'Label' inside.
 --
-treeViewColumnGetWidget :: TreeViewColumn 
+treeViewColumnGetWidget :: TreeViewColumn
  -> IO (Maybe Widget) -- ^ returns the 'Widget' in the column header, or 'Nothing'
 treeViewColumnGetWidget self = do
   widgetPtr <- {# call unsafe tree_view_column_get_widget #} self
@@ -442,7 +442,7 @@ treeViewColumnGetReorderable self =
 --
 -- * Sets the logical @columnId@ that this column sorts on when
 --   this column is selected for sorting. The selected column's header
---   will be clickable after this call. Logical refers to the 
+--   will be clickable after this call. Logical refers to the
 --   'Graphics.UI.Gtk.ModelView.TreeSortable.SortColumnId' for which
 --   a comparison function was set.
 --
@@ -666,7 +666,7 @@ treeViewColumnMaxWidth = newAttr
 --
 -- Default value: \"\"
 --
-treeViewColumnTitle :: ReadWriteAttr TreeViewColumn (Maybe String) String
+treeViewColumnTitle :: GlibString string => ReadWriteAttr TreeViewColumn (Maybe string) string
 treeViewColumnTitle = newAttr
   treeViewColumnGetTitle
   treeViewColumnSetTitle

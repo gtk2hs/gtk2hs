@@ -43,24 +43,24 @@ module Graphics.UI.Gtk.Misc.Tooltip (
 --
 --   * Set the 'hasTooltip' property to 'True', this will make GTK+ monitor the widget for motion and
 --     related events which are needed to determine when and where to show a tooltip.
---    
+--
 --   * Connect to the 'queryTooltip' signal. This signal will be emitted when a tooltip is supposed to
 --     be shown. One of the arguments passed to the signal handler is a 'Tooltip' object. This is the
 --     object that we are about to display as a tooltip, and can be manipulated in your callback using
 --     functions like 'tooltipSetIcon'. There are functions for setting the tooltip's markup,
 --     setting an image from a stock icon, or even putting in a custom widget.
---    
+--
 --   * Return 'True' from your query-tooltip handler. This causes the tooltip to be show. If you return
 --    'False', it will not be shown.
---    
+--
 -- In the probably rare case where you want to have even more control over the tooltip that is about to
 -- be shown, you can set your own 'Window' which will be used as tooltip window. This works as
 -- follows:
--- 
+--
 --   * Set 'hasTooltip' and connect to 'queryTooltip' as before.
---    
+--
 --   * Use 'widgetSetTooltipWindow' to set a 'Window' created by you as tooltip window.
---    
+--
 --   * In the 'queryTooltip' callback you can access your window using 'widgetGetTooltipWindow'
 --     and manipulate as you wish. The semantics of the return value are exactly as before, return 'True'
 --     to show the window, 'False' to not show it.
@@ -121,8 +121,8 @@ import Graphics.Rendering.Pango.Markup
 -- | Sets the text of the tooltip to be @markup@, which is marked up with the
 -- Pango text markup language. If @markup@ is 'Nothing', the label will be hidden.
 --
-tooltipSetMarkup :: TooltipClass self => self
- -> Maybe Markup -- ^ @markup@ - a markup string (see Pango markup format) or 'Nothing'
+tooltipSetMarkup :: (TooltipClass self, GlibString markup) => self
+ -> Maybe markup -- ^ @markup@ - a markup string (see Pango markup format) or 'Nothing'
  -> IO ()
 tooltipSetMarkup self markup =
   maybeWith withUTFString markup $ \markupPtr ->
@@ -133,8 +133,8 @@ tooltipSetMarkup self markup =
 -- | Sets the text of the tooltip to be @text@. If @text@ is 'Nothing'
 -- the label will be hidden. See also 'tooltipSetMarkup'.
 --
-tooltipSetText :: TooltipClass self => self
- -> Maybe String -- ^ @text@ - a text string or 'Nothing'
+tooltipSetText :: (TooltipClass self, GlibString string) => self
+ -> Maybe string -- ^ @text@ - a text string or 'Nothing'
  -> IO ()
 tooltipSetText self text =
   maybeWith withUTFString text $ \textPtr ->
@@ -157,12 +157,12 @@ tooltipSetIcon self pixbuf =
 -- stock item indicated by @stockId@ with the size indicated by @size@. If
 -- @stockId@ is 'Nothing' the image will be hidden.
 --
-tooltipSetIconFromStock :: TooltipClass self => self
-  -> Maybe String -- ^ @id@ a stock id, or 'Nothing' 
-  -> IconSize -- ^ @size@ a stock icon size   
+tooltipSetIconFromStock :: (TooltipClass self, GlibString string) => self
+  -> Maybe string -- ^ @id@ a stock id, or 'Nothing'
+  -> IconSize -- ^ @size@ a stock icon size
   -> IO ()
 tooltipSetIconFromStock self id size =
-  maybeWith withUTFString id $ \ idPtr -> 
+  maybeWith withUTFString id $ \ idPtr ->
   {#call tooltip_set_icon_from_stock#}
     (toTooltip self)
     idPtr
@@ -175,12 +175,12 @@ tooltipSetIconFromStock self id size =
 --
 -- * Available since Gtk+ version 2.14
 --
-tooltipSetIconFromIconName :: TooltipClass self => self
-  -> Maybe String -- ^ @iconName@ an icon name, or 'Nothing' 
-  -> IconSize  -- ^ @size@ a stock icon size     
+tooltipSetIconFromIconName :: (TooltipClass self, GlibString string) => self
+  -> Maybe string -- ^ @iconName@ an icon name, or 'Nothing'
+  -> IconSize  -- ^ @size@ a stock icon size
   -> IO ()
 tooltipSetIconFromIconName self iconName size =
-  maybeWith withUTFString iconName $ \ iconPtr -> 
+  maybeWith withUTFString iconName $ \ iconPtr ->
   {#call tooltip_set_icon_from_icon_name#}
     (toTooltip self)
     iconPtr
@@ -192,11 +192,11 @@ tooltipSetIconFromIconName self iconName size =
 -- a box with a 'Image' and 'Label' is embedded in the tooltip, which can be
 -- configured using 'tooltipSetMarkup' and 'tooltipSetIcon'.
 --
-tooltipSetCustom :: (TooltipClass self, WidgetClass widget) => self 
-  -> Maybe widget  -- ^ @customWidget@ a 'Widget', or 'Nothing' to unset the old custom widget. 
+tooltipSetCustom :: (TooltipClass self, WidgetClass widget) => self
+  -> Maybe widget  -- ^ @customWidget@ a 'Widget', or 'Nothing' to unset the old custom widget.
   -> IO ()
 tooltipSetCustom self customWidget =
-  {#call tooltip_set_custom#} 
+  {#call tooltip_set_custom#}
     (toTooltip self)
     (maybe (Widget nullForeignPtr) toWidget customWidget)
 
@@ -221,7 +221,7 @@ tooltipTriggerTooltipQuery display =
 --
 tooltipSetTipArea :: TooltipClass self => self -> Rectangle -> IO ()
 tooltipSetTipArea self rect =
-  with rect $ \ rectPtr -> 
+  with rect $ \ rectPtr ->
   {#call tooltip_set_tip_area#}
     (toTooltip self)
     (castPtr rectPtr)
@@ -231,8 +231,8 @@ tooltipSetTipArea self rect =
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Sets the icon of the tooltip (which is in front of the text) to be the icon indicated by gicon with
 -- the size indicated by size. If gicon is 'Nothing', the image will be hidden.
-tooltipSetIconFromGIcon :: TooltipClass self => self 
-                        -> Maybe Icon  -- ^ @gicon@   a GIcon representing the icon, or 'Nothing'. allow-none. 
+tooltipSetIconFromGIcon :: TooltipClass self => self
+                        -> Maybe Icon  -- ^ @gicon@   a GIcon representing the icon, or 'Nothing'. allow-none.
                         -> IconSize
                         -> IO ()
 tooltipSetIconFromGIcon tooltip icon size =

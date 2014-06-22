@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Multiline.TextTagTable (
 -- * Detail
--- 
+--
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
@@ -59,6 +59,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.GObject	(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -99,13 +100,13 @@ textTagTableRemove self tag =
 
 -- | Look up a named tag.
 --
-textTagTableLookup :: TextTagTableClass self => self
- -> String             -- ^ @name@ - name of a tag
+textTagTableLookup :: (TextTagTableClass self, GlibString string) => self
+ -> string             -- ^ @name@ - name of a tag
  -> IO (Maybe TextTag) -- ^ returns The tag, or @Nothing@ if none by that name
                        -- is in the table.
 textTagTableLookup self name =
   maybeNull (makeNewGObject mkTextTag) $
-  withCString name $ \namePtr ->
+  withUTFString name $ \namePtr ->
   {# call unsafe text_tag_table_lookup #}
     (toTextTagTable self)
     namePtr

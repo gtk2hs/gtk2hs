@@ -232,11 +232,11 @@ clipboardGetDisplay self =
 -- destructors and thereby free them. Thus, by setting these attributes each time we
 -- install new data functions, we cuningly finalized the previous closures. Hooray.
 
-{-# NOINLINE getFuncQuark #-} 
+{-# NOINLINE getFuncQuark #-}
 getFuncQuark :: Quark
 getFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardGetFuncClosure"
 
-{-# NOINLINE clearFuncQuark #-} 
+{-# NOINLINE clearFuncQuark #-}
 clearFuncQuark :: Quark
 clearFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardClearFuncClosure"
 
@@ -361,8 +361,8 @@ clipboardClear self =
 -- make a copy of the text and take responsibility for responding for requests
 -- for the text, and for converting the text into the requested format.
 --
-clipboardSetText :: ClipboardClass self => self
- -> String -- ^ @text@ - the text to be set as clipboard content
+clipboardSetText :: (ClipboardClass self, GlibString string) => self
+ -> string -- ^ @text@ - the text to be set as clipboard content
  -> IO ()
 clipboardSetText self text =
   withUTFStringLen text $ \(textPtr,len) ->
@@ -430,8 +430,8 @@ foreign import ccall "wrapper" mkClipboardReceivedFunc ::
 -- particular if the clipboard was empty or if the contents of the clipboard
 -- could not be converted into text form.
 --
-clipboardRequestText :: ClipboardClass self => self
- -> (Maybe String -> IO ())          -- ^ @callback@ - a function to call when
+clipboardRequestText :: (ClipboardClass self, GlibString string) => self
+ -> (Maybe string -> IO ())          -- ^ @callback@ - a function to call when
                                      -- the text is received, or the retrieval
                                      -- fails. (It will always be called one
                                      -- way or the other.)
@@ -542,9 +542,9 @@ foreign import ccall "wrapper" mkClipboardTargetsReceivedFunc ::
 --
 -- * Available since Gtk+ version 2.10
 --
-clipboardRequestRichText :: (ClipboardClass self, TextBufferClass buffer) => self
+clipboardRequestRichText :: (ClipboardClass self, TextBufferClass buffer, GlibString string) => self
  -> buffer                               -- ^ @buffer@ - a 'TextBuffer' that determines the supported rich text formats
-  -> (Maybe (TargetTag,String) -> IO ()) -- ^ @callback@ - a function to call
+  -> (Maybe (TargetTag,string) -> IO ()) -- ^ @callback@ - a function to call
                                          -- when the text is received, or the
                                          -- retrieval fails. (It will always be
                                          -- called one way or the other.)

@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.Layout.Expander (
 -- * Detail
--- 
+--
 -- | A 'Expander' allows the user to hide or show its child by clicking on an
 -- expander triangle similar to the triangles used in a 'TreeView'.
 --
@@ -110,7 +110,7 @@ import Graphics.UI.Gtk.Signals
 
 -- | Creates a new expander using the given string as the text of the label.
 --
-expanderNew :: String -> IO Expander
+expanderNew :: GlibString string => string -> IO Expander
 expanderNew label =
   makeNewObject mkExpander $
   liftM (castPtr :: Ptr Widget -> Ptr Expander) $
@@ -125,8 +125,8 @@ expanderNew label =
 -- accelerator called a mnemonic. Pressing Alt and that key activates the
 -- button.
 --
-expanderNewWithMnemonic :: 
-    String      -- ^ @label@ - the text of the label with an underscore in
+expanderNewWithMnemonic :: GlibString string
+ => string      -- ^ @label@ - the text of the label with an underscore in
                 -- front of the mnemonic character
  -> IO Expander
 expanderNewWithMnemonic label =
@@ -182,7 +182,7 @@ expanderGetSpacing self =
 --
 -- This will also clear any previously set labels.
 --
-expanderSetLabel :: Expander -> String -> IO ()
+expanderSetLabel :: GlibString string => Expander -> string -> IO ()
 expanderSetLabel self label =
   withUTFString label $ \labelPtr ->
   {# call gtk_expander_set_label #}
@@ -192,7 +192,7 @@ expanderSetLabel self label =
 -- | Fetches the text from the label of the expander, as set by
 -- 'expanderSetLabel'.
 --
-expanderGetLabel :: Expander -> IO String
+expanderGetLabel :: GlibString string => Expander -> IO string
 expanderGetLabel self =
   {# call gtk_expander_get_label #}
     self
@@ -276,7 +276,7 @@ expanderExpanded = newAttr
 
 -- | Text of the expander's label.
 --
-expanderLabel :: Attr Expander String
+expanderLabel :: GlibString string => Attr Expander string
 expanderLabel = newAttr
   expanderGetLabel
   expanderSetLabel
@@ -320,7 +320,7 @@ expanderLabelWidget = newAttr
 
 #if GTK_CHECK_VERSION(2,22,0)
 -- | Whether the label widget should fill all available horizontal space.
--- 
+--
 -- Default value: 'False'
 --
 expanderLabelFill :: Attr Expander Bool
