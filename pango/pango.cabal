@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.12.5.3
+Version:        0.13.0.0
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -42,8 +42,8 @@ Flag new-exception
 Library
         build-depends:  base >= 4 && < 5,
                         process, directory, array, containers, pretty, mtl,
-                        glib  >= 0.12.5.3 && < 0.13,
-                        cairo >= 0.12.5.3 && < 0.13
+                        glib  >= 0.13.0.0 && < 0.14,
+                        cairo >= 0.13.0.0 && < 0.14
 
         if flag(new-exception)
           build-depends:  base >= 4
@@ -51,7 +51,7 @@ Library
         else
           build-depends:  base < 4
 
-        build-tools:    gtk2hsC2hs >= 0.13.8, gtk2hsTypeGen
+        build-tools:    gtk2hsC2hs >= 0.13.10, gtk2hsTypeGen
 
         exposed-modules: Graphics.Rendering.Pango
                          Graphics.Rendering.Pango.Font
