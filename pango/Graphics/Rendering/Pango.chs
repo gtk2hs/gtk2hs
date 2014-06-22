@@ -67,7 +67,6 @@ module Graphics.Rendering.Pango (
 
 import Graphics.Rendering.Pango.Font
 import Graphics.Rendering.Pango.Enums hiding (
-  Markup,
   Language,
   emptyLanguage,
   languageFromString,
