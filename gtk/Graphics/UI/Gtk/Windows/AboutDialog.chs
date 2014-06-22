@@ -438,8 +438,8 @@ aboutDialogSetLogoIconName self iconName =
 -- email link in an about dialog.
 --
 -- Removed in Gtk3.
-aboutDialogSetEmailHook ::
-    (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when an email
+aboutDialogSetEmailHook :: GlibString string
+ => (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when an email
                       -- link is activated.
  -> IO ()
 aboutDialogSetEmailHook func = do
@@ -457,8 +457,8 @@ aboutDialogSetEmailHook func = do
 -- link in an about dialog.
 --
 -- Removed in Gtk3.
-aboutDialogSetUrlHook ::
-    (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when a URL link
+aboutDialogSetUrlHook ::GlibString string
+ => (string -> IO ()) -- ^ @(\url -> ...)@ - a function to call when a URL link
                       -- is activated.
  -> IO ()
 aboutDialogSetUrlHook func = do

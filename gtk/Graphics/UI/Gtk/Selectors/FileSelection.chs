@@ -136,7 +136,7 @@ fileSelectionNew title =
 -- directory separator.
 --
 fileSelectionSetFilename :: (FileSelectionClass self, GlibString string) => self
- -> String -- ^ @filename@ - a string to set as the default file name.
+ -> string -- ^ @filename@ - a string to set as the default file name.
  -> IO ()
 fileSelectionSetFilename self filename =
   withUTFString filename $ \filenamePtr ->
@@ -153,7 +153,7 @@ fileSelectionSetFilename self filename =
 -- If no file is selected then the selected directory path is returned.
 --
 fileSelectionGetFilename :: (FileSelectionClass self, GlibString string) => self
- -> IO String -- ^ returns currently-selected filename
+ -> IO string -- ^ returns currently-selected filename
 fileSelectionGetFilename self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call unsafe gtk_file_selection_get_filename_utf8 #}
@@ -188,7 +188,7 @@ fileSelectionHideFileopButtons self =
 -- which have been partially matched.
 --
 fileSelectionComplete :: (FileSelectionClass self, GlibString string) => self
- -> String -- ^ @pattern@ - a string of characters which may or may not match
+ -> string -- ^ @pattern@ - a string of characters which may or may not match
            -- any filenames in the current directory.
  -> IO ()
 fileSelectionComplete self pattern =
@@ -201,7 +201,7 @@ fileSelectionComplete self pattern =
 -- box. This function is intended for use when the user can select multiple
 -- files in the file list.
 --
-fileSelectionGetSelections :: (FileSelectionClass self, GlibString string) => self -> IO [String]
+fileSelectionGetSelections :: (FileSelectionClass self, GlibString string) => self -> IO [string]
 fileSelectionGetSelections self = do
   cStrArr <-
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
@@ -244,7 +244,7 @@ fileSelectionGetSelectMultiple self =
 -- | The currently selected filename.
 --
 --
-fileSelectionFilename :: (FileSelectionClass self, GlibString string) => Attr self String
+fileSelectionFilename :: (FileSelectionClass self, GlibString string) => Attr self string
 fileSelectionFilename = newAttr
   fileSelectionGetFilename
   fileSelectionSetFilename

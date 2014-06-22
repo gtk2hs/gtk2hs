@@ -228,7 +228,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 -- newly-written code.
 --
 -- Removed in Gtk3.
-toolbarInsertNewButton :: ToolbarClass self => self
+toolbarInsertNewButton :: (ToolbarClass self, GlibString string) => self
  -> Int
  -> StockId
  -> Maybe (string,string)
@@ -255,7 +255,7 @@ toolbarInsertNewButton self pos stockId tooltips =
 --
 -- Removed in Gtk3.
 toolbarAppendNewButton :: (ToolbarClass self, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> IO Button
 toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
@@ -269,7 +269,7 @@ toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
 --
 -- Removed in Gtk3.
 toolbarPrependNewButton :: (ToolbarClass self, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> IO Button
 toolbarPrependNewButton self = toolbarInsertNewButton self 0
@@ -310,7 +310,7 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
 --
 -- Removed in Gtk3.
 toolbarAppendNewToggleButton :: (ToolbarClass self, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> IO ToggleButton
 toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
@@ -324,7 +324,7 @@ toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
 --
 -- Removed in Gtk3.
 toolbarPrependNewToggleButton :: (ToolbarClass self, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> IO ToggleButton
 toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
@@ -375,7 +375,7 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
 --
 -- Removed in Gtk3.
 toolbarAppendNewRadioButton :: (ToolbarClass self, RadioButtonClass rb, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> Maybe rb
  -> IO RadioButton
@@ -390,7 +390,7 @@ toolbarAppendNewRadioButton self = toolbarInsertNewRadioButton self (-1)
 --
 -- Removed in Gtk3.
 toolbarPrependNewRadioButton :: (ToolbarClass self, RadioButtonClass rb, GlibString string) => self
- -> string
+ -> StockId
  -> Maybe (string, string)
  -> Maybe rb
  -> IO RadioButton
