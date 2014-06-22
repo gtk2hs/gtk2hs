@@ -26,7 +26,7 @@ data Types = Tunit		-- ()
 	   | Tfloat
 	   | Tdouble
 	   | Tstring
-       | Tmstring      
+       | Tmstring
 	   | Tboxed  		-- a struct which is passed by value
 	   | Tptr		-- pointer
 	   | Ttobject		-- foreign with WidgetClass context
@@ -41,7 +41,7 @@ type Signatures = [Signature]
 -------------------------------------------------------------------------------
 -- Parsing
 -------------------------------------------------------------------------------
-     
+
 parseSignatures :: String -> Signatures
 parseSignatures content = (nub.parseSig 1.scan) content
 
@@ -75,7 +75,7 @@ parseArg l (TokType ty: TokComma:rem) =
   let (args,rem') = parseArg l rem in
   (ty:args, rem')
 parseArg l rem = error ("parse error on line "++show l++": expected type"++
-                        " followed by comma or EOL, found\n "++ 
+                        " followed by comma or EOL, found\n "++
 		       concatMap show (take 5 rem))
 
 scan :: String -> [Token]
@@ -201,13 +201,13 @@ rawtype Tmobject = ss "Ptr GObject"
 
 #endif
 
--- The possibly polymorphic type which 
+-- The possibly polymorphic type which
 usertype :: Types -> [Char] -> (ShowS,[Char])
 usertype Tunit	  cs = (ss "()",cs)
 usertype Tbool	  (c:cs) = (ss "Bool",cs)
 usertype Tchar	  (c:cs) = (ss "Char",cs)
 usertype Tuchar	  (c:cs) = (ss "Char",cs)
-usertype Tint	  (c:cs) = (ss "Int",cs) 
+usertype Tint	  (c:cs) = (ss "Int",cs)
 usertype Tuint	  (c:cs) = (ss "Word",cs)
 usertype Tlong	  (c:cs) = (ss "Int",cs)
 usertype Tulong	  (c:cs) = (ss "Int",cs)
@@ -215,8 +215,8 @@ usertype Tenum	  (c:cs) = (sc c,cs)
 usertype Tflags   cs = usertype Tenum cs
 usertype Tfloat	  (c:cs) = (ss "Float",cs)
 usertype Tdouble  (c:cs) = (ss "Double",cs)
-usertype Tstring  (c:cs) = (ss "String",cs)
-usertype Tmstring  (c:cs) = (ss "Maybe String",cs)
+usertype Tstring  (c:cs) = (sc c.sc '\'',cs)
+usertype Tmstring  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
 usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
 usertype Ttobject  (c:cs) = (sc c.sc '\'',cs)
@@ -237,6 +237,8 @@ context (Ttobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmtobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
+context (Tstring:ts)  (c:cs) = ss "GlibString ".sc c.sc '\'': context ts cs
+context (Tmstring:ts)  (c:cs) = ss "GlibString ".sc c.sc '\'': context ts cs
 context (_:ts)	      (c:cs) = context ts cs
 context []	      _	     = []
 
@@ -399,7 +401,7 @@ marshRet _  = ss "(error \"Signal handlers cannot return structured types.\")"
 
 mkUserType :: Signature -> ShowS
 mkUserType (ret,ts) = let
-  (str,cs) = foldl (\(str,cs) t -> 
+  (str,cs) = foldl (\(str,cs) t ->
 	    let (str',cs') = usertype t cs in (str.str'.ss " -> ",cs'))
 	    (sc '(',['a'..]) ts
   (str',_) = usertype ret cs
@@ -413,7 +415,7 @@ mkContext (ret,ts) = let ctxts = context (ts++[ret]) ['a'..] in
 
 mkMarshType :: Signature -> [ShowS]
 mkMarshType (ret,ts) = marshType (ts++[ret]) ['a'..]
-  
+
 mkType sig = let types = mkMarshType sig in
   if null types then id else foldl (.) (indent 1) types
 
@@ -433,7 +435,7 @@ mkMarshExec (ret,ts) = foldl (\body marshaler -> marshaler body) (indent 5.ss "u
 #else
 
 mkMarshExec :: Signature -> ShowS
-mkMarshExec (_,ts) = foldl (.) id $ 
+mkMarshExec (_,ts) = foldl (.) id $
 		     zipWith marshExec ts [1..]
 
 #endif
@@ -444,7 +446,7 @@ mkIdentifier (ret,ts) = foldl1 (\a b -> a.sc '_'.b) (map identifier ts).
 			ss "__".identifier ret
 
 mkRawtype :: Signature -> ShowS
-mkRawtype (ret,ts) = 
+mkRawtype (ret,ts) =
   foldl (.) id (map (\ty -> rawtype ty.ss " -> ") ts).
   (case ret of
       Tboxed  -> ss "IO (".rawtype ret.sc ')'
@@ -456,13 +458,13 @@ mkRawtype (ret,ts) =
       _       -> ss "IO ".rawtype ret)
 
 mkLambdaArgs :: Signature -> ShowS
-mkLambdaArgs (_,ts) = foldl (.) id $ 
+mkLambdaArgs (_,ts) = foldl (.) id $
 		      zipWith (\a b -> nameArg a b.sc ' ') ts [1..]
 
 #ifndef USE_GCLOSURE_SIGNALS_IMPL
 
 mkFuncArgs :: Signature -> ShowS
-mkFuncArgs (_,ts) = foldl (.) id $ 
+mkFuncArgs (_,ts) = foldl (.) id $
 		    zipWith (\a b -> sc ' '.nameArg a b.sc '\'') ts [1..]
 
 mkMarshRet :: Signature -> ShowS
@@ -511,11 +513,11 @@ main = do
         "MODULE_EXPORTS" -> genExport sigs
         "MODULE_IMPORTS" -> genImports extraImports
         "MODULE_BODY"    -> foldl (.) id (map generate sigs)
-        _ -> error var 
+        _ -> error var
     ) ""
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
-templateSubstitute template varSubst = doSubst template 
+templateSubstitute template varSubst = doSubst template
   where doSubst [] = id
         doSubst ('\\':'@':cs) = sc '@' . doSubst cs
         doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs

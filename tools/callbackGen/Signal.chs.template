@@ -28,7 +28,7 @@
 -- The object system in the second version of GTK is based on GObject from
 -- GLIB. This base class is rather primitive in that it only implements
 -- ref and unref methods (and others that are not interesting to us). If
--- the marshall list mentions OBJECT it refers to an instance of this 
+-- the marshall list mentions OBJECT it refers to an instance of this
 -- GObject which is automatically wrapped with a ref and unref call.
 -- Structures which are not derived from GObject have to be passed as
 -- BOXED which gives the signal connect function a possibility to do the
@@ -46,10 +46,10 @@ module @MODULE_NAME@ (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.UTFString   (peekUTFString,maybePeekUTFString)
+import System.Glib.UTFString   (peekUTFString, maybePeekUTFString, GlibString)
 import System.Glib.GError      (failOnGError)
 {#import System.Glib.Signals#}
-{#import System.Glib.GObject#} 
+{#import System.Glib.GObject#}
 @MODULE_IMPORTS@
 
 {#context lib="gtk" prefix="gtk" #}
