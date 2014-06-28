@@ -27,12 +27,14 @@
 module System.Glib.GString (
   GString,
   readGString,
+  readGStringByteString,
   fromGString,
   ) where
 
 import Foreign
-import Control.Exception	(bracket)
-import Control.Monad		(foldM)
+import Control.Exception        (bracket)
+import Control.Monad            (foldM)
+import Data.ByteString          (ByteString, packCStringLen)
 
 import System.Glib.FFI
 
@@ -51,6 +53,16 @@ readGString gstring
     gstr <- {#get GString->str#} gstring
     len <- {#get GString->len#} gstring
     fmap Just $ peekCStringLen (gstr, fromIntegral len)
+
+-- Turn a GString into a ByteString but don't destroy it.
+--
+readGStringByteString :: GString -> IO (Maybe ByteString)
+readGStringByteString gstring
+  | gstring == nullPtr = return Nothing
+  | otherwise          = do
+    gstr <- {#get GString->str#} gstring
+    len <- {#get GString->len#} gstring
+    fmap Just $ packCStringLen (gstr, fromIntegral len)
 
 -- Turn a GList into a list of pointers (freeing the GList in the process).
 --
