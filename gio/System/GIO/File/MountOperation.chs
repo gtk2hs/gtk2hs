@@ -165,14 +165,14 @@ mountOperationAborted = Signal (connect_NONE__NONE "aborted")
 -- If the message contains a line break, the first line should be presented as a heading. For example,
 -- it may be used as the primary text in a 'MessageDialog'.
 mountOperationAskPassword :: (MountOperationClass op, GlibString string) => Signal op (string -> string -> string -> AskPasswordFlags -> IO ())
-mountOperationAskPassword = Signal (connect_STRING_STRING_STRING_ENUM__NONE "ask-password")
+mountOperationAskPassword = Signal (connect_GLIBSTRING_GLIBSTRING_GLIBSTRING_ENUM__NONE "ask-password")
 
 -- | Emitted when asking the user a question and gives a list of choices for the user to choose from.
 --
 -- If the message contains a line break, the first line should be presented as a heading. For example,
 -- it may be used as the primary text in a 'MessageDialog'.
 -- askQuestion :: MountOperationClass op => Signal op (String -> [String] -> IO ())
--- askQuestion Signal (\after obj user -> connect_STRING_BOXED__NONE "ask-question" after obj
+-- askQuestion Signal (\after obj user -> connect_GLIBSTRING_BOXED__NONE "ask-question" after obj
 --                                       (\message choicesPtr -> do
 --                                          choices <- peekUTFString choicesPtr
 --                                          user str choices))

@@ -236,7 +236,7 @@ entryBufferMaxLength = newAttrFromIntProperty "max-length"
 -- * Available since Gtk+ version 2.18
 --
 entryBufferInsertedText :: (EntryBufferClass self, GlibString string) => Signal self (Int -> string -> Int -> IO ())
-entryBufferInsertedText = Signal (connect_INT_STRING_INT__NONE "inserted_text")
+entryBufferInsertedText = Signal (connect_INT_GLIBSTRING_INT__NONE "inserted_text")
 
 -- |
 --

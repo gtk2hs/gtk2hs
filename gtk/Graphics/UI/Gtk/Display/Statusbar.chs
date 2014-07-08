@@ -262,13 +262,13 @@ statusbarHasResizeGrip = newAttr
 -- | Is emitted whenever a new message gets pushed onto a statusbar's stack.
 --
 textPushed :: (StatusbarClass self, GlibString string) => Signal self (ContextId -> string -> IO ())
-textPushed = Signal (\a self user -> connect_WORD_STRING__NONE "text-pushed" a self (\w s -> user (fromIntegral w) s))
+textPushed = Signal (\a self user -> connect_WORD_GLIBSTRING__NONE "text-pushed" a self (\w s -> user (fromIntegral w) s))
 
 -- %hash c:2614 d:c1d2
 -- | Is emitted whenever a new message is popped off a statusbar's stack.
 --
 textPopped :: (StatusbarClass self, GlibString string) => Signal self (ContextId -> string -> IO ())
-textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text-popped" a self (\w s -> user (fromIntegral w) s))
+textPopped = Signal (\a self user -> connect_WORD_GLIBSTRING__NONE "text-popped" a self (\w s -> user (fromIntegral w) s))
 
 --------------------
 -- Deprecated Signals
@@ -279,8 +279,8 @@ textPopped = Signal (\a self user -> connect_WORD_STRING__NONE "text-popped" a s
 onTextPopped, afterTextPopped :: (StatusbarClass self, GlibString string) => self
  -> (ContextId -> string -> IO ())
  -> IO (ConnectId self)
-onTextPopped self user = connect_WORD_STRING__NONE "text-popped" False self (user . fromIntegral)
-afterTextPopped self user = connect_WORD_STRING__NONE "text-popped" True self (user . fromIntegral)
+onTextPopped self user = connect_WORD_GLIBSTRING__NONE "text-popped" False self (user . fromIntegral)
+afterTextPopped self user = connect_WORD_GLIBSTRING__NONE "text-popped" True self (user . fromIntegral)
 
 -- | Called if a message is pushed on top of the
 -- stack.
@@ -288,6 +288,6 @@ afterTextPopped self user = connect_WORD_STRING__NONE "text-popped" True self (u
 onTextPushed, afterTextPushed :: (StatusbarClass self, GlibString string) => self
  -> (ContextId -> string -> IO ())
  -> IO (ConnectId self)
-onTextPushed self user = connect_WORD_STRING__NONE "text-pushed" False self (user . fromIntegral)
-afterTextPushed self user = connect_WORD_STRING__NONE "text-pushed" True self (user . fromIntegral)
+onTextPushed self user = connect_WORD_GLIBSTRING__NONE "text-pushed" False self (user . fromIntegral)
+afterTextPushed self user = connect_WORD_GLIBSTRING__NONE "text-pushed" True self (user . fromIntegral)
 #endif

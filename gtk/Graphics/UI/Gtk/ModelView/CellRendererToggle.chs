@@ -212,7 +212,7 @@ cellToggleIndicatorSize = newAttrFromIntProperty "indicator-size"
 --   'stringToTreePath'.
 --
 cellToggled :: (CellRendererToggleClass self, GlibString string) => Signal self (string -> IO ())
-cellToggled = Signal (connect_STRING__NONE "toggled")
+cellToggled = Signal (connect_GLIBSTRING__NONE "toggled")
 
 --------------------
 -- Deprecated Signals
@@ -222,13 +222,13 @@ cellToggled = Signal (connect_STRING__NONE "toggled")
 onCellToggled :: (CellRendererToggleClass self, GlibString string) => self
  -> (string -> IO ())
  -> IO (ConnectId self)
-onCellToggled = connect_STRING__NONE "toggled" False
+onCellToggled = connect_GLIBSTRING__NONE "toggled" False
 {-# DEPRECATED onCellToggled "instead of 'onCellToggled obj' use 'on obj cellToggled'" #-}
 
 -- %hash c:82f6
 afterCellToggled :: (CellRendererToggleClass self, GlibString string) => self
  -> (string -> IO ())
  -> IO (ConnectId self)
-afterCellToggled = connect_STRING__NONE "toggled" True
+afterCellToggled = connect_GLIBSTRING__NONE "toggled" True
 {-# DEPRECATED afterCellToggled "instead of 'afterCellToggled obj' use 'after obj cellToggled'" #-}
 #endif

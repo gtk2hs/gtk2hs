@@ -561,7 +561,7 @@ entryCompletionPopupSingleMatch = newAttr
 -- * Available since Gtk+ version 2.6
 --
 insertPrefix :: (EntryCompletionClass self, GlibString string) => Signal self (string -> IO Bool)
-insertPrefix = Signal (connect_STRING__BOOL "insert-prefix")
+insertPrefix = Signal (connect_GLIBSTRING__BOOL "insert-prefix")
 #endif
 
 -- %hash c:d50e d:ad7e
@@ -591,8 +591,8 @@ completionActionActivated = Signal (connect_INT__NONE "action-activated")
 onInsertPrefix, afterInsertPrefix :: (EntryCompletionClass self, GlibString string) => self
  -> (string -> IO Bool)
  -> IO (ConnectId self)
-onInsertPrefix = connect_STRING__BOOL "insert_prefix" False
-afterInsertPrefix = connect_STRING__BOOL "insert_prefix" True
+onInsertPrefix = connect_GLIBSTRING__BOOL "insert_prefix" False
+afterInsertPrefix = connect_GLIBSTRING__BOOL "insert_prefix" True
 #endif
 
 -- | Gets emitted when an action is activated.

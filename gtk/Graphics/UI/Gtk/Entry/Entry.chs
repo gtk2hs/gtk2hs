@@ -739,7 +739,7 @@ entryDeleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 -- | The 'entryInsertAtCursor' signal is a keybinding signal which gets emitted when the user initiates the
 -- insertion of a fixed string at the cursor.
 entryInsertAtCursor :: (EntryClass ec, GlibString string) => Signal ec (string -> IO ())
-entryInsertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
+entryInsertAtCursor = Signal (connect_GLIBSTRING__NONE "insert-at-cursor")
 
 -- | The 'entryMoveCursor' signal is a keybinding signal which gets emitted when the user initiates a cursor
 -- movement. If the cursor is not visible in entry, this signal causes the viewport to be moved
@@ -776,7 +776,7 @@ entryPopulatePopup = Signal (connect_OBJECT__NONE "populate-popup")
 -- | If an input method is used, the typed text will not immediately be committed to the buffer. So if
 -- you are interested in the text, connect to this signal.
 entryPreeditChanged :: (EntryClass ec, GlibString string) => Signal ec (string -> IO ())
-entryPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
+entryPreeditChanged = Signal (connect_GLIBSTRING__NONE "preedit-changed")
 #endif
 
 #if GTK_CHECK_VERSION(2,16,0)

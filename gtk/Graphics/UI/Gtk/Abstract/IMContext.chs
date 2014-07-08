@@ -296,7 +296,7 @@ imContextPreeditChanged = Signal (connect_NONE__NONE "preedit-changed")
 --
 -- @str@ - the completed character(s) entered by the user
 imContextCommit :: (IMContextClass self, GlibString string) => Signal self (string -> IO ())
-imContextCommit = Signal (connect_STRING__NONE "commit")
+imContextCommit = Signal (connect_GLIBSTRING__NONE "commit")
 
 -- | This signal is emitted when the input method requires the context
 -- surrounding the cursor. The callback should set the input method

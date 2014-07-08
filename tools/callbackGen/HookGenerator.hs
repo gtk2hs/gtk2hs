@@ -26,7 +26,9 @@ data Types = Tunit		-- ()
 	   | Tfloat
 	   | Tdouble
 	   | Tstring
-       | Tmstring
+           | Tmstring
+           | Tgstring
+           | Tmgstring
 	   | Tboxed  		-- a struct which is passed by value
 	   | Tptr		-- pointer
 	   | Ttobject		-- foreign with WidgetClass context
@@ -100,6 +102,8 @@ scan ('F':'L':'O':'A':'T':xs) = TokType Tfloat:scan xs
 scan ('D':'O':'U':'B':'L':'E':xs) = TokType Tdouble:scan xs
 scan ('S':'T':'R':'I':'N':'G':xs) = TokType Tstring:scan xs
 scan ('M':'S':'T':'R':'I':'N':'G':xs) = TokType Tmstring:scan xs
+scan ('G':'L':'I':'B':'S':'T':'R':'I':'N':'G':xs) = TokType Tgstring:scan xs
+scan ('M':'G':'L':'I':'B':'S':'T':'R':'I':'N':'G':xs) = TokType Tmgstring:scan xs
 scan ('B':'O':'X':'E':'D':xs) = TokType Tboxed:scan xs
 scan ('P':'O':'I':'N':'T':'E':'R':xs) = TokType Tptr:scan xs
 scan ('T':'O':'B':'J':'E':'C':'T':xs) = TokType Ttobject:scan xs
@@ -141,6 +145,8 @@ identifier Tfloat   = ss "FLOAT"
 identifier Tdouble  = ss "DOUBLE"
 identifier Tstring  = ss "STRING"
 identifier Tmstring = ss "MSTRING"
+identifier Tgstring = ss "GLIBSTRING"
+identifier Tmgstring = ss "MGLIBSTRING"
 identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
 identifier Ttobject  = ss "OBJECT"
@@ -166,6 +172,8 @@ rawtype Tfloat   = ss "Float"
 rawtype Tdouble  = ss "Double"
 rawtype Tstring  = ss "CString"
 rawtype Tmstring  = ss "CString"
+rawtype Tgstring  = ss "CString"
+rawtype Tmgstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
@@ -192,6 +200,8 @@ rawtype Tfloat   = ss "{#type gfloat#}"
 rawtype Tdouble  = ss "{#type gdouble#}"
 rawtype Tstring  = ss "CString"
 rawtype Tmstring  = ss "CString"
+rawtype Tgstring  = ss "CString"
+rawtype Tmgstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	   = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
@@ -215,8 +225,10 @@ usertype Tenum	  (c:cs) = (sc c,cs)
 usertype Tflags   cs = usertype Tenum cs
 usertype Tfloat	  (c:cs) = (ss "Float",cs)
 usertype Tdouble  (c:cs) = (ss "Double",cs)
-usertype Tstring  (c:cs) = (sc c.sc '\'',cs)
-usertype Tmstring  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
+usertype Tstring  (c:cs) = (ss "String",cs)
+usertype Tmstring  (c:cs) = (ss "Maybe String",cs)
+usertype Tgstring  (c:cs) = (sc c.sc '\'',cs)
+usertype Tmgstring  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
 usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
 usertype Ttobject  (c:cs) = (sc c.sc '\'',cs)
@@ -237,8 +249,8 @@ context (Ttobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmtobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
-context (Tstring:ts)  (c:cs) = ss "GlibString ".sc c.sc '\'': context ts cs
-context (Tmstring:ts)  (c:cs) = ss "GlibString ".sc c.sc '\'': context ts cs
+context (Tgstring:ts)  (c:cs) = ss "Glib.GlibString ".sc c.sc '\'': context ts cs
+context (Tmgstring:ts)  (c:cs) = ss "Glib.GlibString ".sc c.sc '\'': context ts cs
 context (_:ts)	      (c:cs) = context ts cs
 context []	      _	     = []
 
@@ -280,6 +292,8 @@ nameArg Tfloat	 c = ss "float".shows c
 nameArg Tdouble	 c = ss "double".shows c
 nameArg Tstring	 c = ss "str".shows c
 nameArg Tmstring c = ss "str".shows c
+nameArg Tgstring	 c = ss "str".shows c
+nameArg Tmgstring c = ss "str".shows c
 nameArg Tboxed   c = ss "box".shows c
 nameArg Tptr     c = ss "ptr".shows c
 nameArg Ttobject  c = ss "obj".shows c
@@ -309,6 +323,10 @@ marshExec Tstring arg _ body = indent 5. ss "peekUTFString ". arg. ss " >>= \\".
                                body. sc ' '. arg. sc '\''
 marshExec Tmstring arg _ body = indent 5. ss "maybePeekUTFString ". arg. ss " >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
+marshExec Tgstring arg _ body = indent 5. ss "peekUTFString ". arg. ss " >>= \\". arg. ss "\' ->".
+                               body. sc ' '. arg. sc '\''
+marshExec Tmgstring arg _ body = indent 5. ss "maybePeekUTFString ". arg. ss " >>= \\". arg. ss "\' ->".
+                               body. sc ' '. arg. sc '\''
 marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castPtr ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
 marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
@@ -333,6 +351,7 @@ marshRet Tflags	 body = indent 5. ss "liftM fromFlags $ ". body
 marshRet Tfloat	 body = body
 marshRet Tdouble body = body
 marshRet Tstring body = body. indent 5. ss ">>= newUTFString"
+marshRet Tgstring body = body. indent 5. ss ">>= newUTFString"
 marshRet Tptr    body = indent 5. ss "liftM castPtr $ ". body
 marshRet _       _    = error "Signal handlers cannot return structured types."
 
@@ -364,6 +383,10 @@ marshExec Tdouble n = indent 4.ss "let double".shows n.
 marshExec Tstring n = indent 4.ss "str".shows n.
 		      ss "' <- peekCString str".shows n
 marshExec Tmstring n = indent 4.ss "str".shows n.
+		      ss "' <- maybePeekCString str".shows n
+marshExec Tgstring n = indent 4.ss "str".shows n.
+		      ss "' <- peekCString str".shows n
+marshExec Tmgstring n = indent 4.ss "str".shows n.
 		      ss "' <- maybePeekCString str".shows n
 marshExec Tboxed  n = indent 4.ss "box".shows n.ss "' <- boxedPre".
 		      shows n.ss " $ castPtr box".shows n

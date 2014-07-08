@@ -158,7 +158,7 @@ cellRendererAccelAccelMode = newAttrFromEnumProperty "accel-mode"
 -- * Available since Gtk+ version 2.10
 --
 accelEdited :: (CellRendererAccelClass self, GlibString string) => Signal self (string -> KeyVal -> Modifier -> KeyCode -> IO ())
-accelEdited = Signal (\after obj user -> connect_STRING_INT_ENUM_INT__NONE "accel_edited" after obj
+accelEdited = Signal (\after obj user -> connect_GLIBSTRING_INT_ENUM_INT__NONE "accel_edited" after obj
                       (\ path keyval modifier keycode ->
                         user path (fromIntegral keyval) modifier (fromIntegral keycode)))
 
@@ -167,5 +167,5 @@ accelEdited = Signal (\after obj user -> connect_STRING_INT_ENUM_INT__NONE "acce
 -- * Available since Gtk+ version 2.10
 --
 accelCleared :: (CellRendererAccelClass self, GlibString string) => Signal self (string -> IO ())
-accelCleared = Signal (connect_STRING__NONE "accel_cleared")
+accelCleared = Signal (connect_GLIBSTRING__NONE "accel_cleared")
 #endif

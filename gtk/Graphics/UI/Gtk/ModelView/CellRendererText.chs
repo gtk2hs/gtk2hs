@@ -505,5 +505,5 @@ internalEdited :: (CellRendererTextClass cr, GlibString string) =>
                   (TreePath -> string -> IO ()) ->
                   IO (ConnectId cr)
 internalEdited after cr user =
-  connect_STRING_STRING__NONE "edited" after cr $ \path string -> do
+  connect_GLIBSTRING_GLIBSTRING__NONE "edited" after cr $ \path string -> do
     user (stringToTreePath path) string

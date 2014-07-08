@@ -1267,7 +1267,7 @@ deleteFromCursor = Signal (connect_ENUM_INT__NONE "delete-from-cursor")
 --   signal.
 --
 insertAtCursor :: (TextViewClass self, GlibString string) => Signal self (string -> IO ())
-insertAtCursor = Signal (connect_STRING__NONE "insert-at-cursor")
+insertAtCursor = Signal (connect_GLIBSTRING__NONE "insert-at-cursor")
 
 -- | Moving the cursor.
 --
@@ -1373,5 +1373,5 @@ toggleOverwrite = Signal (connect_NONE__NONE "toggle-overwrite")
 --
 -- This signal is only emitted if the text at the given position is actually editable.
 textViewPreeditChanged :: (TextViewClass self, GlibString string) => Signal self (string -> IO ())
-textViewPreeditChanged = Signal (connect_STRING__NONE "preedit-changed")
+textViewPreeditChanged = Signal (connect_GLIBSTRING__NONE "preedit-changed")
 

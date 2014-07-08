@@ -329,7 +329,7 @@ editingStarted :: CellRendererClass self =>
 editingStarted = Signal editingStartedInternal
 
 editingStartedInternal after cr act =
- connect_OBJECT_STRING__NONE "editing-started" after cr
+ connect_OBJECT_GLIBSTRING__NONE "editing-started" after cr
  $ \ce path -> act ce (stringToTreePath path)
 #endif
 #endif

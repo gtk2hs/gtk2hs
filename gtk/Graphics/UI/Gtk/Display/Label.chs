@@ -964,7 +964,7 @@ labelActiveCurrentLink = Signal (connect_NONE__NONE "activate-current-link")
 
 -- | The 'labelActiveLink' signal is emitted when a URI is activated. Default is to use showURI.
 labelActiveLink :: (LabelClass self, GlibString string) => Signal self (string -> IO ())
-labelActiveLink = Signal (connect_STRING__NONE "activate-link")
+labelActiveLink = Signal (connect_GLIBSTRING__NONE "activate-link")
 
 -- | The 'labelCopyClipboard' signal is a keybinding signal which gets emitted to copy the selection to the
 -- clipboard.
