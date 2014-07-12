@@ -87,7 +87,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowGetPointerPos,
   drawWindowGetOrigin,
   drawWindowSetCursor,
-#if GTK_MAJOR_VERSION < 3
+#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK)
   drawWindowForeignNew,
 #endif
   drawWindowGetDefaultRootWindow,
@@ -601,7 +601,7 @@ drawWindowSetCursor self cursor =
     self
     (fromMaybe (Cursor nullForeignPtr) cursor)
 
-#if GTK_MAJOR_VERSION < 3
+#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK)
 -- | Get the handle to an exising window of the windowing system. The
 -- passed-in handle is a reference to a native window, that is, an Xlib XID
 -- for X windows and a HWND for Win32.
