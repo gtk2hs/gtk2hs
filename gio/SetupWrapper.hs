@@ -9,7 +9,7 @@ import Distribution.Simple.Utils
 import Distribution.Simple.Program
 import Distribution.Simple.Compiler
 import Distribution.Simple.BuildPaths (exeExtension)
-import Distribution.Simple.Configure (configCompiler)
+import Distribution.Simple.Configure (configCompilerEx)
 import Distribution.Simple.GHC (getInstalledPackages)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
 import Distribution.Version
@@ -115,7 +115,7 @@ setupWrapper setupHsFile = do
       when outOfDate $ do
         debug verbosity "Setup script is out of date, compiling..."
 
-        (comp, conf)    <- configCompiler (Just GHC) Nothing Nothing
+        (comp, _, conf) <- configCompilerEx (Just GHC) Nothing Nothing
                              defaultProgramConfiguration verbosity
         cabalLibVersion <- cabalLibVersionToUse comp conf
         let cabalPkgid = PackageIdentifier (PackageName "Cabal") cabalLibVersion
