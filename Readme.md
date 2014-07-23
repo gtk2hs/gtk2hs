@@ -38,7 +38,7 @@ Clone the repo from github
 
 Install gtk2hs-buildtools from the repo (make sure they also wind up in your PATH)
 
-    cabal install tools
+    cabal install gtk2hs-buildtools
 
 If you want GTK+ 3 and no GTK+ 2 suport
 
