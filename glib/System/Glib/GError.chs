@@ -92,6 +92,8 @@ import Foreign.C
 import System.Glib.UTFString
 import Control.Exception
 import Data.Typeable
+import Data.Text (Text)
+import qualified Data.Text as T (unpack)
 import Prelude hiding (catch)
 
 -- | A GError consists of a domain, code and a human readable message.
@@ -99,7 +101,7 @@ data GError = GError !GErrorDomain !GErrorCode !GErrorMessage
   deriving Typeable
 
 instance Show GError where
-  show (GError _ _ msg) = msg
+  show (GError _ _ msg) = T.unpack msg
 
 instance Exception GError
 
@@ -121,7 +123,7 @@ type GErrorDomain  = GQuark
 type GErrorCode = Int
 
 -- | A human readable error message.
-type GErrorMessage = String
+type GErrorMessage = Text
                                                                                            
 instance Storable GError where
   sizeOf _ = {#sizeof GError #}
@@ -265,4 +267,4 @@ handleGErrorJustDomain = flip catchGErrorJustDomain
 
 -- | Catch all GError exceptions and convert them into a general failure.
 failOnGError :: IO a -> IO a
-failOnGError action = catchGError action (\(GError dom code msg) -> fail msg)
+failOnGError action = catchGError action (\(GError dom code msg) -> fail (T.unpack msg))

@@ -1,6 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 import Graphics.UI.Gtk
 import Control.Monad.IO.Class (liftIO)
+import Data.Text (Text)
+
+-- A function like this can be used to tag string literals for i18n.
+-- It also avoids a lot of type annotations.
+__ :: Text -> Text
+__ = id -- Replace with getText from the hgettext package in localised versions
 
 uiDef =
   "<ui>\
@@ -36,52 +43,52 @@ uiDef =
   \      <separator/>\
   \    </placeholder>\
   \  </toolbar>\
-  \</ui>"
+  \</ui>" :: Text
 
 main = do
   initGUI
 
   -- Create the menus
-  fileAct <- actionNew "FileAction" "File" Nothing Nothing
-  editAct <- actionNew "EditAction" "Edit" Nothing Nothing
+  fileAct <- actionNew "FileAction" (__"File") Nothing Nothing
+  editAct <- actionNew "EditAction" (__"Edit") Nothing Nothing
 
   -- Create menu items
-  newAct <- actionNew "NewAction" "New"
-            (Just "Clear the spreadsheet area.")
+  newAct <- actionNew "NewAction" (__"New")
+            (Just (__"Clear the spreadsheet area."))
             (Just stockNew)
   on newAct actionActivated $ putStrLn "New activated."
-  openAct <- actionNew "OpenAction" "Open"
-            (Just "Open an existing spreadsheet.")
+  openAct <- actionNew "OpenAction" (__"Open")
+            (Just (__"Open an existing spreadsheet."))
             (Just stockOpen)
   on openAct actionActivated $ putStrLn "Open activated."
-  saveAct <- actionNew "SaveAction" "Save"
-            (Just "Save the current spreadsheet.")
+  saveAct <- actionNew "SaveAction" (__"Save")
+            (Just (__"Save the current spreadsheet."))
             (Just stockSave)
   on saveAct actionActivated $ putStrLn "Save activated."
-  saveAsAct <- actionNew "SaveAsAction" "SaveAs"
-            (Just "Save spreadsheet under new name.")
+  saveAsAct <- actionNew "SaveAsAction" (__"SaveAs")
+            (Just (__"Save spreadsheet under new name."))
             (Just stockSaveAs)
   on saveAsAct actionActivated $ putStrLn "SaveAs activated."
-  exitAct <- actionNew "ExitAction" "Exit"
-            (Just "Exit this application.")
+  exitAct <- actionNew "ExitAction" (__"Exit")
+            (Just (__"Exit this application."))
             (Just stockSaveAs)
   on exitAct actionActivated $ mainQuit
-  cutAct <- actionNew "CutAction" "Cut"
-            (Just "Cut out the current selection.")
+  cutAct <- actionNew "CutAction" (__"Cut")
+            (Just (__"Cut out the current selection."))
             (Just stockCut)
   on cutAct actionActivated $ putStrLn "Cut activated."
-  copyAct <- actionNew "CopyAction" "Copy"
-            (Just "Copy the current selection.")
+  copyAct <- actionNew "CopyAction" (__"Copy")
+            (Just (__"Copy the current selection."))
             (Just stockCopy)
   on copyAct actionActivated $ putStrLn "Copy activated."
-  pasteAct <- actionNew "PasteAction" "Paste"
-            (Just "Paste the current selection.")
+  pasteAct <- actionNew "PasteAction" (__"Paste")
+            (Just (__"Paste the current selection."))
             (Just stockPaste)
   on pasteAct actionActivated $ putStrLn "Paste activated."
 
-  standardGroup <- actionGroupNew "standard"
+  standardGroup <- actionGroupNew ("standard"::Text)
   mapM_ (actionGroupAddAction standardGroup) [fileAct, editAct]
-  mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act (Nothing::Maybe String))
+  mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act (Nothing::Maybe Text))
     [newAct, openAct, saveAct, saveAsAct, exitAct, cutAct, copyAct, pasteAct]
 
   ui <- uiManagerNew
@@ -91,8 +98,8 @@ main = do
   win <- windowNew
   on win objectDestroy mainQuit
   on win sizeRequest $ return (Requisition 200 100)
-  (Just menuBar) <- uiManagerGetWidget ui "/ui/menubar"
-  (Just toolBar) <- uiManagerGetWidget ui "/ui/toolbar"
+  (Just menuBar) <- uiManagerGetWidget ui ("/ui/menubar"::Text)
+  (Just toolBar) <- uiManagerGetWidget ui ("/ui/toolbar"::Text)
 
   edit <- textViewNew
   vBox <- vBoxNew False 0

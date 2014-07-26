@@ -103,12 +103,13 @@ import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'PixbufError' or 'GFileError'
 --
-pixbufAnimationNewFromFile :: FilePath               -- ^ Name of file to load, in the GLib file name encoding
-                           -> IO PixbufAnimation     -- ^ A newly-created animation
+pixbufAnimationNewFromFile :: GlibFilePath fp
+                           => fp                 -- ^ Name of file to load, in the GLib file name encoding
+                           -> IO PixbufAnimation -- ^ A newly-created animation
 pixbufAnimationNewFromFile fname =
   wrapNewGObject mkPixbufAnimation $
   propagateGError $ \errPtrPtr ->
-     withUTFString fname $ \strPtr ->
+     withUTFFilePath fname $ \strPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
      {#call unsafe pixbuf_animation_new_from_file_utf8#} strPtr errPtrPtr
 #else

@@ -50,6 +50,10 @@ module System.Glib.Properties (
   objectGetPropertyString,
   objectSetPropertyMaybeString,
   objectGetPropertyMaybeString,
+  objectSetPropertyFilePath,
+  objectGetPropertyFilePath,
+  objectSetPropertyMaybeFilePath,
+  objectGetPropertyMaybeFilePath,
   objectSetPropertyBoxedOpaque,
   objectGetPropertyBoxedOpaque,
   objectSetPropertyBoxedStorable,
@@ -77,6 +81,12 @@ module System.Glib.Properties (
   newAttrFromMaybeStringProperty,
   readAttrFromMaybeStringProperty,
   writeAttrFromMaybeStringProperty,
+  newAttrFromFilePathProperty,
+  readAttrFromFilePathProperty,
+  writeAttrFromFilePathProperty,
+  newAttrFromMaybeFilePathProperty,
+  readAttrFromMaybeFilePathProperty,
+  writeAttrFromMaybeFilePathProperty,
   newAttrFromBoxedOpaqueProperty,
   readAttrFromBoxedOpaqueProperty,
   writeAttrFromBoxedOpaqueProperty,
@@ -202,6 +212,18 @@ objectSetPropertyMaybeString = objectSetPropertyInternal GType.string valueSetMa
 objectGetPropertyMaybeString :: (GObjectClass gobj, GlibString string) => String -> gobj -> IO (Maybe string)
 objectGetPropertyMaybeString = objectGetPropertyInternal GType.string valueGetMaybeString
 
+objectSetPropertyFilePath :: (GObjectClass gobj, GlibFilePath string) => String -> gobj -> string -> IO ()
+objectSetPropertyFilePath = objectSetPropertyInternal GType.string valueSetFilePath
+
+objectGetPropertyFilePath :: (GObjectClass gobj, GlibFilePath string) => String -> gobj -> IO string
+objectGetPropertyFilePath = objectGetPropertyInternal GType.string valueGetFilePath
+
+objectSetPropertyMaybeFilePath :: (GObjectClass gobj, GlibFilePath string) => String -> gobj -> Maybe string -> IO ()
+objectSetPropertyMaybeFilePath = objectSetPropertyInternal GType.string valueSetMaybeFilePath
+
+objectGetPropertyMaybeFilePath :: (GObjectClass gobj, GlibFilePath string) => String -> gobj -> IO (Maybe string)
+objectGetPropertyMaybeFilePath = objectGetPropertyInternal GType.string valueGetMaybeFilePath
+
 objectSetPropertyBoxedOpaque :: GObjectClass gobj => (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> GType -> String -> gobj -> boxed -> IO ()
 objectSetPropertyBoxedOpaque with gtype = objectSetPropertyInternal gtype (valueSetBoxed with)
 
@@ -306,6 +328,30 @@ readAttrFromMaybeStringProperty propName =
 writeAttrFromMaybeStringProperty :: (GObjectClass gobj, GlibString string) => String -> WriteAttr gobj (Maybe string)
 writeAttrFromMaybeStringProperty propName =
   writeNamedAttr propName (objectSetPropertyMaybeString propName)
+
+newAttrFromFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> Attr gobj string
+newAttrFromFilePathProperty propName =
+  newNamedAttr propName (objectGetPropertyFilePath propName) (objectSetPropertyFilePath propName)
+
+readAttrFromFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> ReadAttr gobj string
+readAttrFromFilePathProperty propName =
+  readNamedAttr propName (objectGetPropertyFilePath propName)
+
+writeAttrFromFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> WriteAttr gobj string
+writeAttrFromFilePathProperty propName =
+  writeNamedAttr propName (objectSetPropertyFilePath propName)
+
+newAttrFromMaybeFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> Attr gobj (Maybe string)
+newAttrFromMaybeFilePathProperty propName =
+  newNamedAttr propName (objectGetPropertyMaybeFilePath propName) (objectSetPropertyMaybeFilePath propName)
+
+readAttrFromMaybeFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> ReadAttr gobj (Maybe string)
+readAttrFromMaybeFilePathProperty propName =
+  readNamedAttr propName (objectGetPropertyMaybeFilePath propName)
+
+writeAttrFromMaybeFilePathProperty :: (GObjectClass gobj, GlibFilePath string) => String -> WriteAttr gobj (Maybe string)
+writeAttrFromMaybeFilePathProperty propName =
+  writeNamedAttr propName (objectSetPropertyMaybeFilePath propName)
 
 newAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> Attr gobj boxed
 newAttrFromBoxedOpaqueProperty peek with propName gtype =

@@ -194,6 +194,7 @@ module Graphics.UI.Gtk.Display.Label (
 
 import Control.Monad    (liftM)
 import Data.Text        (Text)
+import qualified Data.Text as T (pack)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -352,7 +353,7 @@ labelSetMarkupWithMnemonic self str =
 --
 labelSetPattern :: LabelClass l => l -> [Int] -> IO ()
 labelSetPattern self list =
-  withUTFString str $
+  withUTFString (T.pack str) $
   {# call label_set_pattern #}
     (toLabel self)
   where

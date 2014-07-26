@@ -179,6 +179,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
 
 import Prelude hiding (catch)
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, KeyCode, keyName)
@@ -482,7 +483,7 @@ eventKeyVal = ask >>= \ptr -> liftIO $ liftM fromIntegral
   (#{peek GdkEventKey, keyval} ptr :: IO #{gtk2hs_type guint})
 
 -- | The key value as a string. See 'Graphics.UI.Gtk.Gdk.Keys.KeyVal'.
-eventKeyName :: EventM EKey String
+eventKeyName :: EventM EKey DefaultGlibString
 eventKeyName = liftM keyName $ eventKeyVal
 
 -- | The hardware key code.

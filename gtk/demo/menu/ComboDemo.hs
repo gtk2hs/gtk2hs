@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
 import Graphics.UI.Gtk
@@ -7,7 +7,7 @@ import Control.Monad ( liftM )
 import Data.Maybe ( fromMaybe )
 import Data.List ( findIndex )
 import Control.Monad.IO.Class (MonadIO(..))
-import Data.Text (Text)
+import qualified Data.Text as T
 
 main = do
   initGUI
@@ -19,7 +19,7 @@ main = do
   comboBoxSetModelText combo
 
   mapM_ (comboBoxAppendText combo)
-    (words "ice-cream turkey pasta sandwich steak")
+    (T.words "ice-cream turkey pasta sandwich steak")
 
   -- select the first item
   comboBoxSetActive combo 0

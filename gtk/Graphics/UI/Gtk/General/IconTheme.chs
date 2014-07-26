@@ -140,6 +140,7 @@ module Graphics.UI.Gtk.General.IconTheme (
   ) where
 
 import Control.Monad	(liftM)
+import Control.Applicative ((<$>))
 
 import System.Glib.FFI
 import System.Glib.Attributes
@@ -232,13 +233,13 @@ iconThemeSetScreen self screen =
 -- default icon theme, which is called DEFAULT_THEME_NAME, rather than directly
 -- on the icon path.)
 --
-iconThemeSetSearchPath :: IconThemeClass self => self
- -> [FilePath] -- ^ @path@ - list of directories that are searched for icon
+iconThemeSetSearchPath :: (IconThemeClass self, GlibFilePath fp) => self
+ -> [fp]   -- ^ @path@ - list of directories that are searched for icon
            -- themes
  -> Int    -- ^ @nElements@ - number of elements in @path@.
  -> IO ()
 iconThemeSetSearchPath self path nElements =
-  withUTFStringArray path $ \pathPtr ->
+  withUTFFilePathArray path $ \pathPtr ->
   {# call gtk_icon_theme_set_search_path #}
     (toIconTheme self)
     pathPtr
@@ -246,8 +247,8 @@ iconThemeSetSearchPath self path nElements =
 
 -- | Gets the current search path. See 'iconThemeSetSearchPath'.
 --
-iconThemeGetSearchPath :: IconThemeClass self => self
- -> IO ([FilePath], Int)         -- ^ @(path, nElements)@
+iconThemeGetSearchPath :: (IconThemeClass self, GlibFilePath fp) => self
+ -> IO ([fp], Int)         -- ^ @(path, nElements)@
                                 -- @path@ - location to store a list of icon theme path
                                 -- directories.
 iconThemeGetSearchPath self =
@@ -257,28 +258,28 @@ iconThemeGetSearchPath self =
     (toIconTheme self)
     (castPtr pathPtr)
     nElementsPtr
-  pathStr <- readUTFStringArray0 pathPtr
+  pathStr <- readUTFFilePathArray0 pathPtr
   nElements <- peek nElementsPtr
   return (pathStr, fromIntegral nElements)
 
 -- | Appends a directory to the search path. See 'iconThemeSetSearchPath'.
 --
-iconThemeAppendSearchPath :: IconThemeClass self => self
- -> FilePath -- ^ @path@ - directory name to append to the icon path
+iconThemeAppendSearchPath :: (IconThemeClass self, GlibFilePath fp) => self
+ -> fp -- ^ @path@ - directory name to append to the icon path
  -> IO ()
 iconThemeAppendSearchPath self path =
-  withUTFString path $ \pathPtr ->
+  withUTFFilePath path $ \pathPtr ->
   {# call gtk_icon_theme_append_search_path #}
     (toIconTheme self)
     pathPtr
 
 -- | Prepends a directory to the search path. See 'iconThemeSetSearchPath'.
 --
-iconThemePrependSearchPath :: IconThemeClass self => self
- -> FilePath -- ^ @path@ - directory name to prepend to the icon path
+iconThemePrependSearchPath :: (IconThemeClass self, GlibFilePath fp) => self
+ -> fp -- ^ @path@ - directory name to prepend to the icon path
  -> IO ()
 iconThemePrependSearchPath self path =
-  withUTFString path $ \pathPtr ->
+  withUTFFilePath path $ \pathPtr ->
   {# call gtk_icon_theme_prepend_search_path #}
     (toIconTheme self)
     pathPtr

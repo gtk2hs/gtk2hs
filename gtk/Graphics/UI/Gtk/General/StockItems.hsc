@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>
@@ -184,7 +185,7 @@ import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 
 -- |  A synonym for a standard button or icon.
 --
-type StockId = String
+type StockId = DefaultGlibString
 
 
 -- Although the structure itself is allocated dynamically, its contents
@@ -197,10 +198,10 @@ type StockId = String
 --
 data StockItem = StockItem {
   siStockId :: StockId,
-  siLabel   :: String,
+  siLabel   :: DefaultGlibString,
   siModifier:: [Modifier],
   siKeyval  :: KeyVal,
-  siTransDom:: String }
+  siTransDom:: DefaultGlibString }
 
 instance Storable StockItem where
   sizeOf _	= #const sizeof(GtkStockItem)
@@ -217,13 +218,13 @@ instance Storable StockItem where
       siStockId  = unsafePerformIO $ peekUTFString' stockId,
       siLabel	 = unsafePerformIO $ peekUTFString' label,
       -- &%!?$ c2hs and hsc should agree on types
-      siModifier = toFlags (fromIntegral modifier), 
+      siModifier = toFlags (fromIntegral modifier),
       siKeyval	 = keyval,
       siTransDom = unsafePerformIO $ peekUTFString' transDom }
     where
-      peekUTFString' :: CString -> IO String
+      peekUTFString' :: CString -> IO DefaultGlibString
       peekUTFString' strPtr | strPtr==nullPtr = return ""
-			  | otherwise	    = peekUTFString strPtr
+                            | otherwise       = peekUTFString strPtr
 
   poke siPtr (StockItem {
     siStockId = stockId,

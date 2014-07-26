@@ -394,7 +394,7 @@ Executable gtk2hs-demo-actionMenu
     main-is: ActionMenu.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.13.0.0, base, transformers
+    build-depends: gtk3==0.13.0.0, base, transformers, text
 
 Executable gtk2hs-demo-buttonBox
     hs-source-dirs: demo/buttonbox
@@ -458,14 +458,14 @@ Executable gtk2hs-demo-layout
     main-is: Layout.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.13.0.0, base, transformers, cairo
+    build-depends: gtk3==0.13.0.0, base, transformers, cairo, text
 
 Executable gtk2hs-demo-menudemo
     hs-source-dirs: demo/menu
     main-is: MenuDemo.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.13.0.0, base, transformers
+    build-depends: gtk3==0.13.0.0, base, transformers, text
 
 Executable gtk2hs-demo-combodemo
     hs-source-dirs: demo/menu
@@ -479,7 +479,7 @@ Executable gtk2hs-demo-notebook
     main-is: Notebook.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.13.0.0, base, transformers
+    build-depends: gtk3==0.13.0.0, base, transformers, text
 
 Executable gtk2hs-demo-statusIcon
     hs-source-dirs: demo/statusicon
@@ -493,7 +493,7 @@ Executable gtk2hs-demo-arabic
     main-is: Arabic.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.13.0.0, base, transformers
+    build-depends: gtk3==0.13.0.0, base, transformers, text
 
 Executable gtk2hs-demo-overlay
     hs-source-dirs: demo/overlay

@@ -191,12 +191,12 @@ foreign import ccall unsafe "gtk_message_dialog_new"
 -- * Available since Gtk+ version 2.4
 --
 messageDialogNewWithMarkup
-  :: (Monad m, GlibString (m Char))
+  :: GlibString string
   => Maybe Window  -- ^ Transient parent of the dialog (or none)
   -> [DialogFlags]
   -> MessageType
   -> ButtonsType
-  -> m Char        -- ^ The text of the message
+  -> string        -- ^ The text of the message
   -> IO MessageDialog
 messageDialogNewWithMarkup mWindow flags mType bType msg = do
   md <- makeNewObject mkMessageDialog $
@@ -215,8 +215,8 @@ messageDialogNewWithMarkup mWindow flags mType bType msg = do
 --
 -- * Available since Gtk+ version 2.4
 --
-messageDialogSetMarkup :: (MessageDialogClass self, Monad m, GlibString (m Char)) => self
- -> m Char -- ^ @str@ - markup string (see Pango markup format)
+messageDialogSetMarkup :: (MessageDialogClass self, GlibString string) => self
+ -> string -- ^ @str@ - markup string (see Pango markup format)
  -> IO ()
 messageDialogSetMarkup self str =
   withUTFString (unPrintf str) $ \strPtr ->

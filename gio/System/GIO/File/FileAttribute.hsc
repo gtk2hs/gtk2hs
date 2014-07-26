@@ -194,7 +194,7 @@ instance Enum FileAttributeType where
 
 data FileAttributeInfo =
     FileAttributeInfo
-    { fileAttributeInfoName :: String
+    { fileAttributeInfoName :: DefaultGlibString
     , fileAttributeInfoType :: FileAttributeType
     , fileAttributeInfoFlags :: [FileAttributeInfoFlags]
     } deriving (Eq, Read, Show)

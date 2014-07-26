@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Clipboard
 --
@@ -234,11 +235,11 @@ clipboardGetDisplay self =
 
 {-# NOINLINE getFuncQuark #-}
 getFuncQuark :: Quark
-getFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardGetFuncClosure"
+getFuncQuark = unsafePerformIO $ quarkFromString ("hsClipboardGetFuncClosure"::DefaultGlibString)
 
 {-# NOINLINE clearFuncQuark #-}
 clearFuncQuark :: Quark
-clearFuncQuark = unsafePerformIO $ quarkFromString "hsClipboardClearFuncClosure"
+clearFuncQuark = unsafePerformIO $ quarkFromString ("hsClipboardClearFuncClosure"::DefaultGlibString)
 
 -- %hash c:c65a d:b402
 -- | Virtually sets the contents of the specified clipboard by providing a

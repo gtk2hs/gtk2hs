@@ -33,6 +33,7 @@ module System.Glib.StoreValue (
   ) where
 
 import Control.Monad	(liftM)
+import Data.Text (Text)
 
 import Control.Exception  (throw, AssertionFailed(..))
 
@@ -58,7 +59,7 @@ data GenericValue = GVuint    Word
 --		  | GVpointer (Ptr ())
 		  | GVfloat   Float
 		  | GVdouble  Double
-		  | GVstring  (Maybe String)
+		  | GVstring  (Maybe Text)
 		  | GVobject  GObject
 --		  | GVboxed   (Ptr ())
 

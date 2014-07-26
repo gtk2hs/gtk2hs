@@ -68,6 +68,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   ComboBoxClass,
   castToComboBox, gTypeComboBox,
   toComboBox,
+  ComboBoxText,
 
 -- * Constructors
   comboBoxNew,
@@ -161,6 +162,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   ) where
 
 import Control.Monad    (liftM)
+import Data.Text (Text)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -265,10 +267,12 @@ comboBoxNewWithModelAndEntry model =
 -- 'comboBoxPrependText', 'comboBoxRemoveText' and 'comboBoxGetActiveText'
 -- can be called on a combo box only once 'comboBoxSetModelText' is called.
 --
-comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore String)
+type ComboBoxText = Text
+
+comboBoxSetModelText :: ComboBoxClass self => self -> IO (ListStore ComboBoxText)
 comboBoxSetModelText combo = do
   cellLayoutClear (toComboBox combo)
-  store <- listStoreNew ([] :: [String])
+  store <- listStoreNew ([] :: [ComboBoxText])
   comboBoxSetModel combo (Just store)
 #if GTK_CHECK_VERSION(2,24,0)
   let colId = makeColumnIdString 0
@@ -283,7 +287,7 @@ comboBoxSetModelText combo = do
 
 -- | Retrieve the model that was created with 'comboBoxSetModelText'.
 --
-comboBoxGetModelText :: ComboBoxClass self => self -> IO (ListStore String)
+comboBoxGetModelText :: ComboBoxClass self => self -> IO (ListStore ComboBoxText)
 comboBoxGetModelText self = do
   (Just store) <- objectGetAttributeUnsafe comboQuark (toComboBox self)
   return store
@@ -293,7 +297,7 @@ comboBoxGetModelText self = do
 -- you can only use this function with combo boxes constructed with
 -- 'comboBoxNewText'. Returns the index of the appended text.
 --
-comboBoxAppendText :: ComboBoxClass self => self -> String -> IO Int
+comboBoxAppendText :: ComboBoxClass self => self -> ComboBoxText -> IO Int
 comboBoxAppendText self text = do
   store <- comboBoxGetModelText self
   listStoreAppend store text
@@ -305,7 +309,7 @@ comboBoxAppendText self text = do
 --
 comboBoxInsertText :: ComboBoxClass self => self
  -> Int    -- ^ @position@ - An index to insert @text@.
- -> String -- ^ @text@ - A string.
+ -> ComboBoxText -- ^ @text@ - A string.
  -> IO ()
 comboBoxInsertText self position text = do
   store <- comboBoxGetModelText self
@@ -316,7 +320,7 @@ comboBoxInsertText self position text = do
 -- you can only use this function with combo boxes constructed with
 -- 'comboBoxNewText'.
 --
-comboBoxPrependText :: ComboBoxClass self => self -> String -> IO ()
+comboBoxPrependText :: ComboBoxClass self => self -> ComboBoxText -> IO ()
 comboBoxPrependText self text = do
   store <- comboBoxGetModelText self
   listStorePrepend store text
@@ -336,7 +340,7 @@ comboBoxRemoveText self position = do
 -- selected. Note that you can only use this function with combo boxes
 -- constructed with 'comboBoxNewText'.
 --
-comboBoxGetActiveText :: ComboBoxClass self => self -> IO (Maybe String)
+comboBoxGetActiveText :: ComboBoxClass self => self -> IO (Maybe ComboBoxText)
 comboBoxGetActiveText self = do
   activeId <- comboBoxGetActive self
   if activeId < 0
@@ -612,7 +616,7 @@ comboBoxGetHasEntry self =
 
 -- | Sets the model column which combo_box should use to get strings from
 --   to be @textColumn@. The column text_column in the model of @comboBox@
---   must be of type String.
+--   must be of type ComboBoxText.
 --
 --   This is only relevant if @comboBox@ has been created with "has-entry"
 --   as True.
@@ -620,7 +624,7 @@ comboBoxGetHasEntry self =
 -- * Available since Gtk+ version 2.24
 --
 comboBoxSetEntryTextColumn :: ComboBoxClass comboBox => comboBox
- -> ColumnId row String -- ^ @textColumn@ - A column in model to get the strings from for the internal entry.
+ -> ColumnId row ComboBoxText -- ^ @textColumn@ - A column in model to get the strings from for the internal entry.
  -> IO ()
 comboBoxSetEntryTextColumn comboBox textColumn =
   {# call gtk_combo_box_set_entry_text_column #}
@@ -633,7 +637,7 @@ comboBoxSetEntryTextColumn comboBox textColumn =
 -- * Available since Gtk+ version 2.24
 --
 comboBoxGetEntryTextColumn :: ComboBoxClass comboBox => comboBox
- -> IO (ColumnId row String) -- ^ returns a column in the data source model of @comboBox@.
+ -> IO (ColumnId row ComboBoxText) -- ^ returns a column in the data source model of @comboBox@.
 comboBoxGetEntryTextColumn comboBox =
   liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_combo_box_get_entry_text_column #}

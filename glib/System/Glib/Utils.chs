@@ -44,7 +44,7 @@ import System.Glib.UTFString
 -- returns the result of 'getProgramName' (which may be 'Nothing' if
 -- 'setProgramName' has also not been performed).
 --
-getApplicationName :: IO (Maybe String)
+getApplicationName :: GlibString string => IO (Maybe string)
 getApplicationName = {#call unsafe get_application_name #} >>= maybePeek peekUTFString
 
 -- |
@@ -60,7 +60,7 @@ getApplicationName = {#call unsafe get_application_name #} >>= maybePeek peekUTF
 -- The application name will be used in contexts such as error messages, or
 -- when displaying an application's name in the task list.
 --
-setApplicationName :: String -> IO ()
+setApplicationName :: GlibString string => string -> IO ()
 setApplicationName = flip withUTFString {#call unsafe set_application_name #}
 
 -- |
@@ -68,7 +68,7 @@ setApplicationName = flip withUTFString {#call unsafe set_application_name #}
 -- with 'getApplicationName'. If you are using GDK or GTK+, the program name
 -- is set in 'initGUI' to the last component of argv[0].
 --
-getProgramName :: IO (Maybe String)
+getProgramName :: GlibString string => IO (Maybe string)
 getProgramName = {#call unsafe get_prgname #} >>= maybePeek peekUTFString
 
 -- |
@@ -76,5 +76,5 @@ getProgramName = {#call unsafe get_prgname #} >>= maybePeek peekUTFString
 -- with 'setApplicationName'. Note that for thread-safety reasons this
 -- computation can only be performed once.
 --
-setProgramName :: String -> IO ()
+setProgramName :: GlibString string => string -> IO ()
 setProgramName = flip withUTFString {#call unsafe set_prgname #}

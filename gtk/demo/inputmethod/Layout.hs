@@ -1,6 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- Example of using a PangoLayout
 
 import Data.IORef
+import Data.Monoid ((<>))
+import qualified Data.Text as T
 
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
@@ -14,30 +17,30 @@ loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit,\
         \ Excepteur sint occaecat cupidatat non proident, sunt in culpa\
         \ qui officia deserunt mollit anim id est laborum."
 
-data Buffer = Buffer String Int
+data Buffer = Buffer T.Text Int
 
-defaultBuffer = Buffer loremIpsum (length loremIpsum)
+defaultBuffer = Buffer loremIpsum (T.length loremIpsum)
 
 displayBuffer (Buffer str pos) =
-  before ++ "<CURSOR>" ++ after
-  where (before,after) = splitAt pos str
+  before <> "<CURSOR>" <> after
+  where (before,after) = T.splitAt pos str
 
 displayBufferPreedit (Buffer str pos) preeditStr preeditPos =
-  before ++ "[" ++ prebefore ++ "<CURSOR>" ++ preafter ++ "]" ++ after
-  where (before,after) = splitAt pos str
-        (prebefore, preafter) = splitAt preeditPos preeditStr
+  before <> "[" <> prebefore <> "<CURSOR>" <> preafter <> "]" <> after
+  where (before,after) = T.splitAt pos str
+        (prebefore, preafter) = T.splitAt preeditPos preeditStr
 
-insertStr new (Buffer str pos) = Buffer (before++new++after) (pos+length new)
-  where (before,after) = splitAt pos str
+insertStr new (Buffer str pos) = Buffer (before<>new<>after) (pos+T.length new)
+  where (before,after) = T.splitAt pos str
 
 deleteChar b@(Buffer str 0) = b
-deleteChar (Buffer str pos) = Buffer (init before ++ after) (pos-1)
-  where (before,after) = splitAt pos str
+deleteChar (Buffer str pos) = Buffer (T.init before <> after) (pos-1)
+  where (before,after) = T.splitAt pos str
 
 moveLeft b@(Buffer str pos) | pos==0 = b
                             | otherwise = Buffer str (pos-1)
 
-moveRight b@(Buffer str pos) | pos==length str = b
+moveRight b@(Buffer str pos) | pos==T.length str = b
                              | otherwise = Buffer str (pos+1)
 
 main = do
@@ -139,7 +142,7 @@ interpretKeyPress = do
                 -- This does not appear to get called; the IM handles
                 -- unmodified keypresses.
                 liftIO $ putStrLn "Literal character not handled by IM"
-                returnJust (insertStr [ch])
+                returnJust (insertStr $ T.singleton ch)
             Nothing -> do
                 case keyName of
                     "Left" -> returnJust moveLeft

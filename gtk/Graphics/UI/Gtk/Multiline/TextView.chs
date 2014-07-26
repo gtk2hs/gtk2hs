@@ -1127,7 +1127,7 @@ textViewEditable = newAttr
 --
 -- Default value: \"\"
 --
-textViewImModule :: TextViewClass self => Attr self String
+textViewImModule :: TextViewClass self => Attr self DefaultGlibString
 textViewImModule =
   newAttrFromStringProperty "im-module"
 

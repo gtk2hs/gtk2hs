@@ -60,7 +60,7 @@ import Control.Exception
 
 import System.Glib.FFI
 import System.Glib.UTFString ( peekUTFString, UTFCorrection,
-                               ofsToUTF, ofsFromUTF )
+                               ofsToUTF, ofsFromUTF, DefaultGlibString )
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.Rendering.Pango.Types
 import Graphics.Rendering.Pango.BasicTypes
@@ -264,7 +264,7 @@ data PangoAttribute
   -- | A hint as to what language this piece of text is written in.
   = AttrLanguage { paStart :: Int, paEnd :: Int, paLang :: Language }
   -- | The font family, e.g. @sans serif@.
-  | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: String }
+  | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: DefaultGlibString }
   -- | The slant of the current font.
   | AttrStyle { paStart :: Int, paEnd :: Int, paStyle :: FontStyle }
   -- | Weight of font, e.g. 'WeightBold'.

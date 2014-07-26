@@ -38,17 +38,30 @@ module System.Glib.UTFString (
   readUTFStringArray0,
   UTFCorrection,
   ofsToUTF,
-  ofsFromUTF
+  ofsFromUTF,
+
+  glibToString,
+  stringToGlib,
+
+  DefaultGlibString,
+
+  GlibFilePath(..),
+  withUTFFilePaths,
+  withUTFFilePathArray,
+  withUTFFilePathArray0,
+  peekUTFFilePathArray0,
+  readUTFFilePathArray0
   ) where
 
 import Codec.Binary.UTF8.String
+import Control.Applicative ((<$>))
 import Control.Monad (liftM)
 import Data.Char (ord, chr)
 import Data.Maybe (maybe)
 import Data.String (IsString)
 import Data.Monoid (Monoid)
 import System.Glib.FFI
-import qualified Data.Text as T (replace, length, unpack, Text)
+import qualified Data.Text as T (replace, length, pack, unpack, Text)
 import qualified Data.Text.Foreign as T
        (withCStringLen, peekCStringLen)
 import Data.ByteString (useAsCString)
@@ -132,6 +145,12 @@ instance GlibString T.Text where
     genUTFOfs = genUTFOfs . T.unpack -- TODO optimize
     stringLength = T.length
     unPrintf = T.replace "%" "%%"
+
+glibToString :: T.Text -> String
+glibToString = T.unpack
+
+stringToGlib :: String -> T.Text
+stringToGlib = T.pack
 
 -- | Like like 'peekUTFString' but then frees the string using g_free
 --
@@ -225,3 +244,43 @@ ofsFromUTF n (UTFCorrection oc) = oFU n oc
   oFU n [] = n
   oFU n (x:xs) | n<=x = n
                | otherwise = oFU (n-1) xs
+
+type DefaultGlibString = T.Text
+
+class fp ~ FilePath => GlibFilePath fp where
+    withUTFFilePath :: fp -> (CString -> IO a) -> IO a
+    peekUTFFilePath :: CString -> IO fp
+
+instance GlibFilePath FilePath where
+    withUTFFilePath = withUTFString . T.pack
+    peekUTFFilePath f = T.unpack <$> peekUTFString f
+
+withUTFFilePaths :: GlibFilePath fp => [fp] -> ([CString] -> IO a) -> IO a
+withUTFFilePaths hsStrs = withUTFFilePath' hsStrs []
+  where withUTFFilePath' :: GlibFilePath fp => [fp] -> [CString] -> ([CString] -> IO a) -> IO a
+        withUTFFilePath' []       cs body = body (reverse cs)
+        withUTFFilePath' (fp:fps) cs body = withUTFFilePath fp $ \c ->
+                                            withUTFFilePath' fps (c:cs) body
+
+withUTFFilePathArray :: GlibFilePath fp => [fp] -> (Ptr CString -> IO a) -> IO a
+withUTFFilePathArray hsFP body =
+  withUTFFilePaths hsFP $ \cStrs -> do
+  withArray cStrs body
+
+withUTFFilePathArray0 :: GlibFilePath fp => [fp] -> (Ptr CString -> IO a) -> IO a
+withUTFFilePathArray0 hsFP body =
+  withUTFFilePaths hsFP $ \cStrs -> do
+  withArray0 nullPtr cStrs body
+
+peekUTFFilePathArray0 :: GlibFilePath fp => Ptr CString -> IO [fp]
+peekUTFFilePathArray0 cStrArr = do
+  cStrs <- peekArray0 nullPtr cStrArr
+  mapM peekUTFFilePath cStrs
+
+readUTFFilePathArray0 :: GlibFilePath fp => Ptr CString -> IO [fp]
+readUTFFilePathArray0 cStrArr | cStrArr == nullPtr = return []
+                              | otherwise = do
+  cStrs <- peekArray0 nullPtr cStrArr
+  fps <- mapM peekUTFFilePath cStrs
+  g_strfreev cStrArr
+  return fps

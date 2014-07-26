@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- | Notebook demo (include Spinner animation).
 --  Author      :  Andy Stewart
 --  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
@@ -7,7 +8,10 @@ module Main where
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Maybe
+import Data.Text (Text)
+import Data.Monoid ((<>))
 import Graphics.UI.Gtk
+import qualified Data.Text as T (unpack)
 
 data NotebookTab =
     NotebookTab {ntBox          :: HBox
@@ -29,7 +33,7 @@ main = do
   -- Set window.
   windowSetDefaultSize window 800 600
   windowSetPosition window WinPosCenter
-  set window [windowTitle := "Press Ctrl + n to create new tab."]
+  set window [windowTitle := ("Press Ctrl + n to create new tab."::Text)]
 
   -- Handle key press action.
   window `on` keyPressEvent $ tryEvent $ do
@@ -45,7 +49,7 @@ main = do
 
          -- Create notebook tab.
          tab <- notebookTabNew (Just "Cool tab") Nothing
-         menuLabel <- labelNew (Nothing :: Maybe String)
+         menuLabel <- labelNew (Nothing :: Maybe Text)
 
          -- Add widgets in notebook.
          notebookAppendPageMenu notebook textView (ntBox tab) menuLabel
@@ -70,7 +74,7 @@ main = do
   mainGUI
 
 -- | Create notebook tab.
-notebookTabNew :: Maybe String -> Maybe Int -> IO NotebookTab
+notebookTabNew :: Maybe Text -> Maybe Int -> IO NotebookTab
 notebookTabNew name size = do
   -- Init.
   let iconSize = fromMaybe 12 size
@@ -78,7 +82,7 @@ notebookTabNew name size = do
   spinner <- spinnerNew
   label <- labelNew name
   image <- imageNewFromIcon "window-close" iconSize
-  closeButton <- toolButtonNew (Just image) (Nothing :: Maybe String)
+  closeButton <- toolButtonNew (Just image) (Nothing::Maybe Text)
 
   -- Show.
   boxPackStart box label PackNatural 0
@@ -88,7 +92,7 @@ notebookTabNew name size = do
   return $ NotebookTab box spinner label closeButton iconSize
 
 -- | Set tab name.
-notebookTabSetName :: NotebookTab -> String -> IO ()
+notebookTabSetName :: NotebookTab -> Text -> IO ()
 notebookTabSetName tab =
   labelSetText (ntLabel tab)
 
@@ -109,7 +113,7 @@ notebookTabStop NotebookTab {ntBox     = box
   spinnerStop spinner
 
 -- | Create image widget with given icon name and size.
-imageNewFromIcon :: String -> Int -> IO Image
+imageNewFromIcon :: Text -> Int -> IO Image
 imageNewFromIcon iconName size = do
   iconTheme <- iconThemeGetDefault
   pixbuf <- do
@@ -117,7 +121,7 @@ imageNewFromIcon iconName size = do
     pixbuf <- iconThemeLoadIcon iconTheme iconName size IconLookupUseBuiltin
     case pixbuf of
       Just p  -> return p
-      Nothing -> error $ "imageNewFromIcon : search icon " ++ iconName ++ " failed."
+      Nothing -> error $ "imageNewFromIcon : search icon " <> T.unpack iconName <> " failed."
   imageNewFromPixbuf pixbuf
 
 -- | Try to packing widget in box.

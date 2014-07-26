@@ -159,13 +159,13 @@ contentTypeFromMimeType mimeType =
 -- be set to 'True'. Either filename or data may be 'Nothing', in which case the guess will be based solely on
 -- the other argument.
 contentTypeGuess ::
-    GlibString string
- => string
+    (GlibFilePath fp, GlibString string)
+ => fp
  -> string  -- ^ @data@             a stream of data,
  -> Int -- ^ @dataSize@        the size of data
  -> IO (Bool, string)  -- ^ returns          a string indicating a guessed content type for the given data.
 contentTypeGuess filename dat dataSize  =
-  withUTFString filename $ \ filenamePtr ->
+  withUTFFilePath filename $ \ filenamePtr ->
   withUTFString dat $ \ datPtr ->
   alloca $ \ resultUncertainPtr -> do
   strPtr <- {#call g_content_type_guess#}

@@ -130,13 +130,13 @@ cssProviderLoadFromString cssProvider css =
 
 -- |Loads the data contained in @path@ into @cssProvider@, making it clear any previously
 -- loaded information
-cssProviderLoadFromPath :: CssProviderClass cssProvider
+cssProviderLoadFromPath :: (CssProviderClass cssProvider, GlibFilePath fp)
                         => cssProvider -- ^ @cssProvider@ a @CssProvider@
-                        -> FilePath    -- ^ the path of a filename to load
+                        -> fp    -- ^ the path of a filename to load
                         -> IO ()
 cssProviderLoadFromPath cssProvider path =
   propagateGError $ \errPtrPtr ->
-  withUTFString path $ \pathPtr ->
+  withUTFFilePath path $ \pathPtr ->
   {# call gtk_css_provider_load_from_path #}
   (toCssProvider cssProvider)
   pathPtr

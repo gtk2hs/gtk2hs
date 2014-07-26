@@ -95,7 +95,7 @@ import System.Glib.GObject		(makeNewGObject, wrapNewGObject)
 {# context lib="gtk" prefix="gtk" #}
 
 -- | The name of a mark.
-type MarkName = String
+type MarkName = DefaultGlibString
 
 --------------------
 -- Constructors

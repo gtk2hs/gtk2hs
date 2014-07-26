@@ -190,13 +190,13 @@ printSettingsNew =
 --
 -- * Available since Gtk+ version 2.12
 --
-printSettingsNewFromFile ::
-    String -- ^ @fileName@ - the filename to read the settings from
+printSettingsNewFromFile :: GlibFilePath fp
+ => fp -- ^ @fileName@ - the filename to read the settings from
  -> IO PrintSettings
 printSettingsNewFromFile fileName =
   wrapNewGObject mkPrintSettings $
   propagateGError $ \errorPtr ->
-  withUTFString fileName $ \fileNamePtr ->
+  withUTFFilePath fileName $ \fileNamePtr ->
   {# call gtk_print_settings_new_from_file #}
         fileNamePtr
         errorPtr

@@ -1483,12 +1483,12 @@ windowGetScreen self =
 --
 -- * Available since Gtk+ version 2.2
 --
-windowSetIconFromFile :: WindowClass self => self
- -> FilePath  -- ^ @filename@ - location of icon file
+windowSetIconFromFile :: (WindowClass self, GlibFilePath fp) => self
+ -> fp  -- ^ @filename@ - location of icon file
  -> IO ()
 windowSetIconFromFile self filename =
   propagateGError $ \errPtr ->
-  withUTFString filename $ \filenamePtr -> do
+  withUTFFilePath filename $ \filenamePtr -> do
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_window_set_icon_from_file_utf8 #}
 #else

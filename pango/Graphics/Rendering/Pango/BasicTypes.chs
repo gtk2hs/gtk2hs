@@ -75,6 +75,7 @@ module Graphics.Rendering.Pango.BasicTypes (
 
 import Control.Monad (liftM)
 import Data.IORef ( IORef )
+import qualified Data.Text as T (unpack)
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.Rendering.Pango.Types#} (Font, PangoLayoutRaw)
@@ -92,7 +93,7 @@ type GInt = {#type gint#}
 instance Show Language where
   show (Language ptr)
     | ptr==nullPtr = ""
-    | otherwise = unsafePerformIO $ peekUTFString (castPtr ptr)
+    | otherwise = T.unpack . unsafePerformIO $ peekUTFString (castPtr ptr)
 
 -- | Specifying no particular language.
 emptyLanguage :: Language
@@ -352,6 +353,6 @@ instance Show FontDescription where
     strPtr <- {#call unsafe font_description_to_string#} fd
     str <- peekUTFString strPtr
     {#call unsafe g_free#} (castPtr strPtr)
-    return str
+    return $ T.unpack str
 
 

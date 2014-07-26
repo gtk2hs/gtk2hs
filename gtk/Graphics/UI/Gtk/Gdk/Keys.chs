@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Keys
 --
@@ -60,12 +61,12 @@ type KeyCode = Word16
 
 -- | Converts a key value into a symbolic name.
 --
-keyName :: KeyVal -> String
+keyName :: KeyVal -> DefaultGlibString
 keyName k = unsafePerformIO $ keyvalName k
 
 -- | Converts a key name to a key value.
 --
-keyFromName :: String -> KeyVal
+keyFromName :: DefaultGlibString -> KeyVal
 keyFromName k = unsafePerformIO $ keyvalFromName k
 
 -- | Convert from a Gdk key symbol to the corresponding Unicode character.
@@ -76,15 +77,15 @@ keyToChar ::
                -- Nothing if there is no corresponding character.
 keyToChar k = unsafePerformIO $ keyvalToChar k
 
-keyvalName :: KeyVal -> IO String
+keyvalName :: KeyVal -> IO DefaultGlibString
 keyvalName keyval = do
   strPtr <- {# call gdk_keyval_name #} (fromIntegral keyval)
   if strPtr==nullPtr then return "" else peekUTFString strPtr
 
-keyvalFromName :: String -> IO KeyVal
+keyvalFromName :: DefaultGlibString -> IO KeyVal
 keyvalFromName keyvalName =
   liftM fromIntegral $
-  withCString keyvalName $ \keyvalNamePtr ->
+  withUTFString keyvalName $ \keyvalNamePtr ->
   {# call gdk_keyval_from_name #}
     keyvalNamePtr
 

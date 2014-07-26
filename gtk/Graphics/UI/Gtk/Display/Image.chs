@@ -185,11 +185,11 @@ import Graphics.UI.Gtk.General.Structs	(IconSize(..))
 -- The storage type ('imageGetStorageType') of the returned image is not
 -- defined, it will be whatever is appropriate for displaying the file.
 --
-imageNewFromFile :: FilePath -> IO Image
+imageNewFromFile :: GlibFilePath fp => fp -> IO Image
 imageNewFromFile filename =
   makeNewObject mkImage $
   liftM (castPtr :: Ptr Widget -> Ptr Image) $
-  withUTFString filename $ \filenamePtr ->
+  withUTFFilePath filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call unsafe gtk_image_new_from_file_utf8 #}
 #else
@@ -290,9 +290,9 @@ imageSetFromAnimation self pba =
 
 -- | See 'imageNewFromFile' for details.
 --
-imageSetFromFile :: Image -> FilePath -> IO ()
+imageSetFromFile :: GlibFilePath fp => Image -> fp -> IO ()
 imageSetFromFile self filename =
-  withUTFString filename $ \filenamePtr ->
+  withUTFFilePath filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
   {# call gtk_image_set_from_file_utf8 #}
 #else

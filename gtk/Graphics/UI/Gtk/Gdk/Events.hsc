@@ -68,6 +68,7 @@ module Graphics.UI.Gtk.Gdk.Events (
 
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
@@ -293,7 +294,7 @@ data Event =
     --   for a complete list refer to \"<gdk/gdkkeysyms.h>\" where all
     --   possible values are defined. The corresponding strings are the
     --   constants without the GDK_ prefix.
-    eventKeyName	:: String,
+    eventKeyName :: DefaultGlibString,
     -- | A character matching the key that was pressed.
     --
     -- * This entry can be used to build up a whole input string.

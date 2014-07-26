@@ -52,6 +52,10 @@ module System.Glib.GValueTypes (
   valueGetString,
   valueSetMaybeString,
   valueGetMaybeString,
+  valueSetFilePath,
+  valueGetFilePath,
+  valueSetMaybeFilePath,
+  valueGetMaybeFilePath,
   valueSetBoxed,
   valueGetBoxed,
   valueSetGObject,
@@ -185,6 +189,31 @@ valueGetMaybeString :: GlibString string => GValue -> IO (Maybe string)
 valueGetMaybeString gvalue =
   {# call unsafe value_get_string #} gvalue
   >>= maybePeek peekUTFString
+
+valueSetFilePath :: GlibFilePath string => GValue -> string -> IO ()
+valueSetFilePath gvalue str =
+  withUTFFilePath str $ \strPtr ->
+  {# call unsafe value_set_string #} gvalue strPtr
+
+valueGetFilePath :: GlibFilePath string => GValue -> IO string
+valueGetFilePath gvalue = do
+  strPtr <- {# call unsafe value_get_string #} gvalue
+  if strPtr == nullPtr
+    then return ""
+    else peekUTFFilePath strPtr
+
+valueSetMaybeFilePath :: GlibFilePath string => GValue -> Maybe string -> IO ()
+valueSetMaybeFilePath gvalue (Just str) =
+  withUTFFilePath str $ \strPtr ->
+  {# call unsafe value_set_string #} gvalue strPtr
+
+valueSetMaybeFilePath gvalue Nothing =
+  {# call unsafe value_set_static_string #} gvalue nullPtr
+
+valueGetMaybeFilePath :: GlibFilePath string => GValue -> IO (Maybe string)
+valueGetMaybeFilePath gvalue =
+  {# call unsafe value_get_string #} gvalue
+  >>= maybePeek peekUTFFilePath
 
 valueSetBoxed :: (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> GValue -> boxed -> IO ()
 valueSetBoxed with gvalue boxed =

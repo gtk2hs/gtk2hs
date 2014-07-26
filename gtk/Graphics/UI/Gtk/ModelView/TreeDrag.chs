@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Interface DragSource and DragDest
 --
@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.ModelView.TreeDrag (
 -- so easy in Gtk2Hs, I think we can do without the cheat way.
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}      (TreePath, fromTreePath, withTreePath,
@@ -84,7 +85,7 @@ treeModelEqual tm1 tm2 = unTreeModel (toTreeModel tm1) == unTreeModel (toTreeMod
 -- 'Graphics.UI.Gtk.General.Selection.InfoId' of @0@.
 --
 targetTreeModelRow :: TargetTag
-targetTreeModelRow = unsafePerformIO $ atomNew "GTK_TREE_MODEL_ROW"
+targetTreeModelRow = unsafePerformIO $ atomNew ("GTK_TREE_MODEL_ROW"::DefaultGlibString)
 
 -- %hash c:8dcb d:af3f
 -- | Obtains a 'TreeModel' and a path from 'SelectionDataM' whenever the target is

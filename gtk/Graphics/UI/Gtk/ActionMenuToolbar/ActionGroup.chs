@@ -258,11 +258,11 @@ actionGroupRemoveAction self action =
 
 -- | A description of an action.
 data ActionEntry = ActionEntry {
-       actionEntryName        :: String,
-       actionEntryLabel       :: String,
-       actionEntryStockId     :: Maybe String,
-       actionEntryAccelerator :: Maybe String,
-       actionEntryTooltip     :: Maybe String,
+       actionEntryName        :: DefaultGlibString,
+       actionEntryLabel       :: DefaultGlibString,
+       actionEntryStockId     :: Maybe DefaultGlibString,
+       actionEntryAccelerator :: Maybe DefaultGlibString,
+       actionEntryTooltip     :: Maybe DefaultGlibString,
        actionEntryCallback    :: IO ()
      }
 
@@ -284,11 +284,11 @@ actionGroupAddActions self entries =
 
 -- | A description of an action for an entry that can be toggled.
 data ToggleActionEntry = ToggleActionEntry {
-       toggleActionName        :: String,
-       toggleActionLabel       :: String,
-       toggleActionStockId     :: Maybe String,
-       toggleActionAccelerator :: Maybe String,
-       toggleActionTooltip     :: Maybe String,
+       toggleActionName        :: DefaultGlibString,
+       toggleActionLabel       :: DefaultGlibString,
+       toggleActionStockId     :: Maybe DefaultGlibString,
+       toggleActionAccelerator :: Maybe DefaultGlibString,
+       toggleActionTooltip     :: Maybe DefaultGlibString,
        toggleActionCallback    :: IO (),
        toggleActionIsActive    :: Bool
      }
@@ -312,11 +312,11 @@ actionGroupAddToggleActions self entries =
 
 -- | A description of an action for an entry that provides a multiple choice.
 data RadioActionEntry = RadioActionEntry {
-       radioActionName        :: String,
-       radioActionLabel       :: String,
-       radioActionStockId     :: Maybe String,
-       radioActionAccelerator :: Maybe String,
-       radioActionTooltip     :: Maybe String,
+       radioActionName        :: DefaultGlibString,
+       radioActionLabel       :: DefaultGlibString,
+       radioActionStockId     :: Maybe DefaultGlibString,
+       radioActionAccelerator :: Maybe DefaultGlibString,
+       radioActionTooltip     :: Maybe DefaultGlibString,
        radioActionValue       :: Int
      }
 

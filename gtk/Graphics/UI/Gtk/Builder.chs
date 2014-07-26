@@ -123,10 +123,10 @@ builderNew =
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'BuilderError'.
 --
-builderAddFromFile :: Builder -> FilePath -> IO ()
+builderAddFromFile :: GlibFilePath fp => Builder -> fp -> IO ()
 builderAddFromFile builder path =
   propagateGError $ \errPtrPtr ->
-  withUTFString path $ \pathPtr ->
+  withUTFFilePath path $ \pathPtr ->
   {# call unsafe builder_add_from_file #}
     builder pathPtr errPtrPtr
     >> return ()
@@ -155,14 +155,14 @@ builderAddFromString builder str =
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'BuilderError'.
 --
-builderAddObjectsFromFile :: GlibString string
+builderAddObjectsFromFile :: (GlibString string, GlibFilePath fp)
  => Builder
- -> FilePath
+ -> fp
  -> [string] -- ^ Object IDs
  -> IO ()
 builderAddObjectsFromFile builder path ids =
   propagateGError $ \errPtrPtr ->
-  withUTFString path $ \pathPtr ->
+  withUTFFilePath path $ \pathPtr ->
   withUTFStringArray0 ids $ \idsPtr ->
   {# call unsafe builder_add_objects_from_file #}
     builder pathPtr idsPtr errPtrPtr

@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pango text layout functions
 --
@@ -122,6 +122,7 @@ module Graphics.Rendering.Pango.Layout (
 
 import Control.Monad    (liftM)
 import Data.Char     (ord, chr)
+import Data.Text (Text)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -146,7 +147,7 @@ layoutEmpty :: PangoContext -> IO PangoLayout
 layoutEmpty pc = do
   pl <- wrapNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
-  ps <- makeNewPangoString ""
+  ps <- makeNewPangoString ("" :: Text)
   psRef <- newIORef ps
   return (PangoLayout psRef pl)
 

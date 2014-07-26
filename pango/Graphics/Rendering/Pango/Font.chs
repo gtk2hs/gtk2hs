@@ -74,6 +74,7 @@ module Graphics.Rendering.Pango.Font (
   ) where
 
 import Control.Monad    (liftM)
+import qualified Data.Text as T (unpack)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -103,7 +104,7 @@ pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   mapM (makeNewGObject mkFontFamily . return . castPtr) ffsPtr
 
 instance Show FontFamily where
-  show ff = unsafePerformIO $ do
+  show ff = T.unpack . unsafePerformIO $ do
     strPtr <- {#call unsafe font_family_get_name#} ff
     peekUTFString strPtr
 
@@ -142,7 +143,7 @@ pangoFontFamilyListFaces ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   mapM (makeNewGObject mkFontFace . return . castPtr) ffsPtr
 
 instance Show FontFace where
-  show ff = unsafePerformIO $ do
+  show ff = T.unpack . unsafePerformIO $ do
     strPtr <- {#call unsafe font_face_get_face_name#} ff
     peekUTFString strPtr
 

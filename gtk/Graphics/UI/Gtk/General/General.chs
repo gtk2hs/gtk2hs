@@ -81,6 +81,7 @@ module Graphics.UI.Gtk.General.General (
 
 import System.Environment (getProgName, getArgs)
 import Control.Monad      (liftM, mapM, when)
+import Control.Applicative ((<$>))
 import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
                            putMVar, takeMVar)
 import Data.IORef         (IORef, newIORef, readIORef, writeIORef)
@@ -147,7 +148,7 @@ initGUI = do
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
-  withMany withUTFString allArgs $ \addrs  ->
+  withMany withUTFString (map stringToGlib allArgs) $ \addrs  ->
     withArrayLen       addrs   $ \argc argv ->
     with	       argv    $ \argvp ->
     with	       argc    $ \argcp -> do
@@ -156,7 +157,7 @@ initGUI = do
         argc'   <- peek argcp
         argv'   <- peek argvp
         _:addrs'  <- peekArray argc' argv'  -- drop the program name
-        mapM peekUTFString addrs'
+        mapM ((glibToString <$>) . peekUTFString) addrs'
         else error "Cannot initialize GUI."
 
 -- g_thread_init aborts the whole program if it's called more than once so

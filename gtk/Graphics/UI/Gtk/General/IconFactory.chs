@@ -104,6 +104,7 @@ module Graphics.UI.Gtk.General.IconFactory (
   ) where
 
 import Control.Monad	(liftM)
+import Control.Applicative ((<$>))
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -125,7 +126,7 @@ instance Show IconSize where
     where
     lookupSizeString n = do
       ptr <- {#call unsafe icon_size_get_name#} (fromIntegral n)
-      if ptr==nullPtr then return "" else peekUTFString ptr
+      if ptr==nullPtr then return "" else glibToString <$> peekUTFString ptr
 
 --------------------
 -- Constructors
@@ -381,12 +382,12 @@ iconSourceResetDirection is =
 
 -- | Load an icon picture from this filename.
 --
-iconSourceSetFilename :: IconSource -> FilePath -> IO ()
+iconSourceSetFilename :: GlibFilePath fp => IconSource -> fp -> IO ()
 iconSourceSetFilename is name =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) && GTK_MAJOR_VERSION < 3
-  withUTFString name $ {# call unsafe icon_source_set_filename_utf8 #} is
+  withUTFFilePath name $ {# call unsafe icon_source_set_filename_utf8 #} is
 #else
-  withUTFString name $ {# call unsafe icon_source_set_filename #} is
+  withUTFFilePath name $ {# call unsafe icon_source_set_filename #} is
 #endif
 
 -- | Retrieves the source pixbuf, or Nothing if none is set.

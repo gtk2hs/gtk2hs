@@ -177,7 +177,7 @@ import Control.Monad.Reader ( runReaderT )
 
 {# context lib="gtk" prefix="gtk" #}
 
-type TagName = String
+type TagName = DefaultGlibString
 
 --------------------
 -- Constructors
@@ -189,7 +189,7 @@ type TagName = String
 textTagNew :: Maybe TagName -> IO TextTag
 textTagNew (Just name) =
   wrapNewGObject mkTextTag $
-  withCString name $ \namePtr ->
+  withUTFString name $ \namePtr ->
   {# call unsafe text_tag_new #}
     namePtr
 textTagNew Nothing =

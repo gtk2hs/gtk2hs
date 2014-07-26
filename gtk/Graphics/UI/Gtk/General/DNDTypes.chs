@@ -90,7 +90,7 @@ type PropertyTag = Atom
 newtype Atom = Atom (Ptr ()) deriving Eq
 
 instance Show Atom where
-  show (Atom ptr) = atomToString ptr
+  show (Atom ptr) = show (atomToString ptr :: DefaultGlibString)
 
 atomToString ptr = unsafePerformIO $ do
 	strPtr <- {#call unsafe gdk_atom_name#} ptr

@@ -2,8 +2,10 @@
 import Graphics.UI.Gtk
 
 import Data.Char
+import qualified Data.Text as T
 import Control.Exception
 import Control.Applicative
+import Data.Text (Text)
 
 main :: IO ()
 main = do
@@ -12,8 +14,8 @@ main = do
   dialogAddButton dia stockYes ResponseYes
   dialogAddButton dia stockNo ResponseNo
   contain <- castToBox <$> dialogGetContentArea dia
-  theText <- labelNew (Nothing :: Maybe String)
-  labelSetMarkup theText arabic
+  theText <- labelNew (Nothing :: Maybe Text)
+  labelSetMarkup theText (T.pack arabic)
   boxPackStart contain theText PackNatural 0
   widgetShowAll dia
   res <- dialogRun dia

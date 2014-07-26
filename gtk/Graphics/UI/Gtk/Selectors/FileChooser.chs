@@ -353,11 +353,11 @@ fileChooserGetSelectMultiple self =
 -- documentation for those functions for an example of using
 -- 'fileChooserSetCurrentName' as well.
 --
-fileChooserSetCurrentName :: FileChooserClass self => self
- -> FilePath -- ^ @name@ - the filename to use, as a Unicode string
+fileChooserSetCurrentName :: (FileChooserClass self, GlibFilePath fp) => self
+ -> fp -- ^ @name@ - the filename to use, as a Unicode string
  -> IO ()
 fileChooserSetCurrentName self name =
-  withUTFString name $ \namePtr ->
+  withUTFFilePath name $ \namePtr ->
   {# call gtk_file_chooser_set_current_name #}
     (toFileChooser self)
     namePtr
@@ -369,8 +369,8 @@ fileChooserSetCurrentName self name =
 -- If the file chooser is in folder mode, this function returns the selected
 -- folder.
 --
-fileChooserGetFilename :: FileChooserClass self => self
- -> IO (Maybe FilePath) -- ^ returns The currently selected filename, or
+fileChooserGetFilename :: (FileChooserClass self, GlibFilePath fp) => self
+ -> IO (Maybe fp) -- ^ returns The currently selected filename, or
                         -- @Nothing@ if no file is selected, or the selected
                         -- file can't be represented with a local filename.
 fileChooserGetFilename self =
@@ -380,7 +380,7 @@ fileChooserGetFilename self =
   {# call gtk_file_chooser_get_filename #}
 #endif
     (toFileChooser self)
-  >>= maybePeek readCString
+  >>= maybePeek peekUTFFilePath
 
 -- | Sets @filename@ as the current filename for the file chooser, by changing
 -- to the file's parent folder and actually selecting the file in list. If the

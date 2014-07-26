@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget PrintContext
 --
@@ -78,6 +78,7 @@ import Control.Monad	(liftM)
 import Data.IORef (newIORef)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
@@ -189,7 +190,7 @@ printContextCreatePangoLayout self = do
   pl <- wrapNewGObject mkPangoLayoutRaw $
     {# call gtk_print_context_create_pango_layout #}
     (toPrintContext self)
-  ps <- makeNewPangoString ""
+  ps <- makeNewPangoString (""::DefaultGlibString)
   psRef <- newIORef ps
   return (PangoLayout psRef pl)
 

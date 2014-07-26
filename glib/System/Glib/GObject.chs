@@ -61,6 +61,7 @@ module System.Glib.GObject (
 
 import Control.Monad (liftM, when)
 import Data.IORef (newIORef, readIORef, writeIORef)
+import qualified Data.Text as T (pack)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -185,7 +186,7 @@ objectCreateAttribute :: GObjectClass o => IO (Attr o (Maybe a))
 objectCreateAttribute = do
   cnt <- modifyMVar uniqueCnt (\cnt -> return (cnt+1, cnt))
   let propName = "Gtk2HsAttr"++show cnt
-  attr <- quarkFromString propName
+  attr <- quarkFromString $ T.pack propName
   return (newNamedAttr propName (objectGetAttributeUnsafe attr)
 	                        (objectSetAttribute attr))
 

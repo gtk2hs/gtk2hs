@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf
 --
@@ -274,11 +275,11 @@ instance GErrorClass PixbufError where
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'PixbufError'.
 --
-pixbufNewFromFile :: FilePath -> IO Pixbuf
+pixbufNewFromFile :: GlibFilePath fp => fp -> IO Pixbuf
 pixbufNewFromFile fname =
   wrapNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
-     withUTFString fname $ \strPtr ->
+     withUTFFilePath fname $ \strPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
      {#call unsafe pixbuf_new_from_file_utf8#}
 #else
@@ -371,7 +372,7 @@ pixbufNewFromSurface surface srcX srcY width height =
 
 -- | A string representing an image file format.
 --
-type ImageFormat = String
+type ImageFormat = DefaultGlibString
 
 -- constant pixbufGetFormats A list of valid image file formats.
 --
@@ -394,13 +395,13 @@ pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 --   be caught using e.g. 'System.Glib.GError.catchGErrorJust' and one of the
 --   error codes in 'PixbufError'.
 --
-pixbufSave :: GlibString string => Pixbuf -> FilePath -> ImageFormat -> [(string, string)] ->
+pixbufSave :: (GlibString string, GlibFilePath fp) => Pixbuf -> fp -> ImageFormat -> [(string, string)] ->
 	      IO ()
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   let optLen = length keys in
   propagateGError $ \errPtrPtr ->
-    withUTFString fname $ \fnPtr ->
+    withUTFFilePath fname $ \fnPtr ->
     withUTFString iType $ \tyPtr ->
     withUTFStringArray0 keys $ \keysPtr ->
     withUTFStringArray values $ \valuesPtr -> do
@@ -502,7 +503,7 @@ pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
     else do
       errPtr <- peek errPtrPtr
       (GError dom code msg) <- peek errPtr
-      error msg
+      error $ glibToString msg
 
 -- | Create a restricted view of an image.
 --

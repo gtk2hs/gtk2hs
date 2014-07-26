@@ -1,6 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) CustomStore TreeModel
@@ -224,10 +225,11 @@ fromTreePath tpPtr | tpPtr==nullPtr = return []
 -- | Convert a comma or colon separated string into a 'TreePath'. Any
 -- non-digit characters are assumed to separate indices, thus, the function
 -- always is always successful.
-stringToTreePath :: String -> TreePath
-stringToTreePath "" = []
-stringToTreePath path = getNum 0 (dropWhile (not . isDigit) path)
+stringToTreePath :: DefaultGlibString -> TreePath
+stringToTreePath = stringToTreePath' . glibToString
   where
+  stringToTreePath' "" = []
+  stringToTreePath' path = getNum 0 (dropWhile (not . isDigit) path)
   getNum acc ('0':xs) = getNum (10*acc) xs
   getNum acc ('1':xs) = getNum (10*acc+1) xs
   getNum acc ('2':xs) = getNum (10*acc+2) xs
@@ -238,7 +240,7 @@ stringToTreePath path = getNum 0 (dropWhile (not . isDigit) path)
   getNum acc ('7':xs) = getNum (10*acc+7) xs
   getNum acc ('8':xs) = getNum (10*acc+8) xs
   getNum acc ('9':xs) = getNum (10*acc+9) xs
-  getNum acc xs = acc:stringToTreePath (dropWhile (not . isDigit) xs)
+  getNum acc xs = acc:stringToTreePath' (dropWhile (not . isDigit) xs)
 
 -- | Accessing a row for a specific value. Used for 'ColumnMap'.
 data ColumnAccess row where
@@ -256,5 +258,5 @@ data ColumnId row ty
 {-# NOINLINE comboQuark #-}
 comboQuark :: Quark
 comboQuark =
-  unsafePerformIO $ quarkFromString "comboBoxHaskellStringModelQuark"
+  unsafePerformIO $ quarkFromString ("comboBoxHaskellStringModelQuark"::DefaultGlibString)
 
