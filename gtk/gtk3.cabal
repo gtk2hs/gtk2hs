@@ -136,7 +136,7 @@ Flag fmode-binary
 Library
         build-depends:  base >= 4 && < 5,
                         array, containers, mtl, bytestring,
-                        text >= 1.1.1.3 && < 1.2,
+                        text >= 0.11.0.6 && < 1.2,
                         glib  >= 0.13.0.0 && < 0.14,
                         pango >= 0.13.0.0 && < 0.14,
                         cairo >= 0.13.0.0 && < 0.14
