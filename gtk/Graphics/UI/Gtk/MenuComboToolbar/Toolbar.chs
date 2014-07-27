@@ -163,7 +163,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 
 import Control.Monad	(liftM)
 import Data.Maybe	(fromJust)
-
+import qualified Data.Text as T (filter)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
@@ -292,7 +292,7 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
   item <- case mItem of
     (Just item) -> return item
     Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
-  let label = (filter (/= '_')) $ siLabel item
+  let label = (T.filter (/= '_')) $ siLabel item
   size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size
   makeNewObject mkToggleButton $ liftM castPtr $
@@ -356,7 +356,7 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
   item <- case mItem of
     (Just item) -> return item
     Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
-  let label = (filter (/= '_')) $ siLabel item
+  let label = (T.filter (/= '_')) $ siLabel item
   size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size
   makeNewObject mkRadioButton $ liftM castPtr $
