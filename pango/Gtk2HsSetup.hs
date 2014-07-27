@@ -56,7 +56,8 @@ import Distribution.Version (Version(..))
 import Distribution.Verbosity
 import Control.Monad (when, unless, filterM, liftM, forM, forM_)
 import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList, catMaybes )
-import Data.List (isPrefixOf, isSuffixOf, stripPrefix, nub, tails )
+import Data.List (isPrefixOf, isSuffixOf, nub, minimumBy, stripPrefix, tails )
+import Data.Ord as Ord (comparing)
 import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -113,9 +114,16 @@ getDlls dirs = filter ((== ".dll") . takeExtension) . concat <$>
 fixLibs :: [FilePath] -> [String] -> [String]
 fixLibs dlls = concatMap $ \ lib ->
     case filter (isLib lib) dlls of
-                dll:_ -> [dropExtension dll]
-                _     -> if lib == "z" then [] else [lib]
+                dlls@(_:_) -> [dropExtension (pickDll dlls)]
+                _          -> if lib == "z" then [] else [lib]
   where
+    -- If there are several .dll files matching the one we're after then we
+    -- just have to guess. For example for recent Windows cairo builds we get
+    -- libcairo-2.dll libcairo-gobject-2.dll libcairo-script-interpreter-2.dll
+    -- Our heuristic is to pick the one with the shortest name.
+    -- Yes this is a hack but the proper solution is hard: we would need to
+    -- parse the .a file and see which .dll file(s) it needed to link to.
+    pickDll = minimumBy (Ord.comparing length)
     isLib lib dll =
         case stripPrefix ("lib"++lib) dll of
             Just ('.':_)                -> True
@@ -154,9 +162,9 @@ registerHook pkg_descr localbuildinfo _ flags =
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
          -> IO ()
-register pkg@(library       -> Just lib )
-         lbi@(libraryConfig -> Just clbi) regFlags
+register pkg@PackageDescription { library       = Just lib  } lbi regFlags
   = do
+    let clbi = LBI.getComponentLocalBuildInfo lbi LBI.CLibName
 
     installedPkgInfoRaw <- generateRegistrationInfo
                            verbosity pkg lib lbi clbi inplace distPref
@@ -168,7 +176,7 @@ register pkg@(library       -> Just lib )
 
      -- Three different modes:
     case () of
-     _ | modeGenerateRegFile   -> die "Generate Reg File not supported"
+     _ | modeGenerateRegFile   -> writeRegistrationFile installedPkgInfo
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
                                     installedPkgInfo pkg lbi inplace
@@ -180,6 +188,8 @@ register pkg@(library       -> Just lib )
 
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
+    regFile             = fromMaybe (display (packageId pkg) <.> "conf")
+                                    (fromFlag (regGenPkgConf regFlags))
     modeGenerateRegScript = fromFlag (regGenScript regFlags)
     inplace   = fromFlag (regInPlace regFlags)
     packageDbs = nub $ withPackageDB lbi
@@ -187,6 +197,10 @@ register pkg@(library       -> Just lib )
     packageDb = registrationPackageDB packageDbs
     distPref  = fromFlag (regDistPref regFlags)
     verbosity = fromFlag (regVerbosity regFlags)
+
+    writeRegistrationFile installedPkgInfo = do
+      notice verbosity ("Creating package registration file: " ++ regFile)
+      writeUTF8File regFile (showInstalledPackageInfo installedPkgInfo)
 
 register _ _ regFlags = notice verbosity "No package to register"
   where

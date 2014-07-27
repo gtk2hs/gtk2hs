@@ -162,9 +162,9 @@ registerHook pkg_descr localbuildinfo _ flags =
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
          -> IO ()
-register pkg@(library       -> Just lib )
-         lbi@(libraryConfig -> Just clbi) regFlags
+register pkg@PackageDescription { library       = Just lib  } lbi regFlags
   = do
+    let clbi = LBI.getComponentLocalBuildInfo lbi LBI.CLibName
 
     installedPkgInfoRaw <- generateRegistrationInfo
                            verbosity pkg lib lbi clbi inplace distPref
@@ -176,7 +176,7 @@ register pkg@(library       -> Just lib )
 
      -- Three different modes:
     case () of
-     _ | modeGenerateRegFile   -> die "Generate Reg File not supported"
+     _ | modeGenerateRegFile   -> writeRegistrationFile installedPkgInfo
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
                                     installedPkgInfo pkg lbi inplace
@@ -188,6 +188,8 @@ register pkg@(library       -> Just lib )
 
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
+    regFile             = fromMaybe (display (packageId pkg) <.> "conf")
+                                    (fromFlag (regGenPkgConf regFlags))
     modeGenerateRegScript = fromFlag (regGenScript regFlags)
     inplace   = fromFlag (regInPlace regFlags)
     packageDbs = nub $ withPackageDB lbi
@@ -196,10 +198,13 @@ register pkg@(library       -> Just lib )
     distPref  = fromFlag (regDistPref regFlags)
     verbosity = fromFlag (regVerbosity regFlags)
 
+    writeRegistrationFile installedPkgInfo = do
+      notice verbosity ("Creating package registration file: " ++ regFile)
+      writeUTF8File regFile (showInstalledPackageInfo installedPkgInfo)
+
 register _ _ regFlags = notice verbosity "No package to register"
   where
     verbosity = fromFlag (regVerbosity regFlags)
-
 
 ------------------------------------------------------------------------------
 -- This is a hack for Cabal-1.8, It is not needed in Cabal-1.9.1 or later
