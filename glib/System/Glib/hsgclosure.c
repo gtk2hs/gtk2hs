@@ -172,7 +172,7 @@ gtk2hs_value_as_haskellobj(const GValue *value) {
         else
             break;
     case G_TYPE_CHAR:
-        return rts_mkChar(CAP g_value_get_char(value));
+        return rts_mkChar(CAP g_value_get_schar(value));
     case G_TYPE_UCHAR:
         return rts_mkChar(CAP g_value_get_uchar(value));
     case G_TYPE_BOOLEAN:
@@ -229,10 +229,10 @@ gtk2hs_value_from_haskellobj(GValue *value, HaskellObj obj) {
         }
         return;
     case G_TYPE_CHAR:
-        g_value_set_char(value, rts_getChar(obj));
+        g_value_set_schar(value, rts_getChar(obj));
         return;
     case G_TYPE_UCHAR:
-        g_value_set_char(value, rts_getChar(obj));
+        g_value_set_schar(value, rts_getChar(obj));
         return;
     case G_TYPE_BOOLEAN:
         g_value_set_boolean(value, rts_getBool(obj));
