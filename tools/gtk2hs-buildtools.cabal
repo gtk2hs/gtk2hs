@@ -9,7 +9,7 @@ Build-Type:     Simple
 Cabal-Version:  >= 1.8
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
-bug-reports:    http://hackage.haskell.org/trac/gtk2hs/
+bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
 Synopsis:       Tools to build the Gtk2Hs suite of User Interface libraries.
 Description:    This package provides a set of helper programs necessary to
                 build the Gtk2Hs suite of libraries. These tools include
