@@ -146,7 +146,7 @@ Library
         if flag(have-quartz-gtk)
           cpp-options:    -DHAVE_QUARTZ_GTK
 
-        build-tools:    gtk2hsC2hs >= 0.13.10,
+        build-tools:    gtk2hsC2hs >= 0.13.11,
                         gtk2hsHookGenerator, gtk2hsTypeGen
 
         exposed-modules:

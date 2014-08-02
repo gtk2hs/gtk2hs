@@ -49,7 +49,7 @@ Library
                         utf8-string >= 0.2 && < 0.4,
                         text >= 0.11.0.6 && < 1.2,
                         bytestring, mtl, array
-        build-tools:    gtk2hsC2hs >= 0.13.10
+        build-tools:    gtk2hsC2hs >= 0.13.11
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types
