@@ -43,7 +43,7 @@ import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
 #else
 import Foreign.ForeignPtr (unsafeForeignPtrToPtr)
 #endif
-import Foreign.C.Types    (CULong(..), CUInt(..))
+import Foreign.C.Types    (CULong(..), CUInt(..), CULLong(..))
 import System.Glib.GType  (GType, typeInstanceIsA)
 @MODULE_IMPORTS@
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
