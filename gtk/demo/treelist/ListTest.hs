@@ -1,34 +1,35 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Glade
 import Graphics.UI.Gtk.ModelView as New
 
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 main = do
   initGUI
-  Just xml <- xmlNew "ListTest.glade"
 
-  win <- xmlGetWidget xml castToWindow "window"
-  onDestroy win mainQuit
+  gui <- builderNew
+  builderAddFromFile gui "ListTest.glade"
 
-  view <- xmlGetWidget xml castToTreeView "view"
+  win <- builderGetObject gui castToWindow "window"
+  on win objectDestroy mainQuit
 
-  stringValue <- xmlGetWidget xml castToEntry "stringValue"
-  intValue    <- xmlGetWidget xml castToSpinButton "intValue"
-  boolValue   <- xmlGetWidget xml castToCheckButton "boolValue"
+  view <- builderGetObject gui castToTreeView "view"
 
-  insertButton  <- xmlGetWidget xml castToButton "insert"
-  prependButton <- xmlGetWidget xml castToButton "prepend"
-  appendButton  <- xmlGetWidget xml castToButton "append"
-  updateButton  <- xmlGetWidget xml castToButton "update"
-  newIndex      <- xmlGetWidget xml castToSpinButton "newIndex"
-  updateIndex   <- xmlGetWidget xml castToSpinButton "updateIndex"
+  stringValue <- builderGetObject gui castToEntry "stringValue"
+  intValue    <- builderGetObject gui castToSpinButton "intValue"
+  boolValue   <- builderGetObject gui castToCheckButton "boolValue"
 
-  removeButton  <- xmlGetWidget xml castToButton "remove"
-  clearButton   <- xmlGetWidget xml castToButton "clear"
-  removeIndex   <- xmlGetWidget xml castToSpinButton "removeIndex"
+  insertButton  <- builderGetObject gui castToButton "insert"
+  prependButton <- builderGetObject gui castToButton "prepend"
+  appendButton  <- builderGetObject gui castToButton "append"
+  updateButton  <- builderGetObject gui castToButton "update"
+  newIndex      <- builderGetObject gui castToSpinButton "newIndex"
+  updateIndex   <- builderGetObject gui castToSpinButton "updateIndex"
+
+  removeButton  <- builderGetObject gui castToButton "remove"
+  clearButton   <- builderGetObject gui castToButton "clear"
+  removeIndex   <- builderGetObject gui castToSpinButton "removeIndex"
 
   -- create a new list store
   store <- storeImpl
@@ -44,6 +45,8 @@ main = do
           number = floor number,
           marked = marked
         }
+
+  let onClicked obj act = on obj buttonActivated $ act
 
   onClicked prependButton $ getValues >>= New.listStorePrepend store
   onClicked appendButton $ getValues >>= New.listStoreAppend store >> return ()

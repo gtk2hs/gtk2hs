@@ -13,6 +13,6 @@ combodemo : ComboDemo.hs
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
 
 clean:
-	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)
 
 HC=ghc

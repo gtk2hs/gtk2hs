@@ -1,7 +1,6 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Glade
 import Graphics.UI.Gtk.ModelView as New
 
 import qualified Data.Tree as Tree
@@ -10,25 +9,27 @@ data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 main = do
   initGUI
-  Just xml <- xmlNew "TreeTest.glade"
 
-  win <- xmlGetWidget xml castToWindow "window"
-  onDestroy win mainQuit
+  gui <- builderNew
+  builderAddFromFile gui "TreeTest.glade"
 
-  view <- xmlGetWidget xml castToTreeView "view"
+  win <- builderGetObject gui castToWindow "window"
+  on win objectDestroy mainQuit
 
-  stringValue <- xmlGetWidget xml castToEntry "stringValue"
-  intValue    <- xmlGetWidget xml castToSpinButton "intValue"
-  boolValue   <- xmlGetWidget xml castToCheckButton "boolValue"
+  view <- builderGetObject gui castToTreeView "view"
 
-  insertButton  <- xmlGetWidget xml castToButton "insert"
-  updateButton  <- xmlGetWidget xml castToButton "update"
-  newPath       <- xmlGetWidget xml castToEntry "newPath"
-  updatePath    <- xmlGetWidget xml castToEntry "updatePath"
+  stringValue <- builderGetObject gui castToEntry "stringValue"
+  intValue    <- builderGetObject gui castToSpinButton "intValue"
+  boolValue   <- builderGetObject gui castToCheckButton "boolValue"
 
-  removeButton  <- xmlGetWidget xml castToButton "remove"
-  clearButton   <- xmlGetWidget xml castToButton "clear"
-  removePath    <- xmlGetWidget xml castToEntry "removePath"
+  insertButton  <- builderGetObject gui castToButton "insert"
+  updateButton  <- builderGetObject gui castToButton "update"
+  newPath       <- builderGetObject gui castToEntry "newPath"
+  updatePath    <- builderGetObject gui castToEntry "updatePath"
+
+  removeButton  <- builderGetObject gui castToButton "remove"
+  clearButton   <- builderGetObject gui castToButton "clear"
+  removePath    <- builderGetObject gui castToEntry "removePath"
 
   -- create a new list store
   store <- storeImpl
@@ -45,22 +46,22 @@ main = do
           marked = marked
         }
 
-  onClicked insertButton $ do
+  on insertButton buttonActivated $ do
     value <- getValues
     path <- fmap read $ get newPath entryText
     New.treeStoreInsert store (init path) (last path) value
 
-  onClicked updateButton $ do
+  on updateButton buttonActivated $ do
     value <- getValues
     path <- fmap read $ get updatePath entryText
     New.treeStoreSetValue store path value
 
-  onClicked removeButton $ do
+  on removeButton buttonActivated $ do
     path <- fmap read $ get removePath entryText
     New.treeStoreRemove store path
     return ()
 
-  onClicked clearButton $ New.treeStoreClear store
+  on clearButton buttonActivated $ New.treeStoreClear store
 
   New.treeViewSetReorderable view True
 
