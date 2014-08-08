@@ -47,7 +47,7 @@ main = do
   initGUI
 
   win <- windowNew
-  onDestroy win mainQuit
+  on win objectDestroy mainQuit
 
   -- create a tag that we use as selection, target and selection type
   compTypeTag <- atomNew "_CompType"

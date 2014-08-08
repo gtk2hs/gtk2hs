@@ -66,7 +66,7 @@ main =
         return True
       set window [containerChild := entry]
       widgetShowAll window
-      onDestroy window mainQuit
+      on window objectDestroy mainQuit
       mainGUI
 
 matchFunc :: ListStore ColorDesc -> String -> TreeIter -> IO Bool

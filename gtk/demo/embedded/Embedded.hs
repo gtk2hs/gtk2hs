@@ -39,7 +39,7 @@ socketMain = do
   windowSetPosition window WinPosCenter
   windowSetDefaultSize window 600 400
   windowSetTitle window "Press `m` to new tab, press `q` exit."
-  window `onDestroy` mainQuit
+  on window objectDestroy mainQuit
 
   -- Create notebook to contain GtkSocekt.
   notebook <- notebookNew
@@ -73,13 +73,13 @@ plugMain id = do
   initGUI
 
   plug <- plugNew $ Just id
-  plug `onDestroy` mainQuit
+  on plug objectDestroy $ mainQuit
 
   button <- buttonNewWithLabel "Click me to hang."
   plug `containerAdd` button
 
   -- Simulate a plugin hanging to see if it blocks the outer process.
-  button `onClicked` threadDelay 5000000
+  on button buttonActivated $ threadDelay 5000000
 
   widgetShowAll plug
 

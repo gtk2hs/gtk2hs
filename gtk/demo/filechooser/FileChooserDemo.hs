@@ -1,40 +1,39 @@
 module Main where
 
-import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Glade
+import Graphics.UI.Gtk hiding (response)
 
 main :: IO ()
 main = do
   initGUI
 
   -- load up our main window
-  dialogXmlM <- xmlNew "FileChooserDemo.glade"
-  let dialogXml = case dialogXmlM of
-        (Just dialogXml) -> dialogXml
-        Nothing -> error $ "can't find the glade file \"FileChooserDemo.glade\""
-                        ++ "in the current directory"
+  gui <- builderNew
+  builderAddFromFile gui "FileChooserDemo.glade"
+
+  mainWindow <- builderGetObject gui castToWindow "mainWindow"
 
   -- get a handle on a various objects from the glade file
-  mainWindow <- xmlGetWidget dialogXml castToWindow "mainWindow"
-  mainWindow `onDestroy` mainQuit
+  on mainWindow objectDestroy mainQuit
 
-  -- and associate actions with the buttons
-  selectFolderButton <- xmlGetWidget dialogXml castToButton "selectFolderButton"
+  let onClicked obj = on obj buttonActivated
+
+  -- -- and associate actions with the buttons
+  selectFolderButton <- builderGetObject gui castToButton "selectFolderButton"
   selectFolderButton `onClicked` openSelectFolderDialog mainWindow
 
-  createFolderButton <- xmlGetWidget dialogXml castToButton "createFolderButton"
+  createFolderButton <- builderGetObject gui castToButton "createFolderButton"
   createFolderButton `onClicked` openCreateFolderDialog mainWindow
 
-  openFileButton <- xmlGetWidget dialogXml castToButton "openFileButton"
+  openFileButton <- builderGetObject gui castToButton "openFileButton"
   openFileButton `onClicked` openOpenFileDialog mainWindow
 
-  saveFileButton <- xmlGetWidget dialogXml castToButton "saveFileButton"
+  saveFileButton <- builderGetObject gui castToButton "saveFileButton"
   saveFileButton `onClicked` openSaveFileDialog mainWindow
 
-  openFilePreviewButton <- xmlGetWidget dialogXml castToButton "openFilePreviewButton"
+  openFilePreviewButton <- builderGetObject gui castToButton "openFilePreviewButton"
   openFilePreviewButton `onClicked` openFilePreviewDialog mainWindow
 
-  quitButton <- xmlGetWidget dialogXml castToButton "quitButton"
+  quitButton <- builderGetObject gui castToButton "quitButton"
   quitButton `onClicked` (do
                            widgetDestroy mainWindow
                            mainQuit)
@@ -145,7 +144,7 @@ openFilePreviewDialog parentWindow = do
   previewLabel <- labelNew $ Just "Preview appears here"
   previewLabel `labelSetLineWrap` True
   dialog `fileChooserSetPreviewWidget` previewLabel
-  dialog `onUpdatePreview` do
+  on dialog updatePreview $ do
     previewFile <- fileChooserGetPreviewFilename dialog
     previewLabel `labelSetText` case previewFile of
       Nothing -> "Preview appears here"

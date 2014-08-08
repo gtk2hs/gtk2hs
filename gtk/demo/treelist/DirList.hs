@@ -9,18 +9,18 @@ import Control.Exception
 import System.Directory
 import System.IO
 import System.Locale
-import System.Time
+import Data.Time
 
 data FileInfo = FileInfo {
   fName :: String,
   fSize :: Integer,
-  fTime :: ClockTime
+  fTime :: UTCTime
 }
 
 main = do
   initGUI
   win <- windowNew
-  win `onDestroy` mainQuit
+  on win objectDestroy mainQuit
 
   curDir <- getCurrentDirectory
   files <- getDirectoryContents curDir
@@ -73,9 +73,8 @@ main = do
   time <- New.cellRendererTextNew
   New.treeViewColumnPackStart tvc time True
   New.cellLayoutSetAttributes tvc time store $ \FileInfo { fTime = time } ->
-    [ New.cellText :=> do
-        calTime <- toCalendarTime time
-        return (formatCalendarTime defaultTimeLocale "%D %T" calTime)
+    [ New.cellText :=>
+        return (formatTime defaultTimeLocale "%D %T" time)
     ]
 
   widgetShowAll win

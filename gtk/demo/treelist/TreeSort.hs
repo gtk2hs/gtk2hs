@@ -57,7 +57,7 @@ main = do
   -- Create a button that shows information on the current state of the sorting
   -- settings.
   button <- buttonNewWithLabel "Dump Info"
-  button `onClicked` do
+  on button buttonActivated $ do
     sId <- New.treeViewColumnGetSortColumnId col
     putStrLn ("tvc1 sort id is "++show sId)
     sId <- New.treeViewColumnGetSortColumnId col'
@@ -77,9 +77,10 @@ main = do
 
   -- Put it all together.
   vBox <- vBoxNew False 3
-  boxPackStartDefaults vBox view
+  -- boxPackStartDefaults vBox view
+  boxPackStart vBox view PackRepel 0
   boxPackEnd vBox button PackNatural 0
   containerAdd win vBox
   widgetShowAll win
-  win `onDestroy` mainQuit
+  on win objectDestroy mainQuit
   mainGUI
