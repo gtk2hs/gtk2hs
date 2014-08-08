@@ -9,15 +9,10 @@ main = do
   -- load up our main window
   gui <- builderNew
   builderAddFromFile gui "FileChooserDemo.glade"
-  --let dialogXml = case dialogXmlM of
-        -- (Just dialogXml) -> dialogXml
-        -- Nothing -> error $ "can't find the glade file \"FileChooserDemo.glade\""
-        --                 ++ "in the current directory"
 
   mainWindow <- builderGetObject gui castToWindow "mainWindow"
 
   -- get a handle on a various objects from the glade file
-  -- mainWindow <- builderGetObject gui castToWindow "mainWindow"
   on mainWindow objectDestroy mainQuit
 
   let onClicked obj = on obj buttonActivated
