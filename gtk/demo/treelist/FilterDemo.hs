@@ -16,7 +16,7 @@ main = do
   initGUI
 
   win <- windowNew
-  onDestroy win mainQuit
+  on win objectDestroy mainQuit
 
   content <- readFile "FilterDemo.hs"
 
