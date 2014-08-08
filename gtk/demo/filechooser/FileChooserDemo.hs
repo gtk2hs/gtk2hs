@@ -1,6 +1,6 @@
 module Main where
 
-import Graphics.UI.Gtk
+import Graphics.UI.Gtk hiding (response)
 
 main :: IO ()
 main = do
