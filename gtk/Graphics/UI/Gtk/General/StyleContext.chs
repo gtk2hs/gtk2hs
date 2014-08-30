@@ -64,6 +64,10 @@ module Graphics.UI.Gtk.General.StyleContext (
 -- * Methods
   styleContextAddProvider,
   styleContextAddProviderForScreen,
+  styleContextAddClass,
+  styleContextRemoveClass,
+  styleContextHasClass,
+  styleContextListClasses,
 #endif
 
   ) where
@@ -77,6 +81,7 @@ import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GError (GError(..), GErrorClass(..), GErrorDomain,
                            propagateGError)
+import System.Glib.GList      (GList, fromGList)
 
 #if GTK_MAJOR_VERSION >= 3
 -- | Creates a standalone @StyleContext@, this style context won't be attached
@@ -135,5 +140,47 @@ styleContextAddProviderForScreen screen provider priority =
   (toScreen screen)
   (toStyleProvider provider)
   (fromIntegral priority)
+
+-- | Adds a style class to context , so posterior calls to gtk_style_context_get()
+-- or any of the gtk_render_*() functions will make use of this new class for styling.
+--
+-- In the CSS file format, a GtkEntry defining an “entry” class, would be matched by:
+--
+-- > GtkEntry.entry { ... }
+-- While any widget defining an “entry” class would be matched by:
+--
+-- > .entry { ... }
+styleContextAddClass :: (StyleContextClass context, GlibString string) => context -> string -> IO ()
+styleContextAddClass context className =
+  withUTFString className $ \classNamePtr ->
+  {# call gtk_style_context_add_class #}
+    (toStyleContext context)
+    classNamePtr
+
+-- | Removes @className@ from @context@.
+styleContextRemoveClass :: (StyleContextClass context, GlibString string) => context -> string -> IO ()
+styleContextRemoveClass context className =
+  withUTFString className $ \classNamePtr ->
+  {# call gtk_style_context_remove_class #}
+    (toStyleContext context)
+    classNamePtr
+
+-- | Returns @True@ if context currently has defined the given class name
+styleContextHasClass :: (StyleContextClass context, GlibString string) => context -> string -> IO Bool
+styleContextHasClass context className =
+  liftM toBool $
+  withUTFString className $ \classNamePtr ->
+  {# call gtk_style_context_has_class #}
+    (toStyleContext context)
+    classNamePtr
+
+-- | Returns the list of classes currently defined in context.
+styleContextListClasses :: (StyleContextClass context, GlibString string) => context -> IO [string]
+styleContextListClasses context =
+  {# call gtk_style_context_list_classes #}
+    (toStyleContext context)
+  >>= fromGList
+  >>= mapM peekUTFString
+
 
 #endif
