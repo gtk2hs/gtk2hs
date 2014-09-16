@@ -11,9 +11,10 @@ Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
 Synopsis:       Binding to the GLIB library for Gtk2Hs.
-Description:    The GNU Library is a collection of C data structures and utility
-                function for dealing with Unicode. This package only binds as
-                much functionality as required to support the packages that
+Description:    GLib is a collection of C data structures and utility functions
+                for the GObject system, main loop implementation, for strings and
+                common data structures dealing with Unicode. This package only binds
+                as much functionality as required to support the packages that
                 wrap libraries that are themselves based on GLib.
 Category:       System
 Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
