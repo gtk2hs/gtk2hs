@@ -55,21 +55,20 @@ import Control.Exception (throwIO, ArrayException(IndexOutOfBounds) )
 
 -- | Ask for bounding rectangles of this glyph sequence.
 --
--- * Compute the logical and ink extents of a glyph string. The
---   logical extend is used for positioning, the ink size is the smallest
+-- * Compute the ink and logical extents of a glyph string. The
+--   logical size is used for positioning, the ink size is the smallest
 --   bounding box that includes all character pixels. The ink size can be
---   smaller or larger that the logical layout.
---
+--   smaller or larger than the logical size.
 --
 glyphItemExtents :: GlyphItem -> IO (PangoRectangle, PangoRectangle)
 glyphItemExtents (GlyphItem pi self) = do
   font <- pangoItemGetFont pi
-  alloca $ \logPtr -> alloca $ \inkPtr -> do
+  alloca $ \inkPtr -> alloca $ \logPtr -> do
   {#call unsafe glyph_string_extents#} self font
-    (castPtr logPtr) (castPtr inkPtr)
-  log <- peek logPtr
+    (castPtr inkPtr) (castPtr logPtr)
   ink <- peek inkPtr
-  return (log, ink)
+  log <- peek logPtr
+  return (ink, log)
 
 -- | Ask for bounding rectangles for a sub-range of a glyph sequence.
 --
