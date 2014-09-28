@@ -56,6 +56,9 @@ module StateBase (PreCST(..), ErrorState(..), BaseState(..),
 		  unpackCST, readCST, writeCST, transCST, liftIO)
 where
 
+import Control.Applicative (Applicative(..))
+import Control.Monad (liftM, ap)
+
 import Position   (Position)
 import UNames     (NameSupply)
 import StateTrans (STB, 
@@ -94,6 +97,13 @@ data BaseState e = BaseState {
 -- 
 
 newtype PreCST e s a = CST (STB (BaseState e) s a)
+
+instance Functor (PreCST e s) where
+  fmap = liftM
+
+instance Applicative (PreCST e s) where
+  pure  = return
+  (<*>) = ap
 
 instance Monad (PreCST e s) where
   return = yield
