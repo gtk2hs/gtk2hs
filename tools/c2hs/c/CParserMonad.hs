@@ -61,6 +61,8 @@ import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 
+import Control.Applicative (Applicative(..))
+import Control.Monad (liftM, ap)
 import Data.Set  (Set)
 import qualified Data.Set as Set (fromList, insert, member, delete)
 
@@ -80,6 +82,13 @@ data PState = PState {
      }
 
 newtype P a = P { unP :: PState -> ParseResult a }
+
+instance Functor P where
+  fmap = liftM
+
+instance Applicative P where
+  pure = return
+  (<*>) = ap
 
 instance Monad P where
   return = returnP

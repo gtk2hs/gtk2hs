@@ -81,7 +81,8 @@ where
 
 import Prelude hiding     (catch)
 
-import Control.Monad      (liftM)
+import Control.Applicative (Applicative(..))
+import Control.Monad      (liftM, ap)
 import Control.Exception  (catch)
 import System.IO  (fixIO)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
@@ -114,6 +115,13 @@ infixr 1 +>=, +>
 --
 
 newtype STB bs gs a = STB (bs -> gs -> IO (bs, gs, Either (String, String) a))
+
+instance Functor (STB bs gs) where
+  fmap = liftM
+
+instance Applicative (STB bs gs) where
+  pure  = return
+  (<*>) = ap
 
 instance Monad (STB bs gs) where
   return = yield
