@@ -1,5 +1,5 @@
 Name:           glib
-Version:        0.13.0.2
+Version:        0.13.0.3
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -35,7 +35,7 @@ Flag closure_signals
 Library
         build-depends:  base >= 4 && < 5,
                         utf8-string >= 0.2 && < 0.4,
-                        bytestring >= 0.10 && < 0.11,
+                        bytestring >= 0.9.1.10 && < 0.11,
                         text >= 1.0.0.0 && < 1.3,
                         containers
         build-tools:    gtk2hsC2hs >= 0.13.11
