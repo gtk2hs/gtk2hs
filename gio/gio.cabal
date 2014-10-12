@@ -1,12 +1,12 @@
 Name:           gio
-Version:        0.13.0.0
+Version:        0.13.0.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Peter Gavin, Andy Stewart
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.8
+Cabal-Version:  >= 1.18
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues

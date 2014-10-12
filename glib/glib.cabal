@@ -1,12 +1,12 @@
 Name:           glib
-Version:        0.13.0.3
+Version:        0.13.0.4
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.8
+Cabal-Version:  >= 1.18
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
