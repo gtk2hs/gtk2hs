@@ -361,7 +361,8 @@ Library
           Graphics.UI.Gtk.Types
           Graphics.UI.Gtk.Signals
 
-        extensions:     ForeignFunctionInterface
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
         c-sources: Graphics/UI/Gtk/ModelView/Gtk2HsStore.c
                    Graphics/UI/Gtk/General/hsgthread.c
           -- Due to http://hackage.haskell.org/trac/ghc/ticket/781

@@ -70,7 +70,8 @@ Library
                          Graphics.Rendering.Pango.Attributes
         other-modules:   Graphics.Rendering.Pango.GlyphStorage
                          Graphics.Rendering.Pango.Description
-        extensions:     ForeignFunctionInterface
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
         x-c2hs-Header:  hspango.h
         includes:       hspango.h
         include-dirs:   .

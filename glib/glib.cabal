@@ -67,6 +67,7 @@ Library
                           System.Glib.GValue
                           System.Glib.GValueTypes
                           System.Glib.GParameter
-        extensions:     ForeignFunctionInterface
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
         x-c2hs-Header:  glib-object.h
         pkgconfig-depends: glib-2.0, gobject-2.0

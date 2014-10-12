@@ -71,7 +71,8 @@ Library
                           Graphics.Rendering.Cairo.Internal.Surfaces.PS
                           Graphics.Rendering.Cairo.Internal.Surfaces.SVG
                           Graphics.Rendering.Cairo.Internal.Region
-        extensions:     ForeignFunctionInterface
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
         Include-dirs: .
         x-c2hs-Header:  cairo-gtk2hs.h
         pkgconfig-depends: cairo >= 1.2.0

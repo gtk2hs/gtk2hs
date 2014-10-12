@@ -76,7 +76,8 @@ Library
         other-modules:
           System.GIO.Signals
 
-        extensions:     ForeignFunctionInterface
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
 		
         cpp-options:    -U__BLOCKS__
         x-Signals-File:  System/GIO/Signals.chs
