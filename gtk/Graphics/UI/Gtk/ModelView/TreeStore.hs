@@ -102,6 +102,20 @@ data Store a = Store {
 -- * The given rose tree determines the initial content and may be the empty
 --   list. Each 'Tree' in the forest corresponds to one top-level node.
 --
+-- * The TreeStore maintains the initially given Forest and aligns the 'TreePath'
+--   bits to fit in 96-bit length 'TreeIter' storage.
+--
+-- * Additionally, a cache is used to achieve higher performance if operating on
+--   recently used TreePaths.
+--
+-- * __Note:__ due to the limited amount of bits available in TreeIter storage, only 
+--   limited depth forests can be used with this implementation, the result of too deep
+--   Forests is an undefined behaviour while trying to retrieve the deeply nested nodes.
+--   For example: assuming the average requiement is 8 bits per tree level (max number of
+--   children at the level is 255), then we can only use 12 levels deep trees (96/8) -
+--   any further levels in a TreePath will not be encoded in the corresponding TreeIter
+--   storage.
+--
 treeStoreNew :: Forest a -> IO (TreeStore a)
 treeStoreNew forest = treeStoreNewDND forest
                         (Just treeStoreDefaultDragSourceIface)
