@@ -56,9 +56,9 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
   textTagTableGetSize
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad	(liftM, void)
 
-import System.Glib.FFI
+import System.Glib.FFI (withForeignPtr, nullPtr, Ptr(..), CInt(..), CChar(..), FunPtr(..), maybeNull)
 import System.Glib.UTFString
 import System.Glib.GObject	(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -85,7 +85,7 @@ textTagTableNew =
 -- an already-added tag.
 --
 textTagTableAdd :: (TextTagTableClass self, TextTagClass tag) => self -> tag -> IO ()
-textTagTableAdd self tag =
+textTagTableAdd self tag = void $
   {# call text_tag_table_add #}
     (toTextTagTable self)
     (toTextTag tag)
