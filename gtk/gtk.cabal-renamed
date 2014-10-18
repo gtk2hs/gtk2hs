@@ -379,7 +379,7 @@ Library
         -- needs to be imported from this module:
         x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
-        cpp-options: -U__BLOCKS__
+        cpp-options: -U__BLOCKS__ -D__attribute__(A)=
         if !flag(deprecated)
           cpp-options:  -DDISABLE_DEPRECATED
         else

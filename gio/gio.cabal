@@ -79,7 +79,7 @@ Library
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
 		
-        cpp-options:    -U__BLOCKS__ -Ubool
+        cpp-options:    -U__BLOCKS__ -Ubool -D__attribute__(A)=
         x-Signals-File:  System/GIO/Signals.chs
         x-Signals-Modname: System.GIO.Signals
         x-Signals-Types: marshal.list
