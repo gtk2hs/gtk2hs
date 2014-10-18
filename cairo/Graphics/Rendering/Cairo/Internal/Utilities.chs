@@ -25,7 +25,8 @@ import System.IO.Unsafe (unsafePerformIO)
 import Codec.Binary.UTF8.String
 import Data.Char (ord, chr)
 import Data.Text (Text)
-import qualified Data.Text.Foreign as T (withCStringLen)
+import Data.ByteString (useAsCString)
+import qualified Data.Text.Encoding as T (encodeUtf8)
 
 {#context lib="cairo" prefix="cairo"#}
 
@@ -40,4 +41,4 @@ instance CairoString [Char] where
     withUTFString = withCAString . encodeString
 
 instance CairoString Text where
-    withUTFString s f = T.withCStringLen s (f . fst)
+    withUTFString s = useAsCString (T.encodeUtf8 s)
