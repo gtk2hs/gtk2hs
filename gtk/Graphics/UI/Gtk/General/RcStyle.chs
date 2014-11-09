@@ -460,7 +460,6 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GType (GType)
-import System.Glib.GTypeConstants (none)
 {#import Graphics.UI.Gtk.Types#}
 
 

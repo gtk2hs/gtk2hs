@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Window
 --
@@ -53,16 +52,9 @@ module Graphics.UI.Gtk.Windows.Invisible (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.UTFString
-import System.Glib.GError
-import System.Glib.Attributes
-import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Enums
 import Graphics.UI.Gtk.Gdk.Screen
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

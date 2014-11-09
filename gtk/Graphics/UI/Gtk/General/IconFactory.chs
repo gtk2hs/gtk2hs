@@ -108,7 +108,6 @@ import Control.Applicative ((<$>))
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
 import Graphics.UI.Gtk.General.StockItems

@@ -60,7 +60,6 @@ import Control.Monad	(liftM, void)
 
 import System.Glib.FFI (withForeignPtr, nullPtr, Ptr(..), CInt(..), CChar(..), FunPtr(..), maybeNull)
 import System.Glib.UTFString
-import System.Glib.GObject	(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

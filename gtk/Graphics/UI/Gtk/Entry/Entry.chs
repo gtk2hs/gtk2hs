@@ -162,7 +162,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..)
 #if GTK_CHECK_VERSION(2,16,0)
@@ -812,14 +811,6 @@ onEntryActivate, afterEntryActivate :: EntryClass ec => ec -> IO () ->
 onEntryActivate = connect_NONE__NONE "activate" False
 afterEntryActivate = connect_NONE__NONE "activate" True
 
--- | Emitted when the settings of the
--- 'Entry' widget changes.
---
-onEntryChanged, afterEntryChanged :: EntryClass ec => ec -> IO () ->
-                                     IO (ConnectId ec)
-onEntryChanged = connect_NONE__NONE "changed" False
-afterEntryChanged = connect_NONE__NONE "changed" True
-
 -- | Emitted when the current selection has been
 -- copied to the clipboard.
 --
@@ -843,14 +834,6 @@ onPasteClipboard, afterPasteClipboard :: EntryClass ec => ec -> IO () ->
                                          IO (ConnectId ec)
 onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
 afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
-
--- | Emitted when a piece of text is deleted from
--- the 'Entry'.
---
-onDeleteText, afterDeleteText :: EntryClass ec => ec ->
-                                 (Int -> Int -> IO ()) -> IO (ConnectId ec)
-onDeleteText = connect_INT_INT__NONE "delete_text" False
-afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
 -- | Emitted when the user changes from
 -- overwriting to inserting.

@@ -113,8 +113,6 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(wrapNewGObject,
-					 makeNewGObject, destroyFunPtr)
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.Signals (on)
 

@@ -137,13 +137,9 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
-import System.Glib.UTFString ( withUTFString )
-import System.Glib.GObject		(makeNewGObject)
-import System.Glib.Attributes ( Attr, newAttr )
 import Graphics.UI.Gtk.General.StockItems ( StockId )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}
-{#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
 import Graphics.UI.Gtk.Gdk.Enums ( DragAction(..) )
 import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..)
 #if GTK_CHECK_VERSION(2,12,0)
@@ -161,6 +157,9 @@ import Graphics.UI.Gtk.General.Structs ( Point,
   )
 import Graphics.UI.Gtk.Signals
 import Control.Monad.Reader (runReaderT)
+#if GTK_MAJOR_VERSION < 3
+import System.Glib.Attributes ( Attr, newAttr )
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 

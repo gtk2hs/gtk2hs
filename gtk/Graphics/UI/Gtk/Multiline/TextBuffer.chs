@@ -201,15 +201,13 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject			(wrapNewGObject,
-						 makeNewGObject)
 import Data.ByteString (ByteString)
 import Data.ByteString.Unsafe (unsafeUseAsCStringLen, unsafePackCStringFinalizer)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
-import Graphics.UI.Gtk.Multiline.TextMark	(TextMark, MarkName)
-import Graphics.UI.Gtk.Multiline.TextTag	(TextTag, TagName)
+import Graphics.UI.Gtk.Multiline.TextMark	(MarkName)
+import Graphics.UI.Gtk.Multiline.TextTag	(TagName)
 
 {# context lib="gtk" prefix="gtk" #}
 

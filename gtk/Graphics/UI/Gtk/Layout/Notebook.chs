@@ -189,7 +189,6 @@ module Graphics.UI.Gtk.Layout.Notebook (
   ) where
 
 import Control.Monad	(liftM)
-import Data.Maybe	(maybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -201,12 +200,13 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.Display.Label	(labelNew)
 import Graphics.UI.Gtk.General.Enums	(Packing(..), toPacking, fromPacking,
-                                         PackType(..), PositionType(..), DirectionType(..))
+                                         PackType(..), PositionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_MAJOR_VERSION < 3
 {#pointer *GtkNotebookPage as NotebookPage foreign newtype #}
+_ignoreNotebookPage = NotebookPage
 #endif
 
 --------------------

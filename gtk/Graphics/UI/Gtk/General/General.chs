@@ -80,11 +80,10 @@ module Graphics.UI.Gtk.General.General (
   ) where
 
 import System.Environment (getProgName, getArgs)
-import Control.Monad      (liftM, mapM, when)
+import Control.Monad      (liftM, when)
 import Control.Applicative ((<$>))
 import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
                            putMVar, takeMVar)
-import Data.IORef         (IORef, newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString

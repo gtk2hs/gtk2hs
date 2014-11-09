@@ -57,18 +57,6 @@ module Graphics.UI.Gtk.General.Settings (
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.General.DNDTypes#} (SelectionTag, TargetTag,
-  atomNew, Atom(..))
-{#import Graphics.UI.Gtk.General.Selection#} (InfoId, SelectionDataM)
-import Graphics.UI.Gtk.General.Structs (
-  selectionPrimary,
-  selectionSecondary,
-  selectionClipboard,
-  withTargetEntries)
-import Control.Monad ( liftM )
-import Control.Monad.Trans ( liftIO )
-import Control.Monad.Reader (runReaderT, ask)
-import Data.IORef ( newIORef, readIORef, writeIORef )
 
 {# context lib="gtk" prefix="gtk" #}
 

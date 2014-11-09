@@ -77,12 +77,6 @@ import Control.Monad (when)
 
 import System.Glib.FFI
 import System.Glib.Attributes (ReadWriteAttr)
-import System.Glib.GObject	(objectUnref)
-#if GLIB_CHECK_VERSION(2,10,0)
-import System.Glib.GObject	(objectRefSink)
-#else
-import System.Glib.GObject      (objectRef)
-#endif
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Data.IORef

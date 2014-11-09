@@ -87,7 +87,6 @@ import Data.Maybe	(fromJust, isJust)
 import Control.Exception (handle, ErrorCall(..))
 
 import System.Glib.FFI
-import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..),

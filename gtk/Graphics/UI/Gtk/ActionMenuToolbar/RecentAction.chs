@@ -65,13 +65,11 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RecentAction (
   ) where
 
 import Control.Monad	(liftM)
-import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.UTFString
-import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

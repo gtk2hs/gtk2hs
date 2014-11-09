@@ -279,9 +279,11 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Abstract.Scrollbar,
   module Graphics.UI.Gtk.Abstract.Separator,
   module Graphics.UI.Gtk.Abstract.Widget,
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
   -- * Cross-process embedding
   module Graphics.UI.Gtk.Embedding.Plug,
   module Graphics.UI.Gtk.Embedding.Socket,
+#endif
   -- * Non-widgets
   module System.Glib.Signals,
   module System.Glib.Attributes,
@@ -553,8 +555,10 @@ import Graphics.UI.Gtk.Abstract.Scrollbar
 import Graphics.UI.Gtk.Abstract.Separator
 import Graphics.UI.Gtk.Abstract.Widget
 -- cross-process embedding
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
 import Graphics.UI.Gtk.Embedding.Plug
 import Graphics.UI.Gtk.Embedding.Socket
+#endif
 
 -- non widgets
 import System.Glib.Signals

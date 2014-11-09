@@ -1,7 +1,6 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Control.Monad.IO.Class (MonadIO(..))
 
 main = do
         initGUI

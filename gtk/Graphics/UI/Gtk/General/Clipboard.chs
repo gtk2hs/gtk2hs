@@ -140,7 +140,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#} (SelectionTag, TargetTag,
-  atomNew, Atom(..))
+  Atom(..))
 {#import Graphics.UI.Gtk.General.Selection#} (InfoId, SelectionDataM)
 import Graphics.UI.Gtk.General.Structs (
   selectionPrimary,
@@ -148,8 +148,7 @@ import Graphics.UI.Gtk.General.Structs (
   selectionClipboard,
   withTargetEntries)
 import Control.Monad ( liftM )
-import Control.Monad.Trans ( liftIO )
-import Control.Monad.Reader (runReaderT, ask)
+import Control.Monad.Reader (runReaderT)
 import Data.IORef ( newIORef, readIORef, writeIORef )
 
 {# context lib="gtk" prefix="gtk" #}
@@ -296,7 +295,7 @@ foreign import ccall "wrapper" mkClipboardClearFunc ::
 -- The difference between this function and 'clipboardSetWithData' is that
 -- a 'GObject' is passed in.
 --
-clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
+_clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
  -> [(TargetTag, InfoId)]     -- ^ @targets@ - a list containing information
                               -- about the available forms for the clipboard
                               -- data
@@ -312,7 +311,7 @@ clipboardSetWithOwner :: (ClipboardClass self, GObjectClass owner) => self
                               -- data succeeded. If setting the clipboard data
                               -- failed the provided callback functions will be
                               -- ignored.
-clipboardSetWithOwner self targets getFunc clearFunc owner = do
+_clipboardSetWithOwner self targets getFunc clearFunc owner = do
   gFunPtr <- mkClipboardGetFunc
     (\_ sPtr info _ -> runReaderT (getFunc info) sPtr >> return ())
   cFunPtr <- mkClipboardClearFunc
@@ -338,10 +337,10 @@ clipboardSetWithOwner self targets getFunc clearFunc owner = do
 -- has not subsequently called, returns the owner set by
 -- 'clipboardSetWithOwner'.
 --
-clipboardGetOwner :: ClipboardClass self => self
+_clipboardGetOwner :: ClipboardClass self => self
  -> IO (Maybe GObject) -- ^ returns the owner of the clipboard, if any; otherwise
                         -- @Nothing@.
-clipboardGetOwner self =
+_clipboardGetOwner self =
   maybeNull (makeNewGObject mkGObject) $
   {# call gtk_clipboard_get_owner #}
     (toClipboard self)
@@ -352,8 +351,8 @@ clipboardGetOwner self =
 -- 'clipboardSetWithData', and when the @clearFunc@ you supplied is called.
 -- Otherwise, the clipboard may be owned by someone else.
 --
-clipboardClear :: ClipboardClass self => self -> IO ()
-clipboardClear self =
+_clipboardClear :: ClipboardClass self => self -> IO ()
+_clipboardClear self =
   {# call gtk_clipboard_clear #}
     (toClipboard self)
 

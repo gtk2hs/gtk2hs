@@ -46,7 +46,6 @@ module Graphics.UI.Gtk.General.DNDTypes (
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#} ()
-import System.Glib.UTFString ( readUTFString, withUTFString )
 import Control.Monad ( liftM )
 import Control.Monad.Reader ( ReaderT )
 

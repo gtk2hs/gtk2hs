@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Graphics.UI.Gtk
-import Control.Monad.IO.Class (liftIO)
 
 main :: IO ()
 main = do

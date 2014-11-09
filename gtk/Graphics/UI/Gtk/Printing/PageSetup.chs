@@ -103,7 +103,6 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.GError
 import System.Glib.Attributes
-import System.Glib.Properties
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Printing.PaperSize#} (PaperSize(..), mkPaperSize, Unit(..))

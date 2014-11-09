@@ -155,8 +155,6 @@ tooltipsSetTip self widget tipText tipPrivate =
     tipTextPtr
     tipPrivatePtr
 
-{#pointer * TooltipsData#}
-
 -- | Retrieves any 'Tooltips' previously associated with the given widget.
 --
 tooltipsDataGet :: (WidgetClass w, GlibString string) => w -> IO (Maybe (Tooltips, string, string))

@@ -76,7 +76,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes                   (Attr, WriteAttr, writeAttr)
 import System.Glib.Properties
-import System.Glib.GObject                      (constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}

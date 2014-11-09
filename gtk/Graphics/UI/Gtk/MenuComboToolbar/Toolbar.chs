@@ -162,10 +162,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   ) where
 
 import Control.Monad	(liftM)
+#if GTK_MAJOR_VERSION < 3
+#ifndef DISABLE_DEPRECATED
 import Data.Maybe	(fromJust)
 import qualified Data.Text as T (filter)
-import System.Glib.FFI
+import Graphics.UI.Gtk.General.StockItems
+import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
 import System.Glib.UTFString
+#endif
+#endif
+import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -174,7 +180,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..),
 					 ReliefStyle(..))
-import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
@@ -183,8 +188,6 @@ import Graphics.UI.Gtk.General.Structs	(
 #endif
 #endif
 					 IconSize(..))
-import Graphics.UI.Gtk.General.StockItems	(stockLookupItem, siLabel, stockMissingImage)
-import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -199,6 +202,10 @@ toolbarNew =
   liftM (castPtr :: Ptr Widget -> Ptr Toolbar) $
   {# call unsafe toolbar_new #}
 
+--------------------
+-- Methods
+#if GTK_MAJOR_VERSION < 3
+#ifndef DISABLE_DEPRECATED
 -- Make tooltips or not?
 --
 mkToolText :: GlibString string => Maybe (string,string) -> (CString -> CString -> IO a) -> IO a
@@ -206,10 +213,6 @@ mkToolText Nothing               fun = fun nullPtr nullPtr
 mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
   withUTFString private $ \prvPtr -> fun txtPtr prvPtr
 
---------------------
--- Methods
-#if GTK_MAJOR_VERSION < 3
-#ifndef DISABLE_DEPRECATED
 -- | Insert a new 'Button' into the 'Toolbar'.
 --
 -- The new 'Button' is created at position @pos@, counting from 0.

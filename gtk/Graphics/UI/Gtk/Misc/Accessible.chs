@@ -52,18 +52,14 @@ module Graphics.UI.Gtk.Misc.Accessible (
 #endif
 ) where
 
-import Control.Monad	(liftM)
+#if GTK_CHECK_VERSION(2,22,0)
 
 import System.Glib.FFI
-import System.Glib.Attributes
-import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,22,0)
 --------------------
 -- Methods
 

@@ -62,6 +62,7 @@ module Graphics.UI.Gtk.Display.LevelBar (
   levelBarMaxValue,
   levelBarMinValue,
   levelBarValue,
+  levelBarMode
 #endif
   ) where
 

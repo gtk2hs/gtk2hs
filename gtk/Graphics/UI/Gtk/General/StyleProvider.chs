@@ -43,15 +43,9 @@ module Graphics.UI.Gtk.General.StyleProvider (
 
   ) where
 
+#if GTK_MAJOR_VERSION >= 3
 {# context prefix ="gtk" #}
 
-import Control.Monad (liftM)
-
-import System.Glib.FFI
-import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GError (GError(..), GErrorClass(..), GErrorDomain,
-                           propagateGError)
 
-#if GTK_MAJOR_VERSION >= 3
 #endif

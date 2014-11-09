@@ -61,7 +61,6 @@ module Graphics.UI.Gtk.ModelView.CellEditable (
   cellEditableRemoveWidget,
   ) where
 
-import Control.Monad	(liftM)
 import Control.Monad.Reader.Class (ask)
 import Control.Monad.Trans (liftIO)
 
@@ -70,8 +69,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.EventM (EventM, EKey, EAny)
-import Graphics.UI.Gtk.Gdk.Events (Event, EventKey, marshalEvent)
+import Graphics.UI.Gtk.Gdk.EventM (EventM, EAny)
 
 {# context lib="gtk" prefix="gtk" #}
 

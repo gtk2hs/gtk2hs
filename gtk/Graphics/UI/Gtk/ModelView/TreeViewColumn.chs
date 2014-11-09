@@ -132,7 +132,9 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+#if GTK_MAJOR_VERSION < 3
 {#import System.Glib.GList#}			(fromGList)
+#endif
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)

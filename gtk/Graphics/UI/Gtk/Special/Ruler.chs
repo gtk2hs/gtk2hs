@@ -72,8 +72,6 @@ module Graphics.UI.Gtk.Special.Ruler (
 #endif
   ) where
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties

@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.Gdk.Drawable (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs	(Point, Color, drawableGetID)
+import Graphics.UI.Gtk.General.Structs	(Point, drawableGetID)
 import Graphics.Rendering.Pango.Structs
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}

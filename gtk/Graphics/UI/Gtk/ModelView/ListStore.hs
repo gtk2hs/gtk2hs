@@ -65,8 +65,8 @@ import qualified Graphics.UI.Gtk.ModelView.Sequence as Seq
 import Graphics.UI.Gtk.ModelView.Sequence (Seq)
 #endif
 
-import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
-import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass, TreeIter(..))
+import Graphics.UI.Gtk.Types (GObjectClass(..))
+-- import Graphics.UI.Gtk.ModelView.Types ()
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeDrag
@@ -234,10 +234,10 @@ listStorePrepend (ListStore model) value = do
   stamp <- customStoreGetStamp model
   treeModelRowInserted model [0] (TreeIter stamp 0 0 0)
 
--- | Prepend a list to the store. Not implemented yet.
-listStorePrependList :: ListStore a -> [a] -> IO ()
-listStorePrependList store list =
-  mapM_ (listStoreInsert store 0) (reverse list)
+---- | Prepend a list to the store. Not implemented yet.
+--listStorePrependList :: ListStore a -> [a] -> IO ()
+--listStorePrependList store list =
+--  mapM_ (listStoreInsert store 0) (reverse list)
 
 -- | Append an element to the store. Returns the index of the inserted
 -- element.
@@ -294,21 +294,21 @@ listStoreClear (ListStore model) =
    in do seq <- readIORef (customStoreGetPrivate model)
          loop (Seq.length seq - 1) (Seq.viewr seq)
 
--- | Permute the rows of the store. Not yet implemented.
-listStoreReorder :: ListStore a -> [Int] -> IO ()
-listStoreReorder store = undefined
-
--- | Swap two rows of the store. Not yet implemented.
-listStoreSwap :: ListStore a -> Int -> Int -> IO ()
-listStoreSwap store = undefined
-
--- | Move the element at the first index in front of the element denoted by
--- the second index. Not yet implemented.
-listStoreMoveBefore :: ListStore a -> Int -> Int -> IO ()
-listStoreMoveBefore store = undefined
-
--- | Move the element at the first index past the element denoted by the
--- second index. Not yet implemented.
-listStoreMoveAfter :: ListStore a -> Int -> Int -> IO ()
-listStoreMoveAfter store = undefined
+---- | Permute the rows of the store. Not yet implemented.
+--listStoreReorder :: ListStore a -> [Int] -> IO ()
+--listStoreReorder store = undefined
+--
+---- | Swap two rows of the store. Not yet implemented.
+--listStoreSwap :: ListStore a -> Int -> Int -> IO ()
+--listStoreSwap store = undefined
+--
+---- | Move the element at the first index in front of the element denoted by
+---- the second index. Not yet implemented.
+--listStoreMoveBefore :: ListStore a -> Int -> Int -> IO ()
+--listStoreMoveBefore store = undefined
+--
+---- | Move the element at the first index past the element denoted by the
+---- second index. Not yet implemented.
+--listStoreMoveAfter :: ListStore a -> Int -> Int -> IO ()
+--listStoreMoveAfter store = undefined
 

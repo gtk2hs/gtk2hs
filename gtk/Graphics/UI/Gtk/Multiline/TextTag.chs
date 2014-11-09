@@ -160,7 +160,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.Rendering.Pango.Font
@@ -171,7 +170,9 @@ import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
 					 Justification(..), WrapMode(..))
 import Graphics.UI.Gtk.General.Structs  (Color(..))
 import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )
+#ifndef DISABLE_DEPRECATED
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
+#endif
 import Graphics.UI.Gtk.Gdk.EventM (EventM, EAny)
 import Control.Monad.Reader ( runReaderT )
 

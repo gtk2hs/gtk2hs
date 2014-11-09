@@ -56,17 +56,16 @@ module Graphics.UI.Gtk.Recent.RecentInfo (
 #endif
   ) where
 
+#if GTK_CHECK_VERSION(2,10,0)
+
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes
-import System.Glib.Properties
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,10,0)
 --------------------
 -- Types
 {#pointer *RecentInfo foreign newtype#}

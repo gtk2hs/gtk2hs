@@ -165,7 +165,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.Enums#}
 import Graphics.UI.Gtk.General.Structs

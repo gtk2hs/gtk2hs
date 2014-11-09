@@ -140,16 +140,11 @@ module Graphics.UI.Gtk.General.IconTheme (
   ) where
 
 import Control.Monad	(liftM)
-import Control.Applicative ((<$>))
 
 import System.Glib.FFI
-import System.Glib.Attributes
-import System.Glib.Properties
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Flags
-import System.Glib.GObject		(wrapNewGObject, makeNewGObject, Quark)
-import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
+import System.Glib.GError   (propagateGError)
 import Graphics.UI.Gtk.General.Structs (Rectangle, Point)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}

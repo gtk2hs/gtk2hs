@@ -72,6 +72,7 @@ module Graphics.UI.Gtk.General.StyleContext (
 
   ) where
 
+#if GTK_MAJOR_VERSION >= 3
 {# context prefix ="gtk" #}
 
 import Control.Monad (liftM)
@@ -79,11 +80,8 @@ import Control.Monad (liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GError (GError(..), GErrorClass(..), GErrorDomain,
-                           propagateGError)
-import System.Glib.GList      (GList, fromGList)
+import System.Glib.GList (fromGList)
 
-#if GTK_MAJOR_VERSION >= 3
 -- | Creates a standalone @StyleContext@, this style context won't be attached
 -- to any widget, so you may want to call @styleContextSetPath@ yourself.
 --

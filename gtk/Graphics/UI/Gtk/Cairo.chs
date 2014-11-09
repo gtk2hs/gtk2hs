@@ -58,6 +58,7 @@ module Graphics.UI.Gtk.Cairo (
 #endif
   setSourceColor,
   setSourcePixbuf,
+  rectangle,
   updateContext,
   createLayout,
   updateLayout,
@@ -86,7 +87,6 @@ import System.Glib.FFI
 {#import Graphics.Rendering.Cairo.Types#} as Cairo
 #endif
 import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
-import qualified Graphics.Rendering.Cairo as Cairo
 import Graphics.Rendering.Cairo.Internal (Render(Render))
 import Control.Monad.Reader
 import Graphics.UI.Gtk.General.Structs (Rectangle(..))

@@ -128,7 +128,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
-import Graphics.UI.Gtk.General.Structs		(Color(..))
+import Graphics.UI.Gtk.General.Structs		()
 import Graphics.Rendering.Pango.Enums
 {#import Graphics.Rendering.Pango.BasicTypes#} ( FontDescription(..),
 					 makeNewFontDescription )

@@ -49,8 +49,6 @@ module Graphics.UI.Gtk.Misc.IMMulticontext (
   imMulticontextAppendMenuitems,
   ) where
 
-import Control.Monad	(liftM)
-
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 

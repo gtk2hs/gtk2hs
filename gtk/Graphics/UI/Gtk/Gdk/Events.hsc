@@ -70,7 +70,6 @@ import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
-import System.Glib.GObject ( makeNewGObject )
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
@@ -83,11 +82,6 @@ import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
 					 ScrollDirection(..))
 import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
-import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
-
-import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
-import Data.Maybe (catMaybes)
-
 
 -- | The time (in milliseconds) when an event happened. This is used mostly
 -- for ordering events and responses to events.

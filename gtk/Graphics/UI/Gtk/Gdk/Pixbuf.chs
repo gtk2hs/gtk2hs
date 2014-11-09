@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE EmptyDataDecls #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf
 --
@@ -124,21 +125,22 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   ) where
 
 import Control.Monad (liftM)
-import Data.Ix
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GDateTime
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
+#if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
+#endif
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 				propagateGError)
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap, Pixmap)
-#endif
+import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap)
+#else
 import Graphics.Rendering.Cairo
 import Graphics.Rendering.Cairo.Types
+#endif
 
 {# context prefix="gdk" #}
 
@@ -399,7 +401,6 @@ pixbufSave :: (GlibString string, GlibFilePath fp) => Pixbuf -> fp -> ImageForma
 	      IO ()
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
-  let optLen = length keys in
   propagateGError $ \errPtrPtr ->
     withUTFFilePath fname $ \fnPtr ->
     withUTFString iType $ \tyPtr ->
@@ -458,7 +459,7 @@ pixbufNewFromXPMData s =
 --   that is embedded in the executable. See
 --   'pixbufNewFromInline' for an example.
 --
-data InlineImage = InlineImage
+data InlineImage
 
 -- | Create a new image from a static pointer.
 --

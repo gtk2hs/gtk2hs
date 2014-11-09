@@ -94,7 +94,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
   ) where
 
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM, mapM_)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

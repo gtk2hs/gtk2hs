@@ -162,11 +162,8 @@ import System.Glib.Flags		(toFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.StoreValue		(TMType, GenericValue,
-					 valueGetGenericValue)
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
-{#import Graphics.UI.Gtk.ModelView.CustomStore#} (TreeModelFlags(..),
-                                                  treeModelGetRow)
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} (TreeModelFlags(..))
 {#import Graphics.UI.Gtk.ModelView.Types#}  (TypedTreeModel,
                                              TypedTreeModelClass,
                                              toTypedTreeModel,

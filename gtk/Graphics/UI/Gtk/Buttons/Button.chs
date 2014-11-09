@@ -269,36 +269,6 @@ buttonGetRelief self =
   {# call unsafe button_get_relief #}
     (toButton self)
 
-#if GTK_CHECK_VERSION(2,4,0)
--- %hash c:d8cb d:1e7d
--- | If the child of the button is a 'Misc' or 'Alignment', this property can
--- be used to control it's horizontal alignment. 0.0 is left aligned, 1.0 is
--- right aligned.
---
--- Allowed values: [0,1]
---
--- Default value: 0.5
---
--- * Available since Gtk+ version 2.4
---
-buttonXAlign :: ButtonClass self => Attr self Float
-buttonXAlign = newAttrFromFloatProperty "xalign"
-
--- %hash c:ce4e d:4fec
--- | If the child of the button is a 'Misc' or 'Alignment', this property can
--- be used to control it's vertical alignment. 0.0 is top aligned, 1.0 is
--- bottom aligned.
---
--- Allowed values: [0,1]
---
--- Default value: 0.5
---
--- * Available since Gtk+ version 2.4
---
-buttonYAlign :: ButtonClass self => Attr self Float
-buttonYAlign = newAttrFromFloatProperty "yalign"
-#endif
-
 -- | Sets the text of the label of the button. This text is also used
 -- to select the stock item if 'buttonSetUseStock' is used.
 --

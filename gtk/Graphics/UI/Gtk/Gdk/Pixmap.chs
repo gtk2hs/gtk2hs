@@ -58,9 +58,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
 
 import Data.Maybe
 import System.Glib.FFI
-import System.Glib.GObject           (wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Gdk.Drawable  (Drawable, DrawableClass(..))
 
 {# context lib="gdk" prefix="gdk" #}
 

@@ -60,11 +60,11 @@ import Data.Bits
 import Data.Word (Word)
 import Data.Maybe ( fromMaybe, isJust )
 import Data.Tree
-import Control.Monad ( liftM, when )
+import Control.Monad ( when )
 import Control.Exception (assert)
 import Data.IORef
 import Graphics.UI.Gtk.ModelView.Types
-import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
+import Graphics.UI.Gtk.Types (GObjectClass(..))
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeDrag
@@ -262,24 +262,24 @@ setBitSlice (TreeIter stamp a b c) off count value =
            in (word .&. complement mask) .|. (value `shiftL` off)
 
 
-iterPrefixEqual :: TreeIter -> TreeIter -> Int -> Bool
-iterPrefixEqual (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) pos
-  | pos>64 = let mask = 1 `shiftL` (pos-64) - 1 in
-             a1==a2 && b1==b2 && (c1 .&. mask) == (c2 .&. mask)
-  | pos>32 = let mask = 1 `shiftL` (pos-32) - 1 in
-             a1==a2 && (b1 .&. mask) == (b2 .&. mask)
-  | otherwise = let mask = 1 `shiftL` pos - 1 in
-                (a1 .&. mask) == (a2 .&. mask)
+--iterPrefixEqual :: TreeIter -> TreeIter -> Int -> Bool
+--iterPrefixEqual (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) pos
+--  | pos>64 = let mask = 1 `shiftL` (pos-64) - 1 in
+--             a1==a2 && b1==b2 && (c1 .&. mask) == (c2 .&. mask)
+--  | pos>32 = let mask = 1 `shiftL` (pos-32) - 1 in
+--             a1==a2 && (b1 .&. mask) == (b2 .&. mask)
+--  | otherwise = let mask = 1 `shiftL` pos - 1 in
+--                (a1 .&. mask) == (a2 .&. mask)
 
 -- | The invalid tree iterator.
 --
 invalidIter :: TreeIter
 invalidIter = TreeIter 0 0 0 0
 
-showIterBits (TreeIter _ a b c) = [showBits a, showBits b, showBits c]
-
-showBits :: Bits a => a -> String
-showBits a = [ if testBit a i then '1' else '0' | i <- [0..bitSize a - 1] ]
+--showIterBits (TreeIter _ a b c) = [showBits a, showBits b, showBits c]
+--
+--showBits :: Bits a => a -> String
+--showBits a = [ if testBit a i then '1' else '0' | i <- [0..bitSize a - 1] ]
 
 -- | Calculate the maximum number of nodes on a per-level basis.
 --
@@ -402,7 +402,6 @@ checkSuccess depth iter cache = case advanceCache depth iter cache of
   where
   cmp (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) =
       a1==a2 && b1==b2 && c2==c2
-  cache'@((cur,sibs):_) = advanceCache depth iter cache
 
 -- | Get the leaf index of this iterator.
 --
@@ -424,7 +423,7 @@ getTreeIterLeaf ds ti = gTIL 0 0 ds
 --
 iterNext :: Depth -> TreeIter -> Cache a -> (Maybe TreeIter, Cache a)
 iterNext depth iter cache = let
-    (pos,leaf,child) = getTreeIterLeaf depth iter
+    (pos,leaf,_child) = getTreeIterLeaf depth iter
     curIdx = getBitSlice iter pos leaf
     nextIdx = curIdx+1
     nextIter = setBitSlice iter pos leaf nextIdx
@@ -460,7 +459,7 @@ iterNChildren depth iter cache = case checkSuccess depth iter cache of
 --
 iterParent :: Depth -> TreeIter -> Maybe TreeIter
 iterParent depth iter = let
-    (pos,leaf,child) = getTreeIterLeaf depth iter
+    (pos,leaf,_child) = getTreeIterLeaf depth iter
   in if pos==0 then Nothing else
      if getBitSlice iter pos leaf==0 then Nothing else
      Just (setBitSlice iter pos leaf 0)

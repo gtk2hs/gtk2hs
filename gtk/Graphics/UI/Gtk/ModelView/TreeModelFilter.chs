@@ -84,12 +84,10 @@ module Graphics.UI.Gtk.ModelView.TreeModelFilter (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject			(wrapNewGObject)
 import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

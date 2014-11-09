@@ -80,7 +80,6 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-{#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 

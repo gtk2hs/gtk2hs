@@ -61,6 +61,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
 #endif
   drawWindowRaise,
   drawWindowLower,
+  drawWindowRegisterDnd,
   drawWindowBeginPaintRect,
 #if GTK_MAJOR_VERSION < 3
   drawWindowBeginPaintRegion,
@@ -102,20 +103,13 @@ import Data.Maybe       (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Flags                (toFlags)
-import System.Glib.GObject              (wrapNewGObject,makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 #if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#}
 #endif
 {#import Graphics.UI.Gtk.Gdk.Cursor#}
-import Graphics.UI.Gtk.Gdk.EventM	(Modifier,
-#if GTK_MAJOR_VERSION < 3
-    eventRegion,
-#endif
-    )
 import Graphics.UI.Gtk.General.Structs
-import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
 {# context lib="gdk" prefix="gdk" #}
 

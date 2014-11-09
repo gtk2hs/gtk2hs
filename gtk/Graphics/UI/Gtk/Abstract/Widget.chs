@@ -92,14 +92,26 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHideAll,
 #endif
   widgetDestroy,
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetDraw,
+#endif
   widgetQueueDraw,
   widgetQueueResize,
 #if GTK_CHECK_VERSION(2,4,0)
   widgetQueueResizeNoRedraw,
 #endif
+#if GTK_CHECK_VERSION(3,8,0)
+  widgetGetFrameClock,
+#endif
+#if GTK_CHECK_VERSION(3,10,0)
+  widgetGetScaleFactor,
+#endif
   widgetSizeRequest,
   widgetGetChildRequisition,
   widgetSizeAllocate,
+#if GTK_CHECK_VERSION(3,10,0)
+  widgetSizeAllocateWithBaseline,
+#endif
   widgetAddAccelerator,
   widgetRemoveAccelerator,
   widgetSetAccelPath,
@@ -157,6 +169,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetInputShapeCombineMask,
 #endif
 #endif
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetShapeCombineRegion,
+  widgetInputShapeCombineRegion,
+#endif
 #if GTK_CHECK_VERSION(2,12,0)
   widgetGetTooltipWindow,
   widgetSetTooltipWindow,
@@ -186,6 +202,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetCreateLayout,
   widgetRenderIcon,
   widgetQueueDrawArea,
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetQueueDrawRegion,
+#endif
 #if GTK_MAJOR_VERSION < 3
   widgetResetShapes,
 #endif
@@ -235,6 +254,13 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetAllocatedWidth,
   widgetGetAllocatedHeight,
 #endif
+#if GTK_CHECK_VERSION(3,10,0)
+  widgetGetAllocatedBaseline,
+#endif
+#if GTK_CHECK_VERSION(3,14,0)
+  widgetGetClip,
+  widgetSetClip,
+#endif
   widgetGetState,
   widgetSetState,
 #if GTK_MAJOR_VERSION < 3
@@ -242,6 +268,15 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetSize,
 #endif
   widgetEvent,
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetGetHAlign,
+  widgetSetHAlign,
+  widgetGetVAlign,
+#if GTK_CHECK_VERSION(3,10,0)
+  widgetGetVAlignWithBaseline,
+#endif
+  widgetSetVAlign,
+#endif
 
 -- * Attributes
   widgetName,
@@ -269,6 +304,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #if GTK_MAJOR_VERSION < 3
   widgetExtensionEvents,
 #endif
+  widgetExpand,
+  widgetHExpand,
   widgetNoShowAll,
   widgetChildVisible,
 #if GTK_MAJOR_VERSION < 3
@@ -284,7 +321,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetRealized,
   widgetGetMapped,
 #endif
-#if GTK_MAJOR_VERSION >= 3
+#if GTK_CHECK_VERSION(3,0,0)
   widgetGetStyleContext,
 #endif
 
@@ -299,6 +336,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   hideSignal,
   focus,
   stateChanged,
+#if GTK_CHECK_VERSION(3,0,0)
+  stateFlagsChanged,
+#endif
   parentSet,
   hierarchyChanged,
   styleSet,
@@ -420,15 +460,17 @@ import Control.Monad	(liftM, unless)
 import Data.Maybe	(fromMaybe)
 import Control.Monad.Reader (ask)
 import Control.Monad.Trans (liftIO)
-import Data.Bits ((.&.), complement)
 import System.Glib.FFI
-import System.Glib.Flags		(fromFlags, toFlags)
+import System.Glib.Flags (fromFlags, toFlags)
+#if GTK_CHECK_VERSION(3,0,0)
+import System.Glib.GError (failOnGError)
+import System.Glib.Flags (Flags)
+#endif
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 import System.Glib.GType      (GType)
-import System.Glib.GList      (GList, fromGList)
+import System.Glib.GList      (fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Types#}
@@ -454,21 +496,9 @@ import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,widgetGetDrawWindow, widgetGetSize
 #endif
 					)
-import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
-  marshExposeRect,
-  EventButton,
-  EventScroll,
-  EventMotion,
-  EventExpose,
-  EventKey,
-  EventConfigure,
-  EventCrossing,
-  EventFocus,
-  EventProperty,
-  EventProximity,
-  EventVisibility,
-  EventWindowState,
-  EventGrabBroken)
+#ifndef DISABLE_DEPRECATED
+import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent, marshExposeRect)
+#endif
 import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   EventM,
   EAny,
@@ -484,15 +514,16 @@ import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   EProperty,
   EProximity,
   EWindowState,
-#if GTK_CHECK_VERSION(2,6,0)
-  EOwnerChange,
-#endif
 #if GTK_CHECK_VERSION(2,8,0)
   EGrabBroken,
 #endif
   )
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
-					 AccelFlags(..), DirectionType(..), Modifier)
+					 AccelFlags(..), DirectionType(..), Modifier
+#if GTK_CHECK_VERSION(3,0,0)
+                                        ,StateFlags(..), Align(..)
+#endif
+					)
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout), makeNewPangoString )
@@ -500,12 +531,11 @@ import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
 import Control.Monad.Reader ( runReaderT )
 #if GTK_CHECK_VERSION(3,0,0)
-import Graphics.Rendering.Cairo.Types (Cairo(..))
+import Graphics.Rendering.Cairo.Types (Cairo(..), unCairo, Region(..), withRegion)
 import Graphics.Rendering.Cairo.Internal (Render(..))
 #endif
 
 {# context lib="gtk" prefix="gtk" #}
-
 
 --------------------
 -- Methods
@@ -581,6 +611,36 @@ widgetDestroy self =
   {# call widget_destroy #}
     (toWidget self)
 
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Draws widget to @cr@. The top left corner of the widget will be drawn
+-- to the currently set origin point of @cr@.
+--
+-- You should pass a cairo context as cr argument that is in an original
+-- state. Otherwise the resulting drawing is undefined. For example changing
+-- the operator using 'Graphics.Rendering.Cairo.setOperator' or the line
+-- width using 'Graphics.Rendering.Cairo.setLineWidth' might have unwanted
+-- side effects. You may however change the context’s transform matrix - like
+-- with 'Graphics.Rendering.Cairo.scale', 'Graphics.Rendering.Cairo.translate'
+-- or 'Graphics.Rendering.Cairo.setMatrix' and clip region with
+-- 'Graphics.Rendering.Cairo.clip' prior to calling this function. Also, it
+-- is fine to modify the context with 'Graphics.Rendering.Cairo.save' and
+-- 'Graphics.Rendering.Cairo.pushGroup prior to calling this function.
+--
+-- Note that special-purpose widgets may contain special code for rendering
+-- to the screen and might appear differently on screen and when rendered
+-- using 'widgetDraw'.
+--
+widgetDraw :: WidgetClass self
+ => self  -- ^ the widget to draw. It must be drawable (see 'widgetIsDrawable')
+          -- and a size must have been allocated.
+ -> Cairo -- ^ a cairo context to draw to
+ -> IO ()
+widgetDraw self cr =
+  {# call widget_draw #}
+    (toWidget self)
+    (castPtr $ unCairo cr)
+#endif
+
 -- * Functions to be used with 'Graphics.UI.Gtk.Misc.DrawingArea' or
 --   container implementations.
 
@@ -613,6 +673,48 @@ widgetQueueResize self =
 widgetQueueResizeNoRedraw :: WidgetClass self => self -> IO ()
 widgetQueueResizeNoRedraw self =
   {# call widget_queue_resize_no_redraw #}
+    (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(3,8,0)
+-- | Obtains the frame clock for a widget. The frame clock is a global “ticker”
+-- that can be used to drive animations and repaints. The most common reason to
+-- get the frame clock is to call 'frameClockGetFrameTime', in order to get a
+-- time to use for animating. For example you might record the start of the
+-- animation with an initial value from 'frameClockGetFrameTime', and then
+-- update the animation by calling 'frameClockGetFrameTime' again during each
+-- repaint.
+--
+-- 'frameClockRequestPhase' will result in a new frame on the clock, but won’t
+-- necessarily repaint any widgets. To repaint a widget, you have to use
+-- 'widgetQueueDraw' which invalidates the widget (thus scheduling it to
+-- receive a draw on the next frame). 'widgetQueueDraw' will also end up
+-- requesting a frame on the appropriate frame clock.
+--
+-- A widget’s frame clock will not change while the widget is mapped.
+-- Reparenting a widget (which implies a temporary unmap) can change the
+-- widget’s frame clock.
+--
+-- Unrealized widgets do not have a frame clock.
+--
+widgetGetFrameClock :: WidgetClass self => self -> IO FrameClock
+widgetGetFrameClock self =
+  makeNewGObject mkFrameClock $
+  {# call widget_get_frame_clock #}
+    (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(3,10,0)
+-- | Retrieves the internal scale factor that maps from window coordinates to
+-- the actual device pixels. On traditional systems this is 1, on high density
+-- outputs, it can be a higher value (typically 2).
+--
+-- See 'drawWindowGetScaleFactor'.
+--
+widgetGetScaleFactor :: WidgetClass self => self -> IO Int
+widgetGetScaleFactor self =
+  liftM fromIntegral $
+  {# call widget_get_scale_factor #}
     (toWidget self)
 #endif
 
@@ -667,6 +769,31 @@ widgetSizeAllocate :: WidgetClass self => self
   -> IO ()
 widgetSizeAllocate self rect = with rect $ \rectPtr ->
   {#call widget_size_allocate#} (toWidget self) (castPtr rectPtr)
+
+#if GTK_CHECK_VERSION(3,10,0)
+-- | This function is only used by
+-- 'Graphics.UI.Gtk.Abstract.Container.Container' subclasses, to assign a
+-- size, position and (optionally) baseline to their child widgets.
+--
+-- In this function, the allocation and baseline may be adjusted. It will
+-- be forced to a 1x1 minimum size, and the adjust_size_allocation virtual
+-- and adjust_baseline_allocation methods on the child will be used to adjust
+-- the allocation and baseline. Standard adjustments include removing the
+-- widget's margins, and applying the widget’s 'widgetHAlign' and
+-- 'widgetVAlign' properties.
+--
+-- If the child widget does not have a valign of AlignBaseline the baseline
+-- argument is ignored and -1 is used instead.
+--
+widgetSizeAllocateWithBaseline :: WidgetClass self => self
+  -> Allocation -- ^ The @x@ and @y@ values of the rectangle determine the
+                --   the position of the widget's area relative to its parent
+                --   allocation.
+  -> Int        -- ^ The baseline of the child, or -1
+  -> IO ()
+widgetSizeAllocateWithBaseline self rect baseline = with rect $ \rectPtr ->
+  {#call widget_size_allocate_with_baseline#} (toWidget self) (castPtr rectPtr) (fromIntegral baseline)
+#endif
 
 -- %hash c:1e14 d:53c5
 -- | Installs an accelerator for this @widget@ in @accelGroup@ that causes
@@ -1272,6 +1399,31 @@ widgetInputShapeCombineMask self shapeMask offsetX offsetY =
 #endif
 #endif
 
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Sets a shape for this widget’s GDK window. This allows for transparent
+-- windows etc., see 'drawWindowShapeCombineRegion' for more information.
+widgetShapeCombineRegion :: WidgetClass self => self
+ -> Maybe Region
+ -> IO ()
+widgetShapeCombineRegion self region =
+  withRegion (fromMaybe (Region nullForeignPtr) region) $ \ptrRegion ->
+  {# call gtk_widget_shape_combine_region #}
+    (toWidget self)
+    (castPtr ptrRegion)
+
+-- | Sets an input shape for this widget’s GDK window. This allows for windows
+-- which react to mouse click in a nonrectangular region,
+-- see 'drawWindowInputShapeCombineRegion' for more information.
+widgetInputShapeCombineRegion :: WidgetClass self => self
+ -> Maybe Region
+ -> IO ()
+widgetInputShapeCombineRegion self region =
+  withRegion (fromMaybe (Region nullForeignPtr) region) $ \ptrRegion ->
+  {# call gtk_widget_input_shape_combine_region #}
+    (toWidget self)
+    (castPtr ptrRegion)
+#endif
+
 #if GTK_CHECK_VERSION(2,12,0)
 -- | Returns the 'Window' of the current tooltip. This can be the 'Window' created by default, or the
 -- custom tooltip window set using 'widgetSetTooltipWindow'.
@@ -1742,6 +1894,26 @@ widgetQueueDrawArea self x y width height =
     (fromIntegral y)
     (fromIntegral width)
     (fromIntegral height)
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Invalidates the area of widget defined by @region@ by calling
+-- 'drawWindowInvalidateRegion' on the widget’s window and all its child
+-- windows. Once the main loop becomes idle (after the current batch of
+-- events has been processed, roughly), the window will receive expose events
+-- for the union of all regions that have been invalidated.
+--
+-- Normally you would only use this function in widget implementations. You
+-- might also use it to schedule a redraw of a DrawingArea or some portion
+-- thereof.
+widgetQueueDrawRegion :: WidgetClass self => self
+ -> Region
+ -> IO ()
+widgetQueueDrawRegion self region =
+  withRegion region $ \regionPtr ->
+  {# call gtk_widget_queue_draw_region #}
+    (toWidget self)
+    (castPtr regionPtr)
+#endif
 
 #if GTK_MAJOR_VERSION < 3
 -- %hash c:5ffb d:3e1a
@@ -2324,6 +2496,50 @@ widgetGetAllocatedHeight widget =
      liftM fromIntegral $ {#call widget_get_allocated_height#} (toWidget widget)
 #endif
 
+#if GTK_CHECK_VERSION(3,10,0)
+-- | Returns the baseline that has currently been allocated to widget . This function is intended
+-- to be used when implementing handlers for the “draw” function, and when allocating child
+-- widgets in “size_allocate”.
+widgetGetAllocatedBaseline :: WidgetClass self => self -> IO Int
+widgetGetAllocatedBaseline widget =
+     liftM fromIntegral $ {#call widget_get_allocated_baseline#} (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(3,14,0)
+-- | Retrieves the widget’s clip area.
+--
+-- The clip area is the area in which all of widget's drawing will happen. Other
+-- toolkits call it the bounding box.
+--
+-- Historically, in GTK+ the clip area has been equal to the allocation retrieved
+-- via widgetGetAllocation.
+widgetGetClip :: WidgetClass self => self -> IO Allocation
+widgetGetClip widget =
+  alloca $ \ allocationPtr -> do
+     {#call widget_get_clip#} (toWidget widget) (castPtr allocationPtr)
+     peek allocationPtr
+
+-- | Sets the widget’s clip. This must not be used directly, but from within a widget’s 'sizeAllocate' method.
+--
+-- The clip set should be the area that widget draws on. If widget is a GtkContainer, the area
+-- must contain all children's clips.
+--
+-- If this function is not called by widget during a 'sizeAllocate' handler, it is assumed to be
+-- equal to the allocation. However, if the function is not called, certain features that might extend
+-- a widget's allocation will not be available:
+--
+-- * The “draw” signal will be clipped to the widget's allocation to avoid overdraw.
+--
+-- * Calling gtk_render_background() will not draw outset shadows.
+--
+-- It is therefore suggested that you always call widgetSetClip during a 'sizeAllocate' handler.
+widgetSetClip :: WidgetClass self => self
+  -> Allocation
+  -> IO ()
+widgetSetClip self clip = with clip $ \clipPtr ->
+  {#call widget_set_clip#} (toWidget self) (castPtr clipPtr)
+#endif
+
 #if GTK_CHECK_VERSION(2,18,0)
 -- | Retrieve the current state of the widget.
 --
@@ -2532,6 +2748,20 @@ widgetExtensionEvents = newAttr
   widgetSetExtensionEvents
 #endif
 
+-- | Whether to expand in both directions. Setting this sets both 'widgetHExpand' and 'widgetVExpand'
+--
+-- Default value: @False@
+--
+widgetExpand :: WidgetClass self => Attr self Bool
+widgetExpand = newAttrFromBoolProperty "expand"
+
+-- | Whether to expand in both directions. Setting this sets both 'widgetHExpand' and 'widgetVExpand'
+--
+-- Default value: @False@
+--
+widgetHExpand :: WidgetClass self => Attr self Bool
+widgetHExpand = newAttrFromBoolProperty "hexpand"
+
 -- %hash c:1605 d:48ea
 -- | Whether 'widgetShowAll' should not affect this widget.
 --
@@ -2648,7 +2878,7 @@ widgetGetMapped self =
 
 #endif
 
-#if GTK_MAJOR_VERSION >= 3
+#if GTK_CHECK_VERSION(3,0,0)
 -- | Returns the style context associated to @widget@.
 widgetGetStyleContext :: WidgetClass widget
                       => widget          -- ^ @widget@ : a @Widget@
@@ -2657,6 +2887,54 @@ widgetGetStyleContext widget =
   makeNewGObject mkStyleContext $
   {# call gtk_widget_get_style_context #}
   (toWidget widget)
+
+-- | Gets the value of the `widgetHAlign` property.
+--
+-- For backwards compatibility reasons this method will never return AlignBaseline,
+-- but instead it will convert it to AlignFill. Baselines are not supported for
+-- horizontal alignment.
+--
+widgetGetHAlign :: WidgetClass self => self -> IO Align
+widgetGetHAlign self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_widget_get_halign #}
+    (toWidget self)
+
+-- | Sets the horizontal alignment of widget. See the 'widgetHAlign' property.
+--
+widgetSetHAlign :: WidgetClass self => self -> Align -> IO ()
+widgetSetHAlign self align =
+  {# call gtk_widget_set_halign #}
+    (toWidget self)
+    (fromIntegral $ fromEnum align)
+
+-- | Gets the value of the 'widgetVAlign' property.
+--
+-- For backwards compatibility reasons this method will never return AlignBaseline,
+-- but instead it will convert it to AlignFill. If your widget want to support
+-- baseline aligned children it must use 'widgetGetVAlignWithBaseline', or
+-- 'widgetVAlign', which will also report the true value.
+widgetGetVAlign :: WidgetClass self => self -> IO Align
+widgetGetVAlign self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_widget_get_valign #}
+    (toWidget self)
+
+#if GTK_CHECK_VERSION(3,10,0)
+-- | Gets the value of the 'widgetVAlign' property, including AlignBaseline.
+widgetGetVAlignWithBaseline :: WidgetClass self => self -> IO Align
+widgetGetVAlignWithBaseline self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_widget_get_valign_with_baseline #}
+    (toWidget self)
+#endif
+
+-- | Sets the vertical alignment of widget . See the 'widgetVAlign' property.
+widgetSetVAlign :: WidgetClass self => self -> Align -> IO ()
+widgetSetVAlign self align =
+  {# call gtk_widget_set_valign #}
+    (toWidget self)
+    (fromIntegral $ fromEnum align)
 #endif
 
 --------------------
@@ -2737,6 +3015,25 @@ focus = Signal (connect_ENUM__BOOL "focus")
 --
 stateChanged :: WidgetClass self => Signal self (StateType -> IO ())
 stateChanged = Signal (connect_ENUM__NONE "state-changed")
+
+#if GTK_CHECK_VERSION(3,0,0)
+connect_FLAGS__NONE ::
+  (Flags a, GObjectClass obj) => SignalName ->
+  ConnectAfter -> obj ->
+  ([a] -> IO ()) ->
+  IO (ConnectId obj)
+connect_FLAGS__NONE signal after obj user =
+  connectGeneric signal after obj action
+  where action :: Ptr GObject -> Int -> IO ()
+        action _ flags1 =
+          failOnGError $
+          user (toFlags flags1)
+
+-- | The state of the widget (input focus, insensitive, etc.) has changed.
+--
+stateFlagsChanged :: WidgetClass self => Signal self ([StateFlags] -> IO ())
+stateFlagsChanged = Signal (connect_FLAGS__NONE "state-flags-changed")
+#endif
 
 -- %hash c:bef2 d:1d66
 -- | The 'parentSet' signal is emitted when a new parent has been set on a
@@ -3027,8 +3324,9 @@ unmapEvent = Signal (eventM "unmap_event" [])
 -- identified by a 'PropertyTag'. This event is triggered if a property is
 -- changed or deleted. Sets the widget's 'PropertyChangeMask' flag.
 --
-propertyNotifyEvent :: WidgetClass self => Signal self (EventM EProperty Bool)
-propertyNotifyEvent = Signal (eventM "property_notify_event" [PropertyChangeMask])
+_propertyNotifyEvent :: WidgetClass self => Signal self (EventM EProperty Bool)
+_propertyNotifyEvent = Signal (eventM "property_notify_event" [PropertyChangeMask])
+
 {- not sure if these are useful
 -- %hash c:58cc d:af3f
 -- |

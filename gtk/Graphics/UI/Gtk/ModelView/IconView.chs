@@ -150,7 +150,6 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList                        (fromGList)
 import System.Glib.Flags
-import System.Glib.GObject                      (makeNewGObject, constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 import Graphics.UI.Gtk.Gdk.Enums                (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
@@ -158,7 +157,6 @@ import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.General.Enums#}        (Orientation, SelectionMode)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
 

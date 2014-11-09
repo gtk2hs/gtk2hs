@@ -62,7 +62,7 @@ import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}      (TreePath, fromTreePath, withTreePath,
                                                  NativeTreePath(..))
-import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData,
+import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM,
                                                  TargetTag, atomNew)
 import Control.Monad                            (liftM)
 import Control.Monad.Trans                      (liftIO)

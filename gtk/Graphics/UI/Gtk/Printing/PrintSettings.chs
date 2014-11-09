@@ -146,7 +146,6 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import System.Glib.Properties
 import System.Glib.UTFString
 import System.Glib.GError
 {#import Graphics.UI.Gtk.Types#}

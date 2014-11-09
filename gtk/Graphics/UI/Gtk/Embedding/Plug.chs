@@ -78,6 +78,8 @@ module Graphics.UI.Gtk.Embedding.Plug (
 #endif
   ) where
 
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+
 import Control.Monad	(liftM)
 import Data.Maybe	(fromMaybe)
 
@@ -93,8 +95,6 @@ import Graphics.UI.Gtk.Embedding.Embedding
 import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gtk" prefix="gtk" #}
-
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
 
 --------------------
 -- Constructors

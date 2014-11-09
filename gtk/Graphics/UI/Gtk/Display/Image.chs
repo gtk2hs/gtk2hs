@@ -148,7 +148,6 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(IconSize(..))

@@ -58,17 +58,14 @@ module Graphics.UI.Gtk.General.CssProvider (
 
   ) where
 
+#if GTK_MAJOR_VERSION >= 3
 {# context prefix ="gtk" #}
-
-import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GError (GError(..), GErrorClass(..), GErrorDomain,
-                           propagateGError)
+import System.Glib.GError (propagateGError)
 
-#if GTK_MAJOR_VERSION >= 3
 {#enum CssProviderError {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
 --------------------

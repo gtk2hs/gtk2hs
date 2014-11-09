@@ -99,14 +99,13 @@ module Graphics.UI.Gtk.Misc.Tooltip (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+#if GTK_CHECK_VERSION(2,12,0)
+
 import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(constructNewGObject,makeNewGObject)
 import Graphics.UI.Gtk.General.Structs	(IconSize(..), Rectangle)
-import Graphics.Rendering.Pango.Markup
 {#import Graphics.UI.Gtk.Types#}
 #ifdef HAVE_GIO
 {#import System.GIO.Types#}
@@ -114,7 +113,6 @@ import Graphics.Rendering.Pango.Markup
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,12,0)
 --------------------
 -- Methods
 

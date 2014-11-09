@@ -146,7 +146,6 @@ import System.Glib.FFI
 import System.Glib.Flags		(fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject)
 import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
@@ -789,10 +788,6 @@ textIterBackwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterBackwardToTagToggle ti tt = liftM toBool $
   {#call unsafe text_iter_backward_to_tag_toggle#} ti
     (fromMaybe (TextTag nullForeignPtr) tt)
-
--- Setup a callback for a predicate function.
---
-type TextCharPredicateCB = Char -> Bool
 
 {#pointer TextCharPredicate#}
 

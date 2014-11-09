@@ -91,7 +91,6 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

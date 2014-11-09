@@ -286,7 +286,6 @@ import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList                (fromGList, withGList)
-import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 #if GTK_MAJOR_VERSION < 3
@@ -1067,6 +1066,7 @@ windowGetDecorated self =
     (toWindow self)
 
 #if GTK_CHECK_VERSION(2,10,0)
+#ifndef DISABLE_DEPRECATED
 -- | By default, windows have a close button in the window frame.
 -- Some window managers allow GTK+ to disable this button.
 -- If you set the deletable property to  @False@ using this function, GTK+ will do its best to convince the window manager not to show a close button.
@@ -1094,6 +1094,7 @@ windowGetDeletable :: WindowClass self => self
 windowGetDeletable self = liftM toBool $
   {# call window_get_deletable #}
     (toWindow self)
+#endif
 #endif
 
 #if GTK_MAJOR_VERSION < 3
@@ -1175,6 +1176,7 @@ windowGetHasFrame self = liftM toBool $
     (toWindow self)
 #endif
 
+#ifndef DISABLE_DEPRECATED
 -- | This function is only useful on X11, not with other Gtk+ targets.
 --
 -- In combination with the window title, the window role allows a window
@@ -1207,6 +1209,7 @@ windowGetRole self =
   {# call gtk_window_get_role #}
     (toWindow self)
   >>= maybePeek peekUTFString
+#endif
 
 -- | Asks to stick @window@, which means that it will appear on all user
 -- desktops. Note that you shouldn't assume the window is definitely stuck
@@ -1358,6 +1361,7 @@ windowGetDefaultIconList = do
   mapM (makeNewGObject mkPixbuf . return) ptrList
 
 #if GTK_CHECK_VERSION(2,6,0)
+#ifndef DISABLE_DEPRECATED
 -- | Sets the icon for the window from a named themed icon. See the docs for
 -- 'IconTheme' for more details.
 --
@@ -1389,6 +1393,7 @@ windowGetIconName self =
   >>= \strPtr -> if strPtr == nullPtr
                 then return ""
                 else peekUTFString strPtr
+#endif
 
 -- | Sets an icon to be used as fallback for windows that haven't had
 -- 'windowSetIconList' called on them from a named themed icon, see
@@ -1935,6 +1940,7 @@ windowSetGeometryHints self geometryWidget
 {# enum GdkWindowHints {underscoreToCase} #}
 
 #if GTK_CHECK_VERSION(2,12,0)
+#ifndef DISABLE_DEPRECATED
 -- | Request the windowing system to make window partially transparent, with opacity 0 being fully transparent and 1 fully opaque.
 -- (Values of the opacity parameter are clamped to the [0,1] range.)
 -- On X11 this has any effect only on X screens with a compositing manager running.
@@ -1959,6 +1965,7 @@ windowGetOpacity :: WindowClass self => self
  -> IO Double  -- ^ return the requested opacity for this window.
 windowGetOpacity self = liftM realToFrac $
  {#call window_get_opacity#} (toWindow self)
+#endif
 #endif
 
 #if GTK_CHECK_VERSION(2,10,0)

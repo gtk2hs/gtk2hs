@@ -120,12 +120,9 @@ import Graphics.UI.Gtk.General.Structs (
   )
 
 import Graphics.UI.Gtk.Signals
-import System.Glib.UTFString ( peekUTFString, withUTFStringLen,
-                               withUTFStringArray0, peekUTFStringArray0 )
 import Control.Monad ( liftM )
 import Control.Monad.Trans ( liftIO )
 import Control.Monad.Reader (runReaderT, ask)
-import Data.Word ( Word32 )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -269,9 +266,13 @@ selectionDataSet (Atom tagPtr) values@(~(v:_)) = ask >>= \selPtr ->
 -- The GtkSelectionData struct was made opaque in Gtk3, but the accessor routines
 -- where introduced in 2.14.
 #if GTK_CHECK_VERSION(2,14,0)
+#if GTK_MAJOR_VERSION < 3
 selectionDataGet_format selPtr = {#call gtk_selection_data_get_format#} selPtr
+#endif
 selectionDataGet_length selPtr = {#call gtk_selection_data_get_length#} selPtr
+#if GTK_MAJOR_VERSION < 3
 selectionDataGet_data selPtr = {#call gtk_selection_data_get_data#} selPtr
+#endif
 selectionDataGet_target selPtr = {#call gtk_selection_data_get_target#} selPtr
 #else
 selectionDataGet_format selPtr = {#get SelectionData -> format#} selPtr

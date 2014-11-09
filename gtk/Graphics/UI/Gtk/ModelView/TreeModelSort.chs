@@ -69,7 +69,6 @@ module Graphics.UI.Gtk.ModelView.TreeModelSort (
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject			(wrapNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.ModelView.Types#}

@@ -3,7 +3,6 @@ import Graphics.UI.Gtk
 
 import Data.Char
 import qualified Data.Text as T
-import Control.Exception
 import Control.Applicative
 import Data.Text (Text)
 

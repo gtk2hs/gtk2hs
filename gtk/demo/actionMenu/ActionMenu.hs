@@ -1,7 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 import Graphics.UI.Gtk
-import Control.Monad.IO.Class (liftIO)
 import Data.Text (Text)
 
 -- A function like this can be used to tag string literals for i18n.

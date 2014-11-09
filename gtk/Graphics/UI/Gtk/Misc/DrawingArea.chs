@@ -94,8 +94,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs	(widgetGetDrawWindow, widgetGetSize)
 #endif
--- to make haddock happy:
-import Graphics.UI.Gtk.Abstract.Widget
 
 {# context lib="gtk" prefix="gtk" #}
 

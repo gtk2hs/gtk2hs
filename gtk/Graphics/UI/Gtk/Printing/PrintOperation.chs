@@ -91,9 +91,18 @@ module Graphics.UI.Gtk.Printing.PrintOperation (
 -- * Methods
   printOperationSetAllowAsync,
   printOperationGetError,
+  printOperationSetJobName,
+  printOperationSetNPages,
 #if GTK_CHECK_VERSION(2,18,0)
   printOperationGetNPagesToPrint,
 #endif
+  printOperationSetCurrentPage,
+  printOperationSetUseFullPage,
+  printOperationSetUnit,
+  printOperationSetExportFilename,
+  printOperationSetShowProgress,
+  printOperationSetTrackPrintStatus,
+  printOperationSetCustomTabLabel,
   printOperationRun,
   printOperationCancel,
 #if GTK_CHECK_VERSION(2,16,0)

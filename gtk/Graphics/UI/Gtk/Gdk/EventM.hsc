@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE EmptyDataDecls #-}
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>
@@ -197,8 +198,6 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 import Graphics.UI.Gtk.General.DNDTypes (Atom(..), SelectionTag)
 import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
 
-import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
-import Data.Maybe (catMaybes)
 import Data.List (isPrefixOf)
 import Control.Monad.Reader ( ReaderT, ask, runReaderT )
 import Control.Monad.Trans ( liftIO )
@@ -219,53 +218,53 @@ import Control.Exception (catch, throw,
 type EventM t a = ReaderT (Ptr t) IO a
 
 -- | A tag for events that do not carry any event-specific information.
-data EAny = EAny
+data EAny
 
 -- | A tag for /key/ events.
-data EKey = EKey
+data EKey
 
 -- | A tag for /Button/ events.
-data EButton = EButton
+data EButton
 
 -- | A tag for /Scroll/ events.
-data EScroll = EScroll
+data EScroll
 
 -- | A tag for /Motion/ events.
-data EMotion = EMotion
+data EMotion
 
 -- | A tag for /Expose/ events.
-data EExpose = EExpose
+data EExpose
 
 -- | A tag for /Visibility/ events.
-data EVisibility = EVisibility
+data EVisibility
 
 -- | A tag for /Crossing/ events.
-data ECrossing = ECrossing
+data ECrossing
 
 -- | A tag for /Focus/ events.
-data EFocus = EFocus
+data EFocus
 
 -- | A tag for /Configure/ events.
-data EConfigure = EConfigure
+data EConfigure
 
 -- | A tag for /Property/ events.
-data EProperty = EProperty
+data EProperty
 
 -- | A tag for /Proximity/ events.
-data EProximity = EProximity
+data EProximity
 
 -- | A tag for /WindowState/ event.
-data EWindowState = EWindowState
+data EWindowState
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | A tag for /OwnerChange/ events.
-data EOwnerChange = EOwnerChange
+data EOwnerChange
 #endif
 
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- | A tag for /GrabBroken/ events.
-data EGrabBroken = EGrabBroken
+data EGrabBroken
 #endif
 
 -- | Retrieve the 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' that this

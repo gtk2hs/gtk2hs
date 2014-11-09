@@ -52,7 +52,6 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
   ) where
 
 import System.Glib.FFI
-import System.Glib.GObject              (wrapNewGObject)
 import System.Glib.GList                (fromGList)
 {#import Graphics.UI.Gtk.Types#}
 

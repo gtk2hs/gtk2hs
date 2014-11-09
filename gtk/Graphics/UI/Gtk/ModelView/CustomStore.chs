@@ -50,22 +50,18 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   treeModelSetColumn,
   ) where
 
-import Control.Monad	                        (liftM, when)
+import Control.Monad	                        (liftM)
 import Control.Monad.Reader                     (runReaderT)
 import Data.IORef                               (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe                               (fromMaybe)
 import System.Glib.FFI			hiding	(maybeNull)
 import System.Glib.Flags			(Flags, fromFlags)
-{#import System.Glib.GObject#}			(GObjectClass(..), GObject(..), unGObject,
-                                                 makeNewGObject, objectUnref)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData)
 
-import System.Glib.StoreValue			(TMType(..), GenericValue(..), valueSetGenericValue)
-{#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
+{#import System.Glib.GValue#}			(GValue(GValue))
 {#import System.Glib.GType#}			(GType)
-import System.Glib.GValueTypes                  (valueSetString)
 import qualified System.Glib.GTypeConstants as GConst
 {#import System.Glib.GValueTypes#}
 {#import System.Glib.GValue#}			(valueInit)
@@ -531,7 +527,3 @@ maybeNull :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybeNull marshal ptr
   | ptr == nullPtr = return Nothing
   | otherwise      = liftM Just (marshal ptr)
-
-iterSetStamp :: CInt -> TreeIter -> TreeIter
-iterSetStamp t (TreeIter _ a b c) = (TreeIter t a b c)
-

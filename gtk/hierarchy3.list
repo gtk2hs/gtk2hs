@@ -21,7 +21,7 @@
 # * noEq	: do not make this type an instance of Eq; used
 #		  if a different equality instance is manually
 #		  defined later
-    GObject 
+    GObject
 	    AtkObject
 		    GtkAccessible		
 	    GdkKeymap				
@@ -29,11 +29,11 @@
 	    GdkAppLaunchContext		
 	    GtkPrintSettings		
 	    GtkPrintOperation		
-	    GtkPrintOperationPreview 
+	    GtkPrintOperationPreview
 	    GtkPageSetup			
 	    GtkPrintContext			
 	    GtkRecentChooser		
-	    GtkRecentManager	    
+	    GtkRecentManager	
         GdkWindow as DrawWindow, gdk_window_get_type
         GdkGLPixmap		if gtkglext
         GdkGLWindow		if gtkglext
@@ -41,6 +41,7 @@
 	GdkDisplay		
 	GdkVisual
 	GdkDevice
+	GdkFrameClock           if gtk-3.8
         GtkSettings
         GtkTextBuffer
             GtkSourceBuffer	if sourceview
@@ -62,7 +63,7 @@
             GtkSourceMark       if gtksourceview2
         GtkRecentFilter		
         GtkWidget
-				GtkHSV as HSV, gtk_hsv_get_type  
+				GtkHSV as HSV, gtk_hsv_get_type
                 GtkMisc
                     GtkLabel
                         GtkAccelLabel
@@ -71,7 +72,7 @@
                 GtkContainer
 				    GtkToolPalette		
 				    GtkToolItemGroup	
-                    WebKitWebView as WebView, webkit_web_view_get_type            if webkit 
+                    WebKitWebView as WebView, webkit_web_view_get_type            if webkit
                     GtkBin
                         GtkAlignment
                         GtkFrame
@@ -126,7 +127,7 @@
                             GtkFontSelection
 			    GtkFileChooserWidget	
                         GtkHBox
-						    GtkInfoBar 
+						    GtkInfoBar
                             GtkFileChooserButton	
                             GtkStatusbar
                     GtkFixed
@@ -179,8 +180,8 @@
 		    GtkCellRendererSpinner		
 		GtkCellRendererPixbuf
 		GtkCellRendererText
-		    GtkCellRendererAccel    
-		    GtkCellRendererSpin     
+		    GtkCellRendererAccel
+		    GtkCellRendererSpin
 		    GtkCellRendererCombo	
 		GtkCellRendererToggle
 		GtkCellRendererProgress	
@@ -195,7 +196,7 @@
 	GtkTreeSortable			
 	GtkTooltip				
 # These are derived from GObject:
-  	GtkStatusIcon                   
+  	GtkStatusIcon
         GtkTreeSelection
         GtkTreeModel
             GtkTreeStore
@@ -332,7 +333,7 @@
         GstAdapter                      as Adapter,             gst_adapter_get_type                    if gstreamer
         GstController                   as Controller,          gst_controller_get_type                 if gstreamer
 
-        WebKitWebFrame as WebFrame, webkit_web_frame_get_type          if webkit 
+        WebKitWebFrame as WebFrame, webkit_web_frame_get_type          if webkit
         WebKitWebSettings as WebSettings, webkit_web_settings_get_type    if webkit
         WebKitNetworkRequest as NetworkRequest, webkit_network_request_get_type  if webkit
         WebKitNetworkResponse as NetworkResponse, webkit_network_response_get_type    if webkit

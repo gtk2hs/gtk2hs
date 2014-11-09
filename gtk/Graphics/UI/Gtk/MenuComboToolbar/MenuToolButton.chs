@@ -91,7 +91,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.Rendering.Pango.Markup
 
 {# context lib="gtk" prefix="gtk" #}
 

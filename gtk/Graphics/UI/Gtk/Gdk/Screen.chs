@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.Gdk.Screen (
 #endif
 #endif
 
---  screenGetSystemVisual,
+  screenGetSystemVisual,
 #if GTK_CHECK_VERSION(2,10,0)
   screenIsComposited,
 #endif

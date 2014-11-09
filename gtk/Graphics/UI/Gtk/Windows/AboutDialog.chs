@@ -147,7 +147,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject      	(makeNewGObject, destroyFunPtr)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -168,6 +167,7 @@ aboutDialogNew =
 --------------------
 -- Methods
 
+#ifndef DISABLE_DEPRECATED
 -- | Returns the program name displayed in the about dialog.
 --
 aboutDialogGetName :: (AboutDialogClass self, GlibString string) => self
@@ -306,6 +306,7 @@ aboutDialogSetWebsiteLabel self websiteLabel =
   {# call gtk_about_dialog_set_website_label #}
     (toAboutDialog self)
     websiteLabelPtr
+#endif
 
 -- | Sets the strings which are displayed in the authors tab of the secondary
 -- credits dialog.
@@ -370,6 +371,7 @@ aboutDialogGetDocumenters self =
     (toAboutDialog self)
   >>= peekUTFStringArray0
 
+#ifndef DISABLE_DEPRECATED
 -- | Returns the translator credits string which is displayed in the
 -- translators tab of the secondary credits dialog.
 --
@@ -391,6 +393,7 @@ aboutDialogSetTranslatorCredits self translatorCredits =
   {# call gtk_about_dialog_set_translator_credits #}
     (toAboutDialog self)
     translatorCreditsPtr
+#endif
 
 -- | Returns the pixbuf displayed as logo in the about dialog.
 --
@@ -478,6 +481,7 @@ foreign import ccall "wrapper" mkAboutDialogActivateLinkFunc ::
   (Ptr AboutDialog -> CString -> Ptr () -> IO ()) -> IO AboutDialogActivateLinkFunc
 #endif
 
+#ifndef DISABLE_DEPRECATED
 #if GTK_CHECK_VERSION(2,8,0)
 -- | Returns whether the license text in @about@ is automatically wrapped.
 --
@@ -501,6 +505,7 @@ aboutDialogSetWrapLicense self wrapLicense =
   {# call gtk_about_dialog_set_wrap_license #}
     (toAboutDialog self)
     (fromBool wrapLicense)
+#endif
 #endif
 
 --------------------

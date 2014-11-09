@@ -35,9 +35,8 @@ module Graphics.UI.Gtk.Gdk.PixbufData (
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Types
-import Data.Ix
 -- internal module of GHC
-import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
+import Data.Array.Base ( MArray(..), newArray_, unsafeRead, unsafeWrite,
                          getBounds, getNumElements )
 
 -- | An array that stored the raw pixel data of a 'Pixbuf'.

@@ -102,8 +102,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#} hiding ( ListStore )
 import Graphics.UI.Gtk.ModelView.Types
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox
-import Graphics.UI.Gtk.ModelView.CellRendererText
-import Graphics.UI.Gtk.ModelView.CellLayout
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew )

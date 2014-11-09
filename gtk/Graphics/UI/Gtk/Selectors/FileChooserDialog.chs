@@ -80,7 +80,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Selectors.FileChooser#}
-import System.Glib.GObject (objectNew)
 import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.Dialog

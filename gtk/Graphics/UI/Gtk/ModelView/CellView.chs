@@ -74,7 +74,9 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties			(writeAttrFromStringProperty)
+#if GTK_MAJOR_VERSION < 3
 {#import System.Glib.GList#}
+#endif
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.ModelView.Types#}

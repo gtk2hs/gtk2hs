@@ -195,14 +195,12 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties           (newAttrFromStringProperty)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject		(wrapNewGObject, makeNewGObject)
 import Graphics.UI.Gtk.Gdk.EventM	(EventM, EKey)
 import Control.Monad.Reader             ( ask )
 import Control.Monad.Trans              ( liftIO )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
-{#import Graphics.UI.Gtk.Multiline.TextIter#}
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
 import Graphics.UI.Gtk.General.Enums	(TextWindowType(..), DeleteType(..),
 					 DirectionType(..), Justification(..),

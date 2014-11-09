@@ -27,6 +27,9 @@
 --
 module Graphics.UI.Gtk.General.Enums (
   AccelFlags(..),
+#if GTK_CHECK_VERSION(3,0,0)
+  Align(..),
+#endif
   ArrowType(..),
   AttachOptions(..),
   MouseButton(..),
@@ -72,6 +75,9 @@ module Graphics.UI.Gtk.General.Enums (
   ScrollStep (..),
   SelectionMode(..),
   ShadowType(..),
+#if GTK_CHECK_VERSION(3,0,0)
+  StateFlags(..),
+#endif
   SortType(..),
   StateType(..),
 #if GTK_MAJOR_VERSION < 3
@@ -117,6 +123,12 @@ import Graphics.UI.Gtk.Gdk.Enums
 {#enum AccelFlags {underscoreToCase} deriving(Bounded,Eq,Show)#}
 
 instance Flags AccelFlags
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | State of an accelerator
+--
+{#enum Align {underscoreToCase} deriving(Bounded,Eq,Show)#}
+#endif
 
 -- | Arrow directions for the arrow widget
 --
@@ -364,6 +376,16 @@ data SelectionMode = SelectionNone
 -- | Shadow types
 --
 {#enum ShadowType {underscoreToCase} deriving (Eq,Show)#}
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Describes a widget state. Widget states are used to match the widget against
+-- CSS pseudo-classes. Note that GTK extends the regular CSS classes and
+-- sometimes uses different names.
+--
+{#enum StateFlags {underscoreToCase} deriving (Bounded,Eq,Show)#}
+
+instance Flags StateFlags
+#endif
 
 -- Sort a 'Graphics.UI.Gtk.ModelView.TreeViewColumn' in ascending or descending
 -- order.

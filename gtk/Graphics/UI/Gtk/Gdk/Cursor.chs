@@ -52,13 +52,9 @@ import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr)
-#if __GLASGOW_HASKELL__ >= 707
-import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
-#else
-import Foreign.ForeignPtr (unsafeForeignPtrToPtr)
+#if GTK_MAJOR_VERSION < 3
+import Graphics.UI.Gtk.General.Structs (Color)
 #endif
-import Graphics.UI.Gtk.General.Structs
 
 {#import Graphics.UI.Gtk.Types#} hiding (Arrow)
 

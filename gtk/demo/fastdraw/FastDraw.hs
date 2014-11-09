@@ -4,19 +4,11 @@
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
 
-import Data.Array.MArray
-import Data.Word
 import Data.IORef
-import Control.Monad ( when )
-import Control.Monad.IO.Class ( liftIO )
-import Data.Array.Base ( unsafeWrite )
 import Graphics.Rendering.Cairo
 import Foreign (allocaArray)
 import Graphics.Rendering.Cairo.Types (PixelData)
 import Foreign.Storable (Storable(..))
-import Control.Monad.Trans.Reader (ask, runReaderT)
-import Graphics.Rendering.Cairo.Internal (runRender)
-import Control.Monad.Trans.Class (MonadTrans(..))
 import Foreign.C (CUChar)
 import Control.Applicative ((<$>))
 

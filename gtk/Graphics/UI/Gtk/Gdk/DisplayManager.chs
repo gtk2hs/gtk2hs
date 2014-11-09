@@ -62,13 +62,10 @@ module Graphics.UI.Gtk.Gdk.DisplayManager (
 #endif
   ) where
 
-import Control.Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 

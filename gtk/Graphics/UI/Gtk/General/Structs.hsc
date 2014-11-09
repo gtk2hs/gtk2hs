@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, TypeSynonymInstances, FlexibleInstances #-}
 {-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>
@@ -299,6 +300,7 @@ instance Storable GCValues where
       capStyle   = (toEnum.fromIntegral) capStyle_,
       joinStyle  = (toEnum.fromIntegral) joinStyle_
     }
+  poke = error "GCValues poke undefined (not sure why)"
 
 pokeGCValues :: Ptr GCValues -> GCValues -> IO CInt
 pokeGCValues ptr (GCValues {
@@ -1062,7 +1064,6 @@ withTargetEntries :: [(TargetTag, InfoId)] -> (Int -> Ptr () -> IO a) -> IO a
 withTargetEntries tags fun = do
   ptrsInfo <- mapM (\(Atom tag, info) -> gdk_atom_name tag >>= \strPtr ->
                      return (TargetEntry strPtr info)) tags
-  let len = length tags
   res <- withArrayLen ptrsInfo (\len ptr -> fun len (castPtr ptr))
   mapM_ (\(TargetEntry ptr _) -> g_free ptr) ptrsInfo
   return res

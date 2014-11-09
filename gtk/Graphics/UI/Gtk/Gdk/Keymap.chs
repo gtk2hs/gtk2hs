@@ -122,9 +122,7 @@ module Graphics.UI.Gtk.Gdk.Keymap (
   ) where
 
 import Control.Monad	(liftM)
-import Data.Maybe (fromMaybe)
 import System.Glib.FFI
-import System.Glib.UTFString
 import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..))
 import Graphics.UI.Gtk.Gdk.Keys	(KeyVal (..))
 {#import Graphics.Rendering.Pango.Enums#}

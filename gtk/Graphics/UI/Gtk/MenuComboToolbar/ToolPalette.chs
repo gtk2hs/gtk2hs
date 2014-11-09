@@ -103,8 +103,6 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GList
-import System.Glib.UTFString
 import Graphics.UI.Gtk.General.Structs (IconSize (..))
 import Graphics.UI.Gtk.General.Enums (ToolbarStyle (..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)

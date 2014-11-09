@@ -84,17 +84,15 @@ module Graphics.UI.Gtk.Recent.RecentFilter (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+#if GTK_CHECK_VERSION(2,10,0)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Flags (Flags, toFlags, fromFlags)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,10,0)
 ---------------------
 -- Enums
 -- | These flags indicate what parts of a 'RecentFilterInfo' struct are filled or need to be filled.

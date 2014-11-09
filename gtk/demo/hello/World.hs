@@ -2,7 +2,6 @@
 module Main (Main.main) where
 
 import Graphics.UI.Gtk
-import Control.Monad.IO.Class (MonadIO(..))
 
 main :: IO ()
 main = do

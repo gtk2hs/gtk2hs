@@ -48,11 +48,8 @@ module Graphics.UI.Gtk.Gdk.AppLaunchContext (
 #endif
   ) where
 
-import Control.Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(wrapNewGObject)
 import Graphics.UI.Gtk.Gdk.EventM (TimeStamp)
 {#import Graphics.UI.Gtk.Types#}
 #ifdef HAVE_GIO

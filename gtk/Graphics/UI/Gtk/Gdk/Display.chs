@@ -121,7 +121,6 @@ import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
 import Graphics.UI.Gtk.Gdk.EventM
-import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..))
 import Graphics.UI.Gtk.General.DNDTypes (SelectionTag, TargetTag, Atom(..))
 
 {# context lib="gdk" prefix="gdk" #}

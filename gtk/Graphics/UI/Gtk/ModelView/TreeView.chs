@@ -260,7 +260,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 #endif
   ) where
 
-import Control.Monad	(liftM, mapM)
+import Control.Monad	(liftM,)
 import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
@@ -269,16 +269,13 @@ import System.Glib.GList		(fromGList)
 import System.Glib.Flags
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, wrapNewGObject,
-					 destroyFunPtr)
 import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.ModelView.TreeViewColumn#}
-import Graphics.UI.Gtk.ModelView.TreeModel (ColumnId, columnIdToNumber,
+import Graphics.UI.Gtk.ModelView.TreeModel (columnIdToNumber,
                                             makeColumnIdString)
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))

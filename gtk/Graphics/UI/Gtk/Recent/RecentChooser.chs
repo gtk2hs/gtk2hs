@@ -89,6 +89,8 @@ module Graphics.UI.Gtk.Recent.RecentChooser (
 #endif
   ) where
 
+#if GTK_CHECK_VERSION(2,10,0)
+
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
@@ -96,8 +98,7 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList
-import System.Glib.GObject        (Quark, quarkFromString)
-import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError, checkGError)
+import System.Glib.GError   (checkGError)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Recent.RecentInfo#} (RecentInfo, mkRecentInfo)
 {#import Graphics.UI.Gtk.Types#}
@@ -105,7 +106,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,10,0)
 --------------------
 -- Enums
 -- | These identify the various errors that can occur while calling 'RecentChooser' functions.

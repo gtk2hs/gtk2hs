@@ -169,13 +169,8 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
-import System.Glib.GObject              (makeNewGObject,
-                                         destroyFunPtr,
-                                         Quark, objectSetAttribute, objectGetAttributeUnsafe )
 {#import Graphics.UI.Gtk.Types#} hiding (ListStore)
-{#import Graphics.UI.Gtk.ModelView.Types#} (TypedTreeModelClass,
-                                            TreeIter,
-                                            receiveTreeIter,
+{#import Graphics.UI.Gtk.ModelView.Types#} (receiveTreeIter,
                                             comboQuark)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
