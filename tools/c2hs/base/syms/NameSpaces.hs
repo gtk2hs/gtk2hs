@@ -76,7 +76,7 @@ nameSpace  = NameSpace Map.empty []
 
 -- add global definition (EXPORTED)
 --
--- * returns the modfied name space 
+-- * returns the modfied name space
 --
 -- * if the identfier is already declared, the resulting name space contains
 --   the new binding and the second component of the result contains the
@@ -84,7 +84,7 @@ nameSpace  = NameSpace Map.empty []
 --   name space anymore)
 --
 defGlobal :: NameSpace a -> Ident -> a -> (NameSpace a, Maybe a)
-defGlobal (NameSpace gs lss) id def  = (NameSpace (Map.insert id def gs) lss, 
+defGlobal (NameSpace gs lss) id def  = (NameSpace (Map.insert id def gs) lss,
 				        Map.lookup id gs)
 
 -- add new range (EXPORTED)
@@ -101,7 +101,7 @@ leaveRange (NameSpace gs (ls:lss))  = (NameSpace gs lss, ls)
 
 -- add local definition (EXPORTED)
 --
--- * returns the modfied name space 
+-- * returns the modfied name space
 --
 -- * if there is no local range, the definition is entered globally
 --
@@ -112,7 +112,7 @@ leaveRange (NameSpace gs (ls:lss))  = (NameSpace gs lss, ls)
 --
 defLocal :: NameSpace a -> Ident -> a -> (NameSpace a, Maybe a)
 defLocal ns@(NameSpace gs []      ) id def = defGlobal ns id def
-defLocal (NameSpace    gs (ls:lss)) id def = 
+defLocal (NameSpace    gs (ls:lss)) id def =
   (NameSpace gs (((id, def):ls):lss),
    lookup ls)
   where

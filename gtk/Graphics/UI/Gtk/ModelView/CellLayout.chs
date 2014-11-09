@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellLayout (
 -- * Detail
--- 
+--
 -- | 'CellLayout' is an interface which is implemented by all objects which
 -- provide a 'TreeViewColumn' API for packing cells, setting attributes and data funcs.
 
@@ -171,7 +171,7 @@ cellLayoutGetCells self =
 cellLayoutAddColumnAttribute :: (CellLayoutClass self, CellRendererClass cell) => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> ReadWriteAttr cell a v  -- ^ @attribute@ - An attribute of a renderer.
- -> ColumnId row v    -- ^ @column@ - The virtual column of the model from which to 
+ -> ColumnId row v    -- ^ @column@ - The virtual column of the model from which to
                       -- retrieve the attribute.
  -> IO ()
 cellLayoutAddColumnAttribute self cell attr column =
@@ -208,7 +208,7 @@ cellLayoutSetAttributes :: (CellLayoutClass self,
  -> model row -- ^ @model@ - A model containing rows of type @row@.
  -> (row -> [AttrOp cell]) -- ^ Function to set attributes on the cell renderer.
  -> IO ()
-cellLayoutSetAttributes self cell model attributes = 
+cellLayoutSetAttributes self cell model attributes =
   cellLayoutSetAttributeFunc self cell model $ \iter -> do
     row <- treeModelGetRow model iter
     set cell (attributes row)
@@ -226,7 +226,7 @@ cellLayoutSetAttributeFunc :: (CellLayoutClass self,
  -> IO ()
 cellLayoutSetAttributeFunc self cell model func = do
   fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
-    iter <- convertIterFromParentToChildModel iterPtr modelPtr' 
+    iter <- convertIterFromParentToChildModel iterPtr modelPtr'
       (toTreeModel model)
     let (CellRenderer cellPtr) = toCellRenderer cell
     if unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
@@ -286,14 +286,14 @@ foreign import ccall unsafe "gtk_tree_model_filter_get_model"
 
 foreign import ccall safe "gtk_tree_model_filter_convert_iter_to_child_iter"
   treeModelFilterConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
-    Ptr TreeIter -> IO () 
+    Ptr TreeIter -> IO ()
 
 foreign import ccall unsafe "gtk_tree_model_sort_get_model"
   treeModelSortGetModel :: Ptr TreeModel -> IO (Ptr TreeModel)
-  
+
 foreign import ccall safe "gtk_tree_model_sort_convert_iter_to_child_iter"
   treeModelSortConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
-    Ptr TreeIter -> IO () 
+    Ptr TreeIter -> IO ()
 
 -- | Clears all existing attributes previously set with
 -- 'cellLayoutSetAttributes'.

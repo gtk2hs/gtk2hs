@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -cpp #-}
---  Compiler Toolkit: Compiler I/O 
+--  Compiler Toolkit: Compiler I/O
 --
 --  Author : Manuel M T Chakravarty
 --  Created: 2 November 95
@@ -28,7 +28,7 @@
 --
 -- language: Haskell 98
 --
---  * the usage of the `...CIO' functions is exactly as that of the 
+--  * the usage of the `...CIO' functions is exactly as that of the
 --    corresponding `...' functions from the Haskell 98 prelude and library
 --
 --  * error handling can be found in the module `StateTrans' and `State'
@@ -42,10 +42,10 @@
 module CIO (-- (verbatim) re-exports
 	    --
 	    Handle, HandlePosn, IOMode(..), BufferMode(..), SeekMode(..),
-	    stdin, stdout, stderr, 
+	    stdin, stdout, stderr,
 	    isAlreadyExistsError, isDoesNotExistError, isAlreadyInUseError,
 	    isFullError, isEOFError, isIllegalOperation, isPermissionError,
-	    isUserError, 
+	    isUserError,
 	    ioeGetErrorString, ioeGetHandle, ioeGetFileName,
 	    --
 	    -- file handling
@@ -56,12 +56,12 @@ module CIO (-- (verbatim) re-exports
 	    --
 	    putCharCIO, putStrCIO, hPutStrCIO, hPutStrLnCIO, writeFileCIO,
 	    readFileCIO, printCIO, getCharCIO, hFlushCIO,  hPutCharCIO,
-	    hGetContentsCIO, hSetBufferingCIO, hGetBufferingCIO, 
-	    newlineCIO, 
+	    hGetContentsCIO, hSetBufferingCIO, hGetBufferingCIO,
+	    newlineCIO,
 	    --
 	    -- `Directory'
 	    --
-	    doesFileExistCIO, removeFileCIO, 
+	    doesFileExistCIO, removeFileCIO,
 	    --
 	    -- `System'
 	    --

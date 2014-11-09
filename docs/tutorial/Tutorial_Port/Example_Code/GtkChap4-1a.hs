@@ -21,6 +21,6 @@ labelBox fn txt = do
   set box [containerBorderWidth := 2 ]
   image <- imageNewFromFile fn
   label <- labelNew (Just txt)
-  boxPackStart box image PackNatural 3 
+  boxPackStart box image PackNatural 3
   boxPackStart box label PackNatural 3
-  return box 
+  return box

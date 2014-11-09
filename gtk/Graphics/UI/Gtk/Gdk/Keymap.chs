@@ -28,24 +28,24 @@
 module Graphics.UI.Gtk.Gdk.Keymap (
 
 -- * Details
--- 
+--
 -- | Key values are the codes which are sent whenever a key is pressed or released. They appear in the
 -- keyval field of the 'EventKey' structure, which is passed to signal handlers for the
--- 'keyPressEvent' and 'keyReleaseEvent' signals. 
--- 
+-- 'keyPressEvent' and 'keyReleaseEvent' signals.
+--
 -- Key values are regularly updated from the upstream X.org X11 implementation, so new values are added
 -- regularly. They will be prefixed with GDK_ rather than XF86XK_ or ' (for older symbols)'.
--- 
+--
 -- Key values can be converted into a string representation using 'keyvalName'. The reverse
 -- function, converting a string to a key value, is provided by 'keyvalFromName'.
--- 
+--
 -- The case of key values can be determined using 'keyvalIsUpper'. Key
 -- values can be converted to upper or lower case using 'keyvalToUpper' and
 -- 'keyvalToLower'.
--- 
+--
 -- When it makes sense, key values can be converted to and from Unicode characters with
 -- 'keyvalToUnicode'.
--- 
+--
 -- One 'Keymap' object exists for each user display. 'keymapGetDefault' returns the 'Keymap'
 -- for the default display; to obtain keymaps for other displays, use 'keymapGetForDisplay'. A
 -- keymap is a mapping from 'KeymapKey' to key values. You can think of a 'KeymapKey' as a
@@ -61,7 +61,7 @@ module Graphics.UI.Gtk.Gdk.Keymap (
 -- movement in a horizontal direction. Usually groups are used for two different languages. In group 0,
 -- a key might have two English characters, and in group 1 it might have two Hebrew characters. The
 -- Hebrew characters will be printed on the key next to the English characters.
--- 
+--
 -- In order to use a keymap to interpret a key event, it's necessary to first convert the keyboard
 -- state into an effective group and level. This is done via a set of rules that varies widely
 -- according to type of keyboard and user configuration.  The function
@@ -71,7 +71,7 @@ module Graphics.UI.Gtk.Gdk.Keymap (
 -- and level. i.e. it returns "unconsumed modifiers." The keyboard group may differ from the effective
 -- group used for keymap lookups because some keys don't have multiple groups - e.g. the Enter key is
 -- always in group 0 regardless of keyboard state.
--- 
+--
 -- Note that 'keymapTranslateKeyboardState' also returns the keyval, i.e. it goes ahead and
 -- performs the keymap lookup in addition to telling you which effective group/level values were used
 -- for the lookup. 'EventKey' already contains this keyval, however, so you don't normally need to
@@ -164,26 +164,26 @@ keymapGetForDisplay display =
 -- 'keymapTranslateKeyboardState' instead of this function, since the effective
 -- group\/level may not be the same as the current keyboard state.
 --
-keymapLookupKey :: KeymapClass self 
-                => (Maybe self) -- ^ @keymap@  a 'Keymap' or 'Nothing' to use the default keymap             
+keymapLookupKey :: KeymapClass self
+                => (Maybe self) -- ^ @keymap@  a 'Keymap' or 'Nothing' to use the default keymap
                 -> KeymapKey -- ^ @key@ - a 'KeymapKey'
                             -- with keycode, group, and level initialized
                 -> IO Int    -- ^ returns a keyval, or 0 if none was mapped to
                             -- the given @key@
-keymapLookupKey Nothing key = 
+keymapLookupKey Nothing key =
   liftM fromIntegral $
   allocaBytes {# sizeof GdkKeymapKey #} $ \ keyPtr -> do
     poke keyPtr key
     {# call gdk_keymap_lookup_key #}
       (Keymap nullForeignPtr)
-      (castPtr keyPtr)    
+      (castPtr keyPtr)
 keymapLookupKey (Just self) key =
   liftM fromIntegral $
   allocaBytes {# sizeof GdkKeymapKey #} $ \ keyPtr -> do
     poke keyPtr key
     {# call gdk_keymap_lookup_key #}
       (toKeymap self)
-      (castPtr keyPtr)    
+      (castPtr keyPtr)
 
 -- | Translates the contents of a 'EventKey' into a
 -- keyval, effective group, and level. Modifiers that affected the translation
@@ -203,7 +203,7 @@ keymapTranslateKeyboardState :: KeymapClass self => self
 keymapTranslateKeyboardState self hardwareKeycode state group =
   alloca $ \keyvalPtr ->
   alloca $ \effectiveGroupPtr ->
-  alloca $ \levelPtr -> 
+  alloca $ \levelPtr ->
   alloca $ \modifierPtr -> do
     success <- liftM toBool $
               {# call gdk_keymap_translate_keyboard_state #}
@@ -215,7 +215,7 @@ keymapTranslateKeyboardState self hardwareKeycode state group =
                 effectiveGroupPtr
                 levelPtr
                 modifierPtr
-    if success 
+    if success
        then do
          keyval <- peek keyvalPtr
          effectiveGroup <- peek effectiveGroupPtr
@@ -235,7 +235,7 @@ keymapTranslateKeyboardState self hardwareKeycode state group =
 -- switch key might convert a keyboard between Hebrew to English modes, for
 -- example. 'EventKey' contains a @group@ field that
 -- indicates the active keyboard group. The level is computed from the modifier
--- mask. 
+-- mask.
 --
 keymapGetEntriesForKeyval :: KeymapClass self => self
  -> KeyVal                -- ^ @keyval@ - a keyval, such as @GDK_a@, @GDK_Up@,
@@ -260,7 +260,7 @@ keymapGetEntriesForKeyval self keyval =
        else return Nothing
 
 -- | Returns the keyvals bound to @hardwareKeycode@. The Nth 'KeymapKey'
--- in @keys@ is bound to the Nth keyval in @keyvals@. 
+-- in @keys@ is bound to the Nth keyval in @keyvals@.
 -- When a keycode is pressed by the user, the
 -- keyval from this list of entries is selected by considering the effective
 -- keyboard group and level. See 'keymapTranslateKeyboardState'.
@@ -270,7 +270,7 @@ keymapGetEntriesForKeycode :: KeymapClass self => self
  -> IO (Maybe ([KeymapKey], [KeyVal]))
 keymapGetEntriesForKeycode self hardwareKeycode =
   alloca $ \nEntriesPtr ->
-  allocaArray 0 $ \ keysPtr -> 
+  allocaArray 0 $ \ keysPtr ->
   allocaArray 0 $ \ keyvalsPtr -> do
     success <- liftM toBool $
               {# call gdk_keymap_get_entries_for_keycode #}

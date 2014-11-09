@@ -30,7 +30,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 -- * Detail
--- 
+--
 -- | A 'OptionMenu' is a widget that allows the user to choose from a list of
 -- valid choices. The 'OptionMenu' displays the selected choice. When activated
 -- the 'OptionMenu' displays a popup 'Menu' which allows the user to make a new

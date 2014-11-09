@@ -26,7 +26,7 @@
 --   DialogMessage : has only one variadic function which cannot be bound.
 --		     The same functionality can be simulated with Dialog.
 --   Item :	     The only child of this abstract class is MenuItem. The
---		     three signals Item defines are therefore bound in 
+--		     three signals Item defines are therefore bound in
 --		     MenuItem.
 --
 -- TODO
@@ -577,7 +577,7 @@ import System.Glib.GObject (
   isA
   )
 import Graphics.UI.Gtk.Builder
-  
+
 -- pango modules
 import Graphics.Rendering.Pango.Context
 import Graphics.Rendering.Pango.Markup

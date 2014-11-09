@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.Separator (
 -- * Detail
--- 
+--
 -- | The 'Separator' widget is an abstract class, used only for deriving the
 -- subclasses 'Graphics.UI.Gtk.Ornaments.HSeparator' and
 -- 'Graphics.UI.Gtk.Ornaments.VSeparator'.

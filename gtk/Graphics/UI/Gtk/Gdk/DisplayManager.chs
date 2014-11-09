@@ -89,7 +89,7 @@ displayManagerGet =
 -- | List all currently open displays.
 --
 displayManagerListDisplays :: DisplayManagerClass self => self
- -> IO [Display] -- ^ returns a newly allocated list of 'Display' objects. 
+ -> IO [Display] -- ^ returns a newly allocated list of 'Display' objects.
 displayManagerListDisplays self =
   {# call gdk_display_manager_list_displays #}
     (toDisplayManager self)

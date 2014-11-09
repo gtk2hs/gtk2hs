@@ -118,14 +118,14 @@ treeModelFilterNew :: (TreeModelClass (childModel row),
  -> IO (TypedTreeModelFilter row)
 treeModelFilterNew childModel [] =
   liftM unsafeTreeModelFilterToGeneric $
-  wrapNewGObject mkTreeModelFilter $ 
+  wrapNewGObject mkTreeModelFilter $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelFilter) $
   {# call gtk_tree_model_filter_new #}
     (toTreeModel childModel)
     (NativeTreePath nullPtr)
 treeModelFilterNew childModel root =
   liftM unsafeTreeModelFilterToGeneric $
-  wrapNewGObject mkTreeModelFilter $ 
+  wrapNewGObject mkTreeModelFilter $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelFilter) $
   withTreePath root $ \root ->
   {# call gtk_tree_model_filter_new #}
@@ -170,7 +170,7 @@ foreign import ccall "wrapper" mkTreeModelFilterVisibleFunc ::
 --   should look for visibility information. A row containing @True@ means
 --   that this row should be shown.
 --
-treeModelFilterSetVisibleColumn :: 
+treeModelFilterSetVisibleColumn ::
  (TreeModelFilterClass (self row),
   TypedTreeModelClass self)
  => self row
@@ -200,7 +200,7 @@ treeModelFilterConvertChildIterToIter :: TreeModelFilterClass self => self
  -> TreeIter
  -> IO TreeIter
 treeModelFilterConvertChildIterToIter self childIter =
-  with childIter $ \childIterPtr -> 
+  with childIter $ \childIterPtr ->
   alloca $ \filterIterPtr -> do
   {# call tree_model_filter_convert_child_iter_to_iter #}
     (toTreeModelFilter self)
@@ -296,6 +296,6 @@ treeModelFilterChildModel = readAttrFromObjectProperty "child-model"
 --
 treeModelFilterVirtualRoot :: TreeModelFilterClass self => ReadAttr self TreePath
 treeModelFilterVirtualRoot = readAttrFromBoxedOpaqueProperty (peekTreePath . castPtr)
-                             "virtual-root" 
+                             "virtual-root"
                              {#call pure unsafe gtk_tree_path_get_type#}
 #endif

@@ -34,4 +34,4 @@ module Graphics.UI.GtkInternals (
 
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#} (mkTargetList)
-{#import Graphics.UI.Gtk.Multiline.Types#} 
+{#import Graphics.UI.Gtk.Multiline.Types#}

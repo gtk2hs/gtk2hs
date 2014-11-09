@@ -94,7 +94,7 @@ import System.Glib.UTFString
 --
 printContextGetCairoContext :: PrintContextClass self => self
  -> IO Cairo -- ^ returns the cairo context of @context@
-printContextGetCairoContext self = 
+printContextGetCairoContext self =
   liftM Cairo $
   {# call gtk_print_context_get_cairo_context #} (toPrintContext self)
 
@@ -197,11 +197,11 @@ printContextCreatePangoLayout self = do
 #if GTK_CHECK_VERSION(2,20,0)
 printContextGetHardMargins :: PrintContextClass self => self
                            -> IO (Maybe (Double, Double, Double, Double))
-                             -- ^ returns @(top, bottom, left, right)@ 
-                             -- @top@ top hardware printer margin             
-                             -- @bottom@ bottom hardware printer margin             
-                             -- @left@ left hardware printer margin             
-                             -- @right@ right hardware printer margin             
+                             -- ^ returns @(top, bottom, left, right)@
+                             -- @top@ top hardware printer margin
+                             -- @bottom@ bottom hardware printer margin
+                             -- @left@ left hardware printer margin
+                             -- @right@ right hardware printer margin
 printContextGetHardMargins self =
   alloca $ \ topPtr ->
   alloca $ \ bottomPtr ->

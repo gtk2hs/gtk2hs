@@ -132,7 +132,7 @@ data Signal = Signal {
     signal_when :: String,
     signal_action :: Bool,
     signal_return_type :: String,
-    signal_parameters :: [Parameter]    
+    signal_parameters :: [Parameter]
   } deriving Show
 
 data Misc =
@@ -341,7 +341,7 @@ extractField (Xml.CElem (Xml.Elem "field"
                       ("access", Xml.AttValue [Left "public"])] _content)) =
   Just $ Field {
     field_name = Xml.verbatim name,
-    field_cname = Xml.verbatim cname,    
+    field_cname = Xml.verbatim cname,
     field_type = Xml.verbatim type_,
     field_public = True,
     field_bits = -1
@@ -369,7 +369,7 @@ extractMethod (Xml.CElem (Xml.Elem "method"
                             (("type", Xml.AttValue return_type):remainder') [])
                       :content))) =
   let (shared, deprecated) =
-        case remainder of 
+        case remainder of
           []                                 -> (False, False)
           [("shared", _)]                    -> (True,  False)
           [("deprecated", _)]                -> (False, True)
@@ -457,7 +457,7 @@ extractParameter (Xml.CElem (Xml.Elem "callback"
      parameter_isArray = False
    }
 extractParameter other = error $ "extractParameter: " ++ Xml.verbatim other
-  
+
 extractConstructor :: Xml.Content -> Maybe Constructor
 extractConstructor (Xml.CElem (Xml.Elem "constructor"
                      [("cname", Xml.AttValue cname)] content)) =

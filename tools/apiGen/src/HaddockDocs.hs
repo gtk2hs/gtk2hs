@@ -1,14 +1,14 @@
 module HaddockDocs (
   Section(..),
   formatSections,
-  
+
   Para(..),
   formatParas,
   formatParasFragment,
-  
+
   Span(..),
   formatSpans,
-  
+
   haddockSection,
   ) where
 

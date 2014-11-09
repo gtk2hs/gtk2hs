@@ -39,7 +39,7 @@ import System.FilePath
 --   eg, ../lib/libc.so -> libc
 --
 basename :: FilePath -> FilePath
-basename  = takeBaseName   
+basename  = takeBaseName
 
 -- strip basename and suffix (EXPORTED)
 --

@@ -33,7 +33,7 @@
 -- 'customStoreGetRow' functions.
 --
 module Graphics.UI.Gtk.ModelView.CustomStore (
-  -- * The definition of a row-based store.  
+  -- * The definition of a row-based store.
   CustomStore,
   TreeModelFlags(..),
   TreeModelIface(..),
@@ -212,7 +212,7 @@ data DragDestIface model row = DragDestIface {
     --   its information be used to insert a new row at the given path.
     treeDragDestDragDataReceived:: model row -> TreePath -> SelectionDataM Bool      -- insert row from selection object
   }
-  
+
 -- | Create a new store that implements the 'TreeModelIface' interface and
 -- optionally the 'DragSourceIface' and the 'DragDestIface'. If the latter two
 -- are set to @Nothing@ a dummy interface is substituted that rejects every
@@ -250,7 +250,7 @@ foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
 -- | Extract a row of the given model at the given 'TreeIter'.
 --
 customStoreGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
-customStoreGetRow model iter = 
+customStoreGetRow model iter =
   case toTypedTreeModel model of
     TypedTreeModel model -> do
       impl <- withForeignPtr model gtk2hs_store_get_impl >>= deRefStablePtr
@@ -377,7 +377,7 @@ treeModelIfaceGetValue_static storePtr iterPtr column gvaluePtr = do
       (CAPixbuf ca) -> valueInit gVal {#call fun unsafe gdk_pixbuf_get_type#} >>
 			valueSetGObject gVal (ca row)
       CAInvalid -> valueInit gVal GConst.int >> valueSetInt gVal 0
-      
+
 foreign export ccall "gtk2hs_store_get_value_impl"
   treeModelIfaceGetValue_static :: StablePtr (CustomStoreImplementation model row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 

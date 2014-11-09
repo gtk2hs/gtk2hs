@@ -19,7 +19,7 @@ main = do
 
      sep <- hSeparatorNew
      boxPackStart vb sep PackGrow 10
-     
+
      fntb <- fontButtonNew
      boxPackStart vb fntb PackGrow 0
 
@@ -40,8 +40,8 @@ main = do
      mainGUI
 
 instance Show Color where
-         show (Color r g b) = "Red: " ++ (show r) ++ 
-                              " Green: " ++ (show g) ++ 
+         show (Color r g b) = "Red: " ++ (show r) ++
+                              " Green: " ++ (show g) ++
                               " Blue: " ++ (show b)
 
 

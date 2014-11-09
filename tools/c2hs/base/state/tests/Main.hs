@@ -60,7 +60,7 @@ testErrors  = putStrCIO "Testing error management...\n\n"                   +>
 testExceptions :: PreCST e s ()
 testExceptions  = putStrCIO "Testing exception handling...\n\n"		    +>
 		  (raiseExc "testexc")
-		  `catchExc` ("testexc", 
+		  `catchExc` ("testexc",
 			      \msg ->
 			        putStrCIO ("Caught `testexc' with message `"
 				           ++ msg ++ "'.\n")
@@ -73,7 +73,7 @@ testExceptions  = putStrCIO "Testing exception handling...\n\n"		    +>
 		  -- the following exception is not caught and so
 		  -- should turn into a fatal error
 		  ((raiseExc "otherexc")
-		   `catchExc` ("testexc", 
+		   `catchExc` ("testexc",
 			       \msg ->
 			         putStrCIO ("ATTENTION: If this shows an \
 				            \exception erroneously caught!!!\n")
@@ -86,7 +86,7 @@ testExceptions  = putStrCIO "Testing exception handling...\n\n"		    +>
 		  putStrCIO "\n...done (testing exception handling).\n"
 		  where
 		    raiseExc     :: String -> PreCST e s ()
-		    raiseExc exc  = putStrCIO ("Will now raise `" ++ exc 
+		    raiseExc exc  = putStrCIO ("Will now raise `" ++ exc
 					       ++ "'.\n")	            +>
 				    throwExc exc "A hell of an exception!"  +>
 				    putStrCIO ("ATTENTION: This message must \
@@ -99,4 +99,4 @@ testExceptions  = putStrCIO "Testing exception handling...\n\n"		    +>
 				  putStrCIO ("ATTENTION: This message must \
 					     \never show!!!\n")
 
-				    
+				

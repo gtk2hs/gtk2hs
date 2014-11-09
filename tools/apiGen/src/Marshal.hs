@@ -290,12 +290,12 @@ genMarshalOutParameter _         name = (empty, empty, text name)
 
 -- Takes the type string and returns the Haskell Type and the marshaling code
 --
-genMarshalResult :: 
+genMarshalResult ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
         Bool ->         --is the function a constructor or ordinary method?
 	String -> 	--C type decleration for the return value we will marshal
-	(String,	--Haskell return type 
+	(String,	--Haskell return type
 	Doc -> Doc)	--marshaling code (\body -> ... body ...)
 genMarshalResult _ _ _ "gboolean" = ("Bool", \body -> text "liftM toBool $" $$ body)
 genMarshalResult _ _ _ "gint"     = ("Int",  \body -> text "liftM fromIntegral $"   $$ body)
@@ -318,7 +318,7 @@ genMarshalResult _ funcName _ "const-gchar*" =
 genMarshalResult _ funcName _ "const-gchar**" =
   ("[String]",\body -> body
                     $$ text ">>= peekUTFStringArray0")
-genMarshalResult _ funcName _ typeName 
+genMarshalResult _ funcName _ typeName
                             | typeName == "gchar*"
 			   || typeName == "char*" =
   if maybeNullResult funcName
@@ -372,16 +372,16 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
                                 = if funcIsConstructor then "constructNewGObject"
                                                        else "makeNewGObject"
         cast | funcIsConstructor
-            && constructorReturnType /= typeName = 
+            && constructorReturnType /= typeName =
             text "liftM (castPtr :: Ptr" <+> text (cTypeNameToHSType constructorReturnType)
                        <+> text "-> Ptr" <+> text (cTypeNameToHSType typeName) <> text ") $"
              | otherwise = empty
           where constructorReturnType | "GtkToolItem" `elem` sym_object_parents (fromJust typeKind)
                                                   = "GtkToolItem"
                                       | "GtkWidget" `elem` sym_object_parents (fromJust typeKind)
-                                                  = "GtkWidget"                                      
+                                                  = "GtkWidget"
                                       | otherwise = typeName
-            
+
 genMarshalResult knownSymbols _ _ typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =

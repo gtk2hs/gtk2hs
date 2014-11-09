@@ -40,7 +40,7 @@ main = do
   -- Parse command line parameters
   --
   let (exportsFile: rem) = args
-  
+
       target = case map (drop 9) (filter ("--target=" `isPrefixOf`)  rem) of
                     ("tex":_) -> LaTeX
                     ("xhtml":_) -> XHTML
@@ -56,7 +56,7 @@ main = do
   --
   content <- getContents
   exports <- readFile exportsFile
-      
+
   -----------------------------------------------------------------------------
   -- Parse the contents of the exports file
   --
@@ -108,12 +108,12 @@ substitute dt conc baseUrl = substNormal dt
                                   ++ "</pre>"
                                    : substNormal dt ts'
         substNormal dt (t:ts)  = t : substNormal dt ts
-        
+
         findCodeArea LaTeX ("\\":"end":"{":"verbatim":"}":ts) = ([], ts)
         findCodeArea XHTML ("</":"pre":">"               :ts) = ([], ts)
         findCodeArea dt (t:ts)  = (t:ts',ts'')
                               where (ts',ts'') = findCodeArea dt ts
-        
+
         substCodeArea LaTeX = map (addLinks dt)
         substCodeArea XHTML = concat
                             . intersperse ["\n"]
@@ -129,7 +129,7 @@ substitute dt conc baseUrl = substNormal dt
                 dropLeadingSpaces ((' ':' ':[]):l) =     l
                 dropLeadingSpaces ((' ':' ':s ):l) = s : l
                 dropLeadingSpaces               l  =     l
-        
+
         addLinks LaTeX str | Just modName <- conc str = "\\href{"
                                            ++ haddockUrl baseUrl modName str
                                            ++ "}{" ++ str ++ "}"
@@ -169,7 +169,7 @@ tokenise = checkSpace
             (sp,"") -> splitOn (=='\n') sp
             ("",s') -> checkLexable s'
             (sp,s') -> splitOn (=='\n') sp ++ checkLexable s'
-        
+
         checkLexable s =
           case Prelude.lex s of
             ((tok,s'):_) -> tok : tokenise s'

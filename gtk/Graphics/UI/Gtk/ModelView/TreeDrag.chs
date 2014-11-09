@@ -114,6 +114,6 @@ treeSetRowDragData :: TreeModelClass treeModel => treeModel -> TreePath -> Selec
 treeSetRowDragData treeModel path = do
   selPtr <- ask
   liftM toBool $ liftIO $ withTreePath path $ \path ->
-    {# call unsafe gtk_tree_set_row_drag_data #} selPtr 
+    {# call unsafe gtk_tree_set_row_drag_data #} selPtr
     (toTreeModel treeModel)
     path

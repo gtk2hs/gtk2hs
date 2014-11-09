@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Entry.SpinButton (
 -- * Detail
--- 
+--
 -- | A 'SpinButton' is an ideal way to allow the user to set the value of some
 -- attribute. Rather than having to directly type a number into a 'Entry',
 -- 'SpinButton' allows the user to click on one of two arrows to increment or
@@ -125,7 +125,7 @@ instance EditableClass SpinButton
 
 -- | Creates a new 'SpinButton'.
 --
-spinButtonNew :: 
+spinButtonNew ::
     Adjustment    -- ^ @adjustment@ - the 'Adjustment' object that this spin
                   -- button should use.
  -> Double        -- ^ @climbRate@ - specifies how much the spin button
@@ -149,7 +149,7 @@ spinButtonNew adjustment climbRate digits =
 -- is a power of ten. If the resulting precision is not suitable for your
 -- needs, use 'spinButtonSetDigits' to correct it.
 --
-spinButtonNewWithRange :: 
+spinButtonNewWithRange ::
     Double        -- ^ @min@ - Minimum allowable value
  -> Double        -- ^ @max@ - Maximum allowable value
  -> Double        -- ^ @step@ - Increment added or subtracted by spinning the

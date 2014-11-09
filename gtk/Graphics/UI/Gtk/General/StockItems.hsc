@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockCancel,
 #if GTK_CHECK_VERSION(2,16,0)
   stockCapsLockWarning,
-#endif                      
+#endif
   stockCDROM,
   stockClear,
   stockClose,
@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockDirectory,
 #if GTK_CHECK_VERSION(2,12,0)
   stockDiscard,
-#endif              
+#endif
   stockDisconnect,
   stockDnd,
   stockDndMultiple,
@@ -124,10 +124,10 @@ module Graphics.UI.Gtk.General.StockItems (
   stockOrientationReverseLandscape,
   stockOrientationPortrait,
   stockOrientationReversePortrait,
-#endif                                 
+#endif
 #if GTK_CHECK_VERSION(2,14,0)
   stockPageSetup,
-#endif                                 
+#endif
   stockPaste,
   stockPreferences,
   stockPrint,
@@ -136,7 +136,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockPrintPaused,
   stockPrintReport,
   stockPrintWarning,
-#endif    
+#endif
   stockPrintPreview,
   stockProperties,
   stockQuit,
@@ -148,7 +148,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockSaveAs,
 #if GTK_CHECK_VERSION(2,10,0)
   stockSelectAll,
-#endif                
+#endif
   stockSelectColor,
   stockSelectFont,
   stockSortAscending,
@@ -167,7 +167,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockZoomOut
   ) where
 
--- The StockItem structure is completely marshaled to Haskell. It is 
+-- The StockItem structure is completely marshaled to Haskell. It is
 -- possible to marshal all strings lazily because the string pointers are
 -- valid throughout the lifetime of the application. The only drawback it
 -- that a stock item that is replaced by the another item with the same
@@ -236,7 +236,7 @@ instance Storable StockItem where
     #{poke GtkStockItem, stock_id} siPtr stockIdPtr
     labelPtr   <- newUTFString label
     #{poke GtkStockItem, label}	   siPtr labelPtr
-    #{poke GtkStockItem, modifier} siPtr 
+    #{poke GtkStockItem, modifier} siPtr
       ((fromIntegral (fromFlags modifier))::#{gtk2hs_type GdkModifierType})
     #{poke GtkStockItem, keyval}   siPtr ((fromIntegral keyval)::#{gtk2hs_type guint})
     transDomPtr<- newUTFString transDom
@@ -259,7 +259,7 @@ stockAddItem sis = let items = length sis in do
 -- | Lookup an item in stock.
 --
 stockLookupItem :: StockId -> IO (Maybe StockItem)
-stockLookupItem stockId = 
+stockLookupItem stockId =
   alloca $ \siPtr ->
   withUTFString stockId $ \strPtr -> do
   res <- stock_lookup strPtr siPtr
@@ -313,12 +313,12 @@ stockBold		= #{const_str GTK_STOCK_BOLD}
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-cancel.png>>
 stockCancel		:: StockId
 stockCancel		= #{const_str GTK_STOCK_CANCEL}
-                          
+
 #if GTK_CHECK_VERSION(2,16,0)
--- | <<http://library.gnome.org/devel/gtk/stable/gtk-caps-lock-warning.png>>                          
+-- | <<http://library.gnome.org/devel/gtk/stable/gtk-caps-lock-warning.png>>
 stockCapsLockWarning    :: StockId
 stockCapsLockWarning    = #{const_str GTK_STOCK_CAPS_LOCK_WARNING}
-#endif                          
+#endif
 
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-cdrom.png>>
 stockCDROM		:: StockId
@@ -397,10 +397,10 @@ stockDirectory		= stockMissingImage
 #endif
 
 #if GTK_CHECK_VERSION(2,12,0)
--- | 
+-- |
 stockDiscard            :: StockId
 stockDiscard            = #{const_str GTK_STOCK_DISCARD}
-#endif                          
+#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 
@@ -556,8 +556,8 @@ stockJustifyLeft	= #{const_str GTK_STOCK_JUSTIFY_LEFT}
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-justify-right.png>>
 stockJustifyRight	:: StockId
 stockJustifyRight	= #{const_str GTK_STOCK_JUSTIFY_RIGHT}
-                          
--- | <<http://library.gnome.org/devel/gtk/stable/gtk-leave-fullscreen.png>>                          
+
+-- | <<http://library.gnome.org/devel/gtk/stable/gtk-leave-fullscreen.png>>
 stockLeaveFullscreen    :: StockId
 stockLeaveFullscreen    = #{const_str GTK_STOCK_LEAVE_FULLSCREEN}
 
@@ -679,22 +679,22 @@ stockPrint		:: StockId
 stockPrint		= #{const_str GTK_STOCK_PRINT}
 
 #if GTK_CHECK_VERSION(2,14,0)
--- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-error.png>>    
+-- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-error.png>>
 stockPrintError         :: StockId
 stockPrintError         = #{const_str GTK_STOCK_PRINT_ERROR}
-                          
+
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-paused.png>>
 stockPrintPaused        :: StockId
 stockPrintPaused        = #{const_str GTK_STOCK_PRINT_PAUSED}
-                          
+
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-report.png>>
 stockPrintReport        :: StockId
 stockPrintReport        = #{const_str GTK_STOCK_PRINT_REPORT}
-                          
+
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-warning.png>>
 stockPrintWarning       :: StockId
 stockPrintWarning       = #{const_str GTK_STOCK_PRINT_WARNING}
-#endif    
+#endif
 
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-print-preview.png>>
 stockPrintPreview	:: StockId
@@ -786,7 +786,7 @@ stockUndo		= #{const_str GTK_STOCK_UNDO}
 #if GTK_CHECK_VERSION(2,4,0)
 
 -- | <<http://library.gnome.org/devel/gtk/stable/gtk-unindent-ltr.png>>
--- <<http://library.gnome.org/devel/gtk/stable/gtk-unindent-rtl.png>>    
+-- <<http://library.gnome.org/devel/gtk/stable/gtk-unindent-rtl.png>>
 stockUnindent		:: StockId
 stockUnindent		= #{const_str GTK_STOCK_UNINDENT}
 #else

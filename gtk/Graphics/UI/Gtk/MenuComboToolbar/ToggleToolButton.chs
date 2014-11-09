@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton (
 -- * Detail
--- 
+--
 -- | A 'ToggleToolButton' is a 'ToolItem' that contains a toggle button.
 --
 -- Use 'toggleToolButtonNew' to create a new 'ToggleToolButton'. Use
@@ -105,7 +105,7 @@ toggleToolButtonNew =
 --
 -- It is an error if @stockId@ is not a name of a stock item.
 --
-toggleToolButtonNewFromStock :: 
+toggleToolButtonNewFromStock ::
     StockId             -- ^ @stockId@ - the name of the stock item
  -> IO ToggleToolButton
 toggleToolButtonNewFromStock stockId =

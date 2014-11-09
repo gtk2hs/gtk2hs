@@ -23,7 +23,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A tool palette with categories                                                                             
+-- A tool palette with categories
 --
 -- * Module available since Gtk+ version 2.20
 --
@@ -41,9 +41,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolPalette (
 -- * Detail
 -- | A 'ToolPalette' allows you to add 'ToolItems' to a palette-like container with different
 -- categories and drag and drop support.
--- 
+--
 -- A 'ToolPalette' is created with a call to 'toolPaletteNew'.
--- 
+--
 -- 'ToolItems' cannot be added directly to a 'ToolPalette' - instead they are added to a
 -- 'ToolItemGroup' which can than be added to a 'ToolPalette'. To add a 'ToolItemGroup' to a
 -- 'ToolPalette', use 'containerAdd'.
@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolPalette (
 -- @
 
 #if GTK_CHECK_VERSION(2,20,0)
--- * Types  
+-- * Types
   ToolPalette,
   ToolPaletteClass,
   castToToolPalette,
@@ -92,8 +92,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolPalette (
 -- * Child Attributes
   toolPaletteChildExclusive,
   toolPaletteChildExpand,
-    
--- * Signals    
+
+-- * Signals
   toolPaletteSetScrollAdjustments,
 #endif
 ) where
@@ -120,7 +120,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new tool palette.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteNew :: IO ToolPalette
 toolPaletteNew =
@@ -131,7 +131,7 @@ toolPaletteNew =
 -- | Unsets the tool palette icon size set with 'toolPaletteSetIconSize', so that user
 -- preferences will be used to determine the icon size.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteUnsetIconSize :: ToolPaletteClass self => self -> IO ()
 toolPaletteUnsetIconSize palette =
@@ -141,7 +141,7 @@ toolPaletteUnsetIconSize palette =
 -- | Unsets a toolbar style set with 'toolPaletteSetStyle', so that user preferences will be used
 -- to determine the toolbar style.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteUnsetStyle :: ToolPaletteClass self => self -> IO ()
 toolPaletteUnsetStyle palette =
@@ -150,7 +150,7 @@ toolPaletteUnsetStyle palette =
 
 -- | Gets the horizontal adjustment of the tool palette.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteGetHAdjustment :: ToolPaletteClass self => self
                           -> IO Adjustment
@@ -161,7 +161,7 @@ toolPaletteGetHAdjustment palette =
 
 -- | Gets the vertical adjustment of the tool palette.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteGetVAdjustment :: ToolPaletteClass self => self
                           -> IO Adjustment
@@ -172,12 +172,12 @@ toolPaletteGetVAdjustment palette =
 
 -- | Gets the position of group in palette as index. See 'toolPaletteSetGroupPosition'.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
-toolPaletteGetGroupPosition :: (ToolPaletteClass palette, ToolItemGroupClass group) 
+toolPaletteGetGroupPosition :: (ToolPaletteClass palette, ToolItemGroupClass group)
                               => palette
                               -> group
-                              -> IO Int -- ^ returns the index of group or -1 if group is not a child of palette 
+                              -> IO Int -- ^ returns the index of group or -1 if group is not a child of palette
 toolPaletteGetGroupPosition palette group =
   liftM fromIntegral $
   {#call gtk_tool_palette_get_group_position #}
@@ -187,9 +187,9 @@ toolPaletteGetGroupPosition palette group =
 -- | Sets the position of the group as an index of the tool palette. If position is 0 the group will
 -- become the first child, if position is -1 it will become the last child.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
-toolPaletteSetGroupPosition :: (ToolPaletteClass palette, ToolItemGroupClass group) 
+toolPaletteSetGroupPosition :: (ToolPaletteClass palette, ToolItemGroupClass group)
                               => palette
                               -> group
                               -> Int
@@ -202,13 +202,13 @@ toolPaletteSetGroupPosition palette group position =
 
 -- | The size of the icons in a tool palette is normally determined by the 'toolbarIconSize'
 -- setting. When this property is set, it overrides the setting.
--- 
+--
 -- This should only be used for special-purpose tool palettes, normal application tool palettes should
 -- respect the user preferences for the size of icons.
--- 
+--
 -- Default value: 'IconSizeSmallToolbar'
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteIconSize :: ToolPaletteClass self => Attr self IconSize
 toolPaletteIconSize =
@@ -216,20 +216,20 @@ toolPaletteIconSize =
         {# call pure unsafe gtk_icon_size_get_type #}
 
 -- | Is 'True' if the 'iconSize' property has been set.
--- 
+--
 -- Default value: 'False'
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteIconSizeSet :: ToolPaletteClass self => Attr self Bool
 toolPaletteIconSizeSet =
   newAttrFromBoolProperty "icon-size-set"
 
 -- | The style of items in the tool palette.
--- 
+--
 -- Default value: 'ToolbarIcons'
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteToolbarStyle :: ToolPaletteClass self => Attr self ToolbarStyle
 toolPaletteToolbarStyle =
@@ -237,20 +237,20 @@ toolPaletteToolbarStyle =
     {# call pure unsafe gtk_toolbar_style_get_type #}
 
 -- | Whether the item group should be the only one that is expanded at a given time.
--- 
+--
 -- Default value: 'False'
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteChildExclusive :: ToolPaletteClass self => Attr self Bool
 toolPaletteChildExclusive =
   newAttrFromBoolProperty "exclusive"
 
 -- | Whether the item group should receive extra space when the palette grows. at a given time.
--- 
+--
 -- Default value: 'False'
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteChildExpand :: ToolPaletteClass self => Attr self Bool
 toolPaletteChildExpand =
@@ -260,7 +260,7 @@ toolPaletteChildExpand =
 -- emit this signal to connect two instances of 'Scrollbar' to the scroll directions of the
 -- 'Toolpalette'.
 --
--- * Available since Gtk+ version 2.20    
+-- * Available since Gtk+ version 2.20
 --
 toolPaletteSetScrollAdjustments :: ToolPaletteClass self => Signal self (Adjustment -> Adjustment -> IO ())
 toolPaletteSetScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set-scroll-adjustments")

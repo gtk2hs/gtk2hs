@@ -68,7 +68,7 @@ treeRowReferenceNew :: TreeModelClass self => self
  -> TreePath
  -> IO (Maybe TreeRowReference)
 treeRowReferenceNew self path = withTreePath path $ \path -> do
-  rowRefPtr <- 
+  rowRefPtr <-
     {#call gtk_tree_row_reference_new#} (toTreeModel self) path
   if rowRefPtr==nullPtr then return Nothing else
     liftM (Just . TreeRowReference) $

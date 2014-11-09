@@ -91,14 +91,14 @@ import Graphics.Rendering.Pango.Structs
 -- | Ask for the different font families that a particular back-end supports.
 --
 -- * The 'FontMap' can be acquired by calling
---   'Graphics.Rendering.Pango.Cairo.cairoFontMapGetDefault'. 
+--   'Graphics.Rendering.Pango.Cairo.cairoFontMapGetDefault'.
 --
 pangoFontMapListFamilies :: FontMap -> IO [FontFamily]
 pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   {#call unsafe font_map_list_families#} fm arrPtrPtr sizePtr
   arrPtr <- peek arrPtrPtr
   size <- peek sizePtr
-  ffsPtr <- peekArray (fromIntegral size) 
+  ffsPtr <- peekArray (fromIntegral size)
 	    (castPtr arrPtr::Ptr (Ptr FontFamily)) -- c2hs is wrong here
   {#call unsafe g_free#} (castPtr arrPtr)
   mapM (makeNewGObject mkFontFamily . return . castPtr) ffsPtr
@@ -137,7 +137,7 @@ pangoFontFamilyListFaces ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   {#call unsafe font_family_list_faces#} ff arrPtrPtr sizePtr
   arrPtr <- peek arrPtrPtr
   size <- peek sizePtr
-  ffsPtr <- peekArray (fromIntegral size) 
+  ffsPtr <- peekArray (fromIntegral size)
 	    (castPtr arrPtr::Ptr (Ptr FontFace)) -- c2hs is wrong here
   {#call unsafe g_free#} (castPtr arrPtr)
   mapM (makeNewGObject mkFontFace . return . castPtr) ffsPtr

@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Embedding.Socket (
 -- * Detail
--- 
+--
 -- | Together with 'Plug', 'Socket' provides the ability to embed widgets from
 -- one process into another process in a fashion that is transparent to the
 -- user. One process creates a 'Socket' widget and, passes the that widget's
@@ -41,11 +41,11 @@ module Graphics.UI.Gtk.Embedding.Socket (
 -- added to its parent.
 --
 -- * Obtaining the window ID of a socket.
--- 
+--
 -- > socket <- socketNew
 -- > widgetShow socket
 -- > containerAdd parent socket
--- > 
+-- >
 -- > -- The following call is only necessary if one of
 -- > -- the ancestors of the socket is not yet visible.
 -- > --

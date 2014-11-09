@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.Adjustment (
 -- * Detail
--- 
+--
 -- | The 'Adjustment' object represents a value which has an associated lower
 -- and upper bound, together with step and page increments, and a page size. It
 -- is used within several Gtk+ widgets, including 'SpinButton', 'Viewport', and
@@ -116,7 +116,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- @pageSize@ is needed to determine if the end of the slider is still in the
 -- range.
 --
-adjustmentNew :: 
+adjustmentNew ::
     Double        -- ^ @value@ - the initial value.
  -> Double        -- ^ @lower@ - the minimum value.
  -> Double        -- ^ @upper@ - the maximum value.
@@ -199,7 +199,7 @@ adjustmentGetValue self =
     self
 
 -- | Updates the 'Adjustment' @value@ to ensure that the range between @lower@
--- and @upper@ is in the current page (i.e. between @value@ and @value + 
+-- and @upper@ is in the current page (i.e. between @value@ and @value +
 -- pageSize@). If the range is larger than the page size, then only the start
 -- of it will be in the current page. A \"changed\" signal will be emitted if
 -- the value is changed.

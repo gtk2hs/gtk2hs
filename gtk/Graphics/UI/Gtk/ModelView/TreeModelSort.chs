@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeModelSort (
 -- * Detail
--- 
+--
 -- | The 'TreeModelSort' is a model which implements the 'TreeSortable'
 -- interface. It does not hold any data itself, but rather is created with a
 -- child model and proxies its data. It has identical rows to its
@@ -149,7 +149,7 @@ treeModelSortConvertChildIterToIter :: TreeModelSortClass self => self
  -> TreeIter
  -> IO TreeIter
 treeModelSortConvertChildIterToIter self childIter =
-  with childIter $ \childIterPtr -> 
+  with childIter $ \childIterPtr ->
   alloca $ \sortIterPtr -> do
   {# call tree_model_sort_convert_child_iter_to_iter #}
     (toTreeModelSort self)

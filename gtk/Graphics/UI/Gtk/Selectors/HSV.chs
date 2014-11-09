@@ -107,9 +107,9 @@ hsvNew =
 --
 hsvSetColor :: HSVClass self => self
  -> (Double, Double, Double)
-   -- ^ @(h, s, v)@ 
-   -- @h@ - value for the hue 
-   -- @s@ value for the saturation 
+   -- ^ @(h, s, v)@
+   -- @h@ - value for the hue
+   -- @s@ value for the saturation
    -- @v@ value for the value
  -> IO ()
 hsvSetColor self (h, s, v) =
@@ -144,7 +144,7 @@ hsvGetColor self =
 --
 hsvSetMetrics :: HSVClass self => self
  -> (Int, Int)
- -- ^ @(size, ringWidth)@ 
+ -- ^ @(size, ringWidth)@
  -- ^ @size@ - Diameter for the hue ring
  -- ^ @ringWidth@ - Width of the hue ring
  -> IO ()
@@ -157,7 +157,7 @@ hsvSetMetrics self (size, ringWidth) =
 -- | Queries the size and ring width of an 'HSV' color selector.
 --
 hsvGetMetrics :: HSVClass self => self
- -> IO (Int, Int) -- ^ @(size, ringWidth)@ 
+ -> IO (Int, Int) -- ^ @(size, ringWidth)@
                   -- @size@ - Return value for the diameter of the hue ring
                   -- @ringWidth@ - Return value for the width of the hue ring
 hsvGetMetrics self =
@@ -190,9 +190,9 @@ hsvIsAdjusting self =
 --
 hsvToRgb ::
  (Double, Double, Double)
-   -- ^ @(h, s, v)@ 
-   -- @h@ - value for the hue 
-   -- @s@ value for the saturation 
+   -- ^ @(h, s, v)@
+   -- @h@ - value for the hue
+   -- @s@ value for the saturation
    -- @v@ value for the value
  -> (Double, Double, Double) -- ^ @(r, g, b)@  @r@ - Return value for the red
                             -- component @g@ - Return value for the green
@@ -217,15 +217,15 @@ hsvToRgb (h, s, v) =
 
 -- | Converts a color from RGB space to 'HSV'. Input values must be in the [0.0, 1.0] range; output values
 -- will be in the same range.
-rgbToHsv :: 
-       (Double, Double, Double) 
-    -- ^ @(r, g, b)@  @r@ value for the red component 
-    -- @g@ value for the green component 
+rgbToHsv ::
+       (Double, Double, Double)
+    -- ^ @(r, g, b)@  @r@ value for the red component
+    -- @g@ value for the green component
     -- @b@ value for the blue component
     -> (Double, Double, Double)
-   -- ^ @(h, s, v)@ 
-   -- @h@ - Return value for the hue 
-   -- @s@ - Return value for the saturation 
+   -- ^ @(h, s, v)@
+   -- @h@ - Return value for the hue
+   -- @s@ - Return value for the saturation
    -- @v@ - Return value for the value
 rgbToHsv (r, g, b) =
   unsafePerformIO $
@@ -246,7 +246,7 @@ rgbToHsv (r, g, b) =
 
 --------------------
 -- Attributes
--- | Color in an 'HSV' color selector. 
+-- | Color in an 'HSV' color selector.
 -- Color component values must be in the [0.0, 1.0] range.
 hsvColor :: HSVClass self => Attr self (Double, Double, Double)
 hsvColor = newAttr
@@ -271,5 +271,5 @@ hsvChanged = Signal (connect_NONE__NONE "changed")
 --
 hsvMove :: HSVClass self => Signal self (DirectionType -> IO ())
 hsvMove = Signal (connect_ENUM__NONE "move")
-        
+
 #endif

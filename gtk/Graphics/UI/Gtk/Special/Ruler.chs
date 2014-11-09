@@ -91,7 +91,7 @@ rulerSetRange :: RulerClass self => self
  -> (Double
    ,Double
    ,Double
-   ,Double)  
+   ,Double)
       -- ^ @lower@ - the lower limit of the ruler
       -- ^ @upper@ - the upper limit of the ruler
       -- ^ @position@ - the mark on the ruler
@@ -138,28 +138,28 @@ rulerRange = newAttr
   rulerSetRange
 
 -- | Lower limit of ruler.
--- 
+--
 -- Default value: 0
 --
 rulerLower :: RulerClass self => Attr self Double
 rulerLower = newAttrFromDoubleProperty "lower"
 
 -- | Upper limit of ruler.
--- 
+--
 -- Default value: 0
 --
 rulerUpper :: RulerClass self => Attr self Double
 rulerUpper = newAttrFromDoubleProperty "upper"
 
 -- | Position of mark on the ruler.
--- 
+--
 -- Default value: 0
 --
 rulerPosition :: RulerClass self => Attr self Double
 rulerPosition = newAttrFromDoubleProperty "position"
 
 -- | Maximum size of the ruler.
--- 
+--
 -- Default value: 0
 --
 rulerMaxSize :: RulerClass self => Attr self Double
@@ -167,9 +167,9 @@ rulerMaxSize = newAttrFromDoubleProperty "max-size"
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- | The metric used for the ruler.
--- 
+--
 -- Default value: ''Pixels''
--- 
+--
 -- Since 2.8
 --
 rulerMetric :: RulerClass self => Attr self MetricType

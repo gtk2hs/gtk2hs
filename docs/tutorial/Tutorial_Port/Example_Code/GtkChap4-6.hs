@@ -39,7 +39,7 @@ saveText fld b stk id = do
          widgetSetSensitivity b True
          msgid <- statusbarPush stk id mesg
          return ()
-              
+
 
 
 

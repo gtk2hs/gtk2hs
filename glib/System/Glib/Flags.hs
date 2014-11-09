@@ -34,7 +34,7 @@ import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
 import Data.Maybe (catMaybes)
 
 class  (Enum a, Bounded a) => Flags a
-  
+
 fromFlags :: Flags a => [a] -> Int
 fromFlags is = orNum 0 is
   where orNum n []     = n

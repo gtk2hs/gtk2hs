@@ -15,11 +15,11 @@ main= do
      containerAdd frame canvas
      widgetModifyBg canvas StateNormal (Color 65535 65535 65535)
 
-     widgetShowAll window 
+     widgetShowAll window
      drawin <- widgetGetDrawWindow canvas
      onExpose canvas (\x -> do renderWithDrawable drawin myDraw
                                return (eventSent x))
-    
+
      onDestroy window mainQuit
      mainGUI
 

@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.SizeGroup (
 -- * Detail
--- 
+--
 -- | 'SizeGroup' provides a mechanism for grouping a number of widgets
 -- together so they all request the same amount of space. This is typically
 -- useful when you want a column of widgets to have the same size, but you
@@ -103,7 +103,7 @@ import System.Glib.GObject		(wrapNewGObject)
 
 -- | Create a new 'SizeGroup'.
 --
-sizeGroupNew :: 
+sizeGroupNew ::
     SizeGroupMode -- ^ @mode@ - the mode for the new size group.
  -> IO SizeGroup
 sizeGroupNew mode =

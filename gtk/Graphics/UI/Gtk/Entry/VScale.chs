@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Entry.VScale (
 -- * Detail
--- 
+--
 -- | The 'VScale' widget is used to allow the user to select a value using a
 -- vertical slider. To create one, use 'vScaleNewWithRange'.
 --
@@ -69,7 +69,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'VScale'.
 --
-vScaleNew :: 
+vScaleNew ::
     Adjustment -- ^ @adjustment@ - the 'Adjustment' which sets the range of
                -- the scale.
  -> IO VScale
@@ -88,7 +88,7 @@ vScaleNew adjustment =
 -- is a power of ten. If the resulting precision is not suitable for your
 -- needs, use 'Graphics.UI.Gtk.Abstract.Scale.scaleSetDigits' to correct it.
 --
-vScaleNewWithRange :: 
+vScaleNewWithRange ::
     Double    -- ^ @min@ - minimum value
  -> Double    -- ^ @max@ - maximum value
  -> Double    -- ^ @step@ - step increment (tick size) used with keyboard

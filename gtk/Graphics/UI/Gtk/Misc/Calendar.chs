@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.Calendar (
 -- * Detail
--- 
+--
 -- | 'Calendar' is a widget that displays a calendar, one month at a time. It
 -- can be created with 'calendarNew'.
 --
@@ -364,9 +364,9 @@ afterDaySelected = connect_NONE__NONE "day-selected" True
 onDaySelectedDoubleClick, afterDaySelectedDoubleClick :: CalendarClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onDaySelectedDoubleClick = 
+onDaySelectedDoubleClick =
   connect_NONE__NONE "day-selected-double-click" False
-afterDaySelectedDoubleClick = 
+afterDaySelectedDoubleClick =
   connect_NONE__NONE "day-selected-double-click" True
 
 -- | The month changed.

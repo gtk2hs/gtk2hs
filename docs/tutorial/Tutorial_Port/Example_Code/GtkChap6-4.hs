@@ -18,14 +18,14 @@ main = do
      da <- drawingAreaNew
      containerAdd af da
      widgetModifyBg da StateNormal (Color 65535 0 0)
-   
+
      tv <- textViewNew
      panedAdd2 pw tv
      buf <- textViewGetBuffer tv
 
      onBufferChanged buf $ do cn <- textBufferGetCharCount buf
-                              putStrLn (show cn)   
+                              putStrLn (show cn)
 
-     widgetShowAll window 
+     widgetShowAll window
      onDestroy window mainQuit
      mainGUI

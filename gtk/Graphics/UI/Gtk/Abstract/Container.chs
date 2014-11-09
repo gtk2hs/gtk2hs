@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.Container (
 -- * Detail
--- 
+--
 -- | A Gtk+ user interface is constructed by nesting widgets inside widgets.
 -- Container widgets are the inner nodes in the resulting tree of widgets: they
 -- contain other widgets. So, for example, you might have a 'Window' containing
@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- out in two phases, size requisition and size allocation.
 
 -- ** Size Requisition
--- 
+--
 -- | The size requisition of a widget is it's desired width and height. This
 -- is represented by a 'Requisition'.
 --
@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- will get a requisition back from its child.
 
 -- ** Size Allocation
--- 
+--
 -- | When the top-level widget has determined how much space its child would
 -- like to have, the second phase of the size negotiation, size allocation,
 -- begins. Depending on its configuration (see 'windowSetResizable'), the
@@ -94,7 +94,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- request is only a request, and widgets must be able to cope with any size.
 
 -- ** Child attributes
--- 
+--
 -- | 'Container' introduces child attributes - these are object attributes
 -- that are not specific to either the container or the contained widget, but
 -- rather to their relation. Typical examples of child attributes are the
@@ -111,7 +111,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- Whereas child attributes take the child object as a parameter:
 --
 -- > set container [ attr child := value ]
--- 
+--
 -- And similarily for getting a child attribute's value:
 --
 -- > value <- get container (attr child)

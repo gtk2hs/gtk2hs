@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Scrolling.VScrollbar (
 -- * Detail
--- 
+--
 -- | The 'VScrollbar' widget is a widget arranged vertically creating a
 -- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
 -- may be added to handle the adjustment of the scrollbar using
@@ -71,7 +71,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new vertical scrollbar.
 --
-vScrollbarNew :: 
+vScrollbarNew ::
     Adjustment    -- ^ @adjustment@ - the 'Adjustment' to use.
  -> IO VScrollbar
 vScrollbarNew adjustment =

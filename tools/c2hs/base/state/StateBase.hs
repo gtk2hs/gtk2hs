@@ -42,11 +42,11 @@
 --  * The following state components are maintained:
 --
 --    + idBS (triple of strings)        -- version, copyright, and disclaimer
---    + errorsBS (type `ErrorState')    -- keeps track of raised errors 
+--    + errorsBS (type `ErrorState')    -- keeps track of raised errors
 --    + namesBS (type `NameSupply')     -- provides unique names
---    + extraBS (generic type)		-- extra compiler-dependent state 
+--    + extraBS (generic type)		-- extra compiler-dependent state
 --					   information, e.g., for compiler
---					   switches 
+--					   switches
 --
 --- TODO ----------------------------------------------------------------------
 --
@@ -61,10 +61,10 @@ import Control.Monad (liftM, ap)
 
 import Position   (Position)
 import UNames     (NameSupply)
-import StateTrans (STB, 
+import StateTrans (STB,
 		   fixSTB, readGeneric, writeGeneric, transGeneric, readBase,
 		   transBase)
-import qualified  
+import qualified
        StateTrans (liftIO)
 import Errors     (ErrorLvl(..), Error)
 
@@ -88,13 +88,13 @@ data ErrorState = ErrorState ErrorLvl    -- worst error level that was raised
 data BaseState e = BaseState {
 		     idTKBS     :: (String, String, String),  -- toolkit id
 		     idBS       :: (String, String, String),  -- compiler id
-		     errorsBS   :: ErrorState, 
+		     errorsBS   :: ErrorState,
 		     suppliesBS :: [NameSupply],
 		     extraBS    :: e			      -- extra state
 		 }
 
 -- the compiler state transformer (EXPORTED)
--- 
+--
 
 newtype PreCST e s a = CST (STB (BaseState e) s a)
 
@@ -160,7 +160,7 @@ writeCST    :: s -> PreCST e s ()
 writeCST s'  = CST $ writeGeneric s'
 
 -- given a transformer function for the state, wrap it into an CST monad
--- (EXPORTED) 
+-- (EXPORTED)
 --
 transCST   :: (s -> (s, a)) -> PreCST e s a
 transCST f  = CST $ transGeneric f

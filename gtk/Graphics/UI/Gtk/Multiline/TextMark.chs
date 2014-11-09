@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Multiline.TextMark (
 -- * Detail
--- 
+--
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
@@ -113,7 +113,7 @@ type MarkName = DefaultGlibString
 --
 -- * Available since Gtk+ version 2.12
 --
-textMarkNew :: 
+textMarkNew ::
   Maybe MarkName  -- ^ @markName@ - name for mark, or @Nothing@
  -> Bool  -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark

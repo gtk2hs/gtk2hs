@@ -7,8 +7,8 @@ main= do
      window <- windowNew
      set window [windowTitle := "Slot Machine",
                  containerBorderWidth := 10,
-                 windowDefaultWidth := 350, 
-                 windowDefaultHeight := 400]                 
+                 windowDefaultWidth := 350,
+                 windowDefaultHeight := 400]
      hb1 <- hBoxNew False 0
      containerAdd window hb1
      vb1 <- vBoxNew False 0
@@ -21,7 +21,7 @@ main= do
      containerAdd vbb quitb
      playb <- buttonNewWithMnemonic "_Play"
      containerAdd vbb playb
-     set vbb [buttonBoxLayoutStyle := ButtonboxStart, 
+     set vbb [buttonBoxLayoutStyle := ButtonboxStart,
               (buttonBoxChildSecondary playb) := True ]
 
      let picfiles = ["./jacunda.gif", "./pacu.gif", "./tucunaream.gif"]
@@ -30,7 +30,7 @@ main= do
      sequence_ $ map ((myTooltip tips) . fst) evimls
 
      onClicked playb (play evimls picfiles)
- 
+
      onClicked resetb $ sequence_ (zipWith reSet evimls picfiles)
 
      onClicked quitb (widgetDestroy window)
@@ -46,27 +46,27 @@ initEvent vb picfile = do
               set eb[containerChild := slot, containerBorderWidth := 10 ]
               widgetModifyBg eb StateNormal (Color 0 35000 0)
               widgetModifyBg eb StateInsensitive (Color 50000 50000 50000)
-              onButtonPress eb 
-                 (\x -> if (eventButton x) == LeftButton 
-                           then do widgetSetSensitivity eb False 
+              onButtonPress eb
+                 (\x -> if (eventButton x) == LeftButton
+                           then do widgetSetSensitivity eb False
                                    return (eventSent x)
                            else return (eventSent x))
               return (eb, slot)
 
 reSet :: (EventBox, Image) -> FilePath -> IO ()
-reSet (eb, im) pf = do widgetSetSensitivity eb True                 
+reSet (eb, im) pf = do widgetSetSensitivity eb True
                        imageSetFromFile im pf
-                 
+
 play :: [(EventBox, Image)] -> [FilePath] -> IO ()
-play eilist fplist = 
+play eilist fplist =
    do let n = length fplist
       rands <- sequence $ replicate n (randomRIO (0::Int,(n-1)))
       sequence_ (zipWith display eilist rands) where
                      display (eb, im) rn = do
                                   state <- widgetGetState eb
-                                  if state == StateInsensitive 
+                                  if state == StateInsensitive
                                      then return ()
-                                     else imageSetFromFile im (fplist !! rn)   
+                                     else imageSetFromFile im (fplist !! rn)
 
 myTooltip :: Tooltips -> EventBox -> IO ()
 myTooltip ttp eb = tooltipsSetTip ttp eb "Click Left Mouse Button to Freeze" ""

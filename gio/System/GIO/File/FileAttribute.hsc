@@ -3,7 +3,7 @@
 -- -*-haskell-*-
 
 #include <gio/gio.h>
-         
+
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to gio -*-haskell-*-
 --
 --  Author : Peter Gavin, Andy Stewart
@@ -16,51 +16,51 @@
 --  modify it under the terms of the GNU Lesser General Public License
 --  as published by the Free Software Foundation, either version 3 of
 --  the License, or (at your option) any later version.
---  
+--
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
---  
+--
 --  You should have received a copy of the GNU Lesser General Public
 --  License along with this program.  If not, see
 --  <http://www.gnu.org/licenses/>.
---  
+--
 --  GIO, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GIO documentation.
---  
+--
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module System.GIO.File.FileAttribute (
--- * Details                                      
+-- * Details
 -- | File attributes in GIO consist of a list of key-value pairs.
--- 
+--
 -- Keys are strings that contain a key namespace and a key name, separated by a colon,
 -- e.g. "namespace:keyname". Namespaces are included to sort key-value pairs by namespaces for
 -- relevance. Keys can be retrived using wildcards, e.g. \"standard::*\" will return all of the keys in
 -- the "standard" namespace.
--- 
+--
 -- Values are stored within the list in 'FileAttributeValue' structures. Values can store different
 -- types, listed in the enum 'FileAttributeType'. Upon creation of a 'FileAttributeValue', the type will
 -- be set to 'FileAttributeTypeInvalid'.
--- 
+--
 -- The list of possible attributes for a filesystem (pointed to by a 'File') is availible as a
 -- 'FileAttributeInfoList'. This list is queryable by key names as indicated earlier.
--- 
+--
 -- Classes that implement 'FileIface' will create a 'FileAttributeInfoList' and install default keys and
 -- values for their given file system, architecture, and other possible implementation details (e.g.,
 -- on a UNIX system, a file attribute key will be registered for the user id for a given file).
-                                      
--- * Types                                      
+
+-- * Types
     FileAttributeType (..),
     FileAttributeInfo (..),
-                      
--- * Enums                      
+
+-- * Enums
     FileAttributeInfoFlags (..),
-                           
--- * Methods                           
+
+-- * Methods
     fileAttributeStandardType,
     fileAttributeStandardIsHidden,
     fileAttributeStandardIsBackup,
@@ -76,7 +76,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeStandardSize,
 #if GLIB_CHECK_VERSION(2,20,0)
     fileAttributeStandardAllocatedSize,
-#endif                                      
+#endif
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -95,12 +95,12 @@ module System.GIO.File.FileAttribute (
     fileAttributeMountableUnixDevice,
 #if GLIB_CHECK_VERSION(2,22,0)
     fileAttributeMountableUnixDeviceFile,
-    fileAttributeMountableCanStart,                                        
+    fileAttributeMountableCanStart,
     fileAttributeMountableCanDegraded,
-    fileAttributeMountableCanStop,                                     
+    fileAttributeMountableCanStop,
     fileAttributeMountableStartStopType,
     fileAttributeMountableCanPoll,
-#endif                                        
+#endif
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -129,7 +129,7 @@ module System.GIO.File.FileAttribute (
     fileAttributeThumbnailingFailed,
 #if GLIB_CHECK_VERSION(2,20,0)
     fileAttributePreviewIcon,
-#endif                            
+#endif
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -142,7 +142,7 @@ module System.GIO.File.FileAttribute (
 #if GLIB_CHECK_VERSION(2,24,0)
     fileAttributeTrashOrigPath,
     fileAttributeTrashDeletionDate,
-#endif                                    
+#endif
     ) where
 
 
@@ -163,7 +163,7 @@ data FileAttributeType = FileAttributeTypeInvalid
                        | FileAttributeTypeObject
 #if GLIB_CHECK_VERSION(2,22,0)
                        | FileAttributeTypeStringList
-#endif                         
+#endif
                          deriving (Eq, Ord, Bounded, Show, Read)
 instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_INVALID}     = FileAttributeTypeInvalid
@@ -177,8 +177,8 @@ instance Enum FileAttributeType where
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_OBJECT}      = FileAttributeTypeObject
 #if GLIB_CHECK_VERSION(2,22,0)
     toEnum #{const G_FILE_ATTRIBUTE_TYPE_STRINGV}     = FileAttributeTypeStringList
-#endif                                                        
-    
+#endif
+
     fromEnum FileAttributeTypeInvalid    = #{const G_FILE_ATTRIBUTE_TYPE_INVALID}
     fromEnum FileAttributeTypeString     = #{const G_FILE_ATTRIBUTE_TYPE_STRING}
     fromEnum FileAttributeTypeByteString = #{const G_FILE_ATTRIBUTE_TYPE_BYTE_STRING}
@@ -228,7 +228,7 @@ fileAttributeStandardType,
     fileAttributeStandardSize,
 #if GLIB_CHECK_VERSION(2,20,0)
     fileAttributeStandardAllocatedSize,
-#endif                                      
+#endif
     fileAttributeStandardSymlinkTarget,
     fileAttributeStandardTargetURI,
     fileAttributeStandardSortOrder,
@@ -252,7 +252,7 @@ fileAttributeStandardType,
     fileAttributeMountableCanStop,
     fileAttributeMountableStartStopType,
     fileAttributeMountableCanPoll,
-#endif                                        
+#endif
     fileAttributeMountableHalUDI,
     fileAttributeTimeModified,
     fileAttributeTimeModifiedUSec,
@@ -280,8 +280,8 @@ fileAttributeStandardType,
     fileAttributeThumbnailPath,
     fileAttributeThumbnailingFailed,
 #if GLIB_CHECK_VERSION(2,20,0)
-    fileAttributePreviewIcon,                                   
-#endif                            
+    fileAttributePreviewIcon,
+#endif
     fileAttributeFilesystemSize,
     fileAttributeFilesystemFree,
     fileAttributeFilesystemType,
@@ -293,7 +293,7 @@ fileAttributeStandardType,
 #if GLIB_CHECK_VERSION(2,24,0)
     fileAttributeTrashOrigPath,
     fileAttributeTrashDeletionDate,
-#endif                                    
+#endif
     fileAttributeStandardDescription
     :: String
 fileAttributeStandardType            = #{const_str G_FILE_ATTRIBUTE_STANDARD_TYPE}
@@ -311,7 +311,7 @@ fileAttributeStandardFastContentType = #{const_str G_FILE_ATTRIBUTE_STANDARD_FAS
 fileAttributeStandardSize            = #{const_str G_FILE_ATTRIBUTE_STANDARD_SIZE}
 #if GLIB_CHECK_VERSION(2,20,0)
 fileAttributeStandardAllocatedSize   = #{const_str G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE}
-#endif                                       
+#endif
 fileAttributeStandardSymlinkTarget   = #{const_str G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET}
 fileAttributeStandardTargetURI       = #{const_str G_FILE_ATTRIBUTE_STANDARD_TARGET_URI}
 fileAttributeStandardSortOrder       = #{const_str G_FILE_ATTRIBUTE_STANDARD_SORT_ORDER}
@@ -336,7 +336,7 @@ fileAttributeMountableCanStop        = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CA
 fileAttributeMountableStartStopType  = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_START_STOP_TYPE}
 fileAttributeMountableCanPoll        = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_CAN_POLL}
 fileAttributeMountableIsMediaCheckAutomatic = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_IS_MEDIA_CHECK_AUTOMATIC}
-#endif                                       
+#endif
 fileAttributeMountableHalUDI         = #{const_str G_FILE_ATTRIBUTE_MOUNTABLE_HAL_UDI}
 fileAttributeTimeModified            = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED}
 fileAttributeTimeModifiedUSec        = #{const_str G_FILE_ATTRIBUTE_TIME_MODIFIED_USEC}
@@ -365,7 +365,7 @@ fileAttributeThumbnailPath           = #{const_str G_FILE_ATTRIBUTE_THUMBNAIL_PA
 fileAttributeThumbnailingFailed      = #{const_str G_FILE_ATTRIBUTE_THUMBNAILING_FAILED}
 #if GLIB_CHECK_VERSION(2,20,0)
 fileAttributePreviewIcon             = #{const_str G_FILE_ATTRIBUTE_PREVIEW_ICON}
-#endif                                       
+#endif
 fileAttributeFilesystemSize          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_SIZE}
 fileAttributeFilesystemFree          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_FREE}
 fileAttributeFilesystemType          = #{const_str G_FILE_ATTRIBUTE_FILESYSTEM_TYPE}
@@ -378,4 +378,4 @@ fileAttributeStandardDescription     = #{const_str G_FILE_ATTRIBUTE_STANDARD_DES
 #if GLIB_CHECK_VERSION(2,24,0)
 fileAttributeTrashOrigPath           = #{const_str G_FILE_ATTRIBUTE_TRASH_ORIG_PATH}
 fileAttributeTrashDeletionDate       = #{const_str G_FILE_ATTRIBUTE_TRASH_DELETION_DATE}
-#endif                                    
+#endif

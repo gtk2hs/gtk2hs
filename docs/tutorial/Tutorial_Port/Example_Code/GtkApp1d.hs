@@ -6,11 +6,11 @@ main= do
      initGUI
      window <- windowNew
      set window [windowTitle := "Save as...",
-                 windowDefaultWidth := 300, windowDefaultHeight := 200] 
+                 windowDefaultWidth := 300, windowDefaultHeight := 200]
 
      let pnw = 300
          pnh = 200
-     withImageSurface 
+     withImageSurface
        FormatARGB32 pnw pnh (\srf -> do renderWith srf (myDraw (fromIntegral pnw) (fromIntegral pnh))
                                         surfaceWriteToPNG srf "myDraw.png")
 
@@ -19,17 +19,17 @@ main= do
          pdh = 720
      withPDFSurface "myDraw.pdf" pdw pdh (\s ->  renderWith s $ do myDraw pdw pdh
                                                                    showPage )
-     
+
      let psw = 360
          psh = 540
-     withPSSurface 
+     withPSSurface
         "myDraw.ps" psw psh (flip renderWith (myDraw psw psh >> showPage))
 
      let pgw = 180
          pgh = 360
-     withSVGSurface 
+     withSVGSurface
         "myDraw.svg" pgw pgh (flip renderWith $ myDraw pgw pgh >> showPage)
-         
+
      putStrLn "Press any key to quit..."
      onKeyPress window (\x -> do widgetDestroy window
                                  return (eventSent x))

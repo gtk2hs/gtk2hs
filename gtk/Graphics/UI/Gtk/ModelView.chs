@@ -24,7 +24,7 @@
 -- Portability : portable (depends on GHC)
 --
 -- New model-based tree\/list widget system.
--- 
+--
 -- This just re-exports the Graphics.UI.Gtk.ModelView.* modules.
 --
 -- * Note: From this version of Gtk2Hs this system will be the default

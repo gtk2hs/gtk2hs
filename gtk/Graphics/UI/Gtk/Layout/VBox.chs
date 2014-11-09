@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.VBox (
 -- * Detail
--- 
+--
 -- | 'VBox' is a container that organizes child widgets into a single column.
 --
 -- Use the 'Box' packing interface to determine the arrangement, spacing,
@@ -72,7 +72,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'VBox'.
 --
-vBoxNew :: 
+vBoxNew ::
     Bool    -- ^ @homogeneous@ - @True@ if all children are to be given equal
             -- space allotments.
  -> Int     -- ^ @spacing@ - the number of pixels to place by default between

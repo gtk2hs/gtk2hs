@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.DrawingArea (
 -- * Detail
--- 
+--
 -- | The 'DrawingArea' widget is used for creating custom user interface
 -- elements. It's essentially a blank widget; you can draw on
 -- the 'Drawable' returned by 'drawingAreaGetDrawWindow'.

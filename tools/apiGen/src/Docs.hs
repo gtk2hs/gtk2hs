@@ -132,14 +132,14 @@ extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
   }
 
 extractDocModuleinfo :: Xml.Content -> ModuleDoc
-extractDocModuleinfo 
+extractDocModuleinfo
   (Xml.CElem (Xml.Elem "module-info" []
     [Xml.CElem (Xml.Elem "name" [] name)
     ,Xml.CElem (Xml.Elem "altname" [] altname)
     ,Xml.CElem (Xml.Elem "summary" [] summary)
     ,Xml.CElem (Xml.Elem "description" [] parasAndSections)
     ,Xml.CElem (Xml.Elem "object-hierarchy" [] objHierSpans)]
-  )) = 
+  )) =
   let (paras, sections) = span (\elem ->
         case elem of
           Xml.CElem (Xml.Elem "section" _ _) -> False
@@ -191,7 +191,7 @@ extractDocFunc
       }
 
 extractParamDoc :: Xml.Content -> ParamDoc
-extractParamDoc 
+extractParamDoc
   (Xml.CElem (Xml.Elem "param" []
     (Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
     :spans))) =
@@ -260,7 +260,7 @@ extractDocPara (Xml.CElem (Xml.Elem "programlisting" _ content)) =
 extractDocPara (Xml.CElem (Xml.Elem "example" _
                  (Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
                  :content) )) =
-  [DocParaTitle title] ++ concatMap extractDocPara content 
+  [DocParaTitle title] ++ concatMap extractDocPara content
 extractDocPara other = error $ "extractDocPara: " ++ Xml.verbatim other
 
 extractDocPara' :: [Xml.Content] -> [DocPara]

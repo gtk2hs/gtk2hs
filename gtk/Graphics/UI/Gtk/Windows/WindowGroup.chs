@@ -95,7 +95,7 @@ windowGroupRemoveWindow self window =
 
 #if GTK_CHECK_VERSION(2,14,0)
 -- | Returns a list of the 'Window's that belong to @windowGroup@.
--- 
+--
 -- * Available since Gtk+ version 2.14
 --
 windowGroupListWindows :: WindowGroupClass self

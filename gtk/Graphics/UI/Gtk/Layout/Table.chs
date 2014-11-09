@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.Table (
 -- * Detail
--- 
+--
 -- | The 'Table' functions allow the programmer to arrange widgets in rows and
 -- columns, making it easy to align many widgets next to each other,
 -- horizontally and vertically.
@@ -124,7 +124,7 @@ import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 -- can be changed later with 'tableResize'. @rows@ and @columns@ must both be
 -- in the range 0 .. 65535.
 --
-tableNew :: 
+tableNew ::
     Int      -- ^ @rows@ - The number of rows the new table should have.
  -> Int      -- ^ @columns@ - The number of columns the new table should have.
  -> Bool     -- ^ @homogeneous@ - If set to @True@, all table cells are
@@ -349,7 +349,7 @@ tableGetSize self =
   rows <- peek rowsPtr
   columns <- peek columnsPtr
   return (fromIntegral rows, fromIntegral columns)
-  
+
 #endif
 
 --------------------

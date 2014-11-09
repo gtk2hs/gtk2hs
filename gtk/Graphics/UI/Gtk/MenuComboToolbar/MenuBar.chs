@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
 -- * Detail
--- 
+--
 -- | The 'MenuBar' is a subclass of 'MenuShell' which contains one to many
 -- 'MenuItem'. The result is a standard menu bar which can hold many menu
 -- items.

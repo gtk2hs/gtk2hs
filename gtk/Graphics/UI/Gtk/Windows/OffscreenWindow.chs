@@ -23,7 +23,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A toplevel container widget used to manage offscreen rendering of child widgets.                       
+-- A toplevel container widget used to manage offscreen rendering of child widgets.
 --
 -- * Module available since Gtk+ version 2.20
 --
@@ -34,16 +34,16 @@ module Graphics.UI.Gtk.Windows.OffscreenWindow (
 -- want to get a snapshot of need not be displayed on the user's screen as a part of a widget
 -- hierarchy. However, since 'OffscreenWindow' is a toplevel widget you cannot obtain snapshots of a
 -- full window with it since you cannot pack a toplevel widget in another toplevel.
--- 
+--
 -- The idea is to take a widget and manually set the state of it, add it to a 'OffscreenWindow' and
 -- then retrieve the snapshot as a 'Pixmap' or 'Pixbuf'.
--- 
+--
 -- 'OffscreenWindow' derives from 'Window' only as an implementation detail. Applications should not
 -- use any API specific to 'Window' to operate on this object. It should be treated as a 'Bin' that
 -- has no parent widget.
--- 
+--
 -- When contained offscreen widgets are redrawn, 'OffscreenWindow' will emit a 'damageEvent' signal.
-  
+
 -- * Class Hierarchy
 -- |
 -- @
@@ -93,7 +93,7 @@ import Graphics.UI.Gtk.Abstract.Object   (makeNewObject)
 --
 offscreenWindowNew :: IO OffscreenWindow
 offscreenWindowNew =
-  makeNewObject mkOffscreenWindow $ 
+  makeNewObject mkOffscreenWindow $
   liftM (castPtr :: Ptr Widget -> Ptr OffscreenWindow) $
   {#call gtk_offscreen_window_new #}
 
@@ -103,9 +103,9 @@ offscreenWindowNew =
 --
 -- * Available since Gtk+ version 2.20
 --
-offscreenWindowGetPixmap :: OffscreenWindowClass self 
-                           => self -- ^ @offscreen@ the 'OffscreenWindow' contained widget.              
-                           -> IO (Maybe Pixmap) -- ^ returns   A 'Pixmap' pointer to the offscreen pixmap, or 'Nothing'. 
+offscreenWindowGetPixmap :: OffscreenWindowClass self
+                           => self -- ^ @offscreen@ the 'OffscreenWindow' contained widget.
+                           -> IO (Maybe Pixmap) -- ^ returns   A 'Pixmap' pointer to the offscreen pixmap, or 'Nothing'.
 offscreenWindowGetPixmap offscreen =
   maybeNull (makeNewGObject mkPixmap) $
   {#call gtk_offscreen_window_get_pixmap #}
@@ -116,9 +116,9 @@ offscreenWindowGetPixmap offscreen =
 --
 -- * Available since Gtk+ version 2.20
 --
-offscreenWindowGetPixbuf :: OffscreenWindowClass self 
-                           => self -- ^ @offscreen@ the 'OffscreenWindow' contained widget.              
-                           -> IO (Maybe Pixbuf) -- ^ returns   A 'Pixbuf' pointer to the offscreen pixbuf, or 'Nothing'. 
+offscreenWindowGetPixbuf :: OffscreenWindowClass self
+                           => self -- ^ @offscreen@ the 'OffscreenWindow' contained widget.
+                           -> IO (Maybe Pixbuf) -- ^ returns   A 'Pixbuf' pointer to the offscreen pixbuf, or 'Nothing'.
 offscreenWindowGetPixbuf offscreen =
   maybeNull (wrapNewGObject mkPixbuf) $
   {#call gtk_offscreen_window_get_pixbuf #}

@@ -17,7 +17,7 @@ main = do
   boxPackStart box1 vsc PackGrow 0
 
   box2 <- vBoxNew False 0
-  boxPackStart box1 box2 PackGrow 0 
+  boxPackStart box1 box2 PackGrow 0
 
   hsc1 <- hScaleNew adj1
   boxPackStart box2 hsc1 PackGrow 0
@@ -67,11 +67,11 @@ main = do
   onToggled chb $ do toggleDisplay chb [hsc1,hsc2]
                      toggleDisplay chb [vsc]
 
-  onChanged opt1 $ do setScalePos opt1 hsc1 
+  onChanged opt1 $ do setScalePos opt1 hsc1
                       setScalePos opt1 hsc2
                       setScalePos opt1 vsc
 
-  onChanged opt2 $ do setUpdatePol opt2 hsc1 
+  onChanged opt2 $ do setUpdatePol opt2 hsc1
                       setUpdatePol opt2 hsc2
                       setUpdatePol opt2 vsc
 
@@ -89,10 +89,10 @@ main = do
 makeOpt1 :: IO ComboBox
 makeOpt1 = do
   cb <- comboBoxNewText
-  comboBoxAppendText cb "TOP" 
+  comboBoxAppendText cb "TOP"
   comboBoxAppendText cb "BOTTOM"
-  comboBoxAppendText cb "LEFT" 
-  comboBoxAppendText cb "RIGHT"  
+  comboBoxAppendText cb "LEFT"
+  comboBoxAppendText cb "RIGHT"
   comboBoxSetActive cb 0
   return cb
 
@@ -105,15 +105,15 @@ setScalePos cb sc = do
                 (Just "LEFT") -> PosLeft
                 (Just "RIGHT") -> PosRight
                 Nothing -> error "GtkChap9.hs setScalePos: no position set"
-    scaleSetValuePos sc pos 
+    scaleSetValuePos sc pos
 
-    
+
 makeOpt2 :: IO ComboBox
 makeOpt2 = do
   cb <- comboBoxNewText
-  comboBoxAppendText cb "Continuous" 
+  comboBoxAppendText cb "Continuous"
   comboBoxAppendText cb "Discontinuous"
-  comboBoxAppendText cb "Delayed" 
+  comboBoxAppendText cb "Delayed"
   comboBoxSetActive cb 0
   return cb
 
@@ -125,10 +125,10 @@ setUpdatePol cb sc = do
                 (Just "Discontinuous") -> UpdateDiscontinuous
                 (Just "Delayed") -> UpdateDelayed
                 Nothing -> error "GtkChap9.hs setUpdatePol: no policy set"
-    rangeSetUpdatePolicy sc pol 
+    rangeSetUpdatePolicy sc pol
 
 toggleDisplay :: ScaleClass self => CheckButton -> [self] -> IO ()
-toggleDisplay b scls = sequence_ (map change scls) where 
+toggleDisplay b scls = sequence_ (map change scls) where
                          change sc = do st <- toggleButtonGetActive b
                                         scaleSetDrawValue sc st
 
@@ -136,4 +136,4 @@ setDigits :: ScaleClass self => self -> Adjustment -> IO ()
 setDigits sc adj = do val <- get adj adjustmentValue
                       set sc [scaleDigits := (round val) ]
 
- 
+

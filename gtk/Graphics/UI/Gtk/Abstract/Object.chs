@@ -25,13 +25,13 @@
 --
 -- The base class of the Gtk+ type hierarchy.
 --
--- * Each widget is a represented as a purely abstract data type. It can only 
+-- * Each widget is a represented as a purely abstract data type. It can only
 --   be accessed through and the special access functions that are defined
 --   in each widget file.
 --
 module Graphics.UI.Gtk.Abstract.Object (
 -- * Detail
--- 
+--
 -- | 'Object' is the base class for all widgets, and for a few non-widget
 -- objects such as 'Adjustment'. 'Object' predates 'GObject'; non-widgets that
 -- derive from 'Object' rather than 'GObject' do so for backward compatibility
@@ -95,7 +95,7 @@ import Data.IORef
 -- turn the initial floating state to sunk
 --
 -- * The floating\/sunk concept of a GTK object is not very useful to us.
---   The following procedure circumvents the whole subject and ensures 
+--   The following procedure circumvents the whole subject and ensures
 --   proper cleanup:
 --     on creation:      objectRef, objectSink
 --     on finalization:  objectUnref
@@ -112,9 +112,9 @@ foreign import ccall unsafe "gtk_object_sink"
 -- * The constr argument is the contructor of the specific object.
 --
 #if GTK_MAJOR_VERSION < 3
-makeNewObject :: ObjectClass obj => 
+makeNewObject :: ObjectClass obj =>
 #else
-makeNewObject :: GObjectClass obj => 
+makeNewObject :: GObjectClass obj =>
 #endif
   (ForeignPtr obj -> obj, FinalizerPtr obj) -> IO (Ptr obj) -> IO obj
 makeNewObject (constr, objectUnref) generator = do
@@ -159,7 +159,7 @@ objectWeakunref :: ObjectClass o => o -> GWeakNotify -> IO ()
 #else
 objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
 #endif
-objectWeakunref obj fun = 
+objectWeakunref obj fun =
   {#call unsafe g_object_weak_unref#} (toGObject obj) fun nullPtr
 
 

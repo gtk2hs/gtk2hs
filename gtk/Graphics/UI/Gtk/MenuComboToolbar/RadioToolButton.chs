@@ -29,7 +29,7 @@
 --
 module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton (
 -- * Detail
--- 
+--
 -- | A 'RadioToolButton' is a 'ToolItem' that contains a radio button, that
 -- is, a button that is part of a group of toggle buttons where only one button
 -- can be active at a time.
@@ -105,7 +105,7 @@ radioToolButtonNew =
 -- 'RadioToolButton' will contain an icon and label from the stock item
 -- indicated by @stockId@.
 --
-radioToolButtonNewFromStock :: 
+radioToolButtonNewFromStock ::
     StockId            -- ^ @stockId@ - the name of a stock item
  -> IO RadioToolButton
 radioToolButtonNewFromStock stockId =
@@ -116,10 +116,10 @@ radioToolButtonNewFromStock stockId =
     nullPtr
     stockIdPtr
 
--- | Creates a new 'RadioToolButton' adding it to the same group as 
+-- | Creates a new 'RadioToolButton' adding it to the same group as
 -- the group to which @groupMember@ belongs.
 --
-radioToolButtonNewFromWidget :: RadioToolButtonClass groupMember => 
+radioToolButtonNewFromWidget :: RadioToolButtonClass groupMember =>
     groupMember        -- ^ @groupMember@ - a member of an existing radio group,
                        -- to which the new radio tool button will be added.
  -> IO RadioToolButton
@@ -133,7 +133,7 @@ radioToolButtonNewFromWidget group =
 -- to which @groupMember@ belongs. The new 'RadioToolButton' will contain an
 -- icon and label from the stock item indicated by @stockId@.
 --
-radioToolButtonNewWithStockFromWidget :: RadioToolButtonClass groupMember => 
+radioToolButtonNewWithStockFromWidget :: RadioToolButtonClass groupMember =>
     groupMember        -- ^ @groupMember@ - a member of an existing radio group,
                        -- to which the new radio tool button will be added.
  -> StockId            -- ^ @stockId@ - the name of a stock item

@@ -15,13 +15,13 @@ main= do
      canvas <- drawingAreaNew
      containerAdd frame canvas
 
-     widgetShowAll window 
+     widgetShowAll window
      onExpose canvas (\x ->  do (w,h) <- widgetGetSize canvas
                                 drawin <- widgetGetDrawWindow canvas
-                                renderWithDrawable drawin 
+                                renderWithDrawable drawin
                                     (myDraw (fromIntegral w)(fromIntegral h))
                                 return (eventSent x))
-    
+
      onDestroy window mainQuit
      mainGUI
 

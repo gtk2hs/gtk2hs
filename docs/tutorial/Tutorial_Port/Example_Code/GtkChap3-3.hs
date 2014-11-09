@@ -17,7 +17,7 @@ main = do
    button3 <- buttonNewWithLabel "Quit"
    onClicked button3 mainQuit
    tableAttachDefaults table button3 0 2 1 2
-   onDestroy window mainQuit  
+   onDestroy window mainQuit
    widgetShowAll window
    mainGUI
 
@@ -27,6 +27,6 @@ buttonSwitch b = do
          let newtxt = case txt of
                               "Off" -> "On"
                               "On"  -> "Off"
-         buttonSetLabel b newtxt 
+         buttonSetLabel b newtxt
 
 

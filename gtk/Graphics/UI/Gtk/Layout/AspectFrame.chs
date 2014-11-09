@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.AspectFrame (
 -- * Detail
--- 
+--
 -- | The 'AspectFrame' is useful when you want pack a widget so that it can
 -- resize but always retains the same aspect ratio. For instance, one might be
 -- drawing a small preview of a larger image. 'AspectFrame' derives from
@@ -83,7 +83,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 -- The frame may be augmented with a label which can be set by @frameSetLabel@.
 --
-aspectFrameNew :: 
+aspectFrameNew ::
     Float          -- ^ @xalign@ - Horizontal alignment of the child within
                    -- the allocation of the 'AspectFrame'. This ranges from 0.0
                    -- (left aligned) to 1.0 (right aligned)

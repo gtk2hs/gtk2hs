@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.Box (
 -- * Detail
--- 
+--
 -- | 'Box' is an abstract widget which encapsulates functionality for a
 -- particular kind of container, one that organizes a variable number of
 -- widgets into a rectangular area. 'Box' currently has two derived classes,
@@ -167,12 +167,12 @@ boxPackStart self child packing padding =
     (fromIntegral padding)
   where (expand, fill) = fromPacking packing
 
--- | Adds the @child@ widget to the box, packed with reference to the end of 
+-- | Adds the @child@ widget to the box, packed with reference to the end of
 -- the box. The
 -- @child@ is packed after (away from end of) any other child packed with
 -- reference to the end of the box.
 --
--- Note that 
+-- Note that
 -- for 'boxPackEnd' the 'PackNatural' option will move a child to the right in
 -- an 'HBox' or to the bottom in an 'VBox' if there is more space availble.
 --
@@ -278,7 +278,7 @@ boxReorderChild self child position =
 
 -- | Returns information about how @child@ is packed into the box.
 --
--- Returns information on the behaviour if free space is available 
+-- Returns information on the behaviour if free space is available
 -- (in 'Packing'), the additional padding for this widget and if the widget
 -- was inserted at the start or end of the container ('PackType').
 --

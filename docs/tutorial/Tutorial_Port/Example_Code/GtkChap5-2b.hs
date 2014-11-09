@@ -9,7 +9,7 @@ main = do
      containerAdd window fchd
 
      onCurrentFolderChanged fchd $
-          do dir <- fileChooserGetCurrentFolder fchd   
+          do dir <- fileChooserGetCurrentFolder fchd
              case dir of
                   Nothing -> putStrLn "Nothing"
                   Just dpath -> putStrLn ("You selected:\n" ++ dpath)

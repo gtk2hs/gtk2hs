@@ -7,7 +7,7 @@ main= do
      window <- windowNew
      set window [windowTitle := "Notebook Example 2", windowDefaultWidth := 300,
                  windowDefaultHeight := 200 ]
-     
+
      ntbk <- notebookNew
      containerAdd window ntbk
      set ntbk [notebookScrollable := True, notebookEnablePopup := True,
@@ -29,10 +29,10 @@ tabName st = (drop 3) (conv st) where
                                 | otherwise = x: (conv (y:ys))
 
 myNewPage :: Notebook -> StockId -> IO Int
-myNewPage noteb stk = 
+myNewPage noteb stk =
           do img <- imageNewFromStock stk 4
              let nmstr = tabName stk
              men <- labelNew (Just ((take 1) nmstr))
              cont <- labelNew (Just ("stock" ++ nmstr))
              pagenum <- notebookAppendPageMenu noteb cont img men
-             return pagenum          
+             return pagenum

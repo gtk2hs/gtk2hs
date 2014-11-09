@@ -7,7 +7,7 @@ main = do
      set window [windowTitle := "Alphabet" , windowDefaultWidth := 350,
              windowDefaultHeight := 350 , containerBorderWidth := 10]
      sw <- scrolledWindowNew Nothing Nothing
-     set sw [scrolledWindowPlacement := CornerBottomRight, 
+     set sw [scrolledWindowPlacement := CornerBottomRight,
              scrolledWindowShadowType := ShadowEtchedIn,
              scrolledWindowHscrollbarPolicy := PolicyAutomatic,
              scrolledWindowVscrollbarPolicy := PolicyAutomatic ]
@@ -16,8 +16,8 @@ main = do
      layt <- layoutNew Nothing Nothing
      layoutSetSize layt myLayoutWidth myLayoutHeight
      widgetModifyBg layt StateNormal (Color 65535 65535 65535)
-     containerAdd sw layt     
- 
+     containerAdd sw layt
+
      upleft  <- labelNew (Just "‡(0,0)")
      layoutPut layt upleft 0 0
      upright <- labelNew (Just ("‡(" ++ (show (myLayoutWidth - 50)) ++",0)"))
@@ -27,12 +27,12 @@ main = do
      dwnleft <- labelNew (Just ("‡(" ++ (show(myLayoutWidth -70)) ++ "," ++
                                   (show (myLayoutHeight -20)) ++ ")"))
      layoutPut layt dwnleft (myLayoutWidth -70) (myLayoutHeight - 20)
-     
+
      labels <- sequence $ map (labelNew . Just) txtls
      sequence_ $ map (\x -> widgetModifyFg x StateNormal (Color 0 0 45000)) labels
-     
+
      let wnums = zip labels [0..]
-     sequence_ $ map (myLayoutPut layt) wnums     
+     sequence_ $ map (myLayoutPut layt) wnums
 
      widgetShowAll window
      onDestroy window mainQuit
@@ -65,7 +65,7 @@ angle :: Int -> Double
 angle num = 1.5 * pi + (fromIntegral num) * step
 
 num2x :: Int -> Int
-num2x n = ox + relx where 
+num2x n = ox + relx where
               relx = round $ radius * (cos (angle n))
 
 num2y :: Int -> Int
@@ -73,8 +73,8 @@ num2y n = oy + rely where
               rely = round $ radius * (sin (angle n))
 
 myLayoutPut :: Layout -> (Label, Int) -> IO ()
-myLayoutPut lt (lb, n) = do 
-         layoutPut lt lb (num2x n) (num2y n) 
+myLayoutPut lt (lb, n) = do
+         layoutPut lt lb (num2x n) (num2y n)
          labelSetAngle lb (letterAngle n)
 
 letterAngle :: Int -> Double

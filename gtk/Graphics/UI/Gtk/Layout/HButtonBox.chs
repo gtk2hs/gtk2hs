@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.HButtonBox (
 -- * Detail
--- 
+--
 -- | A button box should be used to provide a consistent layout of buttons
 -- throughout your application. The layout\/spacing can be altered by the
 -- programmer, or if desired, by the user to alter the \'feel\' of a program to

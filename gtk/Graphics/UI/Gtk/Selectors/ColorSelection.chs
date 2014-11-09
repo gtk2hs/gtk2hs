@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Selectors.ColorSelection (
 -- * Detail
--- 
+--
 -- | The 'ColorSelection' is a widget that is used to select a color. It
 -- consists of a color wheel and number of sliders and entry boxes for color
 -- parameters such as hue, saturation, value, red, green, blue, and opacity. It

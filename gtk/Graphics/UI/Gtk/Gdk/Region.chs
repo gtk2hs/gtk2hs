@@ -74,7 +74,7 @@ import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
 
 instance Show Region where
   show r = show (unsafePerformIO (regionGetRectangles r))
-  
+
 -- Construct a region from a pointer.
 --
 makeNewRegion :: Ptr Region -> IO Region
@@ -108,7 +108,7 @@ regionPolygon :: [Point] -> FillRule -> IO Region
 regionPolygon points rule =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> do
-    rPtr <- {#call unsafe region_polygon#} (castPtr aPtr) 
+    rPtr <- {#call unsafe region_polygon#} (castPtr aPtr)
 	    (fromIntegral (length points)) ((fromIntegral.fromEnum) rule)
     makeNewRegion rPtr
 
@@ -126,7 +126,7 @@ regionRectangle rect = with rect $ \rectPtr -> do
   regPtr <- {#call unsafe region_rectangle#} (castPtr rectPtr)
   makeNewRegion regPtr
 
--- | Smallest rectangle including the 
+-- | Smallest rectangle including the
 -- 'Region'.
 --
 regionGetClipbox :: Region -> IO Rectangle
@@ -140,8 +140,8 @@ regionGetClipbox r = alloca $ \rPtr -> do
 -- rectangles of the same height. No rectangles in a band touch.
 --
 regionGetRectangles :: Region -> IO [Rectangle]
-regionGetRectangles region = 
-  alloca $ \(rectPtrPtr :: Ptr (Ptr Rectangle)) -> 
+regionGetRectangles region =
+  alloca $ \(rectPtrPtr :: Ptr (Ptr Rectangle)) ->
   alloca $ \(iPtr :: Ptr {#type gint#}) -> do
     {#call unsafe region_get_rectangles#} region (castPtr rectPtrPtr) iPtr
     size <- peek iPtr
@@ -163,7 +163,7 @@ regionEqual r1 r2 = liftM toBool $ {#call unsafe region_equal#} r1 r2
 -- | Checks if a point it is within a region.
 --
 regionPointIn :: Region -> Point -> IO Bool
-regionPointIn r (x,y) = liftM toBool $ 
+regionPointIn r (x,y) = liftM toBool $
   {#call unsafe region_point_in#} r (fromIntegral x) (fromIntegral y)
 
 -- | Check if a rectangle is within a region.
@@ -175,7 +175,7 @@ regionRectIn reg rect = liftM (toEnum.fromIntegral) $ with rect $
 -- | Move a region.
 --
 regionOffset :: Region -> Int -> Int -> IO ()
-regionOffset r dx dy = 
+regionOffset r dx dy =
   {#call unsafe region_offset#} r (fromIntegral dx) (fromIntegral dy)
 
 -- | Move a region.
@@ -183,7 +183,7 @@ regionOffset r dx dy =
 -- * Positive values shrink the region, negative values expand it.
 --
 regionShrink :: Region -> Int -> Int -> IO ()
-regionShrink r dx dy = 
+regionShrink r dx dy =
   {#call unsafe region_shrink#} r (fromIntegral dx) (fromIntegral dy)
 
 -- | Updates the region to include the rectangle.

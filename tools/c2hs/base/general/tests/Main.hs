@@ -1,9 +1,9 @@
 module Main (main)
 where
 
-import FiniteMaps (FiniteMap, zeroFM, unitFM, listToFM, listToCombFM, joinFM, 
+import FiniteMaps (FiniteMap, zeroFM, unitFM, listToFM, listToCombFM, joinFM,
 		   joinCombFM, sizeFM, addToFM, addToCombFM, delFromFM, diffFM,
-		   intersectFM, intersectCombFM, mapFM, foldFM, filterFM, 
+		   intersectFM, intersectCombFM, mapFM, foldFM, filterFM,
 		   lookupFM, lookupDftFM, toListFM)
 
 
@@ -24,17 +24,17 @@ fibMap n  = listToFM [(i, fib i) | i <- [1..n]]
    data type):
 balDiff                    :: Ord k => FiniteMap k e -> [Int]
 balDiff Leaf                = []
-balDiff (Node _ _ _ sm gr)  = (abs (sizeFM sm - sizeFM gr) : balDiff sm) 
+balDiff (Node _ _ _ sm gr)  = (abs (sizeFM sm - sizeFM gr) : balDiff sm)
 			      ++ balDiff gr
 
 balRatio                    :: Ord k => FiniteMap k e -> [Int]
 balRatio Leaf                = []
 balRatio (Node _ _ _ sm gr) | sm_n == 0
-			      || gr_n == 0 = (0 : balRatio sm) 
+			      || gr_n == 0 = (0 : balRatio sm)
 					     ++ balRatio gr
-			    | sm_n > gr_n  = (sm_n `div` gr_n : balRatio sm) 
+			    | sm_n > gr_n  = (sm_n `div` gr_n : balRatio sm)
 					     ++ balRatio gr
-			    | otherwise    = (gr_n `div` sm_n : balRatio sm) 
+			    | otherwise    = (gr_n `div` sm_n : balRatio sm)
 					     ++ balRatio gr
 					     where
 					       sm_n = sizeFM sm

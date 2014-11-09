@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Embedding.Plug (
 -- * Detail
--- 
+--
 -- | Together with 'Socket', 'Plug' provides the ability to embed widgets from
 -- one process into another process in a fashion that is transparent to the
 -- user. One process creates a 'Socket' widget and, passes the ID of that
@@ -108,7 +108,7 @@ import Graphics.UI.Gtk.General.Structs
 -- then a 'NativeWindowId' can be extracted from this 'Plug' using 'plugGetId'
 -- and be passed to the application which is to be embedded.
 --
-plugNew :: 
+plugNew ::
   Maybe NativeWindowId -- ^ @socketId@ - the window ID of the socket, or
                        -- @Nothing@.
  -> IO Plug
@@ -180,7 +180,7 @@ plugGetSocketWindow self =
 -- | @True@ if the plug is embedded in a socket.
 --
 -- Default value: @False@
--- 
+--
 -- * Available since Gtk+ version 2.12
 --
 plugAttrEmbedded :: PlugClass self => ReadAttr self Bool
@@ -189,7 +189,7 @@ plugAttrEmbedded = readAttrFromBoolProperty "embedded"
 -- | The window of the socket the plug is embedded in.
 --
 -- * Available since Gtk+ version 2.14
--- 
+--
 plugAttrSocketWindow :: PlugClass self => ReadAttr self (Maybe DrawWindow)
 plugAttrSocketWindow = readAttrFromMaybeObjectProperty "socket-window"
 #if GTK_MAJOR_VERSION < 3

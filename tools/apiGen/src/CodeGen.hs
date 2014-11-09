@@ -169,16 +169,16 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
         classContext = case catMaybes classConstraints of
 	                 []  -> empty
 			 cs  -> tuple (map text cs) <+> text "=>"
-        
+
         (firstLineParams, multiLineParams) = span (isNothing.snd) (inParamTypes ++ [returnType])
-        
+
         firstLineParamsType :: Doc
         firstLineParamsType =
             hsep
           . intersperse (text "->")
           . map (text.fst)
           $ firstLineParams
-        
+
         multiLineParamsType :: Doc
         multiLineParamsType =
             vcat
@@ -215,10 +215,10 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
                          | attribute_writeable attr = "write"
-        getterType | attribute_readable attr  = Just propertyType 
+        getterType | attribute_readable attr  = Just propertyType
                    | otherwise                = Nothing
         (setterType, classConstraint)
-                   | attribute_writeable attr 
+                   | attribute_writeable attr
                   && gvalueKind == "Object"
                   && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
@@ -248,10 +248,10 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
                          | attribute_writeable attr = "write"
-        getterType | attribute_readable attr  = Just propertyType 
+        getterType | attribute_readable attr  = Just propertyType
                    | otherwise                = Nothing
         (setterType, classConstraint)
-                   | attribute_writeable attr 
+                   | attribute_writeable attr
                   && gvalueKind == "Object"
                   && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
@@ -325,7 +325,7 @@ mergeParamDocs doc docs =
     [] -> Nothing
     [doc'] -> Just doc'
     docs' -> let (varNames, paramDocs) =
-                   unzip [ case doc' of 
+                   unzip [ case doc' of
                             (SpanMonospace [SpanText varName] : _)
                                -> (cParamNameToHsName varName, doc')
                             _  -> ("_", doc')
@@ -354,7 +354,7 @@ genModuleBody knownTypes module_ =
  $+$ imports
  $+$ (if module_needs_c2hs module_ then context else empty)
  $+$ decls
-  
+
   where summary = HaddockDocs.formatParasFragment (module_summary module_)
 
         moduleName | isEmpty prefix = name
@@ -429,7 +429,7 @@ genDecls knownSymbols module_ =
            in header : entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
-        
+
 
 genAtter :: Decl -> String
          -> Maybe String -> Maybe String -> Maybe String -> Bool
@@ -442,7 +442,7 @@ genAtter Decl { decl_module = module_ }
   where objectType = text (module_name module_)
         objectParamType | leafClass (module_cname module_) = objectType
                         | otherwise                        = text "self"
-        classContext = case (leafClass (module_cname module_), classConstraint) of 
+        classContext = case (leafClass (module_cname module_), classConstraint) of
                          (True,  Nothing)              -> empty
                          (False, Nothing)              ->
                            objectType <> text "Class self =>"
@@ -459,7 +459,7 @@ genAtter Decl { decl_module = module_ }
               | gt == st              -> (text "Attr",          text "newAttr", text gt)
               | length (words st) > 1 -> (text "ReadWriteAttr", text "newAttr", text gt <+> parens (text st))
               | otherwise             -> (text "ReadWriteAttr", text "newAttr", text gt <+> text st)
-	    _ -> error $ "no getter or setter for " ++ module_name module_ ++ " :: " ++ propertyName 
+	    _ -> error $ "no getter or setter for " ++ module_name module_ ++ " :: " ++ propertyName
         child | isChild   = text "child" <+> text "->"
               | otherwise = empty
         body  = case attrImpl of
@@ -544,7 +544,7 @@ genExports module_ =
      [ (text name, (since, False))
      | decl@Decl { decl_since = since,
                    decl_deprecated = False,
-                   decl_name = name 
+                   decl_name = name
        } <- module_decls module_
        , isAttr decl ]
   ++ sectionHeader True "Child Attributes"
@@ -580,7 +580,7 @@ genExports module_ =
         exports = sortBy (comparing decl_index_export) (module_decls module_)
 
 genImports :: Module -> Doc
-genImports module_ = 
+genImports module_ =
   (case [ text importLine
         | (_, importLine) <- stdModules ] of
      []   -> empty
@@ -598,7 +598,7 @@ genImports module_ =
         knownStdModules = ["Maybe", "Monad", "Char", "List", "Data.IORef"]
 
 genTodoItems :: Module -> Doc
-genTodoItems Module { module_todos = varargsFunctions } 
+genTodoItems Module { module_todos = varargsFunctions }
   | null varargsFunctions = empty
   | otherwise =
        comment <+> text "TODO: the following varargs functions were not bound"
@@ -626,7 +626,7 @@ doVersionIfDefs sep =
           | deprecated > prevDeprecated = BeginDeprecatedChunk  : makeChunks sinceStack deprecated whole
           | since > sinceContext        = BeginSinceChunk since : makeChunks (since:sinceStack) prevDeprecated whole
           | otherwise                   = SimpleChunk group     : makeChunks sinceStack prevDeprecated rest
-        
+
         layoutChunks :: Bool -> Doc -> [Chunk] -> [Doc]
         layoutChunks _     doc  []                             = doc : []
         layoutChunks _     doc (EndChunk              :chunks) =       layoutChunks False (doc $$ endif) chunks
@@ -634,7 +634,7 @@ doVersionIfDefs sep =
         layoutChunks True  doc (SimpleChunk group     :chunks) =       layoutChunks False (doc $$ sep group) chunks
         layoutChunks _     doc (BeginDeprecatedChunk  :chunks) = doc : layoutChunks True ifndefDeprecated chunks
         layoutChunks _     doc (BeginSinceChunk since :chunks) = doc : layoutChunks True (ifSinceVersion since) chunks
-        
+
         ifSinceVersion (Just Version { versionBranch = [major,minor] }) =
           text "#if GTK_CHECK_VERSION(" <> int major <> comma <> int minor <> text ",0)"
         ifndefDeprecated = text "#ifndef DISABLE_DEPRECATED"

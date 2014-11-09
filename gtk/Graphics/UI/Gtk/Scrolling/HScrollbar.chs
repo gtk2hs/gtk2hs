@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Scrolling.HScrollbar (
 -- * Detail
--- 
+--
 -- | The 'HScrollbar' widget is a widget arranged horizontally creating a
 -- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
 -- may be added to handle the adjustment of the scrollbar using
@@ -71,7 +71,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new horizontal scrollbar.
 --
-hScrollbarNew :: 
+hScrollbarNew ::
     Adjustment    -- ^ @adjustment@ - the 'Adjustment' to use.
  -> IO HScrollbar
 hScrollbarNew adjustment =

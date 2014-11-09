@@ -141,14 +141,14 @@ import Unsafe.Coerce
 -- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
-    
-instance Storable Point where           
+
+instance Storable Point where
   sizeOf _ = #{const sizeof(GdkPoint)}
   alignment _ = alignment (undefined:: #gtk2hs_type gint)
   peek ptr = do
     (x_	     ::#gtk2hs_type gint)	<- #{peek GdkPoint, x} ptr
     (y_	     ::#gtk2hs_type gint)	<- #{peek GdkPoint, y} ptr
-    return $ (fromIntegral x_, fromIntegral y_) 
+    return $ (fromIntegral x_, fromIntegral y_)
   poke ptr (x, y) = do
     #{poke GdkPoint, x} ptr ((fromIntegral x)::#gtk2hs_type gint)
     #{poke GdkPoint, y} ptr ((fromIntegral y)::#gtk2hs_type gint)
@@ -161,7 +161,7 @@ instance Storable Rectangle where
     (y_	     ::#gtk2hs_type gint)	<- #{peek GdkRectangle, y} ptr
     (width_  ::#gtk2hs_type gint)	<- #{peek GdkRectangle, width} ptr
     (height_ ::#gtk2hs_type gint)	<- #{peek GdkRectangle, height} ptr
-    return $ Rectangle (fromIntegral x_) (fromIntegral y_) 
+    return $ Rectangle (fromIntegral x_) (fromIntegral y_)
 		       (fromIntegral width_) (fromIntegral height_)
   poke ptr (Rectangle x y width height) = do
     #{poke GdkRectangle, x} ptr ((fromIntegral x)::#gtk2hs_type gint)
@@ -240,7 +240,7 @@ instance Storable GCValues where
         backgroundPtr = #{ptr GdkGCValues, background} ptr
     (foregroundPixelPtr :: CULong) <- #{peek GdkColor, pixel} foregroundPtr
     (backgroundPixelPtr :: CULong) <- #{peek GdkColor, pixel} backgroundPtr
-    colormapPtr <- gdkColormapGetSystem    
+    colormapPtr <- gdkColormapGetSystem
     gdkColormapQueryColor colormapPtr foregroundPixelPtr foregroundPtr
     gdkColormapQueryColor colormapPtr backgroundPixelPtr backgroundPtr
 
@@ -260,25 +260,25 @@ instance Storable GCValues where
 		     pPtr <- #{peek GdkGCValues, clip_mask} ptr
 		     if (pPtr==nullPtr) then return Nothing else
 		       liftM Just $ makeNewGObject mkPixmap $ return pPtr
-    (subwindow_	:: #{gtk2hs_type GdkSubwindowMode}) 
+    (subwindow_	:: #{gtk2hs_type GdkSubwindowMode})
 		<- #{peek GdkGCValues, subwindow_mode} ptr
-    (tsXOrigin_	:: #{gtk2hs_type gint}) 
+    (tsXOrigin_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, ts_x_origin} ptr
-    (tsYOrigin_	:: #{gtk2hs_type gint}) 
+    (tsYOrigin_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, ts_y_origin} ptr
-    (clipXOrigin_:: #{gtk2hs_type gint}) 
+    (clipXOrigin_:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, clip_x_origin} ptr
-    (clipYOrigin_:: #{gtk2hs_type gint}) 
+    (clipYOrigin_:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, clip_y_origin} ptr
     (graphics_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, graphics_exposures} ptr
     (lineWidth_	:: #{gtk2hs_type gint})
 		<- #{peek GdkGCValues, line_width} ptr
-    (lineStyle_	:: #{gtk2hs_type GdkLineStyle}) 
+    (lineStyle_	:: #{gtk2hs_type GdkLineStyle})
 		<- #{peek GdkGCValues, line_style} ptr
-    (capStyle_	:: #{gtk2hs_type GdkCapStyle}) 
+    (capStyle_	:: #{gtk2hs_type GdkCapStyle})
 		<- #{peek GdkGCValues, cap_style} ptr
-    (joinStyle_	:: #{gtk2hs_type GdkJoinStyle}) 
+    (joinStyle_	:: #{gtk2hs_type GdkJoinStyle})
 		<- #{peek GdkGCValues, join_style} ptr
     return $ GCValues {
       foreground = foreground_,
@@ -321,17 +321,17 @@ pokeGCValues ptr (GCValues {
     joinStyle  = joinStyle_
   }) = do
     r <- newIORef 0
-    add r #{const GDK_GC_FOREGROUND } $ 
+    add r #{const GDK_GC_FOREGROUND } $
       poke (#{ptr GdkGCValues, foreground} ptr) foreground_
-    add r #{const GDK_GC_BACKGROUND } $ 
+    add r #{const GDK_GC_BACKGROUND } $
       poke (#{ptr GdkGCValues, background} ptr) background_
-    add r #{const GDK_GC_FUNCTION } $ 
-      #{poke GdkGCValues, function} ptr 
+    add r #{const GDK_GC_FUNCTION } $
+      #{poke GdkGCValues, function} ptr
       (fromIntegral (fromEnum function_):: #{gtk2hs_type GdkFunction})
     add r #{const GDK_GC_FILL } $
-      #{poke GdkGCValues, fill} ptr 
+      #{poke GdkGCValues, fill} ptr
       (fromIntegral (fromEnum fill_):: #{gtk2hs_type GdkFill})
-    case tile_ of 
+    case tile_ of
       Nothing -> return ()
       Just tile_ -> add r #{const GDK_GC_TILE} $
                     withForeignPtr (unPixmap tile_) $
@@ -355,7 +355,7 @@ pokeGCValues ptr (GCValues {
     add r #{const GDK_GC_TS_Y_ORIGIN } $
       #{poke GdkGCValues, ts_y_origin } ptr
       (fromIntegral tsYOrigin_:: #{gtk2hs_type gint})
-    add r #{const GDK_GC_CLIP_X_ORIGIN } $ 
+    add r #{const GDK_GC_CLIP_X_ORIGIN } $
       #{poke GdkGCValues, clip_x_origin } ptr
       (fromIntegral clipXOrigin_:: #{gtk2hs_type gint})
     add r #{const GDK_GC_CLIP_Y_ORIGIN } $
@@ -370,10 +370,10 @@ pokeGCValues ptr (GCValues {
     add r #{const GDK_GC_LINE_STYLE } $
       #{poke GdkGCValues, line_style } ptr
       (fromIntegral (fromEnum lineStyle_):: #{gtk2hs_type GdkLineStyle})
-    add r #{const GDK_GC_CAP_STYLE } $ 
+    add r #{const GDK_GC_CAP_STYLE } $
       #{poke GdkGCValues, cap_style } ptr
       (fromIntegral (fromEnum capStyle_):: #{gtk2hs_type GdkCapStyle})
-    add r #{const GDK_GC_JOIN_STYLE } $ 
+    add r #{const GDK_GC_JOIN_STYLE } $
       #{poke GdkGCValues, join_style } ptr
       (fromIntegral (fromEnum joinStyle_):: #{gtk2hs_type GdkJoinStyle})
     readIORef r
@@ -503,7 +503,7 @@ dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
 --
 dialogGetActionArea :: DialogClass dc => dc -> IO HBox
 dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
-  withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area} 
+  withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area}
 #endif
 
 -- | Some constructors that can be used as response
@@ -635,15 +635,15 @@ nativeWindowIdNone = NativeWindowId 0
 
 #if GTK_MAJOR_VERSION < 3
 #if defined(WIN32)
-foreign import ccall unsafe "gdk_win32_drawable_get_handle" 
+foreign import ccall unsafe "gdk_win32_drawable_get_handle"
   gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
 #elif !defined(HAVE_QUARTZ_GTK)
-foreign import ccall unsafe "gdk_x11_drawable_get_xid" 
+foreign import ccall unsafe "gdk_x11_drawable_get_xid"
   gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
 #endif
 #else
 #if !defined(HAVE_QUARTZ_GTK) && !defined(WIN32)
-foreign import ccall unsafe "gdk_x11_window_get_xid" 
+foreign import ccall unsafe "gdk_x11_window_get_xid"
   gdk_x11_drawable_get_xid :: (Ptr DrawWindow) -> IO CInt
 #endif
 #endif
@@ -726,7 +726,7 @@ data IconSize
 
   -- | Icon size for icons next to dialog text.
   | IconSizeDialog
-  
+
   | IconSizeUser Int
   deriving (Eq)
 
@@ -740,14 +740,14 @@ instance Enum IconSize where
   toEnum #{const GTK_ICON_SIZE_DIALOG} = IconSizeDialog
   toEnum n = IconSizeUser n
   fromEnum IconSizeInvalid = #{const GTK_ICON_SIZE_INVALID}
-  fromEnum IconSizeMenu = #{const GTK_ICON_SIZE_MENU}   
+  fromEnum IconSizeMenu = #{const GTK_ICON_SIZE_MENU}
   fromEnum IconSizeSmallToolbar = #{const GTK_ICON_SIZE_SMALL_TOOLBAR}
   fromEnum IconSizeLargeToolbar = #{const GTK_ICON_SIZE_LARGE_TOOLBAR}
   fromEnum IconSizeButton = #{const GTK_ICON_SIZE_BUTTON}
   fromEnum IconSizeDnd = #{const GTK_ICON_SIZE_DND}
   fromEnum IconSizeDialog = #{const GTK_ICON_SIZE_DIALOG}
   fromEnum (IconSizeUser n) = n
-  
+
 -- entry Widget Combo
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
@@ -764,7 +764,7 @@ comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
 #if GTK_MAJOR_VERSION < 3
 -- | Extract the buttons of a fileselection.
 --
-fileSelectionGetButtons :: FileSelectionClass fsel => fsel -> 
+fileSelectionGetButtons :: FileSelectionClass fsel => fsel ->
 			   IO (Button, Button)
 fileSelectionGetButtons fsel =
     do
@@ -804,7 +804,7 @@ widgetGetDrawWindow da =
 -- Removed in Gtk3.
 widgetGetSize :: WidgetClass widget => widget -> IO (Int, Int)
 widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
-    (width :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, width} 
+    (width :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, width}
 			       (#{ptr GtkWidget, allocation} wPtr)
     (height :: #{gtk2hs_type gint}) <- #{peek GtkAllocation, height}
 				(#{ptr GtkWidget, allocation} wPtr)
@@ -1085,20 +1085,20 @@ instance Storable TargetEntry where
 -- | A 'KeymapKey' is a hardware key that can be mapped to a keyval.
 data KeymapKey = KeymapKey {
        keycode   :: Int -- ^ @keycode@ the hardware keycode. This is an identifying number for a physical key.
-      ,group     :: Int -- ^ @group@ indicates movement in a horizontal direction. 
-                      -- Usually groups are used for two different languages. 
-                      -- In group  0, a key might have two English characters, 
-                      -- and in group 1 it might have two Hebrew characters. 
-                      -- The Hebrew characters will be printed on the key next to the English characters. 
-                      -- indicates which symbol on the key will be used, 
-                      -- in a vertical direction. So on a standard US keyboard, the                         
-      ,level     :: Int -- ^ @level@ key with the number "1" on it also has the exclamation 
+      ,group     :: Int -- ^ @group@ indicates movement in a horizontal direction.
+                      -- Usually groups are used for two different languages.
+                      -- In group  0, a key might have two English characters,
+                      -- and in group 1 it might have two Hebrew characters.
+                      -- The Hebrew characters will be printed on the key next to the English characters.
+                      -- indicates which symbol on the key will be used,
+                      -- in a vertical direction. So on a standard US keyboard, the
+      ,level     :: Int -- ^ @level@ key with the number "1" on it also has the exclamation
                       -- point ("!") character on it. The level
                       -- indicates whether to use the "1" or the "!" symbol. The letter keys are considered to
                       -- have a lowercase letter at level 0, and an uppercase letter at level 1, though only
                       -- the uppercase letter is printed.
-    } deriving (Eq, Show) 
-               
+    } deriving (Eq, Show)
+
 instance Storable KeymapKey where
   sizeOf _ = #{const sizeof(GdkKeymapKey)}
   alignment _ = alignment (undefined::#gtk2hs_type gint)
@@ -1111,5 +1111,5 @@ instance Storable KeymapKey where
     #{poke GdkKeymapKey, keycode} ptr ((fromIntegral keycode)::#gtk2hs_type guint)
     #{poke GdkKeymapKey, group} ptr ((fromIntegral group)::#gtk2hs_type gint)
     #{poke GdkKeymapKey, level} ptr ((fromIntegral level)::#gtk2hs_type gint)
-               
-               
+
+

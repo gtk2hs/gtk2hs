@@ -96,7 +96,7 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 
 -- | Creates a new 'Viewport' with the given adjustments.
 --
-viewportNew :: 
+viewportNew ::
     Adjustment  -- ^ @hadjustment@ - horizontal adjustment.
  -> Adjustment  -- ^ @vadjustment@ - vertical adjustment.
  -> IO Viewport

@@ -70,7 +70,7 @@ mergeBy :: (a -> b -> Ordering) -> [a] -> [b] -> ([a], [(a, b)], [b])
 mergeBy cmp = merge [] [] []
   where merge l m r []     ys     = (reverse l, reverse m, reverse (ys++r))
         merge l m r xs     []     = (reverse (xs++l), reverse m, reverse r)
-        merge l m r (x:xs) (y:ys) = 
+        merge l m r (x:xs) (y:ys) =
           case x `cmp` y of
             GT -> merge    l         m  (y:r) (x:xs)    ys
             EQ -> merge    l  ((x,y):m)    r     xs     ys
@@ -130,7 +130,7 @@ splitTerms :: [String] -> [[String]]
 splitTerms xs@(x:_) | isLeft x = left : splitTerms (drop (length left) xs)
     where
         left = readBrack 0 xs
-        
+
         readBrack 1 (x:xs) | isRight x = [x]
         readBrack n (x:xs) | isRight x = x : readBrack (n-1) xs
                            | isLeft  x = x : readBrack (n+1) xs
@@ -138,8 +138,8 @@ splitTerms xs@(x:_) | isLeft x = left : splitTerms (drop (length left) xs)
 
 splitTerms (x:xs) = [x] : splitTerms xs
 splitTerms [] = []
-        
-        
+
+
 
 splitOn :: Eq a => a -> [a] -> [[a]]
 splitOn x [] = []
@@ -187,7 +187,7 @@ lexRaw ('{':'-':x) = f x
         f ('-':'}':x) = lexRaw x
         f (x:xs) = f xs
         f [] = []
-        
+
 lexRaw ('[':']':xs) = "[]" : lexRaw xs
 lexRaw ('(':')':xs) = "()" : lexRaw xs
 
@@ -201,7 +201,7 @@ lexRaw (x:xs) | x `elem` ",;()[]{}`" = [x] : lexRaw xs
     where
         isIdFirst c = isAlpha c || c == '_'
         isIdAny c = isAlphaNum c || c `elem` "_'#"
-        
+
         continue f = a : lexRaw b
             where (a, b) = span f (x:xs)
 
@@ -219,7 +219,7 @@ lex (c:s) | isSingle c  = [([c],s)]
         where
         isSingle c  =  c `elem` ",;()[]{}`"
         isSym c     =  c `elem` "!@#$%&*+./<=>?\\^|:-~"
-        isIdInit c  =  
+        isIdInit c  =
         isIdChar c  =  isAlphaNum c || c `elem` "_'"
 
         lexFracExp ('.':c:s) | isDigit c
@@ -231,7 +231,7 @@ lex (c:s) | isSingle c  = [([c],s)]
              = [(e:c:ds,u) | (c:t)  <- [s], c `elem` "+-",
                            (ds,u) <- lexDigits t] ++
                [(e:ds,t)   | (ds,t) <- lexDigits s]
-        lexExp s = [("",s)] 
+        lexExp s = [("",s)]
 
 
 

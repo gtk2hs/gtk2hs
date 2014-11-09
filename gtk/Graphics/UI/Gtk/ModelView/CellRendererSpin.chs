@@ -99,7 +99,7 @@ cellRendererSpinNew =
 --------------------
 -- Attributes
 
--- | The adjustment that holds the value of the spinbutton. 
+-- | The adjustment that holds the value of the spinbutton.
 --
 -- * Available since Gtk+ version 2.10
 --
@@ -108,9 +108,9 @@ cellRendererSpinAdjustment = newAttrFromObjectProperty "adjustment"
                                {# call pure unsafe gtk_adjustment_get_type #}
 
 -- | The acceleration rate when you hold down a button.
--- 
+--
 -- Allowed values: >= 0
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.10
@@ -119,9 +119,9 @@ cellRendererSpinClimbRate :: CellRendererSpinClass self => Attr self Double
 cellRendererSpinClimbRate = newAttrFromDoubleProperty "climb-rate"
 
 -- | The number of decimal places to display.
--- 
+--
 -- Allowed values: <= 20
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.10

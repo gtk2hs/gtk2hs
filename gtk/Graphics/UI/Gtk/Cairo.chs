@@ -25,7 +25,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 
+--
 -- Gtk specific functions to for redering with Cairo.
 --
 -- Cairo is a graphics library that supports vector graphics and image

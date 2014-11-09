@@ -331,10 +331,10 @@ rangeGetUpperStepperSensitivity self =
 #endif
 #if GTK_CHECK_VERSION(2,20,0)
 -- | This function is useful mainly for 'Range' subclasses.
--- 
+--
 -- See 'rangeSetMinSliderSize'.
 rangeGetMinSliderSize :: RangeClass self => self
-                      -> IO Int  -- ^ returns The minimum size of the range's slider. 
+                      -> IO Int  -- ^ returns The minimum size of the range's slider.
 rangeGetMinSliderSize range =
   liftM fromIntegral $
   {#call gtk_range_get_min_slider_size #}
@@ -342,7 +342,7 @@ rangeGetMinSliderSize range =
 
 -- | This function returns the area that contains the range's trough and its steppers, in 'DrawWindow'
 -- coordinates.
--- 
+--
 -- This function is useful mainly for 'Range' subclasses.
 rangeGetRangeRect :: RangeClass self => self
                   -> IO Rectangle
@@ -354,12 +354,12 @@ rangeGetRangeRect self =
   peek rPtr
 
 -- | This function returns sliders range along the long dimension, in 'DrawWindow' coordinates.
--- 
+--
 -- This function is useful mainly for 'Range' subclasses.
 rangeGetSliderRange :: RangeClass self => self
                     -> IO (Maybe (Int, Int))
 rangeGetSliderRange range =
-    alloca $ \ startPtr -> 
+    alloca $ \ startPtr ->
     alloca $ \ endPtr -> do
       {#call gtk_range_get_slider_range #}
         (toRange range)
@@ -373,17 +373,17 @@ rangeGetSliderRange range =
          else return Nothing
 
 -- | This function is useful mainly for 'Range' subclasses.
--- 
+--
 -- See 'rangeSetSliderSizeFixed'.
 rangeGetSliderSizeFixed :: RangeClass self => self
-                        -> IO Bool  -- ^ returns whether the range's slider has a fixed size. 
-rangeGetSliderSizeFixed self =   
+                        -> IO Bool  -- ^ returns whether the range's slider has a fixed size.
+rangeGetSliderSizeFixed self =
   liftM toBool $
   {#call gtk_range_get_slider_size_fixed #}
     (toRange self)
 
 -- | Sets the minimum size of the range's slider.
--- 
+--
 -- This function is useful mainly for 'Range' subclasses.
 rangeSetMinSliderSize :: RangeClass self => self
                       -> Bool
@@ -395,10 +395,10 @@ rangeSetMinSliderSize self minSize =
 
 -- | Sets whether the range's slider has a fixed size, or a size that depends on it's adjustment's page
 -- size.
--- 
+--
 -- This function is useful mainly for 'Range' subclasses.
 rangeSetSliderSizeFixed :: RangeClass self => self
-                        -> Bool -- ^ @sizeFixed@ 'True' to make the slider size constant 
+                        -> Bool -- ^ @sizeFixed@ 'True' to make the slider size constant
                         -> IO ()
 rangeSetSliderSizeFixed self sizeFixed =
   {#call gtk_range_set_slider_size_fixed #}
@@ -413,7 +413,7 @@ rangeSetSliderSizeFixed self sizeFixed =
 -- | How the range should be updated on the screen.
 --
 -- Default value: 'UpdateContinuous'
--- 
+--
 -- Removed in Gtk3.
 rangeUpdatePolicy :: RangeClass self => Attr self UpdateType
 rangeUpdatePolicy = newAttr
@@ -530,9 +530,9 @@ changeValue = Signal (connect_ENUM_DOUBLE__BOOL "change-value")
 --   the event itself and return 'True' to prevent further
 --   processing. Or, by returning 'False', it can pass the event to
 --   other handlers until the default GTK+ handler is reached.
---   
+--
 --   * Since Gtk 2.6
---   
+--
 onRangeChangeValue, afterRangeChangeValue :: RangeClass self => self
  -> (ScrollType -> Double -> IO Bool)
  -> IO (ConnectId self)

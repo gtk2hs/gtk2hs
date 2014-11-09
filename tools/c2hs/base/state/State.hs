@@ -23,7 +23,7 @@
 --  used by all modules that are not directly involved in implementing the
 --  state base. It provides a state transformer that is capable of doing I/O
 --  and provides facilities such as error handling and compiler switch
---  management. 
+--  management.
 --
 --- DOCU ----------------------------------------------------------------------
 --
@@ -42,7 +42,7 @@ module State (-- the PreCST monad
 	      PreCST,					   -- reexport ABSTRACT
 	      nop, yield, (+>=), (+>), fixCST,             -- reexport
 	      throwExc, fatal, catchExc, fatalsHandledBy,  -- reexport lifted
-	      readCST, writeCST, transCST, run, runCST, 
+	      readCST, writeCST, transCST, run, runCST,
 	      StateTrans.MVar, 				   -- reexport
 	      newMV, readMV, assignMV,			   -- reexport lifted
 	      --
@@ -81,7 +81,7 @@ import UNames      (NameSupply,
 import StateTrans  (STB,
 		    readBase, transBase, runSTB)
 import qualified
-       StateTrans  (interleave, throwExc, fatal, catchExc, fatalsHandledBy, 
+       StateTrans  (interleave, throwExc, fatal, catchExc, fatalsHandledBy,
 		    MVar, newMV, readMV, assignMV)
 import StateBase   (PreCST(..), ErrorState(..), BaseState(..),
 		    nop, yield, (+>=), (+>), fixCST,
@@ -94,7 +94,7 @@ import Errors      (ErrorLvl(..), Error, makeError, errorLvl, showError)
 -- state used in the whole compiler
 -- --------------------------------
 
--- initialization 
+-- initialization
 --
 -- * it gets the version information and the initial extra state as arguments
 --
@@ -102,7 +102,7 @@ initialBaseState        :: (String, String, String) -> e -> BaseState e
 initialBaseState vcd es  = BaseState {
 		             idTKBS     = (version, copyright, disclaimer),
 			     idBS       = vcd,
-			     errorsBS   = initialErrorState, 
+			     errorsBS   = initialErrorState,
 			     suppliesBS = splitSupply rootSupply,
 			     extraBS    = es
 			}
@@ -131,7 +131,7 @@ run vcd es cst  = runSTB m (initialBaseState vcd es) ()
 --
 -- the generic state of the enclosing PreCST is preserved while the
 -- computation of the PreCST passed as an argument is interleaved in the
--- execution of the enclosing one 
+-- execution of the enclosing one
 --
 runCST     :: PreCST e s a -> s -> PreCST e s' a
 runCST m s  = CST $ StateTrans.interleave (unpackCST m) s
@@ -161,8 +161,8 @@ fatal  = CST . StateTrans.fatal
 --   semantics is the only reasonable when it should be possible to use
 --   updating for maintaining the state)
 --
-catchExc     :: PreCST e s a 
-	     -> (String, String -> PreCST e s a) 
+catchExc     :: PreCST e s a
+	     -> (String, String -> PreCST e s a)
 	     -> PreCST e s a
 catchExc m (s, h)  = CST $ StateTrans.catchExc (unpackCST m) (s, unpackCST . h)
 
@@ -203,7 +203,7 @@ assignMV m a  = CST $ StateTrans.assignMV m a
 -- read identification information (EXPORT)
 --
 getId :: PreCST e s (String, String, String)
-getId  = CST $ 
+getId  = CST $
          readBase (idBS)
 
 
@@ -268,7 +268,7 @@ raise0 err  = do
 	        noOfErrs <- CST $ transBase doRaise
 		when (noOfErrs >= errorLimit) $ do
 		  errmsgs <- showErrors
-		  fatal ("Error limit of " ++ show errorLimit 
+		  fatal ("Error limit of " ++ show errorLimit
 			 ++ " errors has been reached.\n" ++ errmsgs)
   where
     doRaise    :: BaseState e -> (BaseState e, Int)
@@ -284,7 +284,7 @@ raise0 err  = do
 
 -- yield a string containing the collected error messages (EXPORTED)
 --
---  * the error state is reset in this process 
+--  * the error state is reset in this process
 --
 showErrors :: PreCST e s String
 showErrors  = CST $ do
@@ -292,7 +292,7 @@ showErrors  = CST $ do
 		return $ foldr (.) id (map showString (errsToStrs errs)) ""
 	      where
 		extractErrs    :: BaseState e -> (BaseState e, ErrorState)
-		extractErrs bs  = (bs {errorsBS = initialErrorState}, 
+		extractErrs bs  = (bs {errorsBS = initialErrorState},
 				   errorsBS bs)
 
 		errsToStrs      :: [Error] -> [String]
@@ -302,7 +302,7 @@ showErrors  = CST $ do
 -- (EXPORTED)
 --
 errorsPresent :: PreCST e s Bool
-errorsPresent  = CST $ do 
+errorsPresent  = CST $ do
 		   ErrorState wlvl no _ <- readBase errorsBS
 		   return $ wlvl >= ErrorErr
 
@@ -311,7 +311,7 @@ errorsPresent  = CST $ do
 -- ----------------------------
 
 -- apply a reader function to the extra state and yield the reader's result
--- (EXPORTED) 
+-- (EXPORTED)
 --
 readExtra    :: (e -> a) -> PreCST e s a
 readExtra rf  = CST $ readBase (\bs ->
@@ -324,7 +324,7 @@ updExtra    :: (e -> e) -> PreCST e s ()
 updExtra uf  = CST $ transBase (\bs ->
 		       let
 			 es = extraBS bs
-		       in 
+		       in
 		       (bs {extraBS = uf es}, ())
 		     )
 
@@ -338,6 +338,6 @@ getNameSupply :: PreCST e s NameSupply
 getNameSupply  = CST $ transBase (\bs ->
 		         let
 			   supply : supplies = suppliesBS bs
-			 in 
+			 in
 			 (bs {suppliesBS = supplies}, supply)
 		       )

@@ -37,7 +37,7 @@ import Graphics.UI.Gtk.Types
 
 #if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0)) && GTK_MAJOR_VERSION < 3
 -- | Test if a Plug is connected to the socket.
--- 
+--
 socketHasPlug :: SocketClass s => s -> IO Bool
 socketHasPlug socket = do
   plugPtr <- withForeignPtr (unSocket (toSocket socket))

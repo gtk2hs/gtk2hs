@@ -24,7 +24,7 @@
 --    The object system in the second version of GTK is based on GObject from
 --    GLIB. This base class is rather primitive in that it only implements
 --    ref and unref methods (and others that are not interesting to us). If
---    the marshall list mentions OBJECT it refers to an instance of this 
+--    the marshall list mentions OBJECT it refers to an instance of this
 --    GObject which is automatically wrapped with a ref and unref call.
 --    Structures which are not derived from GObject have to be passed as
 --    BOXED which gives the signal connect function a possiblity to do the
@@ -133,7 +133,7 @@ signalBlock :: GObjectClass obj => ConnectId obj -> IO ()
 signalBlock (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
   {# call g_signal_handler_block #} (castPtr objPtr) handler
-  
+
 -- | Unblock a specific signal handler.
 --
 -- * Undoes the effect of a previous 'signalBlock' call. A blocked handler
@@ -181,8 +181,8 @@ connectGeneric :: GObjectClass obj =>
 connectGeneric signal after obj user = do
   sptr <- newStablePtr user
   gclosurePtr <- gtk2hs_closure_new sptr
-  sigId <- 
-    withCString signal $ \signalPtr -> 
+  sigId <-
+    withCString signal $ \signalPtr ->
     withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
     {# call g_signal_connect_closure #}
       (castPtr objPtr)

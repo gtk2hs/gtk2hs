@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.Layout (
 -- * Detail
--- 
+--
 -- | 'Layout' is similar to 'DrawingArea' in that it's a \"blank slate\" and
 -- doesn't do anything but paint a blank background by default. It's different
 -- in that it supports scrolling natively (you can add it to a
@@ -100,7 +100,7 @@ import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 -- the layout to use for scrolling, pass @Nothing@ for @hadjustment@ and
 -- @vadjustment@.
 --
-layoutNew :: 
+layoutNew ::
     Maybe Adjustment -- ^ @hadjustment@ - horizontal scroll adjustment, or
                      -- @Nothing@
  -> Maybe Adjustment -- ^ @vadjustment@ - vertical scroll adjustment, or

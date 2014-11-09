@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Layout.Overlay (
 -- * Detail
--- 
+--
 -- | The Overlay widget is a Bin widget where widgets can be added as overlay of the bin widget.
 
 -- * Class Hierarchy

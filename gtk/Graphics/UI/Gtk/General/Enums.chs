@@ -95,7 +95,7 @@ module Graphics.UI.Gtk.General.Enums (
 #endif
   WindowPosition(..),
   WindowType(..),
-  WrapMode(..), 
+  WrapMode(..),
 #if GTK_CHECK_VERSION(2,16,0)
   EntryIconPosition(..),
 #endif
@@ -264,7 +264,7 @@ instance Flags DestDefaults
 -- * The 'Packing' parameter determines how the child behaves in the horizontal
 --   or vertical way in an 'Graphics.UI.Gtk.Layout.HBox' or
 --   'Graphics.UI.Gtk.Layout.VBox', respectively. 'PackNatural'
---   means the child is as big as it requests. It will stay at the start or 
+--   means the child is as big as it requests. It will stay at the start or
 --   end of a 'Graphics.UI.Gtk.Layout.Box' if there is more space available.
 --   All children packed with 'PackRepel' will be padded on both sides with
 --   additional space. 'PackGrow' will increase the size of a widget so that it
@@ -278,7 +278,7 @@ instance Flags DestDefaults
 --   it is irrelevant whether the main area is inserted at the start or
 --   the end of a box. Finally 'PackRepel' is most useful in a window
 --   where no widget can make use of excess space. Examples include a
---   dialog box without list boxes or text fields. 
+--   dialog box without list boxes or text fields.
 --
 data Packing = PackRepel
 	     | PackGrow

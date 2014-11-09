@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Misc.HandleBox (
 -- * Detail
--- 
+--
 -- | The 'HandleBox' widget allows a portion of a window to be \"torn off\".
 -- It is a bin widget which displays its child and a handle that the user can
 -- drag to tear off a separate window (the float window) containing the child

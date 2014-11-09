@@ -135,7 +135,7 @@ setUserData bh us = bh { bh_usr = us }
 --		Bin
 ---------------------------------------------------------------
 
-newtype Bin a = BinPtr Int 
+newtype Bin a = BinPtr Int
   deriving (Eq, Ord, Show, Bounded)
 
 castBin :: Bin a -> Bin b
@@ -163,7 +163,7 @@ getAt  :: Binary a => BinHandle -> Bin a -> IO a
 getAt bh p = do seekBin bh p; get bh
 
 openBinIO_ :: IO.Handle -> IO BinHandle
-openBinIO_ h = openBinIO h 
+openBinIO_ h = openBinIO h
 
 openBinIO :: IO.Handle -> IO BinHandle
 openBinIO h = do
@@ -188,7 +188,7 @@ tellBin (BinIO  _ r _)   = do ix <- readFastMutInt r; return (BinPtr ix)
 tellBin (BinMem _ r _ _) = do ix <- readFastMutInt r; return (BinPtr ix)
 
 seekBin :: BinHandle -> Bin a -> IO ()
-seekBin (BinIO _ ix_r h) (BinPtr p) = do 
+seekBin (BinIO _ ix_r h) (BinPtr p) = do
   writeFastMutInt ix_r p
   hSeek h AbsoluteSeek (fromIntegral p)
 seekBin h@(BinMem _ ix_r sz_r a) (BinPtr p) = do
@@ -259,7 +259,7 @@ putWord8 h@(BinMem _ ix_r sz_r arr_r) w = do
     ix <- readFastMutInt ix_r
     sz <- readFastMutInt sz_r
 	-- double the size of the array if it overflows
-    if (ix >= sz) 
+    if (ix >= sz)
 	then do expandBin h ix
 		putWord8 h w
 	else do arr <- readIORef arr_r
@@ -322,9 +322,9 @@ instance Binary Word32 where
     w2 <- getWord8 h
     w3 <- getWord8 h
     w4 <- getWord8 h
-    return $! ((fromIntegral w1 `shiftL` 24) .|. 
-	       (fromIntegral w2 `shiftL` 16) .|. 
-	       (fromIntegral w3 `shiftL`  8) .|. 
+    return $! ((fromIntegral w1 `shiftL` 24) .|.
+	       (fromIntegral w2 `shiftL` 16) .|.
+	       (fromIntegral w3 `shiftL`  8) .|.
 	       (fromIntegral w4))
 
 
@@ -347,13 +347,13 @@ instance Binary Word64 where
     w6 <- getWord8 h
     w7 <- getWord8 h
     w8 <- getWord8 h
-    return $! ((fromIntegral w1 `shiftL` 56) .|. 
-	       (fromIntegral w2 `shiftL` 48) .|. 
-	       (fromIntegral w3 `shiftL` 40) .|. 
-	       (fromIntegral w4 `shiftL` 32) .|. 
-	       (fromIntegral w5 `shiftL` 24) .|. 
-	       (fromIntegral w6 `shiftL` 16) .|. 
-	       (fromIntegral w7 `shiftL`  8) .|. 
+    return $! ((fromIntegral w1 `shiftL` 56) .|.
+	       (fromIntegral w2 `shiftL` 48) .|.
+	       (fromIntegral w3 `shiftL` 40) .|.
+	       (fromIntegral w4 `shiftL` 32) .|.
+	       (fromIntegral w5 `shiftL` 24) .|.
+	       (fromIntegral w6 `shiftL` 16) .|.
+	       (fromIntegral w7 `shiftL`  8) .|.
 	       (fromIntegral w8))
 
 -- -----------------------------------------------------------------------------
@@ -495,8 +495,8 @@ instance Binary Integer where
 	let sz# = sizeofByteArray# a#  -- in *bytes*
 	put_ bh (I# sz#)  -- in *bytes*
 	putByteArray bh a# sz#
-   
-    get bh = do 
+
+    get bh = do
 	b <- getByte bh
 	case b of
 	  0 -> do (I# i#) <- get bh
@@ -508,7 +508,7 @@ instance Binary Integer where
 
 putByteArray :: BinHandle -> ByteArray# -> Int# -> IO ()
 putByteArray bh a s# = loop 0#
-  where loop n# 
+  where loop n#
 	   | n# ==# s# = return ()
 	   | otherwise = do
 	   	putByte bh (indexByteArray a n#)
@@ -516,11 +516,11 @@ putByteArray bh a s# = loop 0#
 
 getByteArray :: BinHandle -> Int -> IO ByteArray
 getByteArray bh (I# sz) = do
-  (MBA arr) <- newByteArray sz 
+  (MBA arr) <- newByteArray sz
   let loop n
 	   | n ==# sz = return ()
 	   | otherwise = do
-		w <- getByte bh 
+		w <- getByte bh
 		writeByteArray arr n w
 		loop (n +# 1#)
   loop 0#
@@ -544,7 +544,7 @@ writeByteArray :: MutableByteArray# RealWorld -> Int# -> Word8 -> IO ()
 
 #if __GLASGOW_HASKELL__ < 503
 writeByteArray arr i w8 = IO $ \s ->
-  case word8ToWord w8 of { W# w# -> 
+  case word8ToWord w8 of { W# w# ->
   case writeCharArray# arr i (chr# (word2Int# w#)) s  of { s ->
   (# s , () #) }}
 #else
@@ -623,7 +623,7 @@ lazyGet bh = do
 -- --------------------------------------------------------------
 -- 	Main wrappers: getBinFileWithDict, putBinFileWithDict
 --
---	This layer is built on top of the stuff above, 
+--	This layer is built on top of the stuff above,
 --	and should not know anything about BinHandles
 -- --------------------------------------------------------------
 
@@ -635,7 +635,7 @@ getBinFileWithDict file_path = do
   bh <- Binary.readBinMem file_path
 
 	-- Read the magic number to check that this really is a GHC .hi file
-	-- (This magic number does not change when we change 
+	-- (This magic number does not change when we change
 	--  GHC interface file format)
   magic <- get bh
   when (magic /= binaryInterfaceMagic) $
@@ -653,7 +653,7 @@ getBinFileWithDict file_path = do
 	-- Initialise the user-data field of bh
   let bh' = setUserData bh (initReadState dict)
 	
-	-- At last, get the thing 
+	-- At last, get the thing
   get bh'
 
 putBinFileWithDict :: Binary a => FilePath -> a -> IO ()
@@ -670,7 +670,7 @@ putBinFileWithDict file_path the_thing = do
 	-- Make some intial state
   usr_state <- newWriteState
 
-	-- Put the main thing, 
+	-- Put the main thing,
   put_ (setUserData bh usr_state) the_thing
 
 	-- Get the final-state
@@ -692,12 +692,12 @@ putBinFileWithDict file_path the_thing = do
 	-- And send the result to the file
   writeBinMem bh file_path
 --  hClose hnd
-  
+
 -- -----------------------------------------------------------------------------
 -- UserData
 -- -----------------------------------------------------------------------------
 
-data UserData = 
+data UserData =
    UserData { 	-- This field is used only when reading
 	      ud_dict :: Dictionary,
 
@@ -741,7 +741,7 @@ newWriteState = do
 undef s = error ("Binary.UserData: no " ++ s)
 
 ---------------------------------------------------------
---		The Dictionary 
+--		The Dictionary
 ---------------------------------------------------------
 
 type Dictionary = Array Int String	-- The dictionary
@@ -753,7 +753,7 @@ putDictionary bh sz dict = do
   mapM_ (put_ bh) (elems dict)
 
 getDictionary :: BinHandle -> IO Dictionary
-getDictionary bh = do 
+getDictionary bh = do
   sz <- get bh
   elems <- sequence (take sz (repeat (get bh)))
   return (listArray (0,sz-1) elems)
@@ -804,7 +804,7 @@ putFS bh s = error ("Binary.put_(FastString): " ++ unpackFS s)
 	-- Note: the length of the FastString is *not* the same as
 	-- the size of the ByteArray: the latter is rounded up to a
 	-- multiple of the word size.
-  
+
 {- -- possible faster version, not quite there yet:
 getFS bh@BinMem{} = do
   (I# l) <- get bh
@@ -819,7 +819,7 @@ getFS bh = do
 
 instance Binary FastString where
   put_ bh f@(FastString id l ba) =
-    case getUserData bh of { 
+    case getUserData bh of {
 	UserData { ud_next = j_r, ud_map = out_r, ud_dict = dict} -> do
     out <- readIORef out_r
     let uniq = getUnique f
@@ -833,7 +833,7 @@ instance Binary FastString where
     }
   put_ bh s = error ("Binary.put_(FastString): " ++ show (unpackFS s))
 
-  get bh = do 
+  get bh = do
 	j <- get bh
 	return $! (ud_dict (getUserData bh) ! j)
 -}

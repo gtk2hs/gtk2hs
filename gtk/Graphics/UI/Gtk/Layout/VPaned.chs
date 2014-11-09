@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.VPaned (
 -- * Detail
--- 
+--
 -- | The VPaned widget is a container widget with two children arranged
 -- vertically. The division between the two panes is adjustable by the user by
 -- dragging a handle. See 'Paned' for details.

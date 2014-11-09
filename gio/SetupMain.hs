@@ -10,4 +10,4 @@ import Distribution.Simple ( defaultMainWithHooks )
 main = do
   checkGtk2hsBuildtools [typeGenProgram, signalGenProgram, c2hsLocal]
   defaultMainWithHooks gtk2hsUserHooks
-  
+

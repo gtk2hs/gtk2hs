@@ -93,7 +93,7 @@ import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))
 --   pixels in this 'Drawable'.
 --
 drawableGetDepth :: DrawableClass d => d -> IO Int
-drawableGetDepth d = liftM fromIntegral $ 
+drawableGetDepth d = liftM fromIntegral $
 		     {#call unsafe drawable_get_depth#} (toDrawable d)
 
 -- | Retrieve the size of the 'Drawable'.
@@ -146,7 +146,7 @@ drawPoint d gc (x,y) = {#call unsafe draw_point#} (toDrawable d)
 --
 drawPoints :: DrawableClass d => d -> GC -> [Point] -> IO ()
 drawPoints d gc []     = return ()
-drawPoints d gc points = 
+drawPoints d gc points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_points#} (toDrawable d)
     (toGC gc) (castPtr aPtr) (fromIntegral (length points))
@@ -160,7 +160,7 @@ drawPoints d gc points =
 --
 drawLine :: DrawableClass d => d -> GC -> Point -> Point -> IO ()
 drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toDrawable d)
-  (toGC gc) (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) 
+  (toGC gc) (fromIntegral x1) (fromIntegral y1) (fromIntegral x2)
   (fromIntegral y2)
 
 -- | Draw several lines.
@@ -210,7 +210,7 @@ drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither
 --
 drawSegments :: DrawableClass d => d -> GC -> [(Point,Point)] -> IO ()
 drawSegments d gc []  = return ()
-drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) -> 
+drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) ->
   [fromIntegral x1, fromIntegral y1, fromIntegral x2, fromIntegral y2])
   pps) $ \(aPtr :: Ptr {#type gint#}) ->
     {#call unsafe draw_segments#} (toDrawable d) (toGC gc)
@@ -264,7 +264,7 @@ drawArc d gc filled x y width height aStart aEnd =
 --
 drawPolygon :: DrawableClass d => d -> GC -> Bool -> [Point] -> IO ()
 drawPolygon _ _ _ [] = return ()
-drawPolygon d gc filled points = 
+drawPolygon d gc filled points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toDrawable d)
   (toGC gc) (fromBool filled) (castPtr aPtr) (fromIntegral (length points))
@@ -286,7 +286,7 @@ drawGlyphs d gc x y (GlyphItem pi gs) = do
   {#call unsafe draw_glyphs#} (toDrawable d) (toGC gc) font
     (fromIntegral x) (fromIntegral y) gs
 
---   
+--
 -- | Draw a single line of text.
 --
 -- * The @x@ coordinate specifies the start of the string,
@@ -322,7 +322,7 @@ drawLayoutLineWithColors d gc x y (LayoutLine _ ll) foreground background = let
 -- | Draw a paragraph of text.
 --
 -- * The @x@ and @y@ values specify the upper left
---   point of the layout. 
+--   point of the layout.
 --
 drawLayout :: DrawableClass d => d -> GC -> Int -> Int -> PangoLayout -> IO ()
 drawLayout d gc x y (PangoLayout _ pl) =
@@ -332,7 +332,7 @@ drawLayout d gc x y (PangoLayout _ pl) =
 -- | Draw a paragraph of text.
 --
 -- * The @x@ and @y@ values specify the upper left
---   point of the layout. 
+--   point of the layout.
 --
 -- * If both colors are @Nothing@ this function will behave like
 --   'drawLayout' in that it uses the default colors from
@@ -365,7 +365,7 @@ drawLayoutWithColors d gc x y (PangoLayout _ pl) foreground background = let
 --   in a BadMatch error from the X server.)  A common cause of this
 --   problem is an attempt to draw a bitmap to a color drawable. The way to
 --   draw a bitmap is to set the bitmap as a clip mask on your
---   'GC', then use 'drawRectangle' to draw a 
+--   'GC', then use 'drawRectangle' to draw a
 --   rectangle clipped to the bitmap.
 --
 drawDrawable :: (DrawableClass src, DrawableClass dest)

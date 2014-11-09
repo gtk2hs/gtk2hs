@@ -32,7 +32,7 @@ data Module = Module {
 
   module_filename          :: String,  -- name part of the file including ext
   module_needs_c2hs        :: Bool,
-  
+
   module_authors           :: [String],
   module_created           :: String,
   module_copyright_dates   :: Either String (String, String),
@@ -41,13 +41,13 @@ data Module = Module {
 
   module_context_lib       :: String,
   module_context_prefix    :: String,
-  
+
   module_kind         :: ModuleKind,
-  
+
   module_imports      :: [(String, String)],
   module_exports      :: [String],
   module_todos        :: [String],
-  
+
   module_deprecated   :: Bool,
   module_since        :: Maybe Version,
 
@@ -185,7 +185,7 @@ convertObject namespace object =
         Module {
           module_name  = Api.object_name object,
           module_cname = Api.object_cname object,
-          
+
           module_namespace = Api.namespace_name namespace,
 
           module_needs_c2hs = True,
@@ -202,7 +202,7 @@ convertObject namespace object =
           module_since = Nothing,
 
           module_imports = [],
-          
+
           module_decls =
             let addIndexAndModule n decl = decl {
                    decl_index_api = n,
@@ -318,7 +318,7 @@ convertInterfaces object interfaceName =
     decl_body =
       Instance {
         instance_class_name = MarshalFixup.cTypeNameToHSType interfaceName ++ "Class",
-        instance_type_name  = Api.object_name object       
+        instance_type_name  = Api.object_name object
       }
   }
 
@@ -358,9 +358,9 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
         module_copyright_dates   = ModuleScan.module_copyright_dates info,
         module_copyright_holders = ModuleScan.module_copyright_holders info,
         module_created           = ModuleScan.module_created info,
-        
+
         module_imports           = ModuleScan.module_imports info,
-        
+
         module_decls = map (addExportIndex . addDeclScanInfo)
                            (module_decls module_)
       }
@@ -375,13 +375,13 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
                   decl {
                     decl_index_code = n,
                     decl_bound = True,
-                    decl_user_code = ModuleScan.func_body funcinfo, 
+                    decl_user_code = ModuleScan.func_body funcinfo,
                     decl_user_docs = ModuleScan.func_docs funcinfo,
                     decl_user_code_hash = ModuleScan.func_body_hash funcinfo,
                     decl_user_docs_hash = ModuleScan.func_docs_hash funcinfo,
                     decl_body = addDeclBodyScanInfo funcinfo body
                   }
-            
+
             addDeclBodyScanInfo funcinfo method@Method{} =
               method {
                 method_shortcname = shortcname,
@@ -508,7 +508,7 @@ filterNewActionSignals module_ =
 
     filterNewActionSignals' (decl:decls) = decl : filterNewActionSignals' decls
     filterNewActionSignals' [] = []
-  
+
 
 
 makeGetSetProps :: Module -> Module
@@ -590,7 +590,7 @@ makeGetSetProps module_ =
                 (List.sortBy (comparing (method_name.decl_body.fst)) methodsThatLookLikeProperties)
 
     (props, nonPropsDecls) = List.partition isProp (module_decls module_)
-    
+
     isProp (Decl { decl_body = AttributeProp {} }) = True
     isProp _                                       = False
 
@@ -626,7 +626,7 @@ isMethod _                              = False
 reorderDecls :: Module -> Module
 reorderDecls module_ =
   module_ {
-    --FIXME: this wirdness about treating methods differently 
+    --FIXME: this wirdness about treating methods differently
     --       is only for compatability, remove it.
     module_decls = List.sortBy (comparing lexicographicCurDocApi) methods
                 ++ List.sortBy (comparing decl_index_api) others
@@ -667,7 +667,7 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
           if module_deprecated module_
             then let line = "Warning: this module is deprecated "
                          ++ "and should not be used in newly-written code."
-            
+
                   in [ParaListItem [SpanText line]]
             else []
 
@@ -690,7 +690,7 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
                in fmap (++[ParaListItem [SpanText line]]) (decl_doc decl)
           }
         addDeprecatedPara decl = decl
-        
+
         fixNamespace "Gtk" = "Gtk+"
         fixNamespace other = other
 
@@ -708,7 +708,7 @@ excludeApi excludeApiFilesContents module_ =
   }
   where match = ExcludeApi.matcher
                 (concatMap ExcludeApi.parseFilterFile excludeApiFilesContents)
-      
+
         okAPI :: Decl -> Bool   --returns False to exclude the C function name
         okAPI Decl { decl_body = Method { method_cname = cname } }
           = match cname

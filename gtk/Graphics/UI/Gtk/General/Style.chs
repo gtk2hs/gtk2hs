@@ -35,7 +35,7 @@
 --
 module Graphics.UI.Gtk.General.Style (
 -- * Description
--- 
+--
 -- | Styles are attached to widgets and determine how particular parts are
 -- drawn and with what color. Thus they are should be seen as mandatory when
 -- one implements a new custom widgets via 'DrawingArea'. Although the

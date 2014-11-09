@@ -96,9 +96,9 @@ recentChooserWidgetNew =
 -- This is useful if you have implemented your own recent manager, or if you
 -- have a customized instance of a 'RecentManager' object.
 --
-recentChooserWidgetNewForManager :: RecentManagerClass manager 
+recentChooserWidgetNewForManager :: RecentManagerClass manager
                                  => manager -- ^ @manager@ - a 'RecentManager'
-                                 -> IO RecentChooserWidget -- ^ returns a new 'RecentChooserWidget' 
+                                 -> IO RecentChooserWidget -- ^ returns a new 'RecentChooserWidget'
 recentChooserWidgetNewForManager manager =
   makeNewObject mkRecentChooserWidget $
   liftM (castPtr :: Ptr Widget -> Ptr RecentChooserWidget) $

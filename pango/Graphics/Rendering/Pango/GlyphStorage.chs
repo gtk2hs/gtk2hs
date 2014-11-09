@@ -27,7 +27,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 
+--
 --
 module Graphics.Rendering.Pango.GlyphStorage (
   glyphItemExtents,
@@ -76,7 +76,7 @@ glyphItemExtents (GlyphItem pi self) = do
 --   the result of this function is the same as if 'glyphItemExtents'
 --   were called on the sub-string.
 --
-glyphItemExtentsRange :: GlyphItem -> Int -> Int -> 
+glyphItemExtentsRange :: GlyphItem -> Int -> Int ->
                            IO (PangoRectangle, PangoRectangle)
 
 glyphItemExtentsRange (GlyphItem pi@(PangoItem (PangoString uc _ _) _) self)
@@ -97,14 +97,14 @@ glyphItemExtentsRange (GlyphItem pi@(PangoItem (PangoString uc _ _) _) self)
 --
 glyphItemIndexToX :: GlyphItem -- ^ the rendered string
                     -> Int -- ^ the index into the string
-                    -> Bool -- ^ return the beginning (@False@) or the end 
+                    -> Bool -- ^ return the beginning (@False@) or the end
                             -- of the character
                     -> IO Double
 glyphItemIndexToX (GlyphItem (PangoItem ps pir) gs) pos beg =
-  withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr -> 
+  withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr ->
   withPangoString ps $ \uc l strPtr -> do
     {# call unsafe glyph_string_index_to_x #} gs strPtr
-      (fromIntegral l) (pangoItemRawAnalysis pirPtr) 
+      (fromIntegral l) (pangoItemRawAnalysis pirPtr)
       (fromIntegral (ofsToUTF pos uc)) (fromBool beg) intPtr
     liftM intToPu $ peek intPtr
 
@@ -118,7 +118,7 @@ glyphItemIndexToX (GlyphItem (PangoItem ps pir) gs) pos beg =
 --
 glyphItemXToIndex :: GlyphItem -> Double -> IO (Int, Bool)
 glyphItemXToIndex (GlyphItem (PangoItem ps pir) gs) pos =
-  withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr -> 
+  withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr ->
   alloca $ \boolPtr -> withPangoString ps $ \uc l strPtr -> do
     {# call unsafe pango_glyph_string_x_to_index #} gs strPtr
       (fromIntegral l) (pangoItemRawAnalysis pirPtr) (puToInt pos)
@@ -171,7 +171,7 @@ glyphItemSplit (GlyphItem (PangoItem ps pir) gs) pos = do
     giPtr2 <- withPangoString ps $ \uc l strPtr ->
       {#call unsafe pango_glyph_item_split#} giPtr1 strPtr
         (fromIntegral (ofsToUTF pos uc))
-    if giPtr2==nullPtr then 
+    if giPtr2==nullPtr then
        throwIO (IndexOutOfBounds
          ("Graphics.Rendering.Pango.GlyphStorage."++
           "glyphItemSplit: cannot split item at index "++show pos)) else do

@@ -47,7 +47,7 @@ data FuncInfo = FuncInfo {
 
 data CCallInfo = CCallInfo {
     ccall_name   :: String,
-    ccall_unsafe :: Bool    
+    ccall_unsafe :: Bool
   } deriving Show
 
 data Line = None
@@ -186,7 +186,7 @@ scanLine _ ["--","%hash",('c':':':code)] = Hash code ""
 scanLine line _                         = Line line
 
 scanAuthor :: [String] -> Line
-scanAuthor = 
+scanAuthor =
     Authors
   . map unwords
   . splitBy ","
@@ -237,7 +237,7 @@ scanCCall line
 scanFunctions :: [Line] -> [FuncInfo]
 scanFunctions =
     groupDocWithFunc
-  . amalgamateLines 
+  . amalgamateLines
   . splitOn isInterestingLine
 
   where isInterestingLine (TypeSig _ _) = True
@@ -260,9 +260,9 @@ scanFunctions =
           addDoc dl dls (funcInfo name tl tls ch dh) : groupDocWithFunc chunks
         groupDocWithFunc ((DocBegin dl:dls):(TypeSig name tl:tls):chunks) =
           addDoc dl dls (funcInfo name tl tls "" "") : groupDocWithFunc chunks
-        groupDocWithFunc ([Hash ch dh]:(TypeSig name tl:tls):chunks) = 
+        groupDocWithFunc ([Hash ch dh]:(TypeSig name tl:tls):chunks) =
           funcInfo name tl tls ch dh : groupDocWithFunc chunks
-        groupDocWithFunc ((TypeSig name tl:tls):chunks) = 
+        groupDocWithFunc ((TypeSig name tl:tls):chunks) =
           funcInfo name tl tls "" "" : groupDocWithFunc chunks
         groupDocWithFunc (chunk:chunks) = groupDocWithFunc chunks
         groupDocWithFunc [] = []

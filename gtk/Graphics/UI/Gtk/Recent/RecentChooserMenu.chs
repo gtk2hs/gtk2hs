@@ -126,9 +126,9 @@ recentChooserMenuNew =
 --
 -- * Available since Gtk+ version 2.10
 --
-recentChooserMenuNewForManager :: RecentManagerClass manager 
+recentChooserMenuNewForManager :: RecentManagerClass manager
                                => manager -- ^ @manager@ - a 'RecentManager'
-                               -> IO RecentChooserMenu -- ^ returns a new 'RecentChooserMenu', bound to manager. 
+                               -> IO RecentChooserMenu -- ^ returns a new 'RecentChooserMenu', bound to manager.
 recentChooserMenuNewForManager manager =
   makeNewObject mkRecentChooserMenu $
   liftM (castPtr :: Ptr Widget -> Ptr RecentChooserMenu) $
@@ -139,7 +139,7 @@ recentChooserMenuNewForManager manager =
 -- Attributes
 
 -- | Whether the first ten items in the menu should be prepended by a number acting as a unique mnemonic.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.10

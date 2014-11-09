@@ -90,7 +90,7 @@ import System.Glib.FFI
 import System.Glib.GObject		(wrapNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs
-import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..), 
+import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..),
 					 CapStyle(..), JoinStyle(..))
 #if GTK_MAJOR_VERSION < 3
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(Region))
@@ -112,7 +112,7 @@ gcNew d = do
 gcNewWithValues :: DrawableClass d => d -> GCValues -> IO GC
 gcNewWithValues d gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
   mask <- pokeGCValues vPtr gcv
-  gc <- wrapNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
+  gc <- wrapNewGObject mkGC $ {#call unsafe gc_new_with_values#}
     (toDrawable d) (castPtr vPtr) mask
   handle (\(ErrorCall _) -> return ()) $ when (isJust (tile gcv)) $
     touchForeignPtr ((unPixmap.fromJust.tile) gcv)
@@ -171,7 +171,7 @@ gcSetClipRegion = {#call unsafe gc_set_clip_region#}
 gcSetDashes :: GC -> Int -> [(Int,Int)] -> IO ()
 gcSetDashes gc phase onOffList = do
   let onOff :: [{#type gint8#}]
-      onOff = concatMap (\(on,off) -> [fromIntegral on, fromIntegral off]) 
+      onOff = concatMap (\(on,off) -> [fromIntegral on, fromIntegral off])
 	      onOffList
   withArray onOff $ \aPtr ->
     {#call unsafe gc_set_dashes#} gc (fromIntegral phase) aPtr

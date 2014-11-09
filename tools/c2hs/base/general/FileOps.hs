@@ -56,7 +56,7 @@ fileFindIn              :: FilePath -> [FilePath] -> IO FilePath
 ""   `fileFindIn` paths  = fail "Empty file name"
 file `fileFindIn` paths  =
   do
-    let (paths', file') = if head file == '/' 
+    let (paths', file') = if head file == '/'
 			  then (dirname file : paths, stripDirname file)
 			  else (paths, file)
         files  = map (`addPath` file') paths'
@@ -74,7 +74,7 @@ file `fileFindIn` paths  =
 --
 -- * Default permissions are used, which might not be optimal, but
 --   unfortunately the Haskell standard libs don't support proper permission
---   management. 
+--   management.
 --
 -- * We make 100 attempts on getting a unique filename before giving up.
 --
@@ -97,7 +97,7 @@ mktemp pre post =
     handler attempts rs' _ = createLoop (attempts - 1) rs'
 
     sixChars :: [Int] -> ([Int], String)
-    sixChars is = 
+    sixChars is =
       let
         (sixInts, is') = splitAt 6 is
 	--

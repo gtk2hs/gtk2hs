@@ -8,7 +8,7 @@ main = do
                                      [("Cancel", ResponseCancel),
                                       ("Save", ResponseAccept),
                                       ("Backup", ResponseUser 100)]
- 
+
      fileChooserSetDoOverwriteConfirmation fchdal True
      widgetShow fchdal
      response <- dialogRun fchdal

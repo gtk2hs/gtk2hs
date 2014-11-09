@@ -24,7 +24,7 @@
 --  single node of the structure tree is referenced via an attributes
 --  identifier. This is basically a reference into so-called attribute tables,
 --  which manage attributes of one type and may use different representations.
---  There is also a position attribute managed via the attribute identifier 
+--  There is also a position attribute managed via the attribute identifier
 --  without needing a further table (it is already fixed on construction of
 --  the structure tree).
 --
@@ -62,7 +62,7 @@
 --    realized via hash table---depending on the type of attribute table, we
 --    may even allow them to be soft.
 --
---    NOTE: Currently, if assertions are switched on, on freezing a table, its 
+--    NOTE: Currently, if assertions are switched on, on freezing a table, its
 --	    density is calculate and, if it is below 33%, an internal error is
 --	    raised (only if there are more than 1000 entries in the table).
 --
@@ -85,12 +85,12 @@ module Attributes (-- attribute management
 		   copyAttr, freezeAttrTable, softenAttrTable,
 		   StdAttr(..), getStdAttr, getStdAttrDft, isDontCareStdAttr,
 		   isUndefStdAttr, setStdAttr, updStdAttr,
-		   getGenAttr, setGenAttr, updGenAttr) 
+		   getGenAttr, setGenAttr, updGenAttr)
 where
 
 import Data.Array
 import Control.Exception (assert)
-import Position   (Position, Pos(posOf), nopos, isNopos, dontCarePos, 
+import Position   (Position, Pos(posOf), nopos, isNopos, dontCarePos,
 		   isDontCarePos)
 import Errors     (interr)
 import UNames	  (NameSupply, Name,
@@ -120,14 +120,14 @@ instance Pos Attrs where
 --
 instance Eq Attrs where
   (Attrs   _ id1) == (Attrs   _ id2) = id1 == id2
-  _		  == _               = 
+  _		  == _               =
     interr "Attributes: Attempt to compare `OnlyPos' attributes!"
 
 -- attribute ordering is also lifted to objects (EXPORTED)
 --
 instance Ord Attrs where
   (Attrs   _ id1) <= (Attrs   _ id2) = id1 <= id2
-  _		  <= _               = 
+  _		  <= _               =
     interr "Attributes: Attempt to compare `OnlyPos' attributes!"
 
 -- a class for convenient access to the attributes of an attributed object
@@ -167,8 +167,8 @@ newAttrs pos name  = Attrs pos name
 
 -- the type class `Attr' determines which types may be used as attributes
 -- (EXPORTED)
--- 
--- * such types have to provide values representing an undefined and a don't 
+--
+-- * such types have to provide values representing an undefined and a don't
 --   care state, together with two functions to test for these values
 --
 -- * an attribute in an attribute table is initially set to `undef' (before
@@ -203,8 +203,8 @@ class Attr a where
 -- * the table description string is used to emit better error messages (for
 --   internal errors)
 --
-data Attr a => 
-     AttrTable a = -- for all attribute identifiers not contained in the 
+data Attr a =>
+     AttrTable a = -- for all attribute identifiers not contained in the
 		   -- finite map the value is `undef'
 		   --
 		   SoftTable (Map Name a)   -- updated attr.s
@@ -212,14 +212,14 @@ data Attr a =>
 
 		   -- the array contains `undef' attributes for the undefined
 		   -- attributes; for all attribute identifiers outside the
-		   -- bounds, the value is also `undef'; 
+		   -- bounds, the value is also `undef';
 		   --
 		 | FrozenTable (Array Name a)     -- attribute values
 			       String		  -- desc of the table
 
-		   
+		
 
--- create an attribute table, where all attributes are `undef' (EXPORTED) 
+-- create an attribute table, where all attributes are `undef' (EXPORTED)
 --
 -- the description string is used to identify the table in error messages
 -- (internal errors); a	table is initially soft
@@ -231,7 +231,7 @@ newAttrTable desc  = SoftTable Map.empty desc
 --
 getAttr                      :: Attr a => AttrTable a -> Attrs -> a
 getAttr at (OnlyPos pos    )  = onlyPosErr "getAttr" at pos
-getAttr at (Attrs   _   aid)  = 
+getAttr at (Attrs   _   aid)  =
   case at of
     (SoftTable   fm  _) -> Map.findWithDefault undef aid fm
     (FrozenTable arr _) -> let (lbd, ubd) = bounds arr
@@ -243,11 +243,11 @@ getAttr at (Attrs   _   aid)  =
 --
 setAttr :: Attr a => AttrTable a -> Attrs -> a -> AttrTable a
 setAttr at (OnlyPos pos    ) av = onlyPosErr "setAttr" at pos
-setAttr at (Attrs   pos aid) av = 
+setAttr at (Attrs   pos aid) av =
   case at of
     (SoftTable fm desc) -> assert (isUndef (Map.findWithDefault undef aid fm)) $
 			     SoftTable (Map.insert aid av fm) desc
-    (FrozenTable arr _) -> interr frozenErr 
+    (FrozenTable arr _) -> interr frozenErr
   where
     frozenErr     = "Attributes.setAttr: Tried to write frozen attribute in\n"
 		    ++ errLoc at pos
@@ -256,7 +256,7 @@ setAttr at (Attrs   pos aid) av =
 --
 updAttr :: Attr a => AttrTable a -> Attrs -> a -> AttrTable a
 updAttr at (OnlyPos pos    ) av = onlyPosErr "updAttr" at pos
-updAttr at (Attrs   pos aid) av = 
+updAttr at (Attrs   pos aid) av =
   case at of
     (SoftTable   fm  desc) -> SoftTable (Map.insert aid av fm) desc
     (FrozenTable arr _)    -> interr $ "Attributes.updAttr: Tried to\
@@ -268,7 +268,7 @@ updAttr at (Attrs   pos aid) av =
 -- * undefined attributes are not copied, to avoid filling the table
 --
 copyAttr :: Attr a => AttrTable a -> Attrs -> Attrs -> AttrTable a
-copyAttr at ats ats' 
+copyAttr at ats ats'
   | isUndef av = assert (isUndef (getAttr at ats'))
 		   at
   | otherwise  = updAttr at ats' av
@@ -278,7 +278,7 @@ copyAttr at ats ats'
 -- auxiliary functions for error messages
 --
 onlyPosErr		  :: Attr a => String -> AttrTable a -> Position -> b
-onlyPosErr fctName at pos  = 
+onlyPosErr fctName at pos  =
   interr $ "Attributes." ++ fctName ++ ": No attribute identifier in\n"
 	   ++ errLoc at pos
 --
@@ -293,7 +293,7 @@ errLoc at pos  = "  table `" ++ tableDesc at ++ "' for construct at\n\
 -- table is softened again (EXPORTED)
 --
 freezeAttrTable			       :: Attr a => AttrTable a -> AttrTable a
-freezeAttrTable (SoftTable   fm  desc)  = 
+freezeAttrTable (SoftTable   fm  desc)  =
   let contents = Map.toList fm
       keys     = map fst contents
       lbd      = minimum keys
@@ -301,7 +301,7 @@ freezeAttrTable (SoftTable   fm  desc)  =
   in
   assert (length keys < 1000 || (length . range) (lbd, ubd) > 3 * length keys)
   (FrozenTable (array (lbd, ubd) contents) desc)
-freezeAttrTable (FrozenTable arr desc)  = 
+freezeAttrTable (FrozenTable arr desc)  =
   interr ("Attributes.freezeAttrTable: Attempt to freeze the already frozen\n\
 	  \  table `" ++ desc ++ "'!")
 
@@ -309,10 +309,10 @@ freezeAttrTable (FrozenTable arr desc)  =
 -- table is frozen again (EXPORTED)
 --
 softenAttrTable			       :: Attr a => AttrTable a -> AttrTable a
-softenAttrTable (SoftTable   fm  desc)  = 
+softenAttrTable (SoftTable   fm  desc)  =
   interr ("Attributes.softenAttrTable: Attempt to soften the already \
 	  \softened\n  table `" ++ desc ++ "'!")
-softenAttrTable (FrozenTable arr desc)  = 
+softenAttrTable (FrozenTable arr desc)  =
   SoftTable (Map.fromList . assocs $ arr) desc
 
 
@@ -344,18 +344,18 @@ instance Attr (StdAttr a) where
 getStdAttr         :: AttrTable (StdAttr a) -> Attrs -> a
 getStdAttr atab at  = getStdAttrDft atab at err
   where
-    err = interr $ "Attributes.getStdAttr: Don't care in\n" 
+    err = interr $ "Attributes.getStdAttr: Don't care in\n"
 		   ++ errLoc atab (posOf at)
 
 -- get an attribute value from a standard attribute table, where a default is
 -- substituted if the table is don't care (EXPORTED)
 --
 getStdAttrDft             :: AttrTable (StdAttr a) -> Attrs -> a -> a
-getStdAttrDft atab at dft  = 
+getStdAttrDft atab at dft  =
   case getAttr atab at of
     DontCareStdAttr -> dft
     JustStdAttr av  -> av
-    UndefStdAttr    -> interr $ "Attributes.getStdAttrDft: Undefined in\n" 
+    UndefStdAttr    -> interr $ "Attributes.getStdAttrDft: Undefined in\n"
 				++ errLoc atab (posOf at)
 
 -- check if the attribue value is marked as "don't care" (EXPORTED)
@@ -387,11 +387,11 @@ updStdAttr atab at av = updAttr atab at (JustStdAttr av)
 getGenAttr         :: (Attr a, Attributed obj) => AttrTable a -> obj -> a
 getGenAttr atab at  = getAttr atab (attrsOf at)
 
-setGenAttr            :: (Attr a, Attributed obj) 
+setGenAttr            :: (Attr a, Attributed obj)
 	              => AttrTable a -> obj -> a -> AttrTable a
 setGenAttr atab at av  = setAttr atab (attrsOf at) av
 
-updGenAttr            :: (Attr a, Attributed obj) 
+updGenAttr            :: (Attr a, Attributed obj)
 		      => AttrTable a -> obj -> a -> AttrTable a
 updGenAttr atab at av  = updAttr atab (attrsOf at) av
 

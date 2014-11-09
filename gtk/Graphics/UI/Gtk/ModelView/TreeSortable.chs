@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.ModelView.TreeSortable (
 -- 'Graphics.UI.Gtk.ModelView.ListStore.ListStore' or
 -- 'Graphics.UI.Gtk.ModelView.TreeStore.TreeStore' model in a
 -- 'Graphics.UI.Gtk.ModelView.TreeModelSort.TreeModelSort'.
---    
+--
 -- A 'Graphics.UI.Gtk.ModelView.TreeViewColumn' can be sorted by the user
 -- though clicking into the column's header. The rows in the view will then be
 -- sorted by the sorting function set for that column. Specifically, a set of
@@ -112,7 +112,7 @@ import Graphics.UI.Gtk.General.Structs	(SortColumnId,
 --   the returned Boolean flag is @False@.
 --
 treeSortableGetSortColumnId :: TreeSortableClass self => self
- -> IO (SortType, Bool, SortColumnId)   -- ^ @(type, columnSet, sortColumnId)@ 
+ -> IO (SortType, Bool, SortColumnId)   -- ^ @(type, columnSet, sortColumnId)@
                      -- returns @True@ in @columnSet@ if @sortColumnId@ is not
                      -- 'treeSortableDefaultSortColumnId'. The @type@ value indicates increasing
                      -- or decreasing ordering.
@@ -183,7 +183,7 @@ foreign import ccall "wrapper" mkTreeIterCompareFunc ::
 -- 'treeSortableDefaultSortColumnId' then the model will sort using
 -- this function.
 --
--- | If @sortFunc@ is 'Nothing', then there will be no default comparison function. 
+-- | If @sortFunc@ is 'Nothing', then there will be no default comparison function.
 -- This means that once the
 -- model has been sorted, it can't go back to the default state. In this case, when the current sort
 -- column id of sortable is 'TreeSortableDefaultSortColumnId', the model will be unsorted.

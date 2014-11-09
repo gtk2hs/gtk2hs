@@ -6,12 +6,12 @@ main = do
      window <- windowNew
      set window [windowTitle := "Labels", containerBorderWidth := 10 ]
      mainbox <- vBoxNew False 10
-     containerAdd window mainbox 
+     containerAdd window mainbox
      hbox <- hBoxNew True 5
      boxPackStart mainbox hbox PackNatural 0
      vbox1 <- vBoxNew False 10
      vbox2 <- vBoxNew False 0
-     boxPackStart hbox vbox1 PackNatural 0 
+     boxPackStart hbox vbox1 PackNatural 0
      boxPackStart hbox vbox2 PackNatural 0
 
      (label1,frame1) <- myLabelWithFrameNew
@@ -37,7 +37,7 @@ main = do
      (label5,frame5) <- myLabelWithFrameNew
      boxPackStart vbox2 frame5 PackNatural 0
      labelSetText label5 "Kobayashi Issa"
-    
+
      (label7,frame7) <- myLabelWithFrameNew
      boxPackEnd vbox2 frame7 PackNatural 0
      labelSetText label7 "only one guy and\nonly one fly trying to\nmake the guest room do"

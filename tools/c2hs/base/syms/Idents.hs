@@ -46,7 +46,7 @@
 --  * Attributes may be associated to identifiers, except with `OnlyPos'
 --    identifiers, which have a position as their only attribute (they do not
 --    carry an attribute identifier, which can be used to index attribute
---    tables). 
+--    tables).
 --
 --  * Internal identifiers that are forming a completely unique name space are
 --    supported. But note, they do not have a proper lexeme, i.e., they are not
@@ -60,7 +60,7 @@
 module Idents (Ident, noARNum, isLegalIdent, lexemeToIdent, internalIdent,
 	       onlyPosIdent, cloneIdent, identToLexeme, isIdentSimple,
 	       isIdentPrim, stripIdentARNum, getIdentARNum, newIdentARNum,
-	       getIdentAttrs, dumpIdent)  
+	       getIdentAttrs, dumpIdent)
 where
 
 import Data.Char
@@ -74,7 +74,7 @@ import Binary     (Binary(..), putSharedString, getSharedString)
 
 -- simple identifier representation (EXPORTED)
 --
--- identifiers without an ambiguousness resolving number get `noARNum' as 
+-- identifiers without an ambiguousness resolving number get `noARNum' as
 -- number
 --
 data Ident = Ident String	-- lexeme
@@ -87,14 +87,14 @@ data Ident = Ident String	-- lexeme
 -- equality test, by comparing the lexemes only if the two numbers are equal
 --
 instance Eq Ident where
-  (Ident s k id _) == (Ident s' k' id' _) =    (k == k') 
-					    && (id == id') 
+  (Ident s k id _) == (Ident s' k' id' _) =    (k == k')
+					    && (id == id')
 					    && (s == s')
 
 -- this does *not* follow the alphanumerical ordering of the lexemes
 --
 instance Ord Ident where
-  (Ident s k id _) < (Ident s' k' id' _) =    (k < k') 
+  (Ident s k id _) < (Ident s' k' id' _) =    (k < k')
 					   || ((k == k') && (id < id'))
 					   || ((k == k') && (id == id')
 					       && (s < s'))
@@ -119,15 +119,15 @@ instance Pos Ident where
 -- identifiers lexeme and store it in the identifiers representation
 
 -- hash function from the dragon book pp437; assumes 7 bit characters and needs
--- the (nearly) full range of values guaranteed for `Int' by the Haskell 
--- language definition; can handle 8 bit characters provided we have 29 bit 
+-- the (nearly) full range of values guaranteed for `Int' by the Haskell
+-- language definition; can handle 8 bit characters provided we have 29 bit
 -- for the `Int's without sign
 --
 quad                 :: String -> Int
 quad (c1:c2:c3:c4:s)  = ((ord c4 * bits21
-			  + ord c3 * bits14 
+			  + ord c3 * bits14
 			  + ord c2 * bits7
-			  + ord c1) 
+			  + ord c1)
 			 `mod` bits28)
 			+ (quad s `mod` bits28)
 quad (c1:c2:c3:[]  )  = ord c3 * bits14 + ord c2 * bits7 + ord c1
@@ -140,7 +140,7 @@ bits14 = 2^14
 bits21 = 2^21
 bits28 = 2^28
 
--- used as a substitute for the ambiguousness resolving number if it is not 
+-- used as a substitute for the ambiguousness resolving number if it is not
 -- present (EXPORTED)
 --
 noARNum :: Int
@@ -160,7 +160,7 @@ internARNum  = -3
 --
 isLegalIdent        :: String -> Bool
 isLegalIdent []      = False
-isLegalIdent (c:cs)  = if c == '`' then isQualIdent cs 
+isLegalIdent (c:cs)  = if c == '`' then isQualIdent cs
 		       else (isAlpha c || c == '_') && isIdent (c:cs)
 		       where
 		         isIdent = checkTail . (dropWhile isAlphaNumOrUS)
@@ -176,9 +176,9 @@ isLegalIdent (c:cs)  = if c == '`' then isQualIdent cs
 			 isNum          c = c `elem` ['0'..'9']
 
 			 isQualIdent cs = let
-					    cs' = skip cs 
-					  in 
-					    (not . null) cs' 
+					    cs' = skip cs
+					  in
+					    (not . null) cs'
 					    && (checkTail . tail) cs'
 
 			 skip []        = []
@@ -197,7 +197,7 @@ isLegalIdent (c:cs)  = if c == '`' then isQualIdent cs
 -- * only minimal error checking, e.g., the characters of the identifier are
 --   not checked for being alphanumerical only; the correct lexis of the
 --   identifier should be ensured by the caller, e.g., the scanner or
---   `isLegalIdent' 
+--   `isLegalIdent'
 --
 -- * for reasons of simplicity the complete lexeme is hashed (with `quad')
 --
@@ -223,15 +223,15 @@ onlyPosIdent pos l  = Ident s k (quad s) (newAttrsOnlyPos pos)
 -- Extract the name and ambiguousness resolving number from a lexeme.
 --
 parseIdent   :: Position -> String -> (String, Int)
-parseIdent pos l  
-	      = if (null l) 
-		then 
+parseIdent pos l
+	      = if (null l)
+		then
 		  interr $ "Idents: lexemeToIdent: Empty lexeme! " ++ show pos
-		else 
-		if (head l == '\'') 
+		else
+		if (head l == '\'')
 		then
 		  parseQuoted (tail l)
-		else 
+		else
 		  parseNorm l
 		where
 		-- parse lexeme without quotes
@@ -292,7 +292,7 @@ parseIdent pos l
 					       in
 						 (chr (100*d1 + 10*d2 + d3)
 						  :cs', k)
-		parseSpecial (c:cs) 
+		parseSpecial (c:cs)
 			     | c == '\\'     = ('\\':cs', k)
 			     | c == '\"'     = ('\"':cs', k)
 			     | c == '\''     = ('\'':cs', k)
@@ -307,7 +307,7 @@ parseIdent pos l
 -- attributes (EXPORTED)
 --
 cloneIdent                           :: Ident -> Name -> Ident
-cloneIdent (Ident s k idnum at) name  = 
+cloneIdent (Ident s k idnum at) name  =
   Ident s k idnum (newAttrs (posOf at) name)
 
 -- given an abstract identifier, yield its lexeme (EXPORTED)
@@ -315,8 +315,8 @@ cloneIdent (Ident s k idnum at) name  =
 identToLexeme		      :: Ident -> String
 identToLexeme (Ident s k _ _)  = s ++ suffix
 				 where
-				   suffix = if      (k == noARNum) 
-					    then "" 
+				   suffix = if      (k == noARNum)
+					    then ""
 					    else if (k == primARNum)
 					    then "##"
 					    else if (k == internARNum)
@@ -339,7 +339,7 @@ isIdentPrim (Ident _ k _ _)  = k == primARNum
 -- NOTE: The new identifier will not be equal (==) to the old one!
 --
 stripIdentARNum                        :: Ident -> Ident
-stripIdentARNum (Ident s k id at) 
+stripIdentARNum (Ident s k id at)
   | k == primARNum || k == internARNum  = interr "Idents: stripIdentARNum: \
 						 \Not allowed!"
   | otherwise				= Ident s noARNum id at
@@ -357,7 +357,7 @@ getIdentARNum (Ident s k id at)
 -- NOTE: The new identifier will not be equal (==) to the old one!
 --
 newIdentARNum :: Ident -> Int -> Ident
-newIdentARNum (Ident s k id at) k' 
+newIdentARNum (Ident s k id at) k'
   | k' < 0                              = interr "Idents: newIdentARNum: \
 						 \Negative number!"
   | k == primARNum || k == internARNum  = interr "Idents: newIdentARNum: \
@@ -373,7 +373,7 @@ getIdentAttrs (Ident _ _ _ as)  = as
 -- (EXPORTED)
 --
 dumpIdent     :: Ident -> String
-dumpIdent ide  = identToLexeme ide ++ " at " ++ show (posOf ide) 
+dumpIdent ide  = identToLexeme ide ++ " at " ++ show (posOf ide)
 
 
 {-! for Ident derive : GhcBinary !-}

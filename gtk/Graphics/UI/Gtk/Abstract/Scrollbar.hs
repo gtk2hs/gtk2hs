@@ -27,8 +27,8 @@
 --
 module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- * Detail
--- 
--- | The 'Scrollbar' widget is an abstract base class for 
+--
+-- | The 'Scrollbar' widget is an abstract base class for
 --   'Graphics.UI.Gtk.Scrolling.HScrollbar' and
 --   'Graphics.UI.Gtk.Scrolling.VScrollbar'. It is not very useful in itself.
 --

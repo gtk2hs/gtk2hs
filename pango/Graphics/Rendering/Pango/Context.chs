@@ -27,7 +27,7 @@
 -- This module defines 'PangoContext's,
 -- an environment that provides information on available fonts,
 -- internationalization and output capabilities of the medium. Given
--- such a context, text can be rendered into strings of glyphs (see 
+-- such a context, text can be rendered into strings of glyphs (see
 -- 'Graphics.Rendering.Pango.Rendering') or, at a more abstract level, using
 -- layouts (see 'Graphics.Rendering.Pango.Layout.Layout').
 --
@@ -153,7 +153,7 @@ contextGetFontDescription pc = do
   makeNewFontDescription fdPtr
 
 foreign import ccall unsafe "pango_font_description_copy"
-  pango_font_description_copy :: Ptr FontDescription -> 
+  pango_font_description_copy :: Ptr FontDescription ->
                                  IO (Ptr FontDescription)
 
 -- | Set the default 'Language' of this context.
@@ -216,7 +216,7 @@ contextGetMatrix :: PangoContext -> IO Matrix
 contextGetMatrix pc = do
   matPtr <- {#call unsafe context_get_matrix#} pc
   if matPtr==nullPtr then return identity else peek (castPtr matPtr)
-  
+
 -- | Sets the transformation matrix that will be applied when rendering with
 -- this context. Note that any metrics reported by other functions are in user
 -- space coordinates before the application of the matrix, not device-space
@@ -228,6 +228,6 @@ contextGetMatrix pc = do
 contextSetMatrix :: PangoContext -> Matrix -> IO ()
 contextSetMatrix pc mat
   | mat==identity = {#call unsafe context_set_matrix#} pc nullPtr
-  | otherwise = with mat $ \matPtr -> 
+  | otherwise = with mat $ \matPtr ->
                 {#call unsafe context_set_matrix#} pc (castPtr matPtr)
 #endif

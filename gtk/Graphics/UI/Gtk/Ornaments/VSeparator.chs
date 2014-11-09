@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Ornaments.VSeparator (
 -- * Detail
--- 
+--
 -- | The 'VSeparator' widget is a vertical separator, used to group the
 -- widgets within a window. It displays a vertical line with a shadow to make
 -- it appear sunken into the interface.

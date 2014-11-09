@@ -108,7 +108,7 @@ data Store a = Store {
 -- * Additionally, a cache is used to achieve higher performance if operating on
 --   recently used TreePaths.
 --
--- * __Note:__ due to the limited amount of bits available in TreeIter storage, only 
+-- * __Note:__ due to the limited amount of bits available in TreeIter storage, only
 --   limited depth forests can be used with this implementation, the result of too deep
 --   Forests is an undefined behaviour while trying to retrieve the deeply nested nodes.
 --   For example: assuming the average requiement is 8 bits per tree level (max number of

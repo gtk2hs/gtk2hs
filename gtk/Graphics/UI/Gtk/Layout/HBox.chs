@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.HBox (
 -- * Detail
--- 
+--
 -- | 'HBox' is a container that organizes child widgets into a single row.
 --
 -- Use the 'Box' packing interface to determine the arrangement, spacing,
@@ -72,7 +72,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'HBox'.
 --
-hBoxNew :: 
+hBoxNew ::
     Bool    -- ^ @homogeneous@ - @True@ if all children are to be given equal
             -- space allotments.
  -> Int     -- ^ @spacing@ - the number of pixels to place by default between

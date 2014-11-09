@@ -6,7 +6,7 @@ import FiniteMaps (FiniteMap, unitFM, toListFM, joinFM, joinCombFM, addToFM)
 
 
 main :: IO ()
-main = 
+main =
  let
      map1 = addToFM 1 () (unitFM 2 ())
      map2 = addToFM 1 () (unitFM 3 ())
@@ -17,7 +17,7 @@ main =
 
 
 maptostring :: (FiniteMap Int ()) -> String
-maptostring fmap = 
+maptostring fmap =
   let
       list = toListFM fmap
   in

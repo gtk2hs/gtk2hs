@@ -3,11 +3,11 @@
    To run with GHCi: ghci GtkChap2a.hs
    To compile with GHC: ghc --make GtkChap2a.hs -o chap
 -}
- 
+
 import Graphics.UI.Gtk
 
 main :: IO ()
-main = do 
+main = do
   initGUI
   window <- windowNew
   windowSetTitle window "Step One"
@@ -16,9 +16,9 @@ main = do
 
 {- Notes:
    1) Watch the upper and lower case occurrences
-   2) Ctl-z to abort GHCi, not Ctl-c 
--} 
+   2) Ctl-z to abort GHCi, not Ctl-c
+-}
 
 
 
-  
+

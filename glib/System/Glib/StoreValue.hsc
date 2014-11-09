@@ -96,20 +96,20 @@ instance Enum TMType where
   fromEnum TMobject  = #const G_TYPE_OBJECT
 --  fromEnum TMboxed   = #const G_TYPE_BOXED
   toEnum #{const G_TYPE_INVALID} = TMinvalid
-  toEnum #{const G_TYPE_UINT}    = TMuint    
-  toEnum #{const G_TYPE_INT}	 = TMint     
---  toEnum #{const G_TYPE_UCHAR} = TMuchar   
---  toEnum #{const G_TYPE_CHAR}	 = TMchar    
-  toEnum #{const G_TYPE_BOOLEAN} = TMboolean 
+  toEnum #{const G_TYPE_UINT}    = TMuint
+  toEnum #{const G_TYPE_INT}	 = TMint
+--  toEnum #{const G_TYPE_UCHAR} = TMuchar
+--  toEnum #{const G_TYPE_CHAR}	 = TMchar
+  toEnum #{const G_TYPE_BOOLEAN} = TMboolean
   toEnum #{const G_TYPE_ENUM}	 = TMenum
   toEnum #{const G_TYPE_FLAGS}	 = TMflags
---  toEnum #{const G_TYPE_POINTER} = TMpointer 
-  toEnum #{const G_TYPE_FLOAT}	 = TMfloat   
-  toEnum #{const G_TYPE_DOUBLE}	 = TMdouble  
-  toEnum #{const G_TYPE_STRING}	 = TMstring  
-  toEnum #{const G_TYPE_OBJECT}	 = TMobject  
+--  toEnum #{const G_TYPE_POINTER} = TMpointer
+  toEnum #{const G_TYPE_FLOAT}	 = TMfloat
+  toEnum #{const G_TYPE_DOUBLE}	 = TMdouble
+  toEnum #{const G_TYPE_STRING}	 = TMstring
+  toEnum #{const G_TYPE_OBJECT}	 = TMobject
 --  toEnum #{const G_TYPE_BOXED}	 = TMboxed
-  toEnum _			 = 
+  toEnum _			 =
     error "StoreValue.toEnum(TMType): no dynamic types allowed."
 
 valueSetGenericValue :: GValue -> GenericValue -> IO ()
@@ -140,7 +140,7 @@ valueGetGenericValue :: GValue -> IO GenericValue
 valueGetGenericValue gvalue = do
   gtype <- valueGetType gvalue
   case (toEnum . fromIntegral) gtype of
-    TMinvalid	-> throw $ AssertionFailed 
+    TMinvalid	-> throw $ AssertionFailed
       "StoreValue.valueGetGenericValue: invalid or unavailable value."
     TMuint    -> liftM GVuint			  $ valueGetUInt    gvalue
     TMint	-> liftM GVint	                  $ valueGetInt	    gvalue

@@ -27,14 +27,14 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Pixmaps -- Offscreen drawables 
+-- Pixmaps -- Offscreen drawables
 --
 -- This module is empty when built with Gtk3 because Pixmap has been
 -- removed.
 module Graphics.UI.Gtk.Gdk.Pixmap (
 -- * Detail
 -- Pixmaps are offscreen drawables. They can be drawn upon with the
--- standard drawing primitives, then copied to another drawable 
+-- standard drawing primitives, then copied to another drawable
 -- with 'drawDrawable'.
 
 -- * Class Hierarchy
@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
 -- @
 #if GTK_MAJOR_VERSION < 3
 -- * Types
-  Pixmap, PixmapClass, 
+  Pixmap, PixmapClass,
   Bitmap,
 
 -- * Constructors

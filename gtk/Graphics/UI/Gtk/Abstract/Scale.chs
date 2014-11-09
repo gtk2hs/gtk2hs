@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.Scale (
 -- * Detail
--- 
+--
 -- | A 'Scale' is a slider control used to select a numeric value. To use it,
 -- you'll probably want to investigate the methods on its base class, 'Range',
 -- in addition to the methods for 'Scale' itself. To set the value of a scale,

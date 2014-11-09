@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Layout.Alignment (
 -- * Detail
--- 
+--
 -- | The 'Alignment' widget controls the alignment and size of its child
 -- widget. It has four settings: xscale, yscale, xalign, and yalign.
 --
@@ -96,7 +96,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'Alignment'.
 --
-alignmentNew :: 
+alignmentNew ::
     Float        -- ^ @xalign@ - the horizontal alignment of the child widget,
                  -- from 0 (left) to 1 (right).
  -> Float        -- ^ @yalign@ - the vertical alignment of the child widget,

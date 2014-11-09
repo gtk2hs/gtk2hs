@@ -50,7 +50,7 @@ options =
    ++ "module names")
 
  , Option []     ["includeapi"]  (ReqArg IncludeAPI "FILE")
-     ("the api xml file for a parent api, for example Gtk uses\n"      
+     ("the api xml file for a parent api, for example Gtk uses\n"
    ++ "types defined by Gdk and Pango")
 
  , Option []     ["excludeapi"]  (ReqArg ExcludeAPI "FILE")
@@ -106,7 +106,7 @@ main = do
                then getContents	      -- read stdin
 	       else readFile apiFile
   template <- readFile templateFile
-  
+
   includeApiFilesContents <- mapM readFile includeApiFiles
 
   -----------------------------------------------------------------------------
@@ -114,11 +114,11 @@ main = do
   --
   let document = Xml.xmlParse apiFile apicontent
       api = Api.extractAPI document
-  
+
       -- For example whe processing Gtk we'd like to know about the types
       -- included from Gdk and Pango
       includeApi = [ Api.extractAPI (Xml.xmlParse apiFile' content')
-                   | (apiFile', content') <- zip includeApiFiles includeApiFilesContents]  
+                   | (apiFile', content') <- zip includeApiFiles includeApiFilesContents]
       knownTypes = CodeGen.makeKnownSymbolsMap (api ++ concat includeApi)
 
   -----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ main = do
   -- Load up any api.exclude files supplied to filter out unwanted APIs
   --
   excludeApiFilesContents <- mapM readFile excludeApiFiles
-  
+
   -----------------------------------------------------------------------------
   -- A few values that are used in the template
   --

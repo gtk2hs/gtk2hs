@@ -58,7 +58,7 @@ main  = run ("", "", "") () (
 -- test the attribute table functions
 -- ----------------------------------
 
-data T = A | B | NoT | DontCareT 
+data T = A | B | NoT | DontCareT
        deriving (Eq, Show)
 
 instance Attr T where
@@ -73,11 +73,11 @@ instance Attr T where
   isDontCare DontCareT = True
   isDontCare _	       = False
 
-at :: AttrTable T 
+at :: AttrTable T
 at  = newAttrTable "test table"
 
 testAttrTables    :: [Name] -> PreCST e s ()
-testAttrTables ns  = 
+testAttrTables ns  =
   putStrCIO "Checking the functions for attribute tables...\n"		+>
   let
     n10 : n13 : _ = ns
@@ -101,7 +101,7 @@ testAttrTables ns  =
   in
   if ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7 && ok8
   then
-    putStrCIO "...they are ok.\n"		  
+    putStrCIO "...they are ok.\n"		
   else
     putStrCIO "...ERROR DETECTED: test(s) "                +>
     putIfNotOk "ok1" ok1				   +>
@@ -186,7 +186,7 @@ type MyCST a   = PreCST () MyState a
 enableAttrs    :: Ident -> MyCST Ident
 enableAttrs id  = transCST enable
 		  where
-		    enable (n:ns, vt, env) = 
+		    enable (n:ns, vt, env) =
 		      let
 			id' = lexemeToIdent (posOf id) (identToLexeme id) n
 		      in
@@ -199,10 +199,10 @@ getDefOf    :: Ident -> MyCST Bd
 getDefOf id  = readCST (\(_, vt, _) -> value ((getAttr vt . getIdentAttrs) id))
 
 becomesDef       :: Ident -> Bd -> MyCST ()
-becomesDef id bd  = transCST (\(ais, vt, env) 
-			      -> ((ais, 
-				   setAttr vt (getIdentAttrs id) (Value bd), 
-				   env), 
+becomesDef id bd  = transCST (\(ais, vt, env)
+			      -> ((ais,
+				   setAttr vt (getIdentAttrs id) (Value bd),
+				   env),
 				  ()))
 
 -- monad operations for environment management
@@ -215,7 +215,7 @@ leave :: MyCST ()
 leave  = transCST (\(ais, vt, env) -> ((ais, vt, fst (leaveRange env)), ()))
 
 define         :: VName -> VarObj -> MyCST ()
-define name vo  = transCST (\(ais, vt, env) 
+define name vo  = transCST (\(ais, vt, env)
 			    -> let
 				 (env', clash) = defLocal env name vo
 			       in
@@ -242,7 +242,7 @@ expr :: Exp
 expr  = Let [Bd (onlyPosIdent nopos "x") (Const 1),
 	     Bd (onlyPosIdent nopos "y") (Mul (Const 2) (Const 3))
 	    ]
-	    (Add (Var (onlyPosIdent nopos "x"))  
+	    (Add (Var (onlyPosIdent nopos "x"))
 		 (Var (onlyPosIdent nopos "y")))
 
 -- attribute an expression, i.e., create the attribute identifiers and perform

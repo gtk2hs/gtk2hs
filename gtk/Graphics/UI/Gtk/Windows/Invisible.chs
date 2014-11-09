@@ -23,7 +23,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget which is not displayed                                                                                                              
+-- A widget which is not displayed
 -- The 'Invisible' widget is used internally in GTK+, and is probably not very useful for application developers.
 -- It is used for reliable pointer grabs and selection handling in the code for drag-and-drop.
 --
@@ -42,7 +42,7 @@ module Graphics.UI.Gtk.Windows.Invisible (
   Invisible,
 
 -- * Constructors
-  invisibleNew,  
+  invisibleNew,
   invisibleNewForScreen,
 
 -- * Methods
@@ -80,31 +80,31 @@ invisibleNew =
 --
 -- * Available since Gdk version 2.2
 --
-invisibleNewForScreen :: 
-   Screen   -- ^ @screen@ - a 'Screen' which identifies on which the new 'Invisible' will be created. 
+invisibleNewForScreen ::
+   Screen   -- ^ @screen@ - a 'Screen' which identifies on which the new 'Invisible' will be created.
  -> IO Invisible
 invisibleNewForScreen screen =
   makeNewObject mkInvisible $
   liftM (castPtr :: Ptr Widget -> Ptr Invisible) $
   {# call invisible_new_for_screen #} screen
-  
+
 -- | Sets the 'Screen' where the 'Invisible' object will be displayed.
 --
 -- * Available since Gdk version 2.2
 --
-invisibleSetScreen :: Invisible 
+invisibleSetScreen :: Invisible
  -> Screen  -- ^ @screen@ - the 'Screen' to set
  -> IO ()
 invisibleSetScreen invisible screen =
   {# call invisible_set_screen #} invisible screen
-  
--- | Returns the 'Screen' object associated with invisible  
+
+-- | Returns the 'Screen' object associated with invisible
 --
 -- * Available since Gdk version 2.2
 --
 invisibleGetScreen :: Invisible
  -> IO Screen
-invisibleGetScreen invisible = 
+invisibleGetScreen invisible =
   makeNewGObject mkScreen $
   {# call invisible_get_screen #} invisible
 

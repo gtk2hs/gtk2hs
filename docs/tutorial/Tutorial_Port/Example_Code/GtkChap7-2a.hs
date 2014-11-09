@@ -13,7 +13,7 @@ main= do
      rma <- actionNew "RMA" "Remove" Nothing Nothing
      saa <- actionNew "SAA" "Save" Nothing Nothing
 
-     agr <- actionGroupNew "AGR1" 
+     agr <- actionGroupNew "AGR1"
      mapM_ (actionGroupAddAction agr) [eda,pra,rma,saa]
 
      uiman <- uiManagerNew
@@ -21,7 +21,7 @@ main= do
      uiManagerInsertActionGroup uiman agr 0
 
      maybePopup <- uiManagerGetWidget uiman "/ui/popup"
-     let pop = case maybePopup of 
+     let pop = case maybePopup of
                     (Just x) -> x
                     Nothing -> error "Cannot get popup from string"
 

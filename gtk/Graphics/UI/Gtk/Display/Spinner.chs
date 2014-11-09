@@ -28,10 +28,10 @@
 module Graphics.UI.Gtk.Display.Spinner (
 #if GTK_CHECK_VERSION(2,20,0)
 -- * Detail
--- 
+--
 -- | A 'Spinner' widget displays an icon-size spinning animation. It is often used as an alternative to
 -- a 'ProgressBar' for displaying indefinite activity, instead of actual progress.
--- 
+--
 -- To start the animation, use 'spinnerStart'.
 
 -- * Types
@@ -44,8 +44,8 @@ module Graphics.UI.Gtk.Display.Spinner (
 -- * Methods
    spinnerStart,
    spinnerStop,
-   
--- * Attributes   
+
+-- * Attributes
    spinnerActive,
 #endif
 ) where
@@ -68,7 +68,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Returns a new spinner widget. Not yet started.
 spinnerNew :: IO Spinner
-spinnerNew = 
+spinnerNew =
   makeNewObject mkSpinner $
   liftM (castPtr :: Ptr Widget -> Ptr Spinner) $
   {# call unsafe spinner_new #}
@@ -92,7 +92,7 @@ spinnerStop spinner =
 -- Attributes
 
 -- | Whether the spinner is active.
--- 
+--
 -- Default value: 'False'
 spinnerActive :: SpinnerClass spinner => Attr spinner Bool
 spinnerActive = newAttrFromBoolProperty "active"

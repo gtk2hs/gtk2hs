@@ -129,7 +129,7 @@ fixLibs dlls = concatMap $ \ lib ->
             Just ('.':_)                -> True
             Just ('-':n:_) | isNumber n -> True
             _                           -> False
-        
+
 -- The following code is a big copy-and-paste job from the sources of
 -- Cabal 1.8 just to be able to fix a field in the package file. Yuck.
 

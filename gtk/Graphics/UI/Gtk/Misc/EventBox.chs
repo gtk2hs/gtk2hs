@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.Misc.EventBox (
 -- * Detail
--- 
+--
 -- | The 'EventBox' widget is a subclass of 'Bin' which also has its own
 -- window. It is useful since it allows you to catch events for widgets which
 -- do not have their own window.

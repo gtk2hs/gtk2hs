@@ -23,7 +23,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Renders a spinning animation in a cell                                                             
+-- Renders a spinning animation in a cell
 --
 -- * Module available since Gtk+ version 2.20
 --
@@ -32,7 +32,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererSpinner (
 -- | 'CellRendererSpinner' renders a spinning animation in a cell, very similar to 'Spinner'. It can
 -- often be used as an alternative to a 'CellRendererProgress' for displaying indefinite activity,
 -- instead of actual progress.
--- 
+--
 -- To start the animation in a cell, set the "active" property to 'True' and increment the "pulse"
 -- property at regular intervals.  The usual way to set the cell renderer properties for each cell is
 -- to bind them to columns in your tree model using e.g.  'treeViewColumnAddAttribute'.
@@ -46,9 +46,9 @@ module Graphics.UI.Gtk.ModelView.CellRendererSpinner (
 -- |         +----'CellRenderer'
 -- |               +----'CellRendererSpinner'
 -- @
-  
+
 #if GTK_CHECK_VERSION(2,20,0)
--- * Types  
+-- * Types
   CellRendererSpinner,
   CellRendererSpinnerClass,
   castToCellRendererSpinner,
@@ -86,7 +86,7 @@ cellRendererSpinnerNew =
   {#call gtk_cell_renderer_spinner_new #}
 
 -- | Whether the spinner is active (ie. shown) in the cell.
--- 
+--
 -- Default value: 'False'
 --
 -- * Available since Gtk+ version 2.20
@@ -97,11 +97,11 @@ cellRendererSpinnerActive =
 
 -- | Pulse of the spinner. Increment this value to draw the next frame of the spinner animation. Usually,
 -- you would update this value in a timeout.
--- 
+--
 -- The 'Spinner' widget draws one full cycle of the animation per second by default. You can learn
 -- about the number of frames used by the theme by looking at the 'numSteps' style property and the
 -- duration of the cycle by looking at 'cycleDuration'.
--- 
+--
 -- Default value: 0
 --
 -- * Available since Gtk+ version 2.20
@@ -111,7 +111,7 @@ cellRendererSpinnerPulse =
     newAttrFromIntProperty "pulse"
 
 -- | The 'IconSize' value that specifies the size of the rendered spinner.
--- 
+--
 -- Default value: 'IconSizeMenu'
 --
 -- * Available since Gtk+ version 2.20

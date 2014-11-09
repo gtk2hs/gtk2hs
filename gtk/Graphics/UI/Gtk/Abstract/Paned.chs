@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Abstract.Paned (
 -- * Detail
--- 
+--
 -- | 'Paned' is the base class for widgets with two panes, arranged either
 -- horizontally ('HPaned') or vertically ('VPaned'). Child widgets are added to
 -- the panes of the widget with 'panedPack1' and 'panedPack2'. The division
@@ -312,7 +312,7 @@ panedChildShrink = newAttrFromContainerChildBoolProperty "shrink"
 -- Deprecated Signals
 
 #ifndef DISABLE_DEPRECATED
--- | 
+-- |
 --
 onCycleChildFocus, afterCycleChildFocus :: PanedClass self => self
  -> (Bool -> IO Bool)
@@ -320,7 +320,7 @@ onCycleChildFocus, afterCycleChildFocus :: PanedClass self => self
 onCycleChildFocus = connect_BOOL__BOOL "cycle_child_focus" False
 afterCycleChildFocus = connect_BOOL__BOOL "cycle_child_focus" True
 
--- | 
+-- |
 --
 onToggleHandleFocus, afterToggleHandleFocus :: PanedClass self => self
  -> IO Bool
@@ -328,7 +328,7 @@ onToggleHandleFocus, afterToggleHandleFocus :: PanedClass self => self
 onToggleHandleFocus = connect_NONE__BOOL "toggle_handle_focus" False
 afterToggleHandleFocus = connect_NONE__BOOL "toggle_handle_focus" True
 
--- | 
+-- |
 --
 onMoveHandle, afterMoveHandle :: PanedClass self => self
  -> (ScrollType -> IO Bool)
@@ -336,7 +336,7 @@ onMoveHandle, afterMoveHandle :: PanedClass self => self
 onMoveHandle = connect_ENUM__BOOL "move_handle" False
 afterMoveHandle = connect_ENUM__BOOL "move_handle" True
 
--- | 
+-- |
 --
 onCycleHandleFocus, afterCycleHandleFocus :: PanedClass self => self
  -> (Bool -> IO Bool)
@@ -344,7 +344,7 @@ onCycleHandleFocus, afterCycleHandleFocus :: PanedClass self => self
 onCycleHandleFocus = connect_BOOL__BOOL "cycle_handle_focus" False
 afterCycleHandleFocus = connect_BOOL__BOOL "cycle_handle_focus" True
 
--- | 
+-- |
 --
 onAcceptPosition, afterAcceptPosition :: PanedClass self => self
  -> IO Bool
@@ -352,7 +352,7 @@ onAcceptPosition, afterAcceptPosition :: PanedClass self => self
 onAcceptPosition = connect_NONE__BOOL "accept_position" False
 afterAcceptPosition = connect_NONE__BOOL "accept_position" True
 
--- | 
+-- |
 --
 onCancelPosition, afterCancelPosition :: PanedClass self => self
  -> IO Bool

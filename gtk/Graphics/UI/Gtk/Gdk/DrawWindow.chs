@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Gdk.DrawWindow (
 -- A 'DrawWindow' is used to implement high-level objects such as 'Widget' and
--- 'Window' on the Gtk+ level. 
+-- 'Window' on the Gtk+ level.
 --
 -- Most widgets draws its content into a 'DrawWindow', in particular
 -- 'DrawingArea' is nothing but a widget that contains a 'DrawWindow'.
@@ -121,7 +121,7 @@ import Graphics.UI.Gtk.Abstract.Widget	(widgetSetDoubleBuffered)
 
 -- | Gets the bitwise OR of the currently active drawWindow state flags, from
 -- the 'WindowState' enumeration.
--- 
+--
 drawWindowGetState :: DrawWindowClass self => self
  -> IO [WindowState] -- ^ returns @DrawWindow@ flags
 drawWindowGetState self =
@@ -139,7 +139,7 @@ drawWindowGetState self =
 -- if the edges of the window's parent do not extend beyond the edges of the
 -- drawWindow. In other cases, a multi-step process is used to scroll the window
 -- which may produce temporary visual artifacts and unnecessary invalidations.)
--- 
+--
 drawWindowScroll :: DrawWindowClass self => self
  -> Int   -- ^ @dx@ - Amount to scroll in the X direction
  -> Int   -- ^ @dy@ - Amount to scroll in the Y direction
@@ -152,7 +152,7 @@ drawWindowScroll self dx dy =
 
 #if GTK_MAJOR_VERSION < 3
 -- | Clears an entire @DrawWindow@ to the background color or background pixmap.
--- 
+--
 -- Removed in Gtk3.
 drawWindowClear :: DrawWindowClass self => self -> IO ()
 drawWindowClear self =
@@ -160,8 +160,8 @@ drawWindowClear self =
      (toDrawWindow self)
 
 -- | Clears an area of @DrawWindow@ to the background color or background pixmap.
--- 
--- Removed in Gtk3. 
+--
+-- Removed in Gtk3.
 drawWindowClearArea :: DrawWindowClass self => self
  -> Int   -- ^ @x@ - x coordinate of rectangle to clear
  -> Int   -- ^ @y@ - y coordinate of rectangle to clear
@@ -178,7 +178,7 @@ drawWindowClearArea self x y width height =
 
 -- | Like 'drawWindowClearArea', but also generates an expose event for the
 -- cleared area.
--- 
+--
 -- Removed in Gtk3.
 drawWindowClearAreaExpose :: DrawWindowClass self => self
  -> Int   -- ^ @x@ - x coordinate of rectangle to clear
@@ -202,7 +202,7 @@ drawWindowClearAreaExpose self x y width height =
 -- If @DrawWindow@ is a toplevel, the window manager may choose to deny the
 -- request to move the drawWindow in the Z-order, 'drawWindowRaise' only requests the
 -- restack, does not guarantee it.
--- 
+--
 drawWindowRaise :: DrawWindowClass self => self -> IO ()
 drawWindowRaise self =
   {# call gdk_window_raise #}
@@ -227,7 +227,7 @@ drawWindowLower self =
      (toDrawWindow self)
 
 -- | Registers a drawWindow as a potential drop destination.
--- 
+--
 drawWindowRegisterDnd :: DrawWindowClass self => self -> IO ()
 drawWindowRegisterDnd self =
   {# call gdk_window_register_dnd #}
@@ -237,7 +237,7 @@ drawWindowRegisterDnd self =
 -- rectangular region for you.
 --
 -- * See 'drawWindowBeginPaintRegion' for details.
--- 
+--
 drawWindowBeginPaintRect :: DrawWindowClass self => self
  -> Rectangle -- ^ @rectangle@ - rectangle you intend to draw to
  -> IO ()
@@ -281,7 +281,7 @@ drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
 -- drawing operations affect only the topmost backing store in the stack. One
 -- matching call to 'drawWindowEndPaint' is required for each call to
 -- 'drawWindowBeginPaintRegion'.
--- 
+--
 -- Removed in Gtk3.
 drawWindowBeginPaintRegion :: DrawWindowClass self => self
  -> Region -- ^ @region@ - region you intend to draw to
@@ -299,7 +299,7 @@ drawWindowBeginPaintRegion self region =
 -- next-most-recent backing store or no backing store at all as the active
 -- paint region. See 'drawWindowBeginPaintRegion' for full details. It is an error
 -- to call this function without a matching 'drawWindowBeginPaintRegion' first.
--- 
+--
 drawWindowEndPaint :: DrawWindowClass self => self -> IO ()
 drawWindowEndPaint self =
   {# call gdk_window_end_paint #}
@@ -307,7 +307,7 @@ drawWindowEndPaint self =
 
 -- | A convenience wrapper around 'drawWindowInvalidateRegion' which invalidates a
 -- rectangular region. See 'drawWindowInvalidateRegion' for details.
--- 
+--
 drawWindowInvalidateRect :: DrawWindowClass self => self
  -> Rectangle -- ^ @rect@ - rectangle to invalidate
  -> Bool              -- ^ @invalidateChildren@ - whether to also invalidate
@@ -330,7 +330,7 @@ drawWindowInvalidateRect self rect invalidateChildren =
 -- The @invalidateChildren@ parameter controls whether the region of each
 -- child drawWindow that intersects @region@ will also be invalidated. If @False@,
 -- then the update area for child drawWindows will remain unaffected.
--- 
+--
 drawWindowInvalidateRegion :: DrawWindowClass self => self
  -> Region -- ^ @region@ - a "Region"
  -> Bool           -- ^ @invalidateChildren@ - @True@ to also invalidate child
@@ -350,7 +350,7 @@ drawWindowInvalidateRegion self region invalidateChildren =
 -- function. That is, after calling this function, @DrawWindow@ will no longer have
 -- an invalid\/dirty region; the update area is removed from @DrawWindow@ and
 -- handed to you. If this window has no update area, 'drawWindowGetUpdateArea' returns 'Nothing'.
--- 
+--
 -- Removed in Gtk3.
 drawWindowGetUpdateArea :: DrawWindowClass self => self
  -> IO (Maybe Region) -- ^ returns the update area for @DrawWindow@
@@ -360,19 +360,19 @@ drawWindowGetUpdateArea self = do
 #endif
 
 -- | Temporarily freezes a drawWindow such that it won\'t receive expose events.
---  * The drawWindow will begin receiving expose events again when 
+--  * The drawWindow will begin receiving expose events again when
 --  'drawWindowThawUpdates'
 -- is called. If 'drawWindowFreezeUpdates' has been called more than once,
 -- 'drawWindowThawUpdates' must be called an equal number of times to begin
 -- processing exposes.
--- 
+--
 drawWindowFreezeUpdates :: DrawWindowClass self => self -> IO ()
 drawWindowFreezeUpdates self =
   {# call gdk_window_freeze_updates #}
      (toDrawWindow self)
 
 -- | Thaws a drawWindow frozen with 'drawWindowFreezeUpdates'.
--- 
+--
 drawWindowThawUpdates :: DrawWindowClass self => self -> IO ()
 drawWindowThawUpdates self =
   {# call gdk_window_thaw_updates #}
@@ -388,7 +388,7 @@ drawWindowThawUpdates self =
 -- and synchronously (vs. the usual case, where Gtk delivers them in an idle
 -- handler). Occasionally this is useful to produce nicer scrolling behavior,
 -- for example.
--- 
+--
 drawWindowProcessUpdates :: DrawWindowClass self => self
  -> Bool  -- ^ @updateChildren@ - whether to also process updates for child
           -- drawWindows
@@ -406,7 +406,7 @@ drawWindowProcessUpdates self updateChildren =
 -- hint. ICCCM-compliant drawWindow manager usually respect it.
 --
 -- * Available since Gdk version 2.4
--- 
+--
 drawWindowSetAcceptFocus :: DrawWindowClass self => self
  -> Bool  -- ^ @acceptFocus@ - @True@ if the drawWindow should receive input focus
  -> IO ()
@@ -428,7 +428,7 @@ drawWindowSetAcceptFocus self acceptFocus =
 --
 -- * On the X11 platform, this uses an X server extension which is widely
 --   available on most common platforms, but not available on very old
---   X servers, and occasionally the implementation will be buggy. 
+--   X servers, and occasionally the implementation will be buggy.
 --   On servers without the shape extension, this function will do nothing.
 --   On the Win32 platform the functionality is always present.
 --
@@ -472,7 +472,7 @@ drawWindowShapeCombineMask self Nothing offsetX offsetY =
 -- shape extension, this function will do nothing.
 --
 -- This function works on both toplevel and child drawWindows.
--- 
+--
 drawWindowShapeCombineRegion :: DrawWindowClass self => self
  -> Maybe Region -- ^ @shapeRegion@ - region of drawWindow to be non-transparent
  -> Int            -- ^ @offsetX@ - X position of @shapeRegion@ in @DrawWindow@
@@ -498,7 +498,7 @@ drawWindowShapeCombineRegion self Nothing offsetX offsetY =
 -- children of @DrawWindow@, ignoring the shape mask of @DrawWindow@ itself. Contrast
 -- with 'drawWindowMergeChildShapes' which includes the shape mask of @DrawWindow@ in
 -- the masks to be merged.
--- 
+--
 drawWindowSetChildShapes :: DrawWindowClass self => self -> IO ()
 drawWindowSetChildShapes self =
   {# call gdk_window_set_child_shapes #}
@@ -510,7 +510,7 @@ drawWindowSetChildShapes self =
 --
 -- This function is distinct from 'drawWindowSetChildShapes' because it includes
 -- @DrawWindow@'s shape mask in the set of shapes to be merged.
--- 
+--
 drawWindowMergeChildShapes :: DrawWindowClass self => self -> IO ()
 drawWindowMergeChildShapes self =
   {# call gdk_window_merge_child_shapes #}
@@ -521,7 +521,7 @@ drawWindowMergeChildShapes self =
 --
 -- * The position is
 -- given in coordinates relative to the given window.
--- 
+--
 -- * The return value is @Just (same, x, y, mod)@ where @same@ is @True@
 --   if the passed in window is the window over which the mouse currently
 --   resides.
@@ -548,12 +548,12 @@ drawWindowGetPointer self =
 --
 -- * The position is
 -- given in coordinates relative to the given window.
--- 
+--
 -- * The return value is @(Just win, x, y, mod)@ where @win@ is the
 --   window over which the mouse currently resides and @mod@ denotes
 --   the keyboard modifiers currently being depressed.
 --
--- * The return value is @Nothing@ for the window if the mouse cursor is 
+-- * The return value is @Nothing@ for the window if the mouse cursor is
 --   not over a known window.
 --
 drawWindowGetPointerPos :: DrawWindowClass self => self
@@ -613,8 +613,8 @@ drawWindowForeignNew anid = maybeNull (wrapNewGObject mkDrawWindow) $
 #endif
 
 -- | Obtains the root window (parent all other windows are inside) for the default display and screen.
-drawWindowGetDefaultRootWindow :: 
-  IO DrawWindow -- ^ returns the default root window 
+drawWindowGetDefaultRootWindow ::
+  IO DrawWindow -- ^ returns the default root window
 drawWindowGetDefaultRootWindow =
   makeNewGObject mkDrawWindow $
   {#call gdk_get_default_root_window #}

@@ -262,7 +262,7 @@ instance Storable FontExtents where
 --                          with red at the top
 --
 -- ['SubpixelOrderVbgr']    Subpixel elements are arranged vertically
---                          with blue at the top 
+--                          with blue at the top
 --
 {#enum subpixel_order_t as SubpixelOrder {underscoreToCase} deriving(Eq,Show)#}
 
@@ -320,11 +320,11 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
   fontOptionsDestroy :: FinalizerPtr FontOptions
 
 -- XXX: pathToList :: Path -> [PathData]
--- 
+--
 -- http://cairographics.org/manual/bindings-path.html
--- 
+--
 -- {#enum path_data_type_t as PathDataType {underscoreToCase}#}
--- 
+--
 -- type Point = (Double, Double)
 -- data PathData = PathMoveTo Point
 --               | PathLineTo Point

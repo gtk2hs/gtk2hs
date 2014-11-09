@@ -20,7 +20,7 @@
 --- DESCRIPTION ---------------------------------------------------------------
 --
 --  This module provides some definitions used throughout all modules of a
---  compiler. 
+--  compiler.
 --
 --- DOCU ----------------------------------------------------------------------
 --
@@ -30,7 +30,7 @@
 --
 --- TODO ----------------------------------------------------------------------
 --
- 
+
 module Position (
   --
   -- source text positions
@@ -47,7 +47,7 @@ import Binary      (Binary(..), putSharedString, getSharedString)
 
 -- uniform representation of source file positions; the order of the arguments
 -- is important as it leads to the desired ordering of source positions
--- (EXPORTED) 
+-- (EXPORTED)
 --
 data Position = Position String		-- file name
 	{-# UNPACK #-}	 !Int		-- row

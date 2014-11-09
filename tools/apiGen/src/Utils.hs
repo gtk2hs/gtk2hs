@@ -1,5 +1,5 @@
 module Utils (
-  
+
   -- pretty printing
   module Text.PrettyPrint,
   ($$), ($+$),
@@ -7,19 +7,19 @@ module Utils (
   vsep,
   comment,
   commentBlock,
-  
+
   -- string things
   lowerCaseFirstWord,
   upperCaseFirstChar,
   splitBy, splitOn,
   wrapText,
   templateSubstitute,
-  
+
   -- generic things
   equating,
   comparing,
   mergeBy,
-  
+
   ) where
 
 import Data.Char (isUpper, toLower, toUpper)
@@ -80,7 +80,7 @@ splitOn sep xs = split xs
 -- wraps a list of words to lines of words
 wrapText :: Int -> Int -> [String] -> [[String]]
 wrapText initialCol width = wrap initialCol []
-  
+
   where wrap :: Int -> [String] -> [String] -> [[String]]
         wrap 0   []   (word:words)
           | length word + 1 > width
@@ -123,7 +123,7 @@ mergeBy :: (a -> b -> Ordering) -> [a] -> [b] -> ([a], [(a, b)], [b])
 mergeBy cmp = merge [] [] []
   where merge l m r []     ys     = (reverse l, reverse m, reverse (ys++r))
         merge l m r xs     []     = (reverse (xs++l), reverse m, reverse r)
-        merge l m r (x:xs) (y:ys) = 
+        merge l m r (x:xs) (y:ys) =
           case x `cmp` y of
             GT -> merge    l         m  (y:r) (x:xs)    ys
             EQ -> merge    l  ((x,y):m)    r     xs     ys

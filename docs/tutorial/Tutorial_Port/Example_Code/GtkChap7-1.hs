@@ -19,8 +19,8 @@ main = do
      sava <- actionNew "SAVA" "Save"    (Just "Just a Stub") (Just stockSave)
      svaa <- actionNew "SVAA" "Save As" (Just "Just a Stub") (Just stockSaveAs)
      exia <- actionNew "EXIA" "Exit"    (Just "Just a Stub") (Just stockQuit)
- 
-     cuta <- actionNew "CUTA" "Cut"   (Just "Just a Stub") (Just stockCut)    
+
+     cuta <- actionNew "CUTA" "Cut"   (Just "Just a Stub") (Just stockCut)
      copa <- actionNew "COPA" "Copy"  (Just "Just a Stub") (Just stockCopy)
      psta <- actionNew "PSTA" "Paste" (Just "Just a Stub") (Just stockPaste)
 
@@ -28,7 +28,7 @@ main = do
 
      agr <- actionGroupNew "AGR"
      mapM_ (actionGroupAddAction agr) [fma, ema, hma]
-     mapM_ (\ act -> actionGroupAddActionWithAccel agr act Nothing) 
+     mapM_ (\ act -> actionGroupAddActionWithAccel agr act Nothing)
        [newa,opna,sava,svaa,cuta,copa,psta,hlpa]
 
      actionGroupAddActionWithAccel agr exia (Just "<Control>e")
@@ -40,13 +40,13 @@ main = do
      maybeMenubar <- uiManagerGetWidget ui "/ui/menubar"
      let menubar = case maybeMenubar of
                         (Just x) -> x
-                        Nothing -> error "Cannot get menubar from string." 
+                        Nothing -> error "Cannot get menubar from string."
      boxPackStart box menubar PackNatural 0
 
      maybeToolbar <- uiManagerGetWidget ui "/ui/toolbar"
      let toolbar = case maybeToolbar of
                         (Just x) -> x
-                        Nothing -> error "Cannot get toolbar from string." 
+                        Nothing -> error "Cannot get toolbar from string."
      boxPackStart box toolbar PackNatural 0
 
      actionSetSensitive cuta False

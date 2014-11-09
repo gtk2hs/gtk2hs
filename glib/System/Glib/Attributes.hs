@@ -68,7 +68,7 @@ module System.Glib.Attributes (
   AttrOp(..),
   get,
   set,
-  
+
   -- * Internal attribute constructors
   newNamedAttr,
   readNamedAttr,

@@ -29,11 +29,11 @@ matcher spec line = not $ (matchExclude && (not matchNotExclude))
   where excludeRegexFragments       = [ regex | Exclude       regex <- spec ]
         noExcludeRegexFragments     = [ regex | NotExclude    regex <- spec ]
         alwaysExcludeRegexFragments = [ regex | AlwaysExclude regex <- spec ]
-  
+
         excludeRegex       = mkRegex $ concat $ intersperse "|" excludeRegexFragments
         noExcludeRegex     = mkRegex $ concat $ intersperse "|" noExcludeRegexFragments
         alwaysExcludeRegex = mkRegex $ concat $ intersperse "|" alwaysExcludeRegexFragments
-        
+
         matchExclude       = isJust (matchRegex excludeRegex line) && not (null excludeRegexFragments)
         matchNotExclude    = isJust (matchRegex noExcludeRegex line) && not (null noExcludeRegexFragments)
         matchAlwaysExclude = isJust (matchRegex alwaysExcludeRegex line) && not (null alwaysExcludeRegexFragments)

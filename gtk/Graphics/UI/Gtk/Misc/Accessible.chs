@@ -29,7 +29,7 @@ module Graphics.UI.Gtk.Misc.Accessible (
 -- * Detail
 --
 -- | Accessible accessibility support for widgets.
---  
+--
 
 -- * Class Hierarchy
 -- |
@@ -82,11 +82,11 @@ accessibleGetWidget self =
 --
 -- * Available since Gtk+ version 2.22
 --
-accessibleSetWidget :: (AccessibleClass self, WidgetClass widget) 
-                      => self -- ^ @accessible@ a 'Accessible' 
-                      -> widget -- ^ @widget@     a 'Widget'     
+accessibleSetWidget :: (AccessibleClass self, WidgetClass widget)
+                      => self -- ^ @accessible@ a 'Accessible'
+                      -> widget -- ^ @widget@     a 'Widget'
                       -> IO ()
-accessibleSetWidget self widget =                       
+accessibleSetWidget self widget =
   {#call accessible_set_widget #}
      (toAccessible self)
      (toWidget widget)

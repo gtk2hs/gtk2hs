@@ -49,7 +49,7 @@
 -- PostScript and PDF. Operations in cairo including stroking and filling cubic
 -- Bezier splines, transforming and compositing translucent images, and
 -- antialiased text rendering. All drawing operations can be transformed by any
--- affine transformation (scale, rotation, shear, etc.) 
+-- affine transformation (scale, rotation, shear, etc.)
 --
 -- Cairo is free software and is available to be redistributed and\/or modified
 -- under the terms of either the GNU Lesser General Public License (LGPL)
@@ -358,7 +358,7 @@ liftRender6 f a b c d e g = ask >>= \context -> liftIO (f context a b c d e g)
 -- default values and with the given surface as a target surface. The target
 -- surface should be constructed with a backend-specific function such as
 -- 'withImageSurface' (or any other with\<backend\>Surface variant).
--- 
+--
 renderWith :: (MonadIO m) =>
      Surface  -- ^ the target surface for the Render context
   -> Render a
@@ -927,8 +927,8 @@ moveTo = liftRender2 Internal.moveTo
 -- position (@x@, @y@) in user-space coordinates.
 --
 rectangle ::
-     Double -- ^ @x@ - the X coordinate of the top left corner of the rectangle 
-  -> Double -- ^ @y@ - the Y coordinate of the top left corner of the rectangle 
+     Double -- ^ @x@ - the X coordinate of the top left corner of the rectangle
+  -> Double -- ^ @y@ - the Y coordinate of the top left corner of the rectangle
   -> Double -- ^ @width@ - the width of the rectangle
   -> Double -- ^ @height@ - the height of the rectangle
   -> Render ()
@@ -937,7 +937,7 @@ rectangle = liftRender4 Internal.rectangle
 -- | Render text at the current path.
 --
 -- * See 'showText' for why you should use Gtk functions.
--- 
+--
 textPath ::
      CairoString string
   => string -- ^ -
@@ -1435,7 +1435,7 @@ fontOptionsCreate = liftIO $ Internal.fontOptionsCreate
 -- | Allocates a new font options object copying the option values from @original@.
 --
 fontOptionsCopy ::
-     MonadIO m => 
+     MonadIO m =>
      FontOptions -- ^ @original@
   -> m FontOptions
 fontOptionsCopy a = liftIO $ Internal.fontOptionsCopy a
@@ -1445,9 +1445,9 @@ fontOptionsCopy a = liftIO $ Internal.fontOptionsCopy a
 -- @other@ onto @options@ with the operation of 'OperationOver'.
 --
 fontOptionsMerge ::
-     MonadIO m => 
+     MonadIO m =>
      FontOptions -- ^ @options@
-  -> FontOptions -- ^ @other@ 
+  -> FontOptions -- ^ @other@
   -> m ()
 fontOptionsMerge a b = liftIO $ Internal.fontOptionsMerge a b
 
@@ -1539,7 +1539,7 @@ withSimilarSurface surface contentType width height f =
 -- Haskell memory manager rather than only being temporaily allocated. This
 -- is more flexible and allows you to create surfaces that persist, which
 -- can be very useful, for example to cache static elements in an animation.
--- 
+--
 -- However you should be careful because surfaces can be expensive resources
 -- and the Haskell memory manager cannot guarantee when it will release them.
 -- You can manually release the resources used by a surface with
@@ -1641,7 +1641,7 @@ surfaceMarkDirty a = liftIO $ Internal.surfaceMarkDirty a
 -- surface.
 --
 surfaceMarkDirtyRectangle ::
-     MonadIO m => 
+     MonadIO m =>
      Surface -- ^ a 'Surface'
   -> Int     -- ^ X coordinate of dirty rectangle
   -> Int     -- ^ Y coordinate of dirty rectangle
@@ -1662,7 +1662,7 @@ surfaceMarkDirtyRectangle a b c d e = liftIO $ Internal.surfaceMarkDirtyRectangl
 -- surface in a surface pattern.
 --
 surfaceSetDeviceOffset ::
-     MonadIO m => 
+     MonadIO m =>
      Surface -- ^ a 'Surface'
   -> Double  -- ^ the offset in the X direction, in device units
   -> Double  -- ^ the offset in the Y direction, in device units
@@ -1676,7 +1676,7 @@ surfaceSetDeviceOffset a b c = liftIO $ Internal.surfaceSetDeviceOffset a b c
 formatStrideForWidth ::
      Format -- ^ format of pixels in the surface to create
   -> Int    -- ^ width of the surface, in pixels
-  -> Int    -- ^ the stride (number of bytes necessary to store one line) 
+  -> Int    -- ^ the stride (number of bytes necessary to store one line)
             --   or @-1@ if the format is invalid or the width is too large
 formatStrideForWidth = Internal.formatStrideForWidth
 #endif
@@ -1842,7 +1842,7 @@ imageSurfaceGetData a = do
 --
 -- * The function will return an error if the surface is not an image
 --   surface or if 'surfaceFinish' has been called on the surface.
--- 
+--
 imageSurfaceGetPixels :: Storable e => Surface -> IO (SurfaceData Int e)
 imageSurfaceGetPixels pb = do
   pixPtr <- Internal.imageSurfaceGetData pb
@@ -1969,7 +1969,7 @@ withPSSurface ::
   -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
                        -- only valid within in this action.
   -> IO a
-withPSSurface filename width height f = 
+withPSSurface filename width height f =
   bracket (Internal.psSurfaceCreate filename width height)
           (\surface -> do status <- Internal.surfaceStatus surface
                           Internal.surfaceDestroy surface

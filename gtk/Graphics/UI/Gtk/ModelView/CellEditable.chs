@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.ModelView.CellEditable (
 -- * Attributes
 #if GTK_CHECK_VERSION(2,20,0)
   cellEditableEditingCanceled,
-#endif  
+#endif
 
 -- * Signals
   cellEditableEditingDone,
@@ -78,7 +78,7 @@ import Graphics.UI.Gtk.Gdk.Events (Event, EventKey, marshalEvent)
 --------------------
 -- Methods
 
--- | Begins editing on a @cellEditable@. @event@ is the 'Event' that began the editing process. 
+-- | Begins editing on a @cellEditable@. @event@ is the 'Event' that began the editing process.
 --
 cellEditableStartEditing :: CellEditableClass self => self -> EventM EAny ()
 cellEditableStartEditing self = do
@@ -105,9 +105,9 @@ cellEditableEmitRemoveWidget self =
 -- Attributes
 #if GTK_CHECK_VERSION(2,20,0)
 -- | Indicates whether editing on the cell has been canceled.
--- 
+--
 -- Default value: 'False'
--- 
+--
 -- * Available since Gtk+ version 2.20
 --
 cellEditableEditingCanceled :: CellEditableClass self => Attr self Bool

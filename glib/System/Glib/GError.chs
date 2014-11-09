@@ -40,7 +40,7 @@ module System.Glib.GError (
   GErrorDomain,
   GErrorCode,
   GErrorMessage,
-  
+
   -- * Catching GError exceptions
   -- | To catch GError exceptions thrown by Gtk2Hs functions use the
   -- catchGError* or handleGError* functions. They work in a similar way to
@@ -60,10 +60,10 @@ module System.Glib.GError (
   --
   catchGErrorJust,
   catchGErrorJustDomain,
-  
+
   handleGErrorJust,
   handleGErrorJustDomain,
-  
+
   -- ** Deprecated
   catchGError,
   handleGError,
@@ -124,7 +124,7 @@ type GErrorCode = Int
 
 -- | A human readable error message.
 type GErrorMessage = Text
-                                                                                           
+
 instance Storable GError where
   sizeOf _ = {#sizeof GError #}
   alignment _ = alignment (undefined:: GQuark)
@@ -200,7 +200,7 @@ throwGError = throw
 -- >   (do ...
 -- >       ...)
 -- >   (\(GError dom code msg) -> fail msg)
---   
+--
 catchGError :: IO a            -- ^ The computation to run
             -> (GError -> IO a) -- ^ Handler to invoke if an exception is raised
             -> IO a
@@ -252,7 +252,7 @@ catchGErrorJustDomain action (handler :: err -> GErrorMessage -> IO a) =
 --
 -- > handleGError (\(GError dom code msg) -> ...) $
 -- >   ...
---   
+--
 handleGError :: (GError -> IO a) -> IO a -> IO a
 handleGError = handle
 {-# DEPRECATED handleGError "Use ordinary Control.Exception.handle" #-}

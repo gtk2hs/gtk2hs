@@ -40,12 +40,12 @@ addDocsToModule knownSymbols moduleDocMap module_ =
           childPropDocMap = mkDeclDocMap Docs.propdoc_name (Docs.moduledoc_childprops doc)
           signalDocMap    = mkDeclDocMap (canonicalSignalName.Docs.signaldoc_name)
                                          (Docs.moduledoc_signals doc)
-          
+
           endDocIndex = 1 + length (Docs.moduledoc_functions doc)
 
           decls = flip map (module_decls module_) $ \decl ->
             case decl_body decl of
-              method@Method { method_cname = name } -> 
+              method@Method { method_cname = name } ->
                 case Map.lookup name methodDocMap of
                   Nothing -> decl { decl_index_doc = endDocIndex }
                   Just (n, Docs.FuncDoc { Docs.funcdoc_paragraphs = fundoc,
@@ -88,14 +88,14 @@ addDocsToModule knownSymbols moduleDocMap module_ =
                                     decl_index_doc = n,
                                     decl_since = parseVersion since }
               _ -> decl
-            
+
           modsince = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
                     [] -> Nothing
                     versions -> minimum (map parseVersion versions)
 
        in module_ {
             module_summary = convertParas knownSymbols (Docs.moduledoc_summary doc),
-            module_description = 
+            module_description =
                 Section 1 "Detail" (convertParas knownSymbols (Docs.moduledoc_description doc))
               : convertSections knownSymbols (Docs.moduledoc_sections doc),
             module_hierarchy = convertHierarchy (Docs.moduledoc_hierarchy doc),
@@ -112,7 +112,7 @@ addDocsToModule knownSymbols moduleDocMap module_ =
                             versionBranch = map read (splitBy '.' v),
                             versionTags = []
                           }
-        
+
         convertHierarchy :: Forest String -> Forest [Span]
         convertHierarchy =
             map (fmap $ \s -> let s' = MarshalFixup.cTypeNameToHSType s
@@ -123,7 +123,7 @@ addDocsToModule knownSymbols moduleDocMap module_ =
                              || not (null s)
                              && s /= "GInitiallyUnowned"
                              && isJust (Map.lookup s knownSymbols))
-        
+
         convertParmDoc :: Docs.ParamDoc -> (String, [Span])
         convertParmDoc Docs.ParamDoc {
           Docs.paramdoc_name      = name,
@@ -171,7 +171,7 @@ handleDocNULLs module_@Module {
                in decl {
                     decl_doc = Just (map (fixPara nullsAllFixed) doc),
                     decl_body = method {
-                      method_param_docs = 
+                      method_param_docs =
                         [ (name, concatMap (fixSpan nullsAllFixed) spans)
                         | (name, spans) <- param_docs]
                     }
@@ -182,12 +182,12 @@ handleDocNULLs module_@Module {
                 decl_doc = Just (map (fixPara False) doc)
               }
         fixDecl decl = decl
-        
+
         fixPara :: Bool -> Para -> Para
         fixPara fixed (ParaText spans) = ParaText (concatMap (fixSpan fixed) spans)
         --TODO: other para kinds
         fixPara _ para = para
-        
+
         fixSpan :: Bool -> Span -> [Span]
         fixSpan True  (SpanMonospace [SpanText "NULL"]) = [SpanMonospace [SpanText "Nothing"]]
         fixSpan False (SpanMonospace [SpanText "NULL"]) = fixme
@@ -195,7 +195,7 @@ handleDocNULLs module_@Module {
         fixSpan True  (SpanText "NULL")      = [SpanMonospace [SpanText "Nothing"]]
         fixSpan False (SpanText "NULL")      = fixme
         fixSpan _ span = [span]
-        
+
         fixme = [SpanText "{"
                 ,SpanMonospace [SpanText "NULL"]
                 ,SpanText ", FIXME: this should probably be "
@@ -216,7 +216,7 @@ fixModuleHierarchy
         convertToSection [] = []
         convertToSection hierarchy =
           [Section 1 "Class Hierarchy" [ParaCode (formatHierarchy hierarchy)]]
-          
+
         formatHierarchy :: Forest [Span] -> [[Span]]
         formatHierarchy = map ((SpanText "|  "):)
                         . concatMap drawHierarchy
@@ -336,7 +336,7 @@ mungeWords knownSymbols =
 
 mungeWord :: KnownSymbols -> Span -> Span
 mungeWord knownSymbols (span@(SpanText word)) =
-  case Map.lookup word knownSymbols of 
+  case Map.lookup word knownSymbols of
     Nothing
       | word == "GTK"      -> SpanText "Gtk+"
       | word == "GTK+"     -> SpanText "Gtk+"

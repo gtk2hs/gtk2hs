@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeSelection (
 -- * Detail
--- 
+--
 -- | The 'TreeSelection' object is a helper object to manage the selection for
 -- a 'TreeView' widget. The 'TreeSelection' object is automatically created
 -- when a new 'TreeView' widget is created, and cannot exist independentally of

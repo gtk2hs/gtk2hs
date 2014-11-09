@@ -3,7 +3,7 @@ import Graphics.UI.Gtk
 main :: IO ()
 main = do
      initGUI
-     
+
      dia <- dialogNew
      set dia [windowTitle := "Time Flies"]
      dialogAddButton dia stockApply  ResponseApply
@@ -16,13 +16,13 @@ main = do
      upbox <- dialogGetUpper dia
      boxPackStart upbox pr PackGrow 10
      widgetShowAll upbox
-     
+
      answer <- dialogRun dia
-     if answer == ResponseApply 
+     if answer == ResponseApply
            then do tmhandle <- timeoutAdd (showPulse pr) 500
                    return ()
            else widgetDestroy dia
- 
+
      onDestroy dia mainQuit
      mainGUI
 

@@ -4,13 +4,13 @@ main :: IO ()
 main = do
      initGUI
      window <- windowNew
-     set window [windowTitle := "Arrow Tips", 
+     set window [windowTitle := "Arrow Tips",
                  windowDefaultWidth := 200,
                  windowDefaultHeight := 200, containerBorderWidth := 20 ]
 
      table <- tableNew 5 5 True
      containerAdd window table
-     
+
      button1 <- buttonNew
      button2 <- buttonNew
      button3 <- buttonNew
@@ -23,7 +23,7 @@ main = do
 
      tlt <- tooltipsNew
 
-     arrow1 <- arrowNew ArrowLeft ShadowEtchedIn 
+     arrow1 <- arrowNew ArrowLeft ShadowEtchedIn
      containerAdd button1 arrow1
      tooltipsSetTip tlt button1 "West" "T1"
 
@@ -45,4 +45,4 @@ main = do
      mainGUI
 
 
-   
+

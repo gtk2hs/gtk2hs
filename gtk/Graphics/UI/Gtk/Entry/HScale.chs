@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Entry.HScale (
 -- * Detail
--- 
+--
 -- | The 'HScale' widget is used to allow the user to select a value using a
 -- horizontal slider. To create one, use 'hScaleNewWithRange'.
 --
@@ -69,7 +69,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'HScale'.
 --
-hScaleNew :: 
+hScaleNew ::
     Adjustment -- ^ @adjustment@ - the 'Adjustment' which sets the range of
                -- the scale.
  -> IO HScale
@@ -88,7 +88,7 @@ hScaleNew adjustment =
 -- is a power of ten. If the resulting precision is not suitable for your
 -- needs, use 'Graphics.UI.Gtk.Abstract.Scale.scaleSetDigits' to correct it.
 --
-hScaleNewWithRange :: 
+hScaleNewWithRange ::
     Double    -- ^ @min@ - minimum value
  -> Double    -- ^ @max@ - maximum value
  -> Double    -- ^ @step@ - step increment (tick size) used with keyboard

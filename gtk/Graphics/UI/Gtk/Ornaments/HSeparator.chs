@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.Ornaments.HSeparator (
 -- * Detail
--- 
+--
 -- | The 'HSeparator' widget is a horizontal separator, used to group the
 -- widgets within a window. It displays a horizontal line with a shadow to make
 -- it appear sunken into the interface.

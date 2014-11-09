@@ -209,7 +209,7 @@ data Event =
 #endif
 
     -- | The number of contiguous 'Expose' events following this
-    --   one. The only use for this is \"exposure compression\", i.e. 
+    --   one. The only use for this is \"exposure compression\", i.e.
     --   handling all contiguous 'Expose' events in one go, though Gdk
     --   performs some exposure compression so this is not normally needed.
     eventCount	:: Int }
@@ -233,7 +233,7 @@ data Event =
     --
     eventIsHint	:: Bool,
     eventXRoot,
-    eventYRoot	:: Double } 
+    eventYRoot	:: Double }
   -- | A mouse button was pressed or released.
   --
   -- * This event is triggered if the mouse button was pressed or released
@@ -382,7 +382,7 @@ data Event =
     -- | The mask indicates which flags have changed.
     eventWindowMask	:: [WindowState],
     -- | The state indicates the current state of the window.
-    eventWindowState	:: [WindowState]} 
+    eventWindowState	:: [WindowState]}
   -- | The state of the pen of a graphics tablet pen or touchscreen device.
   | Proximity {
     eventSent	:: Bool,
@@ -410,7 +410,7 @@ marshalEvent ptr = do
     #{const GDK_FOCUS_CHANGE}	-> marshFocus
     #{const GDK_CONFIGURE}	-> marshConfigure
     #{const GDK_MAP}            -> marshAny
-    #{const GDK_UNMAP}          -> marshAny    
+    #{const GDK_UNMAP}          -> marshAny
 --    #{const GDK_PROPERTY_NOTIFY}-> marshProperty
     #{const GDK_PROXIMITY_IN}   -> marshProximity True
     #{const GDK_PROXIMITY_OUT}	-> marshProximity False
@@ -502,7 +502,7 @@ marshKey up ptr = do
   (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventKey, time} ptr
   (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventKey, state} ptr
   (keyval_ ::#gtk2hs_type guint)	<- #{peek GdkEventKey, keyval} ptr
-  
+
   (length_ ::#gtk2hs_type gint)	<- #{peek GdkEventKey, length} ptr
   keyChar <- keyvalToChar keyval_
   keyName <- unsafeInterleaveIO $ keyvalName keyval_
@@ -526,10 +526,10 @@ marshCrossing leave ptr = do
   (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
   (xRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, x_root} ptr
   (yRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, y_root} ptr
-  (cMode_  ::#gtk2hs_type GdkCrossingMode) 
+  (cMode_  ::#gtk2hs_type GdkCrossingMode)
 				<- #{peek GdkEventCrossing, mode} ptr
   (nType_  ::#gtk2hs_type GdkNotifyType)
-				<- #{peek GdkEventCrossing, detail} ptr  
+				<- #{peek GdkEventCrossing, detail} ptr
   (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
   return $ Crossing {
     eventSent   = toBool sent_,
