@@ -1,4 +1,5 @@
 {-# OPTIONS_HADDOCK hide #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 -- -*-haskell-*-
 -- -------------------- automatically generated file - do not edit ------------
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
