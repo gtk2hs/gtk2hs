@@ -55,7 +55,7 @@ Executable gtk2hsC2hs
         build-depends:  base >= 4 && < 5,
                         process, directory, array, containers, pretty,
                         filepath, random
-        build-tools:    alex >= 3.0.1, happy >= 1.19.3
+        build-tools:    alex >= 3.0.1, happy >= 1.18.9
         other-modules:  BaseVersion
                         Config
                         Errors
