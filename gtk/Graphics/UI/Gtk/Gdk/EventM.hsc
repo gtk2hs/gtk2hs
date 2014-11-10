@@ -215,7 +215,7 @@ import Control.Exception (catch, throw,
 
 -- | A monad providing access to data in an event.
 --
-type EventM t a = ReaderT (Ptr t) IO a
+type EventM t = ReaderT (Ptr t) IO
 
 -- | A tag for events that do not carry any event-specific information.
 data EAny
