@@ -82,6 +82,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   DirectionType(..),
   StockId,
   WidgetHelpType(..),
+  Allocation,
 
 -- * Methods
   widgetShow,
