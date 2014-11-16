@@ -84,11 +84,10 @@ module Graphics.UI.Gtk.Embedding.Socket (
 
 #if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
 -- * Types
-  Socket(Socket),
+  Socket,
   SocketClass,
   castToSocket, gTypeSocket,
   toSocket,
-  mkSocket, unSocket,
   NativeWindowId,
 
 -- * Constructors
@@ -126,6 +125,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Embedding.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Embedding.Embedding
@@ -133,29 +133,6 @@ import Graphics.UI.Gtk.Embedding.Embedding
 import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gtk" prefix="gtk" #}
-
-{#pointer *GtkSocket as Socket foreign newtype #} deriving (Eq,Ord)
-
-mkSocket = (Socket, objectUnrefFromMainloop)
-unSocket (Socket o) = o
-
-class ContainerClass o => SocketClass o
-toSocket :: SocketClass o => o -> Socket
-toSocket = unsafeCastGObject . toGObject
-
-instance SocketClass Socket
-instance ContainerClass Socket
-instance WidgetClass Socket
-instance GObjectClass Socket where
-  toGObject = GObject . castForeignPtr . unSocket
-  unsafeCastGObject = Socket . castForeignPtr . unGObject
-
-castToSocket :: GObjectClass obj => obj -> Socket
-castToSocket = castTo gTypeSocket "Socket"
-
-gTypeSocket :: GType
-gTypeSocket =
-  {# call fun unsafe gtk_socket_get_type #}
 
 --------------------
 -- Constructors

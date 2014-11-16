@@ -35,6 +35,7 @@ module Graphics.UI.Gtk.Embedding.Embedding (
 #if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0)) && GTK_MAJOR_VERSION < 3
 import System.Glib.FFI
 import Graphics.UI.Gtk.Types
+import Graphics.UI.Gtk.Embedding.Types
 
 -- | Test if a Plug is connected to the socket.
 --

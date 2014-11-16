@@ -185,6 +185,7 @@ Library
           Graphics.UI.Gtk.Display.InfoBar
           Graphics.UI.Gtk.Embedding.Plug
           Graphics.UI.Gtk.Embedding.Socket
+          Graphics.UI.Gtk.Embedding.Types
           Graphics.UI.Gtk.Entry.Editable
           Graphics.UI.Gtk.Entry.Entry
           Graphics.UI.Gtk.Entry.EntryBuffer

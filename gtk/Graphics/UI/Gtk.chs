@@ -555,7 +555,7 @@ import Graphics.UI.Gtk.Abstract.Scrollbar
 import Graphics.UI.Gtk.Abstract.Separator
 import Graphics.UI.Gtk.Abstract.Widget
 -- cross-process embedding
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0)) || defined(GDK_WINDOWING_X11)
 import Graphics.UI.Gtk.Embedding.Plug
 import Graphics.UI.Gtk.Embedding.Socket
 #endif
