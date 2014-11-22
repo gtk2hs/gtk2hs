@@ -42,7 +42,7 @@ Source-Repository head
 Library
         build-depends:  base >= 4 && < 5, array, containers, mtl, bytestring,
                         glib >= 0.13.0.0 && < 0.14
-        build-tools:    gtk2hsC2hs >= 0.13.11,
+        build-tools:    gtk2hsC2hs >= 0.13.12,
                         gtk2hsHookGenerator, gtk2hsTypeGen
 
         exposed-modules:
