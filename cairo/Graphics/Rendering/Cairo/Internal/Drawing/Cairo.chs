@@ -57,6 +57,7 @@ setDash context xs offset = withArrayLen (map (cFloatConv) xs) $ \len ptr ->
 {#fun clip               as clip             { unCairo `Cairo' } -> `()'#}
 {#fun clip_preserve      as clipPreserve     { unCairo `Cairo' } -> `()'#}
 {#fun reset_clip         as resetClip        { unCairo `Cairo' } -> `()'#}
+{#fun clip_extents       as clipExtents      { unCairo `Cairo', alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv* } -> `()'#}
 {#fun fill               as fill             { unCairo `Cairo' } -> `()'#}
 {#fun fill_preserve      as fillPreserve     { unCairo `Cairo' } -> `()'#}
 {#fun fill_extents       as fillExtents      { unCairo `Cairo', alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv* } -> `()'#}

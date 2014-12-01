@@ -96,6 +96,7 @@ module Graphics.Rendering.Cairo (
   , getTolerance
   , clip
   , clipPreserve
+  , clipExtents
   , resetClip
   , fill
   , fillPreserve
@@ -701,6 +702,12 @@ clipPreserve = liftRender0 Internal.clipPreserve
 --
 resetClip :: Render ()
 resetClip = liftRender0 Internal.resetClip
+
+-- | Computes a bounding box in user coordinates covering the area
+-- inside the current clip.
+--
+clipExtents :: Render (Double,Double,Double,Double)
+clipExtents = liftRender0 Internal.clipExtents
 
 -- | A drawing operator that fills the current path according to the current
 -- fill rule, (each sub-path is implicitly closed before being filled).
