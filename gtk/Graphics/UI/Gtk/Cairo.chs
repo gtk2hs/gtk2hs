@@ -54,6 +54,7 @@ module Graphics.UI.Gtk.Cairo (
   renderWithDrawable,
   region,
 #else
+  getClipRectangle,
   renderWithDrawWindow,
 #endif
   setSourceColor,
@@ -128,6 +129,20 @@ renderWithDrawWindow drawWindow m =
                           unless (status == Cairo.StatusSuccess) $
                             fail =<< Cairo.Internal.statusToString status)
           (\context -> runReaderT (Cairo.Internal.runRender m) context)
+
+-- | Compute a bounding box in user coordinates covering the area inside
+-- the current clip. It rounds the bounding box to integer coordinates.
+-- Returns 'Nothing' indicating if a clip area doesn't exist.
+getClipRectangle :: Render (Maybe Rectangle)
+getClipRectangle = Render $ do
+  cr <- ask
+  liftIO $ alloca $ \rectPtr -> do
+    ok <- {# call unsafe gdk_cairo_get_clip_rectangle #}
+      cr
+      (castPtr rectPtr)
+    if ok /= 0
+      then fmap Just (peek rectPtr)
+      else return Nothing
 #endif
 
 -- | Sets the given pixbuf as the source pattern for the Cairo context. The
