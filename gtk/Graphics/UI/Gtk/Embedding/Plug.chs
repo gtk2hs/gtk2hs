@@ -48,12 +48,13 @@ module Graphics.UI.Gtk.Embedding.Plug (
 -- |                                 +----Plug
 -- @
 
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
 -- * Types
-  Plug,
+  Plug(Plug),
   PlugClass,
   castToPlug, gTypePlug,
   toPlug,
+  mkPlug, unPlug,
   NativeWindowId,
 
 -- * Constructors
@@ -78,7 +79,7 @@ module Graphics.UI.Gtk.Embedding.Plug (
 #endif
   ) where
 
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
 
 import Control.Monad	(liftM)
 import Data.Maybe	(fromMaybe)
@@ -95,6 +96,31 @@ import Graphics.UI.Gtk.Embedding.Embedding
 import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gtk" prefix="gtk" #}
+
+{#pointer *GtkPlug as Plug foreign newtype #} deriving (Eq,Ord)
+
+mkPlug = (Plug, objectUnrefFromMainloop)
+unPlug (Plug o) = o
+
+class WindowClass o => PlugClass o
+toPlug :: PlugClass o => o -> Plug
+toPlug = unsafeCastGObject . toGObject
+
+instance PlugClass Plug
+instance WindowClass Plug
+instance BinClass Plug
+instance ContainerClass Plug
+instance WidgetClass Plug
+instance GObjectClass Plug where
+  toGObject = GObject . castForeignPtr . unPlug
+  unsafeCastGObject = Plug . castForeignPtr . unGObject
+
+castToPlug :: GObjectClass obj => obj -> Plug
+castToPlug = castTo gTypePlug "Plug"
+
+gTypePlug :: GType
+gTypePlug =
+  {# call fun unsafe plug_get_type #}
 
 --------------------
 -- Constructors

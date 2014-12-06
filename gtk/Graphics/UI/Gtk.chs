@@ -279,7 +279,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Abstract.Scrollbar,
   module Graphics.UI.Gtk.Abstract.Separator,
   module Graphics.UI.Gtk.Abstract.Widget,
-#if defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))
+#if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
   -- * Cross-process embedding
   module Graphics.UI.Gtk.Embedding.Plug,
   module Graphics.UI.Gtk.Embedding.Socket,

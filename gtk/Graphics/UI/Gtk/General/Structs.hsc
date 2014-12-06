@@ -597,7 +597,7 @@ toResponse i = ResponseUser $ fromIntegral i
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | The identifer of a window of the underlying windowing system.
 --
-#if defined(GDK_NATIVE_WINDOW_POINTER) && !defined(HAVE_QUARTZ_GTK)
+#if defined(GDK_NATIVE_WINDOW_POINTER) && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
 --GDK Quartz also defined GDK_NATIVE_WINDOW_POINTER
 newtype NativeWindowId = NativeWindowId (Ptr ()) deriving (Eq, Show)
 unNativeWindowId :: NativeWindowId -> Ptr a
@@ -608,7 +608,7 @@ fromNativeWindowId :: NativeWindowId -> Ptr a
 fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
-#elif defined(HAVE_QUARTZ_GTK) || (defined(WIN32) && GTK_MAJOR_VERSION >= 3)
+#elif defined(HAVE_QUARTZ_GTK) || defined(GDK_WINDOWING_QUARTZ) || (defined(WIN32) && GTK_MAJOR_VERSION >= 3)
 newtype NativeWindowId = NativeWindowId (Maybe DrawWindow) deriving (Eq)
 unNativeWindowId :: NativeWindowId -> Maybe DrawWindow
 unNativeWindowId (NativeWindowId id) = id
@@ -639,26 +639,26 @@ nativeWindowIdNone = NativeWindowId 0
 #if defined(WIN32)
 foreign import ccall unsafe "gdk_win32_drawable_get_handle"
   gdk_win32_drawable_get_handle :: (Ptr Drawable) -> IO (Ptr a)
-#elif !defined(HAVE_QUARTZ_GTK)
+#elif !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
 foreign import ccall unsafe "gdk_x11_drawable_get_xid"
   gdk_x11_drawable_get_xid :: (Ptr Drawable) -> IO CInt
 #endif
 #else
-#if !defined(HAVE_QUARTZ_GTK) && !defined(WIN32)
+#if !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ) && !defined(WIN32)
 foreign import ccall unsafe "gdk_x11_window_get_xid"
   gdk_x11_drawable_get_xid :: (Ptr DrawWindow) -> IO CInt
 #endif
 #endif
 
 -- | Get 'NativeWindowId' of 'Drawable'.
-#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK)
+#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
 drawableGetID :: DrawableClass d => d -> IO NativeWindowId
 #else
 drawableGetID :: DrawWindowClass d => d -> IO NativeWindowId
 #endif
 drawableGetID d =
   liftM toNativeWindowId $
-#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK)
+#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
   (\(Drawable drawable) ->
 #else
   (\(DrawWindow drawable) ->
@@ -671,12 +671,12 @@ drawableGetID d =
      liftM unsafeCoerce $
 #endif
      withForeignPtr drawable gdk_win32_drawable_get_handle
-#elif !defined(HAVE_QUARTZ_GTK) && !defined(WIN32)
+#elif !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ) && !defined(WIN32)
      withForeignPtr drawable gdk_x11_drawable_get_xid
 #else
      return $ Just (DrawWindow drawable)
 #endif
-#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK)
+#if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
   ) (toDrawable d)
 #else
   ) (toDrawWindow d)

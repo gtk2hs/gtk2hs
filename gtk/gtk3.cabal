@@ -118,10 +118,6 @@ Flag have-gio
   Description: Depend on GIO package, thereby enabling certain features.
   Default:  True
 
-Flag have-quartz-gtk
-  Description: Assume that the installed GTK is the version for OS X backend by Quartz, and hence does not provide gdk_x11_drawable_get_xid
-  Default:  False
-
 Flag build-demos
   Description: Build the demo executables
   Default: False
@@ -143,8 +139,6 @@ Library
         if flag(have-gio)
           build-depends: gio >= 0.13.0 && < 0.14
           cpp-options:    -DHAVE_GIO
-        if flag(have-quartz-gtk)
-          cpp-options:    -DHAVE_QUARTZ_GTK
 
         build-tools:    gtk2hsC2hs >= 0.13.12,
                         gtk2hsHookGenerator, gtk2hsTypeGen
@@ -379,11 +373,7 @@ Library
         x-c2hs-Header:  hsgtk.h
         x-Types-Hierarchy:  hierarchy3.list
 
-        if os(windows) || flag(have-quartz-gtk)
-          x-Types-Tag: default
-        else
-          x-Types-Tag: default plugNsocket
-          cpp-options: -DHAVE_PLUG_AND_SOCKET
+        x-Types-Tag: default
 
         if os(windows) && flag(fmode-binary)
           cc-options: -DGTK2HS_SET_FMODE_BINARY
