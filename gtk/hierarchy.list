@@ -113,7 +113,6 @@
                                 GtkFontSelectionDialog
                                 GtkInputDialog
                                 GtkMessageDialog
-                            GtkPlug	if plugNsocket
                         GtkEventBox
                         GtkHandleBox
                         GtkScrolledWindow
@@ -158,7 +157,6 @@
                         GtkMenuBar
                     GtkNotebook
 #                    GtkPacker
-                    GtkSocket		if plugNsocket
                     GtkTable
                     GtkTextView
                         GtkSourceView	if sourceview
