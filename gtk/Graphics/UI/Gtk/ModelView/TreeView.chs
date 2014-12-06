@@ -606,32 +606,43 @@ treeViewScrollToPoint self treeX treeY =
 
 -- | Scroll to a cell.
 --
--- * Scroll to a cell as specified by @path@ and @tvc@.
---   The cell is aligned within the 'TreeView' widget as
---   follows: horizontally by @hor@ from left (@0.0@) to
---   right (@1.0@) and vertically by @ver@ from top
---   (@0.0@) to buttom (@1.0@).
+-- Moves the alignments of tree_view to the position specified by mbColumn and mbPath.
+-- If mbColumn is Nothing, then no horizontal scrolling occurs. Likewise, if mbPath
+-- is Nothing no vertical scrolling occurs. At a minimum, one of mbColumn or mbPath
+-- need to be provided. @rowAlign@ determines where the row is placed, and
+-- @colAlign@ determines where column is placed. Both are expected to be between
+-- 0.0 and 1.0. 0.0 means left/top alignment, 1.0 means right/bottom alignment,
+-- 0.5 means center.
+--
+-- If Nothing is passed instead of @rowAlign@ and @colAlign@, then the tree does
+-- the minimum amount of work to scroll the cell onto the screen. This means
+-- that the cell will be scrolled to the edge closest to its current position.
+-- If the cell is currently visible on the screen, nothing is done.
+--
+-- This function only works if the model is set, and path is a valid row on
+-- the model. If the model changes before the tree_view is realized, the
+-- centered path will be modified to reflect this change.
 --
 treeViewScrollToCell :: TreeViewClass self => self
- -> TreePath
- -> TreeViewColumn
+ -> Maybe TreePath
+ -> Maybe TreeViewColumn
  -> Maybe (Float, Float)
  -> IO ()
-treeViewScrollToCell self path column (Just (ver,hor)) =
-  withTreePath path $ \path ->
+treeViewScrollToCell self mbPath mbColumn (Just (rowAlign, colAlign)) =
+  maybeWithTreePath mbPath $ \path ->
   {# call tree_view_scroll_to_cell #}
     (toTreeView self)
     path
-    column
+    (maybe (TreeViewColumn nullForeignPtr) toTreeViewColumn mbColumn)
     1
-    (realToFrac ver)
-    (realToFrac hor)
-treeViewScrollToCell self path column Nothing =
-  withTreePath path $ \path ->
+    (realToFrac rowAlign)
+    (realToFrac colAlign)
+treeViewScrollToCell self mbPath mbColumn Nothing =
+  maybeWithTreePath mbPath $ \path ->
   {# call tree_view_scroll_to_cell #}
     (toTreeView self)
     path
-    column
+    (maybe (TreeViewColumn nullForeignPtr) toTreeViewColumn mbColumn)
     0
     0.0
     0.0

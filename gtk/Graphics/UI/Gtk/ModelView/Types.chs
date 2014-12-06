@@ -54,6 +54,7 @@ module Graphics.UI.Gtk.ModelView.Types (
   NativeTreePath(..),
   newTreePath,
   withTreePath,
+  maybeWithTreePath,
   peekTreePath,
   fromTreePath,
   stringToTreePath,
@@ -200,6 +201,9 @@ withTreePath tp act = do
   res <- act nativePath
   nativeTreePathFree nativePath
   return res
+
+maybeWithTreePath :: Maybe TreePath -> (NativeTreePath -> IO a) -> IO a
+maybeWithTreePath mbTp act = maybe (act (NativeTreePath nullPtr)) (`withTreePath` act) mbTp
 
 nativeTreePathGetIndices :: NativeTreePath -> IO [Int]
 nativeTreePathGetIndices tp = do
