@@ -76,6 +76,7 @@ import System.Glib.GObject        (Quark, quarkFromString)
 {#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
                                    Pixbuf)
 import Data.Char ( isDigit )
+import Data.Word (Word32)
 import Control.Monad ( liftM )
 
 {# context lib="gtk" prefix="gtk" #}
@@ -120,7 +121,7 @@ instance TypedTreeModelClass TypedTreeModelFilter
 -- use of the three words is therefore implementation specific. See also
 -- 'TreePath'.
 --
-data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word !Word !Word
+data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word32 !Word32 !Word32
 	      deriving Show
 
 {#pointer *TreeIter as TreeIterPtr -> TreeIter #}
@@ -137,7 +138,7 @@ instance Storable TreeIter where
                            (ptrToWord user_data2)
                            (ptrToWord user_data3))
 
-    where ptrToWord :: Ptr a -> Word
+    where ptrToWord :: Ptr a -> Word32
           ptrToWord ptr = fromIntegral (ptr `minusPtr` nullPtr)
 
   poke ptr (TreeIter stamp user_data user_data2 user_data3) = do
@@ -146,7 +147,7 @@ instance Storable TreeIter where
     {# set TreeIter->user_data2 #} ptr (wordToPtr user_data2)
     {# set TreeIter->user_data3 #} ptr (wordToPtr user_data3)
 
-    where wordToPtr :: Word -> Ptr a
+    where wordToPtr :: Word32 -> Ptr a
           wordToPtr word = nullPtr `plusPtr` fromIntegral word
 
 -- Pass a pointer to a structure large enough to hold a GtkTreeIter
