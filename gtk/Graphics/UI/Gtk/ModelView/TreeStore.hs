@@ -57,7 +57,7 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
   ) where
 
 import Data.Bits
-import Data.Word (Word)
+import Data.Word (Word32)
 import Data.Maybe ( fromMaybe, isJust )
 import Data.Tree
 import Control.Monad ( when )
@@ -231,24 +231,22 @@ treeStoreDefaultDragDestIface = DragDestIface {
 -- low level bit-twiddling utility functions
 --
 
--- TODO: figure out how these things work when Word is 64 bits
-
-bitsNeeded :: Word -> Int
+bitsNeeded :: Word32 -> Int
 bitsNeeded n = bitsNeeded' 0 n
   where bitsNeeded' b 0 = b
         bitsNeeded' b n = bitsNeeded' (b+1) (n `shiftR` 1)
 
-getBitSlice :: TreeIter -> Int -> Int -> Word
+getBitSlice :: TreeIter -> Int -> Int -> Word32
 getBitSlice (TreeIter _ a b c) off count =
       getBitSliceWord a  off     count
   .|. getBitSliceWord b (off-32) count
   .|. getBitSliceWord c (off-64) count
 
-  where getBitSliceWord :: Word -> Int -> Int -> Word
+  where getBitSliceWord :: Word32 -> Int -> Int -> Word32
         getBitSliceWord word off count =
           word `shift` (-off) .&. (1 `shiftL` count - 1)
 
-setBitSlice :: TreeIter -> Int -> Int -> Word -> TreeIter
+setBitSlice :: TreeIter -> Int -> Int -> Word32 -> TreeIter
 setBitSlice (TreeIter stamp a b c) off count value =
   assert (value < 1 `shiftL` count) $
   TreeIter stamp
@@ -256,7 +254,7 @@ setBitSlice (TreeIter stamp a b c) off count value =
            (setBitSliceWord b (off-32) count value)
            (setBitSliceWord c (off-64) count value)
 
-  where setBitSliceWord :: Word -> Int -> Int -> Word -> Word
+  where setBitSliceWord :: Word32 -> Int -> Int -> Word32 -> Word32
         setBitSliceWord word off count value =
           let mask = (1 `shiftL` count - 1) `shift` off
            in (word .&. complement mask) .|. (value `shift` off)
@@ -308,7 +306,7 @@ fromPath = fP 0 invalidIter
   where
   fP pos ti _ [] = Just ti -- the remaining bits are zero anyway
   fP pos ti [] _ = Nothing
-  fP pos ti (d:ds) (p:ps) = let idx = fromIntegral (p+1) :: Word in
+  fP pos ti (d:ds) (p:ps) = let idx = fromIntegral (p+1) in
     if idx >= bit d then Nothing else
     fP (pos+d) (setBitSlice ti pos d idx) ds ps
 
@@ -439,7 +437,7 @@ iterNthChild :: Depth -> Int -> TreeIter -> Cache a  ->
                 (Maybe TreeIter, Cache a)
 iterNthChild depth childIdx_ iter cache = let
     (pos,leaf,child) = getTreeIterLeaf depth iter
-    childIdx = fromIntegral childIdx_+1 :: Word
+    childIdx = fromIntegral childIdx_+1
     nextIter = setBitSlice iter (pos+leaf) child childIdx
   in
   if childIdx>=bit child then (Nothing, cache) else
