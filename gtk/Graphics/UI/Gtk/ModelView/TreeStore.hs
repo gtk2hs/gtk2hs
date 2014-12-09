@@ -246,7 +246,7 @@ getBitSlice (TreeIter _ a b c) off count =
 
   where getBitSliceWord :: Word -> Int -> Int -> Word
         getBitSliceWord word off count =
-          word `shiftR` off .&. (1 `shiftL` count - 1)
+          word `shift` (-off) .&. (1 `shiftL` count - 1)
 
 setBitSlice :: TreeIter -> Int -> Int -> Word -> TreeIter
 setBitSlice (TreeIter stamp a b c) off count value =
@@ -258,8 +258,8 @@ setBitSlice (TreeIter stamp a b c) off count value =
 
   where setBitSliceWord :: Word -> Int -> Int -> Word -> Word
         setBitSliceWord word off count value =
-          let mask = (1 `shiftL` count - 1) `shiftL` off
-           in (word .&. complement mask) .|. (value `shiftL` off)
+          let mask = (1 `shiftL` count - 1) `shift` off
+           in (word .&. complement mask) .|. (value `shift` off)
 
 
 --iterPrefixEqual :: TreeIter -> TreeIter -> Int -> Bool
