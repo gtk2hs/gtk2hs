@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
 
