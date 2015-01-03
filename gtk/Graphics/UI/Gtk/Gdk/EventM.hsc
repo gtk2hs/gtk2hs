@@ -1,5 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE EmptyDataDecls #-}
+#if MIN_VERSION_base(4,8,0)
+{-# LANGUAGE FlexibleContexts #-}
+#endif
 -- -*-haskell-*-
 
 #include <gtk/gtk.h>

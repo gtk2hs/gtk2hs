@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
 
@@ -18,7 +19,7 @@ import Distribution.Text
 
 import System.Environment
 import System.Process
-import System.Exit
+import System.Exit (ExitCode(..), exitWith)
 import System.FilePath
 import System.Directory
 import qualified Control.Exception as Exception
