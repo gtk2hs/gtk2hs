@@ -12,6 +12,7 @@ import System.FilePath ((</>))
 import Control.Monad
 import Control.Monad.Trans
 import Control.Concurrent
+import Data.Text (unpack)
 
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Gdk.DrawWindow
@@ -38,7 +39,7 @@ socketMain = do
   window <- windowNew
   windowSetPosition window WinPosCenter
   windowSetDefaultSize window 600 400
-  windowSetTitle window "Press `m` to new tab, press `q` exit."
+  set window [windowTitle := "Press `m` to new tab, press `q` exit."]
   on window objectDestroy mainQuit
 
   -- Create notebook to contain GtkSocekt.
@@ -49,7 +50,7 @@ socketMain = do
   window `on` keyPressEvent $ tryEvent $ do
     keyName <- eventKeyName
     liftIO $
-      case keyName of
+      case unpack keyName of
         "m" -> do
                -- Create new GtkSocket.
                socket <- socketNew
