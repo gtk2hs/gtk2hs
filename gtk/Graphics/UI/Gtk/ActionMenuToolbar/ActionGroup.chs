@@ -331,18 +331,18 @@ actionGroupAddRadioActions :: ActionGroup
                        -- initially, or -1 if no action should be activated
  -> (RadioAction -> IO ()) -- ^ @onChange@ - the callback for the changed signal
  -> IO ()
-actionGroupAddRadioActions self entries value onChange = do
+actionGroupAddRadioActions self entries initialValue onChange = do
   group <- foldM
-    (\group (n, RadioActionEntry name label stockId
+    (\group (RadioActionEntry name label stockId
                accelerator tooltip value) -> do
     action <- radioActionNew name label tooltip stockId value
     case group of
       Nothing -> return ()
       Just group -> radioActionSetGroup action group
-    when (n == value) (toggleActionSetActive action True)
+    when (initialValue == value) (toggleActionSetActive action True)
     actionGroupAddActionWithAccel self action accelerator
     return (Just action))
-    Nothing (zip [0..] entries)
+    Nothing entries
   case group of
       Nothing -> return ()
       Just group -> do
