@@ -76,7 +76,6 @@ import System.Glib.GObject        (Quark, quarkFromString)
 {#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
                                    Pixbuf)
 import Data.Char ( isDigit )
-import Data.Word (Word32)
 import Control.Monad ( liftM )
 
 {# context lib="gtk" prefix="gtk" #}

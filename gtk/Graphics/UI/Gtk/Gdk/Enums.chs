@@ -31,6 +31,9 @@ module Graphics.UI.Gtk.Gdk.Enums (
   DragAction(..),
   EventMask(..),
   Modifier(..),
+#if GTK_CHECK_VERSION(3,4,0)
+  ModifierIntent(..),
+#endif
   NotifyType(..),
   ScrollDirection(..),
   VisibilityState(..),
@@ -165,6 +168,10 @@ instance Flags EventMask
 #endif
 
 instance Flags Modifier
+
+#if GTK_CHECK_VERSION(3,4,0)
+{#enum ModifierIntent {underscoreToCase} deriving(Eq,Show) #}
+#endif
 
 #if GTK_MAJOR_VERSION < 3
 -- | specify which input extension a widget desires

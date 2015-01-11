@@ -133,7 +133,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #if GTK_MAJOR_VERSION < 3
   widgetGetDrawWindow,
 #endif
-  widgetGetWindow,
   widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
@@ -174,11 +173,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetShapeCombineRegion,
   widgetInputShapeCombineRegion,
 #endif
-#if GTK_CHECK_VERSION(2,12,0)
-  widgetGetTooltipWindow,
-  widgetSetTooltipWindow,
-  widgetTriggerTooltipQuery,
-#endif
 #if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
   widgetGetSnapshot,
@@ -187,6 +181,13 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetPath,
   widgetClassPath,
   widgetGetCompositeName,
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetOverrideBackgroundColor,
+  widgetOverrideColor,
+  widgetOverrideFont,
+  widgetOverrideSymbolicColor,
+  widgetOverrideCursor,
+#endif
   widgetModifyStyle,
   widgetGetModifierStyle,
   widgetModifyFg,
@@ -213,6 +214,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetDoubleBuffered,
   widgetSetRedrawOnAllocate,
   widgetSetCompositeName,
+  widgetMnemonicActivate,
 #if GTK_MAJOR_VERSION < 3
   widgetSetScrollAdjustments,
   widgetRegionIntersect,
@@ -245,6 +247,30 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetIsComposited,
 #endif
 #endif
+#if GTK_CHECK_VERSION(2,12,0)
+  widgetErrorBell,
+  widgetKeynavFailed,
+  widgetGetTooltipMarkup,
+  widgetSetTooltipMarkup,
+  widgetGetTooltipText,
+  widgetSetTooltipText,
+  widgetGetTooltipWindow,
+  widgetSetTooltipWindow,
+  widgetGetHasTooltip,
+  widgetSetHasTooltip,
+  widgetTriggerTooltipQuery,
+#endif
+#if GTK_CHECK_VERSION(2,14,0)
+  widgetGetWindow,
+#endif
+#if GTK_CHECK_VERSION(3,8,0)
+  widgetRegisterWindow,
+  widgetUnregisterWindow,
+#endif
+#if GTK_CHECK_VERSION(3,0,0)
+  cairoShouldDrawWindow,
+  cairoTransformToWindow,
+#endif
   widgetReparent,
 #if GTK_CHECK_VERSION(2,18,0)
   widgetGetCanFocus,
@@ -262,7 +288,48 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetClip,
   widgetSetClip,
 #endif
+#if GTK_CHECK_VERSION(2,18,0)
+  widgetGetAppPaintable,
+  widgetGetCanDefault,
+  widgetSetCanDefault,
+  widgetGetHasWindow,
+  widgetSetHasWindow,
+  widgetGetSensitive,
+  widgetIsSensitive,
   widgetGetState,
+  widgetGetVisible,
+  widgetIsVisible,
+#endif
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetSetStateFlags,
+  widgetUnsetStateFlags,
+  widgetGetStateFlags,
+#endif
+#if GTK_CHECK_VERSION(2,18,0)
+  widgetGetHasDefault,
+  widgetGetHasFocus,
+#endif
+#if GTK_CHECK_VERSION(3,2,0)
+  widgetHasVisibleFocus,
+#endif
+#if GTK_CHECK_VERSION(2,18,0)
+  widgetHasGrab,
+  widgetIsDrawable,
+  widgetIsToplevel,
+  widgetSetWindow,
+  widgetSetReceivesDefault,
+  widgetGetReceivesDefault,
+#endif
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetDeviceIsShadowed,
+#endif
+#if GTK_CHECK_VERSION(3,4,0)
+  widgetGetModifierMask,
+#endif
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetSetSupportMultidevice,
+  widgetGetSupportMultidevice,
+#endif
   widgetSetState,
 #if GTK_MAJOR_VERSION < 3
   widgetGetSavedState,
@@ -286,6 +353,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHeightRequest,
   widgetMarginLeft,
   widgetMarginRight,
+#if GTK_CHECK_VERSION(3,12,0)
+  widgetMarginStart,
+  widgetMarginEnd,
+#endif
   widgetMarginTop,
   widgetMarginBottom,
   widgetVisible,
@@ -307,6 +378,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #endif
   widgetExpand,
   widgetHExpand,
+  widgetHExpandSet,
+  widgetVExpand,
+  widgetVExpandSet,
   widgetNoShowAll,
   widgetChildVisible,
 #if GTK_MAJOR_VERSION < 3
@@ -321,6 +395,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHasRcStyle,
   widgetGetRealized,
   widgetGetMapped,
+  widgetSetRealized,
+  widgetSetMapped,
 #endif
 #if GTK_CHECK_VERSION(3,0,0)
   widgetGetStyleContext,
@@ -523,6 +599,9 @@ import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 AccelFlags(..), DirectionType(..), Modifier
 #if GTK_CHECK_VERSION(3,0,0)
                                         ,StateFlags(..), Align(..)
+#endif
+#if GTK_CHECK_VERSION(3,4,0)
+                                        ,ModifierIntent(..)
 #endif
 					)
 {#import Graphics.Rendering.Pango.Types#}
@@ -1425,59 +1504,6 @@ widgetInputShapeCombineRegion self region =
     (castPtr ptrRegion)
 #endif
 
-#if GTK_CHECK_VERSION(2,12,0)
--- | Returns the 'Window' of the current tooltip. This can be the 'Window' created by default, or the
--- custom tooltip window set using 'widgetSetTooltipWindow'.
---
--- * Available since Gtk+ version 2.12
---
-widgetGetTooltipWindow :: WidgetClass self => self
- -> IO Window -- ^ returns The 'Window' of the current tooltip
-widgetGetTooltipWindow self =
-  makeNewObject mkWindow $
-  {# call gtk_widget_get_tooltip_window #}
-    (toWidget self)
-
--- | Replaces the default, usually yellow, window used for displaying tooltips with @customWindow@. GTK+
--- will take care of showing and hiding @customWindow@ at the right moment, to behave likewise as the
--- default tooltip window. If @customWindow@ is 'Nothing', the default tooltip window will be used.
---
--- If the custom window should have the default theming it needs to have the name 'gtk-tooltip', see
--- 'widgetSetName'.
---
--- * Available since Gtk+ version 2.12
---
-widgetSetTooltipWindow :: (WidgetClass self, WindowClass customWindow) => self
- -> Maybe customWindow -- ^ @customWindow@ a 'Window', or 'Nothing'. allow-none.
- -> IO ()
-widgetSetTooltipWindow self customWindow =
-  {# call gtk_widget_set_tooltip_window #}
-    (toWidget self)
-    (maybe (Window nullForeignPtr) toWindow customWindow)
-
--- | Triggers a tooltip query on the display where the toplevel of @widget@ is
--- located. See 'tooltipTriggerTooltipQuery' for more information.
---
--- * Available since Gtk+ version 2.12
---
-widgetTriggerTooltipQuery :: WidgetClass self => self -> IO ()
-widgetTriggerTooltipQuery self =
-  {# call gtk_widget_trigger_tooltip_query #}
-    (toWidget self)
-#endif
-
-#if GTK_CHECK_VERSION(2,14,0)
--- | Returns the widget's window if it is realized, Nothing otherwise
---
--- * Available since Gtk+ version 2.14
---
-widgetGetWindow :: WidgetClass self => self -> IO (Maybe DrawWindow)
-widgetGetWindow self =
-  maybeNull (makeNewGObject mkDrawWindow) $
-  {# call gtk_widget_get_window #}
-    (toWidget self)
-#endif
-
 #if GTK_MAJOR_VERSION < 3
 #if GTK_CHECK_VERSION(2,14,0)
 -- | Create a 'Pixmap' of the contents of the widget and its children.
@@ -1577,6 +1603,105 @@ widgetGetCompositeName self =
     (toWidget self)
   >>= maybePeek peekUTFString
 
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Sets the background color to use for a widget.
+--
+-- All other style values are left untouched. See 'widgetOverrideColor'.
+widgetOverrideBackgroundColor :: WidgetClass self => self
+ -> StateType   -- ^ @state@ - the state for which to set the background color.
+ -> Maybe Color -- ^ @color@ - the color to assign, or Nothing to undo the
+                -- effect of previous calls to 'widgetOverrideBackgroundColor'
+ -> IO ()
+widgetOverrideBackgroundColor self state color =
+  maybeWith with color $ \colorPtr ->
+  {# call widget_override_background_color #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    (castPtr colorPtr)
+
+-- | Sets the color to use for a widget.
+--
+-- All other style values are left untouched.
+--
+-- This function does not act recursively. Setting the color of a container
+-- does not affect its children. Note that some widgets that you may not think
+-- of as containers, for instance 'Button's, are actually containers.
+--
+-- This API is mostly meant as a quick way for applications to change a
+-- widget appearance. If you are developing a widgets library and intend this
+-- change to be themeable, it is better done by setting meaningful CSS classes
+-- and regions in your widget/container implementation through
+-- 'styleContextAddClass' and 'styleContextAddRegion'.
+--
+-- This way, your widget library can install a 'CssProvider' with the
+-- GTK_STYLE_PROVIDER_PRIORITY_FALLBACK priority in order to provide a default
+-- styling for those widgets that need so, and this theming may fully overridden
+-- by the user’s theme.
+--
+-- Note that for complex widgets this may bring in undesired results (such as
+-- uniform background color everywhere), in these cases it is better to fully
+-- style such widgets through a CssProvider with the
+-- GTK_STYLE_PROVIDER_PRIORITY_APPLICATION priority.
+widgetOverrideColor :: WidgetClass self => self
+ -> StateType   -- ^ @state@ - the state for which to set the color.
+ -> Maybe Color -- ^ @color@ - the color to assign, or @Nothing@ to undo the
+                -- effect of previous calls to 'widgetOverrideColor'
+ -> IO ()
+widgetOverrideColor self state color =
+  maybeWith with color $ \colorPtr ->
+  {# call widget_override_color #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) state)
+    (castPtr colorPtr)
+
+-- | Sets the font to use for a widget. All other style values are left untouched.
+-- See 'widgetOverrideColor'.
+widgetOverrideFont :: WidgetClass self => self
+ -> Maybe FontDescription -- ^ @fontDesc@ - the font description to use, or
+                          -- @Nothing@ to undo the effect of previous calls to
+                          -- 'widgetOverrideFont'.
+ -> IO ()
+widgetOverrideFont self fontDesc =
+  {# call widget_override_font #}
+    (toWidget self)
+    (fromMaybe (FontDescription nullForeignPtr) fontDesc)
+
+-- | Sets the symbolic color to use for a widget.
+--
+-- All other style values are left untouched. See 'widgetOverrideColor'.
+widgetOverrideSymbolicColor :: (WidgetClass self, GlibString string) => self
+ -> string      -- ^ @name@ - the name of the symbolic color to modify.
+ -> Maybe Color -- ^ @color@ - the color to assign, or @Nothing@ to undo the
+                -- effect of previous calls to 'widgetOverrideSymbolicColor'
+ -> IO ()
+widgetOverrideSymbolicColor self name color =
+  withUTFString name $ \namePtr ->
+  maybeWith with color $ \colorPtr ->
+  {# call widget_override_symbolic_color #}
+    (toWidget self)
+    namePtr
+    (castPtr colorPtr)
+
+-- | Sets the cursor color to use in a widget, overriding the cursor-color
+-- and secondary-cursor-color style properties. All other style values are
+-- left untouched. See also 'widgetModifyStyle'.
+--
+-- Note that the alpha values will be ignored.
+widgetOverrideCursor :: WidgetClass self => self
+ -> Maybe Color -- ^ @cursor@ - the color to use for primary cursor, or @Nothing@
+                -- to undo the effect of previous calls to of 'widgetOverrideCursor'.
+ -> Maybe Color -- ^ @secondaryCursor@ - the color to use for secondary cursor, or @Nothing@
+                -- to undo the effect of previous calls to of 'widgetOverrideCursor'.
+ -> IO ()
+widgetOverrideCursor self cursor secondaryCursor =
+  maybeWith with cursor $ \cursorPtr ->
+  maybeWith with secondaryCursor $ \secondaryCursorPtr ->
+  {# call widget_override_cursor #}
+    (toWidget self)
+    (castPtr cursorPtr)
+    (castPtr secondaryCursorPtr)
+#endif
+
 -- | Modifies style values on the widget. Modifications made using this
 -- technique take precedence over style values set via an RC file, however,
 -- they will be overriden if a style is explicitely set on the widget using
@@ -1611,7 +1736,7 @@ widgetModifyStyle self style =
 -- Caution: passing the style back to 'widgetModifyStyle' will normally end
 -- up destroying it, because 'widgetModifyStyle' copies the passed-in style and
 -- sets the copy as the new modifier style, thus dropping any reference to the
--- old modifier style. Add a reference to the modifier style if you want to
+-- old modifier styl e. Add a reference to the modifier style if you want to
 -- keep it alive.
 --
 widgetGetModifierStyle :: WidgetClass self => self -> IO RcStyle
@@ -2012,6 +2137,19 @@ widgetSetCompositeName self name =
   {# call gtk_widget_set_composite_name #}
     (toWidget self)
     namePtr
+
+-- | Emits the “mnemonic-activate” signal.
+--
+-- The default handler for this signal activates the widget if groupCycling
+-- is @False@, and just grabs the focus if @groupCycling@ is @True@.
+widgetMnemonicActivate :: WidgetClass self => self
+ -> Bool
+ -> IO Bool
+widgetMnemonicActivate self groupCycling =
+  liftM toBool $
+  {# call widget_mnemonic_activate #}
+    (toWidget self)
+    (fromBool groupCycling)
 
 #if GTK_MAJOR_VERSION < 3
 -- %hash c:5c58 d:6895
@@ -2447,6 +2585,237 @@ widgetIsComposited self =
 #endif
 #endif
 
+#if GTK_CHECK_VERSION(2,12,0)
+-- | Notifies the user about an input-related error on this widget.
+-- If the "gtk-error-bell" setting is @True@, it calls 'drawWindowBeep',
+-- otherwise it does nothing.
+--
+-- Note that the effect of 'drawWindow_beep' can be configured in many
+-- ways, depending on the windowing backend and the desktop environment
+-- or window manager that is used.
+widgetErrorBell :: WidgetClass self => self
+ -> IO ()
+widgetErrorBell self =
+  {# call widget_error_bell #}
+    (toWidget self)
+
+-- | This function should be called whenever keyboard navigation within
+-- a single widget hits a boundary. The function emits the "keynav-failed"
+-- signal on the widget and its return value should be interpreted in a
+-- way similar to the return value of 'widgetChildFocus':
+--
+-- When @True@ is returned, stay in the widget, the failed keyboard
+-- navigation is Ok and/or there is nowhere we can/should move the
+-- focus to.
+--
+-- When @False@ is returned, the caller should continue with keyboard
+-- navigation outside the widget, e.g. by calling 'widgetChildFocus' on
+-- the widget’s toplevel.
+--
+-- The default ::keynav-failed handler returns @True@ for 'DirTabForward'
+-- and 'DirTabBackward'. For the other values of 'DirectionType' it
+-- returns @False@.
+--
+-- Whenever the default handler returns @True@, it also calls
+-- 'widgetErrorBell' to notify the user of the failed keyboard
+-- navigation.
+--
+-- A use case for providing an own implementation of ::keynav-failed
+-- (either by connecting to it or by overriding it) would be a row of
+-- 'Entry' widgets where the user should be able to navigate the entire
+-- row with the cursor keys, as e.g. known from user interfaces that
+-- require entering license keys.
+widgetKeynavFailed :: WidgetClass self => self
+ -> DirectionType -- ^ @direction@ - direction of focus movement
+ -> IO Bool       -- ^ returns @True@ if stopping keyboard navigation is
+                  -- fine, @False@ if the emitting widget should try to handle
+                  -- the keyboard navigation attempt in its parent container(s).
+widgetKeynavFailed self direction =
+  liftM toBool $
+  {# call widget_keynav_failed #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) direction)
+
+-- | Gets the contents of the tooltip for widget.
+widgetGetTooltipMarkup :: (WidgetClass self, GlibString markup) => self
+ -> IO (Maybe markup) -- Returns the tooltip text, or Nothing.
+widgetGetTooltipMarkup self =
+  {# call widget_get_tooltip_markup #}
+    (toWidget self)
+  >>= maybePeek peekUTFString
+
+-- | Sets @markup@ as the contents of the tooltip, which is marked up with the
+-- Pango text markup language.
+--
+-- This function will take care of setting "has-tooltip" to True and of the
+-- default handler for the "query-tooltip" signal.
+--
+-- See also the "tooltip-markup" property and 'tooltipSetMarkup'.
+widgetSetTooltipMarkup :: (WidgetClass self, GlibString markup) => self
+  -> Maybe markup -- ^ the contents of the tooltip for widget, or @Nothing@.
+  -> IO ()
+widgetSetTooltipMarkup self markup =
+  maybeWith withUTFString markup $ \ markupPtr ->
+  {# call widget_set_tooltip_markup #}
+    (toWidget self)
+    markupPtr
+
+-- | Gets the contents of the tooltip for widget.
+widgetGetTooltipText :: (WidgetClass self, GlibString text) => self
+ -> IO (Maybe text) -- Returns the tooltip text, or Nothing.
+widgetGetTooltipText self =
+  {# call widget_get_tooltip_text #}
+    (toWidget self)
+  >>= maybePeek peekUTFString
+
+-- | Sets @text@ as the contents of the tooltip. This function will take care
+-- of setting "has-tooltip" to @True@ and of the default handler for the
+-- "query-tooltip" signal.
+--
+-- See also the "tooltip-text" property and 'tooltipSetText'.
+widgetSetTooltipText :: (WidgetClass widget, GlibString text) => widget
+  -> Maybe text -- ^ the contents of the tooltip for widget, or @Nothing@.
+  -> IO ()
+widgetSetTooltipText widget text =
+  maybeWith withUTFString text $ \ textPtr ->
+  {# call widget_set_tooltip_text #}
+    (toWidget widget)
+    textPtr
+
+-- | Returns the 'Window' of the current tooltip. This can be the 'Window' created by default, or the
+-- custom tooltip window set using 'widgetSetTooltipWindow'.
+--
+-- * Available since Gtk+ version 2.12
+--
+widgetGetTooltipWindow :: WidgetClass self => self
+ -> IO Window -- ^ returns The 'Window' of the current tooltip
+widgetGetTooltipWindow self =
+  makeNewObject mkWindow $
+  {# call gtk_widget_get_tooltip_window #}
+    (toWidget self)
+
+-- | Replaces the default, usually yellow, window used for displaying tooltips with @customWindow@. GTK+
+-- will take care of showing and hiding @customWindow@ at the right moment, to behave likewise as the
+-- default tooltip window. If @customWindow@ is 'Nothing', the default tooltip window will be used.
+--
+-- If the custom window should have the default theming it needs to have the name 'gtk-tooltip', see
+-- 'widgetSetName'.
+--
+-- * Available since Gtk+ version 2.12
+--
+widgetSetTooltipWindow :: (WidgetClass self, WindowClass customWindow) => self
+ -> Maybe customWindow -- ^ @customWindow@ a 'Window', or 'Nothing'. allow-none.
+ -> IO ()
+widgetSetTooltipWindow self customWindow =
+  {# call gtk_widget_set_tooltip_window #}
+    (toWidget self)
+    (maybe (Window nullForeignPtr) toWindow customWindow)
+
+-- | Returns the current value of the has-tooltip property.
+-- See 'widgetHasTooltip' for more information.
+widgetGetHasTooltip :: WidgetClass widget => widget
+ -> IO Bool -- ^ current value of 'widgetHasTooltip' on @widget@.
+widgetGetHasTooltip widget =
+  liftM toBool $
+  {# call widget_get_has_tooltip #}
+    (toWidget widget)
+
+-- | Sets the has-tooltip property on @widget@ to @hasTooltip@.
+-- See 'widgetHasTooltip' for more information.
+widgetSetHasTooltip :: WidgetClass widget => widget
+ -> Bool  -- ^ @hasTooltip@ whether or not @widget@ has a tooltip.
+ -> IO ()
+widgetSetHasTooltip widget hasTooltip =
+  {# call widget_set_has_tooltip #}
+    (toWidget widget)
+    (fromBool hasTooltip)
+
+-- | Triggers a tooltip query on the display where the toplevel of @widget@ is
+-- located. See 'tooltipTriggerTooltipQuery' for more information.
+--
+-- * Available since Gtk+ version 2.12
+--
+widgetTriggerTooltipQuery :: WidgetClass self => self -> IO ()
+widgetTriggerTooltipQuery self =
+  {# call gtk_widget_trigger_tooltip_query #}
+    (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(2,14,0)
+-- | Returns the widget's window if it is realized, Nothing otherwise
+--
+-- * Available since Gtk+ version 2.14
+--
+widgetGetWindow :: WidgetClass self => self -> IO (Maybe DrawWindow)
+widgetGetWindow self =
+  maybeNull (makeNewGObject mkDrawWindow) $
+  {# call gtk_widget_get_window #}
+    (toWidget self)
+#endif
+
+#if GTK_CHECK_VERSION(3,8,0)
+-- | Registers a 'DrawWindow' with the widget and sets it up so that the
+-- widget receives events for it. Call 'widgetUnregisterWindow' when
+-- destroying the window.
+widgetRegisterWindow :: (WidgetClass widget, DrawWindowClass window) => widget
+ -> window
+ -> IO ()
+widgetRegisterWindow widget window =
+  {# call widget_register_window #}
+    (toWidget widget)
+    (toDrawWindow window)
+
+-- | Unregisters a 'DrawWindow' from the widget that was previously set up
+-- with 'widgetRegisterWindow'. You need to call this when the window is no
+-- longer used by the widget, such as when you destroy it.
+widgetUnregisterWindow :: (WidgetClass widget, DrawWindowClass window) => widget
+ -> window
+ -> IO ()
+widgetUnregisterWindow widget window =
+  {# call widget_unregister_window #}
+    (toWidget widget)
+    (toDrawWindow window)
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | This function is supposed to be called in "draw" implementations for
+-- widgets that support multiple windows. @cr@ must be untransformed from
+-- invoking of the draw function. This function will return @True@ if the
+-- contents of the given @window@ are supposed to be drawn and @False@
+-- otherwise. Note that when the drawing was not initiated by the windowing
+-- system this function will return @True@ for all windows, so you need to
+-- draw the bottommost window first. Also, do not use “else if” statements to
+-- check which window should be drawn.
+cairoShouldDrawWindow :: DrawWindowClass window
+ => Cairo   -- ^ @cr@ a cairo context
+ -> window  -- ^ @window@ the window to check. @window@ may not be an input-only window.
+ -> IO Bool
+cairoShouldDrawWindow cr window =
+  liftM toBool $
+  {# call cairo_should_draw_window #}
+    (castPtr $ unCairo cr)
+    (toDrawWindow window)
+
+-- | Transforms the given cairo context @cr@ that from @widget@-relative
+-- coordinates to @window@-relative coordinates. If the @widget@’s window is
+-- not an ancestor of @window@, no modification will be applied.
+--
+-- This is the inverse to the transformation GTK applies when preparing an
+-- expose event to be emitted with the “draw” signal. It is intended to help
+-- porting multiwindow widgets from GTK+ 2 to the rendering architecture of
+-- GTK+ 3.
+cairoTransformToWindow :: (WidgetClass widget, DrawWindowClass window)
+ => Cairo  -- ^ @cr@ the cairo context to transform
+ -> widget -- ^ @widget@ the widget the context is currently centered for
+ -> window -- ^ @window@ the window to transform the context to
+ -> IO ()
+cairoTransformToWindow cr widget window =
+  {# call gtk_cairo_transform_to_window #}
+    (castPtr $ unCairo cr)
+    (toWidget widget)
+    (toDrawWindow window)
+#endif
+
 -- | Moves a widget from one 'Container' to another.
 --
 widgetReparent :: (WidgetClass self, WidgetClass newParent) => self
@@ -2542,6 +2911,81 @@ widgetSetClip self clip = with clip $ \clipPtr ->
 #endif
 
 #if GTK_CHECK_VERSION(2,18,0)
+-- | Determines whether the application intends to draw on the widget in an
+-- "draw" handler.
+-- See 'widgetSetAppPaintable'.
+widgetGetAppPaintable :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the @widget@ is app paintable.
+widgetGetAppPaintable widget =
+  liftM toBool $
+  {#call widget_get_app_paintable #}
+    (toWidget widget)
+
+-- | Determines whether @widget@ can be a default widget.
+-- See 'widgetSetCanDefault'.
+widgetGetCanDefault :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ can be a default widget, @False@ otherwise.
+widgetGetCanDefault widget =
+  liftM toBool $
+  {#call gtk_widget_get_can_default #}
+    (toWidget widget)
+
+-- | Specifies whether @widget@ can be a default widget.
+-- See 'widgetGrabDefault' for details about the meaning of "default".
+widgetSetCanDefault :: WidgetClass widget => widget
+ -> Bool  -- ^ @canDefault@ whether or not @widget@ can be a default widget.
+ -> IO ()
+widgetSetCanDefault widget canDefault =
+  {# call widget_set_can_default #}
+    (toWidget widget)
+    (fromBool canDefault)
+
+-- | Determines whether @widget@ has a 'DrawWindow' of its own. See 'widgetSetHasWindow'.
+widgetGetHasWindow :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ has a window, @False@ otherwise.
+widgetGetHasWindow widget =
+  liftM toBool $
+  {#call widget_get_has_window #}
+    (toWidget widget)
+
+-- | Specifies whether @widget@ has a 'DrawWindow' of its own. Note that all
+-- realized widgets have a non-NULL "window" pointer ('widgetGetWindow' never
+-- returns a NULL window when a widget is realized), but for many of them it's
+-- actually the 'DrawWindow' of one of its parent widgets. Widgets that do not
+-- create a window for themselves in "realize" must announce this by calling
+-- this function with @hasWindow@ = @False@.
+--
+-- This function should only be called by widget implementations, and they
+-- should call it in their @init()@ function.
+widgetSetHasWindow :: WidgetClass widget => widget
+ -> Bool  -- ^ @hasWindow@ whether or not @widget@ has a window.
+ -> IO ()
+widgetSetHasWindow widget hasWindow =
+  {# call widget_set_has_window #}
+    (toWidget widget)
+    (fromBool hasWindow)
+
+-- | Returns the @widget@’s sensitivity (in the sense of returning the value
+-- that has been set using 'widgetSetSensitive').
+--
+-- The effective sensitivity of a widget is however determined by both its own
+-- and its parent widget’s sensitivity. See 'widgetIsSensitive'.
+widgetGetSensitive :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget is sensitive.
+widgetGetSensitive widget =
+  liftM toBool $
+  {#call widget_get_sensitive #}
+    (toWidget widget)
+
+-- | Returns the widget’s effective sensitivity, which means it is sensitive
+-- itself and also its parent widget is sensitive.
+widgetIsSensitive :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget is effectively sensitive.
+widgetIsSensitive widget =
+  liftM toBool $
+  {#call widget_is_sensitive #}
+    (toWidget widget)
+
 -- | Retrieve the current state of the widget.
 --
 -- * The state refers to different modes of user interaction, see
@@ -2551,6 +2995,242 @@ widgetGetState :: WidgetClass self => self -> IO StateType
 widgetGetState widget =
   liftM (toEnum . fromIntegral) $
   {#call widget_get_state#}
+    (toWidget widget)
+
+-- | Determines whether the widget is visible. If you want to take into
+--  account whether the widget’s parent is also marked as visible, use
+-- 'widgetIsVisible' instead.
+--
+-- This function does not check if the widget is obscured in any way.
+-- See 'widgetSetVisible'.
+widgetGetVisible :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget is visible.
+widgetGetVisible widget =
+  liftM toBool $
+  {#call widget_get_visible #}
+    (toWidget widget)
+
+-- | Determines whether the widget and all its parents are marked as visible.
+--
+-- This function does not check if the widget is obscured in any way.
+--
+-- See also 'widgetGetVisible' and 'widgetSetVisible'
+widgetIsVisible :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget and all its parents are visible.
+widgetIsVisible widget =
+  liftM toBool $
+  {#call widget_is_visible #}
+    (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | This function is for use in widget implementations. Turns on flag values
+-- in the current widget state (insensitive, prelighted, etc.).
+--
+-- This function accepts the values 'StateFlagDirLtr' and 'StateFlagDirRtl'
+-- but ignores them. If you want to set the widget's direction, use
+-- 'widgetSetDirection'.
+--
+-- It is worth mentioning that any other state than StateFlagInsensitive',
+-- will be propagated down to all non-internal children if @widget@ is a
+-- 'Container', while 'StateFlagInsensitive' itself will be propagated down
+-- to all 'Container' children by different means than turning on the state
+-- flag down the hierarchy, both 'widgetGetStateFlags' and
+-- 'widgetIsSensitive' will make use of these.
+widgetSetStateFlags :: WidgetClass widget => widget
+ -> [StateFlags] -- ^ @flags@ State flags to turn on
+ -> Bool         -- ^ @clear@ Whether to clear state before turning on @flags@
+ -> IO ()
+widgetSetStateFlags widget flags clear =
+  {# call widget_set_state_flags #}
+    (toWidget widget)
+    (fromIntegral $ fromFlags flags)
+    (fromBool clear)
+
+-- | This function is for use in widget implementations. Turns off flag
+-- values for the current widget state (insensitive, prelighted, etc.).
+-- See 'widgetSetStateFlags'.
+widgetUnsetStateFlags :: WidgetClass widget => widget
+ -> [StateFlags] -- ^ @flags@ State flags to turn off
+ -> IO ()
+widgetUnsetStateFlags widget flags =
+  {# call widget_unset_state_flags #}
+    (toWidget widget)
+    (fromIntegral $ fromFlags flags)
+
+-- | Returns the widget state as a flag set. It is worth mentioning that the
+-- effective StateFlagInsensitive state will be returned, that is, also based
+-- on parent insensitivity, even if @widget@ itself is sensitive.
+widgetGetStateFlags :: WidgetClass widget => widget
+ -> IO [StateFlags] -- ^ Returns the state flags for @widget@
+widgetGetStateFlags widget =
+  liftM (toFlags . fromIntegral) $
+  {# call widget_get_state_flags #}
+    (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(2,18,0)
+-- | Determines whether @widget@ is the current default widget within its
+-- toplevel. See 'widgetSetCanDefault'.
+widgetGetHasDefault :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ is the current default widget within its toplevel, @False@ otherwise.
+widgetGetHasDefault widget =
+  liftM toBool $
+  {#call widget_has_default #}
+    (toWidget widget)
+
+-- | Determines if the @widget@ has the global input focus.
+-- See 'widgetIsFocus' for the difference between having the global input
+-- focus, and only having the focus within a toplevel.
+widgetGetHasFocus :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ has the global input focus.
+widgetGetHasFocus widget =
+  liftM toBool $
+  {#call widget_has_focus #}
+    (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(3,2,0)
+-- | Determines if the widget should show a visible indication that it has the
+-- global input focus. This is a convenience function for use in ::draw
+-- handlers that takes into account whether focus indication should currently
+-- be shown in the toplevel window of @widget@. See 'windowGetFocusVisible'
+-- for more information about focus indication.
+--
+-- To find out if the widget has the global input focus, use 'widgetHasFocus'.
+widgetHasVisibleFocus :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget should display a “focus rectangle”
+widgetHasVisibleFocus widget =
+  liftM toBool $
+  {# call widget_has_visible_focus #}
+    (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(2,18,0)
+-- | Determines whether the widget is currently grabbing events, so it is the
+-- only widget receiving input events (keyboard and mouse).
+--
+-- See also 'grabAdd'.
+widgetHasGrab :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if the widget is in the grab_widgets stack
+widgetHasGrab widget =
+  liftM toBool $
+  {# call widget_has_grab #}
+    (toWidget widget)
+
+-- | Determines whether @widget@ can be drawn to. A widget can be drawn to if
+-- it is mapped and visible.
+widgetIsDrawable :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ is drawable, @False@ otherwise
+widgetIsDrawable widget =
+  liftM toBool $
+  {# call widget_is_drawable #}
+    (toWidget widget)
+
+-- | Determines whether @widget@ is a toplevel widget.
+--
+-- Currently only 'Window' and 'Invisible' (and out-of-process 'Plugs') are
+-- toplevel widgets. Toplevel widgets have no parent widget.
+widgetIsToplevel :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ is a toplevel, @False@ otherwise
+widgetIsToplevel widget =
+  liftM toBool $
+  {# call widget_is_toplevel #}
+    (toWidget widget)
+
+-- | Sets a widget’s window. This function should only be used in a widget’s
+-- “realize” implementation. The window passed is usually either new window
+-- created with 'drawWindowNew', or the window of its parent widget as
+-- returned by 'widgetGetParentWindow'.
+--
+-- Widgets must indicate whether they will create their own 'DrawWindow' by
+-- calling 'widgetSetHasWindow'. This is usually done in the widget’s init()
+-- function.
+--
+-- Note that this function does not add any reference to window.
+widgetSetWindow :: (WidgetClass widget, DrawWindowClass window) => widget
+ -> window
+ -> IO ()
+widgetSetWindow widget window =
+  {# call widget_set_window #}
+    (toWidget widget)
+    (toDrawWindow window)
+
+-- | Specifies whether @widget@ will be treated as the default widget within
+-- its toplevel when it has the focus, even if another widget is the default.
+--
+-- See 'widgetGrabDefault' for details about the meaning of “default”.
+widgetSetReceivesDefault :: WidgetClass widget => widget
+ -> Bool -- ^ @receivesDefault@ whether or not widget can be a default widget.
+ -> IO ()
+widgetSetReceivesDefault widget receivesDefault =
+  {# call widget_set_receives_default #}
+    (toWidget widget)
+    (fromBool receivesDefault)
+
+-- | Determines whether @widget@ is always treated as the default widget
+-- within its toplevel when it has the focus, even if another widget is the
+-- default.
+--
+-- See 'widgetSetReceivesDefault'.
+widgetGetReceivesDefault :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ acts as the default widget when focussed, @False@ otherwise
+widgetGetReceivesDefault widget =
+  liftM toBool $
+  {# call widget_get_receives_default #}
+    (toWidget widget)
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Returns @True@ if device has been shadowed by a GTK+ device grab on
+-- another widget, so it would stop sending events to widget. This may be
+-- used in the “grab-notify” signal to check for specific devices.
+-- See 'deviceGrabAdd'.
+widgetDeviceIsShadowed :: (WidgetClass widget, DeviceClass device) => widget
+ -> device
+ -> IO Bool -- ^ Returns @True@ if there is an ongoing grab on device by another 'Widget' than widget.
+widgetDeviceIsShadowed widget device =
+  liftM toBool $
+  {# call widget_device_is_shadowed #}
+    (toWidget widget)
+    (toDevice device)
+#endif
+
+#if GTK_CHECK_VERSION(3,4,0)
+-- | Returns the modifier mask the @widget@’s windowing system backend uses
+-- for a particular purpose.
+--
+-- See 'keymapGetModifierMask'.
+widgetGetModifierMask :: WidgetClass widget => widget
+ -> ModifierIntent -- ^ @intent@ the use case for the modifier mask
+ -> IO [Modifier]  -- ^ Returns the modifier mask used for @intent@.
+widgetGetModifierMask widget intent =
+  liftM (toFlags . fromIntegral) $
+  {# call widget_get_modifier_mask #}
+    (toWidget widget)
+    ((fromIntegral . fromEnum) intent)
+#endif
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Enables or disables multiple pointer awareness. If this setting is
+-- @True@, widget will start receiving multiple, per device enter/leave
+-- events. Note that if custom 'DrawWindows' are created in “realize”,
+-- 'windowSetSupportMultidevice' will have to be called manually on them.
+widgetSetSupportMultidevice :: WidgetClass widget => widget
+ -> Bool -- ^ @supportMultidevice@ @True@ to support input from multiple devices.
+ -> IO ()
+widgetSetSupportMultidevice widget supportMultidevice =
+  {# call widget_set_support_multidevice #}
+    (toWidget widget)
+    (fromBool supportMultidevice)
+
+-- | Returns @True@ if @widget@ is multiple pointer aware.
+-- See 'widgetSetSupportMultidevice' for more information.
+widgetGetSupportMultidevice :: WidgetClass widget => widget
+ -> IO Bool -- ^ Returns @True@ if @widget@ is multidevice aware.
+widgetGetSupportMultidevice widget =
+  liftM toBool $
+  {# call widget_get_support_multidevice #}
     (toWidget widget)
 #endif
 
@@ -2590,6 +3270,14 @@ widgetMarginLeft = newAttrFromIntProperty "margin-left"
 
 widgetMarginRight :: WidgetClass self => Attr self Int
 widgetMarginRight = newAttrFromIntProperty "margin-right"
+
+#if GTK_CHECK_VERSION(3,12,0)
+widgetMarginStart :: WidgetClass self => Attr self Int
+widgetMarginStart = newAttrFromIntProperty "margin-start"
+
+widgetMarginEnd :: WidgetClass self => Attr self Int
+widgetMarginEnd = newAttrFromIntProperty "margin-end"
+#endif
 
 widgetMarginTop :: WidgetClass self => Attr self Int
 widgetMarginTop = newAttrFromIntProperty "margin-top"
@@ -2756,12 +3444,33 @@ widgetExtensionEvents = newAttr
 widgetExpand :: WidgetClass self => Attr self Bool
 widgetExpand = newAttrFromBoolProperty "expand"
 
--- | Whether to expand in both directions. Setting this sets both 'widgetHExpand' and 'widgetVExpand'
+-- | Whether to expand horizontally. See 'widgetSetHExpand'
 --
 -- Default value: @False@
 --
 widgetHExpand :: WidgetClass self => Attr self Bool
 widgetHExpand = newAttrFromBoolProperty "hexpand"
+
+-- | Whether to use the “hexpand” property. See 'widgetGetHExpandSet'.
+--
+-- Default value: @False@
+--
+widgetHExpandSet :: WidgetClass self => Attr self Bool
+widgetHExpandSet = newAttrFromBoolProperty "hexpand-set"
+
+-- | Whether to expand vertically. See 'widgetSetVExpand'.
+--
+-- Default value: @False@
+--
+widgetVExpand :: WidgetClass self => Attr self Bool
+widgetVExpand = newAttrFromBoolProperty "vexpand"
+
+-- | Whether to use the “vexpand” property. See 'widgetGetVExpandSet'.
+--
+-- Default value: @False@
+--
+widgetVExpandSet :: WidgetClass self => Attr self Bool
+widgetVExpandSet = newAttrFromBoolProperty "vexpand-set"
 
 -- %hash c:1605 d:48ea
 -- | Whether 'widgetShowAll' should not affect this widget.
@@ -2877,6 +3586,30 @@ widgetGetMapped self =
   {#call gtk_widget_get_mapped #}
     (toWidget self)
 
+-- | Marks the @widget@ as being realized. This function must only be called
+-- after all 'DrawWindows' for the widget have been created and registered.
+--
+-- This function should only ever be called in a derived widget's “realize”
+-- or “unrealize” implementation.
+widgetSetRealized :: WidgetClass widget => widget
+ -> Bool -- ^ @realized@ @True@ to mark the widget realized.
+ -> IO ()
+widgetSetRealized widget realized =
+  {# call widget_set_realized #}
+    (toWidget widget)
+    (fromBool realized)
+
+-- | Marks the @widget@ as being realized.
+--
+-- This function should only ever be called in a derived widget's “map” or
+-- “unmap” implementation.
+widgetSetMapped :: WidgetClass widget => widget
+ -> Bool -- ^ @mapped@ @True@ to mark the widget as mapped.
+ -> IO ()
+widgetSetMapped widget mapped =
+  {# call widget_set_mapped #}
+    (toWidget widget)
+    (fromBool mapped)
 #endif
 
 #if GTK_CHECK_VERSION(3,0,0)
