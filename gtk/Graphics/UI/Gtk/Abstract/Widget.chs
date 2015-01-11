@@ -298,6 +298,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetIsSensitive,
   widgetGetState,
   widgetGetVisible,
+#endif
+#if GTK_CHECK_VERSION(3,8,0)
   widgetIsVisible,
 #endif
 #if GTK_CHECK_VERSION(3,0,0)
@@ -3009,7 +3011,9 @@ widgetGetVisible widget =
   liftM toBool $
   {#call widget_get_visible #}
     (toWidget widget)
+#endif
 
+#if GTK_CHECK_VERSION(3,8,0)
 -- | Determines whether the widget and all its parents are marked as visible.
 --
 -- This function does not check if the widget is obscured in any way.
