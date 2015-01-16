@@ -608,7 +608,7 @@ fromNativeWindowId :: NativeWindowId -> Ptr a
 fromNativeWindowId = castPtr . unNativeWindowId
 nativeWindowIdNone :: NativeWindowId
 nativeWindowIdNone = NativeWindowId nullPtr
-#elif defined(HAVE_QUARTZ_GTK) || defined(GDK_WINDOWING_QUARTZ) || (defined(WIN32) && GTK_MAJOR_VERSION >= 3)
+#elif defined(WIN32) && GTK_MAJOR_VERSION >= 3
 newtype NativeWindowId = NativeWindowId (Maybe DrawWindow) deriving (Eq)
 unNativeWindowId :: NativeWindowId -> Maybe DrawWindow
 unNativeWindowId (NativeWindowId id) = id

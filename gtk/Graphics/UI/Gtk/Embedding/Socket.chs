@@ -94,7 +94,9 @@ module Graphics.UI.Gtk.Embedding.Socket (
   socketNew,
 
 -- * Methods
+#if GTK_MAJOR_VERSION >= 3
   socketHasPlug,
+#endif
   socketAddId,
   socketGetId,
 #if GTK_CHECK_VERSION(2,14,0)
