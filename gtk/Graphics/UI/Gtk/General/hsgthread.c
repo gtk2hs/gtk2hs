@@ -55,6 +55,18 @@ static GArray* gtk2hs_finalizers;
 
 gboolean gtk2hs_run_finalizers(gpointer data);
 
+#if defined( WIN32 ) && GLIB_CHECK_VERSION(2,32,0)
+static GRecMutex recursive_mutex;
+
+void imp_rec_lock() {
+    g_rec_mutex_lock(&recursive_mutex);
+}
+
+void imp_rec_unlock() {
+    g_rec_mutex_unlock(&recursive_mutex);
+}
+#endif
+
 /* Initialize the default _fmode on WIN32. */
 void gtk2hs_initialise (void) {
 #if defined( WIN32 ) && defined( GTK2HS_SET_FMODE_BINARY )
@@ -78,6 +90,12 @@ void gtk2hs_threads_initialise (void) {
     InitializeCriticalSection(&gtk2hs_finalizer_mutex);
 #else
     g_static_mutex_init(&gtk2hs_finalizer_mutex);
+#endif
+
+#if defined( WIN32 ) && GLIB_CHECK_VERSION(2,32,0)
+    g_rec_mutex_init(&recursive_mutex);
+    
+    gdk_threads_set_lock_functions(imp_rec_lock, imp_rec_unlock);
 #endif
     g_thread_init(NULL);
     gdk_threads_init();
