@@ -65,16 +65,21 @@ module System.Glib.Properties (
   newAttrFromIntProperty,
   readAttrFromIntProperty,
   newAttrFromUIntProperty,
-  newAttrFromCharProperty,
+  readAttrFromUIntProperty,
   writeAttrFromUIntProperty,
+  newAttrFromCharProperty,
+  readAttrFromCharProperty,
   newAttrFromBoolProperty,
   readAttrFromBoolProperty,
   newAttrFromFloatProperty,
+  readAttrFromFloatProperty,
   newAttrFromDoubleProperty,
+  readAttrFromDoubleProperty,
   newAttrFromEnumProperty,
   readAttrFromEnumProperty,
   writeAttrFromEnumProperty,
   newAttrFromFlagsProperty,
+  readAttrFromFlagsProperty,
   newAttrFromStringProperty,
   readAttrFromStringProperty,
   writeAttrFromStringProperty,
@@ -91,12 +96,13 @@ module System.Glib.Properties (
   readAttrFromBoxedOpaqueProperty,
   writeAttrFromBoxedOpaqueProperty,
   newAttrFromBoxedStorableProperty,
+  readAttrFromBoxedStorableProperty,
   newAttrFromObjectProperty,
-  writeAttrFromObjectProperty,
   readAttrFromObjectProperty,
+  writeAttrFromObjectProperty,
   newAttrFromMaybeObjectProperty,
-  writeAttrFromMaybeObjectProperty,
   readAttrFromMaybeObjectProperty,
+  writeAttrFromMaybeObjectProperty,
 
   -- TODO: do not export these once we dump the old TreeList API:
   objectGetPropertyInternal,
@@ -114,7 +120,7 @@ import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GType
 import System.Glib.GValueTypes
 import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
-				newNamedAttr, readNamedAttr, writeNamedAttr)
+                                newNamedAttr, readNamedAttr, writeNamedAttr)
 
 {# context lib="glib" prefix="g" #}
 
@@ -265,9 +271,17 @@ newAttrFromUIntProperty :: GObjectClass gobj => String -> Attr gobj Int
 newAttrFromUIntProperty propName =
   newNamedAttr propName (objectGetPropertyUInt propName) (objectSetPropertyUInt propName)
 
+readAttrFromUIntProperty :: GObjectClass gobj => String -> ReadAttr gobj Int
+readAttrFromUIntProperty propName =
+  readNamedAttr propName (objectGetPropertyUInt propName)
+
 newAttrFromCharProperty :: GObjectClass gobj => String -> Attr gobj Char
 newAttrFromCharProperty propName =
   newNamedAttr propName (objectGetPropertyChar propName) (objectSetPropertyChar propName)
+
+readAttrFromCharProperty :: GObjectClass gobj => String -> ReadAttr gobj Char
+readAttrFromCharProperty propName =
+  readNamedAttr propName (objectGetPropertyChar propName)
 
 writeAttrFromUIntProperty :: GObjectClass gobj => String -> WriteAttr gobj Int
 writeAttrFromUIntProperty propName =
@@ -285,9 +299,17 @@ newAttrFromFloatProperty :: GObjectClass gobj => String -> Attr gobj Float
 newAttrFromFloatProperty propName =
   newNamedAttr propName (objectGetPropertyFloat propName) (objectSetPropertyFloat propName)
 
+readAttrFromFloatProperty :: GObjectClass gobj => String -> ReadAttr gobj Float
+readAttrFromFloatProperty propName =
+  readNamedAttr propName (objectGetPropertyFloat propName)
+
 newAttrFromDoubleProperty :: GObjectClass gobj => String -> Attr gobj Double
 newAttrFromDoubleProperty propName =
   newNamedAttr propName (objectGetPropertyDouble propName) (objectSetPropertyDouble propName)
+
+readAttrFromDoubleProperty :: GObjectClass gobj => String -> ReadAttr gobj Double
+readAttrFromDoubleProperty propName =
+  readNamedAttr propName (objectGetPropertyDouble propName)
 
 newAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> Attr gobj enum
 newAttrFromEnumProperty propName gtype =
@@ -304,6 +326,10 @@ writeAttrFromEnumProperty propName gtype =
 newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> GType -> Attr gobj [flag]
 newAttrFromFlagsProperty propName gtype =
   newNamedAttr propName (objectGetPropertyFlags gtype propName) (objectSetPropertyFlags gtype propName)
+
+readAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> GType -> ReadAttr gobj [flag]
+readAttrFromFlagsProperty propName gtype =
+  readNamedAttr propName (objectGetPropertyFlags gtype propName)
 
 newAttrFromStringProperty :: (GObjectClass gobj, GlibString string) => String -> Attr gobj string
 newAttrFromStringProperty propName =
@@ -368,6 +394,10 @@ writeAttrFromBoxedOpaqueProperty with propName gtype =
 newAttrFromBoxedStorableProperty :: (GObjectClass gobj, Storable boxed) => String -> GType -> Attr gobj boxed
 newAttrFromBoxedStorableProperty propName gtype =
   newNamedAttr propName (objectGetPropertyBoxedStorable gtype propName) (objectSetPropertyBoxedStorable gtype propName)
+
+readAttrFromBoxedStorableProperty :: (GObjectClass gobj, Storable boxed) => String -> GType -> ReadAttr gobj boxed
+readAttrFromBoxedStorableProperty propName gtype =
+  readNamedAttr propName (objectGetPropertyBoxedStorable gtype propName)
 
 newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj gobj' gobj''
 newAttrFromObjectProperty propName gtype =
