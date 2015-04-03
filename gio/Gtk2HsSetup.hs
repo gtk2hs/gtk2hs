@@ -429,15 +429,10 @@ fixDeps pd@PD.PackageDescription {
   let modDeps = zipWith (ModDep True []) expMods mExpFiles++
                 zipWith (ModDep False []) othMods mOthFiles
   modDeps <- mapM extractDeps modDeps
-  let (expMods, othMods) = span mdExposed $ sortTopological modDeps
-      badOther = map (fromMaybe "<no file>" . mdLocation) $
-                 filter (not . mdExposed) expMods
-  unless (null badOther) $
-    die ("internal chs modules "++intercalate "," badOther++
-         " depend on exposed chs modules; cabal needs to build internal modules first")
+  let (othMods, expMods) = span (not . mdExposed) $ reverse $ sortTopological modDeps
   return pd { PD.library = Just lib {
-    PD.exposedModules = map mdOriginal expMods,
-    PD.libBuildInfo = bi { PD.otherModules = map mdOriginal othMods }
+    PD.exposedModules = map mdOriginal (reverse expMods),
+    PD.libBuildInfo = bi { PD.otherModules = map mdOriginal (reverse othMods) }
   }}
 
 data ModDep = ModDep {
