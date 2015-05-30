@@ -70,3 +70,15 @@
 #undef ColormapChangeMask
 #undef OwnerGrabButtonMask
 
+#undef Status
+#undef Expose
+#undef Below
+#undef GrabSuccess
+#undef GrabAlreadyGrabbed
+#undef GrabInvalidTime
+#undef GrabNotViewable
+#undef GrabFrozen
+#undef OwnerChangeNewOwner
+#undef OwnerChangeDestroy
+#undef OwnerChangeClose
+#undef NULL
