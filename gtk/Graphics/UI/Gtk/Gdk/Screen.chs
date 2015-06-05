@@ -67,7 +67,7 @@ module Graphics.UI.Gtk.Gdk.Screen (
   screenSetDefaultColormap,
 #endif
 #endif
-
+  screenGetRGBAVisual,
   screenGetSystemVisual,
 #if GTK_CHECK_VERSION(2,10,0)
   screenIsComposited,
@@ -207,6 +207,21 @@ screenGetSystemVisual :: Screen
 screenGetSystemVisual self =
   makeNewGObject mkVisual $
   {# call gdk_screen_get_system_visual #}
+    self
+
+-- | Gets a visual to use for creating windows with an alpha channel. The
+-- windowing system on which GTK+ is running may not support this capability,
+-- in which case NULL will be returned. Even if a non-NULL value is returned,
+-- its possible that the window’s alpha channel won’t be honored when
+-- displaying the window on the screen: in particular, for X an appropriate
+-- windowing manager and compositing manager must be running to provide
+-- appropriate display.
+screenGetRGBAVisual :: Screen
+ -> IO (Maybe Visual) -- ^ a visual to use for windows with an alpha channel or
+-- Nothing if the capability is not available.
+screenGetRGBAVisual self =
+  maybeNull (makeNewGObject mkVisual) $
+  {# call gdk_screen_get_rgba_visual #}
     self
 
 #if GTK_CHECK_VERSION(2,10,0)
