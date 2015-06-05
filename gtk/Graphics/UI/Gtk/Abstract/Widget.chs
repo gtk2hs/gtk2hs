@@ -331,6 +331,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #if GTK_CHECK_VERSION(3,0,0)
   widgetSetSupportMultidevice,
   widgetGetSupportMultidevice,
+  widgetSetVisual,
 #endif
   widgetSetState,
 #if GTK_MAJOR_VERSION < 3
@@ -3236,6 +3237,21 @@ widgetGetSupportMultidevice widget =
   liftM toBool $
   {# call widget_get_support_multidevice #}
     (toWidget widget)
+
+-- | Sets the visual that should be used for by widget and its children for
+-- creating GdkWindows. The visual must be on the same GdkScreen as returned
+-- by gtk_widget_get_screen(), so handling the “screen-changed” signal is
+-- necessary.
+widgetSetVisual :: WidgetClass self => self -> Maybe Visual -> IO ()
+widgetSetVisual widget Nothing = do
+  nullVisual <- makeNewGObject mkVisual $ return nullPtr
+  {# call gtk_widget_set_visual #}
+    (toWidget widget)
+    nullVisual
+widgetSetVisual widget (Just visual) =
+  {# call gtk_widget_set_visual #}
+    (toWidget widget)
+    visual
 #endif
 
 -- | This function is for use in widget implementations. Sets the state of a
