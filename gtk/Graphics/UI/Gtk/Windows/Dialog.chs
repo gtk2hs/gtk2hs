@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- pass the 'DialogModal' flag to make a dialog modal.
 --
 -- If you add buttons to 'Dialog' using 'dialogNewWithButtons',
--- 'dialogAddButton', 'dialogAddButtons', or 'dialogAddActionWidget', clicking
+-- 'dialogAddButton', or 'dialogAddActionWidget', clicking
 -- the button will emit a signal called \"response\" with a response ID that
 -- you specified. Gtk+ will never assign a meaning to positive response IDs;
 -- these are entirely user-defined. But for convenience, you can use the

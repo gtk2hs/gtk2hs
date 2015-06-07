@@ -122,7 +122,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- | Specify what buttons this dialog should show.
 --
 -- * Prebuilt sets of buttons for the dialog. If none of these choices
---   are appropriate, simply use 'ButtonsNone' then call 'dialogAddButtons'.
+--   are appropriate, simply use 'ButtonsNone' then call 'dialogAddButton'.
 --
 {#enum ButtonsType {underscoreToCase} deriving(Show,Eq)#}
 
