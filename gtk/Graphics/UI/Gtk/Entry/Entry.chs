@@ -131,6 +131,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryMoveCursor,
   entryPopulatePopup,
   entryToggleOverwirte,
+  entryToggleOverwrite,
 #if GTK_CHECK_VERSION(2,20,0)
   entryPreeditChanged,
 #endif
@@ -795,12 +796,16 @@ entryIconRelease = Signal $ \after obj f ->
   connect_ENUM_PTR__NONE "icon-press" after obj (runReaderT . f)
 #endif
 
+{-# DEPRECATED entryToggleOverwirte "Use entryToggleOverwrite" #-}
+entryToggleOverwirte :: EntryClass ec => Signal ec (IO ())
+entryToggleOverwirte = entryToggleOverwrite
+
 -- | The 'entryToggleOverwrite' signal is a keybinding signal which gets emitted to toggle the overwrite mode
 -- of the entry.
---
 -- The default bindings for this signal is Insert.
-entryToggleOverwirte :: EntryClass ec => Signal ec (IO ())
-entryToggleOverwirte = Signal (connect_NONE__NONE "toggle-overwrite")
+--
+entryToggleOverwrite :: EntryClass ec => Signal ec (IO ())
+entryToggleOverwrite = Signal (connect_NONE__NONE "toggle-overwrite")
 
 #ifndef DISABLE_DEPRECATED
 -- | Emitted when the user presses return within
