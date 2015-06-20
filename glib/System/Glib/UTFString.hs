@@ -109,9 +109,16 @@ class (IsString s, Monoid s, Show s) => GlibString s where
     -- Escape percent signs (used in MessageDialog)
     unPrintf :: s -> s
 
+-- GTK+ has a lot of asserts that the ptr is not NULL even if the length is 0
+-- Until they fix this we need to fudge pointer values to keep the noise level
+-- in the logs.
+noNullPtrs :: CStringLen -> CStringLen
+noNullPtrs (p, 0) | p == nullPtr = (plusPtr p 1, 0)
+noNullPtrs s = s
+
 instance GlibString [Char] where
     withUTFString = withCAString . encodeString
-    withUTFStringLen = withCAStringLen . encodeString
+    withUTFStringLen s f = withCAStringLen (encodeString s) (f . noNullPtrs)
     peekUTFString = liftM decodeString . peekCAString
     maybePeekUTFString = liftM (maybe Nothing (Just . decodeString)) . maybePeek peekCAString
     peekUTFStringLen = liftM decodeString . peekCAStringLen
@@ -135,7 +142,7 @@ foreign import ccall unsafe "string.h strlen" c_strlen
 
 instance GlibString T.Text where
     withUTFString = useAsCString . encodeUtf8
-    withUTFStringLen = T.withCStringLen
+    withUTFStringLen s f = T.withCStringLen s (f . noNullPtrs)
     peekUTFString s = do
         len <- c_strlen s
         T.peekCStringLen (s, fromIntegral len)
