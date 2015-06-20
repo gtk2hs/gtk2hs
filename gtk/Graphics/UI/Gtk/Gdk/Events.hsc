@@ -31,12 +31,12 @@
 -- favor of 'Graphics.UI.Gtk.Gdk.EventM' and not exported by Gtk.hs.
 --
 module Graphics.UI.Gtk.Gdk.Events (
-  Modifier(..),		-- a mask of control keys
+  Modifier(..),         -- a mask of control keys
   TimeStamp,
   currentTime,
 
   -- | Deprecated way of conveying event information.
-  Event(..),		-- information in event callbacks from Gdk
+  Event(..),            -- information in event callbacks from Gdk
   EventButton,
   EventScroll,
   EventMotion,
@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Gdk.Events (
   marshExposeRect,
 
   -- selector functions
-  marshalEvent,		-- convert a pointer to an event data structure
+  marshalEvent,         -- convert a pointer to an event data structure
   -- used data structures
   VisibilityState(..),
   CrossingMode(..),
@@ -70,18 +70,18 @@ import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
-import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
+import Graphics.UI.Gtk.Gdk.Keys         (KeyVal, keyvalToChar, keyvalName)
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 #endif
-import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
+import Graphics.UI.Gtk.Gdk.Enums        (Modifier(..),
                                          VisibilityState(..),
-					 CrossingMode(..),
-					 NotifyType(..),
-					 WindowState(..),
-					 ScrollDirection(..))
-import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
-import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
+                                         CrossingMode(..),
+                                         NotifyType(..),
+                                         WindowState(..),
+                                         ScrollDirection(..))
+import Graphics.UI.Gtk.General.Enums    (MouseButton(..), Click(..))
+import Graphics.UI.Gtk.General.Structs  (Rectangle(..))
 
 -- | The time (in milliseconds) when an event happened. This is used mostly
 -- for ordering events and responses to events.
@@ -192,11 +192,11 @@ data Event =
   --   'Graphics.UI.Gtk.Abstract.Widget.widgetQueueDrawArea'.
   --
   | Expose {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | A bounding box denoting what needs to be updated. For a more
     -- detailed information on the area that needs redrawing, use the
     -- next field.
-    eventArea	:: Rectangle,
+    eventArea   :: Rectangle,
 #if GTK_MAJOR_VERSION < 3
     -- | A set of horizontal stripes that denote the invalid area.
     eventRegion      :: Region,
@@ -206,17 +206,17 @@ data Event =
     --   one. The only use for this is \"exposure compression\", i.e.
     --   handling all contiguous 'Expose' events in one go, though Gdk
     --   performs some exposure compression so this is not normally needed.
-    eventCount	:: Int }
+    eventCount  :: Int }
   -- | Mouse motion.
   --
   -- * Captures the movement of the mouse cursor while it is within the area
   --   of the widget.
   --
   | Motion {
-    eventSent	:: Bool,
-    eventTime	:: TimeStamp,
-    eventX,eventY	:: Double,
-    eventModifier 	:: [Modifier],
+    eventSent   :: Bool,
+    eventTime   :: TimeStamp,
+    eventX,eventY       :: Double,
+    eventModifier       :: [Modifier],
     -- | Indicate if this event is only a hint of the motion.
     --
     -- * If the 'Graphics.UI.Gtk.Abstract.Widget.PointerMotionHintMask'
@@ -225,32 +225,32 @@ data Event =
     --  'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer'
     --   is called. In this case 'eventIsHint' is set to @True@.
     --
-    eventIsHint	:: Bool,
+    eventIsHint :: Bool,
     eventXRoot,
-    eventYRoot	:: Double }
+    eventYRoot  :: Double }
   -- | A mouse button was pressed or released.
   --
   -- * This event is triggered if the mouse button was pressed or released
   --   while the mouse cursor was within the region of the widget.
   --
   | Button {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | The kind of button press, see 'Click'. Note that double clicks will
     --   trigger this event with 'eventClick' set to 'SingleClick',
     --   'ReleaseClick',
     --   'SingleClick', 'DoubleClick', 'ReleaseClick'. Triple clicks will
     --   produce this sequence followed by 'SingleClick', 'DoubleClick',
     --   'TripleClick', 'ReleaseClick'.
-    eventClick	:: Click,
+    eventClick  :: Click,
     -- | The time of the event in milliseconds.
-    eventTime	:: TimeStamp,
-    eventX,eventY	:: Double,
-    eventModifier	:: [Modifier],
+    eventTime   :: TimeStamp,
+    eventX,eventY       :: Double,
+    eventModifier       :: [Modifier],
     -- | The button that was pressed.
-    eventButton	:: MouseButton,
+    eventButton :: MouseButton,
     -- | The coordinates of the click relative to the screen origin.
     eventXRoot,
-    eventYRoot	:: Double }
+    eventYRoot  :: Double }
   -- | A key was pressed while the widget had the input focus.
   --
   -- * If the widget has the current input focus (see
@@ -267,10 +267,10 @@ data Event =
     --   to connect the same handler to
     --  'Graphics.UI.Gtk.Abstract.Widget.onKeyPress' and
     --  'Graphics.UI.Gtk.Abstract.Widget.onKeyRelease'.
-    eventRelease	:: Bool,
-    eventSent	:: Bool,
-    eventTime	:: TimeStamp,
-    eventModifier	:: [Modifier],
+    eventRelease        :: Bool,
+    eventSent   :: Bool,
+    eventTime   :: TimeStamp,
+    eventModifier       :: [Modifier],
     -- | This flag is @True@ if Caps Lock is on while this key was pressed.
     eventWithCapsLock   :: Bool,
     -- | This flag is @True@ if Number Lock is on while this key was pressed.
@@ -303,11 +303,11 @@ data Event =
   --   some GUI elements like buttons on a toolbar change their appearance.
   --
   | Crossing {
-    eventSent	:: Bool,
-    eventTime	:: TimeStamp,
-    eventX,eventY	:: Double,
+    eventSent   :: Bool,
+    eventTime   :: TimeStamp,
+    eventX,eventY       :: Double,
     eventXRoot,
-    eventYRoot	:: Double,
+    eventYRoot  :: Double,
     -- | This flag is false if the widget was entered, it is true when the
     --   widget the mouse cursor left the widget.
     eventLeaves :: Bool,
@@ -316,21 +316,21 @@ data Event =
     -- * The mouse cursor might enter this widget because it grabs the mouse
     --   cursor for e.g. a modal dialog box.
     --
-    eventCrossingMode	:: CrossingMode,
+    eventCrossingMode   :: CrossingMode,
     -- | Information on from what level of the widget hierarchy the mouse
     --   cursor came.
     --
     -- * See 'NotifyType'.
     --
-    eventNotifyType	:: NotifyType,
-    eventModifier	:: [Modifier]}
+    eventNotifyType     :: NotifyType,
+    eventModifier       :: [Modifier]}
   -- | Gaining or loosing input focus.
   --
   | Focus {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | This flag is @True@ if the widget receives the focus and @False@ if
     -- it just lost the input focus.
-    eventInFocus	:: Bool}
+    eventInFocus        :: Bool}
   -- | The widget\'s size has changed.
   --
   -- * In response to this event the application can allocate resources that
@@ -338,18 +338,18 @@ data Event =
   --   is shown the first time and on every resize.
   --
   | Configure {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | Position within the parent window.
-    eventXParent	:: Int,
+    eventXParent        :: Int,
     -- | Position within the parent window.
-    eventYParent	:: Int,
-    eventWidth	:: Int,
-    eventHeight	:: Int}
+    eventYParent        :: Int,
+    eventWidth  :: Int,
+    eventHeight :: Int}
   -- | Change of visibility of a widget.
   | Visibility {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | Denote what portions of the widget is visible.
-    eventVisible	:: VisibilityState }
+    eventVisible        :: VisibilityState }
   -- | Wheel movement of the mouse.
   --
   -- * This action denotes that the content of the widget should be scrolled.
@@ -364,23 +364,23 @@ data Event =
   --   surround this widget which in turn tell this widget to update.
   --
   | Scroll {
-    eventSent	:: Bool,
-    eventTime	:: TimeStamp,
-    eventX,eventY	:: Double,
-    eventDirection	:: ScrollDirection,
+    eventSent   :: Bool,
+    eventTime   :: TimeStamp,
+    eventX,eventY       :: Double,
+    eventDirection      :: ScrollDirection,
     eventXRoot,
-    eventYRoot	:: Double}
+    eventYRoot  :: Double}
   -- | Indicate how the appearance of this window has changed.
   | WindowState {
-    eventSent	:: Bool,
+    eventSent   :: Bool,
     -- | The mask indicates which flags have changed.
-    eventWindowMask	:: [WindowState],
+    eventWindowMask     :: [WindowState],
     -- | The state indicates the current state of the window.
-    eventWindowState	:: [WindowState]}
+    eventWindowState    :: [WindowState]}
   -- | The state of the pen of a graphics tablet pen or touchscreen device.
   | Proximity {
-    eventSent	:: Bool,
-    eventTime	:: TimeStamp,
+    eventSent   :: Bool,
+    eventTime   :: TimeStamp,
     -- | Whether the stylus has moved in or out of contact with the tablet.
     eventInContact     :: Bool
   } deriving Show
@@ -391,47 +391,47 @@ marshalEvent ptr = do
   (case eType of
     #{const GDK_DELETE}         -> marshAny
     #{const GDK_DESTROY}        -> marshAny
-    #{const GDK_EXPOSE}		-> marshExpose
-    #{const GDK_MOTION_NOTIFY}	-> marshMotion
-    #{const GDK_BUTTON_PRESS}	-> marshButton SingleClick
+    #{const GDK_EXPOSE}         -> marshExpose
+    #{const GDK_MOTION_NOTIFY}  -> marshMotion
+    #{const GDK_BUTTON_PRESS}   -> marshButton SingleClick
     #{const GDK_2BUTTON_PRESS}  -> marshButton DoubleClick
-    #{const GDK_3BUTTON_PRESS}	-> marshButton TripleClick
-    #{const GDK_BUTTON_RELEASE}	-> marshButton ReleaseClick
-    #{const GDK_KEY_PRESS}	-> marshKey False
-    #{const GDK_KEY_RELEASE}	-> marshKey True
-    #{const GDK_ENTER_NOTIFY}	-> marshCrossing False
-    #{const GDK_LEAVE_NOTIFY}	-> marshCrossing True
-    #{const GDK_FOCUS_CHANGE}	-> marshFocus
-    #{const GDK_CONFIGURE}	-> marshConfigure
+    #{const GDK_3BUTTON_PRESS}  -> marshButton TripleClick
+    #{const GDK_BUTTON_RELEASE} -> marshButton ReleaseClick
+    #{const GDK_KEY_PRESS}      -> marshKey False
+    #{const GDK_KEY_RELEASE}    -> marshKey True
+    #{const GDK_ENTER_NOTIFY}   -> marshCrossing False
+    #{const GDK_LEAVE_NOTIFY}   -> marshCrossing True
+    #{const GDK_FOCUS_CHANGE}   -> marshFocus
+    #{const GDK_CONFIGURE}      -> marshConfigure
     #{const GDK_MAP}            -> marshAny
     #{const GDK_UNMAP}          -> marshAny
 --    #{const GDK_PROPERTY_NOTIFY}-> marshProperty
     #{const GDK_PROXIMITY_IN}   -> marshProximity True
-    #{const GDK_PROXIMITY_OUT}	-> marshProximity False
+    #{const GDK_PROXIMITY_OUT}  -> marshProximity False
     #{const GDK_VISIBILITY_NOTIFY}-> marshVisibility
-    #{const GDK_SCROLL}		-> marshScroll
-    #{const GDK_WINDOW_STATE}	-> marshWindowState
-    code			-> \_ -> fail $
+    #{const GDK_SCROLL}         -> marshScroll
+    #{const GDK_WINDOW_STATE}   -> marshWindowState
+    code                        -> \_ -> fail $
       "marshalEvent: unhandled event type " ++ show code ++
       "\nplease report this as a bug to gtk2hs-devel@lists.sourceforge.net"
     ) ptr
 
 marshAny ptr = do
-  (sent   ::#gtk2hs_type gint8)	<- #{peek GdkEventAny, send_event} ptr
+  (sent   ::#gtk2hs_type gint8) <- #{peek GdkEventAny, send_event} ptr
   return Event {
     eventSent = toBool sent
   }
 
 marshExpose ptr = do
   (#{const GDK_EXPOSE}::#gtk2hs_type GdkEventType) <- #{peek GdkEventAny,type} ptr
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventExpose, send_event} ptr
-  (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventExpose, send_event} ptr
+  (area_   ::Rectangle)         <- #{peek GdkEventExpose, area} ptr
 #if GTK_MAJOR_VERSION < 3
-  (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
+  (reg_   :: Ptr Region)        <- #{peek GdkEventExpose, region} ptr
   reg_ <- gdk_region_copy reg_
   region_ <- makeNewRegion reg_
 #endif
-  (count_  ::#gtk2hs_type gint)	<- #{peek GdkEventExpose, count} ptr
+  (count_  ::#gtk2hs_type gint) <- #{peek GdkEventExpose, count} ptr
   return $ Expose {
     eventSent   = toBool sent_,
     eventArea   = area_,
@@ -448,43 +448,43 @@ foreign import ccall "gdk_region_copy"
 marshExposeRect :: Ptr Event -> IO Rectangle
 marshExposeRect ptr = do
   (#{const GDK_EXPOSE}::#gtk2hs_type GdkEventType) <- #{peek GdkEventAny,type} ptr
-  (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
+  (area_   ::Rectangle)         <- #{peek GdkEventExpose, area} ptr
   return area_
 
 marshMotion ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventMotion, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventMotion, time} ptr
-  (x_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventMotion, x} ptr
-  (y_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventMotion, y} ptr
-  (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventMotion, state} ptr
-  (isHint_ ::#gtk2hs_type gint16)	<- #{peek GdkEventMotion, is_hint} ptr
-  (xRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventMotion, x_root} ptr
-  (yRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventMotion, y_root} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventMotion, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventMotion, time} ptr
+  (x_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventMotion, x} ptr
+  (y_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventMotion, y} ptr
+  (modif_  ::#gtk2hs_type guint)        <- #{peek GdkEventMotion, state} ptr
+  (isHint_ ::#gtk2hs_type gint16)       <- #{peek GdkEventMotion, is_hint} ptr
+  (xRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventMotion, x_root} ptr
+  (yRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventMotion, y_root} ptr
   return $ Motion {
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_,
-    eventX	   = realToFrac x_,
-    eventY	   = realToFrac y_,
+    eventX         = realToFrac x_,
+    eventY         = realToFrac y_,
     eventModifier  = (toFlags . fromIntegral) modif_,
     eventIsHint = toBool isHint_,
     eventXRoot  = realToFrac xRoot_,
     eventYRoot  = realToFrac yRoot_}
 
 marshButton but ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventButton, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventButton, time} ptr
-  (x_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventButton, x} ptr
-  (y_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventButton, y} ptr
-  (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventButton, state} ptr
-  (button_ ::#gtk2hs_type guint)	<- #{peek GdkEventButton, button} ptr
-  (xRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventButton, x_root} ptr
-  (yRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventButton, y_root} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventButton, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventButton, time} ptr
+  (x_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventButton, x} ptr
+  (y_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventButton, y} ptr
+  (modif_  ::#gtk2hs_type guint)        <- #{peek GdkEventButton, state} ptr
+  (button_ ::#gtk2hs_type guint)        <- #{peek GdkEventButton, button} ptr
+  (xRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventButton, x_root} ptr
+  (yRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventButton, y_root} ptr
   return $ Button {
     eventClick  = but,
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_,
-    eventX	   = realToFrac x_,
-    eventY	   = realToFrac y_,
+    eventX         = realToFrac x_,
+    eventY         = realToFrac y_,
     eventModifier  = (toFlags . fromIntegral) modif_,
     eventButton = (toEnum.fromIntegral) button_,
     eventXRoot  = realToFrac xRoot_,
@@ -492,12 +492,12 @@ marshButton but ptr = do
 
 
 marshKey up ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventKey, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventKey, time} ptr
-  (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventKey, state} ptr
-  (keyval_ ::#gtk2hs_type guint)	<- #{peek GdkEventKey, keyval} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventKey, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventKey, time} ptr
+  (modif_  ::#gtk2hs_type guint)        <- #{peek GdkEventKey, state} ptr
+  (keyval_ ::#gtk2hs_type guint)        <- #{peek GdkEventKey, keyval} ptr
 
-  (length_ ::#gtk2hs_type gint)	<- #{peek GdkEventKey, length} ptr
+  (length_ ::#gtk2hs_type gint) <- #{peek GdkEventKey, length} ptr
   keyChar <- keyvalToChar keyval_
   keyName <- unsafeInterleaveIO $ keyvalName keyval_
   return $ Key {
@@ -513,23 +513,23 @@ marshKey up ptr = do
     eventKeyChar = keyChar }
 
 marshCrossing leave ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventCrossing, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventCrossing, time} ptr
-  (x_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, x} ptr
-  (y_	   ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, y} ptr
-  (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
-  (xRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, x_root} ptr
-  (yRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventCrossing, y_root} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventCrossing, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventCrossing, time} ptr
+  (x_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventCrossing, x} ptr
+  (y_      ::#gtk2hs_type gdouble)      <- #{peek GdkEventCrossing, y} ptr
+  (modif_  ::#gtk2hs_type guint)        <- #{peek GdkEventCrossing, state} ptr
+  (xRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventCrossing, x_root} ptr
+  (yRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventCrossing, y_root} ptr
   (cMode_  ::#gtk2hs_type GdkCrossingMode)
-				<- #{peek GdkEventCrossing, mode} ptr
+                                <- #{peek GdkEventCrossing, mode} ptr
   (nType_  ::#gtk2hs_type GdkNotifyType)
-				<- #{peek GdkEventCrossing, detail} ptr
-  (modif_  ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
+                                <- #{peek GdkEventCrossing, detail} ptr
+  (modif_  ::#gtk2hs_type guint)        <- #{peek GdkEventCrossing, state} ptr
   return $ Crossing {
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_,
-    eventX	   = realToFrac x_,
-    eventY	   = realToFrac y_,
+    eventX         = realToFrac x_,
+    eventY         = realToFrac y_,
     eventXRoot  = realToFrac xRoot_,
     eventYRoot  = realToFrac yRoot_,
     eventLeaves = leave,
@@ -539,18 +539,18 @@ marshCrossing leave ptr = do
 
 
 marshFocus ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventFocus, send_event} ptr
-  (inFocus_::#gtk2hs_type gint16)	<- #{peek GdkEventFocus, in} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventFocus, send_event} ptr
+  (inFocus_::#gtk2hs_type gint16)       <- #{peek GdkEventFocus, in} ptr
   return $ Focus {
     eventSent   = toBool sent_,
     eventInFocus= toBool inFocus_}
 
 marshConfigure ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventConfigure, send_event} ptr
-  (xPar_   ::#gtk2hs_type gint)	<- #{peek GdkEventConfigure, x} ptr
-  (yPar_   ::#gtk2hs_type gint)	<- #{peek GdkEventConfigure, y} ptr
-  (width_  ::#gtk2hs_type gint)	<- #{peek GdkEventConfigure, width} ptr
-  (height_ ::#gtk2hs_type gint)	<- #{peek GdkEventConfigure, height} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventConfigure, send_event} ptr
+  (xPar_   ::#gtk2hs_type gint) <- #{peek GdkEventConfigure, x} ptr
+  (yPar_   ::#gtk2hs_type gint) <- #{peek GdkEventConfigure, y} ptr
+  (width_  ::#gtk2hs_type gint) <- #{peek GdkEventConfigure, width} ptr
+  (height_ ::#gtk2hs_type gint) <- #{peek GdkEventConfigure, height} ptr
   return $ Configure {
     eventSent   = toBool sent_,
     eventXParent   = fromIntegral xPar_,
@@ -560,54 +560,54 @@ marshConfigure ptr = do
 
 {-
 marshProperty ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventProperty, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventProperty, time} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventProperty, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventProperty, time} ptr
   return $ Property {
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_}
 -}
 
 marshProximity contact ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventProximity, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventProximity, time} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventProximity, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventProximity, time} ptr
   return $ Proximity {
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_,
     eventInContact = contact}
 
 marshVisibility ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventVisibility, send_event} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventVisibility, send_event} ptr
   (state_  ::#gtk2hs_type GdkVisibilityState)
-				<- #{peek GdkEventVisibility, state} ptr
+                                <- #{peek GdkEventVisibility, state} ptr
   return $ Visibility {
     eventSent   = toBool sent_,
     eventVisible= (toEnum.fromIntegral) state_}
 
 marshScroll ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventScroll, send_event} ptr
-  (time_   ::#gtk2hs_type guint32)	<- #{peek GdkEventScroll, time} ptr
-  (x_	  ::#gtk2hs_type gdouble)	<- #{peek GdkEventScroll, x} ptr
-  (y_	  ::#gtk2hs_type gdouble)	<- #{peek GdkEventScroll, y} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventScroll, send_event} ptr
+  (time_   ::#gtk2hs_type guint32)      <- #{peek GdkEventScroll, time} ptr
+  (x_     ::#gtk2hs_type gdouble)       <- #{peek GdkEventScroll, x} ptr
+  (y_     ::#gtk2hs_type gdouble)       <- #{peek GdkEventScroll, y} ptr
   (direc_  ::#gtk2hs_type GdkScrollDirection)
-				<- #{peek GdkEventScroll, direction} ptr
-  (xRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventScroll, x_root} ptr
-  (yRoot_  ::#gtk2hs_type gdouble)	<- #{peek GdkEventScroll, y_root} ptr
+                                <- #{peek GdkEventScroll, direction} ptr
+  (xRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventScroll, x_root} ptr
+  (yRoot_  ::#gtk2hs_type gdouble)      <- #{peek GdkEventScroll, y_root} ptr
   return $ Scroll {
     eventSent   = toBool sent_,
     eventTime   = fromIntegral time_,
-    eventX	   = realToFrac x_,
-    eventY	   = realToFrac y_,
+    eventX         = realToFrac x_,
+    eventY         = realToFrac y_,
     eventDirection  = (toEnum.fromIntegral) direc_,
     eventXRoot  = realToFrac xRoot_,
     eventYRoot  = realToFrac yRoot_}
 
 
 marshWindowState ptr = do
-  (sent_   ::#gtk2hs_type gint8)	<- #{peek GdkEventWindowState, send_event} ptr
+  (sent_   ::#gtk2hs_type gint8)        <- #{peek GdkEventWindowState, send_event} ptr
   (wMask_  ::#gtk2hs_type GdkWindowState)
-			<- #{peek GdkEventWindowState, changed_mask} ptr
+                        <- #{peek GdkEventWindowState, changed_mask} ptr
   (wState_ ::#gtk2hs_type GdkWindowState)
-			<- #{peek GdkEventWindowState, new_window_state} ptr
+                        <- #{peek GdkEventWindowState, new_window_state} ptr
   return $ WindowState {
     eventSent   = toBool sent_,
     eventWindowMask  = (toFlags.fromIntegral) wMask_,

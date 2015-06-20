@@ -161,33 +161,33 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   afterPopupContextMenu,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
-import Data.Maybe	(fromJust)
+import Data.Maybe       (fromJust)
 import qualified Data.Text as T (filter)
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
+import Graphics.UI.Gtk.Display.Image    (imageNewFromStock)
 import System.Glib.UTFString
 #endif
 #endif
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
-import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..),
-					 ReliefStyle(..))
-import Graphics.UI.Gtk.General.Structs	(
+import Graphics.UI.Gtk.General.Enums    (Orientation(..), ToolbarStyle(..),
+                                         ReliefStyle(..))
+import Graphics.UI.Gtk.General.Structs  (
 #if GTK_MAJOR_VERSION < 3
 #ifndef DISABLE_DEPRECATED
-					 toolbarChildToggleButton,
-					 toolbarChildRadioButton,
+                                         toolbarChildToggleButton,
+                                         toolbarChildRadioButton,
 #endif
 #endif
-					 IconSize(..))
+                                         IconSize(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -294,7 +294,7 @@ toolbarInsertNewToggleButton self pos stockId tooltips = do
   mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
-    Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
+    Nothing     -> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (T.filter (/= '_')) $ siLabel item
   size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size
@@ -358,7 +358,7 @@ toolbarInsertNewRadioButton self pos stockId tooltips rb = do
   mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
-    Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
+    Nothing     -> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (T.filter (/= '_')) $ siLabel item
   size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size

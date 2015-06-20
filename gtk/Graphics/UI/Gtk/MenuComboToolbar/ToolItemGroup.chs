@@ -77,15 +77,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItemGroup (
 #endif
 ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.UTFString
 import Graphics.Rendering.Pango.Enums   (EllipsizeMode (..))
-import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.General.Enums    (ReliefStyle(..))
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

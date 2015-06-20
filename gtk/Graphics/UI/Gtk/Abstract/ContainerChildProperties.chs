@@ -48,8 +48,8 @@ import System.Glib.Flags
 import System.Glib.GType
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GValueTypes
-{#import System.Glib.GValue#}		(GValue(GValue), allocaGValue, valueInit)
-import System.Glib.Attributes		(Attr, newAttr)
+{#import System.Glib.GValue#}           (GValue(GValue), allocaGValue, valueInit)
+import System.Glib.Attributes           (Attr, newAttr)
 
 {# context lib="gtk" prefix="gtk" #}
 

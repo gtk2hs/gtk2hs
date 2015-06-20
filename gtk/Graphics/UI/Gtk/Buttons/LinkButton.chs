@@ -84,13 +84,13 @@ module Graphics.UI.Gtk.Buttons.LinkButton (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

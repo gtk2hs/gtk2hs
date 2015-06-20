@@ -92,8 +92,8 @@ instance Show Atom where
   show (Atom ptr) = show (atomToString ptr :: DefaultGlibString)
 
 atomToString ptr = unsafePerformIO $ do
-	strPtr <- {#call unsafe gdk_atom_name#} ptr
-	readUTFString strPtr
+        strPtr <- {#call unsafe gdk_atom_name#} ptr
+        readUTFString strPtr
 
 -- | A 'TargetList' contains information about all possible formats
 -- (represented as 'TargetTag') that a widget can create or receive in form of

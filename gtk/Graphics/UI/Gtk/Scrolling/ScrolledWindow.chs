@@ -131,15 +131,15 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.Maybe    (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums	(PolicyType(..), CornerType(..), ShadowType(..))
+import Graphics.UI.Gtk.General.Enums    (PolicyType(..), CornerType(..), ShadowType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

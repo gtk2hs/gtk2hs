@@ -65,13 +65,13 @@ module Graphics.UI.Gtk.Layout.AspectFrame (
   aspectFrameObeyChild,
   ) where
 
-import Control.Monad	(liftM)
-import Data.Maybe	(isNothing)
+import Control.Monad    (liftM)
+import Data.Maybe       (isNothing)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

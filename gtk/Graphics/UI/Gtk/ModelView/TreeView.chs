@@ -260,19 +260,19 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 #endif
   ) where
 
-import Control.Monad	(liftM,)
-import Data.Maybe	(fromMaybe)
+import Control.Monad    (liftM,)
+import Data.Maybe       (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GList		(fromGList)
+import System.Glib.GList                (fromGList)
 import System.Glib.Flags
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
 import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))
-import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.General.Structs  (Point, Rectangle)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.ModelView.TreeModel (columnIdToNumber,
@@ -1927,9 +1927,9 @@ onRowActivated, afterRowActivated :: TreeViewClass self => self
  -> (TreePath -> TreeViewColumn -> IO ())
  -> IO (ConnectId self)
 onRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
-		   readNTP False
+                   readNTP False
 afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
-		      readNTP True
+                      readNTP True
 
 -- | Children of this node were hidden.
 --

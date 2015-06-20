@@ -100,8 +100,8 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Structs	(fileSelectionGetButtons)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
+import Graphics.UI.Gtk.General.Structs  (fileSelectionGetButtons)
 
 {# context lib="libgtk" prefix="gtk" #}
 

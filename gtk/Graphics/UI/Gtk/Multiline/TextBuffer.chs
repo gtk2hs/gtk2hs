@@ -195,7 +195,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -206,8 +206,8 @@ import Data.ByteString.Unsafe (unsafeUseAsCStringLen, unsafePackCStringFinalizer
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
-import Graphics.UI.Gtk.Multiline.TextMark	(MarkName)
-import Graphics.UI.Gtk.Multiline.TextTag	(TagName)
+import Graphics.UI.Gtk.Multiline.TextMark       (MarkName)
+import Graphics.UI.Gtk.Multiline.TextTag        (TagName)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -1121,8 +1121,8 @@ textBufferGetBounds self = do
 -- we'll ask for the paste data and return, and at some point later
 -- after the main loop runs, the paste data will be inserted.)
 textBufferPasteClipboard :: TextBufferClass self => self
-  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard to paste from
-  -> TextIter   -- ^ @location@ - 	location to insert pasted text
+  -> Clipboard  -- ^ @clipboard@ -      the GtkClipboard to paste from
+  -> TextIter   -- ^ @location@ -       location to insert pasted text
   -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
   -> IO ()
 textBufferPasteClipboard self clipboard overrideLocation defaultEditable =
@@ -1137,7 +1137,7 @@ textBufferPasteClipboard self clipboard overrideLocation defaultEditable =
 -- we'll ask for the paste data and return, and at some point later
 -- after the main loop runs, the paste data will be inserted.)
 textBufferPasteClipboardAtCursor :: TextBufferClass self => self
-  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard to paste from
+  -> Clipboard  -- ^ @clipboard@ -      the GtkClipboard to paste from
   -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
   -> IO ()
 textBufferPasteClipboardAtCursor self clipboard defaultEditable =
@@ -1149,7 +1149,7 @@ textBufferPasteClipboardAtCursor self clipboard defaultEditable =
 
 -- | Copies the currently-selected text to a clipboard.
 textBufferCopyClipboard :: TextBufferClass self => self
-  -> Clipboard -- ^ @clipboard@ - 	the GtkClipboard object to copy to
+  -> Clipboard -- ^ @clipboard@ -       the GtkClipboard object to copy to
   -> IO ()
 textBufferCopyClipboard self clipboard =
   {# call gtk_text_buffer_copy_clipboard #}
@@ -1159,7 +1159,7 @@ textBufferCopyClipboard self clipboard =
 -- | Copies the currently-selected text to a clipboard,
 -- then deletes said text if it's editable.
 textBufferCutClipboard :: TextBufferClass self => self
-  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard object to cut to
+  -> Clipboard  -- ^ @clipboard@ -      the GtkClipboard object to cut to
   -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
   -> IO ()
 textBufferCutClipboard self clipboard defaultEditable =
@@ -1173,7 +1173,7 @@ textBufferCutClipboard self clipboard defaultEditable =
 -- In most cases, @clipboard@ will be the 'Clipboard' of type 'selectionPrimary' for a view of @self@.
 --
 textBufferAddSelectionClipboard :: TextBufferClass self => self
- -> Clipboard  -- ^ @clipboard@ - 	the 'Clipboard' object to add
+ -> Clipboard  -- ^ @clipboard@ -       the 'Clipboard' object to add
  -> IO ()
 textBufferAddSelectionClipboard self clipboard =
   {# call text_buffer_add_selection_clipboard #} (toTextBuffer self) clipboard

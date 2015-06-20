@@ -63,10 +63,10 @@ module Graphics.UI.Gtk.Gdk.Region (
 
 #if GTK_MAJOR_VERSION < 3
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
+import Graphics.UI.Gtk.General.Structs  (Point, Rectangle(..))
 
 {# context lib="gdk" prefix="gdk" #}
 
@@ -109,7 +109,7 @@ regionPolygon points rule =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> do
     rPtr <- {#call unsafe region_polygon#} (castPtr aPtr)
-	    (fromIntegral (length points)) ((fromIntegral.fromEnum) rule)
+            (fromIntegral (length points)) ((fromIntegral.fromEnum) rule)
     makeNewRegion rPtr
 
 -- | Copy a 'Region'.

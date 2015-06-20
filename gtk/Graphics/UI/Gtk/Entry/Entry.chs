@@ -155,21 +155,21 @@ module Graphics.UI.Gtk.Entry.Entry (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Control.Monad.Reader (runReaderT)
-import Data.Char	(ord, chr)
+import Data.Char        (ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.UI.Gtk.General.Enums (DeleteType (..), MovementStep (..)
 #if GTK_CHECK_VERSION(2,16,0)
   , EntryIconPosition (..)
 #endif
   )
-import Graphics.UI.Gtk.Gdk.EventM	(EventM, EButton, EKey)
+import Graphics.UI.Gtk.Gdk.EventM       (EventM, EButton, EKey)
 import Control.Monad.Reader             ( ask )
 import Control.Monad.Trans              ( liftIO )
 #if GTK_CHECK_VERSION (2,18,0)

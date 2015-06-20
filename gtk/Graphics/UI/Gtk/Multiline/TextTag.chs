@@ -154,7 +154,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -164,14 +164,14 @@ import System.Glib.Properties
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.Rendering.Pango.Font
 import Graphics.Rendering.Pango.BasicTypes      (FontDescription (..), makeNewFontDescription)
-import Graphics.Rendering.Pango.Enums	(FontStyle(..), Variant(..),
-					 Stretch(..), Underline(..))
-import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
-					 Justification(..), WrapMode(..))
+import Graphics.Rendering.Pango.Enums   (FontStyle(..), Variant(..),
+                                         Stretch(..), Underline(..))
+import Graphics.UI.Gtk.General.Enums    (TextDirection(..),
+                                         Justification(..), WrapMode(..))
 import Graphics.UI.Gtk.General.Structs  (Color(..))
 import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )
 #ifndef DISABLE_DEPRECATED
-import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
+import Graphics.UI.Gtk.Gdk.Events       (Event, marshalEvent)
 #endif
 import Graphics.UI.Gtk.Gdk.EventM (EventM, EAny)
 import Control.Monad.Reader ( runReaderT )
@@ -784,7 +784,7 @@ textTagEvent = Signal (\after obj fun ->
 --   e.g. mouse clicks to implement hyperlinking.
 --
 onTextTagEvent :: TextTagClass t => t -> (Event -> TextIter -> IO ()) ->
-		  IO (ConnectId t)
+                  IO (ConnectId t)
 onTextTagEvent tt act =
   connect_PTR_BOXED_BOXED__BOOL "event" marshalEvent mkTextIterCopy False tt
     (\_ event iter -> act event iter >> return False)

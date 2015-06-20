@@ -102,7 +102,7 @@ module Graphics.UI.Gtk.General.Selection (
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Flags	(fromFlags)
+import System.Glib.Flags        (fromFlags)
 import System.Glib.Signals
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}

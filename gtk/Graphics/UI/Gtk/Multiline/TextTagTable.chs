@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
   textTagTableGetSize
   ) where
 
-import Control.Monad	(liftM, void)
+import Control.Monad    (liftM, void)
 
 import System.Glib.FFI (withForeignPtr, nullPtr, Ptr(..), CInt(..), CChar(..), FunPtr(..), maybeNull)
 import System.Glib.UTFString

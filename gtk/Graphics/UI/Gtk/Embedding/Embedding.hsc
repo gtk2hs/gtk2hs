@@ -42,7 +42,7 @@ import Graphics.UI.Gtk.Embedding.Types
 socketHasPlug :: SocketClass s => s -> IO Bool
 socketHasPlug socket = do
   plugPtr <- withForeignPtr (unSocket (toSocket socket))
-	     #{peek GtkSocket, plug_window}
+             #{peek GtkSocket, plug_window}
   return (plugPtr/=nullPtr)
 
 #endif

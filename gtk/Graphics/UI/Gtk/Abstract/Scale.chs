@@ -74,12 +74,12 @@ module Graphics.UI.Gtk.Abstract.Scale (
   scaleValuePos,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums	(PositionType(..))
+import Graphics.UI.Gtk.General.Enums    (PositionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

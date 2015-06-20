@@ -70,18 +70,18 @@ module Graphics.UI.Gtk.Gdk.Drawable (
 ) where
 
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs	(Point, drawableGetID)
+import Graphics.UI.Gtk.General.Structs  (Point, drawableGetID)
 import Graphics.Rendering.Pango.Structs
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
-{#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)
+{#import Graphics.UI.Gtk.Gdk.Region#}   (Region, makeNewRegion)
 #endif
-import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))
+import Graphics.UI.Gtk.Gdk.Enums        (Dither(..))
 
 {# context lib="gtk" prefix="gdk" #}
 
@@ -94,7 +94,7 @@ import Graphics.UI.Gtk.Gdk.Enums	(Dither(..))
 --
 drawableGetDepth :: DrawableClass d => d -> IO Int
 drawableGetDepth d = liftM fromIntegral $
-		     {#call unsafe drawable_get_depth#} (toDrawable d)
+                     {#call unsafe drawable_get_depth#} (toDrawable d)
 
 -- | Retrieve the size of the 'Drawable'.
 --
@@ -193,8 +193,8 @@ drawLines d gc points =
 -- * Since 2.2.
 --
 drawPixbuf :: DrawableClass d => d -> GC -> Pixbuf -> Int -> Int ->
-				 Int -> Int -> Int -> Int -> Dither ->
-				 Int -> Int -> IO ()
+                                 Int -> Int -> Int -> Int -> Dither ->
+                                 Int -> Int -> IO ()
 drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither
   xDither yDither = {#call unsafe draw_pixbuf#} (toDrawable d)
     gc pb (fromIntegral srcX) (fromIntegral srcY) (fromIntegral destX)
@@ -251,7 +251,7 @@ drawRectangle d gc filled x y width height = {#call unsafe draw_rectangle#}
 --   is measured similarly, but relative to @aStart@.
 --
 drawArc :: DrawableClass d => d -> GC -> Bool -> Int -> Int ->
-				 Int -> Int -> Int -> Int -> IO ()
+                                 Int -> Int -> Int -> Int -> IO ()
 drawArc d gc filled x y width height aStart aEnd =
   {#call unsafe draw_arc#} (toDrawable d) (toGC gc) (fromBool filled)
   (fromIntegral x) (fromIntegral y) (fromIntegral width) (fromIntegral height)
@@ -293,7 +293,7 @@ drawGlyphs d gc x y (GlyphItem pi gs) = do
 --   the @y@ coordinate specifies the base line.
 --
 drawLayoutLine :: DrawableClass d => d -> GC -> Int -> Int -> LayoutLine ->
-				     IO ()
+                                     IO ()
 drawLayoutLine d gc x y (LayoutLine _ ll) =
   {#call unsafe draw_layout_line#} (toDrawable d) (toGC gc)
     (fromIntegral x) (fromIntegral y) ll
@@ -308,7 +308,7 @@ drawLayoutLine d gc x y (LayoutLine _ ll) =
 --   the graphics context.
 --
 drawLayoutLineWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
-			    LayoutLine -> Maybe Color -> Maybe Color -> IO ()
+                            LayoutLine -> Maybe Color -> Maybe Color -> IO ()
 drawLayoutLineWithColors d gc x y (LayoutLine _ ll) foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr
@@ -339,7 +339,7 @@ drawLayout d gc x y (PangoLayout _ pl) =
 --   the graphics context.
 --
 drawLayoutWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
-			PangoLayout -> Maybe Color -> Maybe Color -> IO ()
+                        PangoLayout -> Maybe Color -> Maybe Color -> IO ()
 drawLayoutWithColors d gc x y (PangoLayout _ pl) foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr

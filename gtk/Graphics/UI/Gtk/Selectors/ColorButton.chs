@@ -78,15 +78,15 @@ module Graphics.UI.Gtk.Selectors.ColorButton (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(Color)
+import Graphics.UI.Gtk.General.Structs  (Color)
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -174,7 +174,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
 #endif
 
 -- * Auxilliary Definitions
-  Modifier(..),		-- a mask of control keys
+  Modifier(..),         -- a mask of control keys
   TimeStamp,
   currentTime,
   tryEvent,
@@ -186,18 +186,18 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
 import System.Glib.GObject ( makeNewGObject )
-import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, KeyCode, keyName)
+import Graphics.UI.Gtk.Gdk.Keys         (KeyVal, KeyCode, keyName)
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 #endif
-import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..), VisibilityState(..),
+import Graphics.UI.Gtk.Gdk.Enums        (Modifier(..), VisibilityState(..),
   CrossingMode(..), NotifyType(..), WindowState(..), ScrollDirection(..),
 #if GTK_CHECK_VERSION(2,6,0)
   OwnerChange(..)
 #endif
   )
-import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
-import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
+import Graphics.UI.Gtk.General.Enums    (MouseButton(..), Click(..))
+import Graphics.UI.Gtk.General.Structs  (Rectangle(..))
 import Graphics.UI.Gtk.General.DNDTypes (Atom(..), SelectionTag)
 import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
 
@@ -397,23 +397,23 @@ eM mask = do
     (ty :: #{gtk2hs_type GdkEventType}) <- peek (castPtr ptr)
     if ty `elem` [ #{const GDK_KEY_PRESS},
                    #{const GDK_KEY_RELEASE}] then do
-        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventKey, state} ptr
+        (modif ::#gtk2hs_type guint)    <- #{peek GdkEventKey, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_BUTTON_PRESS},
                    #{const GDK_2BUTTON_PRESS},
                    #{const GDK_3BUTTON_PRESS},
                    #{const GDK_BUTTON_RELEASE}] then do
-        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventButton, state} ptr
+        (modif ::#gtk2hs_type guint)    <- #{peek GdkEventButton, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_SCROLL} ] then do
-        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventScroll, state} ptr
+        (modif ::#gtk2hs_type guint)    <- #{peek GdkEventScroll, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_MOTION_NOTIFY} ] then do
-        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventMotion, state} ptr
+        (modif ::#gtk2hs_type guint)    <- #{peek GdkEventMotion, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else if ty `elem` [ #{const GDK_ENTER_NOTIFY},
                           #{const GDK_LEAVE_NOTIFY}] then do
-        (modif ::#gtk2hs_type guint)	<- #{peek GdkEventCrossing, state} ptr
+        (modif ::#gtk2hs_type guint)    <- #{peek GdkEventCrossing, state} ptr
         return (toFlags (fromIntegral (modif .&. mask)))
       else error ("eventModifiers: none for event type "++show ty)
 
@@ -562,7 +562,7 @@ eventArea = ask >>= \ptr -> liftIO $
 -- Removed in Gtk3.
 eventRegion :: EventM EExpose Region
 eventRegion = ask >>= \ptr -> liftIO $ do
-  (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
+  (reg_   :: Ptr Region)        <- #{peek GdkEventExpose, region} ptr
   reg_ <- gdk_region_copy reg_
   makeNewRegion reg_
 
@@ -598,15 +598,15 @@ eventFocusIn = ask >>= \ptr -> liftIO $ liftM toBool
 -- | Get the @(x,y)@ position of the window within the parent window.
 eventPosition :: EventM EConfigure (Int,Int)
 eventPosition = ask >>= \ptr -> liftIO $ do
-  (x :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, x} ptr
-  (y :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, y} ptr
+  (x :: #{gtk2hs_type gint})    <- #{peek GdkEventConfigure, x} ptr
+  (y :: #{gtk2hs_type gint})    <- #{peek GdkEventConfigure, y} ptr
   return (fromIntegral x, fromIntegral y)
 
 -- | Get the new size of the window as @(width,height)@.
 eventSize :: EventM EConfigure (Int,Int)
 eventSize = ask >>= \ptr -> liftIO $ do
-  (x :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, width} ptr
-  (y :: #{gtk2hs_type gint})	<- #{peek GdkEventConfigure, height} ptr
+  (x :: #{gtk2hs_type gint})    <- #{peek GdkEventConfigure, width} ptr
+  (y :: #{gtk2hs_type gint})    <- #{peek GdkEventConfigure, height} ptr
   return (fromIntegral x, fromIntegral y)
 
 eventProperty :: EventM EProperty Atom

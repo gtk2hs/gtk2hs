@@ -115,16 +115,16 @@ module Graphics.UI.Gtk.Misc.Calendar (
   afterPrevYear,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(fromFlags, toFlags)
+import System.Glib.Flags                (fromFlags, toFlags)
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums	(CalendarDisplayOptions(..))
+import Graphics.UI.Gtk.General.Enums    (CalendarDisplayOptions(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

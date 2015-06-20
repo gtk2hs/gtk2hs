@@ -130,10 +130,10 @@ import System.Glib.UTFString
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
+import Graphics.UI.Gtk.General.Structs          (Rectangle(..))
 #endif
-import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
-				propagateGError)
+import System.Glib.GError       (GError(..), GErrorClass(..), GErrorDomain,
+                                propagateGError)
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap (Bitmap)
@@ -381,7 +381,7 @@ type ImageFormat = DefaultGlibString
 pixbufGetFormats :: [ImageFormat]
 
 pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
-		    "ras","tiff","xpm","xbm","tga"]
+                    "ras","tiff","xpm","xbm","tga"]
 
 -- | Save an image to disk.
 --
@@ -398,7 +398,7 @@ pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 --   error codes in 'PixbufError'.
 --
 pixbufSave :: (GlibString string, GlibFilePath fp) => Pixbuf -> fp -> ImageFormat -> [(string, string)] ->
-	      IO ()
+              IO ()
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   propagateGError $ \errPtrPtr ->
@@ -574,9 +574,9 @@ pixbufScaleSimple ::
   -> IO Pixbuf
 pixbufScaleSimple pb width height interp =
     wrapNewGObject mkPixbuf $ liftM castPtr $
-	{#call pixbuf_scale_simple#} (toPixbuf pb)
-	(fromIntegral width) (fromIntegral height)
-	(fromIntegral $ fromEnum interp)
+        {#call pixbuf_scale_simple#} (toPixbuf pb)
+        (fromIntegral width) (fromIntegral height)
+        (fromIntegral $ fromEnum interp)
 
 -- | Copy a scaled image part to another image.
 --
@@ -636,7 +636,7 @@ pixbufComposite ::
   -> Double     -- ^ @scaleX@ - the scale factor in the X direction
   -> Double     -- ^ @scaleY@ - the scale factor in the Y direction
   -> InterpType -- ^ the interpolation type for the transformation.
-  -> Word8 	-- ^ @alpha@ - the transparency
+  -> Word8      -- ^ @alpha@ - the transparency
   -> IO ()
 pixbufComposite src dest destX destY destWidth destHeight
   offsetX offsetY scaleX scaleY interp alpha =

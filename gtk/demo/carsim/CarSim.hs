@@ -4,6 +4,10 @@
 -- license: public domain
 
 module Main where
+
+import Control.Applicative
+import Prelude
+
 import Data.Maybe
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
@@ -12,7 +16,6 @@ import Data.IORef
 import Data.List
 import Data.Time
 import Data.Complex
-import Control.Applicative ((<$>))
 
 -- Constants
 

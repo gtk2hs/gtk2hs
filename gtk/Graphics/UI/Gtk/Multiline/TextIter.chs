@@ -138,17 +138,17 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterLine,
   ) where
 
-import Control.Monad	(liftM)
-import Data.Maybe	(fromMaybe)
-import Data.Char	(chr)
+import Control.Monad    (liftM)
+import Data.Maybe       (fromMaybe)
+import Data.Char        (chr)
 
 import System.Glib.FFI
-import System.Glib.Flags		(fromFlags)
+import System.Glib.Flags                (fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
+import Graphics.UI.Gtk.General.Enums    (TextSearchFlags(..))
 {#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
@@ -1040,8 +1040,8 @@ textIterCompare ti2 ti1 = do
   res <- {#call unsafe text_iter_compare#} ti1 ti2
   return $ case res of
     (-1)   -> LT
-    0	   -> EQ
-    1	   -> GT
+    0      -> EQ
+    1      -> GT
 
 -- | Checks whether iter falls in the range [start, end).
 -- start and end must be in ascending order.

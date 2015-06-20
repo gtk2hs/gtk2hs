@@ -277,7 +277,7 @@ module Graphics.UI.Gtk.Windows.Window (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -286,8 +286,8 @@ import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GList                (fromGList, withGList)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
+import Graphics.UI.Gtk.General.Enums    (WindowType(..), WindowPosition(..))
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.General.Structs  (windowGetFrame)
 #endif
@@ -295,11 +295,11 @@ import Graphics.UI.Gtk.General.Structs  (windowGetFrame)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}    (Modifier(..))
 {#import Graphics.UI.Gtk.Gdk.Keys#}     (KeyVal)
-import Graphics.UI.Gtk.Gdk.EventM	(EventM, EAny, EKey, MouseButton, TimeStamp)
+import Graphics.UI.Gtk.Gdk.EventM       (EventM, EAny, EKey, MouseButton, TimeStamp)
 import Control.Monad.Reader             ( runReaderT, ask )
 import Control.Monad.Trans              ( liftIO )
-import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..),
-					Gravity(..))
+import Graphics.UI.Gtk.Gdk.Enums        (WindowEdge(..), WindowTypeHint(..),
+                                        Gravity(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

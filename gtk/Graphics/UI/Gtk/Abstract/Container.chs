@@ -195,16 +195,16 @@ module Graphics.UI.Gtk.Abstract.Container (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import System.Glib.GList		(fromGList, withGList)
-import Graphics.UI.Gtk.General.Enums	(ResizeMode(..))
+import System.Glib.GList                (fromGList, withGList)
+import Graphics.UI.Gtk.General.Enums    (ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -118,21 +118,21 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Properties
 import System.Glib.Attributes (Attr, WriteAttr)
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
-import Graphics.UI.Gtk.General.Structs		()
+import Graphics.UI.Gtk.General.Structs          ()
 import Graphics.Rendering.Pango.Enums
 {#import Graphics.Rendering.Pango.BasicTypes#} ( FontDescription(..),
-					 makeNewFontDescription )
-{#import Graphics.Rendering.Pango.Layout#}	( LayoutAlignment, LayoutWrapMode )
+                                         makeNewFontDescription )
+{#import Graphics.Rendering.Pango.Layout#}      ( LayoutAlignment, LayoutWrapMode )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -213,7 +213,7 @@ cellTextEditableSet = newAttrFromBoolProperty "editable-set"
 --
 cellTextEllipsize :: CellRendererTextClass self => Attr self EllipsizeMode
 cellTextEllipsize = newAttrFromEnumProperty "ellipsize"
-		{# call pure pango_ellipsize_mode_get_type #}
+                {# call pure pango_ellipsize_mode_get_type #}
 
 -- | Whether the 'cellTextEllipsize' tag affects the ellipsize mode.
 --
@@ -340,7 +340,7 @@ cellTextSizeSet = newAttrFromBoolProperty "size-set"
 --
 cellTextStretch :: CellRendererTextClass self => Attr self Stretch
 cellTextStretch = newAttrFromEnumProperty "stretch"
-	      {# call pure pango_stretch_get_type #}
+              {# call pure pango_stretch_get_type #}
 
 -- | Whether the 'cellTextStretch' tag is used, default is @False@.
 --
@@ -361,7 +361,7 @@ cellTextStrikethroughSet = newAttrFromBoolProperty "strikethrough-set"
 --
 cellTextStyle :: CellRendererTextClass self => Attr self FontStyle
 cellTextStyle = newAttrFromEnumProperty "style"
-	    {# call pure pango_style_get_type #}
+            {# call pure pango_style_get_type #}
 
 -- | Whether the 'cellTextStyle' tag is used, default is @False@.
 --
@@ -378,7 +378,7 @@ cellText  = newAttrFromStringProperty "text"
 --
 cellTextUnderline :: CellRendererTextClass self => Attr self Underline
 cellTextUnderline = newAttrFromEnumProperty "underline"
-		{# call pure pango_underline_get_type #}
+                {# call pure pango_underline_get_type #}
 
 -- | Whether the 'cellTextUnderline' tag is used, default is @False@.
 --
@@ -389,7 +389,7 @@ cellTextUnderlineSet = newAttrFromBoolProperty "underline-set"
 --
 cellTextVariant :: CellRendererTextClass self => Attr self Variant
 cellTextVariant = newAttrFromEnumProperty "variant"
-	      {# call pure pango_variant_get_type #}
+              {# call pure pango_variant_get_type #}
 
 -- | Whether the 'cellTextVariant' tag is used, default is @False@.
 --
@@ -430,7 +430,7 @@ cellTextWidthChars = newAttrFromIntProperty "width-chars"
 --
 cellTextWrapMode :: CellRendererTextClass self => Attr self LayoutWrapMode
 cellTextWrapMode = newAttrFromEnumProperty "wrap-mode"
-	       {# call pure pango_wrap_mode_get_type #}
+               {# call pure pango_wrap_mode_get_type #}
 
 -- | Specifies the width at which the text is wrapped. The wrap-mode
 --   property can be used to influence at what character positions the
@@ -478,7 +478,7 @@ cellTextAlignment = newAttrFromEnumProperty "alignment"
 --   'cellTextEditable') or when the user aborts editing.
 --
 edited :: (CellRendererTextClass self, GlibString string) =>
-	  Signal self (TreePath -> string -> IO ())
+          Signal self (TreePath -> string -> IO ())
 edited = Signal internalEdited
 
 --------------------
@@ -501,7 +501,7 @@ afterEdited = internalEdited True
 #endif
 
 internalEdited :: (CellRendererTextClass cr, GlibString string) =>
-		  Bool -> cr ->
+                  Bool -> cr ->
                   (TreePath -> string -> IO ()) ->
                   IO (ConnectId cr)
 internalEdited after cr user =

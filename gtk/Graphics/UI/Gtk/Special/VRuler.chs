@@ -60,10 +60,10 @@ module Graphics.UI.Gtk.Special.VRuler (
 #endif
   ) where
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
+{#import Graphics.UI.Gtk.Abstract.Object#}      (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

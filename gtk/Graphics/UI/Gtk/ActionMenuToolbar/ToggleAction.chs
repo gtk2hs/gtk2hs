@@ -77,7 +77,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

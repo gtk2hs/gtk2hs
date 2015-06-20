@@ -88,7 +88,7 @@ module Graphics.UI.Gtk.Recent.RecentFilter (
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

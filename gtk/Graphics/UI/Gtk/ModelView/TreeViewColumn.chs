@@ -128,22 +128,22 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   afterColClicked
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 #if GTK_MAJOR_VERSION < 3
-{#import System.Glib.GList#}			(fromGList)
+{#import System.Glib.GList#}                    (fromGList)
 #endif
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
-						 SortType(..))
+import Graphics.UI.Gtk.General.Enums            (TreeViewColumnSizing(..),
+                                                 SortType(..))
 import Graphics.UI.Gtk.General.Structs          (SortColumnId)
-{#import Graphics.UI.Gtk.ModelView.TreeModel#}	()
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}  ()
 
 {# context lib="gtk" prefix="gtk" #}
 

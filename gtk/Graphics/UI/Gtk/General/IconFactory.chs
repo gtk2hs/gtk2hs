@@ -103,15 +103,16 @@ module Graphics.UI.Gtk.General.IconFactory (
   iconSizeGetName
   ) where
 
-import Control.Monad	(liftM)
-import Control.Applicative ((<$>))
+import Control.Applicative
+import Prelude
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
+import Graphics.UI.Gtk.General.Enums    (TextDirection(..), StateType(..))
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.UI.Gtk.General.Structs	(IconSize(..))
+import Graphics.UI.Gtk.General.Structs  (IconSize(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

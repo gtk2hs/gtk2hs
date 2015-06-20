@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Misc.Accessible (
 #if GTK_CHECK_VERSION(2,22,0)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

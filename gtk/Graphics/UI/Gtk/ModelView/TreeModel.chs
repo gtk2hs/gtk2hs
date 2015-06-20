@@ -155,14 +155,14 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
 
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(toFlags)
+import System.Glib.Flags                (toFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
-{#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
+{#import System.Glib.GValue#}           (GValue(GValue), allocaGValue)
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} (TreeModelFlags(..))
 {#import Graphics.UI.Gtk.ModelView.Types#}  (TypedTreeModel,
                                              TypedTreeModelClass,

@@ -94,19 +94,19 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
   ) where
 
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
-import Graphics.UI.Gtk.Abstract.Widget		(widgetShow)
-import Graphics.UI.Gtk.Abstract.Container	(containerAdd)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
+import Graphics.UI.Gtk.Abstract.Widget          (widgetShow)
+import Graphics.UI.Gtk.Abstract.Container       (containerAdd)
 {#import Graphics.UI.Gtk.Types#}
 
 #ifndef DISABLE_DEPRECATED
-import Graphics.UI.Gtk.General.Structs		(comboGetList)
+import Graphics.UI.Gtk.General.Structs          (comboGetList)
 #endif
 
 {# context lib="gtk" prefix="gtk" #}

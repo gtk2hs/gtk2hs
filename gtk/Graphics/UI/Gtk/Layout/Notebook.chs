@@ -188,18 +188,18 @@ module Graphics.UI.Gtk.Layout.Notebook (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
-import Graphics.UI.Gtk.Display.Label	(labelNew)
-import Graphics.UI.Gtk.General.Enums	(Packing(..), toPacking, fromPacking,
+import Graphics.UI.Gtk.Display.Label    (labelNew)
+import Graphics.UI.Gtk.General.Enums    (Packing(..), toPacking, fromPacking,
                                          PackType(..), PositionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -1323,10 +1323,10 @@ pageAdded = Signal (connect_OBJECT_INT__NONE "page-added")
 onSwitchPage, afterSwitchPage :: NotebookClass nb => nb -> (Int -> IO ()) ->
                                  IO (ConnectId nb)
 onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
-		      (const $ return ()) False nb
-		      (\_ page -> fun (fromIntegral page))
+                      (const $ return ()) False nb
+                      (\_ page -> fun (fromIntegral page))
 afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
-			 (const $ return ()) True nb
-			 (\_ page -> fun (fromIntegral page))
+                         (const $ return ()) True nb
+                         (\_ page -> fun (fromIntegral page))
 
 #endif

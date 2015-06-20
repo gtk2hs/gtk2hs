@@ -49,10 +49,10 @@ module Graphics.UI.Gtk.Windows.Invisible (
   invisibleGetScreen,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.UI.Gtk.Gdk.Screen
 {#import Graphics.UI.Gtk.Types#}
 

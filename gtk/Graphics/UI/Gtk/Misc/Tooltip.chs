@@ -105,7 +105,7 @@ import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.General.Structs	(IconSize(..), Rectangle)
+import Graphics.UI.Gtk.General.Structs  (IconSize(..), Rectangle)
 {#import Graphics.UI.Gtk.Types#}
 #ifdef HAVE_GIO
 {#import System.GIO.Types#}

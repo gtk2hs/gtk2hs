@@ -104,12 +104,12 @@ module Graphics.UI.Gtk.ModelView.TreeSelection (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.GList                (fromGList)
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums    (SelectionMode(..))
@@ -232,7 +232,7 @@ foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
 --
 treeSelectionGetSelectedRows :: TreeSelectionClass self => self
  -> IO [TreePath] -- ^ returns a list containing a 'TreePath' for
-		  -- each selected row.
+                  -- each selected row.
 treeSelectionGetSelectedRows self =
   {# call gtk_tree_selection_get_selected_rows #}
     (toTreeSelection self)

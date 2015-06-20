@@ -82,17 +82,17 @@ module Graphics.UI.Gtk.Gdk.GC (
   ) where
 
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(when)
-import Data.Maybe	(fromJust, isJust)
+import Control.Monad    (when)
+import Data.Maybe       (fromJust, isJust)
 import Control.Exception (handle, ErrorCall(..))
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs
-import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..),
-					 CapStyle(..), JoinStyle(..))
+import Graphics.UI.Gtk.General.Enums    (Function(..), Fill(..), SubwindowMode(..), LineStyle(..),
+                                         CapStyle(..), JoinStyle(..))
 #if GTK_MAJOR_VERSION < 3
-{#import Graphics.UI.Gtk.Gdk.Region#}	(Region(Region))
+{#import Graphics.UI.Gtk.Gdk.Region#}   (Region(Region))
 #endif
 
 {# context lib="gtk" prefix="gdk" #}
@@ -103,7 +103,7 @@ gcNew :: DrawableClass d => d -> IO GC
 gcNew d = do
   gcPtr <- {#call unsafe gc_new#} (toDrawable d)
   if (gcPtr==nullPtr) then return (error "gcNew: null graphics context.")
-		      else wrapNewGObject mkGC (return gcPtr)
+                      else wrapNewGObject mkGC (return gcPtr)
 
 
 -- | Creates a graphics context with specific values.
@@ -171,7 +171,7 @@ gcSetDashes :: GC -> Int -> [(Int,Int)] -> IO ()
 gcSetDashes gc phase onOffList = do
   let onOff :: [{#type gint8#}]
       onOff = concatMap (\(on,off) -> [fromIntegral on, fromIntegral off])
-	      onOffList
+              onOffList
   withArray onOff $ \aPtr ->
     {#call unsafe gc_set_dashes#} gc (fromIntegral phase) aPtr
     (fromIntegral (length onOff))

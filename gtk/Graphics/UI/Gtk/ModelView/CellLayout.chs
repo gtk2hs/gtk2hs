@@ -199,9 +199,9 @@ cellLayoutAddColumnAttribute self cell attr column =
 -- pass the child model to this function.
 --
 cellLayoutSetAttributes :: (CellLayoutClass self,
-			     CellRendererClass cell,
-			     TreeModelClass (model row),
-			     TypedTreeModelClass model)
+                             CellRendererClass cell,
+                             TreeModelClass (model row),
+                             TypedTreeModelClass model)
  => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> model row -- ^ @model@ - A model containing rows of type @row@.
@@ -216,8 +216,8 @@ cellLayoutSetAttributes self cell model attributes =
 -- attributes of the 'CellRenderer' @cell@ using the row's content.
 --
 cellLayoutSetAttributeFunc :: (CellLayoutClass self,
-			       CellRendererClass cell,
-			       TreeModelClass model)
+                               CellRendererClass cell,
+                               TreeModelClass model)
  => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> model  -- ^ @model@ - A model from which to draw data.
@@ -230,7 +230,7 @@ cellLayoutSetAttributeFunc self cell model func = do
     let (CellRenderer cellPtr) = toCellRenderer cell
     if unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
       error ("cellLayoutSetAttributeFunc: attempt to set attributes of "++
-	     "a different CellRenderer.")
+             "a different CellRenderer.")
       else func iter
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr (castFunPtrToPtr fPtr) destroyFunPtr

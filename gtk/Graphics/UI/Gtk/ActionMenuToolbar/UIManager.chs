@@ -253,16 +253,16 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(Flags, fromFlags)
+import System.Glib.Flags                (Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 

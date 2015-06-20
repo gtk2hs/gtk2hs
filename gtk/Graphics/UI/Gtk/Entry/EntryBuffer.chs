@@ -79,7 +79,7 @@ module Graphics.UI.Gtk.Entry.EntryBuffer (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.Maybe       (fromJust)
 
 import System.Glib.FFI

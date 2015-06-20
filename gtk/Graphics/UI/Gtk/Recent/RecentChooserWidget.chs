@@ -69,11 +69,11 @@ module Graphics.UI.Gtk.Recent.RecentChooserWidget (
 
 #if GTK_CHECK_VERSION(2,10,0)
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 

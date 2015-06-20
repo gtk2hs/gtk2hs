@@ -79,9 +79,10 @@ module Graphics.UI.Gtk.General.General (
   FD
   ) where
 
+import Control.Applicative
+import Prelude
 import System.Environment (getProgName, getArgs)
 import Control.Monad      (liftM, when)
-import Control.Applicative ((<$>))
 import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
                            putMVar, takeMVar)
 
@@ -91,7 +92,7 @@ import qualified System.Glib.MainLoop as ML
 import System.Glib.MainLoop ( Priority, priorityLow, priorityDefaultIdle,
   priorityHighIdle, priorityDefault, priorityHigh, timeoutRemove, idleRemove,
   inputRemove, IOCondition(..), HandlerId )
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.UI.Gtk.Gdk.EventM (EventM)
 import Control.Monad.Reader (ask)
 import Control.Monad.Trans (liftIO)
@@ -149,8 +150,8 @@ initGUI = do
   let allArgs = (prog:args)
   withMany withUTFString (map stringToGlib allArgs) $ \addrs  ->
     withArrayLen       addrs   $ \argc argv ->
-    with	       argv    $ \argvp ->
-    with	       argc    $ \argcp -> do
+    with               argv    $ \argvp ->
+    with               argc    $ \argcp -> do
       res <- {#call unsafe init_check#} (castPtr argcp) (castPtr argvp)
       if (toBool res) then do
         argc'   <- peek argcp

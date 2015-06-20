@@ -88,14 +88,14 @@ module Graphics.UI.Gtk.ModelView.TreeSortable (
   sortColumnChanged
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.General.Enums#}	(SortType(..))
+{#import Graphics.UI.Gtk.General.Enums#}        (SortType(..))
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
-import Graphics.UI.Gtk.General.Structs	(SortColumnId,
+import Graphics.UI.Gtk.General.Structs  (SortColumnId,
                                          treeSortableDefaultSortColumnId )
 
 {# context lib="gtk" prefix="gtk" #}

@@ -112,7 +112,7 @@ module Graphics.UI.Gtk.General.Enums (
 module Graphics.UI.Gtk.Gdk.Enums
   ) where
 
-import System.Glib.Flags	(Flags)
+import System.Glib.Flags        (Flags)
 import Graphics.UI.Gtk.Gdk.Enums
 
 {#context lib="gtk" prefix ="gtk"#}
@@ -143,10 +143,10 @@ instance Flags AttachOptions
 -- | Mouse buttons.
 --
 data MouseButton = LeftButton
-		 | MiddleButton
-		 | RightButton
-		 | OtherButton Int
-		   deriving (Eq,Show)
+                 | MiddleButton
+                 | RightButton
+                 | OtherButton Int
+                   deriving (Eq,Show)
 
 instance Enum MouseButton where
   toEnum 1 = LeftButton
@@ -171,9 +171,9 @@ instance Flags CalendarDisplayOptions
 -- | Type of mouse click
 --
 data Click = SingleClick
-	   | DoubleClick
-	   | TripleClick
-	   | ReleaseClick
+           | DoubleClick
+           | TripleClick
+           | ReleaseClick
   deriving (Eq,Show,Enum)
 
 -- | Specifies in which corner a child widget should be placed
@@ -293,9 +293,9 @@ instance Flags DestDefaults
 --   dialog box without list boxes or text fields.
 --
 data Packing = PackRepel
-	     | PackGrow
-	     | PackNatural
-	     deriving (Enum,Eq,Show)
+             | PackGrow
+             | PackNatural
+             deriving (Enum,Eq,Show)
 
 -- The conversions between our Packing type and Gtk's expand and fill
 -- properties.
@@ -419,14 +419,14 @@ instance Flags StateFlags
 {#enum SpinType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | The 'TargetFlags' enumeration is used to specify constraints on an entry
---	 in a 'Graphics.UI.Gtk.Gdk.Selection.TargetList'. These flags are only
---	 used for drag and drop.
+--       in a 'Graphics.UI.Gtk.Gdk.Selection.TargetList'. These flags are only
+--       used for drag and drop.
 --
 -- * If the 'TargetSameApp' flag is set, the target will only be selected for
---	 drags within a single application.
+--       drags within a single application.
 --
 -- * If the 'TargetSameWidget' flag is set, the target will only be selected
---	 for drags within a single widget.
+--       for drags within a single widget.
 --
 {#enum TargetFlags {underscoreToCase} deriving(Bounded,Eq,Show) #}
 

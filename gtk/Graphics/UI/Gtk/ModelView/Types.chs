@@ -73,7 +73,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GValue         (GValue)
 import System.Glib.GObject        (Quark, quarkFromString)
-{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
+{#import Graphics.UI.Gtk.Types#}        (TreeModel, TreeModelSort, TreeModelFilter,
                                    Pixbuf)
 import Data.Char ( isDigit )
 import Control.Monad ( liftM )
@@ -121,7 +121,7 @@ instance TypedTreeModelClass TypedTreeModelFilter
 -- 'TreePath'.
 --
 data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word32 !Word32 !Word32
-	      deriving Show
+              deriving Show
 
 {#pointer *TreeIter as TreeIterPtr -> TreeIter #}
 
@@ -216,13 +216,13 @@ nativeTreePathGetIndices tp = do
 -- | Convert the given pointer to a tree path.
 peekTreePath :: Ptr NativeTreePath -> IO TreePath
 peekTreePath tpPtr | tpPtr==nullPtr = return []
-		   | otherwise =
+                   | otherwise =
   nativeTreePathGetIndices (NativeTreePath tpPtr)
 
 -- | Convert the given pointer to a tree path. Frees the pointer.
 fromTreePath :: Ptr NativeTreePath -> IO TreePath
 fromTreePath tpPtr | tpPtr==nullPtr = return []
-		   | otherwise = do
+                   | otherwise = do
   path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
   nativeTreePathFree (NativeTreePath tpPtr)
   return path

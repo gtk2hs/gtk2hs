@@ -116,19 +116,19 @@ module Graphics.UI.Gtk.Abstract.Range (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums	(ScrollType(..))
+import Graphics.UI.Gtk.General.Enums    (ScrollType(..))
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.General.Enums	(UpdateType(..))
+import Graphics.UI.Gtk.General.Enums    (UpdateType(..))
 #endif
-import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
+import Graphics.UI.Gtk.General.Structs  (Rectangle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

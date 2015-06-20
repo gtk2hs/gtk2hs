@@ -96,11 +96,11 @@ module Graphics.UI.Gtk.Layout.Fixed (
   fixedChildY,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 

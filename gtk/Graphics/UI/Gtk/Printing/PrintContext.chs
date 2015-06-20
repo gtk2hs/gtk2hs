@@ -74,7 +74,7 @@ module Graphics.UI.Gtk.Printing.PrintContext (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.IORef (newIORef)
 
 import System.Glib.FFI

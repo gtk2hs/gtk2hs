@@ -288,8 +288,8 @@ listStoreClear (ListStore model) =
   let loop (-1) Seq.EmptyR = return ()
       loop n (seq Seq.:> _) = do
         writeIORef (customStoreGetPrivate model) seq
-	treeModelRowDeleted model [n]
-	loop (n-1) (Seq.viewr seq)
+        treeModelRowDeleted model [n]
+        loop (n-1) (Seq.viewr seq)
 
    in do seq <- readIORef (customStoreGetPrivate model)
          loop (Seq.length seq - 1) (Seq.viewr seq)

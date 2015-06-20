@@ -32,7 +32,7 @@ module Graphics.UI.Gtk.Multiline.Types (
   ) where
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs	(textIterSize)
+import Graphics.UI.Gtk.General.Structs  (textIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
 

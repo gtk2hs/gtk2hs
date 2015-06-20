@@ -117,13 +117,13 @@ module Graphics.UI.Gtk.Embedding.Socket (
 
 #if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.Maybe (isJust)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object          (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Embedding.Types#}
 {#import Graphics.UI.Gtk.Signals#}

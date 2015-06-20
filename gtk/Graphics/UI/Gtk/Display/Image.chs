@@ -141,16 +141,16 @@ module Graphics.UI.Gtk.Display.Image (
   imageStorageType,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.UI.Gtk.General.Structs	(IconSize(..))
+import Graphics.UI.Gtk.General.Structs  (IconSize(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

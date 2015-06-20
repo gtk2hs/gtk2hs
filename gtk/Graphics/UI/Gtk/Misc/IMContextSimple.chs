@@ -49,7 +49,7 @@ module Graphics.UI.Gtk.Misc.IMContextSimple (
   imContextSimpleAddTable,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.Map (Map)
 
 import System.Glib.FFI

@@ -148,20 +148,20 @@ module Graphics.UI.Gtk.Windows.Dialog (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Structs (
 #if GTK_MAJOR_VERSION < 3
                     dialogGetUpper, dialogGetActionArea,
 #endif
-					ResponseId(..), fromResponse, toResponse)
+                                        ResponseId(..), fromResponse, toResponse)
 
 {# context lib="gtk" prefix="gtk" #}
 

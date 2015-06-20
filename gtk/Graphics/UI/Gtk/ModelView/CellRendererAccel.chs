@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererAccel (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

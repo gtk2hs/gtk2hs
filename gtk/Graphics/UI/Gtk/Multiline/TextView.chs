@@ -188,26 +188,26 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewPreeditChanged
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties           (newAttrFromStringProperty)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.Gdk.EventM	(EventM, EKey)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
+import Graphics.UI.Gtk.Gdk.EventM       (EventM, EKey)
 import Control.Monad.Reader             ( ask )
 import Control.Monad.Trans              ( liftIO )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
-import Graphics.UI.Gtk.General.Enums	(TextWindowType(..), DeleteType(..),
-					 DirectionType(..), Justification(..),
-					 MovementStep(..), WrapMode(..),
+import Graphics.UI.Gtk.General.Enums    (TextWindowType(..), DeleteType(..),
+                                         DirectionType(..), Justification(..),
+                                         MovementStep(..), WrapMode(..),
                                          ScrollStep (..))
-import System.Glib.GList		(fromGList)
-import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
+import System.Glib.GList                (fromGList)
+import Graphics.UI.Gtk.General.Structs  (Rectangle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

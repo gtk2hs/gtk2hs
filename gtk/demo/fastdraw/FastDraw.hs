@@ -4,13 +4,14 @@
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
 
+import Control.Applicative
+import Prelude
 import Data.IORef
 import Graphics.Rendering.Cairo
 import Foreign (allocaArray)
 import Graphics.Rendering.Cairo.Types (PixelData)
 import Foreign.Storable (Storable(..))
 import Foreign.C (CUChar)
-import Control.Applicative ((<$>))
 
 
 main = do

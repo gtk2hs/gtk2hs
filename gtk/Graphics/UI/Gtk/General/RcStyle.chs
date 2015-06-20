@@ -455,7 +455,7 @@ module Graphics.UI.Gtk.General.RcStyle (
   rcSetDefaultFiles,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

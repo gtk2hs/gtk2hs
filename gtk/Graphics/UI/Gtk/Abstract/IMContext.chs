@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.Abstract.IMContext (
   imContextDeleteSurrounding',
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Control.Monad.Reader.Class (ask)
 import Control.Monad.Trans (liftIO)
 import Data.Maybe (fromMaybe)

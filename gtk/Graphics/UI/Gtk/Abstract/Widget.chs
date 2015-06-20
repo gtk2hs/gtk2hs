@@ -470,7 +470,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterConfigure,
   onDelete,
   afterDelete,
-  onDestroyEvent,		-- you probably want onDestroy
+  onDestroyEvent,               -- you probably want onDestroy
   afterDestroyEvent,
   onDirectionChanged,
   afterDirectionChanged,
@@ -535,8 +535,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
 #endif
   ) where
 
-import Control.Monad	(liftM, unless)
-import Data.Maybe	(fromMaybe)
+import Control.Monad    (liftM, unless)
+import Data.Maybe       (fromMaybe)
 import Control.Monad.Reader (ask)
 import Control.Monad.Trans (liftIO)
 import System.Glib.FFI
@@ -550,35 +550,35 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GType      (GType)
 import System.Glib.GList      (fromGList)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.UI.Gtk.General.DNDTypes (Atom (Atom), SelectionTag)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..)
+import Graphics.UI.Gtk.Gdk.Enums        (EventMask(..)
 #if GTK_MAJOR_VERSION < 3
     , ExtensionMode(..)
 #endif
     )
 import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
 #if GTK_MAJOR_VERSION < 3
-{#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
+{#import Graphics.UI.Gtk.Gdk.Region#}   (Region(..), makeNewRegion)
 {#import Graphics.UI.Gtk.Gdk.Pixmap#} (Bitmap)
 #endif
-import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
-					,Requisition(..), Color, IconSize(..)
+import Graphics.UI.Gtk.General.Structs  (Allocation, Rectangle(..)
+                                        ,Requisition(..), Color, IconSize(..)
                                         ,Point
 #if !GTK_CHECK_VERSION(2,18,0)
                                         ,widgetGetState
 #endif
 #if GTK_MAJOR_VERSION < 3
                                         ,widgetGetSavedState
-					,widgetGetDrawWindow, widgetGetSize
+                                        ,widgetGetDrawWindow, widgetGetSize
 #endif
-					)
+                                        )
 #ifndef DISABLE_DEPRECATED
-import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent, marshExposeRect)
+import Graphics.UI.Gtk.Gdk.Events       (Event(..), marshalEvent, marshExposeRect)
 #endif
-import Graphics.UI.Gtk.Gdk.EventM	(EventM,
+import Graphics.UI.Gtk.Gdk.EventM       (EventM,
   EventM,
   EAny,
   EKey,
@@ -597,18 +597,18 @@ import Graphics.UI.Gtk.Gdk.EventM	(EventM,
   EGrabBroken,
 #endif
   )
-import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
-					 AccelFlags(..), DirectionType(..), Modifier
+import Graphics.UI.Gtk.General.Enums    (StateType(..), TextDirection(..),
+                                         AccelFlags(..), DirectionType(..), Modifier
 #if GTK_CHECK_VERSION(3,0,0)
                                         ,StateFlags(..), Align(..)
 #endif
 #if GTK_CHECK_VERSION(3,4,0)
                                         ,ModifierIntent(..)
 #endif
-					)
+                                        )
 {#import Graphics.Rendering.Pango.Types#}
-{#import Graphics.Rendering.Pango.BasicTypes#}	(FontDescription(FontDescription),
-					 PangoLayout(PangoLayout), makeNewPangoString )
+{#import Graphics.Rendering.Pango.BasicTypes#}  (FontDescription(FontDescription),
+                                         PangoLayout(PangoLayout), makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
 import Control.Monad.Reader ( runReaderT )
@@ -1936,7 +1936,7 @@ widgetGetPangoContext self =
 -- > l <- widgetCreateLayout w "My Text."
 -- > let update = do
 -- >                layoutContextChanged l
--- > 		    -- update the Drawables which show this layout
+-- >                -- update the Drawables which show this layout
 -- > w `onDirectionChanged` update
 -- > w `onStyleChanged` update
 --
@@ -4199,8 +4199,8 @@ afterDelete = event "delete_event" [] True
 -- * The widget received a destroy event from the window manager.
 --
 onDestroyEvent, afterDestroyEvent :: WidgetClass w =>
-				     w -> (Event -> IO Bool) ->
-				     IO (ConnectId w)
+                                     w -> (Event -> IO Bool) ->
+                                     IO (ConnectId w)
 onDestroyEvent = event "destroy_event" [] False
 afterDestroyEvent = event "destroy_event" [] True
 

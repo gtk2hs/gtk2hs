@@ -100,19 +100,19 @@ module Graphics.UI.Gtk.Display.ProgressBar (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
+import Graphics.UI.Gtk.General.Enums    (ProgressBarOrientation(..))
 #endif
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.Rendering.Pango.Enums	(EllipsizeMode(..))
+import Graphics.Rendering.Pango.Enums   (EllipsizeMode(..))
 #endif
 
 {# context lib="gtk" prefix="gtk" #}

@@ -1,9 +1,10 @@
 -- Example of an international dialog box.
 import Graphics.UI.Gtk
 
+import Control.Applicative
+import Prelude
 import Data.Char
 import qualified Data.Text as T
-import Control.Applicative
 import Data.Text (Text)
 
 main :: IO ()

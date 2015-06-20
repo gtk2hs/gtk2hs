@@ -74,19 +74,19 @@ module Graphics.UI.Gtk.General.Style (
 import System.Glib.FFI
 {#import Graphics.Rendering.Pango.Types#}
 import Graphics.Rendering.Pango.BasicTypes
-import Graphics.UI.Gtk.General.Structs		(Rectangle)
+import Graphics.UI.Gtk.General.Structs          (Rectangle)
 import Graphics.UI.Gtk.General.Enums (StateType, ShadowType)
 #endif
 
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Structs		(styleGetForeground,
-			 styleGetBackground,
-			 styleGetLight,
-			 styleGetMiddle,
-			 styleGetDark,
-			 styleGetText,
-			 styleGetBase,
-			 styleGetAntiAliasing)
+import Graphics.UI.Gtk.General.Structs          (styleGetForeground,
+                         styleGetBackground,
+                         styleGetLight,
+                         styleGetMiddle,
+                         styleGetDark,
+                         styleGetText,
+                         styleGetBase,
+                         styleGetAntiAliasing)
 
 #if GTK_MAJOR_VERSION < 3
 stylePaintFlatBox :: WidgetClass widget

@@ -85,7 +85,7 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   textMarkLeftGravity
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

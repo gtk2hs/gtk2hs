@@ -58,7 +58,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
 #endif
   ) where
 
-import System.Glib.Flags	(Flags)
+import System.Glib.Flags        (Flags)
 
 {#context lib="gdk" prefix ="gdk"#}
 
@@ -247,8 +247,8 @@ instance Flags InputCondition
 -- | visibility of a window
 --
 {#enum VisibilityState {underscoreToCase,
-			VISIBILITY_PARTIAL as VisibilityPartialObscured}
-			 deriving(Eq,Show) #}
+                        VISIBILITY_PARTIAL as VisibilityPartialObscured}
+                         deriving(Eq,Show) #}
 
 -- | The state a @DrawWindow@ is in.
 --

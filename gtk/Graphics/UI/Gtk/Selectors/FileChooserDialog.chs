@@ -83,8 +83,8 @@ import System.Glib.UTFString
 import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.Dialog
-import System.Glib.GValue		(allocaGValue)
-import System.Glib.GValueTypes		(valueSetMaybeString)
+import System.Glib.GValue               (allocaGValue)
+import System.Glib.GValueTypes          (valueSetMaybeString)
 import System.Glib.Attributes
 
 {# context lib="gtk" prefix="gtk" #}

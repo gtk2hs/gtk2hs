@@ -8,8 +8,9 @@
 
 import Graphics.UI.Gtk
 
+import Control.Applicative
+import Prelude
 import Control.Concurrent
-import Control.Applicative ((<$>))
 
 main :: IO ()
 main = do

@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Detail
---	
+--      
 -- | The 'CellRenderer' is a base class of a set of objects used for rendering
 -- a cell to a 'Drawable'. These objects are used primarily by the 'TreeView'
 -- widget, though they aren't tied to them in any specific way. It is worth
@@ -119,7 +119,7 @@ import System.Glib.Attributes ( Attr, WriteAttr )
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.Gdk.GC		(Color)
+import Graphics.UI.Gtk.Gdk.GC           (Color)
 #endif
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
@@ -146,7 +146,7 @@ cellRendererStopEditing self canceled =
 #endif
 
 -- %hash c:6d51 d:dc3e
--- | Returns	@(width, height)@	denoting the size of the fixed size of
+-- | Returns    @(width, height)@       denoting the size of the fixed size of
 -- @cell@. If no fixed size is set, returns @-1@ for that value.
 --
 cellRendererGetFixedSize :: CellRendererClass self => self
@@ -325,7 +325,7 @@ editingCanceled = Signal (connect_NONE__NONE "editing-canceled")
 -- * Available since Gtk+ version 2.6
 --
 editingStarted :: CellRendererClass self =>
-		  Signal self (Widget -> TreePath -> IO ())
+                  Signal self (Widget -> TreePath -> IO ())
 editingStarted = Signal editingStartedInternal
 
 editingStartedInternal after cr act =

@@ -94,15 +94,15 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.Flags	(Flags, fromFlags)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import System.Glib.Flags        (Flags, fromFlags)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -162,11 +162,11 @@ messageDialogNew mWindow flags mType bType msg =
   makeNewObject mkMessageDialog $
   liftM (castPtr :: Ptr Widget -> Ptr MessageDialog) $
   call_message_dialog_new mWindow flags mType bType msgPtr
-	  			
-	  			
+                                
+                                
 call_message_dialog_new :: Maybe Window -> [DialogFlags] ->
-			   MessageType -> ButtonsType -> Ptr CChar ->
-			   IO (Ptr Widget)
+                           MessageType -> ButtonsType -> Ptr CChar ->
+                           IO (Ptr Widget)
 call_message_dialog_new (Just (Window fPtr)) flags mType bType msgPtr =
   withForeignPtr fPtr $ \ptr ->
     message_dialog_new ptr (fromIntegral (fromFlags flags))
@@ -179,7 +179,7 @@ call_message_dialog_new Nothing flags mType bType msgPtr =
 
 foreign import ccall unsafe "gtk_message_dialog_new"
   message_dialog_new :: Ptr Window -> CInt -> CInt -> CInt ->
-		        Ptr CChar -> IO (Ptr Widget)
+                        Ptr CChar -> IO (Ptr Widget)
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Creates a new message dialog, which is a simple dialog with an icon
@@ -237,8 +237,8 @@ messageDialogSetSecondaryMarkup self str =
 
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_markup"
   message_dialog_format_secondary_markup :: Ptr MessageDialog ->
-  					   Ptr CChar -> IO ()
-  					
+                                           Ptr CChar -> IO ()
+                                        
 messageDialogSetSecondaryText :: (MessageDialogClass self, GlibString string) => self
  -> string -- ^ @str@ - text to be shown as second line
  -> IO ()
@@ -250,7 +250,7 @@ messageDialogSetSecondaryText self str =
 
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_text"
   message_dialog_format_secondary_text :: Ptr MessageDialog ->
- 					 Ptr CChar -> IO ()
+                                         Ptr CChar -> IO ()
 
 #if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:6cb7 d:ebdd

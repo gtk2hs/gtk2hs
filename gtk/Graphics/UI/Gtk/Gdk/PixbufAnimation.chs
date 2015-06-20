@@ -80,7 +80,7 @@ import System.Glib.UTFString
 import System.Glib.GDateTime
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GError	(propagateGError)
+import System.Glib.GError       (propagateGError)
 
 {# context prefix="gdk" #}
 

@@ -86,13 +86,13 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.General.Structs	(widgetGetDrawWindow, widgetGetSize)
+import Graphics.UI.Gtk.General.Structs  (widgetGetDrawWindow, widgetGetSize)
 #endif
 
 {# context lib="gtk" prefix="gtk" #}

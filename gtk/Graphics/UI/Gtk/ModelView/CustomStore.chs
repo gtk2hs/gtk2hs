@@ -50,21 +50,21 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   treeModelSetColumn,
   ) where
 
-import Control.Monad	                        (liftM)
+import Control.Monad                            (liftM)
 import Control.Monad.Reader                     (runReaderT)
 import Data.IORef                               (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe                               (fromMaybe)
-import System.Glib.FFI			hiding	(maybeNull)
-import System.Glib.Flags			(Flags, fromFlags)
+import System.Glib.FFI                  hiding  (maybeNull)
+import System.Glib.Flags                        (Flags, fromFlags)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData)
 
-{#import System.Glib.GValue#}			(GValue(GValue))
-{#import System.Glib.GType#}			(GType)
+{#import System.Glib.GValue#}                   (GValue(GValue))
+{#import System.Glib.GType#}                    (GType)
 import qualified System.Glib.GTypeConstants as GConst
 {#import System.Glib.GValueTypes#}
-{#import System.Glib.GValue#}			(valueInit)
+{#import System.Glib.GValue#}                   (valueInit)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -109,10 +109,10 @@ columnMapNew = newIORef []
 --   the model is installed into a widget since the number of defined
 --   columns are only checked once by widgets.
 customStoreSetColumn :: TypedTreeModelClass model
-	=> model row -- ^ the store in which to allocate a new column
-	-> (ColumnId row ty) -- ^ the column that should be set
-	-> (row -> ty) -- ^ the function that sets the property
-	-> IO ()
+        => model row -- ^ the store in which to allocate a new column
+        -> (ColumnId row ty) -- ^ the column that should be set
+        -> (row -> ty) -- ^ the function that sets the property
+        -> IO ()
 customStoreSetColumn model (ColumnId _ setter colId) acc | colId<0 = return ()
                                                          | otherwise =
   case toTypedTreeModel model of
@@ -131,14 +131,14 @@ customStoreSetColumn model (ColumnId _ setter colId) acc | colId<0 = return ()
 
 -- this is a backwards compatability definition
 treeModelSetColumn :: TypedTreeModelClass model
-	=> model row -- ^ the store in which to allocate a new column
-	-> (ColumnId row ty) -- ^ the column that should be set
-	-> (row -> ty) -- ^ the function that sets the property
-	-> IO ()
+        => model row -- ^ the store in which to allocate a new column
+        -> (ColumnId row ty) -- ^ the column that should be set
+        -> (row -> ty) -- ^ the function that sets the property
+        -> IO ()
 treeModelSetColumn = customStoreSetColumn
 
 data CustomStoreImplementation model row = CustomStoreImplementation {
-    customStoreColumns          :: ColumnMap row,	                -- provide access via columns
+    customStoreColumns          :: ColumnMap row,                       -- provide access via columns
     customStoreIface            :: TreeModelIface row,            -- functions implementing a tree model
     customTreeDragSourceIface   :: DragSourceIface model row,     -- the drag and drop source interface
     customTreeDragDestIface     :: DragDestIface model row        -- the drag and drop dest interface
@@ -371,7 +371,7 @@ treeModelIfaceGetValue_static storePtr iterPtr column gvaluePtr = do
       (CABool ca) -> valueInit gVal GConst.bool >> valueSetBool gVal (ca row)
       (CAString ca) -> valueInit gVal GConst.string >> valueSetString gVal (ca row)
       (CAPixbuf ca) -> valueInit gVal {#call fun unsafe gdk_pixbuf_get_type#} >>
-			valueSetGObject gVal (ca row)
+                        valueSetGObject gVal (ca row)
       CAInvalid -> valueInit gVal GConst.int >> valueSetInt gVal 0
 
 foreign export ccall "gtk2hs_store_get_value_impl"

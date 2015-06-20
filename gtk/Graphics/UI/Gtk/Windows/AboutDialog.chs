@@ -140,14 +140,14 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 #endif
   ) where
 
-import Control.Monad	(liftM)
-import Data.Maybe	(fromMaybe)
+import Control.Monad    (liftM)
+import Data.Maybe       (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

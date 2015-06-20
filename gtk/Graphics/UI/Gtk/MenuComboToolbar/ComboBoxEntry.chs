@@ -93,12 +93,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
   ) where
 
 #if GTK_MAJOR_VERSION < 3
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#} hiding ( ListStore )
 import Graphics.UI.Gtk.ModelView.Types
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox

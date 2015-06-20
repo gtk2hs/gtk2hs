@@ -142,7 +142,7 @@ module Graphics.UI.Gtk.Printing.PrintSettings (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes

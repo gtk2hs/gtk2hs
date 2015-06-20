@@ -105,17 +105,17 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.Rendering.Pango.Enums   (EllipsizeMode (..))
 import Graphics.UI.Gtk.Misc.SizeGroup
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Structs	(IconSize)
-import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..), ReliefStyle(..))
+import Graphics.UI.Gtk.General.Structs  (IconSize)
+import Graphics.UI.Gtk.General.Enums    (Orientation(..), ToolbarStyle(..), ReliefStyle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -78,14 +78,14 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(Flags, fromFlags)
+import System.Glib.Flags                (Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 

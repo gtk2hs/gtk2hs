@@ -121,10 +121,10 @@ module Graphics.UI.Gtk.Gdk.Keymap (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import System.Glib.FFI
-import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..))
-import Graphics.UI.Gtk.Gdk.Keys	(KeyVal (..))
+import Graphics.UI.Gtk.Gdk.Enums        (Modifier(..))
+import Graphics.UI.Gtk.Gdk.Keys (KeyVal (..))
 {#import Graphics.Rendering.Pango.Enums#}
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}

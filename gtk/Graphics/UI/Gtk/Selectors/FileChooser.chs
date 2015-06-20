@@ -98,22 +98,22 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- following fragment in your .gtkrc-2.0 file:
 --
 -- > binding "my-own-gtkfilechooser-bindings" {
--- > 	bind "AltShiftl" {
--- > 		"location-popup" ()
--- > 	}
--- > 	bind "AltShiftUp" {
--- > 		"up-folder" ()
--- > 	}
--- > 	bind "AltShiftDown" {
--- > 		"down-folder" ()
--- > 	}
--- > 	bind "AltShiftHome" {
--- > 		"home-folder-folder" ()
--- > 	}
+-- >    bind "AltShiftl" {
+-- >            "location-popup" ()
+-- >    }
+-- >    bind "AltShiftUp" {
+-- >            "up-folder" ()
+-- >    }
+-- >    bind "AltShiftDown" {
+-- >            "down-folder" ()
+-- >    }
+-- >    bind "AltShiftHome" {
+-- >            "home-folder-folder" ()
+-- >    }
 -- > }
 -- >
 -- > class "GtkFileChooserDefault" binding "my-own-gtkfilechooser-bindings"
--- > 	
+-- >    
 --
 
 -- * Class Hierarchy
@@ -239,10 +239,10 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 import Graphics.UI.Gtk.Signals
 {#import System.Glib.GList#}
-import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
+import System.Glib.GError               (propagateGError, GErrorDomain, GErrorClass(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
