@@ -75,16 +75,16 @@ data Size
   | SizeLarger
 
 instance Show Size where
-  showsPrec _ (SizePoint v)        	= shows $ show (round (v*1000))
-  showsPrec _ (SizeUnreadable)		= shows "xx-small"
-  showsPrec _ (SizeTiny)		= shows "x-small"
-  showsPrec _ (SizeSmall)		= shows "small"
-  showsPrec _ (SizeMedium)		= shows "medium"
-  showsPrec _ (SizeLarge)		= shows "large"
-  showsPrec _ (SizeHuge)		= shows "x-large"
-  showsPrec _ (SizeGiant)		= shows "xx-large"
-  showsPrec _ (SizeSmaller)		= shows "smaller"
-  showsPrec _ (SizeLarger)	  	= shows "larger"
+  showsPrec _ (SizePoint v)             = shows $ show (round (v*1000))
+  showsPrec _ (SizeUnreadable)          = shows "xx-small"
+  showsPrec _ (SizeTiny)                = shows "x-small"
+  showsPrec _ (SizeSmall)               = shows "small"
+  showsPrec _ (SizeMedium)              = shows "medium"
+  showsPrec _ (SizeLarge)               = shows "large"
+  showsPrec _ (SizeHuge)                = shows "x-large"
+  showsPrec _ (SizeGiant)               = shows "xx-large"
+  showsPrec _ (SizeSmaller)             = shows "smaller"
+  showsPrec _ (SizeLarger)              = shows "larger"
 
 
 

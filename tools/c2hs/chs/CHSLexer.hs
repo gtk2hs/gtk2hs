@@ -39,12 +39,12 @@
 --  * Base lexer:
 --
 --      haskell -> (inline \\ special)*
---		 | special \\ `"'
---		 | comment
---		 | nested
---		 | hstring
---		 | '{#'
---		 | cpp
+--               | special \\ `"'
+--               | comment
+--               | nested
+--               | hstring
+--               | '{#'
+--               | cpp
 --      special -> `(' | `{' | `-' | `"'
 --      ctrl    -> `\n' | `\f' | `\r' | `\t' | `\v'
 --
@@ -55,10 +55,10 @@
 --    token list.
 --
 --    NOTE: It is important that `{' is an extra lexeme and not added as an
---	    optional component at the end of the first alternative for
---	    `haskell'.  Otherwise, the principle of the longest match will
---	    divide `foo {#' into the tokens `foo {' and `#' instead of `foo '
---	    and `{#'.
+--          optional component at the end of the first alternative for
+--          `haskell'.  Otherwise, the principle of the longest match will
+--          divide `foo {#' into the tokens `foo {' and `#' instead of `foo '
+--          and `{#'.
 --
 --    One line comments are handled by
 --
@@ -72,13 +72,13 @@
 --
 --      hstring -> `"' inhstr* `"'
 --      inhstr  -> ` '..`\127' \\ `"'
---		 | `\"'
+--               | `\"'
 --
 --    Pre-precessor directives as well as the switch to inline-C code are
 --    formed as follows:
 --
---      cpp	-> `\n#' (inline | `\t')* `\n'
---		 | `\n#c' (' ' | '\t')* `\n'
+--      cpp     -> `\n#' (inline | `\t')* `\n'
+--               | `\n#c' (' ' | '\t')* `\n'
 --
 --    We allow whitespace between the `#' and the actual directive, but in `#c'
 --    and `#endc' the directive must immediately follow the `#'.  This might
@@ -89,18 +89,18 @@
 --    transfers control to the following binding-hook lexer:
 --
 --      ident       -> letter (letter | digit | `\'')*
---		     | `\'' letter (letter | digit)* `\''
+--                   | `\'' letter (letter | digit)* `\''
 --      reservedid  -> `as' | `call' | `class' | `context' | `deriving' 
---		     | `enum' | `foreign' | `fun' | `get' | `lib' 
---		     | `newtype' | `pointer' | `prefix' | `pure' | `set'
---		     | `sizeof' | `stable' | `type' | `underscoreToCase' 
---		     | `unsafe' | `with' | 'lock' | 'unlock'
+--                   | `enum' | `foreign' | `fun' | `get' | `lib' 
+--                   | `newtype' | `pointer' | `prefix' | `pure' | `set'
+--                   | `sizeof' | `stable' | `type' | `underscoreToCase' 
+--                   | `unsafe' | `with' | 'lock' | 'unlock'
 --      reservedsym -> `{#' | `#}' | `{' | `}' | `,' | `.' | `->' | `=' 
---		     | `=>' | '-' | `*' | `&' | `^'
+--                   | `=>' | '-' | `*' | `&' | `^'
 --      string      -> `"' instr* `"'
 --      verbhs      -> `\`' instr* `\''
 --      instr       -> ` '..`\127' \\ `"'
---      comment	    -> `--' (any \\ `\n')* `\n'
+--      comment     -> `--' (any \\ `\n')* `\n'
 --
 --    Control characters, white space, and comments are discarded in the
 --    binding-hook lexer.  Nested comments are not allowed in a binding hook.
@@ -169,18 +169,18 @@
 module CHSLexer (CHSToken(..), lexCHS) 
 where 
 
-import Data.List	 ((\\))
-import Data.Char	 (isDigit)
-import Control.Monad	 (liftM)
+import Data.List         ((\\))
+import Data.Char         (isDigit)
+import Control.Monad     (liftM)
 import Numeric   (readDec, readOct, readHex)
 
 import Position  (Position(..), Pos(posOf), incPos, retPos, tabPos)
 import Errors    (ErrorLvl(..), Error, makeError)
-import UNames	 (NameSupply, Name, names)
+import UNames    (NameSupply, Name, names)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 import Lexers    (Regexp, Lexer, Action, epsilon, char, (+>), lexaction,
-		  lexactionErr, lexmeta, (>|<), (>||<), ctrlLexer, star, plus,
-		  quest, alt, string, LexerState, execLexer)
+                  lexactionErr, lexmeta, (>|<), (>||<), ctrlLexer, star, plus,
+                  quest, alt, string, LexerState, execLexer)
 
 import C2HSState (CST, raise, raiseError, nop, getNameSupply) 
 
@@ -190,55 +190,55 @@ import C2HSState (CST, raise, raiseError, nop, getNameSupply)
 
 -- possible tokens (EXPORTED)
 --
-data CHSToken = CHSTokArrow   Position		-- `->'
-	      | CHSTokDArrow  Position		-- `=>'
-	      | CHSTokDot     Position		-- `.'
-	      | CHSTokComma   Position		-- `,'
-	      | CHSTokEqual   Position		-- `='
-	      | CHSTokMinus   Position		-- `-'
-	      | CHSTokStar    Position		-- `*'
-	      | CHSTokAmp     Position		-- `&'
-	      | CHSTokHat     Position		-- `^'
-	      | CHSTokLBrace  Position		-- `{'
-	      | CHSTokRBrace  Position		-- `}'
-	      | CHSTokLParen  Position		-- `('
-	      | CHSTokRParen  Position		-- `)'
-	      | CHSTokEndHook Position		-- `#}'
-	      | CHSTokAs      Position		-- `as'
-	      | CHSTokCall    Position		-- `call'
-	      | CHSTokClass   Position		-- `class'
-	      | CHSTokContext Position		-- `context'
-	      | CHSTokDerive  Position		-- `deriving'
-	      | CHSTokEnum    Position		-- `enum'
-	      | CHSTokForeign Position          -- `foreign'
-	      | CHSTokFun     Position		-- `fun'
-	      | CHSTokGet     Position		-- `get'
-	      | CHSTokImport  Position		-- `import'
-	      | CHSTokLib     Position		-- `lib'
-	      | CHSTokNewtype Position		-- `newtype'
-	      | CHSTokPointer Position		-- `pointer'
-	      | CHSTokPrefix  Position		-- `prefix'
-	      | CHSTokPure    Position		-- `pure'
-	      | CHSTokQualif  Position		-- `qualified'
-	      | CHSTokSet     Position		-- `set'
-	      | CHSTokSizeof  Position		-- `sizeof'
-	      | CHSTokStable  Position		-- `stable'
-	      | CHSTokType    Position		-- `type'
-	      | CHSTok_2Case  Position		-- `underscoreToCase'
-	      | CHSTokUnsafe  Position		-- `unsafe'
-	      | CHSTokWith    Position		-- `with'
-	      | CHSTokLock    Position		-- `lock'
-	      | CHSTokNolock  Position		-- `nolock'
-	      | CHSTokString  Position String	-- string 
-	      | CHSTokHSVerb  Position String	-- verbatim Haskell (`...')
-	      | CHSTokIdent   Position Ident	-- identifier
-	      | CHSTokHaskell Position String	-- verbatim Haskell code
-	      | CHSTokCPP     Position String	-- pre-processor directive
-              | CHSTokLine    Position		-- line pragma
-	      | CHSTokC	      Position String	-- verbatim C code
-	      | CHSTokCtrl    Position Char	-- control code
-	      | CHSTokPragma  Position		-- '{-# LANGUAGE' language pragma begin
-	      | CHSTokPragEnd Position		-- '#-}' language pragma end
+data CHSToken = CHSTokArrow   Position          -- `->'
+              | CHSTokDArrow  Position          -- `=>'
+              | CHSTokDot     Position          -- `.'
+              | CHSTokComma   Position          -- `,'
+              | CHSTokEqual   Position          -- `='
+              | CHSTokMinus   Position          -- `-'
+              | CHSTokStar    Position          -- `*'
+              | CHSTokAmp     Position          -- `&'
+              | CHSTokHat     Position          -- `^'
+              | CHSTokLBrace  Position          -- `{'
+              | CHSTokRBrace  Position          -- `}'
+              | CHSTokLParen  Position          -- `('
+              | CHSTokRParen  Position          -- `)'
+              | CHSTokEndHook Position          -- `#}'
+              | CHSTokAs      Position          -- `as'
+              | CHSTokCall    Position          -- `call'
+              | CHSTokClass   Position          -- `class'
+              | CHSTokContext Position          -- `context'
+              | CHSTokDerive  Position          -- `deriving'
+              | CHSTokEnum    Position          -- `enum'
+              | CHSTokForeign Position          -- `foreign'
+              | CHSTokFun     Position          -- `fun'
+              | CHSTokGet     Position          -- `get'
+              | CHSTokImport  Position          -- `import'
+              | CHSTokLib     Position          -- `lib'
+              | CHSTokNewtype Position          -- `newtype'
+              | CHSTokPointer Position          -- `pointer'
+              | CHSTokPrefix  Position          -- `prefix'
+              | CHSTokPure    Position          -- `pure'
+              | CHSTokQualif  Position          -- `qualified'
+              | CHSTokSet     Position          -- `set'
+              | CHSTokSizeof  Position          -- `sizeof'
+              | CHSTokStable  Position          -- `stable'
+              | CHSTokType    Position          -- `type'
+              | CHSTok_2Case  Position          -- `underscoreToCase'
+              | CHSTokUnsafe  Position          -- `unsafe'
+              | CHSTokWith    Position          -- `with'
+              | CHSTokLock    Position          -- `lock'
+              | CHSTokNolock  Position          -- `nolock'
+              | CHSTokString  Position String   -- string 
+              | CHSTokHSVerb  Position String   -- verbatim Haskell (`...')
+              | CHSTokIdent   Position Ident    -- identifier
+              | CHSTokHaskell Position String   -- verbatim Haskell code
+              | CHSTokCPP     Position String   -- pre-processor directive
+              | CHSTokLine    Position          -- line pragma
+              | CHSTokC       Position String   -- verbatim C code
+              | CHSTokCtrl    Position Char     -- control code
+              | CHSTokPragma  Position          -- '{-# LANGUAGE' language pragma begin
+              | CHSTokPragEnd Position          -- '#-}' language pragma end
 
 instance Pos CHSToken where
   posOf (CHSTokArrow   pos  ) = pos
@@ -334,12 +334,12 @@ instance Eq CHSToken where
   (CHSTokHSVerb   _ _) == (CHSTokHSVerb   _ _) = True
   (CHSTokIdent    _ _) == (CHSTokIdent    _ _) = True
   (CHSTokHaskell  _ _) == (CHSTokHaskell  _ _) = True
-  (CHSTokCPP	  _ _) == (CHSTokCPP	  _ _) = True
-  (CHSTokC	  _ _) == (CHSTokC	  _ _) = True
-  (CHSTokCtrl	  _ _) == (CHSTokCtrl	  _ _) = True
+  (CHSTokCPP      _ _) == (CHSTokCPP      _ _) = True
+  (CHSTokC        _ _) == (CHSTokC        _ _) = True
+  (CHSTokCtrl     _ _) == (CHSTokCtrl     _ _) = True
   (CHSTokPragma   _  ) == (CHSTokPragma   _  ) = True
   (CHSTokPragEnd  _  ) == (CHSTokPragEnd  _  ) = True
-  _		       == _		       = False
+  _                    == _                    = False
 
 instance Show CHSToken where
   showsPrec _ (CHSTokArrow   _  ) = showString "->"
@@ -386,7 +386,7 @@ instance Show CHSToken where
   showsPrec _ (CHSTokIdent   _ i) = (showString . identToLexeme) i
   showsPrec _ (CHSTokHaskell _ s) = showString s
   showsPrec _ (CHSTokCPP     _ s) = showString s
-  showsPrec _ (CHSTokC	     _ s) = showString s
+  showsPrec _ (CHSTokC       _ s) = showString s
   showsPrec _ (CHSTokCtrl    _ c) = showChar c
   showsPrec _ (CHSTokPragma  _  ) = showString "{-# LANGUAGE"
   showsPrec _ (CHSTokPragEnd _  ) = showString "#-}"
@@ -398,30 +398,30 @@ instance Show CHSToken where
 -- state threaded through the lexer
 --
 data CHSLexerState = CHSLS {
-		       nestLvl :: Int,	 -- nesting depth of nested comments
-		       inHook  :: Bool,	 -- within a binding hook?
-		       namesup :: [Name] -- supply of unique names
-		     }
+                       nestLvl :: Int,   -- nesting depth of nested comments
+                       inHook  :: Bool,  -- within a binding hook?
+                       namesup :: [Name] -- supply of unique names
+                     }
 
 -- initial state
 --
 initialState :: CST s CHSLexerState
 initialState  = do
-		  namesup <- liftM names getNameSupply
-		  return $ CHSLS {
-			     nestLvl = 0,
-			     inHook  = False,
-			     namesup = namesup
-			   }
+                  namesup <- liftM names getNameSupply
+                  return $ CHSLS {
+                             nestLvl = 0,
+                             inHook  = False,
+                             namesup = namesup
+                           }
 
 -- raise an error if the given state is not a final state
 --
 assertFinalState :: Position -> CHSLexerState -> CST s ()
 assertFinalState pos CHSLS {nestLvl = nestLvl, inHook = inHook} 
   | nestLvl > 0 = raiseError pos ["Unexpected end of file!",
-				  "Unclosed nested comment."]
+                                  "Unclosed nested comment."]
   | inHook      = raiseError pos ["Unexpected end of file!",
-				  "Unclosed binding hook."]
+                                  "Unclosed binding hook."]
   | otherwise   = nop
 
 -- lexer and action type used throughout this specification
@@ -434,16 +434,16 @@ type CHSRegexp = Regexp CHSLexerState CHSToken
 --
 infixl 3 `lexactionName`
 lexactionName :: CHSRegexp 
-	      -> (String -> Position -> Name -> CHSToken) 
-	      -> CHSLexer
+              -> (String -> Position -> Name -> CHSToken) 
+              -> CHSLexer
 re `lexactionName` action = re `lexmeta` action'
   where
     action' str pos state = let name:ns = namesup state
-			    in
-			    (Just $ Right (action str pos name),
-			     incPos pos (length str),
-			     state {namesup = ns},
-			     Nothing)
+                            in
+                            (Just $ Right (action str pos name),
+                             incPos pos (length str),
+                             state {namesup = ns},
+                             Nothing)
 
 
 -- lexical specification
@@ -453,22 +453,22 @@ re `lexactionName` action = re `lexmeta` action'
 --
 --
 chslexer :: CHSLexer
-chslexer  =      pragma		-- LANGUAGE pragma
-	    >||< haskell	-- Haskell code
-	    >||< nested		-- nested comments
-	    >||< ctrl		-- control code (that has to be preserved)
-	    >||< hook		-- start of a binding hook
-	    >||< cpp		-- a pre-processor directive (or `#c')
+chslexer  =      pragma         -- LANGUAGE pragma
+            >||< haskell        -- Haskell code
+            >||< nested         -- nested comments
+            >||< ctrl           -- control code (that has to be preserved)
+            >||< hook           -- start of a binding hook
+            >||< cpp            -- a pre-processor directive (or `#c')
 
 -- the LANGUAGE pragma
 pragma :: CHSLexer
 pragma = string "{-# LANGUAGE" `lexmeta` \_ pos s ->
-	 (Just $ Right (CHSTokPragma pos), incPos pos 12, s, Just langLexer)
+         (Just $ Right (CHSTokPragma pos), incPos pos 12, s, Just langLexer)
 
 langLexer :: CHSLexer
 langLexer = whitespace >||< identOrKW >||< symbol >||<
-	    (string "#-}" `lexmeta` \_ pos s ->
-	    (Just $ Right (CHSTokPragEnd pos), incPos pos 3, s, Just chslexer))
+            (string "#-}" `lexmeta` \_ pos s ->
+            (Just $ Right (CHSTokPragEnd pos), incPos pos 3, s, Just chslexer))
 
 -- stream of Haskell code (terminated by a control character or binding hook)
 --
@@ -480,28 +480,28 @@ haskell :: CHSLexer
 --     as part of their lexeme).  Thus, we special case '"'.  This is still a
 --     kludge, as a program fragment, such as
 --
---	 foo'"'strange string"
+--       foo'"'strange string"
 --
 --     will not be handled correctly.
 --
 haskell  = (    anyButSpecial`star` epsilon
-	    >|< specialButQuotes
-	    >|< char '"'  +> inhstr`star` char '"'
-	    >|< string "'\"'"				-- special case of "
-	    >|< string "--" +> anyButNL`star` epsilon   -- comment
-	   )
-	   `lexaction` copyVerbatim
-	   >||< char '"'		                -- this is a bad kludge
-		`lexactionErr` 
-		  \_ pos -> (Left $ makeError ErrorErr pos
-					      ["Lexical error!", 
-					      "Unclosed string."])
-	   where
-	     anyButSpecial    = alt (inlineSet \\ specialSet)
-	     specialButQuotes = alt (specialSet \\ ['"'])
-	     anyButNL	      = alt (anySet \\ ['\n'])
-	     inhstr	      = instr >|< char '\\' >|< string "\\\"" >|< gap
-	     gap	      = char '\\' +> alt (' ':ctrlSet)`plus` char '\\'
+            >|< specialButQuotes
+            >|< char '"'  +> inhstr`star` char '"'
+            >|< string "'\"'"                           -- special case of "
+            >|< string "--" +> anyButNL`star` epsilon   -- comment
+           )
+           `lexaction` copyVerbatim
+           >||< char '"'                                -- this is a bad kludge
+                `lexactionErr` 
+                  \_ pos -> (Left $ makeError ErrorErr pos
+                                              ["Lexical error!", 
+                                              "Unclosed string."])
+           where
+             anyButSpecial    = alt (inlineSet \\ specialSet)
+             specialButQuotes = alt (specialSet \\ ['"'])
+             anyButNL         = alt (anySet \\ ['\n'])
+             inhstr           = instr >|< char '\\' >|< string "\\\"" >|< gap
+             gap              = char '\\' +> alt (' ':ctrlSet)`plus` char '\\'
 
 -- action copying the input verbatim to `CHSTokHaskell' tokens
 --
@@ -512,59 +512,59 @@ copyVerbatim cs pos  = Just $ CHSTokHaskell pos cs
 --
 nested :: CHSLexer
 nested  =
-       string "{-"		{- for Haskell emacs mode :-( -}
+       string "{-"              {- for Haskell emacs mode :-( -}
        `lexmeta` enterComment
   >||<
        string "-}"
        `lexmeta` leaveComment
   where
     enterComment cs pos s =
-      (copyVerbatim' cs pos,			-- collect the lexeme
-       incPos pos 2,				-- advance current position
-       s {nestLvl = nestLvl s + 1},		-- increase nesting level
-       Just $ inNestedComment)			-- continue in comment lexer
+      (copyVerbatim' cs pos,                    -- collect the lexeme
+       incPos pos 2,                            -- advance current position
+       s {nestLvl = nestLvl s + 1},             -- increase nesting level
+       Just $ inNestedComment)                  -- continue in comment lexer
     --
     leaveComment cs pos s =
       case nestLvl s of
-        0 -> (commentCloseErr pos,		-- 0: -} outside comment => err
-	      incPos pos 2,			-- advance current position
-	      s,
-	      Nothing)
-        1 -> (copyVerbatim' cs pos,		-- collect the lexeme
-	      incPos pos 2,			-- advance current position
-	      s {nestLvl = nestLvl s - 1},	-- decrease nesting level
-	      Just chslexer)			-- 1: continue with root lexer
-        _ -> (copyVerbatim' cs pos,		-- collect the lexeme
-	      incPos pos 2,			-- advance current position
-	      s {nestLvl = nestLvl s - 1},	-- decrease nesting level
-	      Nothing)				-- _: cont with comment lexer
+        0 -> (commentCloseErr pos,              -- 0: -} outside comment => err
+              incPos pos 2,                     -- advance current position
+              s,
+              Nothing)
+        1 -> (copyVerbatim' cs pos,             -- collect the lexeme
+              incPos pos 2,                     -- advance current position
+              s {nestLvl = nestLvl s - 1},      -- decrease nesting level
+              Just chslexer)                    -- 1: continue with root lexer
+        _ -> (copyVerbatim' cs pos,             -- collect the lexeme
+              incPos pos 2,                     -- advance current position
+              s {nestLvl = nestLvl s - 1},      -- decrease nesting level
+              Nothing)                          -- _: cont with comment lexer
     --
     copyVerbatim' cs pos  = Just $ Right (CHSTokHaskell pos cs)
     --
     commentCloseErr pos =
       Just $ Left (makeError ErrorErr pos
-			     ["Lexical error!", 
-			     "`-}' not preceded by a matching `{-'."])
-			     {- for Haskell emacs mode :-( -}
+                             ["Lexical error!", 
+                             "`-}' not preceded by a matching `{-'."])
+                             {- for Haskell emacs mode :-( -}
 
 
 -- lexer processing the inner of a comment
 --
 inNestedComment :: CHSLexer
-inNestedComment  =      commentInterior		-- inside a comment
-		   >||< nested			-- nested comments
-		   >||< ctrl			-- control code (preserved)
+inNestedComment  =      commentInterior         -- inside a comment
+                   >||< nested                  -- nested comments
+                   >||< ctrl                    -- control code (preserved)
 
 -- standard characters in a nested comment
 --
 commentInterior :: CHSLexer
 commentInterior  = (    anyButSpecial`star` epsilon
-		    >|< special
-		   )
-		   `lexaction` copyVerbatim
-		   where
-		     anyButSpecial = alt (inlineSet \\ commentSpecialSet)
-		     special	   = alt commentSpecialSet
+                    >|< special
+                   )
+                   `lexaction` copyVerbatim
+                   where
+                     anyButSpecial = alt (inlineSet \\ commentSpecialSet)
+                     special       = alt commentSpecialSet
 
 -- control code in the base lexer (is turned into a token)
 --
@@ -590,7 +590,7 @@ ctrl  =
 --
 hook :: CHSLexer
 hook  = string "{#"
-	`lexmeta` \_ pos s -> (Nothing, incPos pos 2, s, Just bhLexer)
+        `lexmeta` \_ pos s -> (Nothing, incPos pos 2, s, Just bhLexer)
 
 -- pre-processor directives and `#c'
 --
@@ -602,21 +602,21 @@ cpp :: CHSLexer
 cpp = directive
       where
         directive = 
-	  string "\n#" +> alt ('\t':inlineSet)`star` epsilon
-	  `lexmeta` 
-	     \(_:_:dir) pos s ->	-- strip off the "\n#"
-	       case dir of
-	         ['c']                      ->		-- #c
-		   (Nothing, retPos pos, s, Just cLexer)
+          string "\n#" +> alt ('\t':inlineSet)`star` epsilon
+          `lexmeta` 
+             \(_:_:dir) pos s ->        -- strip off the "\n#"
+               case dir of
+                 ['c']                      ->          -- #c
+                   (Nothing, retPos pos, s, Just cLexer)
                  -- a #c may be followed by whitespace
-	         'c':sp:_ | sp `elem` " \t" ->		-- #c
-		   (Nothing, retPos pos, s, Just cLexer)
+                 'c':sp:_ | sp `elem` " \t" ->          -- #c
+                   (Nothing, retPos pos, s, Just cLexer)
                  ' ':line@(n:_) | isDigit n ->                 -- C line pragma
                    let pos' = adjustPosByCLinePragma line pos
                     in (Just $ Right (CHSTokLine pos'), pos', s, Nothing)
                  _                            ->        -- CPP directive
-		   (Just $ Right (CHSTokCPP pos dir), 
-		    retPos pos, s, Nothing)
+                   (Just $ Right (CHSTokCPP pos dir), 
+                    retPos pos, s, Nothing)
 
 adjustPosByCLinePragma :: String -> Position -> Position
 adjustPosByCLinePragma str (Position fname _ _) = 
@@ -624,13 +624,13 @@ adjustPosByCLinePragma str (Position fname _ _) =
   where
     str'            = dropWhite str
     (rowStr, str'') = span isDigit str'
-    row'	    = read rowStr
-    str'''	    = dropWhite str''
-    fnameStr	    = takeWhile (/= '"') . drop 1 $ str'''
-    fname'	    | null str''' || head str''' /= '"'	= fname
-		    -- try and get more sharing of file name strings
-		    | fnameStr == fname			= fname
-		    | otherwise				= fnameStr
+    row'            = read rowStr
+    str'''          = dropWhite str''
+    fnameStr        = takeWhile (/= '"') . drop 1 $ str'''
+    fname'          | null str''' || head str''' /= '"' = fname
+                    -- try and get more sharing of file name strings
+                    | fnameStr == fname                 = fname
+                    | otherwise                         = fnameStr
     --
     dropWhite = dropWhile (\c -> c == ' ' || c == '\t')
 
@@ -638,34 +638,34 @@ adjustPosByCLinePragma str (Position fname _ _) =
 --
 bhLexer :: CHSLexer
 bhLexer  =      identOrKW
-	   >||< symbol
-	   >||< strlit
-	   >||< hsverb
-	   >||< whitespace
-	   >||< endOfHook
-	   >||< string "--" +> anyButNL`star` char '\n'	  -- comment
-		`lexmeta` \_ pos s -> (Nothing, retPos pos, s, Nothing)
-	   where
-	     anyButNL  = alt (anySet \\ ['\n'])
-	     endOfHook = string "#}"
-			 `lexmeta` 
-			  \_ pos s -> (Just $ Right (CHSTokEndHook pos), 
-				       incPos pos 2, s, Just chslexer)
+           >||< symbol
+           >||< strlit
+           >||< hsverb
+           >||< whitespace
+           >||< endOfHook
+           >||< string "--" +> anyButNL`star` char '\n'   -- comment
+                `lexmeta` \_ pos s -> (Nothing, retPos pos, s, Nothing)
+           where
+             anyButNL  = alt (anySet \\ ['\n'])
+             endOfHook = string "#}"
+                         `lexmeta` 
+                          \_ pos s -> (Just $ Right (CHSTokEndHook pos), 
+                                       incPos pos 2, s, Just chslexer)
 
 -- the inline-C lexer
 --
 cLexer :: CHSLexer
-cLexer =      inlineC			  -- inline C code
-	 >||< ctrl		          -- control code (preserved)
-         >||< string "\n#endc"		  -- end of inline C code...
-	      `lexmeta`			  -- ...preserve '\n' as control token
-	      \_ pos s -> (Just $ Right (CHSTokCtrl pos '\n'), retPos pos, s, 
-			   Just chslexer)
-	 where
-	   inlineC = alt inlineSet `lexaction` copyVerbatimC
-	   --
-	   copyVerbatimC :: CHSAction 
-	   copyVerbatimC cs pos = Just $ CHSTokC pos cs
+cLexer =      inlineC                     -- inline C code
+         >||< ctrl                        -- control code (preserved)
+         >||< string "\n#endc"            -- end of inline C code...
+              `lexmeta`                   -- ...preserve '\n' as control token
+              \_ pos s -> (Just $ Right (CHSTokCtrl pos '\n'), retPos pos, s, 
+                           Just chslexer)
+         where
+           inlineC = alt inlineSet `lexaction` copyVerbatimC
+           --
+           copyVerbatimC :: CHSAction 
+           copyVerbatimC cs pos = Just $ CHSTokC pos cs
 
 -- whitespace
 --
@@ -674,7 +674,7 @@ cLexer =      inlineC			  -- inline C code
 --
 whitespace :: CHSLexer
 whitespace  =      (char ' ' `lexaction` \_ _ -> Nothing)
-	      >||< ctrlLexer
+              >||< ctrlLexer
 
 -- identifiers and keywords
 --
@@ -695,9 +695,9 @@ identOrKW  =
     idkwtok pos "call"             _    = CHSTokCall    pos
     idkwtok pos "class"            _    = CHSTokClass   pos
     idkwtok pos "context"          _    = CHSTokContext pos
-    idkwtok pos "deriving"	   _	= CHSTokDerive  pos
+    idkwtok pos "deriving"         _    = CHSTokDerive  pos
     idkwtok pos "enum"             _    = CHSTokEnum    pos
-    idkwtok pos "foreign"	   _	= CHSTokForeign pos
+    idkwtok pos "foreign"          _    = CHSTokForeign pos
     idkwtok pos "fun"              _    = CHSTokFun     pos
     idkwtok pos "get"              _    = CHSTokGet     pos
     idkwtok pos "import"           _    = CHSTokImport  pos
@@ -709,7 +709,7 @@ identOrKW  =
     idkwtok pos "qualified"        _    = CHSTokQualif  pos
     idkwtok pos "set"              _    = CHSTokSet     pos
     idkwtok pos "sizeof"           _    = CHSTokSizeof  pos
-    idkwtok pos "stable"	   _	= CHSTokStable	pos
+    idkwtok pos "stable"           _    = CHSTokStable  pos
     idkwtok pos "type"             _    = CHSTokType    pos
     idkwtok pos "underscoreToCase" _    = CHSTok_2Case  pos
     idkwtok pos "unsafe"           _    = CHSTokUnsafe  pos
@@ -724,32 +724,32 @@ identOrKW  =
 --
 symbol :: CHSLexer
 symbol  =      sym "->" CHSTokArrow
-	  >||< sym "=>" CHSTokDArrow
-	  >||< sym "."  CHSTokDot
-	  >||< sym ","  CHSTokComma
-	  >||< sym "="  CHSTokEqual
-	  >||< sym "-"  CHSTokMinus
-	  >||< sym "*"  CHSTokStar
-	  >||< sym "&"  CHSTokAmp
-	  >||< sym "^"  CHSTokHat
-	  >||< sym "{"  CHSTokLBrace
-	  >||< sym "}"  CHSTokRBrace
-	  >||< sym "("  CHSTokLParen
-	  >||< sym ")"  CHSTokRParen
-	  where
-	    sym cs con = string cs `lexaction` \_ pos -> Just (con pos)
+          >||< sym "=>" CHSTokDArrow
+          >||< sym "."  CHSTokDot
+          >||< sym ","  CHSTokComma
+          >||< sym "="  CHSTokEqual
+          >||< sym "-"  CHSTokMinus
+          >||< sym "*"  CHSTokStar
+          >||< sym "&"  CHSTokAmp
+          >||< sym "^"  CHSTokHat
+          >||< sym "{"  CHSTokLBrace
+          >||< sym "}"  CHSTokRBrace
+          >||< sym "("  CHSTokLParen
+          >||< sym ")"  CHSTokRParen
+          where
+            sym cs con = string cs `lexaction` \_ pos -> Just (con pos)
 
 -- string
 --
 strlit :: CHSLexer
 strlit  = char '"' +> (instr >|< char '\\')`star` char '"'
-	  `lexaction` \cs pos -> Just (CHSTokString pos (init . tail $ cs))
+          `lexaction` \cs pos -> Just (CHSTokString pos (init . tail $ cs))
 
 -- verbatim code
 --
 hsverb :: CHSLexer
 hsverb  = char '`' +> inhsverb`star` char '\''
-	  `lexaction` \cs pos -> Just (CHSTokHSVerb pos (init . tail $ cs))
+          `lexaction` \cs pos -> Just (CHSTokHSVerb pos (init . tail $ cs))
 
 
 -- regular expressions

@@ -12,16 +12,16 @@ module MarshalUtils (
   -- marshalling of Boolean values (non-zero corresponds to `True')
   --
   fromBool,      -- :: Num a => Bool -> a
-  toBool,	 -- :: Num a => a -> Bool
+  toBool,        -- :: Num a => a -> Bool
 
   -- marshalling of Maybe values
   --
   maybeNew,      -- :: (      a -> IO (Ptr a))
-		 -- -> (Maybe a -> IO (Ptr a))
+                 -- -> (Maybe a -> IO (Ptr a))
   maybeWith,     -- :: (      a -> (Ptr b -> IO c) -> IO c) 
-		 -- -> (Maybe a -> (Ptr b -> IO c) -> IO c)
+                 -- -> (Maybe a -> (Ptr b -> IO c) -> IO c)
   maybePeek,     -- :: (Ptr a -> IO        b ) 
-		 -- -> (Ptr a -> IO (Maybe b))
+                 -- -> (Ptr a -> IO (Maybe b))
 
   -- marshalling lists of storable objects
   --
@@ -34,9 +34,9 @@ module MarshalUtils (
   moveBytes      -- :: Ptr a -> Ptr a -> Int -> IO ()
 ) where
 
-import Monad	    (liftM)
+import Monad        (liftM)
 
-import Ptr	    (Ptr, nullPtr)
+import Ptr          (Ptr, nullPtr)
 import NewStorable  (Storable(..))
 import CTypesISO    (CSize)
 import MarshalAlloc (malloc, alloca)
@@ -85,14 +85,14 @@ toBool  = (/= 0)
 -- * the `nullPtr' is used to represent `Nothing'
 --
 maybeNew :: (      a -> IO (Ptr a))
-	 -> (Maybe a -> IO (Ptr a))
+         -> (Maybe a -> IO (Ptr a))
 maybeNew  = maybe (return nullPtr)
 
 -- converts a withXXX combinator into one marshalling a value wrapped into a
 -- `Maybe'
 --
 maybeWith :: (      a -> (Ptr b -> IO c) -> IO c) 
-	  -> (Maybe a -> (Ptr b -> IO c) -> IO c)
+          -> (Maybe a -> (Ptr b -> IO c) -> IO c)
 maybeWith  = maybe ($ nullPtr)
 
 -- convert a peek combinator into a one returning `Nothing' if applied to a
@@ -100,7 +100,7 @@ maybeWith  = maybe ($ nullPtr)
 --
 maybePeek                           :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybePeek peek ptr | ptr == nullPtr  = return Nothing
-		   | otherwise       = liftM Just $ peek ptr
+                   | otherwise       = liftM Just $ peek ptr
 
 
 -- marshalling lists of storable objects
@@ -110,12 +110,12 @@ maybePeek peek ptr | ptr == nullPtr  = return Nothing
 -- marshalled objects
 --
 withMany :: (a -> (b -> res) -> res)  -- withXXX combinator for one object
-	 -> [a]			      -- storable objects
-	 -> ([b] -> res)	      -- action on list of marshalled obj.s
-	 -> res
+         -> [a]                       -- storable objects
+         -> ([b] -> res)              -- action on list of marshalled obj.s
+         -> res
 withMany _       []     f = f []
 withMany withFoo (x:xs) f = withFoo x $ \x' ->
-			      withMany withFoo xs (\xs' -> f (x':xs'))
+                              withMany withFoo xs (\xs' -> f (x':xs'))
 
 
 -- Haskellish interface to memcpy and memmove

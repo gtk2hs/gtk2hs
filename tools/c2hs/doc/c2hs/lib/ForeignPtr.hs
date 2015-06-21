@@ -9,9 +9,9 @@ module ForeignPtr (
   newForeignPtr,          -- :: Ptr a -> IO () -> IO (ForeignPtr a)
   addForeignPtrFinalizer, -- :: ForeignPtr a -> IO () -> IO ()
   withForeignPtr,         -- :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
-  foreignPtrToPtr,	  -- :: ForeignPtr a -> Ptr a
+  foreignPtrToPtr,        -- :: ForeignPtr a -> Ptr a
   touchForeignPtr,        -- :: ForeignPtr a -> IO ()
-  castForeignPtr	  -- :: ForeignPtr a -> ForeignPtr b
+  castForeignPtr          -- :: ForeignPtr a -> ForeignPtr b
 ) where
 
 import Ptr (Ptr)
@@ -21,7 +21,7 @@ import Ptr (Ptr)
 -- * concrete implementations may choose a different representation
 --
 newtype ForeignPtr a = ForeignPtr (Ptr a)
-		     deriving (Eq)
+                     deriving (Eq)
 
 -- Create a new foreign pointer using the second argument as a finaliser
 --

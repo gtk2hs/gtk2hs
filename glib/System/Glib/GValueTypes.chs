@@ -64,12 +64,12 @@ module System.Glib.GValueTypes (
   valueGetMaybeGObject,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags
 import System.Glib.UTFString
-{#import System.Glib.GValue#}		(GValue(GValue))
+{#import System.Glib.GValue#}           (GValue(GValue))
 import System.Glib.GObject
 
 {# context lib="glib" prefix="g" #}

@@ -188,7 +188,7 @@ objectCreateAttribute = do
   let propName = "Gtk2HsAttr"++show cnt
   attr <- quarkFromString $ T.pack propName
   return (newNamedAttr propName (objectGetAttributeUnsafe attr)
-	                        (objectSetAttribute attr))
+                                (objectSetAttribute attr))
 
 -- | The address of a function freeing a 'StablePtr'. See 'destroyFunPtr'.
 foreign import ccall unsafe "&hs_free_stable_ptr" destroyStablePtr :: DestroyNotify
@@ -201,7 +201,7 @@ objectSetAttribute attr obj Nothing = do
 objectSetAttribute attr obj (Just val) = do
   sPtr <- newStablePtr val
   {#call object_set_qdata_full#} (toGObject obj) attr (castStablePtrToPtr sPtr)
-				 destroyStablePtr
+                                 destroyStablePtr
 
 -- | Get the value of an association.
 --
@@ -219,7 +219,7 @@ objectGetAttributeUnsafe attr obj = do
 --
 isA :: GObjectClass o => o -> GType -> Bool
 isA obj gType =
-	typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj) gType
+        typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj) gType
 
 -- at this point we would normally implement the notify signal handler;
 -- I've moved this definition into the Object class of the gtk package

@@ -65,11 +65,11 @@ import Foreign.C
 -- FFI, so this is system dependent
 --
 import C2HSConfig (Ptr, FunPtr, 
-		   bitfieldDirection, bitfieldPadding, bitfieldIntSigned,
-		   bitfieldAlignment)
+                   bitfieldDirection, bitfieldPadding, bitfieldIntSigned,
+                   bitfieldAlignment)
 import qualified  
        C2HSConfig as Storable
-		  (Storable(sizeOf, alignment))
+                  (Storable(sizeOf, alignment))
 
 
 -- calibration of C's primitive types
@@ -80,25 +80,25 @@ import qualified
 -- * `CFunPtrPT' doesn't occur in Haskell representations of C types, but we
 --   need to know their size, which may be different from `CPtrPT'
 --
-data CPrimType = CPtrPT		-- void *
-	       | CFunPtrPT	-- void *()
-	       | CCharPT	-- char
-	       | CUCharPT	-- unsigned char
-	       | CSCharPT	-- signed char
-	       | CIntPT		-- int
-	       | CShortPT	-- short int
-	       | CLongPT	-- long int
-	       | CLLongPT	-- long long int
-	       | CUIntPT	-- unsigned int
-	       | CUShortPT	-- unsigned short int
-	       | CULongPT	-- unsigned long int
-	       | CULLongPT	-- unsigned long long int
-	       | CFloatPT	-- float
-	       | CDoublePT	-- double
-	       | CLDoublePT	-- long double
-	       | CSFieldPT  Int -- signed bit field
-	       | CUFieldPT  Int -- unsigned bit field
-	       deriving (Eq)
+data CPrimType = CPtrPT         -- void *
+               | CFunPtrPT      -- void *()
+               | CCharPT        -- char
+               | CUCharPT       -- unsigned char
+               | CSCharPT       -- signed char
+               | CIntPT         -- int
+               | CShortPT       -- short int
+               | CLongPT        -- long int
+               | CLLongPT       -- long long int
+               | CUIntPT        -- unsigned int
+               | CUShortPT      -- unsigned short int
+               | CULongPT       -- unsigned long int
+               | CULLongPT      -- unsigned long long int
+               | CFloatPT       -- float
+               | CDoublePT      -- double
+               | CLDoublePT     -- long double
+               | CSFieldPT  Int -- signed bit field
+               | CUFieldPT  Int -- unsigned bit field
+               deriving (Eq)
 
 -- size of primitive type of C (EXPORTED)
 --
@@ -172,4 +172,4 @@ alignment (CUFieldPT bs)  = fieldAlignment bs
 fieldAlignment                      :: Int -> Int
 fieldAlignment 0                     = - (size CIntPT - 1)
 fieldAlignment bs | bitfieldPadding  = - bs
-		  | otherwise        = 0
+                  | otherwise        = 0

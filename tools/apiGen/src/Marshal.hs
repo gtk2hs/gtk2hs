@@ -67,64 +67,64 @@ data ParameterKind = InParam  String
 genMarshalParameter ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
-	String ->	--parameter name suggestion (will be unique)
-	String -> 	--C type decleration for the parameter we will marshal
-	(Maybe String,	--parameter class constraints (or none)
-	ParameterKind,	--parameter type (or UnusedParam if the arg is not exposed)
-	Doc -> Doc)	--marshaling code (\body -> ... body ...)
+        String ->       --parameter name suggestion (will be unique)
+        String ->       --C type decleration for the parameter we will marshal
+        (Maybe String,  --parameter class constraints (or none)
+        ParameterKind,  --parameter type (or UnusedParam if the arg is not exposed)
+        Doc -> Doc)     --marshaling code (\body -> ... body ...)
 
 genMarshalParameter _ _ name "gboolean" =
-	(Nothing, InParam "Bool",
-	\body -> body
+        (Nothing, InParam "Bool",
+        \body -> body
               $$ nest 2 (parens (text "fromBool" <+> text name)))
 
 genMarshalParameter _ _ name typeName
-			   | typeName == "guint"  --these two are unsigned types
-			  || typeName == "gint"
-			  || typeName == "glong"
-			  || typeName == "int"
-			  || typeName == "gsize"  --should they be Word or Int?
-			  || typeName == "gssize" =
-	(Nothing, InParam "Int",
-	\body -> body
+                           | typeName == "guint"  --these two are unsigned types
+                          || typeName == "gint"
+                          || typeName == "glong"
+                          || typeName == "int"
+                          || typeName == "gsize"  --should they be Word or Int?
+                          || typeName == "gssize" =
+        (Nothing, InParam "Int",
+        \body -> body
               $$ nest 2 (parens (text "fromIntegral" <+> text name)))
 
 genMarshalParameter _ _ name "guint16" =
-	(Nothing, InParam "Word16",
-	\body -> body
+        (Nothing, InParam "Word16",
+        \body -> body
               $$ nest 2 (parens (text "fromIntegral" <+> text name)))
 
 genMarshalParameter _ _ name "guint32" =
-	(Nothing, InParam "Word32",
-	\body -> body
+        (Nothing, InParam "Word32",
+        \body -> body
               $$ nest 2 (parens (text "fromIntegral" <+> text name)))
 
 genMarshalParameter _ _ name typeName
                            | typeName == "gdouble"
                           || typeName == "double" =
-	(Nothing, InParam "Double",
-	\body -> body
+        (Nothing, InParam "Double",
+        \body -> body
               $$ nest 2 (parens (text "realToFrac" <+> text name)))
 
 genMarshalParameter _ _ name "gfloat" =
-	(Nothing, InParam "Float",
-	\body -> body
+        (Nothing, InParam "Float",
+        \body -> body
               $$ nest 2 (parens (text "realToFrac" <+> text name)))
 
 genMarshalParameter _ _ name "gunichar" =
-	(Nothing, InParam "Char",
-	\body -> body
+        (Nothing, InParam "Char",
+        \body -> body
               $$ nest 2 (parens (text "(fromIntegral . ord)" <+> text name)))
 
 genMarshalParameter _ funcName name typeName | typeName == "const-gchar*"
                                             || typeName == "const-char*" =
   if maybeNullParameter funcName name
     then (Nothing, InParam "Maybe String",
-	 \body -> text "maybeWith withUTFString" <+> text name <+> char '$' <+> lambda (ptr name)
+         \body -> text "maybeWith withUTFString" <+> text name <+> char '$' <+> lambda (ptr name)
                $$ body
                $$ nest 2 (text name <> text "Ptr"))
     else (Nothing, InParam "String",
-	 \body -> text "withUTFString" <+> text name <+> char '$' <+> lambda (ptr name)
+         \body -> text "withUTFString" <+> text name <+> char '$' <+> lambda (ptr name)
                $$ body
                $$ nest 2 (ptr name))
 
@@ -135,9 +135,9 @@ genMarshalParameter _ funcName name "const-gchar**" =
          $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name "GError**" =
-	(Nothing, UnusedParam,
-	\body -> text "propagateGError $" <+> lambda (text name <> text "Ptr")
-	      $$ body
+        (Nothing, UnusedParam,
+        \body -> text "propagateGError $" <+> lambda (text name <> text "Ptr")
+              $$ body
               $$ nest 2 (ptr name))
 
 -- Objects -----------------------------
@@ -173,8 +173,8 @@ genMarshalParameter knownSymbols funcName name typeName'
 genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
-	(Nothing, InParam shortTypeName,
-	\body -> body
+        (Nothing, InParam shortTypeName,
+        \body -> body
               $$ nest 2 (parens (text "(fromIntegral . fromEnum)" <+> text name)))
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = Map.lookup typeName knownSymbols
@@ -183,16 +183,16 @@ genMarshalParameter knownSymbols _ name typeName
 genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-	(Nothing, InParam ("[" ++ shortTypeName ++ "]"),
-	\body -> body
+        (Nothing, InParam ("[" ++ shortTypeName ++ "]"),
+        \body -> body
               $$ nest 2 (parens (text "(fromIntegral . fromFlags)" <+> text name)))
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = Map.lookup typeName knownSymbols
 
 genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
                                      || textIter == "GtkTextIter*" =
-	(Nothing, InParam "TextIter",
-	\body -> body
+        (Nothing, InParam "TextIter",
+        \body -> body
               $$ nest 2 (text name))
 
 genMarshalParameter _ funcName name "GtkTreeIter*" =
@@ -207,59 +207,59 @@ genMarshalParameter _ funcName name "GtkTreeIter*" =
 genMarshalParameter _ funcName name "GtkTreePath*" =
   if maybeNullParameter funcName name
     then (Nothing, InParam "Maybe TreePath",
-	 \body -> text "maybeWith withTreePath" <+> text name <+> char '$' <+> lambda (text name)
+         \body -> text "maybeWith withTreePath" <+> text name <+> char '$' <+> lambda (text name)
                $$ body
                $$ nest 2 (text name))
     else (Nothing, InParam "TreePath",
-	 \body -> text "withTreePath" <+> text name <+> char '$' <+> lambda (text name)
+         \body -> text "withTreePath" <+> text name <+> char '$' <+> lambda (text name)
                $$ body
                $$ nest 2 (text name))
 
 genMarshalParameter _ _ name "const-GdkColor*" =
-	(Nothing, InParam "Color",
-	\body -> text "with" <+> text name <+> char '$' <+> lambda (ptr name)
+        (Nothing, InParam "Color",
+        \body -> text "with" <+> text name <+> char '$' <+> lambda (ptr name)
               $$ body
               $$ nest 2 (ptr name))
 
 -- Out parameters -------------------------------
 
 genMarshalParameter _ _ name "gboolean*" =
-	(Nothing, OutParam "Boolean",
-	\body -> body
+        (Nothing, OutParam "Boolean",
+        \body -> body
               $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name typeName
-			   | typeName == "gint*"
-			  || typeName == "guint*"
-			  || typeName == "glong*" =
-	(Nothing, OutParam "Int",
-	\body -> body
+                           | typeName == "gint*"
+                          || typeName == "guint*"
+                          || typeName == "glong*" =
+        (Nothing, OutParam "Int",
+        \body -> body
               $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name "gfloat*" =
-	(Nothing, OutParam "Float",
-	\body -> body
+        (Nothing, OutParam "Float",
+        \body -> body
               $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name "gdouble*" =
-	(Nothing, OutParam "Double",
-	\body -> body
+        (Nothing, OutParam "Double",
+        \body -> body
               $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name "gchar**" =
-	(Nothing, OutParam "String",
-	\body -> body
+        (Nothing, OutParam "String",
+        \body -> body
               $$ nest 2 (ptr name))
 
 genMarshalParameter _ _ name "GdkColor*" =
-	(Nothing, OutParam "Color",
-	\body -> body
+        (Nothing, OutParam "Color",
+        \body -> body
               $$ nest 2 (ptr name))
 
 -- Catch all case -------------------------------
 genMarshalParameter _ _ name unknownType =
-	(Nothing, InParam $ "{-" ++ unknownType ++ "-}",
-	\body -> body
+        (Nothing, InParam $ "{-" ++ unknownType ++ "-}",
+        \body -> body
               $$ nest 2 (text "{-" <> text name <> text "-}"))
 
 
@@ -294,9 +294,9 @@ genMarshalResult ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
         Bool ->         --is the function a constructor or ordinary method?
-	String -> 	--C type decleration for the return value we will marshal
-	(String,	--Haskell return type
-	Doc -> Doc)	--marshaling code (\body -> ... body ...)
+        String ->       --C type decleration for the return value we will marshal
+        (String,        --Haskell return type
+        Doc -> Doc)     --marshaling code (\body -> ... body ...)
 genMarshalResult _ _ _ "gboolean" = ("Bool", \body -> text "liftM toBool $" $$ body)
 genMarshalResult _ _ _ "gint"     = ("Int",  \body -> text "liftM fromIntegral $"   $$ body)
 genMarshalResult _ _ _ "guint"    = ("Int",  \body -> text "liftM fromIntegral $"   $$ body)
@@ -320,7 +320,7 @@ genMarshalResult _ funcName _ "const-gchar**" =
                     $$ text ">>= peekUTFStringArray0")
 genMarshalResult _ funcName _ typeName
                             | typeName == "gchar*"
-			   || typeName == "char*" =
+                           || typeName == "char*" =
   if maybeNullResult funcName
     then ("(Maybe String)",
          \body -> body

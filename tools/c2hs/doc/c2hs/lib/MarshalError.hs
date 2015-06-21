@@ -9,9 +9,9 @@ module MarshalError (
   throwIf,       -- :: (a -> Bool) -> (a -> String) -> IO a       -> IO a
   throwIf_,      -- :: (a -> Bool) -> (a -> String) -> IO a       -> IO ()
   throwIfNeg,    -- :: (Ord a, Num a) 
-	         -- =>                (a -> String) -> IO a       -> IO a
+                 -- =>                (a -> String) -> IO a       -> IO a
   throwIfNeg_,   -- :: (Ord a, Num a)
-	         -- =>                (a -> String) -> IO a       -> IO ()
+                 -- =>                (a -> String) -> IO a       -> IO ()
   throwIfNull,   -- ::                String        -> IO (Ptr a) -> IO (Ptr a)
 
   -- discard return value

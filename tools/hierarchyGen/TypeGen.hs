@@ -34,10 +34,10 @@ type TypeTable  = [TypeQuery]
 type Tag = String
 
 data ParserState = ParserState {
-  line		:: Int,
-  col	        :: Int,
-  hierObjs	:: ObjectSpec,
-  onlyTags	:: [Tag]
+  line          :: Int,
+  col           :: Int,
+  hierObjs      :: ObjectSpec,
+  onlyTags      :: [Tag]
   }
 
 freshParserState :: [Tag] -> ParserState
@@ -49,16 +49,16 @@ freshParserState = ParserState 1 1 []
 pFreshLine :: ParserState -> String -> [(ObjectSpec, TypeQuery)]
 pFreshLine ps input = pFL ps input
   where
-    pFL ps ('#':rem)		= pFL ps (dropWhile ((/=) '\n') rem)
-    pFL ps ('\n':rem)	 	= pFL (ps {line = line ps+1, col=1}) rem
-    pFL ps (' ':rem)		= pFL (ps {col=col ps+1}) rem
-    pFL ps ('\t':rem)		= pFL (ps {col=col ps+8}) rem
+    pFL ps ('#':rem)            = pFL ps (dropWhile ((/=) '\n') rem)
+    pFL ps ('\n':rem)           = pFL (ps {line = line ps+1, col=1}) rem
+    pFL ps (' ':rem)            = pFL (ps {col=col ps+1}) rem
+    pFL ps ('\t':rem)           = pFL (ps {col=col ps+8}) rem
     pFL ps all@('G':'t':'k':rem)= pGetObject ps all rem
     pFL ps all@('G':'d':'k':rem)= pGetObject ps all rem
     pFL ps all@('G':'s':'t':rem)= pGetObject ps all rem
     pFL ps all@('G':'n':'o':'m':'e':rem)= pGetObject ps all rem
-    pFL ps []			= []
-    pFL ps all			= pGetObject ps all all
+    pFL ps []                   = []
+    pFL ps all                  = pGetObject ps all all
 
 pGetObject :: ParserState -> String -> String -> [(ObjectSpec, TypeQuery)]
 pGetObject ps@ParserState { onlyTags=tags } txt txt' = 
@@ -80,10 +80,10 @@ pGetObject ps@ParserState { onlyTags=tags } txt txt' =
       ('a':'s':r) ->
         let (tyName,r') = span isAlphaNum_ (dropWhile isBlank r) in
           case (dropWhile isBlank r') of
-	    (',':r) ->
-	      let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
-	        (tyName, (tyName, TypeInfo origCName (Just tyQuery) eqInst defDestr), r')
-	    r -> (tyName, (tyName, TypeInfo origCName Nothing eqInst defDestr), r)
+            (',':r) ->
+              let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
+                (tyName, (tyName, TypeInfo origCName (Just tyQuery) eqInst defDestr), r')
+            r -> (tyName, (tyName, TypeInfo origCName Nothing eqInst defDestr), r)
       r -> (origHsName, (origHsName, TypeInfo origCName Nothing eqInst defDestr), r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
@@ -120,18 +120,18 @@ main = do
   let tags = map (drop 6) (filter ("--tag=" `isPrefixOf`)  rem)
   let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
               [] -> "gtk"
-	      (lib:_) -> lib
+              (lib:_) -> lib
   let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
                  [] -> "gtk"
                  (prefix:_) -> prefix
   let modName = case map (drop 10) (filter ("--modname=" `isPrefixOf`)  rem) of
-  		  [] -> "Hierarchy"
-		  (modName:_) -> modName
+                  [] -> "Hierarchy"
+                  (modName:_) -> modName
         where bareFName = reverse .
-      			  takeWhile isAlphaNum .
-			  drop 1 .
-			  dropWhile isAlpha .
-			  reverse
+                          takeWhile isAlphaNum .
+                          drop 1 .
+                          dropWhile isAlpha .
+                          reverse
   let extraNames = map (drop 9) (filter ("--import=" `isPrefixOf`) rem)
   let rootObject = case map (drop 7) (filter ("--root=" `isPrefixOf`) rem) of
                      [] -> "GObject"
@@ -154,7 +154,7 @@ main = do
   -- Parse the contents of the hierarchy file
   --
   let (objs', specialQueries) = unzip $
-				 pFreshLine (freshParserState tags) hierarchy
+                                 pFreshLine (freshParserState tags) hierarchy
       objs = map (map snd) objs'
   let showImport ('*':m ) = ss "{#import " .ss m .ss "#}" . indent 0
       showImport m = ss "import " . ss m . indent 0
@@ -166,42 +166,42 @@ main = do
       case var of
         "MODULE_NAME"    -> ss modName
         "MODULE_EXPORTS" -> generateExports rootObject (map (dropWhile ((==) '*')) forwardNames) objs
-	"MODULE_IMPORTS" -> foldl (.) id (map showImport (extraNames++forwardNames))
-	"CONTEXT_LIB"    -> ss lib
-	"CONTEXT_PREFIX" -> ss prefix
-	"DECLARATIONS"   -> generateDeclarations rootObject destrFun prefix objs specialQueries
-	"ROOTOBJECT"     -> ss rootObject
-	_ -> ss ""
+        "MODULE_IMPORTS" -> foldl (.) id (map showImport (extraNames++forwardNames))
+        "CONTEXT_LIB"    -> ss lib
+        "CONTEXT_PREFIX" -> ss prefix
+        "DECLARATIONS"   -> generateDeclarations rootObject destrFun prefix objs specialQueries
+        "ROOTOBJECT"     -> ss rootObject
+        _ -> ss ""
     ) ""
 
 
 usage = do
  hPutStr stderr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
-	\TypeGenerator {--tag=<tag>} [--lib=<lib>] [--prefix=<prefix>]\n\
-	\              [--modname=<modName>] {--import=<*><importName>}\n\
-	\              {--forward=<*><fwdName>} [--destructor=<destrName>]\n\
-	\              [--hierarchy=<hierName>]\n\
-	\where\n\
-	\  <tag>           generate entries that have the tag <tag>\n\
-	\                  specify `default' for types without tags\n\
-	\  <lib>           set the lib to use in the c2hs {#context #}\n\
-	\                  declaration (the default is \"gtk\")\n\
-	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
-	\                  declaration (the default is \"gtk\")\n\
-	\  <modName>       specify module name if it does not match the\n\
-	\                  file name, eg a hierarchical module name\n\
-	\  <importName>    additionally import this module without\n\
-	\                  re-exporting it\n\
-	\  <fwdName>       specify a number of modules that are imported\n\
-	\  <*>             use an asterix as prefix if the import should\n\
-	\                  be a .chs import statement\n\
-	\                  as well as exported from the generated module\n\
-	\  <destrName>     specify a non-standard C function pointer that\n\
-	\                  is called to destroy the objects\n\
-	\  <hierName>      the name of the file containing the hierarchy list,\n\
-	\                  defaults to the built-in list\n\
-	\\n\
-	\The resulting Haskell module is written to the standard output.\n"
+        \TypeGenerator {--tag=<tag>} [--lib=<lib>] [--prefix=<prefix>]\n\
+        \              [--modname=<modName>] {--import=<*><importName>}\n\
+        \              {--forward=<*><fwdName>} [--destructor=<destrName>]\n\
+        \              [--hierarchy=<hierName>]\n\
+        \where\n\
+        \  <tag>           generate entries that have the tag <tag>\n\
+        \                  specify `default' for types without tags\n\
+        \  <lib>           set the lib to use in the c2hs {#context #}\n\
+        \                  declaration (the default is \"gtk\")\n\
+        \  <prefix>        set the prefix to use in the c2hs {#context #}\n\
+        \                  declaration (the default is \"gtk\")\n\
+        \  <modName>       specify module name if it does not match the\n\
+        \                  file name, eg a hierarchical module name\n\
+        \  <importName>    additionally import this module without\n\
+        \                  re-exporting it\n\
+        \  <fwdName>       specify a number of modules that are imported\n\
+        \  <*>             use an asterix as prefix if the import should\n\
+        \                  be a .chs import statement\n\
+        \                  as well as exported from the generated module\n\
+        \  <destrName>     specify a non-standard C function pointer that\n\
+        \                  is called to destroy the objects\n\
+        \  <hierName>      the name of the file containing the hierarchy list,\n\
+        \                  defaults to the built-in list\n\
+        \\n\
+        \The resulting Haskell module is written to the standard output.\n"
  exitWith $ ExitFailure 1
 
 
@@ -232,7 +232,7 @@ generateDeclarations rootObject destr prefix objs typeTable =
   | obj <- objs ]
 
 makeUpcast :: String -> [String] -> ShowS
-makeUpcast rootObject [obj]	   = id -- no casting for root
+makeUpcast rootObject [obj]        = id -- no casting for root
 makeUpcast rootObject (obj:_:_) = 
   indent 0.ss "castTo".ss obj.ss " :: ".ss rootObject.ss "Class obj => obj -> ".ss obj.
   indent 0.ss "castTo".ss obj.ss " = castTo gType".ss obj.ss " \"".ss obj.ss "\"".
@@ -247,30 +247,30 @@ makeGType table (obj:_:_) =
     ss (case lookup obj table of 
          (Just TypeInfo { tiAlternateName = Just get_type_func }) ->
            get_type_func
-	 (Just TypeInfo { tiQueryFunction = cname}) ->
-	   tail $ c2u True cname++"_get_type").
+         (Just TypeInfo { tiQueryFunction = cname}) ->
+           tail $ c2u True cname++"_get_type").
     ss " #}".
   indent 0
   where
     -- case to underscore translation: the boolean arg specifies whether
     -- the first uppercase letter X is to be replaced by _x (True) or by x.
     --
-    -- translation:	HButtonBox -> hbutton_box
+    -- translation:     HButtonBox -> hbutton_box
     c2u :: Bool -> String -> String
     c2u True  (x:xs) | isUpper x = '_':toLower x:c2u False xs
     c2u False (x:xs) | isUpper x = toLower x:c2u True xs
     c2u _     (x:xs) | otherwise = x:c2u True xs
-    c2u _     []		 = []
+    c2u _     []                 = []
 
 makeOrd fill []          = id
 makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
-			   fill obj.ss obj.ss "Tag".fill obj.
-			   ss " = EQ".makeGT obj preds
+                           fill obj.ss obj.ss "Tag".fill obj.
+                           ss " = EQ".makeGT obj preds
   where
-    makeGT obj []	= id
+    makeGT obj []       = id
     makeGT obj (pr:eds) = indent 1.ss "compare ".ss obj.ss "Tag ".
-			  fill obj.ss pr.ss "Tag".fill pr.
-			  ss " = GT".makeGT obj eds
+                          fill obj.ss pr.ss "Tag".fill pr.
+                          ss " = GT".makeGT obj eds
 
 makeClass :: String -> String -> String -> TypeTable -> [String] -> ShowS
 makeClass rootObject destr prefix table (name:[])      = id
@@ -280,7 +280,7 @@ makeClass rootObject destr prefix table (name:parents) =
   indent 0.ss "{#pointer *".
   (case lookup name table of
         (Just TypeInfo { tiQueryFunction = cname }) -> ss cname.ss " as ".ss name
-	).
+        ).
   ss " foreign newtype #}".
   (case lookup name table of
      (Just (TypeInfo { tiNoEqualInst = False })) -> ss " deriving (Eq,Ord)"

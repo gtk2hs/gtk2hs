@@ -36,67 +36,67 @@ import State
 
 main :: IO ()
 main  = run ("", "", "") () (
-	  putStrCIO "Compiler Toolkit state test program\n"	+>
-	  putStrCIO "===================================\n\n"	+>
-	  testErrors						+>
-	  testExceptions
-	)
+          putStrCIO "Compiler Toolkit state test program\n"     +>
+          putStrCIO "===================================\n\n"   +>
+          testErrors                                            +>
+          testExceptions
+        )
 
 testErrors :: PreCST e s ()
 testErrors  = putStrCIO "Testing error management...\n\n"                   +>
-	      raiseWarning ("myfile", 100, 10) ["A nice warning message"]   +>
-	      raiseError ("myfile", 50, 25) ["That's too much of an error.",
-					     "Please avoid this kind of\
-					     \ errors in the future."]      +>
-	      dumpErrors						    +>
-	      dumpErrors						    +>
-	      putStrCIO "\n...done (testing error management).\n"
+              raiseWarning ("myfile", 100, 10) ["A nice warning message"]   +>
+              raiseError ("myfile", 50, 25) ["That's too much of an error.",
+                                             "Please avoid this kind of\
+                                             \ errors in the future."]      +>
+              dumpErrors                                                    +>
+              dumpErrors                                                    +>
+              putStrCIO "\n...done (testing error management).\n"
               where
-	        dumpErrors :: PreCST e s ()
-		dumpErrors  = showErrors	+>= \msg ->
-			      putStrCIO msg	+>
-			      newlineCIO
+                dumpErrors :: PreCST e s ()
+                dumpErrors  = showErrors        +>= \msg ->
+                              putStrCIO msg     +>
+                              newlineCIO
 
 testExceptions :: PreCST e s ()
-testExceptions  = putStrCIO "Testing exception handling...\n\n"		    +>
-		  (raiseExc "testexc")
-		  `catchExc` ("testexc",
-			      \msg ->
-			        putStrCIO ("Caught `testexc' with message `"
-				           ++ msg ++ "'.\n")
-			     )						    +>
-		  raiseFatal
-		  `fatalsHandledBy` (\err ->
-				       putStrCIO ("Caught fatal error: "
-						  ++ show err ++ "\n")
-				    )					    +>
-		  -- the following exception is not caught and so
-		  -- should turn into a fatal error
-		  ((raiseExc "otherexc")
-		   `catchExc` ("testexc",
-			       \msg ->
-			         putStrCIO ("ATTENTION: If this shows an \
-				            \exception erroneously caught!!!\n")
-			      )
-		  )
-		  `fatalsHandledBy` (\err ->
-				       putStrCIO ("Caught fatal error: "
-						  ++ show err ++ "\n")
-				    )					    +>
-		  putStrCIO "\n...done (testing exception handling).\n"
-		  where
-		    raiseExc     :: String -> PreCST e s ()
-		    raiseExc exc  = putStrCIO ("Will now raise `" ++ exc
-					       ++ "'.\n")	            +>
-				    throwExc exc "A hell of an exception!"  +>
-				    putStrCIO ("ATTENTION: This message must \
-					       \never show!!!\n")
+testExceptions  = putStrCIO "Testing exception handling...\n\n"             +>
+                  (raiseExc "testexc")
+                  `catchExc` ("testexc",
+                              \msg ->
+                                putStrCIO ("Caught `testexc' with message `"
+                                           ++ msg ++ "'.\n")
+                             )                                              +>
+                  raiseFatal
+                  `fatalsHandledBy` (\err ->
+                                       putStrCIO ("Caught fatal error: "
+                                                  ++ show err ++ "\n")
+                                    )                                       +>
+                  -- the following exception is not caught and so
+                  -- should turn into a fatal error
+                  ((raiseExc "otherexc")
+                   `catchExc` ("testexc",
+                               \msg ->
+                                 putStrCIO ("ATTENTION: If this shows an \
+                                            \exception erroneously caught!!!\n")
+                              )
+                  )
+                  `fatalsHandledBy` (\err ->
+                                       putStrCIO ("Caught fatal error: "
+                                                  ++ show err ++ "\n")
+                                    )                                       +>
+                  putStrCIO "\n...done (testing exception handling).\n"
+                  where
+                    raiseExc     :: String -> PreCST e s ()
+                    raiseExc exc  = putStrCIO ("Will now raise `" ++ exc
+                                               ++ "'.\n")                   +>
+                                    throwExc exc "A hell of an exception!"  +>
+                                    putStrCIO ("ATTENTION: This message must \
+                                               \never show!!!\n")
 
-		    raiseFatal :: PreCST e s ()
-		    raiseFatal  = putStrCIO "Will now trigger a fatal \
-					    \error!\n"		            +>
-				  fatal "Fatal indeed!"			    +>
-				  putStrCIO ("ATTENTION: This message must \
-					     \never show!!!\n")
+                    raiseFatal :: PreCST e s ()
+                    raiseFatal  = putStrCIO "Will now trigger a fatal \
+                                            \error!\n"                      +>
+                                  fatal "Fatal indeed!"                     +>
+                                  putStrCIO ("ATTENTION: This message must \
+                                             \never show!!!\n")
 
-				
+                                

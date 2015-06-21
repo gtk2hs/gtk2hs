@@ -31,12 +31,12 @@
 --
 
 module Config (-- limits
-	       --
-	       errorLimit,
-	       --
-	       -- debuging
-	       --
-	       assertEnabled)
+               --
+               errorLimit,
+               --
+               -- debuging
+               --
+               assertEnabled)
 where
 
 -- compilation aborts with a fatal error, when the given number of errors

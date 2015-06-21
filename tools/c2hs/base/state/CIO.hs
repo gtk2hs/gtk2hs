@@ -40,36 +40,36 @@
 --
 
 module CIO (-- (verbatim) re-exports
-	    --
-	    Handle, HandlePosn, IOMode(..), BufferMode(..), SeekMode(..),
-	    stdin, stdout, stderr,
-	    isAlreadyExistsError, isDoesNotExistError, isAlreadyInUseError,
-	    isFullError, isEOFError, isIllegalOperation, isPermissionError,
-	    isUserError,
-	    ioeGetErrorString, ioeGetHandle, ioeGetFileName,
-	    --
-	    -- file handling
-	    --
-	    openFileCIO, hCloseCIO,
-	    --
-	    -- text I/O
-	    --
-	    putCharCIO, putStrCIO, hPutStrCIO, hPutStrLnCIO, writeFileCIO,
-	    readFileCIO, printCIO, getCharCIO, hFlushCIO,  hPutCharCIO,
-	    hGetContentsCIO, hSetBufferingCIO, hGetBufferingCIO,
-	    newlineCIO,
-	    --
-	    -- `Directory'
-	    --
-	    doesFileExistCIO, removeFileCIO,
-	    --
-	    -- `System'
-	    --
-	    ExitCode(..), exitWithCIO, getArgsCIO, getProgNameCIO,
-	    --
-	    -- CTK general stuff
-	    --
-	    fileFindInCIO, mktempCIO)
+            --
+            Handle, HandlePosn, IOMode(..), BufferMode(..), SeekMode(..),
+            stdin, stdout, stderr,
+            isAlreadyExistsError, isDoesNotExistError, isAlreadyInUseError,
+            isFullError, isEOFError, isIllegalOperation, isPermissionError,
+            isUserError,
+            ioeGetErrorString, ioeGetHandle, ioeGetFileName,
+            --
+            -- file handling
+            --
+            openFileCIO, hCloseCIO,
+            --
+            -- text I/O
+            --
+            putCharCIO, putStrCIO, hPutStrCIO, hPutStrLnCIO, writeFileCIO,
+            readFileCIO, printCIO, getCharCIO, hFlushCIO,  hPutCharCIO,
+            hGetContentsCIO, hSetBufferingCIO, hGetBufferingCIO,
+            newlineCIO,
+            --
+            -- `Directory'
+            --
+            doesFileExistCIO, removeFileCIO,
+            --
+            -- `System'
+            --
+            ExitCode(..), exitWithCIO, getArgsCIO, getProgNameCIO,
+            --
+            -- CTK general stuff
+            --
+            fileFindInCIO, mktempCIO)
 where
 
 import System.IO
@@ -82,7 +82,7 @@ import System.Environment
 import System.IO (hSetEncoding, latin1)
 #endif
 
-import FileOps	 (fileFindIn, mktemp)
+import FileOps   (fileFindIn, mktemp)
 import StateBase (PreCST, liftIO)
 
 
@@ -115,7 +115,7 @@ hPutStrCIO h s  = liftIO (hPutStr h s)
 hPutStrLnCIO     :: Handle -> String -> PreCST e s ()
 hPutStrLnCIO h s  = liftIO (hPutStrLn h s)
 
-writeFileCIO		    :: FilePath -> String -> PreCST e s ()
+writeFileCIO                :: FilePath -> String -> PreCST e s ()
 writeFileCIO fname contents  = do
   hnd <- openFileCIO fname WriteMode
   hPutStrCIO hnd contents

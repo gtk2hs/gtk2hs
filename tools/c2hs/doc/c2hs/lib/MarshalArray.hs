@@ -42,9 +42,9 @@ module MarshalArray (
   advancePtr     -- :: Storable a => Ptr a -> Int -> Ptr a
 ) where
 
-import Monad	    (zipWithM_)
+import Monad        (zipWithM_)
 
-import Ptr	    (Ptr, plusPtr)
+import Ptr          (Ptr, plusPtr)
 import NewStorable  (Storable(sizeOf, peekElemOff, pokeElemOff))
 import MarshalAlloc (mallocBytes, allocaBytes, reallocBytes)
 import MarshalUtils (copyBytes, moveBytes)
@@ -122,7 +122,7 @@ pokeArray ptr vals  = zipWithM_ (pokeElemOff ptr) [0..] vals
 -- write the list elements consecutive into memory and terminate them with the
 -- given marker element
 --
-pokeArray0		   :: Storable a => a -> Ptr a -> [a] -> IO ()
+pokeArray0                 :: Storable a => a -> Ptr a -> [a] -> IO ()
 pokeArray0 marker ptr vals  = do
   pokeArray ptr vals
   pokeElemOff ptr (length vals) marker

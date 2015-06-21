@@ -69,39 +69,39 @@ module Switches (
 -- all switches of the toolkit (EXPORTED)
 --
 data SwitchBoard = SwitchBoard {
-		     cppOptsSB :: [String],	-- cpp options
-		     cppSB     :: FilePath,	-- cpp executable
-		     hpathsSB  :: [FilePath],	-- header file directories
-		       -- since 0.11.1 `hpathsSB' isn't really needed anymore..
-		       -- ..remove from 0.12 series
-		     keepSB    :: Bool,		-- keep intermediate file
-		     tracesSB  :: Traces,	-- trace flags
-		     outputSB  :: FilePath,	-- basename of generated files
-		     outDirSB  :: FilePath,	-- dir where generated files go
-		     headerSB  :: FilePath,	-- generated header file
-		     preCompSB :: Maybe FilePath,-- optional binary header r/w
-		     oldFFI    :: Bool,		-- GHC 4.XX compatible code
-		     chiPathSB :: [FilePath],	-- .chi file directories
-		     lockFunSB :: Maybe String  -- a function to wrap each call
-		   }
+                     cppOptsSB :: [String],     -- cpp options
+                     cppSB     :: FilePath,     -- cpp executable
+                     hpathsSB  :: [FilePath],   -- header file directories
+                       -- since 0.11.1 `hpathsSB' isn't really needed anymore..
+                       -- ..remove from 0.12 series
+                     keepSB    :: Bool,         -- keep intermediate file
+                     tracesSB  :: Traces,       -- trace flags
+                     outputSB  :: FilePath,     -- basename of generated files
+                     outDirSB  :: FilePath,     -- dir where generated files go
+                     headerSB  :: FilePath,     -- generated header file
+                     preCompSB :: Maybe FilePath,-- optional binary header r/w
+                     oldFFI    :: Bool,         -- GHC 4.XX compatible code
+                     chiPathSB :: [FilePath],   -- .chi file directories
+                     lockFunSB :: Maybe String  -- a function to wrap each call
+                   }
 
 -- switch states on startup (EXPORTED)
 --
 initialSwitchBoard :: SwitchBoard
 initialSwitchBoard  = SwitchBoard {
-			cppOptsSB = [],
-			cppSB     = "cpp",
-			hpathsSB  = [],
-			keepSB	  = False,
-		        tracesSB  = initialTraces,
-			outputSB  = "",
-			outDirSB  = "",
-			headerSB  = "",
-			preCompSB = Nothing,
-			oldFFI	  = False,
-			chiPathSB = ["."],
-			lockFunSB = Nothing
-		      }
+                        cppOptsSB = [],
+                        cppSB     = "cpp",
+                        hpathsSB  = [],
+                        keepSB    = False,
+                        tracesSB  = initialTraces,
+                        outputSB  = "",
+                        outDirSB  = "",
+                        headerSB  = "",
+                        preCompSB = Nothing,
+                        oldFFI    = False,
+                        chiPathSB = ["."],
+                        lockFunSB = Nothing
+                      }
 
 
 -- traces
@@ -110,11 +110,11 @@ initialSwitchBoard  = SwitchBoard {
 -- different kinds of traces possible (EXPORTED)
 --
 data Traces = Traces {
-	        tracePhasesSW  :: Bool,
-	        traceGenBindSW :: Bool,
-	        traceCTravSW   :: Bool,
-		dumpCHSSW      :: Bool
-	      }
+                tracePhasesSW  :: Bool,
+                traceGenBindSW :: Bool,
+                traceCTravSW   :: Bool,
+                dumpCHSSW      :: Bool
+              }
 
 -- trace setting on startup
 --
@@ -122,8 +122,8 @@ data Traces = Traces {
 --
 initialTraces :: Traces
 initialTraces  = Traces {
-		   tracePhasesSW  = False,
-		   traceGenBindSW = False,
-		   traceCTravSW   = False,
-		   dumpCHSSW	  = False
-		 }
+                   tracePhasesSW  = False,
+                   traceGenBindSW = False,
+                   traceCTravSW   = False,
+                   dumpCHSSW      = False
+                 }

@@ -35,7 +35,7 @@ module System.Glib.GValue (
   ) where
 
 import System.Glib.FFI
-import System.Glib.GType	(GType)
+import System.Glib.GType        (GType)
 
 {# context lib="glib" prefix="g" #}
 

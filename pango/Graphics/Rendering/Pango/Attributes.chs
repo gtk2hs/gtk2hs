@@ -56,11 +56,11 @@ withAttrList _ [] act = act nullPtr
 withAttrList (PangoString correct _ _) pas act = do
   alPtr <- {#call unsafe attr_list_new#}
   let pas' = sortBy (\pa1 pa2 -> case compare (paStart pa1) (paStart pa2) of
-		     EQ -> compare (paEnd pa1) (paEnd pa2)
-		     other -> other) pas
+                     EQ -> compare (paEnd pa1) (paEnd pa2)
+                     other -> other) pas
   mapM_ (\pa -> do
-	   paPtr <- crAttr correct pa
-	   {#call unsafe pango_attr_list_insert#} alPtr (castPtr paPtr)) pas'
+           paPtr <- crAttr correct pa
+           {#call unsafe pango_attr_list_insert#} alPtr (castPtr paPtr)) pas'
   res <- act alPtr
   pango_attr_list_unref alPtr
   return res

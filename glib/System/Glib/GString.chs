@@ -49,7 +49,7 @@ import System.Glib.FFI
 readGString :: GString -> IO (Maybe String)
 readGString gstring
   | gstring == nullPtr = return Nothing
-  | otherwise	       = do
+  | otherwise          = do
     gstr <- {#get GString->str#} gstring
     len <- {#get GString->len#} gstring
     fmap Just $ peekCStringLen (gstr, fromIntegral len)
@@ -69,7 +69,7 @@ readGStringByteString gstring
 fromGString :: GString -> IO (Maybe String)
 fromGString gstring
   | gstring == nullPtr = return Nothing
-  | otherwise	       = do
+  | otherwise          = do
     gstr <- {#get GString->str#} gstring
     len <- {#get GString->len#} gstring
     str <- fmap Just $ peekCStringLen (gstr, fromIntegral len)

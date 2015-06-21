@@ -43,7 +43,7 @@
 --
 --  .h   C header file
 --  .i   pre-processeed C header file
---  .hs	 Haskell file
+--  .hs  Haskell file
 --  .chs Haskell file with C->Haskell hooks (binding file)
 --  .chi C->Haskell interface file
 --
@@ -66,11 +66,11 @@
 --  --dump=TYPE
 --        Dump intermediate representation:
 --
---	  + if TYPE is `trace', trace the compiler phases (to stderr)
---	  + if TYPE is `genbind', trace binding generation (to stderr)
---	  + if TYPE is `ctrav', trace C declaration traversal (to stderr)
---	  + if TYPE is `chs', dump the binding file (insert `.dump' into the
---	    file name to avoid overwriting the original file)
+--        + if TYPE is `trace', trace the compiler phases (to stderr)
+--        + if TYPE is `genbind', trace binding generation (to stderr)
+--        + if TYPE is `ctrav', trace C declaration traversal (to stderr)
+--        + if TYPE is `chs', dump the binding file (insert `.dump' into the
+--          file name to avoid overwriting the original file)
 --
 --  -h, -?
 --  --help
@@ -79,7 +79,7 @@
 --  -i DIRS
 --  --include=DIRS
 --        Search the colon separated list of directories DIRS when searching
---	  for .chi files.
+--        for .chi files.
 --
 --  -k
 --  --keep
@@ -91,11 +91,11 @@
 --        Place output in file FILE.
 --
 --        If `-o' is not specified, the default is to put the output for
---	  `source.chs' in `source.hs' in the same directory that contains the
---	  binding file.  If specified, the emitted C header file is put into
---	  the same directory as the output file.  The same holds for
---	  C->Haskell interface file.  All generated files also share the
---	  basename. 
+--        `source.chs' in `source.hs' in the same directory that contains the
+--        binding file.  If specified, the emitted C header file is put into
+--        the same directory as the output file.  The same holds for
+--        C->Haskell interface file.  All generated files also share the
+--        basename. 
 --
 --  -t PATH
 --  --output-dir=PATH
@@ -108,7 +108,7 @@
 --  -v,
 --  --version
 --        Print (on standard error output) the version and copyright
---	  information of the compiler (before doing anything else).
+--        information of the compiler (before doing anything else).
 --
 --  -p FILE
 --  --precomp=FILE
@@ -120,9 +120,9 @@
 --        significantly speed up the translation of a binding module.
 --
 --  --old-ffi [=yes|=no]
---	  Generate hooks using pre-standard FFI libraries.  This currently
---	  affects only call hooks where instead of `Addr' types 
---	  `Ptr <someOtherType>' is used.
+--        Generate hooks using pre-standard FFI libraries.  This currently
+--        affects only call hooks where instead of `Addr' types 
+--        `Ptr <someOtherType>' is used.
 --
 --  --lock=NAME
 --        Wrap each foreign function call in the function NAME. This
@@ -140,35 +140,35 @@ module Main (main)
 where
 
 -- standard libraries
-import Data.List	  (isPrefixOf)
-import System.IO	  (openFile)
-import System.Process	  (runProcess, waitForProcess)
+import Data.List          (isPrefixOf)
+import System.IO          (openFile)
+import System.Process     (runProcess, waitForProcess)
 import Control.Monad      (when, unless, mapM)
 import Data.Maybe      (fromJust)
 
 -- base libraries
 import System.Console.GetOpt     
-		  (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, getOpt)
+                  (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, getOpt)
 import FNameOps   (suffix, basename, dirname, stripSuffix, addPath,
                    splitSearchPath)
-import Errors	  (interr)
+import Errors     (interr)
 import UNames     (saveRootNameSupply, restoreRootNameSupply)
-import Binary	  (Binary(..), putBinFileWithDict, getBinFileWithDict)
+import Binary     (Binary(..), putBinFileWithDict, getBinFileWithDict)
 
 -- c2hs modules
 import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
-		   ExitCode(..), stderr, IOMode(..), putStrCIO, hPutStrCIO,
-		   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
-		   ioeGetErrorString, ioeGetFileName, doesFileExistCIO,
-		   removeFileCIO, liftIO,
-		   fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
-		   SwitchBoard(..), Traces(..), setTraces,
-		   traceSet, setSwitch, getSwitch, putTraceStr)
-import C	  (AttrC, hsuffix, isuffix, loadAttrC)
-import CHS	  (CHSModule, skipToLangPragma, hasCPP, loadCHS, dumpCHS, loadAllCHI,
- 		   hssuffix, chssuffix, dumpCHI)
+                   ExitCode(..), stderr, IOMode(..), putStrCIO, hPutStrCIO,
+                   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
+                   ioeGetErrorString, ioeGetFileName, doesFileExistCIO,
+                   removeFileCIO, liftIO,
+                   fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
+                   SwitchBoard(..), Traces(..), setTraces,
+                   traceSet, setSwitch, getSwitch, putTraceStr)
+import C          (AttrC, hsuffix, isuffix, loadAttrC)
+import CHS        (CHSModule, skipToLangPragma, hasCPP, loadCHS, dumpCHS, loadAllCHI,
+                   hssuffix, chssuffix, dumpCHI)
 import GenHeader  (genHeader)
-import GenBind	  (expandHooks)
+import GenBind    (expandHooks)
 import Version    (version, copyright, disclaimer)
 import C2HSConfig (cpp, cppopts, cppoptsdef, hpaths, tmpdir)
 
@@ -193,73 +193,73 @@ header version copyright disclaimer  =
 
 trailer, errTrailer :: String
 trailer    = "\n\
-	     \The header file must be a C header file matching the given \
-	     \binding file.\n\
-	     \The dump TYPE can be\n\
-	     \  trace   -- trace compiler phases\n\
-	     \  genbind -- trace binding generation\n\
-	     \  ctrav   -- trace C declaration traversal\n\
-	     \  chs     -- dump the binding file (adds `.dump' to the name)\n"
+             \The header file must be a C header file matching the given \
+             \binding file.\n\
+             \The dump TYPE can be\n\
+             \  trace   -- trace compiler phases\n\
+             \  genbind -- trace binding generation\n\
+             \  ctrav   -- trace C declaration traversal\n\
+             \  chs     -- dump the binding file (adds `.dump' to the name)\n"
 errTrailer = "Try the option `--help' on its own for more information.\n"
 
 -- supported option types
 --
 data Flag = CPPOpts String      -- additional options for C preprocessor
-	  | CPP     String      -- program name of C preprocessor
-	  | Dump    DumpType    -- dump internal information
-	  | Help	        -- print brief usage information
-	  | Keep	        -- keep the .i file
-	  | Include String	-- list of directories to search .chi files
-	  | Output  String      -- file where the generated file should go
-	  | OutDir  String      -- directory where generates files should go
-	  | PreComp String      -- write or read a precompiled header
-	  | LockFun String      -- wrap each function call in this function
-	  | Version	        -- print version information on stderr
-	  | Error   String      -- error occured during processing of options
-	  deriving Eq
+          | CPP     String      -- program name of C preprocessor
+          | Dump    DumpType    -- dump internal information
+          | Help                -- print brief usage information
+          | Keep                -- keep the .i file
+          | Include String      -- list of directories to search .chi files
+          | Output  String      -- file where the generated file should go
+          | OutDir  String      -- directory where generates files should go
+          | PreComp String      -- write or read a precompiled header
+          | LockFun String      -- wrap each function call in this function
+          | Version             -- print version information on stderr
+          | Error   String      -- error occured during processing of options
+          deriving Eq
 
-data DumpType = Trace	      -- compiler trace
-	      | GenBind	      -- trace `GenBind'
-	      | CTrav	      -- trace `CTrav'
-	      | CHS	      -- dump binding file
-	      deriving Eq
+data DumpType = Trace         -- compiler trace
+              | GenBind       -- trace `GenBind'
+              | CTrav         -- trace `CTrav'
+              | CHS           -- dump binding file
+              deriving Eq
 
 -- option description suitable for `GetOpt'
 --
 options :: [OptDescr Flag]
 options  = [
   Option ['C'] 
-	 ["cppopts"] 
-	 (ReqArg CPPOpts "CPPOPTS") 
-	 "pass CPPOPTS to the C preprocessor",
+         ["cppopts"] 
+         (ReqArg CPPOpts "CPPOPTS") 
+         "pass CPPOPTS to the C preprocessor",
   Option ['c'] 
-	 ["cpp"] 
-	 (ReqArg CPP "CPP") 
-	 "use executable CPP to invoke C preprocessor",
+         ["cpp"] 
+         (ReqArg CPP "CPP") 
+         "use executable CPP to invoke C preprocessor",
   Option ['d'] 
-	 ["dump"] 
-	 (ReqArg dumpArg "TYPE") 
-	 "dump internal information (for debugging)",
+         ["dump"] 
+         (ReqArg dumpArg "TYPE") 
+         "dump internal information (for debugging)",
   Option ['h', '?'] 
-	 ["help"] 
-	 (NoArg Help) 
-	 "brief help (the present message)",
+         ["help"] 
+         (NoArg Help) 
+         "brief help (the present message)",
   Option ['i']
-	 ["include"]
-	 (ReqArg Include "INCLUDE")
-	 "include paths for .chi files",
+         ["include"]
+         (ReqArg Include "INCLUDE")
+         "include paths for .chi files",
   Option ['k'] 
-	 ["keep"] 
-	 (NoArg Keep) 
-	 "keep pre-processed C header",
+         ["keep"] 
+         (NoArg Keep) 
+         "keep pre-processed C header",
   Option ['o'] 
-	 ["output"] 
-	 (ReqArg Output "FILE") 
-	 "output result to FILE (should end in .hs)",
+         ["output"] 
+         (ReqArg Output "FILE") 
+         "output result to FILE (should end in .hs)",
   Option ['t'] 
-	 ["output-dir"] 
-	 (ReqArg OutDir "PATH") 
-	 "place generated files in PATH",
+         ["output-dir"] 
+         (ReqArg OutDir "PATH") 
+         "place generated files in PATH",
   Option ['p']
          ["precomp"]
          (ReqArg PreComp "FILE")
@@ -269,9 +269,9 @@ options  = [
          (ReqArg LockFun "NAME")
          "wrap each foreign call with the function NAME",
   Option ['v'] 
-	 ["version"] 
-	 (NoArg Version) 
-	 "show version information"]
+         ["version"] 
+         (NoArg Version) 
+         "show version information"]
 
 -- convert argument of `Dump' option
 --
@@ -301,13 +301,13 @@ compile  =
       (_   , _   , errs)  -> raiseErrs errs
   where
     properArgs [file1, file2] = suffix file1 == hsuffix 
-				&& suffix file2 == chssuffix 
+                                && suffix file2 == chssuffix 
     properArgs _              = False
     --
     doExecute opts args = do
-			    execute opts args
-			      `fatalsHandledBy` failureHandler
-			    exitWithCIO ExitSuccess
+                            execute opts args
+                              `fatalsHandledBy` failureHandler
+                            exitWithCIO ExitSuccess
     --
     wrongNoOfArgsErr = 
       "Supply the header file followed by the binding file.\n\
@@ -318,28 +318,28 @@ compile  =
     --
     failureHandler err =
       do
-	let msg   = ioeGetErrorString err
-	    fnMsg = case ioeGetFileName err of
-		       Nothing -> ""
-		       Just s  -> " (file: `" ++ s ++ "')"
-	hPutStrLnCIO stderr (msg ++ fnMsg)
-	exitWithCIO $ ExitFailure 1
+        let msg   = ioeGetErrorString err
+            fnMsg = case ioeGetFileName err of
+                       Nothing -> ""
+                       Just s  -> " (file: `" ++ s ++ "')"
+        hPutStrLnCIO stderr (msg ++ fnMsg)
+        exitWithCIO $ ExitFailure 1
 
 -- set up base configuration
 --
 setup :: CST s ()
 setup  = do
-	   setCPP     cpp
-	   addCPPOpts cppopts
-	   addHPaths  hpaths
+           setCPP     cpp
+           addCPPOpts cppopts
+           addHPaths  hpaths
 
 -- output error message
 --
 raiseErrs      :: [String] -> CST s a
 raiseErrs errs = do
-		   hPutStrCIO stderr (concat errs)
-		   hPutStrCIO stderr errTrailer
-		   exitWithCIO $ ExitFailure 1
+                   hPutStrCIO stderr (concat errs)
+                   hPutStrCIO stderr errTrailer
+                   exitWithCIO $ ExitFailure 1
 
 -- Process tasks
 -- -------------
@@ -353,10 +353,10 @@ raiseErrs errs = do
 --
 execute :: [Flag] -> [FilePath] -> CST s ()
 execute opts args | Help `elem` opts = help
-		  | otherwise	     = 
+                  | otherwise        = 
   do
     let vs      = filter (== Version) opts
-	opts'   = filter (/= Version) opts
+        opts'   = filter (/= Version) opts
     mapM_ processOpt (atMostOne vs ++ opts')
 
     let (headerFile, bndFile) = determineFileTypes args
@@ -371,28 +371,28 @@ execute opts args | Help `elem` opts = help
     unless (null bndFile) $ do
       computeOutputName bndFileWithoutSuffix
       process headerFile preCompFile bndFileWithoutSuffix
-	       `fatalsHandledBy` ioErrorHandler
+               `fatalsHandledBy` ioErrorHandler
   where
     atMostOne = (foldl (\_ x -> [x]) [])
 
     determineFileTypes [hfile, bfile]                = (hfile, bfile)
     determineFileTypes [file] | suffix file==hsuffix = (file, "")
-			      | otherwise            = ("", file)
+                              | otherwise            = ("", file)
     determineFileTypes []                            = ("", "")
 
     ioErrorHandler ioerr = do
-			     name <- getProgNameCIO
-			     putStrCIO $
-			       name ++ ": " ++ ioeGetErrorString ioerr ++ "\n"
-			     exitWithCIO $ ExitFailure 1
+                             name <- getProgNameCIO
+                             putStrCIO $
+                               name ++ ": " ++ ioeGetErrorString ioerr ++ "\n"
+                             exitWithCIO $ ExitFailure 1
 
 -- emit help message
 --
 help :: CST s ()
 help  = do
-	  (version, copyright, disclaimer) <- getId
-	  putStrCIO (usageInfo (header version copyright disclaimer) options)
-	  putStrCIO trailer
+          (version, copyright, disclaimer) <- getId
+          putStrCIO (usageInfo (header version copyright disclaimer) options)
+          putStrCIO trailer
 
 -- process an option
 --
@@ -409,17 +409,17 @@ processOpt (OutDir  fname  )  = setOutDir  fname
 processOpt (PreComp fname  )  = setPreComp fname
 processOpt (LockFun name   )  = setLockFun name
 processOpt Version            = do
-			          (version, _, _) <- getId 
-			          putStrCIO (version ++ "\n")
+                                  (version, _, _) <- getId 
+                                  putStrCIO (version ++ "\n")
 processOpt (Error   msg    )  = abort      msg
 
 -- emit error message and raise an error
 --
 abort     :: String -> CST s ()
 abort msg  = do
-	       hPutStrLnCIO stderr msg
-	       hPutStrCIO stderr errTrailer
-	       fatal "Error in command line options"
+               hPutStrLnCIO stderr msg
+               hPutStrCIO stderr errTrailer
+               fatal "Error in command line options"
 
 -- Compute the base name for all generated files (Haskell, C header, and .chi
 -- file)
@@ -432,14 +432,14 @@ computeOutputName bndFileNoSuffix =
     output <- getSwitch outputSB
     outDir <- getSwitch outDirSB
     let dir  = if      null outDir && null output then dirname bndFileNoSuffix
-	       else if null outDir		  then dirname output
-	       else				       outDir
+               else if null outDir                then dirname output
+               else                                    outDir
     let base = if null output then basename bndFileNoSuffix
-	       else                basename output
+               else                basename output
     setSwitch $ \sb -> sb {
-		         outputSB = dir `addPath` base,
-			 outDirSB = dir
-		       }
+                         outputSB = dir `addPath` base,
+                         outDirSB = dir
+                       }
 
 
 -- set switches
@@ -476,7 +476,7 @@ setDump         :: DumpType -> CST s ()
 setDump Trace    = setTraces $ \ts -> ts {tracePhasesSW  = True}
 setDump GenBind  = setTraces $ \ts -> ts {traceGenBindSW = True}
 setDump CTrav    = setTraces $ \ts -> ts {traceCTravSW   = True}
-setDump CHS      = setTraces $ \ts -> ts {dumpCHSSW	 = True}
+setDump CHS      = setTraces $ \ts -> ts {dumpCHSSW      = True}
 
 -- set flag to keep the pre-processed header file
 --
@@ -499,9 +499,9 @@ setInclude str = do
 --
 setOutput       :: FilePath -> CST s ()
 setOutput fname  = do
-		     when (suffix fname /= hssuffix) $
-		       raiseErrs ["Output file should end in .hs!\n"]
-		     setSwitch $ \sb -> sb {outputSB = stripSuffix fname}
+                     when (suffix fname /= hssuffix) $
+                       raiseErrs ["Output file should end in .hs!\n"]
+                     setSwitch $ \sb -> sb {outputSB = stripSuffix fname}
 
 -- set the output directory
 --
@@ -551,30 +551,30 @@ process headerFile preCompFile bndFileStripped  =
     chsMod <- case skipToLangPragma chsMod of
       Nothing -> loadAllCHI chsMod
       Just chsMod | not (hasCPP chsMod) -> loadAllCHI chsMod
-		  | otherwise -> do
-	outFName <- getSwitch outputSB
-	let outFileBase  = if null outFName then basename bndFile else outFName
-	let ppFile = outFileBase ++ "_pp" ++ chssuffix
-	cpp     <- getSwitch cppSB
-	cppOpts <- getSwitch cppOptsSB
+                  | otherwise -> do
+        outFName <- getSwitch outputSB
+        let outFileBase  = if null outFName then basename bndFile else outFName
+        let ppFile = outFileBase ++ "_pp" ++ chssuffix
+        cpp     <- getSwitch cppSB
+        cppOpts <- getSwitch cppOptsSB
         let args = cppOpts ++ [cppoptsdef, headerFile, bndFile]
         tracePreproc (unwords (cpp:args))
-	exitCode <- liftIO $ do
+        exitCode <- liftIO $ do
           ppHnd <- openFile ppFile WriteMode
           process <- runProcess cpp args
             Nothing Nothing Nothing (Just ppHnd) Nothing
           waitForProcess process
-	case exitCode of 
-	  ExitFailure _ -> fatal "Error during preprocessing chs file"
- 	  _		-> nop
+        case exitCode of 
+          ExitFailure _ -> fatal "Error during preprocessing chs file"
+          _             -> nop
 
         (chsMod , warnmsgs) <- loadCHS ppFile
 
-	keep <- getSwitch keepSB
-	unless keep $
-	  removeFileCIO ppFile
+        keep <- getSwitch keepSB
+        unless keep $
+          removeFileCIO ppFile
 
-	case skipToLangPragma chsMod of Just chsMod -> loadAllCHI chsMod
+        case skipToLangPragma chsMod of Just chsMod -> loadAllCHI chsMod
 
     traceCHSDump chsMod
     --
@@ -648,21 +648,21 @@ process headerFile preCompFile bndFileStripped  =
     outFName <- getSwitch outputSB
     let hsFile  = if null outFName then basename bndFile else outFName
     dumpCHS hsFile hsMod True
-    dumpCHI hsFile chi		-- different suffix will be appended
+    dumpCHI hsFile chi          -- different suffix will be appended
 
   where
     bndFile = bndFileStripped ++ chssuffix
     traceReadPrecomp fName = putTraceStr tracePhasesSW $
       "Reading precompiled header file " ++ fName ++ "...\n"
     tracePreproc cmd = putTraceStr tracePhasesSW $
-		         "Invoking cpp as `" ++ cmd ++ "'...\n"
+                         "Invoking cpp as `" ++ cmd ++ "'...\n"
     traceCHSDump mod = do
-			 flag <- traceSet dumpCHSSW
-			 when flag $
-			   (do
-			      putStrCIO ("...dumping CHS to `" ++ chsName 
-					 ++ "'...\n")
-			      dumpCHS chsName mod False)
+                         flag <- traceSet dumpCHSSW
+                         when flag $
+                           (do
+                              putStrCIO ("...dumping CHS to `" ++ chsName 
+                                         ++ "'...\n")
+                              dumpCHS chsName mod False)
 
     chsName = basename bndFile ++ ".dump"
 

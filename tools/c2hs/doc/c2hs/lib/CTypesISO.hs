@@ -4,19 +4,19 @@
 -- module `CTypes'
 
 module CTypesISO (
-	-- Integral types; instances: Eq, Ord, Num, Read, Show, Enum,
-	-- Storable, Bounded, Real, Integral
-	--
-	CPtrdiff(..), CSize(..), CWchar(..), CSigAtomic(..)
+        -- Integral types; instances: Eq, Ord, Num, Read, Show, Enum,
+        -- Storable, Bounded, Real, Integral
+        --
+        CPtrdiff(..), CSize(..), CWchar(..), CSigAtomic(..)
 
-	-- Numeric types; instances: Eq, Ord, Num, Read, Show, Enum,
-	-- Storable
-	--
-	CClock(..),  CTime(..),
+        -- Numeric types; instances: Eq, Ord, Num, Read, Show, Enum,
+        -- Storable
+        --
+        CClock(..),  CTime(..),
 
         -- Opaque types, instances: Storable
-	--
-	CFile, CFpos, CJmpBuf
+        --
+        CFile, CFpos, CJmpBuf
 ) where
 
 
@@ -27,18 +27,18 @@ import Storable (Storable(..))
 -- the exact representations are architecture dependent
 
 newtype CPtrdiff   = CPtrDiff   IntWordXY      -- ptrdiff_t
-		   deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                   deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CSize      = CSize      IntWordXY      -- size_t
-		   deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                   deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CWChar     = CWChar     IntWordXY      -- wchar_t
-		   deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                   deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CSigAtomic = CSigAtomic IntWordXY      -- sig_atomic_t
-		   deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                   deriving (Eq, Ord, Enum, Bounded, Show, Read)
 
 newtype CClock     = CClock ...                -- clock_t
-		   deriving (Eq, Ord, Enum, Show, Read)
-newtype CTime	   = CTime  ...                -- time_t
-		   deriving (Eq, Ord, Enum, Show, Read)
+                   deriving (Eq, Ord, Enum, Show, Read)
+newtype CTime      = CTime  ...                -- time_t
+                   deriving (Eq, Ord, Enum, Show, Read)
 
 data CFile         = ...                       -- FILE
 data CFpos         = ...                       -- fpos_t

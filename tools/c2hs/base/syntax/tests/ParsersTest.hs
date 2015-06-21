@@ -52,9 +52,9 @@ instance Show Attrs where
 -- simple expression grammar
 --
 data Expr = Var  String    Attrs
-	  | Add  Expr Expr Attrs
-	  | Mul  Expr Expr Attrs
-	  deriving (Show)
+          | Add  Expr Expr Attrs
+          | Mul  Expr Expr Attrs
+          deriving (Show)
 
 {-
 expr  =  prod *> expr' `action` glueExp
@@ -82,8 +82,8 @@ prim =     var
 var = alpha' *> many (:) [] alphaNum `action` \((c, at), cs) -> Var (c:cs) at
       where
         alpha' = alpha *> meta getName 
-		 `action` \(CharTok c pos, n) -> (c, newAttrs pos n)
---		 `action` \(CharTok c pos) -> (c, newAttrsOnlyPos pos)
+                 `action` \(CharTok c pos, n) -> (c, newAttrs pos n)
+--               `action` \(CharTok c pos) -> (c, newAttrsOnlyPos pos)
 
 alpha    = foldr1 (<|>) (map char0 (['a'..'z']))
 alphaNum = foldr1 (<|>) (map char (['a'..'z'] ++ ['0'..'9']))
@@ -94,8 +94,8 @@ char0 c = token (CharTok c nopos)
 char c = const c $> token (CharTok c nopos)
 
 chara c = token (CharTok c nopos) *> meta getName
-	  `action` \(CharTok _ pos, n) -> newAttrs pos n
---	  `action` \(CharTok _ pos) -> newAttrsOnlyPos pos
+          `action` \(CharTok _ pos, n) -> newAttrs pos n
+--        `action` \(CharTok _ pos) -> newAttrsOnlyPos pos
 
 chars c = const () $> token (CharTok c nopos)
 
@@ -112,10 +112,10 @@ getName (n:ns) = (ns, n)
 testparse    :: String  -> IO ()
 testparse cs  = let (tree, errs) = (execParser expr . stringToCharToks) cs
 --testparse cs  = let (tree, errs) = (execParser vars . stringToCharToks) cs
-		in do
-		  print tree
-		  mapM (putStr . showError) errs
-		  return ()
+                in do
+                  print tree
+                  mapM (putStr . showError) errs
+                  return ()
  -}
 
 
@@ -124,7 +124,7 @@ parse p cs  =
   do
     nsupp <- getNameSupply
     let ns = names nsupp
-	(tree, errs, r) = (execParser p ns . stringToCharToks) cs
+        (tree, errs, r) = (execParser p ns . stringToCharToks) cs
     mapM (putStrCIO . showError) errs
     return (tree, r)
 
@@ -135,17 +135,17 @@ main  = run ("parser test", "", "") undefined doIt
 doIt :: PreCST e s ()
 doIt  = let cs = "a+b*(xy+abcdefg)"
         in do
-	  putStrCIO "Parsers test...\n"
-	  putStrCIO "===============\n"
+          putStrCIO "Parsers test...\n"
+          putStrCIO "===============\n"
           (tree, _) <- parse expr cs
           printCIO tree
-	  putStrCIO "Should output: \
-		    \Mul (Var \"a\" <attrs>) (Add (Var \"b\" <attrs>) \
-		    \(Mul (Var \"xy\" <attrs>) (Var \"abcdefg\" <attrs>) \
-		    \<attrs>) <attrs>) <attrs>\n\n"
+          putStrCIO "Should output: \
+                    \Mul (Var \"a\" <attrs>) (Add (Var \"b\" <attrs>) \
+                    \(Mul (Var \"xy\" <attrs>) (Var \"abcdefg\" <attrs>) \
+                    \<attrs>) <attrs>) <attrs>\n\n"
           ((abc, dot), rest) <- parse (list alpha *> char0 '.') "abc.junk"
-	  let stringify = concat . map show
-	  putStrCIO ("`list alpha *> char0 '.'' accepts from `abc.junk' \
-		     \the prefix `" ++ stringify (abc ++ [dot])
-		     ++ "',\nand the rest is `" ++ stringify rest 
-		     ++ "'.\n")
+          let stringify = concat . map show
+          putStrCIO ("`list alpha *> char0 '.'' accepts from `abc.junk' \
+                     \the prefix `" ++ stringify (abc ++ [dot])
+                     ++ "',\nand the rest is `" ++ stringify rest 
+                     ++ "'.\n")

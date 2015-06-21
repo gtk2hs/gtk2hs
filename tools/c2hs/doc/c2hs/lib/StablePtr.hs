@@ -28,7 +28,7 @@ import Ptr (Ptr, castPtr)
 --     typedef void *HsStablePtr;
 --
 newtype StablePtr a = StablePtr (Ptr a)
-		    deriving (Eq)
+                    deriving (Eq)
 
 -- Obtains a stable pointer for an arbitrary Haskell expression
 --

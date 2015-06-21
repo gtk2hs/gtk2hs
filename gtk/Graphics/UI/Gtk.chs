@@ -24,10 +24,10 @@
 --
 -- The following modules are not bound:
 --   DialogMessage : has only one variadic function which cannot be bound.
---		     The same functionality can be simulated with Dialog.
---   Item :	     The only child of this abstract class is MenuItem. The
---		     three signals Item defines are therefore bound in
---		     MenuItem.
+--                   The same functionality can be simulated with Dialog.
+--   Item :          The only child of this abstract class is MenuItem. The
+--                   three signals Item defines are therefore bound in
+--                   MenuItem.
 --
 -- TODO
 --
@@ -319,7 +319,7 @@ import Graphics.UI.Gtk.Gdk.Drawable
 #endif
 import Graphics.UI.Gtk.Gdk.DrawWindow
 #if GTK_MAJOR_VERSION < 3
-import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
+import Graphics.UI.Gtk.Gdk.Region               hiding (makeNewRegion)
 #endif
 --import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.EventM
@@ -563,10 +563,10 @@ import Graphics.UI.Gtk.Embedding.Socket
 -- non widgets
 import System.Glib.Signals
 {- do eport 'on' and 'after'
-		(ConnectId, disconnect,
-					 signalDisconnect,
-					 signalBlock,
-					 signalUnblock)
+                (ConnectId, disconnect,
+                                         signalDisconnect,
+                                         signalBlock,
+                                         signalUnblock)
 -}
 import System.Glib.Attributes
 import System.Glib.GObject (

@@ -78,7 +78,7 @@ import qualified Data.Text as T (unpack)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject              (makeNewGObject)
 {#import Graphics.Rendering.Pango.BasicTypes#}
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.Enums#} (FontMetrics)
@@ -99,7 +99,7 @@ pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   arrPtr <- peek arrPtrPtr
   size <- peek sizePtr
   ffsPtr <- peekArray (fromIntegral size)
-	    (castPtr arrPtr::Ptr (Ptr FontFamily)) -- c2hs is wrong here
+            (castPtr arrPtr::Ptr (Ptr FontFamily)) -- c2hs is wrong here
   {#call unsafe g_free#} (castPtr arrPtr)
   mapM (makeNewGObject mkFontFamily . return . castPtr) ffsPtr
 
@@ -138,7 +138,7 @@ pangoFontFamilyListFaces ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   arrPtr <- peek arrPtrPtr
   size <- peek sizePtr
   ffsPtr <- peekArray (fromIntegral size)
-	    (castPtr arrPtr::Ptr (Ptr FontFace)) -- c2hs is wrong here
+            (castPtr arrPtr::Ptr (Ptr FontFace)) -- c2hs is wrong here
   {#call unsafe g_free#} (castPtr arrPtr)
   mapM (makeNewGObject mkFontFace . return . castPtr) ffsPtr
 

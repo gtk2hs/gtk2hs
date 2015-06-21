@@ -59,7 +59,7 @@ module Graphics.Rendering.Pango.Description (
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(Flags, fromFlags)
+import System.Glib.Flags                (Flags, fromFlags)
 import System.Glib.UTFString
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.Enums#}
@@ -121,7 +121,7 @@ fontDescriptionGetStyle fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskStyle) .&. (fromIntegral fields) /=0
      then liftM (Just . toEnum . fromIntegral) $
-	      {#call unsafe get_style#} fd
+              {#call unsafe get_style#} fd
      else return Nothing
 
 -- | Set the variant field.
@@ -136,7 +136,7 @@ fontDescriptionGetVariant fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskVariant) .&. (fromIntegral fields) /=0
      then liftM (Just . toEnum . fromIntegral) $
-	      {#call unsafe get_variant#} fd
+              {#call unsafe get_variant#} fd
      else return Nothing
 
 -- | Set the weight field.
@@ -151,7 +151,7 @@ fontDescriptionGetWeight fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskWeight) .&. (fromIntegral fields) /=0
      then liftM (Just . toEnum . fromIntegral) $
-	      {#call unsafe get_weight#} fd
+              {#call unsafe get_weight#} fd
      else return Nothing
 
 -- | Set the stretch field.
@@ -166,7 +166,7 @@ fontDescriptionGetStretch fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskStretch) .&. (fromIntegral fields) /=0
      then liftM (Just . toEnum . fromIntegral) $
-	      {#call unsafe get_stretch#} fd
+              {#call unsafe get_stretch#} fd
      else return Nothing
 
 -- | Set the size field.
@@ -183,7 +183,7 @@ fontDescriptionGetSize fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskSize) .&. (fromIntegral fields) /=0
      then liftM (\x -> Just (intToPu x)) $
-	      {#call unsafe get_size#} fd
+              {#call unsafe get_size#} fd
      else return Nothing
 
 -- | Reset fields in a font description.
@@ -219,7 +219,7 @@ fontDescriptionIsMatch fdA fdB = unsafePerformIO $ liftM toBool $
 --   attributes do not match, the function returns @False@.
 --
 fontDescriptionBetterMatch :: FontDescription -> FontDescription ->
-			      FontDescription -> Bool
+                              FontDescription -> Bool
 fontDescriptionBetterMatch fd fdA fdB = unsafePerformIO $ liftM toBool $
   {#call unsafe better_match#} fd fdA fdB
 

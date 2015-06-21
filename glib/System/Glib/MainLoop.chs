@@ -61,11 +61,11 @@ module System.Glib.MainLoop (
 #endif
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags
-import System.Glib.GObject	(DestroyNotify, destroyFunPtr)
+import System.Glib.GObject      (DestroyNotify, destroyFunPtr)
 
 {#context lib="glib" prefix ="g"#}
 
@@ -142,13 +142,13 @@ idleRemove id = {#call source_remove#} id >> return ()
 
 -- | Flags representing a condition to watch for on a file descriptor.
 --
--- [@IOIn@]		There is data to read.
--- [@IOOut@]		Data can be written (without blocking).
--- [@IOPri@]		There is urgent data to read.
--- [@IOErr@]		Error condition.
--- [@IOHup@]		Hung up (the connection has been broken, usually for
+-- [@IOIn@]             There is data to read.
+-- [@IOOut@]            Data can be written (without blocking).
+-- [@IOPri@]            There is urgent data to read.
+-- [@IOErr@]            Error condition.
+-- [@IOHup@]            Hung up (the connection has been broken, usually for
 --                      pipes and sockets).
--- [@IOInvalid@]	Invalid request. The file descriptor is not open.
+-- [@IOInvalid@]        Invalid request. The file descriptor is not open.
 --
 {# enum IOCondition {
           G_IO_IN   as IOIn,

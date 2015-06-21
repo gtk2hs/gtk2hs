@@ -37,7 +37,7 @@ import Word
 --     typedef void  *HsPtr;
 --
 newtype Ptr a = Ptr WordXY
-	      deriving (Eq, Ord, Show)
+              deriving (Eq, Ord, Show)
 
 -- Special pointer value that indicates the absence of a data pointer
 --
@@ -92,7 +92,7 @@ minusPtr (Ptr p1) (Ptr p2)  = p1 `primMinusPtr` p2
 --     typedef void (*HsFunPtr)(void);
 --
 newtype FunPtr a = FunPtr WordXY
-	         deriving (Eq, Ord, Show)
+                 deriving (Eq, Ord, Show)
 
 -- Special pointer value that indicates the absence of a function pointer
 --

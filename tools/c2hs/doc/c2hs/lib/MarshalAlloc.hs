@@ -16,7 +16,7 @@ module MarshalAlloc (
 
 import IO        (bracket)
 
-import Ptr	 (Ptr, nullPtr)
+import Ptr       (Ptr, nullPtr)
 import Storable  (Storable(sizeOf))
 import CTypesISO (CSize)
 
@@ -87,4 +87,4 @@ failWhenNULL name f = do
 --
 foreign import "malloc"  unsafe _malloc  ::          CSize -> IO (Ptr a)
 foreign import "realloc" unsafe _realloc :: Ptr a -> CSize -> IO (Ptr a)
-foreign import "free"	 unsafe _free    :: Ptr a -> IO ()
+foreign import "free"    unsafe _free    :: Ptr a -> IO ()

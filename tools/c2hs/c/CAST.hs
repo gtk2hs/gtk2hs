@@ -41,8 +41,8 @@
 --
 
 module CAST (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..), CBlockItem(..),
-	     CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),
-	     CTypeQual(..), CStructUnion(..),  CStructTag(..), CEnum(..),
+             CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),
+             CTypeQual(..), CStructUnion(..),  CStructTag(..), CEnum(..),
              CDeclr(..), CInit(..), CInitList, CDesignator(..), CExpr(..),
              CAssignOp(..), CBinaryOp(..), CUnaryOp(..), CConst (..))
 where
@@ -56,7 +56,7 @@ import Binary     (Binary(..), putByte, getByte)
 -- a complete C header file (K&R A10) (EXPORTED)
 --
 data CHeader = CHeader [CExtDecl]
-		       Attrs
+                       Attrs
 
 instance Pos CHeader where
   posOf (CHeader _ at) = posOf at
@@ -67,14 +67,14 @@ instance Eq CHeader where
 -- external C declaration (K&R A10) (EXPORTED)
 --
 data CExtDecl = CDeclExt CDecl
-	      | CFDefExt CFunDef
-	      | CAsmExt  Attrs		-- a chunk of assembly code (which is
-					-- not itself recorded)
+              | CFDefExt CFunDef
+              | CAsmExt  Attrs          -- a chunk of assembly code (which is
+                                        -- not itself recorded)
 
 instance Pos CExtDecl where
   posOf (CDeclExt decl) = posOf decl
   posOf (CFDefExt fdef) = posOf fdef
-  posOf (CAsmExt at)	= posOf at
+  posOf (CAsmExt at)    = posOf at
 
 instance Eq CExtDecl where
   CDeclExt decl1 == CDeclExt decl2 = decl1 == decl2
@@ -92,11 +92,11 @@ instance Eq CExtDecl where
 --
 -- * The statement must be a compound statement.
 --
-data CFunDef = CFunDef [CDeclSpec]	-- type specifier and qualifier
-		       CDeclr		-- declarator
-		       [CDecl]		-- optional declaration list
-		       CStat		-- compound statement
-		       Attrs
+data CFunDef = CFunDef [CDeclSpec]      -- type specifier and qualifier
+                       CDeclr           -- declarator
+                       [CDecl]          -- optional declaration list
+                       CStat            -- compound statement
+                       Attrs
 
 instance Pos CFunDef where
   posOf (CFunDef _ _ _ _ at) = posOf at
@@ -106,49 +106,49 @@ instance Eq CFunDef where
 
 -- C statement (A9) (EXPORTED)
 --
-data CStat = CLabel    Ident		-- label
-		       CStat
-		       Attrs
-           | CCase     CExpr		-- constant expression
-		       CStat
-		       Attrs
-           | CCases    CExpr		-- case range
-		       CExpr		-- `case lower .. upper :'
-		       CStat
-		       Attrs
-           | CDefault  CStat		-- default case
-		       Attrs
-           | CExpr     (Maybe CExpr)	-- expression statement, maybe empty
-		       Attrs
-           | CCompound [CBlockItem]	-- list of declarations and statements
-		       Attrs
-           | CIf       CExpr		-- conditional expression
-		       CStat
-		       (Maybe CStat)    -- optional "else" case
-		       Attrs
-           | CSwitch   CExpr	        -- selector
-		       CStat
-		       Attrs
+data CStat = CLabel    Ident            -- label
+                       CStat
+                       Attrs
+           | CCase     CExpr            -- constant expression
+                       CStat
+                       Attrs
+           | CCases    CExpr            -- case range
+                       CExpr            -- `case lower .. upper :'
+                       CStat
+                       Attrs
+           | CDefault  CStat            -- default case
+                       Attrs
+           | CExpr     (Maybe CExpr)    -- expression statement, maybe empty
+                       Attrs
+           | CCompound [CBlockItem]     -- list of declarations and statements
+                       Attrs
+           | CIf       CExpr            -- conditional expression
+                       CStat
+                       (Maybe CStat)    -- optional "else" case
+                       Attrs
+           | CSwitch   CExpr            -- selector
+                       CStat
+                       Attrs
            | CWhile    CExpr
-		       CStat
-		       Bool		-- `True' implies "do-while" statement
-		       Attrs
+                       CStat
+                       Bool             -- `True' implies "do-while" statement
+                       Attrs
            | CFor      (Either (Maybe CExpr)
-			       CDecl)
-		       (Maybe CExpr)
-		       (Maybe CExpr)
-		       CStat
-		       Attrs
-           | CGoto     Ident		-- label
-		       Attrs
-           | CGotoPtr  CExpr		-- computed address
-		       Attrs
-           | CCont     Attrs		-- continue statement
-	   | CBreak    Attrs		-- break statement
-	   | CReturn   (Maybe CExpr)
-		       Attrs
-	   | CAsm      Attrs		-- a chunk of assembly code (which is
-	   				-- not itself recorded)
+                               CDecl)
+                       (Maybe CExpr)
+                       (Maybe CExpr)
+                       CStat
+                       Attrs
+           | CGoto     Ident            -- label
+                       Attrs
+           | CGotoPtr  CExpr            -- computed address
+                       Attrs
+           | CCont     Attrs            -- continue statement
+           | CBreak    Attrs            -- break statement
+           | CReturn   (Maybe CExpr)
+                       Attrs
+           | CAsm      Attrs            -- a chunk of assembly code (which is
+                                        -- not itself recorded)
 
 instance Pos CStat where
   posOf (CLabel    _ _     at) = posOf at
@@ -161,11 +161,11 @@ instance Pos CStat where
   posOf (CSwitch   _ _     at) = posOf at
   posOf (CWhile    _ _ _   at) = posOf at
   posOf (CFor      _ _ _ _ at) = posOf at
-  posOf (CGoto     _	   at) = posOf at
+  posOf (CGoto     _       at) = posOf at
   posOf (CGotoPtr     _    at) = posOf at
-  posOf (CCont     	   at) = posOf at
-  posOf (CBreak    	   at) = posOf at
-  posOf (CReturn   _   	   at) = posOf at
+  posOf (CCont             at) = posOf at
+  posOf (CBreak            at) = posOf at
+  posOf (CReturn   _       at) = posOf at
   posOf (CAsm              at) = posOf at
 
 instance Eq CStat where
@@ -179,17 +179,17 @@ instance Eq CStat where
   (CSwitch   _ _     at1) == (CSwitch   _ _     at2) = at1 == at2
   (CWhile    _ _ _   at1) == (CWhile    _ _ _   at2) = at1 == at2
   (CFor      _ _ _ _ at1) == (CFor      _ _ _ _ at2) = at1 == at2
-  (CGoto     _	     at1) == (CGoto     _	at2) = at1 == at2
-  (CGotoPtr  _	     at1) == (CGotoPtr  _	at2) = at1 == at2
-  (CCont	     at1) == (CCont		at2) = at1 == at2
-  (CBreak	     at1) == (CBreak		at2) = at1 == at2
-  (CReturn   _	     at1) == (CReturn   _	at2) = at1 == at2
+  (CGoto     _       at1) == (CGoto     _       at2) = at1 == at2
+  (CGotoPtr  _       at1) == (CGotoPtr  _       at2) = at1 == at2
+  (CCont             at1) == (CCont             at2) = at1 == at2
+  (CBreak            at1) == (CBreak            at2) = at1 == at2
+  (CReturn   _       at1) == (CReturn   _       at2) = at1 == at2
   (CAsm              at1) == (CAsm              at2) = at1 == at2
 
 -- C99 Block items, things that may appear in compound statements
 data CBlockItem = CBlockStmt    CStat
                 | CBlockDecl    CDecl
-                | CNestedFunDef CFunDef		-- GNU C has nested functions
+                | CNestedFunDef CFunDef         -- GNU C has nested functions
 
 instance Pos CBlockItem where
   posOf (CBlockStmt stmt)  = posOf stmt
@@ -244,11 +244,11 @@ instance Eq CBlockItem where
 --     where the declarator must be abstract, ie, must not contain a declared
 --     identifier. 
 --
-data CDecl = CDecl [CDeclSpec]		-- type specifier and qualifier
-		   [(Maybe CDeclr,	-- declarator (may be omitted)
-		     Maybe CInit,	-- optional initializer
-		     Maybe CExpr)]	-- optional size (const expr)
-		   Attrs
+data CDecl = CDecl [CDeclSpec]          -- type specifier and qualifier
+                   [(Maybe CDeclr,      -- declarator (may be omitted)
+                     Maybe CInit,       -- optional initializer
+                     Maybe CExpr)]      -- optional size (const expr)
+                   Attrs
 
 instance Pos CDecl where
   posOf (CDecl _ _ at) = posOf at
@@ -259,9 +259,9 @@ instance Eq CDecl where
 -- C declaration specifiers and qualifiers (EXPORTED)
 --
 data CDeclSpec = CStorageSpec CStorageSpec
-	       | CTypeSpec    CTypeSpec
-	       | CTypeQual    CTypeQual
-	       deriving (Eq)
+               | CTypeSpec    CTypeSpec
+               | CTypeQual    CTypeQual
+               deriving (Eq)
 
 instance Pos CDeclSpec where
   posOf (CStorageSpec sspec) = posOf sspec
@@ -271,11 +271,11 @@ instance Pos CDeclSpec where
 -- C storage class specifier (K&R A8.1) (EXPORTED)
 --
 data CStorageSpec = CAuto     Attrs
-		  | CRegister Attrs
-		  | CStatic   Attrs
-		  | CExtern   Attrs
-		  | CTypedef  Attrs	-- syntactic awkwardness of C
-                  | CThread   Attrs	-- GNUC thread local storage
+                  | CRegister Attrs
+                  | CStatic   Attrs
+                  | CExtern   Attrs
+                  | CTypedef  Attrs     -- syntactic awkwardness of C
+                  | CThread   Attrs     -- GNUC thread local storage
 
 instance Pos CStorageSpec where
   posOf (CAuto     at) = posOf at
@@ -296,26 +296,26 @@ instance Eq CStorageSpec where
 -- C type specifier (K&R A8.2) (EXPORTED)
 --
 data CTypeSpec = CVoidType    Attrs
-	       | CCharType    Attrs
-	       | CShortType   Attrs
-	       | CIntType     Attrs
-	       | CLongType    Attrs
-	       | CFloatType   Attrs
-	       | CDoubleType  Attrs
-	       | CSignedType  Attrs
-	       | CUnsigType   Attrs
-	       | CBoolType    Attrs
-	       | CComplexType Attrs
-	       | CSUType      CStructUnion
-			      Attrs
-	       | CEnumType    CEnum
-			      Attrs
-	       | CTypeDef     Ident		-- typedef name
-			      Attrs
+               | CCharType    Attrs
+               | CShortType   Attrs
+               | CIntType     Attrs
+               | CLongType    Attrs
+               | CFloatType   Attrs
+               | CDoubleType  Attrs
+               | CSignedType  Attrs
+               | CUnsigType   Attrs
+               | CBoolType    Attrs
+               | CComplexType Attrs
+               | CSUType      CStructUnion
+                              Attrs
+               | CEnumType    CEnum
+                              Attrs
+               | CTypeDef     Ident             -- typedef name
+                              Attrs
                | CTypeOfExpr  CExpr
-			      Attrs
+                              Attrs
                | CTypeOfType  CDecl
-			      Attrs
+                              Attrs
 
 instance Pos CTypeSpec where
   posOf (CVoidType      at) = posOf at
@@ -358,9 +358,9 @@ instance Eq CTypeSpec where
 -- * plus `restrict' from C99 and `inline'
 --
 data CTypeQual = CConstQual Attrs
-	       | CVolatQual Attrs
-	       | CRestrQual Attrs
-	       | CInlinQual Attrs
+               | CVolatQual Attrs
+               | CRestrQual Attrs
+               | CInlinQual Attrs
 
 instance Pos CTypeQual where
  posOf (CConstQual at) = posOf at
@@ -380,9 +380,9 @@ instance Eq CTypeQual where
 --   non-empty 
 --
 data CStructUnion = CStruct CStructTag
-			    (Maybe Ident)
-			    [CDecl]	-- *structure* declaration
-			    Attrs
+                            (Maybe Ident)
+                            [CDecl]     -- *structure* declaration
+                            Attrs
 
 instance Pos CStructUnion where
   posOf (CStruct _ _ _ at) = posOf at
@@ -393,15 +393,15 @@ instance Eq CStructUnion where
 -- (EXPORTED)
 --
 data CStructTag = CStructTag
-		| CUnionTag
-		deriving (Eq)
+                | CUnionTag
+                deriving (Eq)
 
 -- C enumeration declaration (K&R A8.4) (EXPORTED)
 --
 data CEnum = CEnum (Maybe Ident)
-		   [(Ident,			-- variant name
-		     Maybe CExpr)]		-- explicit variant value
-		   Attrs
+                   [(Ident,                     -- variant name
+                     Maybe CExpr)]              -- explicit variant value
+                   Attrs
 
 instance Pos CEnum where
   posOf (CEnum _ _ at) = posOf at
@@ -435,19 +435,19 @@ instance Eq CEnum where
 -- * We unfold K&R's parameter-type-list nonterminal into the declarator
 --   variant for functions.
 --
-data CDeclr = CVarDeclr (Maybe Ident)		-- declared identifier
-		        Attrs
-	    | CPtrDeclr [CTypeQual]		-- indirections
-		        CDeclr
-		        Attrs
+data CDeclr = CVarDeclr (Maybe Ident)           -- declared identifier
+                        Attrs
+            | CPtrDeclr [CTypeQual]             -- indirections
+                        CDeclr
+                        Attrs
             | CArrDeclr CDeclr
                         [CTypeQual]
-			(Maybe CExpr)		-- array size
-			Attrs
-	    | CFunDeclr CDeclr
-			[CDecl]			-- *parameter* declarations
-			Bool			-- is variadic?
-			Attrs
+                        (Maybe CExpr)           -- array size
+                        Attrs
+            | CFunDeclr CDeclr
+                        [CDecl]                 -- *parameter* declarations
+                        Bool                    -- is variadic?
+                        Attrs
 
 instance Pos CDeclr where
   posOf (CVarDeclr _     at) = posOf at
@@ -464,9 +464,9 @@ instance Eq CDeclr where
 -- C initializer (K&R A8.7) (EXPORTED)
 --
 data CInit = CInitExpr CExpr
-		       Attrs		-- assignment expression
+                       Attrs            -- assignment expression
            | CInitList CInitList
-		       Attrs
+                       Attrs
 
 type CInitList = [([CDesignator], CInit)]
 
@@ -481,12 +481,12 @@ instance Eq CInit where
 -- C initializer designator (EXPORTED)
 --
 data CDesignator = CArrDesig     CExpr
-				 Attrs
+                                 Attrs
                  | CMemberDesig  Ident
-				 Attrs
-                 | CRangeDesig   CExpr	-- GNUC array range designator
-				 CExpr
-				 Attrs
+                                 Attrs
+                 | CRangeDesig   CExpr  -- GNUC array range designator
+                                 CExpr
+                                 Attrs
 
 instance Pos CDesignator where
   posOf (CArrDesig     _ at) = posOf at
@@ -505,56 +505,56 @@ instance Eq CDesignator where
 --
 -- * GNU C extension: `alignof'
 --
-data CExpr = CComma       [CExpr]	-- comma expression list, n >= 2
-		          Attrs
-	   | CAssign      CAssignOp	-- assignment operator
-		          CExpr		-- l-value
-		          CExpr		-- r-value
-		          Attrs
-	   | CCond        CExpr		-- conditional
-		   (Maybe CExpr)	-- true-expression (GNU allows omitting)
-		          CExpr		-- false-expression
-		          Attrs
-	   | CBinary      CBinaryOp	-- binary operator
-		          CExpr		-- lhs
-		          CExpr		-- rhs
-		          Attrs
-	   | CCast        CDecl		-- type name
-		          CExpr
-		          Attrs
-           | CUnary       CUnaryOp	-- unary operator
-		          CExpr
-		          Attrs
-	   | CSizeofExpr  CExpr
-			  Attrs
-	   | CSizeofType  CDecl		-- type name
-			  Attrs
-	   | CAlignofExpr CExpr
-			  Attrs
-	   | CAlignofType CDecl		-- type name
-			  Attrs
-	   | CIndex       CExpr		-- array
-			  CExpr		-- index
-			  Attrs
-	   | CCall	  CExpr		-- function
-			  [CExpr]	-- arguments
-			  Attrs
-	   | CMember	  CExpr		-- structure
-			  Ident		-- member name
-			  Bool		-- deref structure? (True for `->')
-			  Attrs
-	   | CVar	  Ident		-- identifier (incl. enumeration const)
-			  Attrs
-           | CConst       CConst		-- includes strings
-			  Attrs
-	   | CCompoundLit CDecl		-- C99 compound literal
-	   		  CInitList	-- type name & initialiser list
-	   		  Attrs
-	   | CStatExpr    CStat		-- GNUC compound statement as expr
-	   		  Attrs
+data CExpr = CComma       [CExpr]       -- comma expression list, n >= 2
+                          Attrs
+           | CAssign      CAssignOp     -- assignment operator
+                          CExpr         -- l-value
+                          CExpr         -- r-value
+                          Attrs
+           | CCond        CExpr         -- conditional
+                   (Maybe CExpr)        -- true-expression (GNU allows omitting)
+                          CExpr         -- false-expression
+                          Attrs
+           | CBinary      CBinaryOp     -- binary operator
+                          CExpr         -- lhs
+                          CExpr         -- rhs
+                          Attrs
+           | CCast        CDecl         -- type name
+                          CExpr
+                          Attrs
+           | CUnary       CUnaryOp      -- unary operator
+                          CExpr
+                          Attrs
+           | CSizeofExpr  CExpr
+                          Attrs
+           | CSizeofType  CDecl         -- type name
+                          Attrs
+           | CAlignofExpr CExpr
+                          Attrs
+           | CAlignofType CDecl         -- type name
+                          Attrs
+           | CIndex       CExpr         -- array
+                          CExpr         -- index
+                          Attrs
+           | CCall        CExpr         -- function
+                          [CExpr]       -- arguments
+                          Attrs
+           | CMember      CExpr         -- structure
+                          Ident         -- member name
+                          Bool          -- deref structure? (True for `->')
+                          Attrs
+           | CVar         Ident         -- identifier (incl. enumeration const)
+                          Attrs
+           | CConst       CConst                -- includes strings
+                          Attrs
+           | CCompoundLit CDecl         -- C99 compound literal
+                          CInitList     -- type name & initialiser list
+                          Attrs
+           | CStatExpr    CStat         -- GNUC compound statement as expr
+                          Attrs
            | CLabAddrExpr Ident         -- GNUC address of label
-	   		  Attrs
-	   | CBuiltinExpr Attrs		-- place holder for GNUC builtin exprs
+                          Attrs
+           | CBuiltinExpr Attrs         -- place holder for GNUC builtin exprs
 
 instance Pos CExpr where
   posOf (CComma       _     at) = posOf at
@@ -578,21 +578,21 @@ instance Pos CExpr where
   posOf (CBuiltinExpr       at) = posOf at
 
 instance Eq CExpr where
-  (CComma      	_     at1) == (CComma       _     at2) = at1 == at2
-  (CAssign     	_ _ _ at1) == (CAssign      _ _ _ at2) = at1 == at2
-  (CCond       	_ _ _ at1) == (CCond        _ _ _ at2) = at1 == at2
-  (CBinary     	_ _ _ at1) == (CBinary      _ _ _ at2) = at1 == at2
-  (CCast       	_ _   at1) == (CCast        _ _   at2) = at1 == at2
-  (CUnary      	_ _   at1) == (CUnary       _ _   at2) = at1 == at2
-  (CSizeofExpr 	_     at1) == (CSizeofExpr  _     at2) = at1 == at2
-  (CSizeofType 	_     at1) == (CSizeofType  _     at2) = at1 == at2
+  (CComma       _     at1) == (CComma       _     at2) = at1 == at2
+  (CAssign      _ _ _ at1) == (CAssign      _ _ _ at2) = at1 == at2
+  (CCond        _ _ _ at1) == (CCond        _ _ _ at2) = at1 == at2
+  (CBinary      _ _ _ at1) == (CBinary      _ _ _ at2) = at1 == at2
+  (CCast        _ _   at1) == (CCast        _ _   at2) = at1 == at2
+  (CUnary       _ _   at1) == (CUnary       _ _   at2) = at1 == at2
+  (CSizeofExpr  _     at1) == (CSizeofExpr  _     at2) = at1 == at2
+  (CSizeofType  _     at1) == (CSizeofType  _     at2) = at1 == at2
   (CAlignofExpr _     at1) == (CAlignofExpr _     at2) = at1 == at2
   (CAlignofType _     at1) == (CAlignofType _     at2) = at1 == at2
-  (CIndex      	_ _   at1) == (CIndex       _ _   at2) = at1 == at2
-  (CCall       	_ _   at1) == (CCall	    _ _   at2) = at1 == at2
-  (CMember     	_ _ _ at1) == (CMember	    _ _ _ at2) = at1 == at2
-  (CVar        	_     at1) == (CVar	    _     at2) = at1 == at2
-  (CConst      	_     at1) == (CConst	    _	  at2) = at1 == at2
+  (CIndex       _ _   at1) == (CIndex       _ _   at2) = at1 == at2
+  (CCall        _ _   at1) == (CCall        _ _   at2) = at1 == at2
+  (CMember      _ _ _ at1) == (CMember      _ _ _ at2) = at1 == at2
+  (CVar         _     at1) == (CVar         _     at2) = at1 == at2
+  (CConst       _     at1) == (CConst       _     at2) = at1 == at2
   (CCompoundLit _ _   at1) == (CCompoundLit _ _   at2) = at1 == at2
   (CStatExpr    _     at1) == (CStatExpr    _     at2) = at1 == at2
   (CLabAddrExpr _     at1) == (CLabAddrExpr _     at2) = at1 == at2
@@ -601,66 +601,66 @@ instance Eq CExpr where
 -- C assignment operators (K&R A7.17) (EXPORTED)
 --
 data CAssignOp = CAssignOp
-	       | CMulAssOp
-	       | CDivAssOp
-	       | CRmdAssOp		-- remainder and assignment
-	       | CAddAssOp
-	       | CSubAssOp
-	       | CShlAssOp
-	       | CShrAssOp
-	       | CAndAssOp
-	       | CXorAssOp
-	       | COrAssOp
-	       deriving (Eq)
+               | CMulAssOp
+               | CDivAssOp
+               | CRmdAssOp              -- remainder and assignment
+               | CAddAssOp
+               | CSubAssOp
+               | CShlAssOp
+               | CShrAssOp
+               | CAndAssOp
+               | CXorAssOp
+               | COrAssOp
+               deriving (Eq)
 
 -- C binary operators (K&R A7.6-15) (EXPORTED)
 --
 data CBinaryOp = CMulOp
-	       | CDivOp
-	       | CRmdOp			-- remainder of division
-	       | CAddOp
-	       | CSubOp
-	       | CShlOp			-- shift left
-	       | CShrOp			-- shift right
-	       | CLeOp			-- less
-	       | CGrOp			-- greater
-	       | CLeqOp			-- less or equal
-	       | CGeqOp			-- greater or equal
-	       | CEqOp			-- equal
-	       | CNeqOp			-- not equal
-	       | CAndOp			-- bitwise and
-	       | CXorOp			-- exclusive bitwise or
-	       | COrOp			-- inclusive bitwise or
-	       | CLndOp			-- logical and
-	       | CLorOp			-- logical or
-	       deriving (Eq)
+               | CDivOp
+               | CRmdOp                 -- remainder of division
+               | CAddOp
+               | CSubOp
+               | CShlOp                 -- shift left
+               | CShrOp                 -- shift right
+               | CLeOp                  -- less
+               | CGrOp                  -- greater
+               | CLeqOp                 -- less or equal
+               | CGeqOp                 -- greater or equal
+               | CEqOp                  -- equal
+               | CNeqOp                 -- not equal
+               | CAndOp                 -- bitwise and
+               | CXorOp                 -- exclusive bitwise or
+               | COrOp                  -- inclusive bitwise or
+               | CLndOp                 -- logical and
+               | CLorOp                 -- logical or
+               deriving (Eq)
 
 -- C unary operator (K&R A7.3-4) (EXPORTED)
 --
-data CUnaryOp = CPreIncOp		-- prefix increment operator
-	      | CPreDecOp		-- prefix decrement operator
-	      | CPostIncOp		-- postfix increment operator
-	      | CPostDecOp		-- postfix decrement operator
-	      | CAdrOp			-- address operator
-	      | CIndOp			-- indirection operator
-	      | CPlusOp			-- prefix plus
-	      | CMinOp			-- prefix minus
-	      | CCompOp			-- one's complement
-	      | CNegOp			-- logical negation
-	      deriving (Eq)
+data CUnaryOp = CPreIncOp               -- prefix increment operator
+              | CPreDecOp               -- prefix decrement operator
+              | CPostIncOp              -- postfix increment operator
+              | CPostDecOp              -- postfix decrement operator
+              | CAdrOp                  -- address operator
+              | CIndOp                  -- indirection operator
+              | CPlusOp                 -- prefix plus
+              | CMinOp                  -- prefix minus
+              | CCompOp                 -- one's complement
+              | CNegOp                  -- logical negation
+              deriving (Eq)
 
 -- C constant (K&R A2.5 & A7.2) (EXPORTED)
 --
 -- * we do not list enumeration constants here, as they are identifiers
 --
 data CConst = CIntConst   Integer
-		          Attrs
-	    | CCharConst  Char
-		          Attrs
-	    | CFloatConst String
-			  Attrs
-	    | CStrConst   String
-			  Attrs
+                          Attrs
+            | CCharConst  Char
+                          Attrs
+            | CFloatConst String
+                          Attrs
+            | CStrConst   String
+                          Attrs
 
 instance Pos CConst where
   posOf (CIntConst   _ at) = posOf at

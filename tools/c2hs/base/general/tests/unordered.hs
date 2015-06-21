@@ -39,16 +39,16 @@ sorted l  = sort l == l
 
 main :: IO ()
 main  = let
-	  keys = toListFM result
-	in
+          keys = toListFM result
+        in
 --        print ((toListFM . listToFM) [(6758, ()), (7142, ()), (7014, ()), (6886, ()), (792806, ())]) >>
-	print "Test for `FiniteMaps': unordered bug"	>>
-        print "===================================="	>>
-	newline						>>
-        print (keys)					>>
-	if (sorted keys)
-	then
-	  print "OK!"
+        print "Test for `FiniteMaps': unordered bug"    >>
+        print "===================================="    >>
+        newline                                         >>
+        print (keys)                                    >>
+        if (sorted keys)
+        then
+          print "OK!"
         else
-	  print "ERROR: Above list is unordered!"
+          print "ERROR: Above list is unordered!"
 

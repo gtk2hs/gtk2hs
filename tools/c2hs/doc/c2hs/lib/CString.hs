@@ -52,8 +52,8 @@ import Int
 -- representation of strings in C
 -- ------------------------------
 
-type CString    = Ptr CChar		-- conventional NUL terminates strings
-type CStringLen = (CString, Int)	-- strings with explicit length
+type CString    = Ptr CChar             -- conventional NUL terminates strings
+type CStringLen = (CString, Int)        -- strings with explicit length
 
 
 -- exported functions

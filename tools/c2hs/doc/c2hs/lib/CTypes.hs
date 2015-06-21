@@ -23,34 +23,34 @@ import Storable (Storable(..))
 -- the exact representations are architecture dependent
 
 newtype CChar    = CChar   WordInt8            -- char
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CSChar   = CSChar  Int8                -- signed char
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CUChar   = CUChar  Word8               -- unsigned char
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CShort   = CShort  IntXY               -- short
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
-newtype CUShort  = CUShort WordXY	       -- unsigned short
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+newtype CUShort  = CUShort WordXY              -- unsigned short
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CInt     = CInt    IntXY               -- int
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CUInt    = CUInt   WordXY              -- unsigned int
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CLong    = CLong   IntXY               -- long
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CULong   = CULong  WordXY              -- unsigned long
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CLLong   = CLLong  IntXY               -- long long
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 newtype CULLong  = CULLong WordXY              -- unsigned long long
-		 deriving (Eq, Ord, Enum, Bounded, Show, Read)
+                 deriving (Eq, Ord, Enum, Bounded, Show, Read)
 
 newtype CFloat   = CFloat   ...                 -- float
-		 deriving (Eq, Ord, Enum, Show, Read)
+                 deriving (Eq, Ord, Enum, Show, Read)
 newtype CDouble  = CDouble  ...                 -- double
-		 deriving (Eq, Ord, Enum, Show, Read)
+                 deriving (Eq, Ord, Enum, Show, Read)
 newtype CLDouble = CLDouble ...                 -- long double
-		 deriving (Eq, Ord, Enum, Show, Read)
+                 deriving (Eq, Ord, Enum, Show, Read)
 
 instance Num      CChar   where ...
 instance Real     CChar   where ...

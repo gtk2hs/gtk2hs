@@ -38,17 +38,17 @@
 --
 
 module C2HSState (-- re-exports all of `State'
-		  --
-		  module State,
-		  --
-		  -- instantiation of `PreCST' with C2HS's extra state
-		  --
-		  CST, runC2HS,
-		  --
-		  -- switches
-		  --
-		  SwitchBoard(..), Traces(..), setTraces, traceSet,
-		  putTraceStr, setSwitch, getSwitch) 
+                  --
+                  module State,
+                  --
+                  -- instantiation of `PreCST' with C2HS's extra state
+                  --
+                  CST, runC2HS,
+                  --
+                  -- switches
+                  --
+                  SwitchBoard(..), Traces(..), setTraces, traceSet,
+                  putTraceStr, setSwitch, getSwitch) 
 where
 
 import Control.Monad    (when)
@@ -56,7 +56,7 @@ import Control.Monad    (when)
 import State
 
 import Switches (SwitchBoard(..), Traces(..), 
-		 initialSwitchBoard)
+                 initialSwitchBoard)
 
 
 -- instantiation of the extra state
@@ -90,9 +90,9 @@ traceSet t  = readExtra (t . tracesSB)
 --
 putTraceStr       :: (Traces -> Bool) -> String -> CST s ()
 putTraceStr t msg  = do
-		       set <- traceSet t
-		       when set $
-			 hPutStrCIO stderr msg
+                       set <- traceSet t
+                       when set $
+                         hPutStrCIO stderr msg
 
 -- set a switch value
 --

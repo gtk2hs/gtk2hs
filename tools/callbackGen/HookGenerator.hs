@@ -13,29 +13,29 @@ import Paths_gtk2hs_buildtools (getDataFileName)
 
 -- Define all possible data types the GTK will supply in callbacks.
 --
-data Types = Tunit		-- ()
-	   | Tbool		-- Bool
-	   | Tchar
-	   | Tuchar
-	   | Tint		-- Int
-	   | Tuint
-	   | Tlong
-	   | Tulong
-	   | Tenum
-	   | Tflags
-	   | Tfloat
-	   | Tdouble
-	   | Tstring
+data Types = Tunit              -- ()
+           | Tbool              -- Bool
+           | Tchar
+           | Tuchar
+           | Tint               -- Int
+           | Tuint
+           | Tlong
+           | Tulong
+           | Tenum
+           | Tflags
+           | Tfloat
+           | Tdouble
+           | Tstring
            | Tmstring
            | Tgstring
            | Tmgstring
-	   | Tboxed  		-- a struct which is passed by value
-	   | Tptr		-- pointer
-	   | Ttobject		-- foreign with WidgetClass context
-	   | Tmtobject		-- foreign with WidgetClass context using a Maybe type
-	   | Tobject		-- foreign with GObjectClass context
-	   | Tmobject		-- foreign with GObjectClass context using a Maybe type
-	   deriving Eq
+           | Tboxed             -- a struct which is passed by value
+           | Tptr               -- pointer
+           | Ttobject           -- foreign with WidgetClass context
+           | Tmtobject          -- foreign with WidgetClass context using a Maybe type
+           | Tobject            -- foreign with GObjectClass context
+           | Tmobject           -- foreign with GObjectClass context using a Maybe type
+           deriving Eq
 
 type Signature = (Types,[Types])
 type Signatures = [Signature]
@@ -48,9 +48,9 @@ parseSignatures :: String -> Signatures
 parseSignatures content = (nub.parseSig 1.scan) content
 
 data Token = TokColon
-	   | TokType Types
-	   | TokComma
-	   | TokEOL
+           | TokType Types
+           | TokComma
+           | TokEOL
 
 instance Show Token where
   showsPrec _ TokColon = shows ":"
@@ -67,8 +67,8 @@ parseSig l (TokType ret: TokColon: rem) =
   let (args,rem') = parseArg l rem in
   (ret,args): parseSig (l+1) rem'
 parseSig l rem = error ("parse error on line "++show l++
-		       ": expected type and colon, found\n"++
-		       concatMap show (take 5 rem))
+                       ": expected type and colon, found\n"++
+                       concatMap show (take 5 rem))
 
 parseArg :: Int -> [Token] -> ([Types],[Token])
 parseArg l [TokType ty] = ([ty],[])
@@ -78,7 +78,7 @@ parseArg l (TokType ty: TokComma:rem) =
   (ty:args, rem')
 parseArg l rem = error ("parse error on line "++show l++": expected type"++
                         " followed by comma or EOL, found\n "++
-		       concatMap show (take 5 rem))
+                       concatMap show (take 5 rem))
 
 scan :: String -> [Token]
 scan "" = []
@@ -113,7 +113,7 @@ scan ('M':'O':'B':'J':'E':'C':'T':xs) = TokType Tmobject:scan xs
 scan ('N':'O':'N':'E':xs) = TokType Tunit:scan xs
 scan ('B':'O':'O':'L':xs) = TokType Tbool:scan xs
 scan str = error ("Invalid character in input file:\n"++
-	   concatMap ((flip showLitChar) "") (take 5 str))
+           concatMap ((flip showLitChar) "") (take 5 str))
 
 
 -------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ identifier Tunit    = ss "NONE"
 identifier Tbool    = ss "BOOL"
 identifier Tchar    = ss "CHAR"
 identifier Tuchar   = ss "UCHAR"
-identifier Tint	    = ss "INT"
+identifier Tint     = ss "INT"
 identifier Tuint    = ss "WORD"
 identifier Tlong    = ss "LONG"
 identifier Tulong   = ss "ULONG"
@@ -148,7 +148,7 @@ identifier Tmstring = ss "MSTRING"
 identifier Tgstring = ss "GLIBSTRING"
 identifier Tmgstring = ss "MGLIBSTRING"
 identifier Tboxed   = ss "BOXED"
-identifier Tptr	    = ss "PTR"
+identifier Tptr     = ss "PTR"
 identifier Ttobject  = ss "OBJECT"
 identifier Tmtobject = ss "MOBJECT"
 identifier Tobject  = ss "OBJECT"
@@ -162,7 +162,7 @@ rawtype Tunit    = ss "()"
 rawtype Tbool    = ss "Bool"
 rawtype Tchar    = ss "Char"
 rawtype Tuchar   = ss "Char"
-rawtype Tint	 = ss "Int"
+rawtype Tint     = ss "Int"
 rawtype Tuint    = ss "Word"
 rawtype Tlong    = ss "Int"
 rawtype Tulong   = ss "Word"
@@ -175,7 +175,7 @@ rawtype Tmstring  = ss "CString"
 rawtype Tgstring  = ss "CString"
 rawtype Tmgstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
-rawtype Tptr	 = ss "Ptr ()"
+rawtype Tptr     = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
 rawtype Tmtobject  = ss "Ptr GObject"
 rawtype Tobject  = ss "Ptr GObject"
@@ -190,7 +190,7 @@ rawtype Tunit    = ss "()"
 rawtype Tbool    = ss "{#type gboolean#}"
 rawtype Tchar    = ss "{#type gchar#}"
 rawtype Tuchar   = ss "{#type guchar#}"
-rawtype Tint	   = ss "{#type gint#}"
+rawtype Tint       = ss "{#type gint#}"
 rawtype Tuint    = ss "{#type guint#}"
 rawtype Tlong    = ss "{#type glong#}"
 rawtype Tulong   = ss "{#type gulong#}"
@@ -203,7 +203,7 @@ rawtype Tmstring  = ss "CString"
 rawtype Tgstring  = ss "CString"
 rawtype Tmgstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
-rawtype Tptr	   = ss "Ptr ()"
+rawtype Tptr       = ss "Ptr ()"
 rawtype Ttobject  = ss "Ptr GObject"
 rawtype Tmtobject = ss "Ptr GObject"
 rawtype Tobject  = ss "Ptr GObject"
@@ -213,24 +213,24 @@ rawtype Tmobject = ss "Ptr GObject"
 
 -- The possibly polymorphic type which
 usertype :: Types -> [Char] -> (ShowS,[Char])
-usertype Tunit	  cs = (ss "()",cs)
-usertype Tbool	  (c:cs) = (ss "Bool",cs)
-usertype Tchar	  (c:cs) = (ss "Char",cs)
-usertype Tuchar	  (c:cs) = (ss "Char",cs)
-usertype Tint	  (c:cs) = (ss "Int",cs)
-usertype Tuint	  (c:cs) = (ss "Word",cs)
-usertype Tlong	  (c:cs) = (ss "Int",cs)
-usertype Tulong	  (c:cs) = (ss "Int",cs)
-usertype Tenum	  (c:cs) = (sc c,cs)
+usertype Tunit    cs = (ss "()",cs)
+usertype Tbool    (c:cs) = (ss "Bool",cs)
+usertype Tchar    (c:cs) = (ss "Char",cs)
+usertype Tuchar   (c:cs) = (ss "Char",cs)
+usertype Tint     (c:cs) = (ss "Int",cs)
+usertype Tuint    (c:cs) = (ss "Word",cs)
+usertype Tlong    (c:cs) = (ss "Int",cs)
+usertype Tulong   (c:cs) = (ss "Int",cs)
+usertype Tenum    (c:cs) = (sc c,cs)
 usertype Tflags   cs = usertype Tenum cs
-usertype Tfloat	  (c:cs) = (ss "Float",cs)
+usertype Tfloat   (c:cs) = (ss "Float",cs)
 usertype Tdouble  (c:cs) = (ss "Double",cs)
 usertype Tstring  (c:cs) = (ss "String",cs)
 usertype Tmstring  (c:cs) = (ss "Maybe String",cs)
 usertype Tgstring  (c:cs) = (sc c.sc '\'',cs)
 usertype Tmgstring  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 usertype Tboxed   (c:cs) = (sc c,cs)
-usertype Tptr	  (c:cs) = (ss "Ptr ".sc c,cs)
+usertype Tptr     (c:cs) = (ss "Ptr ".sc c,cs)
 usertype Ttobject  (c:cs) = (sc c.sc '\'',cs)
 usertype Tmtobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 usertype Tobject  (c:cs) = (sc c.sc '\'',cs)
@@ -251,22 +251,22 @@ context (Tobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tmobject:ts)  (c:cs) = ss "GObjectClass ".sc c.sc '\'': context ts cs
 context (Tgstring:ts)  (c:cs) = ss "Glib.GlibString ".sc c.sc '\'': context ts cs
 context (Tmgstring:ts)  (c:cs) = ss "Glib.GlibString ".sc c.sc '\'': context ts cs
-context (_:ts)	      (c:cs) = context ts cs
-context []	      _	     = []
+context (_:ts)        (c:cs) = context ts cs
+context []            _      = []
 
 
 marshType :: [Types] -> [Char] -> [ShowS]
 marshType (Tint:ts)     (c:cs) = marshType ts cs
-marshType (Tuint:ts)	(c:cs) = marshType ts cs
-marshType (Tenum:ts)	(c:cs) = marshType ts cs
-marshType (Tflags:ts)	cs     = marshType (Tenum:ts) cs
-marshType (Tboxed:ts)	(c:cs) = ss "(Ptr ".sc c.ss "' -> IO ".
-				 sc c.ss ") -> ":
-				 marshType ts cs
-marshType (Tptr:ts)	(c:cs) = marshType ts cs
-marshType (Tobject:ts)	(c:cs) = marshType ts cs
+marshType (Tuint:ts)    (c:cs) = marshType ts cs
+marshType (Tenum:ts)    (c:cs) = marshType ts cs
+marshType (Tflags:ts)   cs     = marshType (Tenum:ts) cs
+marshType (Tboxed:ts)   (c:cs) = ss "(Ptr ".sc c.ss "' -> IO ".
+                                 sc c.ss ") -> ":
+                                 marshType ts cs
+marshType (Tptr:ts)     (c:cs) = marshType ts cs
+marshType (Tobject:ts)  (c:cs) = marshType ts cs
 marshType (_:ts)        (c:cs) = marshType ts cs
-marshType []		_      = []
+marshType []            _      = []
 
 -- arguments for user defined marshalling
 
@@ -274,25 +274,25 @@ type ArgNo = Int
 
 marshArg :: Types -> ArgNo -> ShowS
 marshArg Tboxed   c = ss "boxedPre".shows c.sc ' '
-marshArg _	  _ = id
+marshArg _        _ = id
 
 -- generate a name for every passed argument,
 nameArg :: Types -> ArgNo -> ShowS
-nameArg Tunit	 _ = id
-nameArg Tbool	 c = ss "bool".shows c
+nameArg Tunit    _ = id
+nameArg Tbool    c = ss "bool".shows c
 nameArg Tchar    c = ss "char".shows c
 nameArg Tuchar   c = ss "char".shows c
-nameArg Tint	 c = ss "int".shows c
-nameArg Tuint	 c = ss "int".shows c
-nameArg Tlong	 c = ss "long".shows c
-nameArg Tulong	 c = ss "long".shows c
-nameArg Tenum	 c = ss "enum".shows c
-nameArg Tflags	 c = ss "flags".shows c
-nameArg Tfloat	 c = ss "float".shows c
-nameArg Tdouble	 c = ss "double".shows c
-nameArg Tstring	 c = ss "str".shows c
+nameArg Tint     c = ss "int".shows c
+nameArg Tuint    c = ss "int".shows c
+nameArg Tlong    c = ss "long".shows c
+nameArg Tulong   c = ss "long".shows c
+nameArg Tenum    c = ss "enum".shows c
+nameArg Tflags   c = ss "flags".shows c
+nameArg Tfloat   c = ss "float".shows c
+nameArg Tdouble  c = ss "double".shows c
+nameArg Tstring  c = ss "str".shows c
 nameArg Tmstring c = ss "str".shows c
-nameArg Tgstring	 c = ss "str".shows c
+nameArg Tgstring         c = ss "str".shows c
 nameArg Tmgstring c = ss "str".shows c
 nameArg Tboxed   c = ss "box".shows c
 nameArg Tptr     c = ss "ptr".shows c
@@ -308,14 +308,14 @@ nameArg Tmobject  c = ss "obj".shows c
 #ifdef USE_GCLOSURE_SIGNALS_IMPL
 
 marshExec :: Types -> ShowS -> Int -> (ShowS -> ShowS)
-marshExec Tbool	  arg _ body = body. sc ' '. arg
-marshExec Tchar	  arg _ body = body. sc ' '. arg
+marshExec Tbool   arg _ body = body. sc ' '. arg
+marshExec Tchar   arg _ body = body. sc ' '. arg
 marshExec Tuchar  arg _ body = body. sc ' '. arg
-marshExec Tint	  arg _ body = body. sc ' '. arg
-marshExec Tuint	  arg _ body = body. sc ' '. arg
-marshExec Tlong	  arg _ body = body. sc ' '. arg
+marshExec Tint    arg _ body = body. sc ' '. arg
+marshExec Tuint   arg _ body = body. sc ' '. arg
+marshExec Tlong   arg _ body = body. sc ' '. arg
 marshExec Tulong  arg _ body = body. sc ' '. arg
-marshExec Tenum	  arg _ body = body. ss " (toEnum ". arg. sc ')'
+marshExec Tenum   arg _ body = body. ss " (toEnum ". arg. sc ')'
 marshExec Tflags  arg _ body = body. ss " (toFlags ". arg. sc ')'
 marshExec Tfloat  arg _ body = body. sc ' '. arg
 marshExec Tdouble arg _ body = body. sc ' '. arg
@@ -329,7 +329,7 @@ marshExec Tmgstring arg _ body = indent 5. ss "maybePeekUTFString ". arg. ss " >
                                body. sc ' '. arg. sc '\''
 marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castPtr ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. sc ' '. arg. sc '\''
-marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
+marshExec Tptr    arg _ body = body. ss " (castPtr ". arg. sc ')'
 marshExec Ttobject arg _ body = indent 5.ss "makeNewGObject (GObject, objectUnrefFromMainloop) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. ss " (unsafeCastGObject ". arg. ss "\')"
 marshExec Tmtobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject, objectUnrefFromMainloop)) (return ". arg. ss ") >>= \\". arg. ss "\' ->".
@@ -340,15 +340,15 @@ marshExec Tmobject arg _ body = indent 5.ss "maybeNull (makeNewGObject (GObject,
                                body. ss " (liftM unsafeCastGObject ". arg. ss "\')"
 
 marshRet :: Types -> (ShowS -> ShowS)
-marshRet Tunit	 body = body
-marshRet Tbool	 body = body
-marshRet Tint	 body = body
-marshRet Tuint	 body = body
-marshRet Tlong	 body = body
-marshRet Tulong	 body = body
-marshRet Tenum	 body = indent 5. ss "liftM fromEnum $ ". body
-marshRet Tflags	 body = indent 5. ss "liftM fromFlags $ ". body
-marshRet Tfloat	 body = body
+marshRet Tunit   body = body
+marshRet Tbool   body = body
+marshRet Tint    body = body
+marshRet Tuint   body = body
+marshRet Tlong   body = body
+marshRet Tulong  body = body
+marshRet Tenum   body = indent 5. ss "liftM fromEnum $ ". body
+marshRet Tflags  body = indent 5. ss "liftM fromFlags $ ". body
+marshRet Tfloat  body = body
 marshRet Tdouble body = body
 marshRet Tstring body = body. indent 5. ss ">>= newUTFString"
 marshRet Tgstring body = body. indent 5. ss ">>= newUTFString"
@@ -358,60 +358,60 @@ marshRet _       _    = error "Signal handlers cannot return structured types."
 #else
 
 marshExec :: Types -> ArgNo -> ShowS
-marshExec Tbool	  n = indent 4.ss "let bool".shows n.
-		      ss "' = toBool bool".shows n
-marshExec Tchar	  n = indent 4.ss "let char".shows n.
-		      ss "' = (toEnum.fromEnum) char".shows n
+marshExec Tbool   n = indent 4.ss "let bool".shows n.
+                      ss "' = toBool bool".shows n
+marshExec Tchar   n = indent 4.ss "let char".shows n.
+                      ss "' = (toEnum.fromEnum) char".shows n
 marshExec Tuchar  n = indent 4.ss "let char".shows n.
-		      ss "' = (toEnum.fromEnum) char".shows n
-marshExec Tint	  n = indent 4.ss "let int".shows n.
-		      ss "' = fromIntegral int".shows n
-marshExec Tuint	  n = indent 4.ss "let int".shows n.
-		      ss "' = fromIntegral int".shows n
-marshExec Tlong	  n = indent 4.ss "let long".shows n.
-		      ss "' = toInteger long".shows n
+                      ss "' = (toEnum.fromEnum) char".shows n
+marshExec Tint    n = indent 4.ss "let int".shows n.
+                      ss "' = fromIntegral int".shows n
+marshExec Tuint   n = indent 4.ss "let int".shows n.
+                      ss "' = fromIntegral int".shows n
+marshExec Tlong   n = indent 4.ss "let long".shows n.
+                      ss "' = toInteger long".shows n
 marshExec Tulong  n = indent 4.ss "let long".shows n.
-		      ss "' = toInteger long".shows n
-marshExec Tenum	  n = indent 4.ss "let enum".shows n.
-		      ss "' = (toEnum.fromEnum) enum".shows n
+                      ss "' = toInteger long".shows n
+marshExec Tenum   n = indent 4.ss "let enum".shows n.
+                      ss "' = (toEnum.fromEnum) enum".shows n
 marshExec Tflags  n = indent 4.ss "let flags".shows n.
-		      ss "' = (toEnum.fromEnum) flags".shows n
+                      ss "' = (toEnum.fromEnum) flags".shows n
 marshExec Tfloat  n = indent 4.ss "let float".shows n.
-		      ss "' = (fromRational.toRational) float".shows n
+                      ss "' = (fromRational.toRational) float".shows n
 marshExec Tdouble n = indent 4.ss "let double".shows n.
-		      ss "' = (fromRational.toRational) double".shows n
+                      ss "' = (fromRational.toRational) double".shows n
 marshExec Tstring n = indent 4.ss "str".shows n.
-		      ss "' <- peekCString str".shows n
+                      ss "' <- peekCString str".shows n
 marshExec Tmstring n = indent 4.ss "str".shows n.
-		      ss "' <- maybePeekCString str".shows n
+                      ss "' <- maybePeekCString str".shows n
 marshExec Tgstring n = indent 4.ss "str".shows n.
-		      ss "' <- peekCString str".shows n
+                      ss "' <- peekCString str".shows n
 marshExec Tmgstring n = indent 4.ss "str".shows n.
-		      ss "' <- maybePeekCString str".shows n
+                      ss "' <- maybePeekCString str".shows n
 marshExec Tboxed  n = indent 4.ss "box".shows n.ss "' <- boxedPre".
-		      shows n.ss " $ castPtr box".shows n
-marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
-		      shows n
+                      shows n.ss " $ castPtr box".shows n
+marshExec Tptr    n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
+                      shows n
 marshExec Ttobject n = indent 4.ss "objectRef obj".shows n.
-		      indent 4.ss "obj".shows n.
-		      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
-		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
+                      indent 4.ss "obj".shows n.
+                      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
+                      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
 marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
-		      indent 4.ss "obj".shows n.
-		      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
-		      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
-marshExec _	  _ = id
+                      indent 4.ss "obj".shows n.
+                      ss "' <- liftM (unsafeCastGObject. fst mkGObject) $".
+                      indent 5.ss "newForeignPtr obj".shows n.ss " (snd mkGObject)"
+marshExec _       _ = id
 
 marshRet :: Types -> ShowS
-marshRet Tunit	  = ss "id"
-marshRet Tbool	  = ss "fromBool"
-marshRet Tint	  = ss "fromIntegral"
-marshRet Tuint	  = ss "fromIntegral"
-marshRet Tlong	  = ss "fromIntegral"
-marshRet Tulong	  = ss "fromIntegral"
-marshRet Tenum	  = ss "(toEnum.fromEnum)"
-marshRet Tflags	  = ss "fromFlags"
-marshRet Tfloat	  = ss "(toRational.fromRational)"
+marshRet Tunit    = ss "id"
+marshRet Tbool    = ss "fromBool"
+marshRet Tint     = ss "fromIntegral"
+marshRet Tuint    = ss "fromIntegral"
+marshRet Tlong    = ss "fromIntegral"
+marshRet Tulong   = ss "fromIntegral"
+marshRet Tenum    = ss "(toEnum.fromEnum)"
+marshRet Tflags   = ss "fromFlags"
+marshRet Tfloat   = ss "(toRational.fromRational)"
 marshRet Tdouble  = ss "(toRational.fromRational)"
 marshRet Tptr     = ss "castPtr"
 marshRet _  = ss "(error \"Signal handlers cannot return structured types.\")"
@@ -425,8 +425,8 @@ marshRet _  = ss "(error \"Signal handlers cannot return structured types.\")"
 mkUserType :: Signature -> ShowS
 mkUserType (ret,ts) = let
   (str,cs) = foldl (\(str,cs) t ->
-	    let (str',cs') = usertype t cs in (str.str'.ss " -> ",cs'))
-	    (sc '(',['a'..]) ts
+            let (str',cs') = usertype t cs in (str.str'.ss " -> ",cs'))
+            (sc '(',['a'..]) ts
   (str',_) = usertype ret cs
   str'' = if ' ' `elem` (str' "") then (sc '('.str'.sc ')') else str'
   in str.ss "IO ".str''.sc ')'
@@ -459,14 +459,14 @@ mkMarshExec (ret,ts) = foldl (\body marshaler -> marshaler body) (indent 5.ss "u
 
 mkMarshExec :: Signature -> ShowS
 mkMarshExec (_,ts) = foldl (.) id $
-		     zipWith marshExec ts [1..]
+                     zipWith marshExec ts [1..]
 
 #endif
 
 mkIdentifier :: Signature -> ShowS
 mkIdentifier (ret,[]) = identifier Tunit . ss "__".identifier ret
 mkIdentifier (ret,ts) = foldl1 (\a b -> a.sc '_'.b) (map identifier ts).
-			ss "__".identifier ret
+                        ss "__".identifier ret
 
 mkRawtype :: Signature -> ShowS
 mkRawtype (ret,ts) =
@@ -482,13 +482,13 @@ mkRawtype (ret,ts) =
 
 mkLambdaArgs :: Signature -> ShowS
 mkLambdaArgs (_,ts) = foldl (.) id $
-		      zipWith (\a b -> nameArg a b.sc ' ') ts [1..]
+                      zipWith (\a b -> nameArg a b.sc ' ') ts [1..]
 
 #ifndef USE_GCLOSURE_SIGNALS_IMPL
 
 mkFuncArgs :: Signature -> ShowS
 mkFuncArgs (_,ts) = foldl (.) id $
-		    zipWith (\a b -> sc ' '.nameArg a b.sc '\'') ts [1..]
+                    zipWith (\a b -> sc ' '.nameArg a b.sc '\'') ts [1..]
 
 mkMarshRet :: Signature -> ShowS
 mkMarshRet (ret,_) = marshRet ret
@@ -518,13 +518,13 @@ main = do
                             filter ("--help" `isPrefixOf`) args)) || null args
   if showHelp then usage else do
   let outModuleName = case map (drop 10) (filter ("--modname=" `isPrefixOf`)  args) of
-		        (modName:_) -> modName
+                        (modName:_) -> modName
   templateFile <- case map (drop 11) (filter ("--template=" `isPrefixOf`)  args) of
-		    [tplName] -> return tplName
-  		    _ -> getDataFileName "callbackGen/Signal.chs.template"
+                    [tplName] -> return tplName
+                    _ -> getDataFileName "callbackGen/Signal.chs.template"
   typesFile <- case map (drop 8) (filter ("--types=" `isPrefixOf`)  args) of
-		 [typName] -> return typName
-  		 _ -> usage
+                 [typName] -> return typName
+                 _ -> usage
   let extraImports = map (drop 9) (filter ("--import=" `isPrefixOf`) args)
   content <- readFile typesFile
   let sigs = parseSignatures content

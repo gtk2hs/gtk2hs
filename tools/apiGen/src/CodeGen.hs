@@ -113,44 +113,44 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
   $$ nest 2 codebody
 
   where functionName = cFuncNameToHsName (method_cname method)
-	(classConstraints, paramTypes', paramMarshalers) =
-	  unzip3 [ case genMarshalParameter knownSymbols (method_cname method)
+        (classConstraints, paramTypes', paramMarshalers) =
+          unzip3 [ case genMarshalParameter knownSymbols (method_cname method)
                           (changeIllegalNames (cParamNameToHsName (Api.parameter_name p)))
-	                  (Api.parameter_type p) of
+                          (Api.parameter_type p) of
                      (c, ty, m) -> (c, (ty, Api.parameter_name p), m)
-		 | p <- method_parameters method ]
-	inParamTypes = [ (paramType, lookup name paramDocMap)
+                 | p <- method_parameters method ]
+        inParamTypes = [ (paramType, lookup name paramDocMap)
                      | (InParam paramType, name) <- paramTypes' ]
-	inParamNames = [ changeIllegalNames (cParamNameToHsName (Api.parameter_name p))
-		     | ((InParam _, _), p) <- zip paramTypes' (method_parameters method) ]
-	outParamTypes = [ (paramType, lookup name paramDocMap)
+        inParamNames = [ changeIllegalNames (cParamNameToHsName (Api.parameter_name p))
+                     | ((InParam _, _), p) <- zip paramTypes' (method_parameters method) ]
+        outParamTypes = [ (paramType, lookup name paramDocMap)
                         | (OutParam paramType, name) <- paramTypes' ]
         formattedParamNames = hsep $ map text inParamNames
-	(returnType', returnMarshaler) =
-		genMarshalResult knownSymbols (method_cname method)
+        (returnType', returnMarshaler) =
+                genMarshalResult knownSymbols (method_cname method)
                                   (method_is_constructor method) (method_return_type method)
         returnType | null outParamTypes  = ("IO " ++ returnType', lookup "Returns" paramDocMap)
-		   | otherwise = case unzip outParamTypes of
+                   | otherwise = case unzip outParamTypes of
                                    (types', docs') ->
-				     let types | returnType' == "()" = types'
-				               | otherwise           = returnType' : types'
-					 docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
-				      in (case types of
-				            [t] -> "IO " ++ t
-					    _   -> "IO (" ++ concat (intersperse ", " types) ++ ")"
-					 ,docs)
-	(outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
+                                     let types | returnType' == "()" = types'
+                                               | otherwise           = returnType' : types'
+                                         docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
+                                      in (case types of
+                                            [t] -> "IO " ++ t
+                                            _   -> "IO (" ++ concat (intersperse ", " types) ++ ")"
+                                         ,docs)
+        (outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
              unzip3 [ genMarshalOutParameter outParamType (changeIllegalNames (cParamNameToHsName name))
                     | (OutParam outParamType, name) <- paramTypes' ]
         returnOutParams body | null outParamTypes = body
                              | otherwise = body
                                         $$ text "return" <+> tuple' returnOutParamFragments
-	codebody = foldl (\body marshaler -> marshaler body)
+        codebody = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers
                        ++ [ (\body -> frag $$ body) | frag <- reverse outParamMarshalersBefore ]
                        ++ [ (\body -> body $$ frag) | frag <- outParamMarshalersAfter ]
                        ++ [returnMarshaler,returnOutParams])
-	call = genCall (fromMaybe (method_cname method) (method_shortcname method))
+        call = genCall (fromMaybe (method_cname method) (method_shortcname method))
                        (method_is_unsafe_ffi method)
         docNullsAllFixed = maybeNullResult (method_cname method)
                         || or [ maybeNullParameter (method_cname method) (cParamNameToHsName (Api.parameter_name p))
@@ -162,13 +162,13 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
                                 ,SpanText " - "]
                          ) ++ paragraph)
                       | (name, paragraph) <- method_param_docs method
-		      , not $ nukeParameterDocumentation
+                      , not $ nukeParameterDocumentation
                                 (method_cname method)
                                 (cParamNameToHsName name) ]
 
         classContext = case catMaybes classConstraints of
-	                 []  -> empty
-			 cs  -> tuple (map text cs) <+> text "=>"
+                         []  -> empty
+                         cs  -> tuple (map text cs) <+> text "=>"
 
         (firstLineParams, multiLineParams) = span (isNothing.snd) (inParamTypes ++ [returnType])
 
@@ -459,7 +459,7 @@ genAtter Decl { decl_module = module_ }
               | gt == st              -> (text "Attr",          text "newAttr", text gt)
               | length (words st) > 1 -> (text "ReadWriteAttr", text "newAttr", text gt <+> parens (text st))
               | otherwise             -> (text "ReadWriteAttr", text "newAttr", text gt <+> text st)
-	    _ -> error $ "no getter or setter for " ++ module_name module_ ++ " :: " ++ propertyName
+            _ -> error $ "no getter or setter for " ++ module_name module_ ++ " :: " ++ propertyName
         child | isChild   = text "child" <+> text "->"
               | otherwise = empty
         body  = case attrImpl of

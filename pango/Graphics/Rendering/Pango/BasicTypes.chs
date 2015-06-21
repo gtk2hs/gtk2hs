@@ -119,27 +119,27 @@ languageFromString language = liftM Language $
 {#enum Style as FontStyle {underscoreToCase} deriving (Eq)#}
 
 instance Show FontStyle where
-  showsPrec _ StyleNormal	   = shows "normal"
-  showsPrec _ StyleOblique	   = shows "oblique"
-  showsPrec _ StyleItalic	   = shows "italic"
+  showsPrec _ StyleNormal          = shows "normal"
+  showsPrec _ StyleOblique         = shows "oblique"
+  showsPrec _ StyleItalic          = shows "italic"
 
 -- | Define attributes for 'Weight'.
 --
 {#enum Weight {underscoreToCase} deriving (Eq)#}
 
 instance Show Weight where
-  showsPrec _ WeightUltralight	= shows "ultralight"
-  showsPrec _ WeightLight	= shows "light"
-  showsPrec _ WeightNormal	= shows "normal"
-  showsPrec _ WeightSemibold	= shows "semibold"
-  showsPrec _ WeightBold	= shows "bold"
-  showsPrec _ WeightUltrabold 	= shows "ultrabold"
-  showsPrec _ WeightHeavy	= shows "heavy"
+  showsPrec _ WeightUltralight  = shows "ultralight"
+  showsPrec _ WeightLight       = shows "light"
+  showsPrec _ WeightNormal      = shows "normal"
+  showsPrec _ WeightSemibold    = shows "semibold"
+  showsPrec _ WeightBold        = shows "bold"
+  showsPrec _ WeightUltrabold   = shows "ultrabold"
+  showsPrec _ WeightHeavy       = shows "heavy"
 #if PANGO_VERSION_CHECK(1,24,0)
-  showsPrec _ WeightThin	= shows "thin"
-  showsPrec _ WeightBook	= shows "book"
-  showsPrec _ WeightMedium	= shows "medium"
-  showsPrec _ WeightUltraheavy	= shows "ultraheavy"
+  showsPrec _ WeightThin        = shows "thin"
+  showsPrec _ WeightBook        = shows "book"
+  showsPrec _ WeightMedium      = shows "medium"
+  showsPrec _ WeightUltraheavy  = shows "ultraheavy"
 #endif
 
 -- | The variant of a font.
@@ -158,15 +158,15 @@ instance Show Variant where
 {#enum Stretch {underscoreToCase} deriving (Eq)#}
 
 instance Show Stretch where
-  showsPrec _ StretchUltraCondensed	= shows "ultracondensed"
-  showsPrec _ StretchExtraCondensed	= shows "extracondensed"
-  showsPrec _ StretchCondensed		= shows "condensed"
-  showsPrec _ StretchSemiCondensed	= shows "semicondensed"
-  showsPrec _ StretchNormal		= shows "normal"
-  showsPrec _ StretchSemiExpanded	= shows "semiexpanded"
-  showsPrec _ StretchExpanded		= shows "expanded"
-  showsPrec _ StretchExtraExpanded	= shows "extraexpanded"
-  showsPrec _ StretchUltraExpanded	= shows "ultraexpanded"
+  showsPrec _ StretchUltraCondensed     = shows "ultracondensed"
+  showsPrec _ StretchExtraCondensed     = shows "extracondensed"
+  showsPrec _ StretchCondensed          = shows "condensed"
+  showsPrec _ StretchSemiCondensed      = shows "semicondensed"
+  showsPrec _ StretchNormal             = shows "normal"
+  showsPrec _ StretchSemiExpanded       = shows "semiexpanded"
+  showsPrec _ StretchExpanded           = shows "expanded"
+  showsPrec _ StretchExtraExpanded      = shows "extraexpanded"
+  showsPrec _ StretchUltraExpanded      = shows "ultraexpanded"
 
 -- | Define attributes for 'Underline'.
 --
@@ -175,11 +175,11 @@ instance Show Stretch where
 {#enum Underline {underscoreToCase} deriving (Eq)#}
 
 instance Show Underline where
-  showsPrec _ UnderlineNone	= shows "none"
-  showsPrec _ UnderlineSingle	= shows "single"
-  showsPrec _ UnderlineDouble	= shows "double"
-  showsPrec _ UnderlineLow	= shows "low"
-  showsPrec _ UnderlineError	= shows "error"
+  showsPrec _ UnderlineNone     = shows "none"
+  showsPrec _ UnderlineSingle   = shows "single"
+  showsPrec _ UnderlineDouble   = shows "double"
+  showsPrec _ UnderlineLow      = shows "low"
+  showsPrec _ UnderlineError    = shows "error"
 
 #if PANGO_VERSION_CHECK(1,16,0)
 -- |  The 'PangoGravity' type represents the orientation of glyphs in a
@@ -243,7 +243,7 @@ makeNewPangoString str = do
   liftM (PangoString correct cLen) $ newForeignPtr strPtr finalizerFree
 
 withPangoString :: PangoString ->
-		   (UTFCorrection -> CInt -> Ptr CChar -> IO a) -> IO a
+                   (UTFCorrection -> CInt -> Ptr CChar -> IO a) -> IO a
 withPangoString (PangoString c l ptr) act = withForeignPtr ptr $ \strPtr ->
   act c l strPtr
 

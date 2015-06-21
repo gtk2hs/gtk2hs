@@ -74,7 +74,7 @@ data SpanAttribute
   -- | Specify the family of font to use.
   --
   -- * Example: @FontFamily@ \"Sans\"
-  | FontFamily	String
+  | FontFamily  String
 
   -- | Change the size of the current font.
   --
@@ -116,7 +116,7 @@ data SpanAttribute
   --   hex code of the form \"#RRGGBB\" or an X11 color name like
   --   \"dark olive green\".
   --
-  | FontForeground String	-- FIXME: should be ColorName from GDK or so
+  | FontForeground String       -- FIXME: should be ColorName from GDK or so
 
   -- | Background color.
   | FontBackground String
@@ -129,14 +129,14 @@ data SpanAttribute
   --
   -- * Takes the vertical displacement in em (the width of the \'m\' character
   --   in the current font).
-  | FontRise	Double
+  | FontRise    Double
 
   -- | Give a hint about the language to be displayed.
   --
   -- * This hint might help the system rendering a particular piece of text
   --   with different fonts that are more suitable for the given language.
   --
-  | FontLang	Pango.Language
+  | FontLang    Pango.Language
 
 #if PANGO_VERSION_CHECK(1,16,0)
   -- | Gravity of text, use for ratation.
@@ -148,18 +148,18 @@ data SpanAttribute
 
 instance Show SpanAttribute where
   showsPrec _ (FontDescr str)    = showString " font_desc=".shows str
-  showsPrec _ (FontFamily str)	 = showString " font_family=".shows str
-  showsPrec _ (FontSize size)	 = showString " size=".shows size
+  showsPrec _ (FontFamily str)   = showString " font_family=".shows str
+  showsPrec _ (FontSize size)    = showString " size=".shows size
   showsPrec _ (FontStyle style)  = showString " style=".shows style
-  showsPrec _ (FontWeight w)	 = showString " weight=".shows w
-  showsPrec _ (FontVariant v)	 = showString " variant=".shows v
-  showsPrec _ (FontStretch s)	 = showString " stretch=".shows s
+  showsPrec _ (FontWeight w)     = showString " weight=".shows w
+  showsPrec _ (FontVariant v)    = showString " variant=".shows v
+  showsPrec _ (FontStretch s)    = showString " stretch=".shows s
   showsPrec _ (FontForeground c) = showString " foreground=".shows c
   showsPrec _ (FontBackground c) = showString " background=".shows c
-  showsPrec _ (FontUnderline u)	 = showString " underline=".shows u
-  showsPrec _ (FontRise r)	 = showString " rise=".shows
-				   (show (round (r*10000)))
-  showsPrec _ (FontLang l)	 = showString " lang=".shows l
+  showsPrec _ (FontUnderline u)  = showString " underline=".shows u
+  showsPrec _ (FontRise r)       = showString " rise=".shows
+                                   (show (round (r*10000)))
+  showsPrec _ (FontLang l)       = showString " lang=".shows l
 #if PANGO_VERSION_CHECK(1,16,0)
   showsPrec _ (FontGravity g) = showString " gravity=".shows g
   showsPrec _ (FontGravityHint h) = showString " gravity_hint".shows h
@@ -169,7 +169,7 @@ instance Show SpanAttribute where
 --
 markSpan :: [SpanAttribute] -> String -> String
 markSpan attrs text = showString "<span".
-		      foldr (.) (showChar '>') (map shows attrs).
-		      showString text.
-		      showString "</span>" $ ""
+                      foldr (.) (showChar '>') (map shows attrs).
+                      showString text.
+                      showString "</span>" $ ""
 

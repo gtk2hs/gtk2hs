@@ -37,27 +37,27 @@ module System.Glib.GTypeConstants (
   boxed
   ) where
 
-import System.Glib.GType	(GType)
+import System.Glib.GType        (GType)
 
 #include<glib-object.h>
 
 invalid, none, uint, int, uint64, int64, uchar, char, bool, enum, flags,
  pointer, float, double, string, object, boxed :: GType
 
-invalid	= #const G_TYPE_INVALID
-none	= #const G_TYPE_NONE
-uint	= #const G_TYPE_UINT
-int	= #const G_TYPE_INT
-uint64	= #const G_TYPE_UINT64
-int64	= #const G_TYPE_INT64
-uchar	= #const G_TYPE_UCHAR
-char	= #const G_TYPE_CHAR
-bool	= #const G_TYPE_BOOLEAN
-enum	= #const G_TYPE_ENUM
-flags	= #const G_TYPE_FLAGS
-pointer	= #const G_TYPE_POINTER
-float	= #const G_TYPE_FLOAT
-double	= #const G_TYPE_DOUBLE
-string	= #const G_TYPE_STRING
-object	= #const G_TYPE_OBJECT
-boxed	= #const G_TYPE_BOXED
+invalid = #const G_TYPE_INVALID
+none    = #const G_TYPE_NONE
+uint    = #const G_TYPE_UINT
+int     = #const G_TYPE_INT
+uint64  = #const G_TYPE_UINT64
+int64   = #const G_TYPE_INT64
+uchar   = #const G_TYPE_UCHAR
+char    = #const G_TYPE_CHAR
+bool    = #const G_TYPE_BOOLEAN
+enum    = #const G_TYPE_ENUM
+flags   = #const G_TYPE_FLAGS
+pointer = #const G_TYPE_POINTER
+float   = #const G_TYPE_FLOAT
+double  = #const G_TYPE_DOUBLE
+string  = #const G_TYPE_STRING
+object  = #const G_TYPE_OBJECT
+boxed   = #const G_TYPE_BOXED

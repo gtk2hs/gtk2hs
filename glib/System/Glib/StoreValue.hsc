@@ -32,7 +32,7 @@ module System.Glib.StoreValue (
   valueGetGenericValue,
   ) where
 
-import Control.Monad	(liftM)
+import Control.Monad    (liftM)
 import Data.Text (Text)
 
 import Control.Exception  (throw, AssertionFailed(..))
@@ -40,45 +40,45 @@ import Control.Exception  (throw, AssertionFailed(..))
 #include<glib-object.h>
 
 import System.Glib.FFI
-import System.Glib.GValue	(GValue, valueInit, valueGetType)
+import System.Glib.GValue       (GValue, valueInit, valueGetType)
 import System.Glib.GValueTypes
 import qualified System.Glib.GTypeConstants as GType
-import System.Glib.Types	(GObject)
+import System.Glib.Types        (GObject)
 
 -- | A union with information about the currently stored type.
 --
 -- * Internally used by "Graphics.UI.Gtk.TreeList.TreeModel".
 --
 data GenericValue = GVuint    Word
-		  | GVint     Int
---		  | GVuchar   #{type guchar}
---		  | GVchar    #{type gchar}
-		  | GVboolean Bool
-		  | GVenum    Int
-		  | GVflags   Int
---		  | GVpointer (Ptr ())
-		  | GVfloat   Float
-		  | GVdouble  Double
-		  | GVstring  (Maybe Text)
-		  | GVobject  GObject
---		  | GVboxed   (Ptr ())
+                  | GVint     Int
+--                | GVuchar   #{type guchar}
+--                | GVchar    #{type gchar}
+                  | GVboolean Bool
+                  | GVenum    Int
+                  | GVflags   Int
+--                | GVpointer (Ptr ())
+                  | GVfloat   Float
+                  | GVdouble  Double
+                  | GVstring  (Maybe Text)
+                  | GVobject  GObject
+--                | GVboxed   (Ptr ())
 
 -- This is an enumeration of all GTypes that can be used in a TreeModel.
 --
 data TMType = TMinvalid
-	    | TMuint
-	    | TMint
---	    | TMuchar
---	    | TMchar
-	    | TMboolean
-	    | TMenum
-	    | TMflags
---	    | TMpointer
-	    | TMfloat
-	    | TMdouble
-	    | TMstring
-	    | TMobject
---	    | TMboxed
+            | TMuint
+            | TMint
+--          | TMuchar
+--          | TMchar
+            | TMboolean
+            | TMenum
+            | TMflags
+--          | TMpointer
+            | TMfloat
+            | TMdouble
+            | TMstring
+            | TMobject
+--          | TMboxed
 
 instance Enum TMType where
   fromEnum TMinvalid = #const G_TYPE_INVALID
@@ -97,19 +97,19 @@ instance Enum TMType where
 --  fromEnum TMboxed   = #const G_TYPE_BOXED
   toEnum #{const G_TYPE_INVALID} = TMinvalid
   toEnum #{const G_TYPE_UINT}    = TMuint
-  toEnum #{const G_TYPE_INT}	 = TMint
+  toEnum #{const G_TYPE_INT}     = TMint
 --  toEnum #{const G_TYPE_UCHAR} = TMuchar
---  toEnum #{const G_TYPE_CHAR}	 = TMchar
+--  toEnum #{const G_TYPE_CHAR}  = TMchar
   toEnum #{const G_TYPE_BOOLEAN} = TMboolean
-  toEnum #{const G_TYPE_ENUM}	 = TMenum
-  toEnum #{const G_TYPE_FLAGS}	 = TMflags
+  toEnum #{const G_TYPE_ENUM}    = TMenum
+  toEnum #{const G_TYPE_FLAGS}   = TMflags
 --  toEnum #{const G_TYPE_POINTER} = TMpointer
-  toEnum #{const G_TYPE_FLOAT}	 = TMfloat
-  toEnum #{const G_TYPE_DOUBLE}	 = TMdouble
-  toEnum #{const G_TYPE_STRING}	 = TMstring
-  toEnum #{const G_TYPE_OBJECT}	 = TMobject
---  toEnum #{const G_TYPE_BOXED}	 = TMboxed
-  toEnum _			 =
+  toEnum #{const G_TYPE_FLOAT}   = TMfloat
+  toEnum #{const G_TYPE_DOUBLE}  = TMdouble
+  toEnum #{const G_TYPE_STRING}  = TMstring
+  toEnum #{const G_TYPE_OBJECT}  = TMobject
+--  toEnum #{const G_TYPE_BOXED}         = TMboxed
+  toEnum _                       =
     error "StoreValue.toEnum(TMType): no dynamic types allowed."
 
 valueSetGenericValue :: GValue -> GenericValue -> IO ()
@@ -140,18 +140,18 @@ valueGetGenericValue :: GValue -> IO GenericValue
 valueGetGenericValue gvalue = do
   gtype <- valueGetType gvalue
   case (toEnum . fromIntegral) gtype of
-    TMinvalid	-> throw $ AssertionFailed
+    TMinvalid   -> throw $ AssertionFailed
       "StoreValue.valueGetGenericValue: invalid or unavailable value."
-    TMuint    -> liftM GVuint			  $ valueGetUInt    gvalue
-    TMint	-> liftM GVint	                  $ valueGetInt	    gvalue
---    TMuchar	-> liftM GVuchar		  $ valueGetUChar   gvalue
---    TMchar	-> liftM GVchar			  $ valueGetChar    gvalue
-    TMboolean	-> liftM GVboolean		  $ valueGetBool    gvalue
-    TMenum	-> liftM (GVenum . fromIntegral)  $ valueGetUInt    gvalue
-    TMflags	-> liftM (GVflags . fromIntegral) $ valueGetUInt    gvalue
---    TMpointer	-> liftM GVpointer		  $ valueGetPointer gvalue
-    TMfloat	-> liftM GVfloat		  $ valueGetFloat   gvalue
-    TMdouble	-> liftM GVdouble		  $ valueGetDouble  gvalue
-    TMstring	-> liftM GVstring		  $ valueGetMaybeString  gvalue
-    TMobject	-> liftM GVobject		  $ valueGetGObject gvalue
---    TMboxed   -> liftM GVpointer		  $ valueGetPointer gvalue
+    TMuint    -> liftM GVuint                     $ valueGetUInt    gvalue
+    TMint       -> liftM GVint                    $ valueGetInt     gvalue
+--    TMuchar   -> liftM GVuchar                  $ valueGetUChar   gvalue
+--    TMchar    -> liftM GVchar                   $ valueGetChar    gvalue
+    TMboolean   -> liftM GVboolean                $ valueGetBool    gvalue
+    TMenum      -> liftM (GVenum . fromIntegral)  $ valueGetUInt    gvalue
+    TMflags     -> liftM (GVflags . fromIntegral) $ valueGetUInt    gvalue
+--    TMpointer -> liftM GVpointer                $ valueGetPointer gvalue
+    TMfloat     -> liftM GVfloat                  $ valueGetFloat   gvalue
+    TMdouble    -> liftM GVdouble                 $ valueGetDouble  gvalue
+    TMstring    -> liftM GVstring                 $ valueGetMaybeString  gvalue
+    TMobject    -> liftM GVobject                 $ valueGetGObject gvalue
+--    TMboxed   -> liftM GVpointer                $ valueGetPointer gvalue

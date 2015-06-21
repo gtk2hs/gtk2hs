@@ -37,7 +37,7 @@ data ModuleDoc = ModuleDoc {
     moduledoc_childprops :: [PropDoc],     -- documentation for each child property
     moduledoc_signals :: [SignalDoc],      -- documentation for each signal
     moduledoc_since :: String              -- which version of the api the
-  }  					   -- module is available from, eg "2.4"
+  }                                        -- module is available from, eg "2.4"
 
 noModuleDoc :: ModuleDoc
 noModuleDoc = ModuleDoc {
@@ -63,11 +63,11 @@ data DocSection = DocSection {
 type Since = String
 
 data FuncDoc = FuncDoc {
-    funcdoc_name :: String,		-- C function name
-    funcdoc_paragraphs :: [DocPara],	-- documentation markup
-    funcdoc_params :: [ParamDoc],	-- parameter documentation
-    funcdoc_since :: Since		-- which version of the api the
-  }					-- function is available from, eg "2.4"
+    funcdoc_name :: String,             -- C function name
+    funcdoc_paragraphs :: [DocPara],    -- documentation markup
+    funcdoc_params :: [ParamDoc],       -- parameter documentation
+    funcdoc_since :: Since              -- which version of the api the
+  }                                     -- function is available from, eg "2.4"
 
 data ParamDoc = ParamDoc {
     paramdoc_name :: String,            -- parameter name or "Returns"
@@ -75,17 +75,17 @@ data ParamDoc = ParamDoc {
   }
 
 data PropDoc = PropDoc {
-    propdoc_name :: String,		-- property name
-    propdoc_paragraphs :: [DocPara],	-- documentation markup
-    propdoc_since :: Since		-- which version of the api the
-  }					-- function is available from, eg "2.4"
+    propdoc_name :: String,             -- property name
+    propdoc_paragraphs :: [DocPara],    -- documentation markup
+    propdoc_since :: Since              -- which version of the api the
+  }                                     -- function is available from, eg "2.4"
 
 data SignalDoc = SignalDoc {
-    signaldoc_name :: String,		-- C signal name
-    signaldoc_paragraphs :: [DocPara],	-- documentation markup
-    signaldoc_params :: [ParamDoc],	-- parameter documentation
-    signaldoc_since :: Since		-- which version of the api the
-  }					-- function is available from, eg "2.4"
+    signaldoc_name :: String,           -- C signal name
+    signaldoc_paragraphs :: [DocPara],  -- documentation markup
+    signaldoc_params :: [ParamDoc],     -- parameter documentation
+    signaldoc_since :: Since            -- which version of the api the
+  }                                     -- function is available from, eg "2.4"
 
 data DocPara =
     DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
@@ -99,8 +99,8 @@ data DocParaSpan = DocText String       -- just simple text
                  | DocTypeXRef String   -- cross reference to a type name
                  | DocOtherXRef String  -- xref format not directly supported
                  | DocEmphasis String   -- emphasised text, usually italic
-		 | DocLiteral String    -- some literal like numbers
-		 | DocArg  String       -- function argument names
+                 | DocLiteral String    -- some literal like numbers
+                 | DocArg  String       -- function argument names
 
 
 -------------------------------------------------------------------------------
@@ -181,13 +181,13 @@ extractDocFunc
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since''] | last since'' == '.' -> init since''
+                [Xml.CString _ since''] | last since'' == '.' -> init since''
                                         | otherwise           -> since''
    in FuncDoc {
         funcdoc_name = name,
-	funcdoc_paragraphs = concatMap extractDocPara paras,
+        funcdoc_paragraphs = concatMap extractDocPara paras,
         funcdoc_params = map extractParamDoc params,
-	funcdoc_since = since
+        funcdoc_since = since
       }
 
 extractParamDoc :: Xml.Content -> ParamDoc
@@ -209,11 +209,11 @@ extractDocProp
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since] -> since
+                [Xml.CString _ since] -> since
    in PropDoc {
         propdoc_name = name,
-	propdoc_paragraphs = concatMap extractDocPara paras,
-	propdoc_since = since
+        propdoc_paragraphs = concatMap extractDocPara paras,
+        propdoc_since = since
       }
 
 extractDocChildProp :: Xml.Content -> PropDoc
@@ -225,11 +225,11 @@ extractDocChildProp
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since] -> since
+                [Xml.CString _ since] -> since
    in PropDoc {
         propdoc_name = name,
-	propdoc_paragraphs = concatMap extractDocPara paras,
-	propdoc_since = since
+        propdoc_paragraphs = concatMap extractDocPara paras,
+        propdoc_since = since
       }
 
 extractDocSignal :: Xml.Content -> SignalDoc
@@ -242,12 +242,12 @@ extractDocSignal
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since] -> since
+                [Xml.CString _ since] -> since
    in SignalDoc {
         signaldoc_name = name,
-	signaldoc_paragraphs = concatMap extractDocPara paras,
+        signaldoc_paragraphs = concatMap extractDocPara paras,
         signaldoc_params = map extractParamDoc params,
-	signaldoc_since = since
+        signaldoc_since = since
       }
 
 extractDocPara :: Xml.Content -> [DocPara]

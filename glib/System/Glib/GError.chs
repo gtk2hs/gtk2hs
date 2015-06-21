@@ -149,7 +149,7 @@ instance Storable GError where
 class Enum err => GErrorClass err where
   gerrorDomain :: err -> GErrorDomain -- ^ This must not use the value of its
                                       -- parameter so that it is safe to pass
-				      -- 'undefined'.
+                                      -- 'undefined'.
 
 -- | Glib functions which report 'GError's take as a parameter a @GError
 -- **error@. Use this function to supply such a parameter. It checks if an

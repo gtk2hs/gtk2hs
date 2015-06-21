@@ -205,14 +205,14 @@ splitBy sep xs = split xs
           (chunk,_:rest) -> chunk : split rest
 
 -- Glue sequences of tokens into more useful blobs
-glue ("`":rest) =				-- `varid` -> varop
+glue ("`":rest) =                               -- `varid` -> varop
   case glue rest of
     (qn:"`":rest) -> ("`"++qn++"`"): glue rest
     _             -> ("`": rest)
-glue (s:ss)       | all (=='-') s		-- eol comment
+glue (s:ss)       | all (=='-') s               -- eol comment
                   = (s++concat c): glue rest
                   where (c,rest) = break ('\n'`elem`) ss
-glue ("{":"-":ss)  = ("{-"++c): glue rest	-- nested comment
+glue ("{":"-":ss)  = ("{-"++c): glue rest       -- nested comment
                   where (c,rest) = nestcomment 0 ss
  -- make escaped '->', '=>' and '<-' into a single token
 glue ("-&":"gt":";":ss)    = "-&gt;" : glue ss

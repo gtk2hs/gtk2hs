@@ -292,7 +292,7 @@ nukeParamDocs = Map.fromList
   ,("gtk_progress_bar_get_orientation", ["returns"])
   ,("gtk_progress_bar_set_orientation", ["orientation"])
   ,("gtk_statusbar_set_has_resize_grip", ["setting"])
-  ,("gtk_statusbar_get_has_resize_grip", ["returns"])	
+  ,("gtk_statusbar_get_has_resize_grip", ["returns"])   
   ,("gtk_editable_get_editable", ["returns"])
   ,("gtk_entry_set_text", ["text"])
   ,("gtk_entry_get_text", ["returns"])

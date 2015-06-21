@@ -113,13 +113,13 @@ import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Flags	(Flags)
+import System.Glib.Flags        (Flags)
 {#import System.Glib.Types#}
-{#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
+{#import System.Glib.GValue#}   (GValue(GValue), valueInit, allocaGValue)
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GType
 import System.Glib.GValueTypes
-import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
+import System.Glib.Attributes   (Attr, ReadAttr, WriteAttr, ReadWriteAttr,
                                 newNamedAttr, readNamedAttr, writeNamedAttr)
 
 {# context lib="glib" prefix="g" #}

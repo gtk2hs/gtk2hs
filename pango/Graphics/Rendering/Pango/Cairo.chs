@@ -57,7 +57,7 @@ import Control.Exception    (bracket)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(wrapNewGObject, makeNewGObject,
+import System.Glib.GObject              (wrapNewGObject, makeNewGObject,
   objectRef, objectUnref)
 {#import Graphics.Rendering.Pango.Types#}
 {#import Graphics.Rendering.Pango.BasicTypes#}
@@ -203,7 +203,7 @@ createLayout text = Render $ do
   cr <- ask
   liftIO $ do
     layRaw <- wrapNewGObject mkPangoLayoutRaw $
-	      {#call unsafe pango_cairo_create_layout#} cr
+              {#call unsafe pango_cairo_create_layout#} cr
     textRef <- newIORef undefined
     let pl = (PangoLayout textRef layRaw)
     layoutSetText pl text

@@ -49,9 +49,9 @@ import Binary      (Binary(..), putSharedString, getSharedString)
 -- is important as it leads to the desired ordering of source positions
 -- (EXPORTED)
 --
-data Position = Position String		-- file name
-	{-# UNPACK #-}	 !Int		-- row
-	{-# UNPACK #-}	 !Int		-- column
+data Position = Position String         -- file name
+        {-# UNPACK #-}   !Int           -- row
+        {-# UNPACK #-}   !Int           -- column
   deriving (Eq, Ord)
 
 instance Show Position where
@@ -62,7 +62,7 @@ instance Show Position where
 nopos :: Position
 nopos  = Position "<no file>" (-1) (-1)
 
-isNopos	:: Position -> Bool
+isNopos :: Position -> Bool
 isNopos (Position _ (-1) (-1)) = True
 isNopos _                      = False
 
@@ -73,7 +73,7 @@ dontCarePos = Position "<invalid>" (-2) (-2)
 
 isDontCarePos  :: Position -> Bool
 isDontCarePos (Position _ (-2) (-2)) = True
-isDontCarePos _	                     = False
+isDontCarePos _                      = False
 
 -- position attached to objects that are hard-coded into the toolkit (EXPORTED)
 --

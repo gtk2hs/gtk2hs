@@ -37,18 +37,18 @@
 module CNames (nameAnalysis)
 where
 
-import Control.Monad	 (when, mapM_)
+import Control.Monad     (when, mapM_)
 
 import Position  (Position, posOf)
-import Idents	 (Ident, identToLexeme)
+import Idents    (Ident, identToLexeme)
 
 import C2HSState (CST, nop)
 import CAST
 import CAttrs    (AttrC, CObj(..), CTag(..), CDef(..))
 import CBuiltin  (builtinTypeNames)
 import CTrav     (CT, getCHeaderCT, runCT, enter, enterObjs, leave, leaveObjs,
-		  ifCTExc, raiseErrorCTExc, defObj, findTypeObj, findValueObj,
-		  defTag, refersToDef, isTypedef) 
+                  ifCTExc, raiseErrorCTExc, defObj, findTypeObj, findValueObj,
+                  defTag, refersToDef, isTypedef) 
 
 
 -- monad and wrapper
@@ -62,8 +62,8 @@ type NA a = CT () a
 --
 nameAnalysis    :: AttrC -> CST s AttrC
 nameAnalysis ac  = do
-		     (ac', _) <- runCT naCHeader ac ()
-		     return ac'
+                     (ac', _) <- runCT naCHeader ac ()
+                     return ac'
 
 
 -- name analyis traversal
@@ -75,14 +75,14 @@ nameAnalysis ac  = do
 --
 naCHeader :: NA ()
 naCHeader  = do
-	       -- establish definitions for builtins
-	       --
-	       mapM_ (uncurry defObjOrErr) builtinTypeNames
-	       --
-	       -- analyse the header
-	       --
-	       CHeader decls _ <- getCHeaderCT
-	       mapM_ (\decl -> naCExtDecl decl `ifCTExc` nop) decls
+               -- establish definitions for builtins
+               --
+               mapM_ (uncurry defObjOrErr) builtinTypeNames
+               --
+               -- analyse the header
+               --
+               CHeader decls _ <- getCHeaderCT
+               mapM_ (\decl -> naCExtDecl decl `ifCTExc` nop) decls
 
 -- Processing of toplevel declarations
 --
@@ -103,30 +103,30 @@ naCDecl decl@(CDecl specs decls _) =
   where
     naTriple (odeclr, oinit, oexpr) =
       do
-	let obj = if isTypedef decl then TypeCO decl else ObjCO decl
+        let obj = if isTypedef decl then TypeCO decl else ObjCO decl
         mapMaybeM_ (naCDeclr obj) odeclr
-	mapMaybeM_ naCInit	  oinit
-	mapMaybeM_ naCExpr	  oexpr
+        mapMaybeM_ naCInit        oinit
+        mapMaybeM_ naCExpr        oexpr
 
 naCDeclSpec :: CDeclSpec -> NA ()
 naCDeclSpec (CTypeSpec tspec) = naCTypeSpec tspec
-naCDeclSpec _		      = nop
+naCDeclSpec _                 = nop
 
 naCTypeSpec :: CTypeSpec -> NA ()
 naCTypeSpec (CSUType   su   _) = naCStructUnion (StructUnionCT su) su
 naCTypeSpec (CEnumType enum _) = naCEnum (EnumCT enum) enum
 naCTypeSpec (CTypeDef  ide  _) = do
-				   (obj, _) <- findTypeObj ide False
-				   ide `refersToDef` ObjCD obj
-naCTypeSpec _		       = nop
+                                   (obj, _) <- findTypeObj ide False
+                                   ide `refersToDef` ObjCD obj
+naCTypeSpec _                  = nop
 
 naCStructUnion :: CTag -> CStructUnion -> NA ()
 naCStructUnion tag (CStruct _ oide decls _) =
   do
     mapMaybeM_ (`defTagOrErr` tag) oide
-    enterObjs				-- enter local struct range for objects
+    enterObjs                           -- enter local struct range for objects
     mapM_ naCDecl decls
-    leaveObjs				-- leave range
+    leaveObjs                           -- leave range
 
 naCEnum :: CTag -> CEnum -> NA ()
 naCEnum tag enum@(CEnum oide enumrs _) =
@@ -135,8 +135,8 @@ naCEnum tag enum@(CEnum oide enumrs _) =
     mapM_ naEnumr enumrs
   where
     naEnumr (ide, oexpr) = do
-			     ide `defObjOrErr` EnumCO ide enum
-			     mapMaybeM_ naCExpr oexpr
+                             ide `defObjOrErr` EnumCO ide enum
+                             mapMaybeM_ naCExpr oexpr
 
 naCDeclr :: CObj -> CDeclr -> NA ()
 naCDeclr obj (CVarDeclr oide _) =
@@ -150,9 +150,9 @@ naCDeclr obj (CArrDeclr declr _ oexpr _   ) =
 naCDeclr obj (CFunDeclr declr decls _ _ ) =
   do
     naCDeclr obj declr
-    enterObjs				-- enter range of function arguments
+    enterObjs                           -- enter range of function arguments
     mapM_ naCDecl decls
-    leaveObjs				-- end of function arguments
+    leaveObjs                           -- end of function arguments
 
 naCInit :: CInit -> NA ()
 naCInit (CInitExpr expr  _) = naCExpr expr
@@ -162,21 +162,21 @@ naCExpr :: CExpr -> NA ()
 naCExpr (CComma      exprs             _) = mapM_ naCExpr exprs
 naCExpr (CAssign     _ expr1 expr2     _) = naCExpr expr1 >> naCExpr expr2
 naCExpr (CCond       expr1 expr2 expr3 _) = naCExpr expr1 >> mapMaybeM_ naCExpr expr2
-					    >> naCExpr expr3
+                                            >> naCExpr expr3
 naCExpr (CBinary     _ expr1 expr2     _) = naCExpr expr1 >> naCExpr expr2
-naCExpr (CCast       decl expr	       _) = naCDecl decl >> naCExpr expr
-naCExpr (CUnary      _ expr	       _) = naCExpr expr
+naCExpr (CCast       decl expr         _) = naCDecl decl >> naCExpr expr
+naCExpr (CUnary      _ expr            _) = naCExpr expr
 naCExpr (CSizeofExpr expr              _) = naCExpr expr
-naCExpr (CSizeofType decl	       _) = naCDecl decl
+naCExpr (CSizeofType decl              _) = naCDecl decl
 naCExpr (CAlignofExpr expr             _) = naCExpr expr
-naCExpr (CAlignofType decl	       _) = naCDecl decl
-naCExpr (CIndex	      expr1 expr2      _) = naCExpr expr1 >> naCExpr expr2
-naCExpr (CCall	      expr exprs       _) = naCExpr expr >> mapM_ naCExpr exprs
+naCExpr (CAlignofType decl             _) = naCDecl decl
+naCExpr (CIndex       expr1 expr2      _) = naCExpr expr1 >> naCExpr expr2
+naCExpr (CCall        expr exprs       _) = naCExpr expr >> mapM_ naCExpr exprs
 naCExpr (CMember      expr ide _       _) = naCExpr expr
-naCExpr (CVar	      ide	       _) = do
-					     (obj, _) <- findValueObj ide False
-					     ide `refersToDef` ObjCD obj
-naCExpr (CConst	      _		       _) = nop
+naCExpr (CVar         ide              _) = do
+                                             (obj, _) <- findValueObj ide False
+                                             ide `refersToDef` ObjCD obj
+naCExpr (CConst       _                _) = nop
 naCExpr (CCompoundLit _ inits          _) = mapM_ (naCInit . snd) inits
 
 
@@ -187,10 +187,10 @@ naCExpr (CCompoundLit _ inits          _) = mapM_ (naCInit . snd) inits
 --
 defTagOrErr           :: Ident -> CTag -> NA ()
 ide `defTagOrErr` tag  = do
-			   otag <- ide `defTag` tag
-			   case otag of
-			     Nothing   -> nop
-			     Just tag' -> declaredTwiceErr ide (posOf tag')
+                           otag <- ide `defTag` tag
+                           case otag of
+                             Nothing   -> nop
+                             Just tag' -> declaredTwiceErr ide (posOf tag')
 
 -- associate an object with a referring identifier
 --

@@ -43,8 +43,8 @@ module System.Glib.GList (
   ) where
 
 import Foreign
-import Control.Exception	(bracket)
-import Control.Monad		(foldM)
+import Control.Exception        (bracket)
+import Control.Monad            (foldM)
 
 {# context lib="glib" prefix="g" #}
 
@@ -58,7 +58,7 @@ import Control.Monad		(foldM)
 readGList :: GList -> IO [Ptr a]
 readGList glist
   | glist==nullPtr = return []
-  | otherwise	    = do
+  | otherwise       = do
     x <- {#get GList->data#} glist
     glist' <- {#get GList->next#} glist
     xs <- readGList glist'
@@ -74,16 +74,16 @@ fromGList glist = do
     extractList gl xs
       | gl==nullPtr = return xs
       | otherwise   = do
-	x <- {#get GList.data#} gl
-	gl' <- {#call unsafe list_delete_link#} gl gl
-	extractList gl' (castPtr x:xs)
+        x <- {#get GList.data#} gl
+        gl' <- {#call unsafe list_delete_link#} gl gl
+        extractList gl' (castPtr x:xs)
 
 -- Turn a GSList into a list of pointers but don't destroy the list.
 --
 readGSList :: GSList -> IO [Ptr a]
 readGSList gslist
   | gslist==nullPtr = return []
-  | otherwise	    = do
+  | otherwise       = do
     x <- {#get GSList->data#} gslist
     gslist' <- {#get GSList->next#} gslist
     xs <- readGSList gslist'
@@ -94,7 +94,7 @@ readGSList gslist
 fromGSList :: GSList -> IO [Ptr a]
 fromGSList gslist
   | gslist==nullPtr = return []
-  | otherwise	    = do
+  | otherwise       = do
     x <- {#get GSList->data#} gslist
     gslist' <- {#call unsafe slist_delete_link#} gslist gslist
     xs <- fromGSList gslist'
@@ -108,10 +108,10 @@ fromGSListRev gslist =
   where
     extractList gslist xs
       | gslist==nullPtr = return xs
-      | otherwise	= do
-	x <- {#get GSList->data#} gslist
-	gslist' <- {#call unsafe slist_delete_link#} gslist gslist
-	extractList gslist' (castPtr x:xs)
+      | otherwise       = do
+        x <- {#get GSList->data#} gslist
+        gslist' <- {#call unsafe slist_delete_link#} gslist gslist
+        extractList gslist' (castPtr x:xs)
 
 -- Turn a list of something into a GList.
 --

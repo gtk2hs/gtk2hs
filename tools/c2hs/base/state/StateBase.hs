@@ -44,16 +44,16 @@
 --    + idBS (triple of strings)        -- version, copyright, and disclaimer
 --    + errorsBS (type `ErrorState')    -- keeps track of raised errors
 --    + namesBS (type `NameSupply')     -- provides unique names
---    + extraBS (generic type)		-- extra compiler-dependent state
---					   information, e.g., for compiler
---					   switches
+--    + extraBS (generic type)          -- extra compiler-dependent state
+--                                         information, e.g., for compiler
+--                                         switches
 --
 --- TODO ----------------------------------------------------------------------
 --
 
 module StateBase (PreCST(..), ErrorState(..), BaseState(..),
-		  nop, yield, (+>=), (+>), fixCST,
-		  unpackCST, readCST, writeCST, transCST, liftIO)
+                  nop, yield, (+>=), (+>), fixCST,
+                  unpackCST, readCST, writeCST, transCST, liftIO)
 where
 
 import Control.Applicative (Applicative(..))
@@ -62,8 +62,8 @@ import Control.Monad (liftM, ap)
 import Position   (Position)
 import UNames     (NameSupply)
 import StateTrans (STB,
-		   fixSTB, readGeneric, writeGeneric, transGeneric, readBase,
-		   transBase)
+                   fixSTB, readGeneric, writeGeneric, transGeneric, readBase,
+                   transBase)
 import qualified
        StateTrans (liftIO)
 import Errors     (ErrorLvl(..), Error)
@@ -80,18 +80,18 @@ infixr 1 +>=, +>
 -- * when no error was raised yet, the error level is the lowest possible one
 --
 data ErrorState = ErrorState ErrorLvl    -- worst error level that was raised
-			     Int	 -- number of errors (excl warnings)
-			     [Error]     -- already raised errors
+                             Int         -- number of errors (excl warnings)
+                             [Error]     -- already raised errors
 
 -- base state (EXPORTED)
 --
 data BaseState e = BaseState {
-		     idTKBS     :: (String, String, String),  -- toolkit id
-		     idBS       :: (String, String, String),  -- compiler id
-		     errorsBS   :: ErrorState,
-		     suppliesBS :: [NameSupply],
-		     extraBS    :: e			      -- extra state
-		 }
+                     idTKBS     :: (String, String, String),  -- toolkit id
+                     idBS       :: (String, String, String),  -- compiler id
+                     errorsBS   :: ErrorState,
+                     suppliesBS :: [NameSupply],
+                     extraBS    :: e                          -- extra state
+                 }
 
 -- the compiler state transformer (EXPORTED)
 --

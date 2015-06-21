@@ -24,7 +24,7 @@
 --  Functional Programming 4(1), pp 117-123, 1994.
 --
 --  WARNING: DON'T tinker with the implementation!  It uses UNSAFE low-level
---	     operations!
+--           operations!
 --
 --- DOCU ----------------------------------------------------------------------
 --
@@ -51,8 +51,8 @@
 --
 
 module UNames (NameSupply, Name,
-	       rootSupply, splitSupply, names,
-	       saveRootNameSupply, restoreRootNameSupply)
+               rootSupply, splitSupply, names,
+               saveRootNameSupply, restoreRootNameSupply)
 where
 
 import Control.Monad  (when)
@@ -84,7 +84,7 @@ instance Show Name where
   show (Name i) = show i
 
 
---	  	      *** DON'T TOUCH THE FOLLOWING ***
+--                    *** DON'T TOUCH THE FOLLOWING ***
 --  and if you believe in the lambda calculus better also don't look at it
 --          ! here lives the daemon of unordered destructive updates !
 
@@ -150,10 +150,10 @@ instance Binary Name where
 -- ------------------------
 
 -- WARNING: The following does not exist, or at least, it belongs to another
---	    world.  And if you believe into the lambda calculus, you don't
---	    want to know about this other world.
+--          world.  And if you believe into the lambda calculus, you don't
+--          want to know about this other world.
 --
---		   *** DON'T TOUCH NOR USE THIS STUFF ***
+--                 *** DON'T TOUCH NOR USE THIS STUFF ***
 --              (unless you really know what you are doing!)
 
 -- UNSAFELY create a mutable integer (EXPORTED)
@@ -166,8 +166,8 @@ unsafeNewIntRef i  = unsafePerformIO (newIORef i)
 --
 unsafeReadAndIncIntRef    :: IORef Int -> Int
 unsafeReadAndIncIntRef mv  = unsafePerformIO $ do
-			       v <- readIORef mv
-			       when (v<1) $
-				 error "UName: root name supply used after saving"
-			       writeIORef mv (v + 1)
-			       return v
+                               v <- readIORef mv
+                               when (v<1) $
+                                 error "UName: root name supply used after saving"
+                               writeIORef mv (v + 1)
+                               return v

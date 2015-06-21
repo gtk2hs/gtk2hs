@@ -103,8 +103,8 @@ main = do
   -- Read in the input files
   --
   apicontent <- if apiFile == "-"
-               then getContents	      -- read stdin
-	       else readFile apiFile
+               then getContents       -- read stdin
+               else readFile apiFile
   template <- readFile templateFile
 
   includeApiFilesContents <- mapM readFile includeApiFiles
@@ -194,7 +194,7 @@ main = do
           "COPYRIGHT"      -> hsep $ punctuate comma $ map text (module_copyright_holders module_)
           "TODO"           -> CodeGen.genTodoItems module_
           "MODULE_BODY"    -> CodeGen.genModuleBody knownTypes module_
-	  name             -> empty
+          name             -> empty
 
 formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year

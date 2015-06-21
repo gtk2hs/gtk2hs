@@ -54,14 +54,14 @@ module Graphics.Rendering.Pango.Structs (
   readAttr
   ) where
 
-import Control.Monad		(liftM)
+import Control.Monad            (liftM)
 import Data.IORef
 import Control.Exception
 
 import System.Glib.FFI
 import System.Glib.UTFString ( peekUTFString, UTFCorrection,
                                ofsToUTF, ofsFromUTF, DefaultGlibString )
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject              (makeNewGObject)
 import Graphics.Rendering.Pango.Types
 import Graphics.Rendering.Pango.BasicTypes
 
@@ -84,7 +84,7 @@ data Color = Color (#gtk2hs_type guint16) (#gtk2hs_type guint16) (#gtk2hs_type g
 
 peekPangoColor :: Ptr Color -> IO Color
 peekPangoColor ptr = do
-    red	   <- #{peek PangoColor, red} ptr
+    red    <- #{peek PangoColor, red} ptr
     green  <- #{peek PangoColor, green} ptr
     blue   <- #{peek PangoColor, blue} ptr
     return $ Color red green blue
@@ -100,7 +100,7 @@ data Rectangle = Rectangle Int Int Int Int deriving (Eq,Show)
 -- * Specifies x, y, width and height
 --
 data PangoRectangle = PangoRectangle Double Double Double Double
-		      deriving Show
+                      deriving Show
 
 instance Storable PangoRectangle where
   sizeOf _ = #{const sizeof(PangoRectangle)}
@@ -117,10 +117,10 @@ instance Storable PangoRectangle where
 
 peekIntPangoRectangle :: Ptr PangoRectangle -> IO Rectangle
 peekIntPangoRectangle ptr = do
-    (x_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, x} ptr
-    (y_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, y} ptr
-    (w_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, width} ptr
-    (h_ ::#gtk2hs_type gint)	<- #{peek PangoRectangle, height} ptr
+    (x_ ::#gtk2hs_type gint)    <- #{peek PangoRectangle, x} ptr
+    (y_ ::#gtk2hs_type gint)    <- #{peek PangoRectangle, y} ptr
+    (w_ ::#gtk2hs_type gint)    <- #{peek PangoRectangle, width} ptr
+    (h_ ::#gtk2hs_type gint)    <- #{peek PangoRectangle, height} ptr
     return (Rectangle (fromIntegral x_) (fromIntegral y_)
                       (fromIntegral w_) (fromIntegral h_))
 
@@ -287,7 +287,7 @@ data PangoAttribute
   --   of the description is made when this attributes is passed to or received
   --   from functions.
     | AttrFontDescription { paStart :: Int, paEnd :: Int,
-			  paFontDescription :: FontDescription }
+                          paFontDescription :: FontDescription }
   -- | Specify the foreground color.
   | AttrForeground { paStart :: Int, paEnd :: Int, paColor :: Color }
   -- | Specify the background color.
@@ -320,7 +320,7 @@ data PangoAttribute
   -- * Available in Pango 1.8.0 and higher.
   --
   | AttrShape { paStart :: Int, paEnd :: Int, paInk :: PangoRectangle,
-		paLogical :: PangoRectangle }
+                paLogical :: PangoRectangle }
 #endif
   -- | Scale the font up (values greater than one) or shrink the font.
   | AttrScale { paStart :: Int, paEnd :: Int, paScale :: Double }
@@ -335,7 +335,7 @@ data PangoAttribute
   -- * Available in Pango 1.6.0 and higher.
   --
   | AttrLetterSpacing { paStart :: Int, paEnd :: Int,
-			paLetterSpacing :: Double }
+                        paLetterSpacing :: Double }
 #endif
 #if PANGO_VERSION_CHECK(1,16,0)
   -- | Sets the gravity field of a font description. The gravity field specifies
@@ -348,14 +348,14 @@ data PangoAttribute
   -- * Available in Pango 1.16.0 and higher.
   --
   | AttrGravity { paStart :: Int, paEnd :: Int,
-			paGravity :: PangoGravity }
+                        paGravity :: PangoGravity }
 
-	-- | Set the way horizontal scripts behave in a vertical context.
+        -- | Set the way horizontal scripts behave in a vertical context.
   --
   -- * Available in Pango 1.16.0 and higher.
   --
-	| AttrGravityHint  { paStart :: Int, paEnd :: Int,
-			paGravityHint :: PangoGravityHint }
+        | AttrGravityHint  { paStart :: Int, paEnd :: Int,
+                        paGravityHint :: PangoGravityHint }
 #endif
   deriving Show
 

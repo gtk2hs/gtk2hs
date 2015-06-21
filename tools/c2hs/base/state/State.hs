@@ -38,35 +38,35 @@
 --
 
 module State (-- the PreCST monad
-	      --
-	      PreCST,					   -- reexport ABSTRACT
-	      nop, yield, (+>=), (+>), fixCST,             -- reexport
-	      throwExc, fatal, catchExc, fatalsHandledBy,  -- reexport lifted
-	      readCST, writeCST, transCST, run, runCST,
-	      StateTrans.MVar, 				   -- reexport
-	      newMV, readMV, assignMV,			   -- reexport lifted
-	      --
-	      -- reexport compiler I/O
-	      --
-	      module CIO,
-	      liftIO,
-	      --
-	      -- identification
-	      --
-	      getId,
-	      --
-	      -- error management
-	      --
-	      raise, raiseWarning, raiseError, raiseFatal, showErrors,
-	      errorsPresent,
-	      --
-	      -- extra state management
-	      --
-	      readExtra, updExtra,
-	      --
-	      -- name supplies
-	      --
-	      getNameSupply)
+              --
+              PreCST,                                      -- reexport ABSTRACT
+              nop, yield, (+>=), (+>), fixCST,             -- reexport
+              throwExc, fatal, catchExc, fatalsHandledBy,  -- reexport lifted
+              readCST, writeCST, transCST, run, runCST,
+              StateTrans.MVar,                             -- reexport
+              newMV, readMV, assignMV,                     -- reexport lifted
+              --
+              -- reexport compiler I/O
+              --
+              module CIO,
+              liftIO,
+              --
+              -- identification
+              --
+              getId,
+              --
+              -- error management
+              --
+              raise, raiseWarning, raiseError, raiseFatal, showErrors,
+              errorsPresent,
+              --
+              -- extra state management
+              --
+              readExtra, updExtra,
+              --
+              -- name supplies
+              --
+              getNameSupply)
 where
 
 import Data.Ix
@@ -74,19 +74,19 @@ import Control.Monad       (when)
 import Data.List        (sort)
 
 import BaseVersion (version, copyright, disclaimer)
-import Config	   (errorLimit)
+import Config      (errorLimit)
 import Position    (Position)
 import UNames      (NameSupply,
-	            rootSupply, splitSupply)
+                    rootSupply, splitSupply)
 import StateTrans  (STB,
-		    readBase, transBase, runSTB)
+                    readBase, transBase, runSTB)
 import qualified
        StateTrans  (interleave, throwExc, fatal, catchExc, fatalsHandledBy,
-		    MVar, newMV, readMV, assignMV)
+                    MVar, newMV, readMV, assignMV)
 import StateBase   (PreCST(..), ErrorState(..), BaseState(..),
-		    nop, yield, (+>=), (+>), fixCST,
-		    unpackCST, readCST, writeCST, transCST,
-		    liftIO)
+                    nop, yield, (+>=), (+>), fixCST,
+                    unpackCST, readCST, writeCST, transCST,
+                    liftIO)
 import CIO
 import Errors      (ErrorLvl(..), Error, makeError, errorLvl, showError)
 
@@ -100,12 +100,12 @@ import Errors      (ErrorLvl(..), Error, makeError, errorLvl, showError)
 --
 initialBaseState        :: (String, String, String) -> e -> BaseState e
 initialBaseState vcd es  = BaseState {
-		             idTKBS     = (version, copyright, disclaimer),
-			     idBS       = vcd,
-			     errorsBS   = initialErrorState,
-			     suppliesBS = splitSupply rootSupply,
-			     extraBS    = es
-			}
+                             idTKBS     = (version, copyright, disclaimer),
+                             idBS       = vcd,
+                             errorsBS   = initialErrorState,
+                             suppliesBS = splitSupply rootSupply,
+                             extraBS    = es
+                        }
 
 
 -- executing state transformers
@@ -121,11 +121,11 @@ run            :: (String, String, String) -> e -> PreCST e () a -> IO a
 run vcd es cst  = runSTB m (initialBaseState vcd es) ()
   where
     m = unpackCST (
-	  cst
-	  `fatalsHandledBy` \err ->
-	    putStrCIO ("Uncaught fatal error: " ++ show err)	>>
-	    exitWithCIO (ExitFailure 1)
-	)
+          cst
+          `fatalsHandledBy` \err ->
+            putStrCIO ("Uncaught fatal error: " ++ show err)    >>
+            exitWithCIO (ExitFailure 1)
+        )
 
 -- run a PreCST in the context of another PreCST (EXPORTED)
 --
@@ -162,8 +162,8 @@ fatal  = CST . StateTrans.fatal
 --   updating for maintaining the state)
 --
 catchExc     :: PreCST e s a
-	     -> (String, String -> PreCST e s a)
-	     -> PreCST e s a
+             -> (String, String -> PreCST e s a)
+             -> PreCST e s a
 catchExc m (s, h)  = CST $ StateTrans.catchExc (unpackCST m) (s, unpackCST . h)
 
 -- given a state transformer that may raise fatal errors and an error handler
@@ -178,9 +178,9 @@ catchExc m (s, h)  = CST $ StateTrans.catchExc (unpackCST m) (s, unpackCST . h)
 --
 fatalsHandledBy :: PreCST e s a -> (IOError -> PreCST e s a) -> PreCST e s a
 fatalsHandledBy m h  = CST $ StateTrans.fatalsHandledBy m' h'
-		       where
-		         m' = unpackCST m
-			 h' = unpackCST . h
+                       where
+                         m' = unpackCST m
+                         h' = unpackCST . h
 
 -- mutable variables
 -- -----------------
@@ -222,9 +222,9 @@ initialErrorState  = ErrorState WarningErr 0 []
 --
 raise     :: Error -> PreCST e s ()
 raise err  = case errorLvl err of
-	       WarningErr  -> raise0 err
-	       ErrorErr    -> raise0 err
-	       FatalErr    -> raiseFatal0 "Generic fatal error." err
+               WarningErr  -> raise0 err
+               ErrorErr    -> raise0 err
+               FatalErr    -> raiseFatal0 "Generic fatal error." err
 
 -- raise a warning (see `raiseErr') (EXPORTED)
 --
@@ -254,9 +254,9 @@ raiseFatal short pos long  = raiseFatal0 short (makeError FatalErr pos long)
 --
 raiseFatal0           :: String -> Error -> PreCST e s a
 raiseFatal0 short err  = do
-			   raise0 err
-			   errmsgs <- showErrors
-			   fatal (short ++ "\n\n" ++ errmsgs)
+                           raise0 err
+                           errmsgs <- showErrors
+                           fatal (short ++ "\n\n" ++ errmsgs)
 
 -- raise an error; internal version, doesn't check whether the error is fatal
 --
@@ -265,22 +265,22 @@ raiseFatal0 short err  = do
 --
 raise0     :: Error -> PreCST e s ()
 raise0 err  = do
-	        noOfErrs <- CST $ transBase doRaise
-		when (noOfErrs >= errorLimit) $ do
-		  errmsgs <- showErrors
-		  fatal ("Error limit of " ++ show errorLimit
-			 ++ " errors has been reached.\n" ++ errmsgs)
+                noOfErrs <- CST $ transBase doRaise
+                when (noOfErrs >= errorLimit) $ do
+                  errmsgs <- showErrors
+                  fatal ("Error limit of " ++ show errorLimit
+                         ++ " errors has been reached.\n" ++ errmsgs)
   where
     doRaise    :: BaseState e -> (BaseState e, Int)
     doRaise bs  = let
-		    lvl			       = errorLvl err
-		    ErrorState wlvl no errs    = errorsBS bs
-		    wlvl'		       = max wlvl lvl
-		    no'			       = no + if lvl > WarningErr
-						      then 1 else 0
-		    errs'		       = err : errs
-		  in
-		    (bs {errorsBS = (ErrorState wlvl' no' errs')}, no')
+                    lvl                        = errorLvl err
+                    ErrorState wlvl no errs    = errorsBS bs
+                    wlvl'                      = max wlvl lvl
+                    no'                        = no + if lvl > WarningErr
+                                                      then 1 else 0
+                    errs'                      = err : errs
+                  in
+                    (bs {errorsBS = (ErrorState wlvl' no' errs')}, no')
 
 -- yield a string containing the collected error messages (EXPORTED)
 --
@@ -288,23 +288,23 @@ raise0 err  = do
 --
 showErrors :: PreCST e s String
 showErrors  = CST $ do
-	        ErrorState wlvl no errs <- transBase extractErrs
-		return $ foldr (.) id (map showString (errsToStrs errs)) ""
-	      where
-		extractErrs    :: BaseState e -> (BaseState e, ErrorState)
-		extractErrs bs  = (bs {errorsBS = initialErrorState},
-				   errorsBS bs)
+                ErrorState wlvl no errs <- transBase extractErrs
+                return $ foldr (.) id (map showString (errsToStrs errs)) ""
+              where
+                extractErrs    :: BaseState e -> (BaseState e, ErrorState)
+                extractErrs bs  = (bs {errorsBS = initialErrorState},
+                                   errorsBS bs)
 
-		errsToStrs      :: [Error] -> [String]
-		errsToStrs errs  = (map showError . sort) errs
+                errsToStrs      :: [Error] -> [String]
+                errsToStrs errs  = (map showError . sort) errs
 
 -- inquire if there was already an error of at least level `ErrorErr' raised
 -- (EXPORTED)
 --
 errorsPresent :: PreCST e s Bool
 errorsPresent  = CST $ do
-		   ErrorState wlvl no _ <- readBase errorsBS
-		   return $ wlvl >= ErrorErr
+                   ErrorState wlvl no _ <- readBase errorsBS
+                   return $ wlvl >= ErrorErr
 
 
 -- manipulating the extra state
@@ -315,18 +315,18 @@ errorsPresent  = CST $ do
 --
 readExtra    :: (e -> a) -> PreCST e s a
 readExtra rf  = CST $ readBase (\bs ->
-		        (rf . extraBS) bs
-		      )
+                        (rf . extraBS) bs
+                      )
 
 -- apply an update function to the extra state (EXPORTED)
 --
 updExtra    :: (e -> e) -> PreCST e s ()
 updExtra uf  = CST $ transBase (\bs ->
-		       let
-			 es = extraBS bs
-		       in
-		       (bs {extraBS = uf es}, ())
-		     )
+                       let
+                         es = extraBS bs
+                       in
+                       (bs {extraBS = uf es}, ())
+                     )
 
 
 -- name supplies
@@ -336,8 +336,8 @@ updExtra uf  = CST $ transBase (\bs ->
 --
 getNameSupply :: PreCST e s NameSupply
 getNameSupply  = CST $ transBase (\bs ->
-		         let
-			   supply : supplies = suppliesBS bs
-			 in
-			 (bs {suppliesBS = supplies}, supply)
-		       )
+                         let
+                           supply : supplies = suppliesBS bs
+                         in
+                         (bs {suppliesBS = supplies}, supply)
+                       )

@@ -35,8 +35,8 @@ import Prelude hiding (catch)
 -- standard libs
 import Data.Char      (chr, ord)
 import System.Directory (doesFileExist)
-import System.IO	 (Handle, IOMode(..), openFile)
-import Control.Monad	 (liftM)
+import System.IO         (Handle, IOMode(..), openFile)
+import Control.Monad     (liftM)
 import Control.Exception (catch, SomeException)
 import System.Random    (newStdGen, randomRs)
 
@@ -57,8 +57,8 @@ fileFindIn              :: FilePath -> [FilePath] -> IO FilePath
 file `fileFindIn` paths  =
   do
     let (paths', file') = if head file == '/'
-			  then (dirname file : paths, stripDirname file)
-			  else (paths, file)
+                          then (dirname file : paths, stripDirname file)
+                          else (paths, file)
         files  = map (`addPath` file') paths'
     existsFlags <- mapM doesFileExist files
     let existingFiles = [file | (file, flag) <- zip files existsFlags, flag]
@@ -82,16 +82,16 @@ mktemp :: FilePath -> FilePath -> IO (Handle, FilePath)
 mktemp pre post =
   do
     rs <- liftM (randomRs (0, 61)) newStdGen
-			 -- range for lower and upper case letters plus digits
+                         -- range for lower and upper case letters plus digits
     createLoop 100 rs
   where
     createLoop 0        _  = fail "mktemp: failed 100 times"
     createLoop attempts rs = let
-			       (rs', fname) = nextName rs
-			     in do
-			       h <- openFile fname ReadWriteMode
-			       return (h, fname)
-			     `catch` handler attempts rs'
+                               (rs', fname) = nextName rs
+                             in do
+                               h <- openFile fname ReadWriteMode
+                               return (h, fname)
+                             `catch` handler attempts rs'
     --
     handler :: Int -> [Int] -> SomeException -> IO (Handle,FilePath)
     handler attempts rs' _ = createLoop (attempts - 1) rs'
@@ -100,15 +100,15 @@ mktemp pre post =
     sixChars is =
       let
         (sixInts, is') = splitAt 6 is
-	--
-	toChar i | i < 10    = chr . (ord '0' +)                 $ i
-		 | i < 36    = chr . (ord 'A' +) . (subtract 10) $ i
-		 | otherwise = chr . (ord 'a' +) . (subtract 36) $ i
-	in
-	(is', map toChar sixInts)
+        --
+        toChar i | i < 10    = chr . (ord '0' +)                 $ i
+                 | i < 36    = chr . (ord 'A' +) . (subtract 10) $ i
+                 | otherwise = chr . (ord 'a' +) . (subtract 36) $ i
+        in
+        (is', map toChar sixInts)
     --
     nextName :: [Int] -> ([Int], String)
     nextName is = let
-		    (is', rndChars) = sixChars is
-		  in
-		  (is', pre ++ rndChars ++ post)
+                    (is', rndChars) = sixChars is
+                  in
+                  (is', pre ++ rndChars ++ post)

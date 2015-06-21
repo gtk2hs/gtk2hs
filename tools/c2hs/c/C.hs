@@ -31,56 +31,56 @@
 --
 
 module C (-- interface to KL for all non-KL modules
-	  --
-	  -- stuff from `Common' (reexported)
-	  --
-	  Pos(posOf), 
-	  --	      
-	  -- structure tree
-	  --
-	  module CAST,
-	  --
-	  -- attributed structure tree with operations (reexported from
-	  -- `CAttrs')
-	  --
-	  AttrC, getCHeader, 
-	  CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
-	  getDefOfIdentC,
-	  --
-	  -- support for C structure tree traversals
-	  --
-	  module CTrav,
-	  --
-	  -- support for pretty printing C abstract trees
-	  --
-	  module CPretty,
-	  --
-	  loadAttrC,		-- locally defined
-	  --
-	  -- misc. reexported stuff
-	  --
-	  Ident, Attrs, Attr(..),
-	  --
-	  -- misc. own stuff
-	  --
-	  csuffix, hsuffix, isuffix)
+          --
+          -- stuff from `Common' (reexported)
+          --
+          Pos(posOf), 
+          --          
+          -- structure tree
+          --
+          module CAST,
+          --
+          -- attributed structure tree with operations (reexported from
+          -- `CAttrs')
+          --
+          AttrC, getCHeader, 
+          CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
+          getDefOfIdentC,
+          --
+          -- support for C structure tree traversals
+          --
+          module CTrav,
+          --
+          -- support for pretty printing C abstract trees
+          --
+          module CPretty,
+          --
+          loadAttrC,            -- locally defined
+          --
+          -- misc. reexported stuff
+          --
+          Ident, Attrs, Attr(..),
+          --
+          -- misc. own stuff
+          --
+          csuffix, hsuffix, isuffix)
 where
 
 import Position   (Position(..), Pos(posOf))
-import Idents	  (Ident, lexemeToIdent)
+import Idents     (Ident, lexemeToIdent)
 import Attributes (Attrs, Attr(..))
 
 import C2HSState  (CST, IOMode(..),
-		   readCST, transCST, runCST, nop,
-		   readFileCIO, writeFileCIO, openFileCIO, hCloseCIO,
-		   fatal, errorsPresent, showErrors,
-		   Traces(..), putTraceStr)
+                   readCST, transCST, runCST, nop,
+                   readFileCIO, writeFileCIO, openFileCIO, hCloseCIO,
+                   fatal, errorsPresent, showErrors,
+                   Traces(..), putTraceStr)
 import CAST
 import CParser    (parseC)
 import CPretty
-import CAttrs	  (AttrC, attrC, getCHeader, 
-		   CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
-		   getDefOfIdentC)
+import CAttrs     (AttrC, attrC, getCHeader, 
+                   CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
+                   getDefOfIdentC)
 import CNames     (nameAnalysis)
 import CTrav
 
@@ -101,48 +101,48 @@ isuffix  = ".i"
 --
 loadAttrC       :: String -> CST s (AttrC, String)
 loadAttrC fname  = do
-		     -- read file
-		     --
-		     traceInfoRead fname
-		     contents <- readFileCIO fname
+                     -- read file
+                     --
+                     traceInfoRead fname
+                     contents <- readFileCIO fname
 
-		     -- parse
-		     --
-		     traceInfoParse
-		     rawHeader <- parseC contents (Position fname 1 1)
-		     let header = attrC rawHeader
+                     -- parse
+                     --
+                     traceInfoParse
+                     rawHeader <- parseC contents (Position fname 1 1)
+                     let header = attrC rawHeader
 
-		     -- name analysis
-		     --
-		     traceInfoNA
-		     headerWithAttrs <- nameAnalysis header
+                     -- name analysis
+                     --
+                     traceInfoNA
+                     headerWithAttrs <- nameAnalysis header
 
-		     -- check for errors and finalize
-		     --
-		     errs <- errorsPresent
-		     if errs
-		       then do
-			 traceInfoErr
-			 errmsgs <- showErrors
-			 fatal ("C header contains \
-				\errors:\n\n" ++ errmsgs)   -- fatal error
-		       else do
-			 traceInfoOK
-			 warnmsgs <- showErrors
-			 return (headerWithAttrs, warnmsgs)
-		    where
-		      traceInfoRead fname = putTraceStr tracePhasesSW
-					      ("Attempting to read file `"
-					       ++ fname ++ "'...\n")
-		      traceInfoParse      = putTraceStr tracePhasesSW 
-					      ("...parsing `" 
-					       ++ fname ++ "'...\n")
-		      traceInfoNA         = putTraceStr tracePhasesSW 
-					      ("...name analysis of `" 
-					       ++ fname ++ "'...\n")
-		      traceInfoErr        = putTraceStr tracePhasesSW
-					      ("...error(s) detected in `"
-					       ++ fname ++ "'.\n")
-		      traceInfoOK         = putTraceStr tracePhasesSW
-					      ("...successfully loaded `"
-					       ++ fname ++ "'.\n")
+                     -- check for errors and finalize
+                     --
+                     errs <- errorsPresent
+                     if errs
+                       then do
+                         traceInfoErr
+                         errmsgs <- showErrors
+                         fatal ("C header contains \
+                                \errors:\n\n" ++ errmsgs)   -- fatal error
+                       else do
+                         traceInfoOK
+                         warnmsgs <- showErrors
+                         return (headerWithAttrs, warnmsgs)
+                    where
+                      traceInfoRead fname = putTraceStr tracePhasesSW
+                                              ("Attempting to read file `"
+                                               ++ fname ++ "'...\n")
+                      traceInfoParse      = putTraceStr tracePhasesSW 
+                                              ("...parsing `" 
+                                               ++ fname ++ "'...\n")
+                      traceInfoNA         = putTraceStr tracePhasesSW 
+                                              ("...name analysis of `" 
+                                               ++ fname ++ "'...\n")
+                      traceInfoErr        = putTraceStr tracePhasesSW
+                                              ("...error(s) detected in `"
+                                               ++ fname ++ "'.\n")
+                      traceInfoOK         = putTraceStr tracePhasesSW
+                                              ("...successfully loaded `"
+                                               ++ fname ++ "'.\n")

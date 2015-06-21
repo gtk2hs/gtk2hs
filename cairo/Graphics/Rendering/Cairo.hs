@@ -325,12 +325,12 @@ import Data.Ix
 -- internal module of GHC
 import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 #if __GLASGOW_HASKELL__ < 605
-			 HasBounds, bounds
+                         HasBounds, bounds
 #else
-			 getBounds
+                         getBounds
 #endif
 #if __GLASGOW_HASKELL__ >= 608
-			 ,getNumElements
+                         ,getNumElements
 #endif
                        )
 import Graphics.Rendering.Cairo.Internal (imageSurfaceCreateFromPNG)
@@ -990,8 +990,8 @@ relLineTo = liftRender2 Internal.relLineTo
 -- to moveTo (x + @dx@) (y + @dy@)
 --
 relMoveTo ::
-     Double -- ^ @dx@ -	the X offset
-  -> Double -- ^ @dy@ -	the Y offset
+     Double -- ^ @dx@ - the X offset
+  -> Double -- ^ @dy@ - the Y offset
   -> Render ()
 relMoveTo = liftRender2 Internal.relMoveTo
 
@@ -1381,7 +1381,7 @@ getFontMatrix = liftRender0 Internal.getFontMatrix
 --
 setFontOptions :: FontOptions -> Render ()
 setFontOptions = liftRender1 Internal.setFontOptions
-	
+        
 -- | A drawing operator that generates the shape from a string of Unicode
 -- characters, rendered according to the current font face, font size (font
 -- matrix), and font options.

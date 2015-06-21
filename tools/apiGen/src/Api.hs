@@ -440,7 +440,7 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
   }
 extractParameter (Xml.CElem (Xml.Elem "parameter"
                         [("type", Xml.AttValue type_),
-			 ("array", _),
+                         ("array", _),
                          ("name", Xml.AttValue name)] [])) =
    Parameter {
      parameter_type = Xml.verbatim type_,

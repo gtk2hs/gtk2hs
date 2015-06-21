@@ -5,8 +5,8 @@
 -- Unboxed mutable Ints
 
 module FastMutInt(
-	FastMutInt, newFastMutInt,
-	readFastMutInt, writeFastMutInt
+        FastMutInt, newFastMutInt,
+        readFastMutInt, writeFastMutInt
   ) where
 
 #define SIZEOF_HSINT  4
