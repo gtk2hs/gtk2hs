@@ -140,7 +140,7 @@ Library
           build-depends: gio >= 0.13.0 && < 0.14
           cpp-options:    -DHAVE_GIO
 
-        build-tools:    gtk2hsC2hs >= 0.13.12,
+        build-tools:    gtk2hsC2hs >= 0.13.13,
                         gtk2hsHookGenerator, gtk2hsTypeGen
 
         exposed-modules:
