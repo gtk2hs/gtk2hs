@@ -38,6 +38,7 @@ module Graphics.UI.Gtk.General.Structs (
   Point,
   Rectangle(..),
   Color(..),
+  RGBA(..),
 #if GTK_MAJOR_VERSION < 3
   GCValues(..),
   pokeGCValues,
@@ -187,6 +188,24 @@ instance Storable Color where
     cPtr <- gdkColormapGetSystem
     gdkColormapAllocColor cPtr ptr 0 1
 #endif
+    return ()
+
+data RGBA = RGBA Double Double Double Double
+
+instance Storable RGBA where
+  sizeOf _ = #{const sizeof(GdkRGBA)}
+  alignment _ = alignment (undefined::#gtk2hs_type guint32)
+  peek ptr = do
+    red    <- #{peek GdkRGBA, red} ptr
+    green  <- #{peek GdkRGBA, green} ptr
+    blue   <- #{peek GdkRGBA, blue} ptr
+    alpha  <- #{peek GdkRGBA, alpha} ptr
+    return $ RGBA red green blue alpha
+  poke ptr (RGBA red green blue alpha) = do
+    #{poke GdkRGBA, red}   ptr red
+    #{poke GdkRGBA, green} ptr green
+    #{poke GdkRGBA, blue}  ptr blue
+    #{poke GdkRGBA, alpha} ptr alpha
     return ()
 
 #if GTK_MAJOR_VERSION < 3

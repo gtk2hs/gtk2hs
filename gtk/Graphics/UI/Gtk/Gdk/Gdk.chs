@@ -37,7 +37,8 @@ module Graphics.UI.Gtk.Gdk.Gdk (
   pointerIsGrabbed,
   keyboardGrab,
   keyboardUngrab,
-  beep
+  beep,
+  RGBA(..)
   ) where
 
 import Control.Monad    (liftM)
@@ -48,6 +49,7 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Gdk.Cursor#} (Cursor(..))
 import Graphics.UI.Gtk.Gdk.Events
 import Graphics.UI.Gtk.Gdk.Enums        (EventMask, GrabStatus(..))
+import Graphics.UI.Gtk.General.Structs (RGBA(..))
 
 {#context lib="gdk" prefix ="gdk"#}
 
