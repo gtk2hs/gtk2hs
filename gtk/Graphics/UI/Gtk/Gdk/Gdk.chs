@@ -51,7 +51,9 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Gdk.Cursor#} (Cursor(..))
 import Graphics.UI.Gtk.Gdk.Events
 import Graphics.UI.Gtk.Gdk.Enums        (EventMask, GrabStatus(..))
+#if GTK_MAJOR_VERSION >= 3
 import Graphics.UI.Gtk.General.Structs (RGBA(..))
+#endif
 
 {#context lib="gdk" prefix ="gdk"#}
 
