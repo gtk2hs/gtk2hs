@@ -38,7 +38,9 @@ module Graphics.UI.Gtk.General.Structs (
   Point,
   Rectangle(..),
   Color(..),
+#if GTK_MAJOR_VERSION >= 3
   RGBA(..),
+#endif
 #if GTK_MAJOR_VERSION < 3
   GCValues(..),
   pokeGCValues,
@@ -190,6 +192,7 @@ instance Storable Color where
 #endif
     return ()
 
+#if GTK_MAJOR_VERSION >= 3
 data RGBA = RGBA Double Double Double Double
 
 instance Storable RGBA where
@@ -207,6 +210,7 @@ instance Storable RGBA where
     #{poke GdkRGBA, blue}  ptr blue
     #{poke GdkRGBA, alpha} ptr alpha
     return ()
+#endif
 
 #if GTK_MAJOR_VERSION < 3
 type ColorMap = ()

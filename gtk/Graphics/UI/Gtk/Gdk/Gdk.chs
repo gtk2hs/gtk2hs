@@ -37,8 +37,10 @@ module Graphics.UI.Gtk.Gdk.Gdk (
   pointerIsGrabbed,
   keyboardGrab,
   keyboardUngrab,
-  beep,
-  RGBA(..)
+  beep
+#if GTK_MAJOR_VERSION >= 3
+ ,RGBA(..)
+#endif
   ) where
 
 import Control.Monad    (liftM)
