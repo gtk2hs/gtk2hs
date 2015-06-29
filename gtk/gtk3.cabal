@@ -10,7 +10,7 @@ Cabal-Version:  >= 1.18
 Stability:      provisional
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
-Synopsis:       Binding to the Gtk+ graphical user interface library.
+Synopsis:       Binding to the Gtk+ 3 graphical user interface library
 Description: This is the core library of the Gtk2Hs suite of libraries for Haskell
              based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
              for creating graphical user interfaces.
