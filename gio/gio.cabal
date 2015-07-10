@@ -10,7 +10,7 @@ Cabal-Version:  >= 1.18
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
-Synopsis:       Binding to the GIO.
+Synopsis:       Binding to GIO
 Description:    GIO is striving to provide a modern, easy-to-use VFS API that sits at the right level in the library stack. 
                 The goal is to overcome the shortcomings of GnomeVFS and provide an API that is 
                 so good that developers prefer it over raw POSIX calls. 
