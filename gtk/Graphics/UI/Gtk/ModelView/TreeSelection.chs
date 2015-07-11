@@ -282,7 +282,7 @@ treeSelectionPathIsSelected :: TreeSelectionClass self => self
 treeSelectionPathIsSelected self path =
   liftM toBool $
   withTreePath path $ \path ->
-  {# call unsafe tree_selection_path_is_selected #}
+  {# call tree_selection_path_is_selected #}
     (toTreeSelection self)
     path
 
@@ -312,7 +312,7 @@ treeSelectionIterIsSelected :: TreeSelectionClass self => self
 treeSelectionIterIsSelected self iter =
   liftM toBool $
   with iter $ \iterPtr ->
-  {# call unsafe tree_selection_iter_is_selected #}
+  {# call tree_selection_iter_is_selected #}
     (toTreeSelection self)
     iterPtr
 
