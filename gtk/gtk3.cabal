@@ -371,6 +371,9 @@ Library
           cc-options:     -fno-exceptions
           extra-libraries: kernel32
 
+        if os(windows)
+          cpp-options: -D__USE_MINGW_ANSI_STDIO=1
+
         x-c2hs-Header:  hsgtk.h
         x-Types-Hierarchy:  hierarchy3.list
 
