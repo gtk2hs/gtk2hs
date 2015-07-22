@@ -1,3 +1,5 @@
+# This list is the result of a copy-and-paste from the GtkObject hierarchy
+# html documentation. Deprecated widgets are uncommented. Some additional
 # object have been defined at the end of the copied list.
 
 # The Gtk prefix of every object is removed, the other prefixes are
