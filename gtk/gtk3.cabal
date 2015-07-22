@@ -223,6 +223,7 @@ Library
           Graphics.UI.Gtk.Layout.AspectFrame
           Graphics.UI.Gtk.Layout.Expander
           Graphics.UI.Gtk.Layout.Fixed
+          Graphics.UI.Gtk.Layout.Grid
           Graphics.UI.Gtk.Layout.HBox
           Graphics.UI.Gtk.Layout.HButtonBox
           Graphics.UI.Gtk.Layout.HPaned
