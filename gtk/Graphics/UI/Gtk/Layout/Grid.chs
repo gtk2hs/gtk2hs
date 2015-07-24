@@ -125,7 +125,8 @@ gridAttachNextTo self child sib pos width height =
     (fromIntegral width)
     (fromIntegral height)
 
--- | Gets the child of grid whose area covers the grid cell whose upper left corner is at left , top . 
+-- | Gets the child of grid whose area covers the grid cell whose upper left corner is at 
+-- left , top . 
 --
 gridGetChildAt :: GridClass self
  => self -- ^ @self@ - the grid.
@@ -141,56 +142,67 @@ gridGetChildAt self left top = do
     then return Nothing 
     else liftM Just $ makeNewObject mkWidget (return ptr)
 
--- |
+-- | Inserts a row at the specified position. Children which are attached at or below this 
+-- position are moved one row down. Children which span across this position are grown to 
+-- span the new row.
 --
 gridInsertRow :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ -
+ -> Int -- ^ @pos@ - the position to insert the row at.
  -> IO ()
 gridInsertRow self pos =
  {# call grid_insert_row #}
     (toGrid self)
     (fromIntegral pos)
 
--- |
+-- | Inserts a column at the specified position. Children which are attached at or to the
+-- right of this position are moved one column to the right. Children which span across 
+-- this position are grown to span the new column
 --
 gridInsertColumn :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ -
+ -> Int -- ^ @pos@ - the positiion to insert the column at.
  -> IO ()
 gridInsertColumn self pos =
  {# call grid_insert_column #}
     (toGrid self)
     (fromIntegral pos)
 
--- |
+-- | Removes a row from the grid. Children that are placed in this row are removed,
+-- spanning children that overlap this row have their height reduced by one, and children
+-- below the row are moved up.
 --
 gridRemoveRow :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ - 
+ -> Int -- ^ @pos@ - the position of the row to remove.
  -> IO ()
 gridRemoveRow self pos =
  {# call grid_remove_row #}
     (toGrid self)
     (fromIntegral pos)
 
--- |
+-- | Removes a column from the grid. Children that are placed in this column are removed,
+-- spanning children that overlap this column have their width reduced by one, and
+-- children after the column are moved to the left.
 --
 gridRemoveColumn :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ -
+ -> Int -- ^ @pos@ -the position of the column to remove.
  -> IO ()
 gridRemoveColumn self pos =
  {# call grid_remove_column #}
     (toGrid self)
     (fromIntegral pos)
 
--- |
+-- | Inserts a row or column at the specified position. The new row or column is placed
+-- next to sibling , on the side determined by side. If side is GTK_POS_TOP or 
+-- GTK_POS_BOTTOM, a row is inserted. If side is GTK_POS_LEFT of GTK_POS_RIGHT, a 
+-- column is inserted.
 --
 gridInsertNextTo :: (GridClass self, WidgetClass sibling)
  => self -- ^ @self@ - the grid.
- -> sibling -- ^ @sib@ -
- -> PositionType -- ^ @pos@ -
+ -> sibling -- ^ @sib@ - the child of grid that the new row or column will be placed next to.
+ -> PositionType -- ^ @pos@ - the isde of the sibling that child is positioned next to.
  -> IO ()
 gridInsertNextTo self sib pos =
  {# call grid_insert_next_to #}
@@ -198,127 +210,133 @@ gridInsertNextTo self sib pos =
     (toWidget sib)
     (fromIntegral $ fromEnum pos)
 
--- |
+-- | Sets whether all rows of grid will have the same height.
 --
 gridSetRowHomogeneous :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Bool -- ^ @homogeneous@ - 
+ -> Bool -- ^ @homogeneous@ - True to make row homogeneous.
  -> IO ()
 gridSetRowHomogeneous self homogeneous =
  {# call grid_set_row_homogeneous #}
     (toGrid self)
     (fromBool homogeneous)
 
--- |
+-- | Returns whether all rows of grid have the same height.
 --
 gridGetRowHomogeneous :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Bool -- ^ @
+ -> IO Bool -- ^ returns whether all rows of grid have same height.
 gridGetRowHomogeneous self =
  liftM toBool $
  {# call grid_get_row_homogeneous #}
     (toGrid self)
 
--- |
+-- | Sets the amount of space between rows of grid.
 --
 gridSetRowSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @spacing@ - 
+ -> Int -- ^ @spacing@ - the amount of space to insert between rows. 
  -> IO ()
 gridSetRowSpacing self spacing =
  {# call grid_set_row_spacing #}
     (toGrid self)
     (fromIntegral spacing)
 
--- |
+-- | Returns the amount of space between the rows of grid.
 --
 gridGetRowSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Int -- ^ @
+ -> IO Int -- ^ returns the spacing of grid.
 gridGetRowSpacing self =
  liftM fromIntegral $
  {# call grid_get_row_spacing #}
     (toGrid self)
 
+-- | Sets whether all columns of grid will have the same width.
+--
 gridSetColumnHomogeneous :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Bool -- ^ @homogeneous@ -
+ -> Bool -- ^ @homogeneous@ - True to make columns homogeneous.
  -> IO ()
 gridSetColumnHomogeneous self homogeneous =
  {# call grid_set_row_homogeneous #}
     (toGrid self)
     (fromBool homogeneous)
 
--- |
+-- | Returns whether all columns of grid have the same width.
 --
 gridGetColumnHomogeneous :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Bool -- ^ @
+ -> IO Bool -- ^ returns whether all columns of grid have the same width.
 gridGetColumnHomogeneous self =
  liftM toBool $
  {# call grid_get_column_homogeneous #}
     (toGrid self)
 
--- |
+-- | Sets the amount of space between columns of grid.
 --
 gridSetColumnSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @spacing@ -
+ -> Int -- ^ @spacing@ - the amount of space to insert between columns.
  -> IO ()
 gridSetColumnSpacing self spacing =
  {# call grid_set_column_spacing #}
     (toGrid self)
     (fromIntegral spacing)
 
--- |
+-- | Returns the  amount of space between the columns of grid.
 --
 gridGetColumnSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Int -- ^ @
+ -> IO Int -- ^ returns the spacing of grid. 
 gridGetColumnSpacing self =
  liftM fromIntegral $
  {# call grid_get_column_spacing #}
     (toGrid self)
 
--- |
+-- | Returns which row defines the global baseline of grid.
 --
 gridGetBaselineRow :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Int -- ^ @
+ -> IO Int -- ^ returns the row index defining the global baseline. 
 gridGetBaselineRow self =
  liftM fromIntegral $
  {# call grid_get_baseline_row #}
     (toGrid self)
 
--- |
+-- | Sets which row defines the global baseline for the entire grid. Each row in 
+-- the grid can have its own local baseline, but only one of those is global,
+-- meaning it will be the baseline in the parent of the grid.
 --
 gridSetBaselineRow :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @row@ -
+ -> Int -- ^ @row@ - the row index.
  -> IO ()
 gridSetBaselineRow self row =
  {# call grid_set_baseline_row #}
     (toGrid self)
     (fromIntegral row)
 
--- |
+-- | Returns the baseline position of row as set by gridSetRowBaselinePosition 
+-- or the default value BASELINE_POSITION_CENTER
 --
 gridGetRowBaselinePosition :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @row@ -
- -> IO BaselinePosition 
+ -> Int -- ^ @row@ - a row index.
+ -> IO BaselinePosition -- ^ returns  the baseline position of row.
 gridGetRowBaselinePosition self row =
  liftM (toEnum . fromIntegral) $
  {# call grid_get_row_baseline_position #}
     (toGrid self)
     (fromIntegral row)
 
--- |
+-- | Sets how the baseline should be positioned on row of the grid, in case that row 
+-- is assigned more space than is requested.
 --
 gridSetRowBaselinePosition :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int  -- ^ @row@ -
- -> BaselinePosition -- ^ @pos@ -
+ -> Int  -- ^ @row@ - a row index.
+ -> BaselinePosition -- ^ @pos@ - a BaselinePosition.
  -> IO ()
 gridSetRowBaselinePosition self row pos =
  {# call grid_set_row_baseline_position #}
