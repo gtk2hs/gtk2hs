@@ -50,7 +50,25 @@ module Graphics.UI.Gtk.Layout.Grid (
   gridNew,
 
 -- * Methods
-  gridAttach
+  gridAttach,
+  gridGetChildAt,
+  gridInsertRow,
+  gridInsertColumn,
+  gridRemoveRow,
+  gridRemoveColumn,
+  gridInsertNextTo,
+  gridSetRowHomogeneous,
+  gridGetRowHomogeneous,
+  gridSetRowSpacing,
+  gridGetRowSpacing,
+  gridSetColumnHomogeneous,
+  gridGetColumnHomogeneous,
+  gridSetColumnSpacing,
+  gridGetColumnSpacing,
+  gridGetBaselineRow,
+  gridSetBaselineRow,
+  gridGetRowBaselinePosition,
+  gridSetRowBaselinePosition
   ) where
 
 import Control.Monad    (liftM)
