@@ -57,12 +57,9 @@ import Control.Monad    (liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags                (fromFlags)
-import System.Glib.Attributes
-import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums    (AttachOptions(..), PositionType, BaselinePosition)
-import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
