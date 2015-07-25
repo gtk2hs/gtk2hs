@@ -129,6 +129,7 @@
 						    GtkInfoBar
                             GtkFileChooserButton	
                             GtkStatusbar
+                    GtkGrid
                     GtkFixed
                     GtkPaned
                         GtkHPaned
