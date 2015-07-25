@@ -86,7 +86,11 @@ import System.Glib.FFI
 import System.Glib.Flags                (fromFlags)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums    (AttachOptions(..), PositionType, BaselinePosition)
+import Graphics.UI.Gtk.General.Enums    (AttachOptions(..), PositionType)
+
+#if GTK_CHECK_VERSION(3,10,0)
+import Graphics.UI.Gtk.General.Enums    (BaselinePosition)
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
