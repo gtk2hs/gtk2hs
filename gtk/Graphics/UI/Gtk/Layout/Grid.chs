@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.Layout.Grid (
   gridGetChildAt,
   gridInsertRow,
   gridInsertColumn,
-  gridInsertNextTo
+  gridInsertNextTo,
 #endif
 
 #if GTK_CHECK_VERSION(3,10,0)
@@ -75,7 +75,7 @@ module Graphics.UI.Gtk.Layout.Grid (
   gridGetBaselineRow,
   gridSetBaselineRow,
   gridGetRowBaselinePosition,
-  gridSetRowBaselinePosition,
+  gridSetRowBaselinePosition
 #endif
  
  ) where
