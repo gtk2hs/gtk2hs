@@ -43,7 +43,8 @@ module Graphics.UI.Gtk.Layout.Grid (
 -- * Types
   Grid,
   GridClass,
-  castToGrid, gTypeGrid,
+  castToGrid,
+  gTypeGrid,
   toGrid,
 
 -- * Constructors
@@ -51,12 +52,7 @@ module Graphics.UI.Gtk.Layout.Grid (
 
 -- * Methods
   gridAttach,
-  gridGetChildAt,
-  gridInsertRow,
-  gridInsertColumn,
-  gridRemoveRow,
-  gridRemoveColumn,
-  gridInsertNextTo,
+  gridAttachNextTo,
   gridSetRowHomogeneous,
   gridGetRowHomogeneous,
   gridSetRowSpacing,
@@ -65,11 +61,23 @@ module Graphics.UI.Gtk.Layout.Grid (
   gridGetColumnHomogeneous,
   gridSetColumnSpacing,
   gridGetColumnSpacing,
+
+#if GTK_CHECK_VERSION(3,1,0)
+  gridRemoveRow,
+  gridRemoveColumn,
   gridGetBaselineRow,
   gridSetBaselineRow,
   gridGetRowBaselinePosition,
-  gridSetRowBaselinePosition
-  ) where
+  gridSetRowBaselinePosition,
+#endif
+ 
+#if GTK_CHECK_VERSION(3,2,0)
+  gridGetChildAt,
+  gridInsertRow,
+  gridInsertColumn,
+  gridInsertNextTo
+#endif
+ ) where
 
 import Control.Monad    (liftM)
 
@@ -139,91 +147,6 @@ gridAttachNextTo self child sib pos width height =
     (fromIntegral $ fromEnum pos)
     (fromIntegral width)
     (fromIntegral height)
-
--- | Gets the child of grid whose area covers the grid cell whose upper left corner is at 
--- left , top . 
---
-gridGetChildAt :: GridClass self
- => self -- ^ @self@ - the grid.
- -> Int -- ^ @left@ - the left edge of the cell.
- -> Int -- ^ @top@ - the top edge of the cell.
- -> IO (Maybe Widget) -- ^ returns the child at the given position or Nothing.
-gridGetChildAt self left top = do
- ptr <- {# call grid_get_child_at #}
-           (toGrid self)
-           (fromIntegral left)
-           (fromIntegral top)
- if ptr == nullPtr 
-    then return Nothing 
-    else liftM Just $ makeNewObject mkWidget (return ptr)
-
--- | Inserts a row at the specified position. Children which are attached at or below this 
--- position are moved one row down. Children which span across this position are grown to 
--- span the new row.
---
-gridInsertRow :: GridClass self
- => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ - the position to insert the row at.
- -> IO ()
-gridInsertRow self pos =
- {# call grid_insert_row #}
-    (toGrid self)
-    (fromIntegral pos)
-
--- | Inserts a column at the specified position. Children which are attached at or to the
--- right of this position are moved one column to the right. Children which span across 
--- this position are grown to span the new column
---
-gridInsertColumn :: GridClass self
- => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ - the positiion to insert the column at.
- -> IO ()
-gridInsertColumn self pos =
- {# call grid_insert_column #}
-    (toGrid self)
-    (fromIntegral pos)
-
--- | Removes a row from the grid. Children that are placed in this row are removed,
--- spanning children that overlap this row have their height reduced by one, and children
--- below the row are moved up.
---
-gridRemoveRow :: GridClass self
- => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ - the position of the row to remove.
- -> IO ()
-gridRemoveRow self pos =
- {# call grid_remove_row #}
-    (toGrid self)
-    (fromIntegral pos)
-
--- | Removes a column from the grid. Children that are placed in this column are removed,
--- spanning children that overlap this column have their width reduced by one, and
--- children after the column are moved to the left.
---
-gridRemoveColumn :: GridClass self
- => self -- ^ @self@ - the grid.
- -> Int -- ^ @pos@ -the position of the column to remove.
- -> IO ()
-gridRemoveColumn self pos =
- {# call grid_remove_column #}
-    (toGrid self)
-    (fromIntegral pos)
-
--- | Inserts a row or column at the specified position. The new row or column is placed
--- next to sibling , on the side determined by side. If side is GTK_POS_TOP or 
--- GTK_POS_BOTTOM, a row is inserted. If side is GTK_POS_LEFT of GTK_POS_RIGHT, a 
--- column is inserted.
---
-gridInsertNextTo :: (GridClass self, WidgetClass sibling)
- => self -- ^ @self@ - the grid.
- -> sibling -- ^ @sib@ - the child of grid that the new row or column will be placed next to.
- -> PositionType -- ^ @pos@ - the isde of the sibling that child is positioned next to.
- -> IO ()
-gridInsertNextTo self sib pos =
- {# call grid_insert_next_to #}
-    (toGrid self)
-    (toWidget sib)
-    (fromIntegral $ fromEnum pos)
 
 -- | Sets whether all rows of grid will have the same height.
 --
@@ -309,6 +232,34 @@ gridGetColumnSpacing self =
  {# call grid_get_column_spacing #}
     (toGrid self)
 
+#if GTK_CHECK_VERSION(3,1,0)
+
+-- | Removes a row from the grid. Children that are placed in this row are removed,
+-- spanning children that overlap this row have their height reduced by one, and children
+-- below the row are moved up.
+--
+gridRemoveRow :: GridClass self
+ => self -- ^ @self@ - the grid.
+ -> Int -- ^ @pos@ - the position of the row to remove.
+ -> IO ()
+gridRemoveRow self pos =
+ {# call grid_remove_row #}
+    (toGrid self)
+    (fromIntegral pos)
+
+-- | Removes a column from the grid. Children that are placed in this column are removed,
+-- spanning children that overlap this column have their width reduced by one, and
+-- children after the column are moved to the left.
+--
+gridRemoveColumn :: GridClass self
+ => self -- ^ @self@ - the grid.
+ -> Int -- ^ @pos@ -the position of the column to remove.
+ -> IO ()
+gridRemoveColumn self pos =
+ {# call grid_remove_column #}
+    (toGrid self)
+    (fromIntegral pos)
+
 -- | Returns which row defines the global baseline of grid.
 --
 gridGetBaselineRow :: GridClass self
@@ -358,4 +309,69 @@ gridSetRowBaselinePosition self row pos =
     (toGrid self)
     (fromIntegral row)
     (fromIntegral $ fromEnum pos)
+
+#endif
+
+#if GTK_CHECK_VERSION(3,2,0)
+
+-- | Gets the child of grid whose area covers the grid cell whose upper left corner is at 
+-- left , top . 
+--
+gridGetChildAt :: GridClass self
+ => self -- ^ @self@ - the grid.
+ -> Int -- ^ @left@ - the left edge of the cell.
+ -> Int -- ^ @top@ - the top edge of the cell.
+ -> IO (Maybe Widget) -- ^ returns the child at the given position or Nothing.
+gridGetChildAt self left top = do
+ ptr <- {# call grid_get_child_at #}
+           (toGrid self)
+           (fromIntegral left)
+           (fromIntegral top)
+ if ptr == nullPtr 
+    then return Nothing 
+    else liftM Just $ makeNewObject mkWidget (return ptr)
+
+-- | Inserts a row at the specified position. Children which are attached at or below this 
+-- position are moved one row down. Children which span across this position are grown to 
+-- span the new row.
+--
+gridInsertRow :: GridClass self
+ => self -- ^ @self@ - the grid.
+ -> Int -- ^ @pos@ - the position to insert the row at.
+ -> IO ()
+gridInsertRow self pos =
+ {# call grid_insert_row #}
+    (toGrid self)
+    (fromIntegral pos)
+
+-- | Inserts a column at the specified position. Children which are attached at or to the
+-- right of this position are moved one column to the right. Children which span across 
+-- this position are grown to span the new column
+--
+gridInsertColumn :: GridClass self
+ => self -- ^ @self@ - the grid.
+ -> Int -- ^ @pos@ - the positiion to insert the column at.
+ -> IO ()
+gridInsertColumn self pos =
+ {# call grid_insert_column #}
+    (toGrid self)
+    (fromIntegral pos)
+
+-- | Inserts a row or column at the specified position. The new row or column is placed
+-- next to sibling , on the side determined by side. If side is GTK_POS_TOP or 
+-- GTK_POS_BOTTOM, a row is inserted. If side is GTK_POS_LEFT of GTK_POS_RIGHT, a 
+-- column is inserted.
+--
+gridInsertNextTo :: (GridClass self, WidgetClass sibling)
+ => self -- ^ @self@ - the grid.
+ -> sibling -- ^ @sib@ - the child of grid that the new row or column will be placed next to.
+ -> PositionType -- ^ @pos@ - the isde of the sibling that child is positioned next to.
+ -> IO ()
+gridInsertNextTo self sib pos =
+ {# call grid_insert_next_to #}
+    (toGrid self)
+    (toWidget sib)
+    (fromIntegral $ fromEnum pos)
+
+#endif
 
