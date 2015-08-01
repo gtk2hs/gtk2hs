@@ -77,16 +77,15 @@ module Graphics.UI.Gtk.Layout.Grid (
   gridGetRowBaselinePosition,
   gridSetRowBaselinePosition
 #endif
- 
+
  ) where
 
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags                (fromFlags)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums    (AttachOptions(..), PositionType)
+import Graphics.UI.Gtk.General.Enums    (PositionType)
 
 #if GTK_CHECK_VERSION(3,10,0)
 import Graphics.UI.Gtk.General.Enums    (BaselinePosition)
@@ -100,7 +99,7 @@ import Graphics.UI.Gtk.General.Enums    (BaselinePosition)
 -- | Creates a new grid widget.
 --
 gridNew :: IO Grid
-gridNew = 
+gridNew =
  makeNewObject mkGrid $
  liftM (castPtr :: Ptr Widget -> Ptr Grid) $
  {# call unsafe grid_new #}
@@ -111,7 +110,7 @@ gridNew =
 -- | Adds a widget to the grid. The position of child is determined by left and top.
 -- the number of "cells" that child will occupy is determined by width and height.
 --
-gridAttach :: (GridClass self, WidgetClass child) 
+gridAttach :: (GridClass self, WidgetClass child)
  => self -- ^ @self@ - the grid.
  -> child -- ^ @child@ - the widget to add.
  -> Int -- ^ @left@ - the column number of to attach the left side of child to.
@@ -128,14 +127,14 @@ gridAttach self child left top width height =
     (fromIntegral width)
     (fromIntegral height)
 
--- | Adds a widget to the grid. The widget is placed next to sibling , on the side 
--- determined by side . When sibling is Nothing, the widget is placed in row (for 
--- left or right placement) or column 0 (for top or bottom placement), at the end 
+-- | Adds a widget to the grid. The widget is placed next to sibling , on the side
+-- determined by side . When sibling is Nothing, the widget is placed in row (for
+-- left or right placement) or column 0 (for top or bottom placement), at the end
 -- indicated by side.
 --
--- Attaching widgets labeled [1], [2], [3] with sibling == Nothing and side == GTK_POS_LEFT 
+-- Attaching widgets labeled [1], [2], [3] with sibling == Nothing and side == GTK_POS_LEFT
 -- yields a layout of 3[1].
--- 
+--
 gridAttachNextTo :: (GridClass self, WidgetClass child, WidgetClass sibling)
  => self -- ^ @self@ - the grid.
  -> child -- ^ @child@ - the widget to add
@@ -178,7 +177,7 @@ gridGetRowHomogeneous self =
 --
 gridSetRowSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> Int -- ^ @spacing@ - the amount of space to insert between rows. 
+ -> Int -- ^ @spacing@ - the amount of space to insert between rows.
  -> IO ()
 gridSetRowSpacing self spacing =
  {# call grid_set_row_spacing #}
@@ -231,7 +230,7 @@ gridSetColumnSpacing self spacing =
 --
 gridGetColumnSpacing :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Int -- ^ returns the spacing of grid. 
+ -> IO Int -- ^ returns the spacing of grid.
 gridGetColumnSpacing self =
  liftM fromIntegral $
  {# call grid_get_column_spacing #}
@@ -239,8 +238,8 @@ gridGetColumnSpacing self =
 
 #if GTK_CHECK_VERSION(3,2,0)
 
--- | Gets the child of grid whose area covers the grid cell whose upper left corner is at 
--- left , top . 
+-- | Gets the child of grid whose area covers the grid cell whose upper left corner is at
+-- left , top .
 --
 gridGetChildAt :: GridClass self
  => self -- ^ @self@ - the grid.
@@ -252,12 +251,12 @@ gridGetChildAt self left top = do
            (toGrid self)
            (fromIntegral left)
            (fromIntegral top)
- if ptr == nullPtr 
-    then return Nothing 
+ if ptr == nullPtr
+    then return Nothing
     else liftM Just $ makeNewObject mkWidget (return ptr)
 
--- | Inserts a row at the specified position. Children which are attached at or below this 
--- position are moved one row down. Children which span across this position are grown to 
+-- | Inserts a row at the specified position. Children which are attached at or below this
+-- position are moved one row down. Children which span across this position are grown to
 -- span the new row.
 --
 gridInsertRow :: GridClass self
@@ -270,7 +269,7 @@ gridInsertRow self pos =
     (fromIntegral pos)
 
 -- | Inserts a column at the specified position. Children which are attached at or to the
--- right of this position are moved one column to the right. Children which span across 
+-- right of this position are moved one column to the right. Children which span across
 -- this position are grown to span the new column
 --
 gridInsertColumn :: GridClass self
@@ -283,8 +282,8 @@ gridInsertColumn self pos =
     (fromIntegral pos)
 
 -- | Inserts a row or column at the specified position. The new row or column is placed
--- next to sibling , on the side determined by side. If side is GTK_POS_TOP or 
--- GTK_POS_BOTTOM, a row is inserted. If side is GTK_POS_LEFT of GTK_POS_RIGHT, a 
+-- next to sibling , on the side determined by side. If side is GTK_POS_TOP or
+-- GTK_POS_BOTTOM, a row is inserted. If side is GTK_POS_LEFT of GTK_POS_RIGHT, a
 -- column is inserted.
 --
 gridInsertNextTo :: (GridClass self, WidgetClass sibling)
@@ -332,13 +331,13 @@ gridRemoveColumn self pos =
 --
 gridGetBaselineRow :: GridClass self
  => self -- ^ @self@ - the grid.
- -> IO Int -- ^ returns the row index defining the global baseline. 
+ -> IO Int -- ^ returns the row index defining the global baseline.
 gridGetBaselineRow self =
  liftM fromIntegral $
  {# call grid_get_baseline_row #}
     (toGrid self)
 
--- | Sets which row defines the global baseline for the entire grid. Each row in 
+-- | Sets which row defines the global baseline for the entire grid. Each row in
 -- the grid can have its own local baseline, but only one of those is global,
 -- meaning it will be the baseline in the parent of the grid.
 --
@@ -351,7 +350,7 @@ gridSetBaselineRow self row =
     (toGrid self)
     (fromIntegral row)
 
--- | Returns the baseline position of row as set by gridSetRowBaselinePosition 
+-- | Returns the baseline position of row as set by gridSetRowBaselinePosition
 -- or the default value BASELINE_POSITION_CENTER
 --
 gridGetRowBaselinePosition :: GridClass self
@@ -364,7 +363,7 @@ gridGetRowBaselinePosition self row =
     (toGrid self)
     (fromIntegral row)
 
--- | Sets how the baseline should be positioned on row of the grid, in case that row 
+-- | Sets how the baseline should be positioned on row of the grid, in case that row
 -- is assigned more space than is requested.
 --
 gridSetRowBaselinePosition :: GridClass self
