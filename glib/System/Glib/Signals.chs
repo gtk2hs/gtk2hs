@@ -37,10 +37,12 @@ module System.Glib.Signals (
   Signal(Signal),
   on, after,
   SignalName,
+  GSignalMatchType(..),
   ConnectAfter,
   ConnectId(ConnectId),
   signalDisconnect,
   signalBlock,
+  signalBlockMatched,
   signalUnblock,
   signalStopEmission,
   disconnect,
@@ -53,7 +55,10 @@ module System.Glib.Signals (
 #endif
   ) where
 
+import Control.Monad (liftM)
 import System.Glib.FFI
+import System.Glib.GType
+import System.Glib.Flags
 {#import System.Glib.GObject#}
 #ifndef USE_GCLOSURE_SIGNALS_IMPL
 import Data.IORef
@@ -133,6 +138,38 @@ signalBlock :: GObjectClass obj => ConnectId obj -> IO ()
 signalBlock (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
   {# call g_signal_handler_block #} (castPtr objPtr) handler
+
+{# enum GSignalMatchType {underscoreToCase} deriving (Eq, Ord, Bounded) #}
+instance Flags GSignalMatchType
+
+-- | Blocks all handlers on an instance that match a certain selection
+-- criteria. The criteria mask is passed as a list of `GSignalMatchType` flags,
+-- and the criteria values are passed as arguments. Passing at least one of
+-- the `SignalMatchClosure`, `SignalMatchFunc` or `SignalMatchData` match flags
+-- is required for successful matches. If no handlers were found, 0 is returned,
+-- the number of blocked handlers otherwise.
+signalBlockMatched :: GObjectClass obj
+                   => obj
+                   -> [GSignalMatchType]
+                   -> SignalName
+                   -> GType
+                   -> Quark
+                   -> Maybe GClosure
+                   -> Maybe (Ptr ())
+                   -> Maybe (Ptr ())
+                   -> IO Int
+signalBlockMatched obj mask sigName gType quark closure func userData = do
+  sigId <- withCString sigName $ \strPtr ->
+                {# call g_signal_lookup #} strPtr gType
+  liftM fromIntegral $ withForeignPtr (unGObject $ toGObject obj) $ \objPtr ->
+    {# call g_signal_handlers_block_matched #}
+        (castPtr objPtr)
+        (fromIntegral $ fromFlags mask)
+        sigId
+        quark
+        (maybe nullPtr (\(GClosure p) -> castPtr p) closure)
+        (maybe nullPtr id func)
+        (maybe nullPtr id userData)
 
 -- | Unblock a specific signal handler.
 --
