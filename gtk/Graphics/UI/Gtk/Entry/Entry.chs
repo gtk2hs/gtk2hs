@@ -77,6 +77,10 @@ module Graphics.UI.Gtk.Entry.Entry (
   entrySetHasFrame,
   entryGetWidthChars,
   entrySetWidthChars,
+#if GTK_CHECK_VERSION(3,2,0)
+  entrySetPlaceholderText,
+  entryGetPlaceholderText,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   entrySetAlignment,
   entryGetAlignment,
@@ -429,6 +433,38 @@ entrySetWidthChars self nChars =
   {# call entry_set_width_chars #}
     (toEntry self)
     (fromIntegral nChars)
+
+#if GTK_CHECK_VERSION(3,2,0)
+-- | Sets text to be displayed in entry when it is empty and unfocused.
+-- This can be used to give a visual hint of the expected contents of the `Entry`.
+--
+-- Note that since the placeholder text gets removed when the entry received
+-- focus, using this feature is a bit problematic if the entry is given the
+-- initial focus in a window. Sometimes this can be worked around by delaying
+-- the initial focus setting until the first key event arrives.
+--
+-- * Available since Gtk version 3.2
+--
+entrySetPlaceholderText :: (EntryClass self, GlibString text) => self
+ -> Maybe text -- ^ @text@ a string to be displayed when entry is empty an unfocused, or `Nothing`
+ -> IO ()
+entrySetPlaceholderText self text =
+  maybeWith withUTFString text $ \ textPtr ->
+  {# call entry_set_placeholder_text #}
+    (toEntry self)
+    textPtr
+
+-- | Retrieves the text that will be displayed when entry is empty and unfocused.
+--
+-- * Available since Gtk version 3.2
+--
+entryGetPlaceholderText :: (EntryClass self, GlibString text) => self
+ -> IO (Maybe text) -- ^ returns placeholder text
+entryGetPlaceholderText self =
+  {# call unsafe entry_get_placeholder_text #}
+    (toEntry self)
+  >>= maybePeek peekUTFString
+#endif
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Sets the alignment for the contents of the entry. This controls the
