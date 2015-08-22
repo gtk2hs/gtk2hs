@@ -114,6 +114,9 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryWidthChars,
   entryScrollOffset,
   entryText,
+#if GTK_CHECK_VERSION(3,2,0)
+  entryPlaceholderText,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   entryXalign,
   entryAlignment,
@@ -688,6 +691,17 @@ entryText :: (EntryClass self, GlibString string) => Attr self string
 entryText = newAttr
   entryGetText
   entrySetText
+
+#if GTK_CHECK_VERSION(3,2,0)
+-- | The text that will be displayed in the `Entry` when it is empty and unfocused.
+--
+-- Default value: Nothing
+--
+entryPlaceholderText :: (EntryClass self, GlibString text) => Attr self (Maybe text)
+entryPlaceholderText = newAttr
+  entryGetPlaceholderText
+  entrySetPlaceholderText
+#endif
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | The horizontal alignment, from 0 (left) to 1 (right). Reversed for RTL
