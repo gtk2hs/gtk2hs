@@ -75,6 +75,9 @@ module Graphics.UI.Gtk.Selectors.FileChooserButton (
   fileChooserButtonDialog,
   fileChooserButtonTitle,
   fileChooserButtonWidthChars,
+
+-- * Signals
+  fileChooserButtonFileSet 
 #endif
   ) where
 
@@ -86,6 +89,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Signals#}
 
 #if GTK_CHECK_VERSION(2,6,0)
 {#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
@@ -216,4 +220,14 @@ fileChooserButtonWidthChars :: FileChooserButtonClass self => Attr self Int
 fileChooserButtonWidthChars = newAttr
   fileChooserButtonGetWidthChars
   fileChooserButtonSetWidthChars
+
+--------------------
+-- Signals
+
+-- %hash c:b660 d:ab72
+-- | Emitted when the user selects a file.
+--
+fileChooserButtonFileSet :: FileChooserButtonClass self => Signal self (IO ())
+fileChooserButtonFileSet = Signal (connect_NONE__NONE "file-set")
+
 #endif
