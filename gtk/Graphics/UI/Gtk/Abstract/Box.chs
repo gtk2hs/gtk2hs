@@ -116,10 +116,24 @@ module Graphics.UI.Gtk.Abstract.Box (
   boxReorderChild,
   boxQueryChildPacking,
   boxSetChildPacking,
+#if GTK_CHECK_VERSION(3,10,0)
+  boxGetBaselinePosition,
+  boxSetBaselinePosition,
+#endif
+#if GTK_CHECK_VERSION(3,12,0)
+  boxGetCenterWidget,
+  boxSetCenterWidget,
+#endif
 
 -- * Attributes
   boxSpacing,
   boxHomogeneous,
+#if GTK_CHECK_VERSION(3,10,0)
+  boxBaselinePosition,
+#endif
+#if GTK_CHECK_VERSION(3,12,0)
+  boxCenterWidget,
+#endif
 
 -- * Child Attributes
   boxChildPacking,
@@ -136,6 +150,13 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.General.Enums    (PackType(..), Packing(..),
                                         toPacking, fromPacking)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
+
+#if GTK_CHECK_VERSION(3,10,0)
+import Graphics.UI.Gtk.General.Enums    (BaselinePosition)
+#endif
+#if GTK_CHECK_VERSION(3,12,0)
+import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -321,6 +342,51 @@ boxSetChildPacking self child packing padding packType =
     ((fromIntegral . fromEnum) packType)
   where (expand, fill) = fromPacking packing
 
+#if GTK_CHECK_VERSION(3,10,0)
+-- | Gets the value set by `boxSetBaselinePostion`
+boxGetBaselinePosition :: BoxClass self => self
+ -> IO BaselinePosition
+boxGetBaselinePosition self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe box_get_baseline_position #}
+    (toBox self)
+
+-- | Sets the baseline position of a box. This affects only
+-- horizontal boxes with at least one baseline aligned child.
+-- If there is more vertical space available than requested,
+-- and the baseline is not allocated by the parent then
+-- `position` is used to allocate the baseline wrt the extra
+-- space available.
+boxSetBaselinePosition :: BoxClass self => self
+ -> BaselinePosition
+ -> IO ()
+boxSetBaselinePosition self position =
+  {# call unsafe box_set_baseline_position #}
+    (toBox self)
+    (fromIntegral $ fromEnum position)
+#endif
+
+#if GTK_CHECK_VERSION(3,12,0)
+-- | Retrieves the center widget of the box.
+boxGetCenterWidget :: BoxClass self => self
+ -> IO Widget
+boxGetCenterWidget self =
+  makeNewObject mkWidget $
+  {# call unsafe box_get_center_widget #}
+    (toBox self)
+
+-- | Sets a center widget; that is a child widget that will be
+-- centered with respect to the full width of the box, even if
+-- the children at either side take up different amounts of space.
+boxSetCenterWidget :: (BoxClass self, WidgetClass widget) => self
+ -> widget
+ -> IO ()
+boxSetCenterWidget self position =
+  {# call unsafe box_set_center_widget #}
+    (toBox self)
+    (toWidget position)
+#endif
+
 -- | Retrieves the standard spacing between widgets.
 --
 boxGetSpacing :: BoxClass self => self
@@ -352,6 +418,24 @@ boxHomogeneous :: BoxClass self => Attr self Bool
 boxHomogeneous = newAttr
   boxGetHomogeneous
   boxSetHomogeneous
+
+#if GTK_CHECK_VERSION(3,10,0)
+-- | The position of the baseline aligned widgets if extra space is available.
+boxBaselinePosition :: BoxClass self => Attr self BaselinePosition
+boxBaselinePosition = newAttr
+  boxGetBaselinePosition
+  boxSetBaselinePosition
+#endif
+
+#if GTK_CHECK_VERSION(3,12,0)
+-- | A child widget that will be centered with respect to the
+-- full width of the box, even if the children at either side
+-- take up different amounts of space.
+boxCenterWidget :: (BoxClass self, WidgetClass widget) => ReadWriteAttr self Widget widget
+boxCenterWidget = newAttr
+  boxGetCenterWidget
+  boxSetCenterWidget
+#endif
 
 --------------------
 -- Child Attributes
