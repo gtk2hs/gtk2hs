@@ -20,7 +20,7 @@ import System.Environment
 import System.Process
 import System.Exit (ExitCode(..), exitWith)
 import System.FilePath
-import System.Directory
+import System.Directory (doesFileExist, getModificationTime)
 import qualified Control.Exception as Exception
 import System.IO.Error (isDoesNotExistError)
 
