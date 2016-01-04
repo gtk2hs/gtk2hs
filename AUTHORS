@@ -60,6 +60,9 @@ Matthew Walton <matthew@alledora.co.uk>
 Matt Arsenault <arsenm2@rpi.edu>
 Hamish Mackenzie <hamish.k.mackenzie@googlemail.com>
 
+Chris Mennie <chris@chrismennie.ca>
+(GLArea and GLContext bindings)
+
 Much of the documentation is derived from the GTK+ documentation which is
 Copyright (c) 1995..2005 the GTK+ Team
 See the GTK+ AUTHORS & COPYING files for details.
