@@ -366,7 +366,9 @@ Library
         -- needs to be imported from this module:
         x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
-        cpp-options: -DDISABLE_DEPRECATED -U__BLOCKS__ -D__attribute__(A)=
+        cpp-options: -DDISABLE_DEPRECATED -U__BLOCKS__
+        if os(darwin)
+          cpp-options: -D__attribute__(A)=
         if os(windows)
           cpp-options:    -DWIN32 -fno-exceptions
           cc-options:     -fno-exceptions
