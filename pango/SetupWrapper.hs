@@ -1,6 +1,8 @@
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module SetupWrapper (setupWrapper) where
 
 import Distribution.Package
@@ -12,7 +14,6 @@ import Distribution.Simple.BuildPaths (exeExtension)
 import Distribution.Simple.Configure (configCompilerEx)
 import Distribution.Simple.GHC (getInstalledPackages)
 import qualified Distribution.Simple.PackageIndex as PackageIndex
-import Distribution.Simple.PackageIndex (InstalledPackageIndex)
 import Distribution.Version
 import Distribution.Verbosity
 import Distribution.Text
@@ -31,25 +32,25 @@ import Control.Monad
 
 -- A compatibility hack to work around getInstalledPackages' differing type
 -- signatures before and after Cabal-1.23
-class OldGetInstalledPackages a where
+class OldGetInstalledPackages a b | a -> b where
   getInstalledPackagesOld :: a
                           -> Verbosity
                           -> Compiler
                           -> PackageDBStack
                           -> ProgramConfiguration
-                          -> IO InstalledPackageIndex
+                          -> IO b
 
 -- Pre Cabal-1.23
 instance OldGetInstalledPackages (Verbosity -> PackageDBStack
                                             -> ProgramConfiguration
-                                            -> IO InstalledPackageIndex) where
+                                            -> IO b) b where
   getInstalledPackagesOld f v _ db c = f v db c
 
 -- Post-Cabal-1.23
 instance OldGetInstalledPackages (Verbosity -> Compiler
                                             -> PackageDBStack
                                             -> ProgramConfiguration
-                                            -> IO InstalledPackageIndex) where
+                                            -> IO b) b where
   getInstalledPackagesOld = id
 
 -- moreRecentFile is implemented in Distribution.Simple.Utils, but only in
