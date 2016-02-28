@@ -183,11 +183,16 @@ register pkg@PackageDescription { library       = Just lib  } lbi regFlags
      _ | modeGenerateRegFile   -> writeRegistrationFile installedPkgInfo
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
-                                    installedPkgInfo pkg lbi inplace
-#if CABAL_VERSION_CHECK(1,10,0)
-                                    packageDbs
+#if CABAL_VERSION_CHECK(1,23,0)
+                                    (LBI.compiler lbi) (withPrograms lbi)
+                                    False packageDbs installedPkgInfo
 #else
+                                    installedPkgInfo pkg lbi inplace
+# if CABAL_VERSION_CHECK(1,10,0)
+                                    packageDbs
+# else
                                     packageDb
+# endif
 #endif
 
   where
