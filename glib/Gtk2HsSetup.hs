@@ -22,7 +22,11 @@ import Distribution.InstalledPackageInfo ( importDirs,
                                            libraryDirs,
                                            extraLibraries,
                                            extraGHCiLibraries )
+#if CABAL_VERSION_CHECK(1,23,0)
+import Distribution.Simple.PackageIndex ( lookupUnitId )
+#else
 import Distribution.Simple.PackageIndex ( lookupInstalledPackageId )
+#endif
 import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                updatePackageDescription,
                                                BuildInfo(..),
@@ -254,7 +258,14 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
   -- we assume that these are installed in the same place as .hi files
   let chiDirs = [ dir |
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
-                  dir <- maybe [] importDirs (lookupInstalledPackageId (installedPkgs lbi) ipi) ]
+                  dir <- maybe [] importDirs $
+#if CABAL_VERSION_CHECK(1,23,0)
+                           lookupUnitId
+#else
+                           lookupInstalledPackageId
+#endif
+                             (installedPkgs lbi) ipi
+                ]
   (gccProg, _) <- requireProgram verbosity gccProgram (withPrograms lbi)
   rawSystemProgramConf verbosity c2hsLocal (withPrograms lbi) $
        map ("--include=" ++) (outDir:chiDirs)
