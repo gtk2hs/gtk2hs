@@ -1,6 +1,8 @@
 -- A wrapper script for Cabal Setup.hs scripts. Allows compiling the real Setup
 -- conditionally depending on the Cabal version.
-
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module SetupWrapper (setupWrapper) where
 
 import Distribution.Package
@@ -28,6 +30,28 @@ import Data.List
 import Data.Char
 import Control.Monad
 
+-- A compatibility hack to work around getInstalledPackages' differing type
+-- signatures before and after Cabal-1.23
+class OldGetInstalledPackages a b | a -> b where
+  getInstalledPackagesOld :: a
+                          -> Verbosity
+                          -> Compiler
+                          -> PackageDBStack
+                          -> ProgramConfiguration
+                          -> IO b
+
+-- Pre Cabal-1.23
+instance OldGetInstalledPackages (Verbosity -> PackageDBStack
+                                            -> ProgramConfiguration
+                                            -> IO b) b where
+  getInstalledPackagesOld f v _ db c = f v db c
+
+-- Post-Cabal-1.23
+instance OldGetInstalledPackages (Verbosity -> Compiler
+                                            -> PackageDBStack
+                                            -> ProgramConfiguration
+                                            -> IO b) b where
+  getInstalledPackagesOld = id
 
 -- moreRecentFile is implemented in Distribution.Simple.Utils, but only in
 -- Cabal >= 1.18. For backwards-compatibility, we implement a copy with a new
@@ -83,7 +107,8 @@ setupWrapper setupHsFile = do
         _                             -> return Nothing
 
     installedCabalVersion comp conf = do
-      index <- getInstalledPackages verbosity usePackageDB conf
+      index <- getInstalledPackagesOld getInstalledPackages
+                 verbosity comp usePackageDB conf
 
       let cabalDep = Dependency (PackageName "Cabal")
                                 (orLaterVersion useCabalVersion)

@@ -22,7 +22,11 @@ import Distribution.InstalledPackageInfo ( importDirs,
                                            libraryDirs,
                                            extraLibraries,
                                            extraGHCiLibraries )
+#if CABAL_VERSION_CHECK(1,23,0)
+import Distribution.Simple.PackageIndex ( lookupUnitId )
+#else
 import Distribution.Simple.PackageIndex ( lookupInstalledPackageId )
+#endif
 import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                updatePackageDescription,
                                                BuildInfo(..),
@@ -183,11 +187,16 @@ register pkg@PackageDescription { library       = Just lib  } lbi regFlags
      _ | modeGenerateRegFile   -> writeRegistrationFile installedPkgInfo
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> registerPackage verbosity
-                                    installedPkgInfo pkg lbi inplace
-#if CABAL_VERSION_CHECK(1,10,0)
-                                    packageDbs
+#if CABAL_VERSION_CHECK(1,23,0)
+                                    (LBI.compiler lbi) (withPrograms lbi)
+                                    False packageDbs installedPkgInfo
 #else
+                                    installedPkgInfo pkg lbi inplace
+# if CABAL_VERSION_CHECK(1,10,0)
+                                    packageDbs
+# else
                                     packageDb
+# endif
 #endif
 
   where
@@ -249,7 +258,14 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
   -- we assume that these are installed in the same place as .hi files
   let chiDirs = [ dir |
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
-                  dir <- maybe [] importDirs (lookupInstalledPackageId (installedPkgs lbi) ipi) ]
+                  dir <- maybe [] importDirs $
+#if CABAL_VERSION_CHECK(1,23,0)
+                           lookupUnitId
+#else
+                           lookupInstalledPackageId
+#endif
+                             (installedPkgs lbi) ipi
+                ]
   (gccProg, _) <- requireProgram verbosity gccProgram (withPrograms lbi)
   rawSystemProgramConf verbosity c2hsLocal (withPrograms lbi) $
        map ("--include=" ++) (outDir:chiDirs)
