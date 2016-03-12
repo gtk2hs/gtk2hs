@@ -17,6 +17,7 @@ Table of Contents
 2 Linux
     2.1 Preferred Way: Via Package Manager
     2.2 From Source
+    2.2.1 Stack
     2.3 Installing darcs
 3 Mac
 4 FreeBSD
@@ -104,6 +105,16 @@ You can now build Gtk2Hs itself, with the commands
 cabal update
 cabal install gtk2hs-buildtools
 cabal install gtk</nowiki>
+
+==== Stack ====
+If you are using Stack and list "gtk" as a build dependency in your *.cabal file, you can prepare your system by simply installing "-devel" versions of required packages using your favourite package manager (e.g. zypper or Yast for SUSE):
+
+* glib2-devel
+* cairo-devel
+* pango-devel
+* gtk2-devel
+
+This way you won't have to add cabal directory to your $PATH. Skipping cabal configuration and letting Stack manage all dependencies will save you a lot ot time.
 
 === Installing darcs ===
 There are binaries available on [http://darcs.net/Binaries the official download page], or in almost all cases via your package manager as a package named darcs.
