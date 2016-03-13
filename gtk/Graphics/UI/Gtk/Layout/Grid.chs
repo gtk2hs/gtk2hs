@@ -201,7 +201,7 @@ gridSetColumnHomogeneous :: GridClass self
  -> Bool -- ^ @homogeneous@ - True to make columns homogeneous.
  -> IO ()
 gridSetColumnHomogeneous self homogeneous =
- {# call grid_set_row_homogeneous #}
+ {# call grid_set_column_homogeneous #}
     (toGrid self)
     (fromBool homogeneous)
 
