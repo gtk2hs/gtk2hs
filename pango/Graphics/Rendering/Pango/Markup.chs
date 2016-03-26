@@ -59,7 +59,7 @@ module Graphics.Rendering.Pango.Markup (
   parseMarkup
   ) where
 
-import qualified Graphics.Rendering.Pango.Enums as Pango
+import GI.Pango.Enums as Pango
 import Graphics.Rendering.Pango.Attributes ( parseMarkup )
 
 -- | These are all the attributes the 'markSpan' function can express.

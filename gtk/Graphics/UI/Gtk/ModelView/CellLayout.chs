@@ -1,4 +1,6 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Interface CellLayout
 --
@@ -45,121 +47,31 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
 -- |   +----'ComboBoxEntry'
 -- @
 
-#if GTK_CHECK_VERSION(2,4,0)
--- * Types
-  CellLayoutClass,
-  toCellLayout,
-
--- * Methods
-  cellLayoutPackStart,
-  cellLayoutPackEnd,
-  cellLayoutReorder,
-  cellLayoutClear,
-  cellLayoutClearAttributes,
-#if GTK_CHECK_VERSION(2,12,0)
-  cellLayoutGetCells,
-#endif
-  cellLayoutAddColumnAttribute,
-  cellLayoutSetAttributes,
-  cellLayoutSetAttributeFunc,
-#endif
+    module GI.Gtk.Interfaces.CellLayout
+--  , cellLayoutAddColumnAttribute
+  , cellLayoutSetAttributes
+  , cellLayoutSetAttributeFunc
+  , convertIterFromParentToChildModel
   ) where
 
-import System.Glib.FFI
-import System.Glib.GList
-import System.Glib.Attributes
-import System.Glib.GType
-{#import Graphics.UI.Gtk.Types#}
+import Control.Monad.IO.Class (MonadIO(..))
+import Foreign.Ptr (castPtr)
+import Foreign.Storable (peek)
+import Data.GI.Base.Attributes (AttrOp, AttrOpTag(..), set)
+import Data.GI.Base.ManagedPtr (castTo, withManagedPtr)
+import GI.Gtk.Interfaces.CellLayout
+import GI.Gtk.Objects.TreeModelFilter (TreeModelFilter(..), getTreeModelFilterChildModel, treeModelFilterConvertIterToChildIter)
+import GI.Gtk.Objects.TreeModelSort (TreeModelSort(..), getTreeModelSortModel, treeModelSortConvertIterToChildIter)
+import GI.Gtk.Structs.TreeIter (TreeIter(..))
+import GI.Gtk.Objects.CellRenderer (CellRendererK, CellRenderer(..), toCellRenderer)
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#} (treeModelGetRow)
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} (customStoreGetRow)
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,4,0)
-
-#if GTK_CHECK_VERSION(2,6,0)
-instance CellLayoutClass CellView
-instance CellLayoutClass IconView
-#endif
-
-instance CellLayoutClass EntryCompletion
-instance CellLayoutClass TreeViewColumn
-instance CellLayoutClass ComboBox
-#if GTK_MAJOR_VERSION < 3
-instance CellLayoutClass ComboBoxEntry
-#endif
-
 --------------------
 -- Methods
-
--- | Packs the @cell@ into the beginning of the cell layout. If @expand@ is
--- @False@, then the @cell@ is allocated no more space than it needs. Any
--- unused space is divided evenly between cells for which @expand@ is @True@.
---
--- Note that reusing the same cell renderer is not supported.
---
-cellLayoutPackStart :: (CellLayoutClass self, CellRendererClass cell) => self
- -> cell  -- ^ @cell@ - A 'CellRenderer'.
- -> Bool  -- ^ @expand@ - @True@ if @cell@ is to be given extra space
-          -- allocated to @cellLayout@.
- -> IO ()
-cellLayoutPackStart self cell expand =
-  {# call gtk_cell_layout_pack_start #}
-    (toCellLayout self)
-    (toCellRenderer cell)
-    (fromBool expand)
-
--- | Adds the @cell@ to the end of @cellLayout@. If @expand@ is @False@, then
--- the @cell@ is allocated no more space than it needs. Any unused space is
--- divided evenly between cells for which @expand@ is @True@.
---
--- Note that reusing the same cell renderer is not supported.
---
-cellLayoutPackEnd :: (CellLayoutClass self, CellRendererClass cell) => self
- -> cell  -- ^ @cell@ - A 'CellRenderer'.
- -> Bool  -- ^ @expand@ - @True@ if @cell@ is to be given extra space
-          -- allocated to @cellLayout@.
- -> IO ()
-cellLayoutPackEnd self cell expand =
-  {# call gtk_cell_layout_pack_end #}
-    (toCellLayout self)
-    (toCellRenderer cell)
-    (fromBool expand)
-
--- | Re-inserts @cell@ at @position@. Note that @cell@ has already to be
--- packed into @cellLayout@ for this to function properly.
---
-cellLayoutReorder :: (CellLayoutClass self, CellRendererClass cell) => self
- -> cell  -- ^ @cell@ - A 'CellRenderer' to reorder.
- -> Int   -- ^ @position@ - New position to insert @cell@ at.
- -> IO ()
-cellLayoutReorder self cell position =
-  {# call gtk_cell_layout_reorder #}
-    (toCellLayout self)
-    (toCellRenderer cell)
-    (fromIntegral position)
-
--- | Remove all renderers from the cell layout.
---
-cellLayoutClear :: CellLayoutClass self => self -> IO ()
-cellLayoutClear self =
-  {# call gtk_cell_layout_clear #}
-    (toCellLayout self)
-
-#if GTK_CHECK_VERSION(2,12,0)
--- | Returns the cell renderers which have been added to @cellLayout@.
---
--- * Available since Gtk+ version 2.12
---
-cellLayoutGetCells :: CellLayoutClass self => self
- -> IO [CellRenderer] -- ^ returns a list of cell renderers
-cellLayoutGetCells self =
-  {# call gtk_cell_layout_get_cells #}
-    (toCellLayout self)
-  >>= fromGList
-  >>= mapM (makeNewGObject mkCellRenderer . return)
-#endif
 
 -- | Adds an attribute mapping to the renderer @cell@. The @column@ is
 -- the 'ColumnId' of the model to get a value from, and the @attribute@ is the
@@ -167,20 +79,14 @@ cellLayoutGetCells self =
 -- the model contains strings, you could have the \"text\" attribute of a
 -- 'CellRendererText' get its values from column 2.
 --
-cellLayoutAddColumnAttribute :: (CellLayoutClass self, CellRendererClass cell) => self
- -> cell   -- ^ @cell@ - A 'CellRenderer'.
- -> ReadWriteAttr cell a v  -- ^ @attribute@ - An attribute of a renderer.
- -> ColumnId row v    -- ^ @column@ - The virtual column of the model from which to
-                      -- retrieve the attribute.
- -> IO ()
-cellLayoutAddColumnAttribute self cell attr column =
-  withCString (show attr) $ \attributePtr ->
-  {# call gtk_cell_layout_add_attribute #}
-    (toCellLayout self)
-    (toCellRenderer cell)
-    attributePtr
-    (fromIntegral (columnIdToNumber column))
-
+-- cellLayoutAddColumnAttribute :: (MonadIO m, CellLayoutK self, CellRendererK cell) => self
+--  -> cell   -- ^ @cell@ - A 'CellRenderer'.
+--  -> ReadWriteAttr cell a v  -- ^ @attribute@ - An attribute of a renderer.
+--  -> ColumnId row v    -- ^ @column@ - The virtual column of the model from which to
+--                       -- retrieve the attribute.
+--  -> m ()
+-- cellLayoutAddColumnAttribute self cell attr column =
+--   cellLayoutAddAttribute self cell (T.pack $ show attr) (columnIdToNumber column)
 
 -- | Specify how a row of the @model@ defines the
 -- attributes of the 'CellRenderer' @cell@. This is a convenience wrapper
@@ -198,48 +104,41 @@ cellLayoutAddColumnAttribute self cell attr column =
 -- Hence, it is possible to install the encapsulating model in the view and to
 -- pass the child model to this function.
 --
-cellLayoutSetAttributes :: (CellLayoutClass self,
-                             CellRendererClass cell,
-                             TreeModelClass (model row),
-                             TypedTreeModelClass model)
+cellLayoutSetAttributes :: (MonadIO m,
+                            CellLayoutK self,
+                            CellRendererK cell,
+                            TreeModelK (model row),
+                            TypedTreeModelClass model)
  => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> model row -- ^ @model@ - A model containing rows of type @row@.
- -> (row -> [AttrOp cell]) -- ^ Function to set attributes on the cell renderer.
- -> IO ()
+ -> (row -> [AttrOp cell 'AttrSet]) -- ^ Function to set attributes on the cell renderer.
+ -> m ()
 cellLayoutSetAttributes self cell model attributes =
   cellLayoutSetAttributeFunc self cell model $ \iter -> do
-    row <- treeModelGetRow model iter
+    row <- customStoreGetRow model iter
     set cell (attributes row)
 
 -- | Install a function that looks up a row in the model and sets the
 -- attributes of the 'CellRenderer' @cell@ using the row's content.
 --
-cellLayoutSetAttributeFunc :: (CellLayoutClass self,
-                               CellRendererClass cell,
-                               TreeModelClass model)
+cellLayoutSetAttributeFunc :: (MonadIO m,
+                               CellLayoutK self,
+                               CellRendererK cell,
+                               TreeModelK model)
  => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> model  -- ^ @model@ - A model from which to draw data.
  -> (TreeIter -> IO ()) -- ^ Function to set attributes on the cell renderer.
- -> IO ()
-cellLayoutSetAttributeFunc self cell model func = do
-  fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
-    iter <- convertIterFromParentToChildModel iterPtr modelPtr'
-      (toTreeModel model)
-    let (CellRenderer cellPtr) = toCellRenderer cell
-    if unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
+ -> m ()
+cellLayoutSetAttributeFunc self cell model func = liftIO $ do
+  cellLayoutSetCellDataFunc self cell . Just $ \_ (CellRenderer cellPtr') model' iter -> do
+    iter <- convertIterFromParentToChildModel iter model' =<< toTreeModel model
+    CellRenderer cellPtr <- toCellRenderer cell
+    if cellPtr /= cellPtr' then
       error ("cellLayoutSetAttributeFunc: attempt to set attributes of "++
              "a different CellRenderer.")
       else func iter
-  {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
-    (toCellRenderer cell) fPtr (castFunPtrToPtr fPtr) destroyFunPtr
-
-{#pointer CellLayoutDataFunc#}
-
-foreign import ccall "wrapper" mkSetAttributeFunc ::
-  (Ptr CellLayout -> Ptr CellRenderer -> Ptr TreeModel -> Ptr TreeIter ->
-   Ptr () -> IO ()) -> IO CellLayoutDataFunc
 
 -- Given a 'TreeModelFilter' or a 'TreeModelSort' and a 'TreeIter', get the
 -- child model of these models and convert the iter to an iter of the child
@@ -252,57 +151,35 @@ foreign import ccall "wrapper" mkSetAttributeFunc ::
 -- \#551202.
 --
 convertIterFromParentToChildModel ::
-     Ptr TreeIter -- ^ the iterator
-  -> Ptr TreeModel -- ^ the model that we got from the all back
+     TreeIter -- ^ the iterator
+  -> TreeModel -- ^ the model that we got from the all back
   -> TreeModel -- ^ the model that we actually want
   -> IO TreeIter
-convertIterFromParentToChildModel iterPtr parentModelPtr childModel =
-  let (TreeModel modelFPtr) = childModel
-      modelPtr = unsafeForeignPtrToPtr modelFPtr in
-  if modelPtr==parentModelPtr then peek iterPtr else
-  if typeInstanceIsA (castPtr parentModelPtr) gTypeTreeModelFilter then
-    alloca $ \childIterPtr -> do
-      treeModelFilterConvertIterToChildIter parentModelPtr childIterPtr iterPtr
-      childPtr <- treeModelFilterGetModel parentModelPtr
-      if childPtr==modelPtr then peek childIterPtr else
-        convertIterFromParentToChildModel childIterPtr childPtr childModel
-  else if typeInstanceIsA (castPtr parentModelPtr) gTypeTreeModelSort then
-    alloca $ \childIterPtr -> do
-      treeModelSortConvertIterToChildIter parentModelPtr childIterPtr iterPtr
-      childPtr <- treeModelSortGetModel parentModelPtr
-      if childPtr==modelPtr then peek childIterPtr else
-        convertIterFromParentToChildModel childIterPtr childPtr childModel
-  else do
-    iter <- peek iterPtr
-    error ("CellLayout: don't know how to convert iter "++show  iter++
-           " from model "++show parentModelPtr++" to model "++
-           show modelPtr++". Is it possible that you are setting the "++
-           "attributes of a CellRenderer using a different model than "++
-           "that which was set in the view?")
+convertIterFromParentToChildModel iter parentModel@(TreeModel parentModelPtr) childModel =
+  let (TreeModel modelPtr) = childModel in
+  if modelPtr==parentModelPtr
+    then return iter
+    else
+        castTo TreeModelFilter parentModel >>= \case
+            Just tmFilter -> do
+                childIter <- treeModelFilterConvertIterToChildIter tmFilter iter
+                child@(TreeModel childPtr) <- getTreeModelFilterChildModel tmFilter
+                if childPtr == modelPtr
+                    then return childIter
+                    else convertIterFromParentToChildModel childIter child childModel
+            Nothing -> do
+                castTo TreeModelSort parentModel >>= \case
+                    Just tmSort -> do
+                        childIter <- treeModelSortConvertIterToChildIter tmSort iter
+                        child@(TreeModel childPtr) <- getTreeModelSortModel tmSort
+                        if childPtr == modelPtr
+                            then return childIter
+                            else convertIterFromParentToChildModel childIter child childModel
+                    Nothing -> do
+                        (rawIter :: TreeIterRaw) <- withManagedPtr iter $ \ptr -> peek $ castPtr ptr
+                        error ("CellLayout: don't know how to convert iter "++show rawIter++
+                               " from model "++show parentModelPtr++" to model "++
+                               show modelPtr++". Is it possible that you are setting the "++
+                               "attributes of a CellRenderer using a different model than "++
+                               "that which was set in the view?")
 
-foreign import ccall unsafe "gtk_tree_model_filter_get_model"
-  treeModelFilterGetModel :: Ptr TreeModel -> IO (Ptr TreeModel)
-
-foreign import ccall safe "gtk_tree_model_filter_convert_iter_to_child_iter"
-  treeModelFilterConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
-    Ptr TreeIter -> IO ()
-
-foreign import ccall unsafe "gtk_tree_model_sort_get_model"
-  treeModelSortGetModel :: Ptr TreeModel -> IO (Ptr TreeModel)
-
-foreign import ccall safe "gtk_tree_model_sort_convert_iter_to_child_iter"
-  treeModelSortConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
-    Ptr TreeIter -> IO ()
-
--- | Clears all existing attributes previously set with
--- 'cellLayoutSetAttributes'.
---
-cellLayoutClearAttributes :: (CellLayoutClass self, CellRendererClass cell) => self
- -> cell  -- ^ @cell@ - A 'CellRenderer' to clear the attribute mapping on.
- -> IO ()
-cellLayoutClearAttributes self cell =
-  {# call gtk_cell_layout_clear_attributes #}
-    (toCellLayout self)
-    (toCellRenderer cell)
-
-#endif

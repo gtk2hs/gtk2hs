@@ -1,7 +1,29 @@
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
-import Graphics.UI.Gtk
 import Data.Text (Text)
+import qualified GI.Gtk.Functions as GI (main, init)
+import GI.Gtk.Objects.Action (onActionActivate, actionNew)
+import GI.Gtk.Functions (mainQuit)
+import GI.Gtk.Objects.ActionGroup
+       (actionGroupAddActionWithAccel, actionGroupAddAction,
+        actionGroupNew)
+import GI.Gtk.Objects.UIManager
+       (uIManagerGetWidget, uIManagerInsertActionGroup,
+        uIManagerAddUiFromString, uIManagerNew)
+import GI.Gtk.Objects.Window (windowNew)
+import GI.Gtk.Objects.Widget
+       (widgetShowAll, setWidgetHeightRequest, setWidgetWidthRequest,
+        onWidgetDestroy)
+import GI.Gtk.Objects.TextView (textViewNew)
+import GI.Gtk.Objects.VBox (vBoxNew)
+import GI.Gtk.Objects.Box (boxPackStart, setBoxHomogeneous)
+import GI.Gtk.Objects.Container (containerAdd)
+import GI.Gtk.Constants
+       (pattern STOCK_PASTE, pattern STOCK_COPY, pattern STOCK_CUT, pattern STOCK_QUIT,
+        pattern STOCK_SAVE_AS, pattern STOCK_SAVE, pattern STOCK_OPEN, pattern STOCK_NEW)
+import GI.Gtk.Enums (WindowType(..))
+import qualified Data.Text as T (length)
 
 -- A function like this can be used to tag string literals for i18n.
 -- It also avoids a lot of type annotations.
@@ -45,69 +67,70 @@ uiDef =
   \</ui>" :: Text
 
 main = do
-  initGUI
+  GI.init Nothing
 
   -- Create the menus
-  fileAct <- actionNew "FileAction" (__"File") Nothing Nothing
-  editAct <- actionNew "EditAction" (__"Edit") Nothing Nothing
+  fileAct <- actionNew "FileAction" (Just (__"File")) Nothing Nothing
+  editAct <- actionNew "EditAction" (Just (__"Edit")) Nothing Nothing
 
   -- Create menu items
-  newAct <- actionNew "NewAction" (__"New")
+  newAct <- actionNew "NewAction" (Just (__"New"))
             (Just (__"Clear the spreadsheet area."))
-            (Just stockNew)
-  on newAct actionActivated $ putStrLn "New activated."
-  openAct <- actionNew "OpenAction" (__"Open")
+            (Just STOCK_NEW)
+  onActionActivate newAct $ putStrLn "New activated."
+  openAct <- actionNew "OpenAction" (Just (__"Open"))
             (Just (__"Open an existing spreadsheet."))
-            (Just stockOpen)
-  on openAct actionActivated $ putStrLn "Open activated."
-  saveAct <- actionNew "SaveAction" (__"Save")
+            (Just STOCK_OPEN)
+  onActionActivate openAct $ putStrLn "Open activated."
+  saveAct <- actionNew "SaveAction" (Just (__"Save"))
             (Just (__"Save the current spreadsheet."))
-            (Just stockSave)
-  on saveAct actionActivated $ putStrLn "Save activated."
-  saveAsAct <- actionNew "SaveAsAction" (__"SaveAs")
+            (Just STOCK_SAVE)
+  onActionActivate saveAct $ putStrLn "Save activated."
+  saveAsAct <- actionNew "SaveAsAction" (Just (__"SaveAs"))
             (Just (__"Save spreadsheet under new name."))
-            (Just stockSaveAs)
-  on saveAsAct actionActivated $ putStrLn "SaveAs activated."
-  exitAct <- actionNew "ExitAction" (__"Exit")
+            (Just STOCK_SAVE_AS)
+  onActionActivate saveAsAct $ putStrLn "SaveAs activated."
+  exitAct <- actionNew "ExitAction" (Just (__"Exit"))
             (Just (__"Exit this application."))
-            (Just stockSaveAs)
-  on exitAct actionActivated $ mainQuit
-  cutAct <- actionNew "CutAction" (__"Cut")
+            (Just STOCK_QUIT)
+  onActionActivate exitAct mainQuit
+  cutAct <- actionNew "CutAction" (Just (__"Cut"))
             (Just (__"Cut out the current selection."))
-            (Just stockCut)
-  on cutAct actionActivated $ putStrLn "Cut activated."
-  copyAct <- actionNew "CopyAction" (__"Copy")
+            (Just STOCK_CUT)
+  onActionActivate cutAct $ putStrLn "Cut activated."
+  copyAct <- actionNew "CopyAction" (Just (__"Copy"))
             (Just (__"Copy the current selection."))
-            (Just stockCopy)
-  on copyAct actionActivated $ putStrLn "Copy activated."
-  pasteAct <- actionNew "PasteAction" (__"Paste")
+            (Just STOCK_COPY)
+  onActionActivate copyAct $ putStrLn "Copy activated."
+  pasteAct <- actionNew "PasteAction" (Just (__"Paste"))
             (Just (__"Paste the current selection."))
-            (Just stockPaste)
-  on pasteAct actionActivated $ putStrLn "Paste activated."
+            (Just STOCK_PASTE)
+  onActionActivate pasteAct $ putStrLn "Paste activated."
 
   standardGroup <- actionGroupNew ("standard"::Text)
   mapM_ (actionGroupAddAction standardGroup) [fileAct, editAct]
   mapM_ (\act -> actionGroupAddActionWithAccel standardGroup act (Nothing::Maybe Text))
     [newAct, openAct, saveAct, saveAsAct, exitAct, cutAct, copyAct, pasteAct]
 
-  ui <- uiManagerNew
-  mid <- uiManagerAddUiFromString ui uiDef
-  uiManagerInsertActionGroup ui standardGroup 0
+  ui <- uIManagerNew
+  mid <- uIManagerAddUiFromString ui uiDef (fromIntegral $ T.length uiDef)
+  uIManagerInsertActionGroup ui standardGroup 0
 
-  win <- windowNew
-  on win objectDestroy mainQuit
-  on win sizeRequest $ return (Requisition 200 100)
-  (Just menuBar) <- uiManagerGetWidget ui ("/ui/menubar"::Text)
-  (Just toolBar) <- uiManagerGetWidget ui ("/ui/toolbar"::Text)
+  win <- windowNew WindowTypeToplevel
+  onWidgetDestroy win mainQuit
+  setWidgetWidthRequest win 200
+  setWidgetHeightRequest win 100
+  menuBar <- uIManagerGetWidget ui "/ui/menubar"
+  toolBar <- uIManagerGetWidget ui "/ui/toolbar"
 
   edit <- textViewNew
   vBox <- vBoxNew False 0
-  set vBox [boxHomogeneous := False]
-  boxPackStart vBox menuBar PackNatural 0
-  boxPackStart vBox toolBar PackNatural 0
-  boxPackStart vBox edit PackGrow 0
+  setBoxHomogeneous vBox False
+  boxPackStart vBox menuBar False False 0
+  boxPackStart vBox toolBar False False 0
+  boxPackStart vBox edit True True 0
 
   containerAdd win vBox
   widgetShowAll win
 
-  mainGUI
+  GI.main

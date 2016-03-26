@@ -33,27 +33,18 @@ module Graphics.UI.Gtk.General.DNDTypes (
   SelectionTypeTag,
   PropertyTag,
   Atom(Atom),
-  TargetList(TargetList),
-  SelectionData,
   SelectionDataM,
-
--- * Constructors
-  atomNew,
-  targetListNew,
-  mkTargetList
   ) where
 
-import System.Glib.FFI
-import System.Glib.UTFString
-{#import Graphics.UI.Gtk.Types#} ()
-import Control.Monad ( liftM )
 import Control.Monad.Reader ( ReaderT )
-
-{# context lib="gtk" prefix="gtk" #}
+import Data.Word (Word32)
+import Foreign.Ptr (Ptr)
+import GI.Gdk.Structs (Atom(..))
+import GI.Gtk.Structs (SelectionData)
 
 -- | A number that the application can use to differentiate between different
 --   data types or application states.
-type InfoId = {#type guint#}
+type InfoId = Word32
 
 -- | A tag that uniquely identifies a selection. A selection denotes the
 -- exchange mechanism that is being used, for instance, the clipboard is the
@@ -86,55 +77,7 @@ type PropertyTag = Atom
 -- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' (using 'PropertyTag'),
 -- 'Graphics.UI.Gtk.Clipboard.Clipboard' or 'Graphics.UI.Gtk.General.Drag'
 -- ('SelectionId' and 'TargetId').
-newtype Atom = Atom (Ptr ()) deriving Eq
-
-instance Show Atom where
-  show (Atom ptr) = show (atomToString ptr :: DefaultGlibString)
-
-atomToString ptr = unsafePerformIO $ do
-        strPtr <- {#call unsafe gdk_atom_name#} ptr
-        readUTFString strPtr
-
--- | A 'TargetList' contains information about all possible formats
--- (represented as 'TargetTag') that a widget can create or receive in form of
--- a selection.
---
-{#pointer *GtkTargetList as TargetList foreign newtype#}
-
---------------------
--- Constructors
-
-
--- | Create a new 'TargetTag', 'SelectionTag', 'SelectionTypeTag' or
---   'PropertyTag'. Note that creating two target tags with the same name will
---   create the same tag, in particular, the tag will be the same across
---   different applications. Note that the name of an 'Atom' can be printed
---   by 'show' though comparing the atom is merely an integer comparison.
---
-atomNew :: GlibString string => string -> IO Atom
-atomNew name = withUTFString name $ \strPtr ->
-  liftM Atom $ {#call unsafe gdk_atom_intern#} strPtr 0
-
--- | Create a new, empty 'TargetList'.
---
-targetListNew :: IO TargetList
-targetListNew = do
-  tlPtr <- {#call unsafe target_list_new#} nullPtr 0
-  liftM TargetList $ newForeignPtr tlPtr target_list_unref
-
-foreign import ccall unsafe "&gtk_target_list_unref"
-  target_list_unref :: FinalizerPtr TargetList
-
--- Wrap a 'TargetList' pointer.
-mkTargetList :: Ptr TargetList -> IO TargetList
-mkTargetList tlPtr = do
-  tl <- liftM TargetList $ newForeignPtr tlPtr target_list_unref
-  {#call unsafe target_list_ref#} tl
-  return tl
-
--- | A pointer to selection data.
-{#pointer *SelectionData #}
 
 -- | A monad providing access to selection data.
 --
-type SelectionDataM a = ReaderT (Ptr ()) IO a
+type SelectionDataM a = ReaderT (Ptr SelectionData) IO a

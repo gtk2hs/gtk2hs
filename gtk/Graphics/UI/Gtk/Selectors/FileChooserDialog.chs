@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget FileChooserDialog
 --
@@ -60,7 +59,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 -- |                                       +----FileChooserDialog
 -- @
 
-#if GTK_CHECK_VERSION(2,4,0)
 -- * Types
   FileChooserDialog,
   FileChooserDialogClass,
@@ -70,30 +68,12 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
   -- * Constructors
   fileChooserDialogNew,
   fileChooserDialogNewWithBackend
-#endif
   ) where
 
 import Control.Monad (liftM, when)
 import Data.Maybe (isJust, fromJust)
 
-import System.Glib.FFI
-import System.Glib.UTFString
-{#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Selectors.FileChooser#}
-import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
-import Graphics.UI.Gtk.Windows.Window
-import Graphics.UI.Gtk.Windows.Dialog
-import System.Glib.GValue               (allocaGValue)
-import System.Glib.GValueTypes          (valueSetMaybeString)
-import System.Glib.Attributes
-
 {# context lib="gtk" prefix="gtk" #}
-
-#if GTK_CHECK_VERSION(2,4,0)
---------------------
--- Interfaces
-
-instance FileChooserClass FileChooserDialog
 
 --------------------
 -- Constructors
@@ -101,12 +81,11 @@ instance FileChooserClass FileChooserDialog
 -- | Creates a new 'FileChooserDialog'.
 --
 fileChooserDialogNew
-  :: GlibString string
-  => Maybe string            -- ^ Title of the dialog (or default)
+  :: MonadIO m
+  => Maybe Text              -- ^ Title of the dialog (or default)
   -> Maybe Window            -- ^ Transient parent of the dialog (or none)
   -> FileChooserAction       -- ^ Open or save mode for the dialog
-  -> [(string, ResponseId)]  -- ^ Buttons and their response codes
-  -> IO FileChooserDialog
+  -> m FileChooserDialog
 fileChooserDialogNew title parent action buttons =
   internalFileChooserDialogNew title parent action buttons Nothing
 
@@ -115,13 +94,12 @@ fileChooserDialogNew title parent action buttons =
 -- files and you use a more expressive vfs, such as gnome-vfs, to load files.
 --
 fileChooserDialogNewWithBackend
-  :: GlibString string
-  => Maybe string              -- ^ Title of the dialog (or default)
+  :: MonadIO m
+  => Maybe Text                -- ^ Title of the dialog (or default)
   -> Maybe Window              -- ^ Transient parent of the dialog (or none)
   -> FileChooserAction         -- ^ Open or save mode for the dialog
-  -> [(string, ResponseId)]    -- ^ Buttons and their response codes
-  -> string                    -- ^ The name of the filesystem backend to use
-  -> IO FileChooserDialog
+  -> Text                      -- ^ The name of the filesystem backend to use
+  -> m FileChooserDialog
 fileChooserDialogNewWithBackend title parent action buttons backend =
   internalFileChooserDialogNew title parent action buttons (Just backend)
 
@@ -130,13 +108,12 @@ fileChooserDialogNewWithBackend title parent action buttons backend =
 -- bug, see <http://bugzilla.gnome.org/show_bug.cgi?id=141004>
 -- The solution is to call objectNew and add the buttons manually.
 
-internalFileChooserDialogNew :: GlibString string =>
+internalFileChooserDialogNew :: MonadIO m =>
   Maybe string ->           -- Title of the dialog (or default)
   Maybe Window ->           -- Transient parent of the dialog (or none)
   FileChooserAction ->      -- Open or save mode for the dialog
-  [(string, ResponseId)] -> -- Buttons and their response codes
   Maybe string ->           -- The name of the backend to use (optional)
-  IO FileChooserDialog
+  m FileChooserDialog
 internalFileChooserDialogNew title parent action buttons backend = do
   objType <- {# call unsafe gtk_file_chooser_dialog_get_type #}
   dialog <-makeNewObject mkFileChooserDialog $ liftM castPtr $
@@ -145,6 +122,7 @@ internalFileChooserDialogNew title parent action buttons backend = do
                   valueSetMaybeString backendGValue backend
                   objectNew objType [("file-system-backend", backendGValue)]
              else objectNew objType []
+             setFileChooser
   when (isJust title)
        (set dialog [windowTitle := fromJust title])
   when (isJust parent)
@@ -153,4 +131,3 @@ internalFileChooserDialogNew title parent action buttons backend = do
   mapM_ (\(btnName, btnResponse) ->
           dialogAddButton dialog btnName btnResponse) buttons
   return dialog
-#endif

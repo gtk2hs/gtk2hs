@@ -1,6 +1,14 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
-import Graphics.UI.Gtk
+import GI.Gtk
+       (widgetShowAll, onWidgetDestroy, setContainerChild, setWindowTitle,
+        windowNew, mainQuit, menuItemNewWithLabel, menuItemNewWithMnemonic,
+        onMenuItemActivate, menuShellAppend, menuItemSetSubmenu, menuNew,
+        menuBarNew)
+import qualified GI.Gtk as Gtk (main, init)
+import GI.Gtk.Enums (WindowType(..))
+import qualified Data.Text as T (unpack)
 
 {-
   widgets that go into making a menubar and submenus:
@@ -34,18 +42,18 @@ createMenuBar descr
       createMenu bar (name,items)
           = do menu <- menuNew
                item <- menuItemNewWithLabelOrMnemonic name
-               menuItemSetSubmenu item menu
+               menuItemSetSubmenu item (Just menu)
                menuShellAppend bar item
                mapM_ (createMenuItem menu) items
       createMenuItem menu (name,action)
           = do item <- menuItemNewWithLabelOrMnemonic name
                menuShellAppend menu item
                case action of
-                 Just act -> on item menuItemActivate act
-                 Nothing  -> on item menuItemActivate (return ())
+                 Just act -> onMenuItemActivate item act
+                 Nothing  -> onMenuItemActivate item (return ())
       menuItemNewWithLabelOrMnemonic name
-          | elem '_' name = menuItemNewWithMnemonic name
-          | otherwise     = menuItemNewWithLabel name
+          | '_' `elem` T.unpack name = menuItemNewWithMnemonic name
+          | otherwise                = menuItemNewWithLabel name
 
 menuBarDescr
     = [ ("_File", [ ("Open", Nothing)
@@ -59,12 +67,11 @@ menuBarDescr
       ]
 
 main =
-    do initGUI
-       window <- windowNew
+    do Gtk.init Nothing
+       window <- windowNew WindowTypeToplevel
        menuBar <- createMenuBar menuBarDescr
-       set window [ windowTitle := "Demo"
-                  , containerChild := menuBar
-                  ]
-       on window objectDestroy mainQuit
+       setWindowTitle window "Demo"
+       setContainerChild window menuBar
+       onWidgetDestroy window mainQuit
        widgetShowAll window
-       mainGUI
+       Gtk.main

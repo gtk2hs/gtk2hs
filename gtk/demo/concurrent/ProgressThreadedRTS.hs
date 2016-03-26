@@ -1,3 +1,4 @@
+{-# LANGUAGE PatternSynonyms #-}
 -- Example of concurrent Haskell and Gtk.
 --
 -- This demo uses GHC's support for OS level threads. It has to be
@@ -8,24 +9,27 @@
 -- any GUI actions in that thread have to be 'posted' to the main GUI
 -- thread using postGUI, or postGUIAsync as in the example here.
 
-import Graphics.UI.Gtk
-
 import Control.Applicative
 import Prelude
 import Control.Concurrent
+import qualified GI.Gtk as GI (init)
+import GI.Gtk
+       (progressBarPulse, ProgressBar, dialogRun, widgetShowAll,
+        boxPackStart, progressBarNew, dialogGetContentArea, pattern STOCK_CLOSE,
+        dialogAddButton, dialogNew)
+import GI.Gtk.Enums (ResponseType(..))
+import GI.GLib (pattern PRIORITY_DEFAULT, idleAdd)
 
 main :: IO ()
 main = do
 
-  -- It is marked unsafe becuase it is your obligation to ensure you
-  -- only call Gtk+ from one OS thread, or 'bad things' will happen.
-  unsafeInitGUIForThreadedRTS
+  GI.init Nothing
 
   dia <- dialogNew
-  dialogAddButton dia stockClose ResponseClose
-  contain <- castToBox <$> dialogGetContentArea dia
+  dialogAddButton dia STOCK_CLOSE (fromIntegral $ fromEnum ResponseTypeClose)
+  contain <- dialogGetContentArea dia
   pb <- progressBarNew
-  boxPackStart contain pb PackNatural 0
+  boxPackStart contain pb False False 0
   widgetShowAll dia
   forkIO (doTask pb)
 
@@ -34,6 +38,6 @@ main = do
 
 doTask :: ProgressBar -> IO ()
 doTask pb = do
-  postGUIAsync $ progressBarPulse pb
+  idleAdd PRIORITY_DEFAULT $ progressBarPulse pb >> return False
   threadDelay 100000
   doTask pb

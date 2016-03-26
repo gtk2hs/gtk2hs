@@ -1,89 +1,101 @@
-Name:           pango
-Version:        0.13.1.1
-License:        LGPL-2.1
-License-file:   COPYING
-Copyright:      (c) 2001-2010 The Gtk2Hs Team
-Author:         Axel Simon, Duncan Coutts
-Maintainer:     gtk2hs-users@lists.sourceforge.net
-Build-Type:     Custom
-Cabal-Version:  >= 1.18
-Stability:      stable
-homepage:       http://projects.haskell.org/gtk2hs/
-bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
-Synopsis:       Binding to the Pango text rendering engine.
-Description:    This package provides a wrapper around the Pango C library that
-                allows high-quality rendering of Unicode text. It can be used
-                either with Cairo to output text in PDF, PS or other
-                documents or with Gtk+ to display text on-screen.
-Category:       Graphics
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
-extra-source-files: template-hsc-gtk2hs.h
-                    hspango.h
-                    SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
-                    hierarchy.list
+name: pango
+version: 0.13.1.1
+cabal-version: >=1.18
+build-type: Custom
+license: LGPL-2.1
+license-file: COPYING
+copyright: (c) 2001-2010 The Gtk2Hs Team
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: stable
+homepage: http://projects.haskell.org/gtk2hs/
+bug-reports: https://github.com/gtk2hs/gtk2hs/issues
+synopsis: Binding to the Pango text rendering engine.
+description:
+    This package provides a wrapper around the Pango C library that
+    allows high-quality rendering of Unicode text. It can be used
+    either with Cairo to output text in PDF, PS or other
+    documents or with Gtk+ to display text on-screen.
+category: Graphics
+author: Axel Simon, Duncan Coutts
+tested-with: GHC ==7.0.4 GHC ==7.2.2 GHC ==7.4.1
+data-files:
+    Layout.hs
+    Makefile
+data-dir: demo
+extra-source-files:
+    template-hsc-gtk2hs.h
+    hspango.h
+    SetupWrapper.hs
+    SetupMain.hs
+    Gtk2HsSetup.hs
+    hierarchy.list
+x-types-file: Graphics/Rendering/Pango/Types.chs
+x-types-modname: Graphics.Rendering.Pango.Types
+x-types-forward: *System.Glib.GObject
+x-types-hierarchy: hierarchy.list
 
-x-Types-File:      Graphics/Rendering/Pango/Types.chs
-x-Types-ModName:   Graphics.Rendering.Pango.Types
-x-Types-Forward:   *System.Glib.GObject
-x-Types-Hierarchy: hierarchy.list
+source-repository head
+    type: git
+    location: https://github.com/gtk2hs/gtk2hs
+    subdir: pango
 
-Data-Dir:       demo
-Data-Files:     Layout.hs
-                Makefile
-                
-Source-Repository head
-  type:         git
-  location:     https://github.com/gtk2hs/gtk2hs
-  subdir:       pango
+flag new-exception
+    description:
+        Enable build with a base library that contains the new exception library.
 
-Flag new-exception
-  Description:  Enable build with a base library that contains the new exception library.
-
-Library
-        build-depends:  base >= 4 && < 5,
-                        process, directory, array, containers, pretty, mtl,
-                        glib  >= 0.13.0.0 && < 0.14,
-                        cairo >= 0.13.0.0 && < 0.14,
-                        text >= 0.11.0.6 && < 1.3
-
-        if flag(new-exception)
-          build-depends:  base >= 4
-          cpp-options:    -DHAVE_NEW_CONTROL_EXCEPTION
-        else
-          build-depends:  base < 4
-
-        build-tools:    gtk2hsC2hs >= 0.13.13, gtk2hsTypeGen
-
-        exposed-modules: Graphics.Rendering.Pango
-                         Graphics.Rendering.Pango.Font
-                         Graphics.Rendering.Pango.Enums
-                         Graphics.Rendering.Pango.Context
-                         Graphics.Rendering.Pango.Layout
-                         Graphics.Rendering.Pango.Rendering
-                         Graphics.Rendering.Pango.Markup
-                         Graphics.Rendering.Pango.Cairo
-                         -- these four modules are only used in code that creates
-                         -- Pango data structures themselves
-                         Graphics.Rendering.Pango.Types
-                         Graphics.Rendering.Pango.BasicTypes
-                         Graphics.Rendering.Pango.Structs
-                         Graphics.Rendering.Pango.Attributes
-        other-modules:   Graphics.Rendering.Pango.GlyphStorage
-                         Graphics.Rendering.Pango.Description
-        default-language:   Haskell98
-        default-extensions: ForeignFunctionInterface
-        x-c2hs-Header:  hspango.h
-        includes:       hspango.h
-        include-dirs:   .
-        cpp-options:    -U__BLOCKS__ -D__attribute__(A)=
-        if os(windows)
-          cpp-options: -D__USE_MINGW_ANSI_STDIO=1
-        -- Pango 1.26 has a mysterious bug that makes it go into an infinite
-        -- loop. Don't allow the user to build against this version. (Omit the
-        -- >= 1.0 constraint in this case since Cabal 1.6 can't parse it.)
-        if os(darwin)
-          pkgconfig-depends: pango < 1.26.0 || > 1.26.2
-        else
-          pkgconfig-depends: pango >= 1.0
-        pkgconfig-depends:  cairo >= 1.2.0, pangocairo >= 1.10
+library
+    
+    if flag(new-exception)
+        build-depends:
+            base >=4
+        cpp-options: -DHAVE_NEW_CONTROL_EXCEPTION
+    else
+        build-depends:
+            base <4
+    
+    if os(windows)
+        cpp-options: -D__USE_MINGW_ANSI_STDIO=1
+    
+    if os(osx)
+        pkgconfig-depends: pango <1.26.0 || >1.26.2
+    else
+        pkgconfig-depends: pango >=1.0
+    exposed-modules:
+        Graphics.Rendering.Pango
+        Graphics.Rendering.Pango.Font
+        Graphics.Rendering.Pango.Enums
+        Graphics.Rendering.Pango.Context
+        Graphics.Rendering.Pango.Layout
+        Graphics.Rendering.Pango.Rendering
+        Graphics.Rendering.Pango.Markup
+        Graphics.Rendering.Pango.Cairo
+        Graphics.Rendering.Pango.Types
+        Graphics.Rendering.Pango.BasicTypes
+        Graphics.Rendering.Pango.Structs
+        Graphics.Rendering.Pango.Attributes
+    build-tools: gtk2hsC2hs >=0.13.13, gtk2hsTypeGen -any
+    build-depends:
+        base >=4 && <5,
+        process -any,
+        directory -any,
+        array -any,
+        containers -any,
+        pretty -any,
+        mtl -any,
+        glib >=0.13.0.0 && <0.14,
+        cairo >=0.13.0.0 && <0.14,
+        text >=0.11.0.6 && <1.3,
+        gi-pango >=0.1.38.12 && <0.2,
+        gi-pango >=0.1.38.12 && <0.2
+    cpp-options: -U__BLOCKS__ -D__attribute__(A)=
+    pkgconfig-depends: cairo >=1.2.0, pangocairo >=1.10
+    default-language: Haskell98
+    default-extensions: ForeignFunctionInterface
+    includes:
+        hspango.h
+    include-dirs: .
+    other-modules:
+        Graphics.Rendering.Pango.GlyphStorage
+        Graphics.Rendering.Pango.Description
+    x-c2hs-header: hspango.h
 

@@ -100,157 +100,13 @@ module Graphics.UI.Gtk.General.Selection (
 
   ) where
 
-import System.Glib.FFI
-import System.Glib.UTFString
-import System.Glib.Flags        (fromFlags)
-import System.Glib.Signals
-import System.Glib.GObject
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}
-import Graphics.UI.Gtk.Gdk.Events (TimeStamp)
-import Graphics.UI.Gtk.General.Enums (TargetFlags(..))
-import Graphics.UI.Gtk.General.Structs (
-  targetString,
-  selectionTypeAtom,
-  selectionTypeInteger,
-  selectionTypeString,
-#if GTK_MAJOR_VERSION < 3
-  selectionDataGetType
-#endif
-  )
 
-import Graphics.UI.Gtk.Signals
 import Control.Monad ( liftM )
 import Control.Monad.Trans ( liftIO )
 import Control.Monad.Reader (runReaderT, ask)
 
 {# context lib="gtk" prefix="gtk" #}
-
-
---------------------
--- Methods
-
--- | Append another target to the given 'TargetList'.
---
--- * Note that the 'TargetFlags' are only used for drag and drop, not in normal
---   selection handling.
---
-targetListAdd :: TargetList -> TargetTag -> [TargetFlags] -> InfoId -> IO ()
-targetListAdd tl (Atom tagPtr) flags info = do
-  {#call unsafe target_list_add#} tl tagPtr (fromIntegral (fromFlags flags)) info
-
-#if GTK_CHECK_VERSION(2,6,0)
-
--- | Append all text targets supported by the selection mechanism to the
--- target list. All targets are added with the same 'InfoId'.
---
--- * Since Gtk 2.6.
---
-targetListAddTextTargets :: TargetList -> InfoId -> IO ()
-targetListAddTextTargets = {#call unsafe target_list_add_text_targets#}
-
--- | Append all image targets supported by the selection mechanism to the
--- target list. All targets are added with the same 'InfoId'. If the boolean
--- flag is set, only targets will be added which Gtk+ knows how to convert
--- into a 'Graphics.UI.Gtk.Pixbuf.Pixbuf'.
---
--- * Since Gtk 2.6.
---
-targetListAddImageTargets :: TargetList -> InfoId -> Bool -> IO ()
-targetListAddImageTargets tl info writable =
-  {#call unsafe target_list_add_image_targets#} tl info (fromBool writable)
-
--- | Append all URI (universal resource indicator, fomerly URL) targets
--- supported by the selection mechanism to the target list. All targets are
--- added with the same 'InfoId'.
---
--- * Since Gtk 2.6.
---
-targetListAddUriTargets :: TargetList -> InfoId -> IO ()
-targetListAddUriTargets = {#call unsafe target_list_add_uri_targets#}
-
-#endif
-#if GTK_CHECK_VERSION(2,10,0)
-
--- | Append all rich text targets registered with
--- 'Graphics.UI.Gtk.TextBuffer.textBufferRegisterSerializeFormat' to the
--- target list. All targets are added with the same 'InfoId'. If the boolean
--- flag is @True@ then deserializable rich text formats will be added,
--- serializable formats otherwise.
---
--- * Since Gtk 2.10.
---
-targetListAddRichTextTargets :: TextBufferClass tb =>
-  TargetList -> InfoId -> Bool -> tb -> IO ()
-targetListAddRichTextTargets tl info deser tb =
-  {#call unsafe target_list_add_rich_text_targets#} tl info
-    (fromBool deser) (toTextBuffer tb)
-
-#endif
-
--- | Remove a target from a target list.
---
-targetListRemove :: TargetList -> TargetTag -> IO ()
-targetListRemove tl (Atom t)= {#call unsafe target_list_remove#} tl t
-
-
--- %hash c:9971 d:af3f
--- | Appends a specified target to the list of supported targets for a given
--- widget and selection.
---
-selectionAddTarget :: WidgetClass widget => widget -> SelectionTag ->
-                      TargetTag -> InfoId -> IO ()
-selectionAddTarget widget (Atom selection) (Atom target) info =
-  {#call unsafe gtk_selection_add_target #}
-    (toWidget widget)
-    selection
-    target
-    (fromIntegral info)
-
--- %hash c:d523 d:af3f
--- | Remove all targets registered for the given selection for the widget.
---
-selectionClearTargets :: WidgetClass widget => widget -> SelectionTag -> IO ()
-selectionClearTargets widget (Atom selection) =
-  {#call unsafe gtk_selection_clear_targets #}
-    (toWidget widget)
-    selection
-
--- %hash c:85a8 d:af3f
--- | Claims ownership of a given selection for a particular widget, or, if
--- widget is 'Nothing', release ownership of the selection.
---
-selectionOwnerSet :: WidgetClass widget => Maybe widget -> SelectionTag ->
-  TimeStamp -> IO Bool
-selectionOwnerSet widget (Atom selection) time =
-  liftM toBool $
-  {#call unsafe gtk_selection_owner_set #}
-    (maybe (Widget nullForeignPtr) toWidget widget)
-    selection
-    (fromIntegral time)
-
--- %hash c:174 d:af3f
--- | Set the ownership of a given selection and display.
---
-selectionOwnerSetForDisplay :: WidgetClass widget => Display -> Maybe widget ->
-  SelectionTag -> TimeStamp -> IO Bool
-selectionOwnerSetForDisplay display widget (Atom selection) time =
- liftM toBool $
-  {#call unsafe gtk_selection_owner_set_for_display #}
-    display
-    (maybe (Widget nullForeignPtr) toWidget widget)
-    selection
-    (fromIntegral time)
-
--- %hash c:c29 d:af3f
--- | Removes all handlers and unsets ownership of all selections for a widget.
--- Called when widget is being destroyed. This function will not generally be
--- called by applications.
---
-selectionRemoveAll :: WidgetClass widget => widget -> IO ()
-selectionRemoveAll widget =
-  {#call unsafe gtk_selection_remove_all #}
-    (toWidget widget)
 
 -- %hash c:7662 d:af3f
 -- | Stores new data in the 'SelectionDataM' monad. The stored data may only
@@ -258,55 +114,16 @@ selectionRemoveAll widget =
 --
 selectionDataSet :: (Integral a, Storable a) => SelectionTypeTag -> [a] ->
                                                 SelectionDataM ()
-selectionDataSet (Atom tagPtr) values@(~(v:_)) = ask >>= \selPtr ->
+selectionDataSet (Atom tagPtr) values@(~(v:_)) = ask >>= \sel ->
   liftIO $ withArrayLen values $ \arrayLen arrayPtr ->
+  selectionDataSet
   {#call unsafe gtk_selection_data_set #} selPtr tagPtr (fromIntegral (8*sizeOf v))
     (castPtr arrayPtr) (fromIntegral (arrayLen*sizeOf v))
 
--- The GtkSelectionData struct was made opaque in Gtk3, but the accessor routines
--- where introduced in 2.14.
-#if GTK_CHECK_VERSION(2,14,0)
-#if GTK_MAJOR_VERSION < 3
-selectionDataGet_format selPtr = {#call gtk_selection_data_get_format#} selPtr
-#endif
-selectionDataGet_length selPtr = {#call gtk_selection_data_get_length#} selPtr
-#if GTK_MAJOR_VERSION < 3
-selectionDataGet_data selPtr = {#call gtk_selection_data_get_data#} selPtr
-#endif
-selectionDataGet_target selPtr = {#call gtk_selection_data_get_target#} selPtr
-#else
-selectionDataGet_format selPtr = {#get SelectionData -> format#} selPtr
-selectionDataGet_length selPtr = {#get SelectionData -> length#} selPtr
-selectionDataGet_data selPtr = {#get SelectionData -> data#} selPtr
-selectionDataGet_target selPtr = {#get SelectionData -> target#} selPtr
-#endif
-
-#if GTK_MAJOR_VERSION < 3
--- | Retreives the data in the 'SelectionDataM' monad. The returned array
---   must have elements of the size that were used to set this data. If
---   the size or the type tag does not match, @Nothing@ is returned.
---
--- Removed in Gtk3.
-selectionDataGet :: (Integral a, Storable a) =>
-                    SelectionTypeTag -> SelectionDataM (Maybe [a])
-selectionDataGet tagPtr = do
-  selPtr <- ask
-  liftIO $ do
-    typeTag <- selectionDataGetType selPtr
-    if typeTag/=tagPtr then return Nothing else do
-    bitSize <- liftM fromIntegral $ selectionDataGet_format selPtr
-    lenBytes <- liftM fromIntegral $ selectionDataGet_length selPtr
-    dataPtr <- liftM castPtr $ selectionDataGet_data selPtr
-    if lenBytes<=0 || bitSize/=sizeOf (unsafePerformIO (peek dataPtr))*8
-      then return Nothing
-      else liftM Just $ do
-        peekArray (fromIntegral (lenBytes `quot` (bitSize `quot` 8))) dataPtr
-#endif
-
-selectionDataGetLength :: SelectionDataM Int
+selectionDataGetLength :: SelectionDataM Int32
 selectionDataGetLength = do
-  selPtr <- ask
-  liftIO $ liftM fromIntegral $ selectionDataGet_length selPtr
+  sel <- ask
+  liftIO $ G.selectionDataGetLength sel
 
 -- | Check if the currently stored data is valid.
 --
@@ -326,26 +143,19 @@ selectionDataIsValid = do
 --
 -- * Returns @True@ if setting the text was successful.
 --
-selectionDataSetText :: GlibString string => string -> SelectionDataM Bool
+selectionDataSetText :: Text -> SelectionDataM Bool
 selectionDataSetText str = do
-  selPtr <- ask
-  liftM toBool $ liftIO $ withUTFStringLen str $ \(strPtr,len) ->
-    {#call unsafe gtk_selection_data_set_text #} selPtr strPtr (fromIntegral len)
+  sel <- ask
+  G.selectionData sel str
 
 -- %hash c:90e0 d:af3f
 -- | Gets the contents of the selection data as a string.
 --
-selectionDataGetText :: GlibString string => SelectionDataM (Maybe string)
+selectionDataGetText :: SelectionDataM Text
 selectionDataGetText = do
-  selPtr <- ask
-  liftIO $ do
-    strPtr <- {#call unsafe gtk_selection_data_get_text #} selPtr
-    if strPtr==nullPtr then return Nothing else do
-      str <- peekUTFString (castPtr strPtr)
-      {#call unsafe g_free#} (castPtr strPtr)
-      return (Just str)
+  sel <- ask
+  G.selectionDataGetText sel
 
-#if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:ed8d d:af3f
 -- | Sets the contents of the selection from a 'Pixbuf'. The pixbuf is
 -- converted to the form determined by the allowed targets of the selection.
@@ -396,7 +206,6 @@ selectionDataGetURIs = do
       uris <- peekUTFStringArray0 strPtrPtr
       {#call unsafe g_strfreev#} strPtrPtr
       return (Just uris)
-#endif
 
 -- | Retrieve the currently set 'TargetTag' in the selection.
 selectionDataGetTarget :: SelectionDataM TargetTag

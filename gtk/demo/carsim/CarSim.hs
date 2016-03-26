@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms #-}
 -- program: S.A.R.A.H. jam simulator
 -- author: Maurício C. Antunes
 -- e-mail: mauricio.antunes@gmail.com
@@ -9,13 +11,48 @@ import Control.Applicative
 import Prelude
 
 import Data.Maybe
-import Graphics.UI.Gtk
-import Graphics.Rendering.Cairo
+import GI.Gtk
+       (widgetShowAll, onWidgetDestroy, setWindowDefaultHeight,
+        setWindowDefaultWidth, setWindowTitle, boxPackStart, hBoxNew,
+        vBoxNew, frameSetShadowType, aspectFrameNew,
+        widgetGetAllocatedHeight, widgetGetAllocatedWidth, onWidgetDraw,
+        onWidgetLeaveNotifyEvent, onWidgetMotionNotifyEvent,
+        widgetAddEvents, alignmentSetPadding, alignmentNew, rangeSetValue,
+        scaleSetDigits, scaleSetValuePos, rangeGetValue,
+        afterScaleButtonValueChanged, vScaleNewWithRange, containerAdd,
+        hButtonBoxNew, mainQuit, onButtonActivate, pattern STOCK_QUIT, pattern STOCK_ABOUT,
+        toggleButtonGetActive, onToggleButtonToggled, buttonSetUseStock,
+        pattern STOCK_MEDIA_PAUSE, toggleButtonNewWithLabel, onButtonClicked,
+        pattern STOCK_CLEAR, buttonNewFromStock, widgetQueueDraw, drawingAreaNew,
+        windowNew, widgetDestroy, dialogRun, setAboutDialogComments,
+        setAboutDialogAuthors, setAboutDialogVersion,
+        setAboutDialogProgramName, aboutDialogNew)
+import GI.Cairo
 import Control.Monad
 import Data.IORef
 import Data.List
 import Data.Time
 import Data.Complex
+import Control.Monad.IO.Class (MonadIO(..))
+import Graphics.Rendering.Cairo
+       (fill, restore, save, stroke, arc, setDash, setLineWidth, rotate,
+        setSourceRGBA, setSourceRGB, newPath, scale, translate, lineTo,
+        moveTo, Render)
+import qualified GI.Gtk as GI (init, main)
+import GI.GLib (pattern PRIORITY_DEFAULT, sourceRemove, timeoutAdd)
+import GI.Gdk
+       (eventMotionReadY, eventMotionReadX, windowGetHeight,
+        windowGetWidth, eventMotionReadWindow)
+import GI.Gdk.Flags (EventMask(..))
+import Control.Monad.Trans.Reader (ReaderT(..))
+import GI.Gtk.Enums
+       (WindowType(..), ShadowType(..), PositionType(..))
+import Data.Monoid ((<>))
+import Data.GI.Base.BasicConversions (gflagsToWord)
+import Graphics.Rendering.Cairo.Types (Cairo(..))
+import Foreign.ForeignPtr (withForeignPtr)
+import Foreign.Ptr (castPtr)
+import Graphics.Rendering.Cairo.Internal (Render(..))
 
 -- Constants
 
@@ -26,23 +63,23 @@ responseTime = 0.24 :: Double
 drawSide = 5/2 :: Double
 
 -- A few conveniences
-
-eventWindowSize = do
-    dr <- eventWindow
-    w <- liftIO $ drawWindowGetWidth dr
-    h <- liftIO $ drawWindowGetHeight dr
+eventWindowSize e = do
+    dr <- eventMotionReadWindow e
+    w <- windowGetWidth dr
+    h <- windowGetHeight dr
     return $ if w*h > 1
         then (fromIntegral w, fromIntegral h)
         else (1,1)
 
-eventPolarCoordinates = do
-    (w,h) <- eventWindowSize
-    (x,y) <- eventCoordinates
+eventPolarCoordinates e = do
+    (w,h) <- eventWindowSize e
+    x <- eventMotionReadX e
+    y <- eventMotionReadY e
     let (origX, origY) = (w/2, h/2)
     let (scaleX, scaleY) = (drawSide/w, drawSide/h)
     let (x',y') = (scaleX*(x-origX), scaleY*(y-origY))
     let (radius,theta) = polar $ x' :+ y'
-    return $ (radius,theta)
+    return (radius,theta)
 
 getAndSet :: a -> IO (IO a, a -> IO ())
 getAndSet a = do
@@ -112,21 +149,21 @@ updateCarList timestep jam list = zip newPositions' newSpeeds
 
 about = do
     ad <- aboutDialogNew
-    set ad [ aboutDialogName := "S.A.R.A.H."
-           , aboutDialogVersion := "1.0"
-           , aboutDialogAuthors := ["Maurício C. Antunes "
-                                ++ "<mauricio.antunes@gmail.com>"]
-           , aboutDialogComments := "Software Automation of "
-                                ++ "Road Automobile Headache"]
+    setAboutDialogProgramName ad "S.A.R.A.H."
+    setAboutDialogVersion ad "1.0"
+    setAboutDialogAuthors ad ["Maurício C. Antunes "
+                           <> "<mauricio.antunes@gmail.com>"]
+    setAboutDialogComments ad ("Software Automation of "
+                            <> "Road Automobile Headache")
     dialogRun ad
     widgetDestroy ad
 
 main :: IO ()
 main = do
 
-    initGUI
+    GI.init Nothing
 
-    mainWindow <- windowNew
+    mainWindow <- windowNew WindowTypeToplevel
     drawingArea <- drawingAreaNew
 
     (getTimeStamp,setTimeStamp) <- getCurrentTime >>= getAndSet
@@ -145,10 +182,10 @@ main = do
          setTimeStamp time
          liftM2 (updateCarList dt) getJam getCars >>= setCars
     let pause = do
-         maybe (return ()) timeoutRemove =<< getTimeoutId
+         maybe (return ()) (void . sourceRemove) =<< getTimeoutId
          setTimeoutId Nothing
     let resume = do
-         setTimeoutId . Just =<< flip timeoutAdd 33
+         setTimeoutId . Just =<< timeoutAdd PRIORITY_DEFAULT 33
           (step >> widgetQueueDraw drawingArea >> return True)
          getCurrentTime >>= setTimeStamp
 
@@ -160,25 +197,25 @@ main = do
 
     buttons <- do
 
-        qr <- buttonNewFromStock stockClear
-        on qr buttonActivated $ do
+        qr <- buttonNewFromStock STOCK_CLEAR
+        onButtonClicked qr $ do
             (liftM length) getCars >>= setCars . newCarList
             getCurrentTime >>= setTimeStamp
             widgetQueueDraw drawingArea
 
-        qp <- toggleButtonNewWithLabel stockMediaPause
+        qp <- toggleButtonNewWithLabel STOCK_MEDIA_PAUSE
         buttonSetUseStock qp True
-        on qp toggled $ do
+        onToggleButtonToggled qp $ do
             p <- toggleButtonGetActive qp
-            case p of
-                True -> pause
-                False -> resume
+            if p
+                then pause
+                else resume
 
-        qa <- buttonNewFromStock stockAbout
-        on qa buttonActivated $ about
+        qa <- buttonNewFromStock STOCK_ABOUT
+        onButtonClicked qa about
 
-        qq <- buttonNewFromStock stockQuit
-        on qq buttonActivated (do
+        qq <- buttonNewFromStock STOCK_QUIT
+        onButtonActivate qq (do
                        widgetDestroy mainWindow
                        mainQuit)
 
@@ -192,13 +229,13 @@ main = do
     howMany <- do
 
         sc <- vScaleNewWithRange 1 40 1
-        after sc valueChanged $ do
-            v <- liftM floor $ rangeGetValue sc
+        afterScaleButtonValueChanged sc $ \_ -> do
+            v <- floor <$> rangeGetValue sc
             c <- getCars
             setCars $ newCarListFromList v c
             widgetQueueDraw drawingArea
 
-        scaleSetValuePos sc PosTop
+        scaleSetValuePos sc PositionTypeTop
         scaleSetDigits sc 0
 --        rangeSetUpdatePolicy sc UpdateDiscontinuous
         rangeSetValue sc =<< liftM (fromIntegral . length) getCars
@@ -211,31 +248,31 @@ main = do
     track <- do
 
         let dr = drawingArea
-        widgetAddEvents dr [PointerMotionMask]
+        widgetAddEvents dr (gflagsToWord [EventMaskPointerMotionMask])
 
-        on dr motionNotifyEvent $ do
-            (r,t) <- eventPolarCoordinates
-            liftIO $ if (0.8<r && r<1.2)
+        onWidgetMotionNotifyEvent dr $ \e -> do
+            (r,t) <- eventPolarCoordinates e
+            if 0.8<r && r<1.2
                 then setJam (Just t)
                 else setJam Nothing
-            liftIO $ widgetQueueDraw dr
+            widgetQueueDraw dr
             return True
 
-        on dr leaveNotifyEvent $ liftIO $
+        onWidgetLeaveNotifyEvent dr $ \e ->
             setJam Nothing >> return True
 
-        on dr draw $ do
-            w <- liftIO $ (fromIntegral <$> widgetGetAllocatedWidth dr)
-            h <- liftIO $ (fromIntegral <$> widgetGetAllocatedHeight dr)
+        onWidgetDraw dr $ \(Context fp) -> withForeignPtr fp $ \p -> (`runReaderT` Cairo (castPtr p)) $ runRender $ do
+            w <- liftIO $ fromIntegral <$> widgetGetAllocatedWidth dr
+            h <- liftIO $ fromIntegral <$> widgetGetAllocatedHeight dr
             jam <- liftIO getJam
             cars <- liftIO getCars
             translate (w/2) (h/2)
             scale (w/drawSide) (h/drawSide)
             road2render jam cars
-            -- return True
+            return True
 
-        af <- aspectFrameNew 0.5 0.5 (Just 1)
-        frameSetShadowType af ShadowNone
+        af <- aspectFrameNew Nothing 0.5 0.5 1 False
+        frameSetShadowType af ShadowTypeNone
         containerAdd af dr
         return af
 
@@ -245,22 +282,22 @@ main = do
     layout <- do
         vb <- vBoxNew False 0
         hb <- hBoxNew False 0
-        boxPackStart vb track PackGrow 0
-        boxPackStart vb buttons PackNatural 0
-        boxPackStart hb howMany PackNatural 0
-        boxPackStart hb vb PackGrow 0
+        boxPackStart vb track True True 0
+        boxPackStart vb buttons False False 0
+        boxPackStart hb howMany False False 0
+        boxPackStart hb vb True True 0
         return hb
 
-    set mainWindow [ windowTitle := "S.A.R.A.H."
-                   , windowDefaultWidth := 400
-                   , windowDefaultHeight := 400 ]
-    on mainWindow objectDestroy mainQuit
+    setWindowTitle mainWindow "S.A.R.A.H."
+    setWindowDefaultWidth mainWindow 400
+    setWindowDefaultHeight mainWindow 400
+    onWidgetDestroy mainWindow mainQuit
     containerAdd mainWindow layout
     widgetShowAll mainWindow
 
     resume
 
-    mainGUI
+    GI.main
 
 -- As the name says, this takes road info, in the form of a
 -- possible jam and a list of cars, and make it into a Cairo

@@ -2,6 +2,8 @@
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_HADDOCK hide #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds #-}
 -- -*-haskell-*-
@@ -43,20 +45,16 @@ module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModelFilter(..),
   unsafeTreeModelFilterToGeneric,
 
-  -- TreeIter
-  TreeIter(..),
+  -- TreeIterRaw
+  TreeIterRaw(..),
   receiveTreeIter,
   peekTreeIter,
   treeIterSetStamp,
-
-  -- TreePath
-  TreePath,
-  NativeTreePath(..),
-  newTreePath,
+  treeIterNew,
+  treeIterFromRaw,
+  treeIterToRaw,
   withTreePath,
   maybeWithTreePath,
-  peekTreePath,
-  fromTreePath,
   stringToTreePath,
 
   -- Columns
@@ -65,18 +63,51 @@ module Graphics.UI.Gtk.ModelView.Types (
 
   -- Storing the model in a ComboBox
   comboQuark,
+
+  equalManagedPtr,
+  maybeUnexpectdNull
   ) where
 
 import GHC.Exts (unsafeCoerce#)
 
-import System.Glib.FFI
-import System.Glib.UTFString
-import System.Glib.GValue         (GValue)
-import System.Glib.GObject        (Quark, quarkFromString)
-{#import Graphics.UI.Gtk.Types#}        (TreeModel, TreeModelSort, TreeModelFilter,
-                                   Pixbuf)
 import Data.Char ( isDigit )
+import Data.Word (Word32)
+import Data.Int (Int32)
+import Data.Text (Text)
+import qualified Data.Text as T (unpack)
+import Data.Coerce (coerce)
 import Control.Monad ( liftM )
+import Control.Monad.IO.Class (MonadIO(..))
+import Control.Exception (catch)
+import Foreign.Storable (Storable(..))
+import Foreign.Ptr (Ptr, castPtr, plusPtr, minusPtr, nullPtr)
+import Foreign.ForeignPtr (ForeignPtr, newForeignPtr_)
+import Foreign.C.Types (CInt(..))
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Utils (toBool)
+import System.IO.Unsafe (unsafePerformIO)
+import Foreign.Marshal.Utils (with)
+import Data.GI.Base.BasicTypes (ForeignPtrNewtype, UnexpectedNullPointerReturn)
+import Data.GI.Base.ManagedPtr (withManagedPtr)
+import Data.GI.Base.GValue (GValue)
+import GI.Gtk.Interfaces.TreeModel (TreeModel)
+import GI.Gtk.Objects.TreeModelSort (TreeModelSort)
+import GI.Gtk.Objects.TreeModelFilter (TreeModelFilter)
+import GI.GLib.Functions (quarkFromString)
+import GI.GdkPixbuf.Objects.Pixbuf (Pixbuf(..))
+import GI.Gtk.Structs.TreeIter (TreeIter(..), treeIterCopy)
+import GI.Gtk.Structs.TreePath (TreePath(..), treePathNewFromIndices)
+
+nullForeignPtr :: ForeignPtr a
+nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
+
+equalManagedPtr :: ForeignPtrNewtype a => a -> a -> Bool
+equalManagedPtr a b =
+    (coerce a :: ForeignPtr ()) == (coerce b :: ForeignPtr ())
+
+maybeUnexpectdNull :: MonadIO m => IO a -> m (Maybe a)
+maybeUnexpectdNull f = liftIO $
+    (Just <$> f) `catch` (\(_::UnexpectedNullPointerReturn) -> return Nothing)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -120,12 +151,22 @@ instance TypedTreeModelClass TypedTreeModelFilter
 -- use of the three words is therefore implementation specific. See also
 -- 'TreePath'.
 --
-data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word32 !Word32 !Word32
+-- TreeIterRaw is for implementation of
+data TreeIterRaw = TreeIterRaw {-# UNPACK #-} !CInt !Word32 !Word32 !Word32
               deriving Show
 
-{#pointer *TreeIter as TreeIterPtr -> TreeIter #}
+{#pointer *TreeIter as TreeIterRawPtr -> TreeIterRaw #}
 
-instance Storable TreeIter where
+treeIterNew :: MonadIO m => CInt -> Word32 -> Word32 -> Word32 -> m TreeIter
+treeIterNew s u1 u2 u3 = treeIterFromRaw (TreeIterRaw s u1 u2 u3)
+
+treeIterFromRaw :: MonadIO m => TreeIterRaw -> m TreeIter
+treeIterFromRaw raw = liftIO $ with raw (\p -> newForeignPtr_ (castPtr p) >>= treeIterCopy . TreeIter )
+
+treeIterToRaw :: MonadIO m => TreeIter -> m TreeIterRaw
+treeIterToRaw i = liftIO $ withManagedPtr i (peek . castPtr)
+
+instance Storable TreeIterRaw where
   sizeOf _ = {# sizeof TreeIter #}
   alignment _ = alignment (undefined :: CInt)
   peek ptr = do
@@ -133,14 +174,14 @@ instance Storable TreeIter where
     user_data  <- {# get TreeIter->user_data  #} ptr
     user_data2 <- {# get TreeIter->user_data2 #} ptr
     user_data3 <- {# get TreeIter->user_data3 #} ptr
-    return (TreeIter stamp (ptrToWord user_data)
+    return (TreeIterRaw stamp (ptrToWord user_data)
                            (ptrToWord user_data2)
                            (ptrToWord user_data3))
 
     where ptrToWord :: Ptr a -> Word32
           ptrToWord ptr = fromIntegral (ptr `minusPtr` nullPtr)
 
-  poke ptr (TreeIter stamp user_data user_data2 user_data3) = do
+  poke ptr (TreeIterRaw stamp user_data user_data2 user_data3) = do
     {# set TreeIter->stamp      #} ptr stamp
     {# set TreeIter->user_data  #} ptr (wordToPtr user_data)
     {# set TreeIter->user_data2 #} ptr (wordToPtr user_data2)
@@ -152,7 +193,7 @@ instance Storable TreeIter where
 -- Pass a pointer to a structure large enough to hold a GtkTreeIter
 -- structure. If the function returns true, read the tree iter and
 -- return it.
-receiveTreeIter :: (Ptr TreeIter -> IO CInt) -> IO (Maybe TreeIter)
+receiveTreeIter :: (Ptr TreeIterRaw -> IO CInt) -> IO (Maybe TreeIterRaw)
 receiveTreeIter body =
   alloca $ \iterPtr -> do
   result <- body iterPtr
@@ -162,14 +203,14 @@ receiveTreeIter body =
 
 -- Note that this function does throw an error if the pointer is NULL rather
 -- than returning some random tree iterator.
-peekTreeIter :: Ptr TreeIter -> IO TreeIter
+peekTreeIter :: Ptr TreeIterRaw -> IO TreeIterRaw
 peekTreeIter ptr
   | ptr==nullPtr = fail "peekTreeIter: ptr is NULL, tree iterator is invalid"
   | otherwise = peek ptr
 
 -- update the stamp of a tree iter
-treeIterSetStamp :: TreeIter -> CInt -> TreeIter
-treeIterSetStamp (TreeIter _ a b c) s = (TreeIter s a b c)
+treeIterSetStamp :: TreeIterRaw -> CInt -> TreeIterRaw
+treeIterSetStamp (TreeIterRaw _ a b c) s = (TreeIterRaw s a b c)
 
 -- | TreePath : a list of indices to specify a subtree or node in a
 -- 'Graphics.UI.Gtk.ModelView.TreeModel.TreeModel'. The node that correspond
@@ -181,57 +222,17 @@ treeIterSetStamp (TreeIter _ a b c) s = (TreeIter s a b c)
 -- with each update of the model to point to the same node (whenever possible)
 -- is 'Graphics.UI.Gtk.ModelView.TreeRowReference.TreeRowReference'.
 --
-type TreePath = [Int]
+withTreePath :: MonadIO m => [Int32] -> (TreePath -> m a) -> m a
+withTreePath tp act = treePathNewFromIndices tp >>= act
 
-{#pointer * TreePath as NativeTreePath newtype#}
-
-nativeTreePathFree :: NativeTreePath -> IO ()
-nativeTreePathFree =
-  {# call unsafe tree_path_free #}
-
-newTreePath :: TreePath -> IO NativeTreePath
-newTreePath path = do
-  nativePath <- liftM NativeTreePath {# call unsafe tree_path_new #}
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) path
-  return nativePath
-
-withTreePath :: TreePath -> (NativeTreePath -> IO a) -> IO a
-withTreePath tp act = do
-  nativePath <- newTreePath tp
-  res <- act nativePath
-  nativeTreePathFree nativePath
-  return res
-
-maybeWithTreePath :: Maybe TreePath -> (NativeTreePath -> IO a) -> IO a
-maybeWithTreePath mbTp act = maybe (act (NativeTreePath nullPtr)) (`withTreePath` act) mbTp
-
-nativeTreePathGetIndices :: NativeTreePath -> IO [Int]
-nativeTreePathGetIndices tp = do
-  depth <- liftM fromIntegral $ {# call unsafe tree_path_get_depth #} tp
-  arrayPtr <- {# call unsafe tree_path_get_indices #} tp
-  if (depth==0 || arrayPtr==nullPtr)
-    then return []
-    else liftM (map fromIntegral) $ peekArray depth arrayPtr
-
--- | Convert the given pointer to a tree path.
-peekTreePath :: Ptr NativeTreePath -> IO TreePath
-peekTreePath tpPtr | tpPtr==nullPtr = return []
-                   | otherwise =
-  nativeTreePathGetIndices (NativeTreePath tpPtr)
-
--- | Convert the given pointer to a tree path. Frees the pointer.
-fromTreePath :: Ptr NativeTreePath -> IO TreePath
-fromTreePath tpPtr | tpPtr==nullPtr = return []
-                   | otherwise = do
-  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-  nativeTreePathFree (NativeTreePath tpPtr)
-  return path
+maybeWithTreePath :: MonadIO m => Maybe [Int32] -> (TreePath -> m a) -> m a
+maybeWithTreePath mbTp act = maybe (act (TreePath nullForeignPtr)) (`withTreePath` act) mbTp
 
 -- | Convert a comma or colon separated string into a 'TreePath'. Any
 -- non-digit characters are assumed to separate indices, thus, the function
 -- always is always successful.
-stringToTreePath :: DefaultGlibString -> TreePath
-stringToTreePath = stringToTreePath' . glibToString
+stringToTreePath :: Text -> [Int32]
+stringToTreePath = stringToTreePath' . T.unpack
   where
   stringToTreePath' "" = []
   stringToTreePath' path = getNum 0 (dropWhile (not . isDigit) path)
@@ -250,18 +251,18 @@ stringToTreePath = stringToTreePath' . glibToString
 -- | Accessing a row for a specific value. Used for 'ColumnMap'.
 data ColumnAccess row where
   CAInvalid :: ColumnAccess row
-  CAInt     :: (row -> Int) -> ColumnAccess row
+  CAInt     :: (row -> Int32) -> ColumnAccess row
   CABool    :: (row -> Bool) -> ColumnAccess row
-  CAString  :: GlibString string => (row -> string) -> ColumnAccess row
+  CAString  :: (row -> Text) -> ColumnAccess row
   CAPixbuf  :: (row -> Pixbuf) -> ColumnAccess row
 
 -- | The type of a tree column.
 data ColumnId row ty
-  = ColumnId (GValue -> IO ty) ((row -> ty) -> ColumnAccess row) Int
+  = ColumnId (GValue -> IO ty) ((row -> ty) -> ColumnAccess row) Int32
 
 -- it shouldn't matter if the following function is actually inlined
 {-# NOINLINE comboQuark #-}
-comboQuark :: Quark
+comboQuark :: Word32
 comboQuark =
-  unsafePerformIO $ quarkFromString ("comboBoxHaskellStringModelQuark"::DefaultGlibString)
+  unsafePerformIO $ quarkFromString (Just "comboBoxHaskellStringModelQuark")
 

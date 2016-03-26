@@ -1,16 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Graphics.UI.Gtk
-import Data.List ( findIndex )
-import Control.Monad.IO.Class (MonadIO(..))
+import Data.List (elemIndex)
+import Data.GI.Base.ManagedPtr ( unsafeCastTo )
 import qualified Data.Text as T
+import qualified GI.Gtk as Gtk (main, init)
+import GI.Gtk
+       (widgetShowAll, containerAdd, binGetChild, comboBoxSetActive,
+        comboBoxNewWithEntry, mainQuit, onWidgetDestroy, windowNew,
+        Entry(..), onEntryActivate, entryGetText)
+import GI.Gtk.Enums (WindowType(..))
+import Graphics.UI.Gtk.MenuComboToolbar.ComboBox (comboBoxSetModelText, comboBoxAppendText, comboBoxGetModelText)
+import Graphics.UI.Gtk.ModelView.ListStore (listStoreToList, listStoreAppend)
 
 main = do
-  initGUI
+  Gtk.init Nothing
 
-  win <- windowNew
-  on win deleteEvent $ liftIO mainQuit >> return False
+  win <- windowNew WindowTypeToplevel
+  onWidgetDestroy win mainQuit
 
   combo <- comboBoxNewWithEntry
   comboBoxSetModelText combo
@@ -22,18 +29,18 @@ main = do
   comboBoxSetActive combo 0
 
   -- Get the entry widget that the ComboBoxEntry uses.
-  (Just w) <- binGetChild combo
-  let entry = castToEntry w
+  w <- binGetChild combo
+  entry <- unsafeCastTo Entry w
 
   -- Whenever the user has completed editing the text, append the new
   -- text to the store unless it's already in there.
-  on entry entryActivated $ do
+  onEntryActivate entry $ do
     str <- entryGetText entry
     store <- comboBoxGetModelText combo
     elems <- listStoreToList store
     comboBoxSetActive combo (-1)
-    idx <- case (findIndex ((==) str) elems) of
-      Just idx -> return idx
+    idx <- case elemIndex str elems of
+      Just idx -> return $ fromIntegral idx
       Nothing -> listStoreAppend store str
     comboBoxSetActive combo idx
     return ()
@@ -41,4 +48,4 @@ main = do
   containerAdd win combo
 
   widgetShowAll win
-  mainGUI
+  Gtk.main

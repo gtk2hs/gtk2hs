@@ -1,19 +1,28 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 -- Simple StatusIcon example
-import Graphics.UI.Gtk
+import GI.Gtk
+       (noMenuPositionFunc, noWidget, onMenuItemActivate,
+        menuShellAppend, menuItemNewWithLabel, mainQuit, menuNew,
+        onStatusIconActivate, menuPopup, widgetShowAll,
+        onStatusIconPopupMenu, statusIconSetTooltipText,
+        statusIconSetVisible, pattern STOCK_QUIT, statusIconNewFromStock)
+import qualified GI.Gtk as Gtk (main, init)
 
 main = do
-  initGUI
-  icon <- statusIconNewFromStock stockQuit
+  Gtk.init Nothing
+  icon <- statusIconNewFromStock STOCK_QUIT
   statusIconSetVisible icon True
-  statusIconSetTooltipText icon $ Just "This is a test"
+  statusIconSetTooltipText icon "This is a test"
   menu <- mkmenu icon
-  on icon statusIconPopupMenu $ \b a -> do
+  onStatusIconPopupMenu icon $ \b a -> do
          widgetShowAll menu
          print (b,a)
-         menuPopup menu $ maybe Nothing (\b' -> Just (b',a)) b
-  on icon statusIconActivate $ do
+         menuPopup menu noWidget noWidget noMenuPositionFunc b a
+  onStatusIconActivate icon $
          putStrLn "'activate' signal triggered"
-  mainGUI
+  Gtk.main
 
 mkmenu s = do
   m <- menuNew
@@ -23,4 +32,4 @@ mkmenu s = do
         mkitem menu (label,act) =
             do i <- menuItemNewWithLabel label
                menuShellAppend menu i
-               on i menuItemActivated act
+               onMenuItemActivate i act

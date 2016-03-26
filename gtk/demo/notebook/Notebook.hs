@@ -1,4 +1,7 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE PatternSynonyms #-}
 -- | Notebook demo (include Spinner animation).
 --  Author      :  Andy Stewart
 --  Copyright   :  (c) 2010 Andy Stewart <lazycat.manatee@gmail.com>
@@ -10,8 +13,26 @@ import Control.Monad.IO.Class
 import Data.Maybe
 import Data.Text (Text)
 import Data.Monoid ((<>))
-import Graphics.UI.Gtk
+import GI.Gtk
+       (containerRemove, ContainerK, boxReorderChild, widgetGetParent,
+        WidgetK, BoxK, imageNewFromPixbuf, iconThemeLoadIcon,
+        iconThemeGetDefault, Image, spinnerStop, widgetShow, spinnerStart,
+        labelSetText, setWindowTitle, boxPackStart, toolButtonNew,
+        spinnerNew, hBoxNew, mainQuit, onWidgetDestroy, containerAdd,
+        notebookRemovePage, notebookPageNum, onToolButtonClicked,
+        notebookAppendPageMenu, labelNew, widgetShowAll, textViewNew,
+        onWidgetKeyPressEvent, windowSetPosition, windowSetDefaultSize,
+        notebookNew, windowNew, ToolButton, Label, Spinner, HBox)
 import qualified Data.Text as T (unpack)
+import qualified GI.Gtk as Gtk (main, init)
+import GI.Gtk.Enums (WindowType(..), WindowPosition(..))
+import Data.GI.Base.Attributes (AttrOp(..), set)
+import GI.Gdk (keyvalName, eventKeyReadKeyval, eventKeyReadState)
+import GI.Gdk.Flags (ModifierType(..))
+import GI.GLib (timeoutAdd, pattern PRIORITY_DEFAULT)
+import GI.Gtk.Flags (IconLookupFlags(..))
+import Control.Exception (catch)
+import Data.GI.Base.BasicTypes (UnexpectedNullPointerReturn(..))
 
 data NotebookTab =
     NotebookTab {ntBox          :: HBox
@@ -24,54 +45,56 @@ data NotebookTab =
 main :: IO ()
 main = do
   -- Init.
-  initGUI
+  Gtk.init Nothing
 
   -- Create window and notebook.
-  window <- windowNew
+  window <- windowNew WindowTypeToplevel
   notebook <- notebookNew
 
   -- Set window.
   windowSetDefaultSize window 800 600
-  windowSetPosition window WinPosCenter
-  set window [windowTitle := ("Press Ctrl + n to create new tab."::Text)]
+  windowSetPosition window WindowPositionCenter
+  setWindowTitle window "Press Ctrl + n to create new tab."
 
   -- Handle key press action.
-  window `on` keyPressEvent $ tryEvent $ do
+  onWidgetKeyPressEvent window $ \e ->
     -- Create new tab when user press Ctrl+n
-    [Control] <- eventModifier
-    "n" <- eventKeyName
-    liftIO $ do
-         -- Create text view.
-         textView <- textViewNew
-         widgetShowAll textView -- must show before add notebook,
+    eventKeyReadState e >>= \case
+      [ModifierTypeControlMask] ->
+        eventKeyReadKeyval e >>= keyvalName >>= \case
+          "n" -> do
+            -- Create text view.
+            textView <- textViewNew
+            widgetShowAll textView -- must show before add notebook,
                                 -- otherwise notebook won't display child widget
                                 -- even have add in notebook.
 
-         -- Create notebook tab.
-         tab <- notebookTabNew (Just "Cool tab") Nothing
-         menuLabel <- labelNew (Nothing :: Maybe Text)
+            -- Create notebook tab.
+            tab <- notebookTabNew (Just "Cool tab") Nothing
+            menuLabel <- labelNew (Nothing :: Maybe Text)
 
-         -- Add widgets in notebook.
-         notebookAppendPageMenu notebook textView (ntBox tab) menuLabel
+            -- Add widgets in notebook.
+            notebookAppendPageMenu notebook textView (Just $ ntBox tab) (Just menuLabel)
 
-         -- Start spinner animation when create tab.
-         notebookTabStart tab
+            -- Start spinner animation when create tab.
+            notebookTabStart tab
 
-         -- Stop spinner animation after finish load.
-         timeoutAdd (notebookTabStop tab >> return False) 5000
+            -- Stop spinner animation after finish load.
+            timeoutAdd PRIORITY_DEFAULT 5000 $ notebookTabStop tab >> return False
 
-         -- Close tab when click button.
-         ntCloseButton tab `onToolButtonClicked` do
-           index <- notebookPageNum notebook textView
-           index ?>= \i -> notebookRemovePage notebook i
-
-         return ()
+            -- Close tab when click button.
+            onToolButtonClicked (ntCloseButton tab) $ do
+              index <- notebookPageNum notebook textView
+              notebookRemovePage notebook index
+            return True
+          _ -> return False
+      _ -> return False
 
   -- Show window.
-  window `containerAdd` notebook
+  containerAdd window notebook
   widgetShowAll window
-  on window objectDestroy mainQuit
-  mainGUI
+  onWidgetDestroy window mainQuit
+  Gtk.main
 
 -- | Create notebook tab.
 notebookTabNew :: Maybe Text -> Maybe Int -> IO NotebookTab
@@ -85,8 +108,8 @@ notebookTabNew name size = do
   closeButton <- toolButtonNew (Just image) (Nothing::Maybe Text)
 
   -- Show.
-  boxPackStart box label PackNatural 0
-  boxPackStart box closeButton PackNatural 0
+  boxPackStart box label False False 0
+  boxPackStart box closeButton False False 0
   widgetShowAll box
 
   return $ NotebookTab box spinner label closeButton iconSize
@@ -101,7 +124,7 @@ notebookTabStart :: NotebookTab -> IO ()
 notebookTabStart NotebookTab {ntBox     = box
                              ,ntSpinner = spinner
                              ,ntSize    = size} = do
-  boxTryPack box spinner PackNatural (Just 0) (size `div` 2)
+  boxTryPack box spinner False False (Just 0) (size `div` 2)
   spinnerStart spinner
   widgetShow spinner
 
@@ -116,29 +139,25 @@ notebookTabStop NotebookTab {ntBox     = box
 imageNewFromIcon :: Text -> Int -> IO Image
 imageNewFromIcon iconName size = do
   iconTheme <- iconThemeGetDefault
-  pixbuf <- do
-    -- Function 'iconThemeLoadIcon' can scale icon with specified size.
-    pixbuf <- iconThemeLoadIcon iconTheme iconName size IconLookupUseBuiltin
-    case pixbuf of
-      Just p  -> return p
-      Nothing -> error $ "imageNewFromIcon : search icon " <> T.unpack iconName <> " failed."
-  imageNewFromPixbuf pixbuf
+  -- Function 'iconThemeLoadIcon' can scale icon with specified size.
+  pixbuf <- iconThemeLoadIcon iconTheme iconName (fromIntegral size) [IconLookupFlagsUseBuiltin]
+  imageNewFromPixbuf (Just pixbuf)
 
 -- | Try to packing widget in box.
 -- If @child@ have exist parent, do nothing,
 -- otherwise, add @child@ to @parent@.
-boxTryPack :: (BoxClass parent, WidgetClass child) => parent -> child -> Packing -> Maybe Int -> Int -> IO ()
-boxTryPack box widget packing order space = do
-  parent <- widgetGetParent widget
-  when (isNothing parent) $ do
-    boxPackStart box widget packing space
-    order ?>= boxReorderChild box widget
+boxTryPack :: (BoxK parent, WidgetK child) => parent -> child -> Bool -> Bool -> Maybe Int -> Int -> IO ()
+boxTryPack box widget expand fill order space =
+    void (widgetGetParent widget)
+  `catch` (\(_ :: UnexpectedNullPointerReturn) -> do
+    boxPackStart box widget expand fill (fromIntegral space)
+    order ?>= (boxReorderChild box widget . fromIntegral))
 
 -- | Try to remove child from parent.
-containerTryRemove :: (ContainerClass parent, WidgetClass child) => parent -> child -> IO ()
+containerTryRemove :: (ContainerK parent, WidgetK child) => parent -> child -> IO ()
 containerTryRemove parent widget = do
-  hasParent <- widgetGetParent widget
-  unless (isNothing hasParent) $ containerRemove parent widget
+  hasParent <- (widgetGetParent widget >> return True) `catch` (\(_ :: UnexpectedNullPointerReturn) -> return False)
+  when hasParent $ containerRemove parent widget
 
 -- | Maybe.
 (?>=) :: Monad m => Maybe a -> (a -> m ()) -> m ()

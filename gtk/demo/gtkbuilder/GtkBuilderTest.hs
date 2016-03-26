@@ -1,22 +1,32 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
-import Graphics.UI.Gtk
+import qualified GI.Gtk as Gtk (main, init)
+import GI.Gtk
+       (widgetShowAll, mainQuit, onWidgetDestroy, onButtonClicked, Button(..),
+        Window(..), builderGetObject, builderAddFromFile, builderNew)
+import Data.GI.Base.ManagedPtr (unsafeCastTo)
+import Control.Exception (catch)
+import Data.GI.Base.GError (gerrorMessage, GError(..))
+import qualified Data.Text as T (unpack)
 
-main = do
-        initGUI
+main = (do
+    Gtk.init Nothing
 
-        -- Create the builder, and load the UI file
-        builder <- builderNew
-        builderAddFromFile builder "simple.ui"
+    -- Create the builder, and load the UI file
+    builder <- builderNew
+    builderAddFromFile builder "simple.ui"
 
-        -- Retrieve some objects from the UI
-        window <- builderGetObject builder castToWindow "window1"
-        button <- builderGetObject builder castToButton "button1"
+    -- Retrieve some objects from the UI
+    window <- builderGetObject builder "window1" >>= unsafeCastTo Window
+    button <- builderGetObject builder "button1" >>= unsafeCastTo Button
 
-        -- Basic user interation
-        on button buttonActivated $ putStrLn "button pressed!"
-        on window objectDestroy mainQuit
+    -- Basic user interation
+    onButtonClicked button $ putStrLn "button pressed!"
+    onWidgetDestroy window mainQuit
 
-        -- Display the window
-        widgetShowAll window
-        mainGUI
+    -- Display the window
+    widgetShowAll window
+    Gtk.main)
+  `catch` (\(e::GError) -> gerrorMessage e >>= putStrLn . T.unpack)

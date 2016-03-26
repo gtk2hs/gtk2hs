@@ -1,19 +1,26 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- Example of an drawing graphics onto a canvas.
-import Graphics.UI.Gtk
 import Data.List ( intersperse )
+import qualified GI.Gtk as Gtk (init)
+import GI.Pango
+       (fontFaceGetFaceName, fontFamilyGetName, fontFamilyListFaces,
+        fontFaceListSizes, fontMapListFamilies)
+import GI.PangoCairo (fontMapGetDefault)
 
 main = do
-  initGUI
-  fm <- cairoFontMapGetDefault
-  ffs <- pangoFontMapListFamilies fm
+  Gtk.init Nothing
+  fm <- fontMapGetDefault
+  ffs <- fontMapListFamilies fm
   mapM_ (\ff -> do
-    putStrLn (show ff++": ")
-    fcs <- pangoFontFamilyListFaces ff
+    ffname <- fontFamilyGetName ff
+    putStrLn (show ffname++": ")
+    fcs <- fontFamilyListFaces ff
     mapM_ (\fc -> do
-      sizes <- pangoFontFaceListSizes fc
+      sizes <- fontFaceListSizes fc
       let showSize Nothing = "all sizes"
           showSize (Just sz) = concat (intersperse ", " (map show sz))++
                                " points"
-      putStrLn ("  "++show fc++" in "++showSize sizes)
+      fcname <- fontFaceGetFaceName fc
+      putStrLn ("  "++show fcname++" in "++showSize sizes)
       ) fcs
     ) ffs

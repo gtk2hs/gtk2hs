@@ -1,35 +1,44 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
-import Graphics.UI.Gtk
+import GI.Gtk
+       (overlayAddOverlay, widgetShowAll, setButtonBoxLayoutStyle,
+        containerAdd, hButtonBoxNew, setWidgetMarginBottom,
+        setWidgetMarginLeft, boxPackStart, buttonNewWithLabel, labelNew,
+        vBoxNew, setContainerChild, overlayNew, setContainerBorderWidth,
+        mainQuit, onWidgetDestroy, windowNew)
+import qualified GI.Gtk as Gtk (main, init)
+import GI.Gtk.Enums (ButtonBoxStyle(..), WindowType(..))
 
 main :: IO ()
 main = do
-  initGUI
+  Gtk.init Nothing
 
   -- Create a new window
-  window <- windowNew
+  window <- windowNew WindowTypeToplevel
 
   -- Here we connect the "destroy" event to a signal handler.
-  on window objectDestroy mainQuit
+  onWidgetDestroy window mainQuit
 
   -- Sets the border width of the window.
-  set window [ containerBorderWidth := 10 ]
+  setContainerBorderWidth window 10
 
   overlay <- overlayNew
 
-  set window [ containerChild := overlay ]
+  setContainerChild window overlay
 
   vbox <- vBoxNew True 3
   label1 <- labelNew (Just "This is an overlayed label")
-  button <- buttonNewWithLabel ("another one")
+  button <- buttonNewWithLabel "another one"
   label3 <- labelNew (Just "and a final one")
-  boxPackStart vbox label1 PackNatural 3
-  boxPackStart vbox button PackNatural 3
-  boxPackStart vbox label3 PackNatural 3
+  boxPackStart vbox label1 False False 3
+  boxPackStart vbox button False False 3
+  boxPackStart vbox label3 False False 3
 
-  set vbox [ widgetMarginLeft := 150, widgetMarginBottom := 50 ]
+  setWidgetMarginLeft vbox 150
+  setWidgetMarginBottom vbox 50
 
-  overlayAdd overlay vbox
+  overlayAddOverlay overlay vbox
 
   hbuttonbox <- hButtonBoxNew
 
@@ -40,8 +49,7 @@ main = do
   button3 <- buttonNewWithLabel "Three"
 
   -- Add each button to the button box with the default packing and padding
-  set hbuttonbox [ containerChild := button
-                 | button <- [button1, button2, button3] ]
+  mapM_ (setContainerChild hbuttonbox) [button1, button2, button3]
 
   -- This sets button3 to be a so called 'secondary child'. When the layout
   -- stlye is ButtonboxStart or ButtonboxEnd, the secondary children are
@@ -50,8 +58,7 @@ main = do
   -- This is not interesting in itself but shows how to set child attributes.
   -- Note that the child attribute 'buttonBoxChildSecondary' takes the
   -- button box container child 'button3' as a parameter.
-  set hbuttonbox [ buttonBoxLayoutStyle := ButtonboxStart ]
-                 --, buttonBoxChildSecondary button3 := True ]
+  setButtonBoxLayoutStyle hbuttonbox ButtonBoxStyleStart
 
   -- The final step is to display everything (the window and all the widgets
   -- contained within it)
@@ -59,4 +66,4 @@ main = do
 
   -- All Gtk+ applications must run the main event loop. Control ends here and
   -- waits for an event to occur (like a key press or mouse event).
-  mainGUI
+  Gtk.main
