@@ -1,9 +1,13 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_HADDOCK hide #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds #-}
 -- -*-haskell-*-
@@ -53,9 +57,15 @@ module Graphics.UI.Gtk.ModelView.Types (
   treeIterNew,
   treeIterFromRaw,
   treeIterToRaw,
+
+  -- TreePath
+  treePathNewFromIndices',
+  treePathGetIndices',
   withTreePath,
   maybeWithTreePath,
   stringToTreePath,
+
+  treeSelectionGetSelectedRows',
 
   -- Columns
   ColumnAccess(..),
@@ -64,8 +74,7 @@ module Graphics.UI.Gtk.ModelView.Types (
   -- Storing the model in a ComboBox
   comboQuark,
 
-  equalManagedPtr,
-  maybeUnexpectdNull
+  equalManagedPtr
   ) where
 
 import GHC.Exts (unsafeCoerce#)
@@ -87,16 +96,20 @@ import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Utils (toBool)
 import System.IO.Unsafe (unsafePerformIO)
 import Foreign.Marshal.Utils (with)
-import Data.GI.Base.BasicTypes (ForeignPtrNewtype, UnexpectedNullPointerReturn)
+import Data.GI.Base.BasicTypes (ForeignPtrNewtype, UnexpectedNullPointerReturn, GObject(..))
 import Data.GI.Base.ManagedPtr (withManagedPtr)
 import Data.GI.Base.GValue (GValue)
+import Data.GI.Base.Overloading (ParentTypes)
+import GI.GObject.Objects.Object (Object(..))
 import GI.Gtk.Interfaces.TreeModel (TreeModel)
 import GI.Gtk.Objects.TreeModelSort (TreeModelSort)
+import GI.Gtk.Objects.TreeSelection (TreeSelectionK, treeSelectionCountSelectedRows, treeSelectionGetSelectedRows)
 import GI.Gtk.Objects.TreeModelFilter (TreeModelFilter)
+import GI.Gtk.Interfaces.TreeSortable (TreeSortable)
 import GI.GLib.Functions (quarkFromString)
 import GI.GdkPixbuf.Objects.Pixbuf (Pixbuf(..))
 import GI.Gtk.Structs.TreeIter (TreeIter(..), treeIterCopy)
-import GI.Gtk.Structs.TreePath (TreePath(..), treePathNewFromIndices)
+import GI.Gtk.Structs.TreePath (TreePath(..), treePathGetIndices, treePathNewFromIndices, treePathNew, treePathGetDepth)
 
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
@@ -104,10 +117,6 @@ nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
 equalManagedPtr :: ForeignPtrNewtype a => a -> a -> Bool
 equalManagedPtr a b =
     (coerce a :: ForeignPtr ()) == (coerce b :: ForeignPtr ())
-
-maybeUnexpectdNull :: MonadIO m => IO a -> m (Maybe a)
-maybeUnexpectdNull f = liftIO $
-    (Just <$> f) `catch` (\(_::UnexpectedNullPointerReturn) -> return Nothing)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -128,6 +137,13 @@ unsafeTreeModelToGeneric = unsafeCoerce#
 instance TypedTreeModelClass TypedTreeModel
 
 newtype TypedTreeModelSort row = TypedTreeModelSort (ForeignPtr (TypedTreeModelSort row))
+
+type instance ParentTypes (TypedTreeModelSort row) = TypedTreeModelSortParentTypes
+type TypedTreeModelSortParentTypes = '[TreeModelSort, TreeSortable, TreeModel, Object]
+
+instance GObject (TypedTreeModelSort row) where
+    gobjectIsInitiallyUnowned _ = False
+    gobjectType _ = gobjectType (undefined :: TreeModelSort)
 
 unsafeTreeModelSortToGeneric :: TreeModelSort -> TypedTreeModelSort row
 unsafeTreeModelSortToGeneric = unsafeCoerce#
@@ -222,11 +238,25 @@ treeIterSetStamp (TreeIterRaw _ a b c) s = (TreeIterRaw s a b c)
 -- with each update of the model to point to the same node (whenever possible)
 -- is 'Graphics.UI.Gtk.ModelView.TreeRowReference.TreeRowReference'.
 --
+treePathNewFromIndices' :: MonadIO m => [Int32] -> m TreePath
+treePathNewFromIndices' [] = treePathNew
+treePathNewFromIndices' x = treePathNewFromIndices x
+
+treePathGetIndices' :: MonadIO m => TreePath -> m [Int32]
+treePathGetIndices' path = treePathGetDepth path >>= \case
+                                0 -> return []
+                                _ -> treePathGetIndices path
+
 withTreePath :: MonadIO m => [Int32] -> (TreePath -> m a) -> m a
-withTreePath tp act = treePathNewFromIndices tp >>= act
+withTreePath tp act = treePathNewFromIndices' tp >>= act
 
 maybeWithTreePath :: MonadIO m => Maybe [Int32] -> (TreePath -> m a) -> m a
 maybeWithTreePath mbTp act = maybe (act (TreePath nullForeignPtr)) (`withTreePath` act) mbTp
+
+treeSelectionGetSelectedRows' :: (MonadIO m, TreeSelectionK sel) => sel -> m [TreePath]
+treeSelectionGetSelectedRows' sel = treeSelectionCountSelectedRows sel >>= \case
+    0 -> return []
+    _ -> liftIO $ (fst <$> treeSelectionGetSelectedRows sel) `catch` (\(_::UnexpectedNullPointerReturn) -> return [])
 
 -- | Convert a comma or colon separated string into a 'TreePath'. Any
 -- non-digit characters are assumed to separate indices, thus, the function

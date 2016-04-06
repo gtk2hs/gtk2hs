@@ -100,21 +100,21 @@ instance GObject (CustomStore private row) where
 type ColumnMap row = IORef [ColumnAccess row]
 
 -- | Create a new 'ColumnMap' value.
-columnMapNew :: IO (ColumnMap row)
-columnMapNew = newIORef []
+columnMapNew :: MonadIO m => m (ColumnMap row)
+columnMapNew = liftIO $ newIORef []
 
 -- | Set or update a column mapping. This function should be used before
 --   the model is installed into a widget since the number of defined
 --   columns are only checked once by widgets.
-customStoreSetColumn :: TypedTreeModelClass model
+customStoreSetColumn :: (MonadIO m, TypedTreeModelClass model)
         => model row -- ^ the store in which to allocate a new column
         -> (ColumnId row ty) -- ^ the column that should be set
         -> (row -> ty) -- ^ the function that sets the property
-        -> IO ()
+        -> m ()
 customStoreSetColumn model (ColumnId _ setter colId) acc | colId<0 = return ()
                                                          | otherwise =
   case toTypedTreeModel model of
-    TypedTreeModel model -> do
+    TypedTreeModel model -> liftIO $ do
       ptr <- withForeignPtr model gtk2hs_store_get_impl
       impl <- deRefStablePtr ptr
       let cMap = customStoreColumns impl

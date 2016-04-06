@@ -193,7 +193,7 @@ comboBoxGetModelText self = do
 -- you can only use this function with combo boxes constructed with
 -- 'comboBoxNewText'. Returns the index of the appended text.
 --
-comboBoxAppendText :: ComboBoxK self => self -> Text -> IO Int32
+comboBoxAppendText :: (MonadIO m, ComboBoxK self) => self -> Text -> m Int32
 comboBoxAppendText self text = do
   store <- comboBoxGetModelText self
   listStoreAppend store text
@@ -203,10 +203,10 @@ comboBoxAppendText self text = do
 -- @comboBox@. Note that you can only use this function with combo boxes
 -- constructed with 'comboBoxNewText'.
 --
-comboBoxInsertText :: ComboBoxK self => self
+comboBoxInsertText :: (MonadIO m, ComboBoxK self) => self
  -> Int32  -- ^ @position@ - An index to insert @text@.
  -> Text   -- ^ @text@ - A string.
- -> IO ()
+ -> m ()
 comboBoxInsertText self position text = do
   store <- comboBoxGetModelText self
   listStoreInsert store position text
@@ -215,7 +215,7 @@ comboBoxInsertText self position text = do
 -- you can only use this function with combo boxes constructed with
 -- 'comboBoxNewText'.
 --
-comboBoxPrependText :: ComboBoxK self => self -> Text -> IO ()
+comboBoxPrependText :: (MonadIO m, ComboBoxK self) => self -> Text -> m ()
 comboBoxPrependText self text = do
   store <- comboBoxGetModelText self
   listStorePrepend store text
@@ -223,9 +223,9 @@ comboBoxPrependText self text = do
 -- | Removes the string at @position@ from @comboBox@. Note that you can only
 -- use this function with combo boxes constructed with 'comboBoxNewText'.
 --
-comboBoxRemoveText :: ComboBoxK self => self
+comboBoxRemoveText :: (MonadIO m, ComboBoxK self) => self
  -> Int32 -- ^ @position@ - Index of the item to remove.
- -> IO ()
+ -> m ()
 comboBoxRemoveText self position = do
   store <- comboBoxGetModelText self
   listStoreRemove store position
@@ -234,7 +234,7 @@ comboBoxRemoveText self position = do
 -- selected. Note that you can only use this function with combo boxes
 -- constructed with 'comboBoxNewText'.
 --
-comboBoxGetActiveText :: ComboBoxK self => self -> IO (Maybe Text)
+comboBoxGetActiveText :: (MonadIO m, ComboBoxK self) => self -> m (Maybe Text)
 comboBoxGetActiveText self = do
   activeId <- comboBoxGetActive self
   if activeId < 0

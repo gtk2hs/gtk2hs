@@ -30,7 +30,7 @@
 module Graphics.UI.Gtk.ModelView.TreeStore (
 
 -- * Types
-  TreeStore,
+  TreeStore(..),
 
 -- * Constructors
   treeStoreNew,
@@ -86,7 +86,7 @@ import GI.Gtk.Interfaces.TreeModel
         treeModelRowHasChildToggled)
 import GI.Gtk.Functions (treeSetRowDragData, treeGetRowDragData)
 import GI.Gtk.Structs.TreePath
-       (TreePath, treePathNewFromIndices, treePathGetIndices)
+       (TreePath)
 
 --------------------------------------------
 -- internal model data types
@@ -172,10 +172,10 @@ treeStoreNewDND forest mDSource mDDest = liftIO $ do
     treeModelIfaceGetFlags = return [],
 
     treeModelIfaceGetIter = \path -> withStore $
-      \Store { depth = d } -> fromPath d <$> treePathGetIndices path,
+      \Store { depth = d } -> fromPath d <$> treePathGetIndices' path,
 
     treeModelIfaceGetPath = \iter -> withStore $
-      \Store { depth = d } -> treePathNewFromIndices $ toPath d iter,
+      \Store { depth = d } -> treePathNewFromIndices' $ toPath d iter,
 
     treeModelIfaceGetRow  = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
@@ -224,7 +224,7 @@ treeStoreDefaultDragSourceIface :: DragSourceIface TreeStore row
 treeStoreDefaultDragSourceIface = DragSourceIface {
     treeDragSourceRowDraggable = \_ _-> return True,
     treeDragSourceDragDataGet = \model path sel -> treeSetRowDragData sel model path,
-    treeDragSourceDragDataDelete = \model path -> treePathGetIndices path >>= \dest@(_:_) -> do
+    treeDragSourceDragDataDelete = \model path -> treePathGetIndices' path >>= \dest@(_:_) -> do
             liftIO $ treeStoreRemove model path
             return True
 
@@ -245,18 +245,18 @@ treeStoreDefaultDragDestIface = DragDestIface {
                 withManagedPtr model' $ \m' -> return (m==m')
         _ -> return False,
     treeDragDestDragDataReceived = \model path sel -> do
-      dest@(_:_) <- treePathGetIndices path
+      dest@(_:_) <- treePathGetIndices' path
       mModelPath <- treeGetRowDragData sel
       case mModelPath of
         (True, Just model', Just path) -> do
-          source@(_:_) <- treePathGetIndices path
+          source@(_:_) <- treePathGetIndices' path
           tm <- toTreeModel model
           withManagedPtr tm $ \m ->
             withManagedPtr model' $ \m' ->
               if m/=m' then return False
               else do
-                row <- treeStoreGetTree model =<< treePathNewFromIndices source
-                initPath <- treePathNewFromIndices (init dest)
+                row <- treeStoreGetTree model =<< treePathNewFromIndices' source
+                initPath <- treePathNewFromIndices' (init dest)
                 treeStoreInsertTree model initPath (fromIntegral $ last dest) row
                 return True
         _ -> return False
@@ -512,7 +512,7 @@ treeStoreInsertForest :: MonadIO m
  -> Forest a    -- ^ the list of trees to be inserted
  -> m ()
 treeStoreInsertForest (TreeStore model) path pos nodes = liftIO $ do
-  ipath <- treePathGetIndices path
+  ipath <- treePathGetIndices' path
   customStoreInvalidateIters $ CustomStore model
   (idx, toggle) <- atomicModifyIORef (customStoreGetPrivate $ CustomStore model) $
     \store@Store { depth = d, content = cache } ->
@@ -529,7 +529,7 @@ treeStoreInsertForest (TreeStore model) path pos nodes = liftIO $ do
   sequence_ [ let p' = reverse p
                   Just iter = fromPath depth p'
                in do
-                  p'' <- treePathNewFromIndices p'
+                  p'' <- treePathNewFromIndices' p'
                   treeModelRowInserted (CustomStore model) p'' =<< treeIterFromRaw (treeIterSetStamp iter stamp)
             | (i, node) <- zip [idx..] nodes
             , p <- paths (fromIntegral i : rpath) node ]
@@ -594,7 +594,7 @@ insertIntoForest forest nodes (p:ps) pos = case splitAt (fromIntegral p) forest 
 --   The function returns @True@ if the given node was found.
 --
 treeStoreRemove :: MonadIO m => TreeStore a -> TreePath -> m Bool
-treeStoreRemove model path = treePathGetIndices path >>= treeStoreRemoveImpl model path
+treeStoreRemove model path = treePathGetIndices' path >>= treeStoreRemoveImpl model path
 
 treeStoreRemoveImpl :: MonadIO m => TreeStore a -> TreePath -> [Int32] -> m Bool
   --TODO: eliminate this special case without segfaulting!
@@ -614,7 +614,7 @@ treeStoreRemoveImpl (TreeStore model) path ipath = liftIO $ do
       Store { depth = depth } <- readIORef (customStoreGetPrivate (CustomStore model))
       let iparent = init ipath
           Just iter = fromPath depth iparent
-      parent <- treePathNewFromIndices iparent
+      parent <- treePathNewFromIndices' iparent
       treeModelRowHasChildToggled (CustomStore model) parent =<< treeIterFromRaw iter
     treeModelRowDeleted (CustomStore model) path
   return found
@@ -629,7 +629,7 @@ treeStoreClear (TreeStore model) = liftIO $ do
       content = storeToCache []
     }
   let loop (-1) = return ()
-      loop   n  = treePathNewFromIndices [fromIntegral n] >>= treeModelRowDeleted (CustomStore model) >> loop (n-1)
+      loop   n  = treePathNewFromIndices' [fromIntegral n] >>= treeModelRowDeleted (CustomStore model) >> loop (n-1)
   loop (length forest - 1)
 
 -- | Remove a node from a rose tree.
@@ -674,7 +674,7 @@ treeStoreChange store path func = treeStoreChangeM store path (return . func)
 --
 treeStoreChangeM :: MonadIO m => TreeStore a -> TreePath -> (a -> m a) -> m Bool
 treeStoreChangeM (TreeStore model) path act = do
-  ipath <- treePathGetIndices path
+  ipath <- treePathGetIndices' path
   customStoreInvalidateIters (CustomStore model)
   store@Store { depth = d, content = cache } <-
       liftIO $ readIORef (customStoreGetPrivate (CustomStore model))
@@ -722,7 +722,7 @@ treeStoreGetValue model path = fmap rootLabel (treeStoreGetTree model path)
 --
 treeStoreGetTree :: MonadIO m => TreeStore a -> TreePath -> m (Tree a)
 treeStoreGetTree (TreeStore model) path = liftIO $ do
-  ipath <- treePathGetIndices path
+  ipath <- treePathGetIndices' path
   store@Store { depth = d, content = cache } <-
       readIORef (customStoreGetPrivate (CustomStore model))
   case fromPath d ipath of
@@ -739,7 +739,7 @@ treeStoreGetTree (TreeStore model) path = liftIO $ do
 --
 treeStoreLookup :: MonadIO m => TreeStore a -> TreePath -> m (Maybe (Tree a))
 treeStoreLookup (TreeStore model) path = liftIO $ do
-  ipath <- treePathGetIndices path
+  ipath <- treePathGetIndices' path
   store@Store { depth = d, content = cache } <-
       readIORef (customStoreGetPrivate (CustomStore model))
   case fromPath d ipath of

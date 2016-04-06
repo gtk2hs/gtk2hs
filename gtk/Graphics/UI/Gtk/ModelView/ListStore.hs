@@ -79,8 +79,6 @@ import GI.Gtk.Interfaces.TreeModel
 import GI.GObject.Objects.Object (Object(..))
 import GI.Gtk.Functions (treeGetRowDragData, treeSetRowDragData)
 import GI.Gtk.Flags (TreeModelFlags(..))
-import GI.Gtk.Structs.TreePath
-       (treePathNewFromIndices, treePathGetIndices)
 import Control.Monad.IO.Class (MonadIO)
 import GI.Gtk.Structs.TreeIter (TreeIter(..))
 
@@ -116,10 +114,10 @@ listStoreNewDND xs mDSource mDDest = do
 
   customStoreNew rows mkListStore TreeModelIface {
       treeModelIfaceGetFlags      = return [TreeModelFlagsListOnly],
-      treeModelIfaceGetIter       = \path -> treePathGetIndices path >>= \[n] -> readIORef rows >>= \rows ->
+      treeModelIfaceGetIter       = \path -> treePathGetIndices' path >>= \[n] -> readIORef rows >>= \rows ->
                                      return (if Seq.null rows then Nothing else
                                              Just (TreeIterRaw 0 (fromIntegral n) 0 0)),
-      treeModelIfaceGetPath       = \(TreeIterRaw _ n _ _) -> treePathNewFromIndices [fromIntegral n],
+      treeModelIfaceGetPath       = \(TreeIterRaw _ n _ _) -> treePathNewFromIndices' [fromIntegral n],
       treeModelIfaceGetRow        = \(TreeIterRaw _ n _ _) ->
                                  readIORef rows >>= \rows ->
                                  if inRange (0, Seq.length rows - 1) (fromIntegral n)
@@ -160,7 +158,7 @@ listStoreDefaultDragSourceIface :: DragSourceIface ListStore row
 listStoreDefaultDragSourceIface = DragSourceIface {
     treeDragSourceRowDraggable = \_ _-> return True,
     treeDragSourceDragDataGet = \model path sel -> treeSetRowDragData sel model path,
-    treeDragSourceDragDataDelete = \model path -> treePathGetIndices path >>= \(dest:_) -> do
+    treeDragSourceDragDataDelete = \model path -> treePathGetIndices' path >>= \(dest:_) -> do
             liftIO $ listStoreRemove model (fromIntegral dest)
             return True
 
@@ -173,7 +171,7 @@ listStoreDefaultDragSourceIface = DragSourceIface {
 listStoreDefaultDragDestIface :: DragDestIface ListStore row
 listStoreDefaultDragDestIface = DragDestIface {
     treeDragDestRowDropPossible = \model path sel -> do
-      dest <- treePathGetIndices path
+      dest <- treePathGetIndices' path
       mModelPath <- treeGetRowDragData sel
       case mModelPath of
         (True, Just model', source) -> do
@@ -182,11 +180,11 @@ listStoreDefaultDragDestIface = DragDestIface {
                 withManagedPtr model' $ \m' -> return (m==m')
         _ -> return False,
     treeDragDestDragDataReceived = \model path sel -> do
-      (dest:_) <- treePathGetIndices path
+      (dest:_) <- treePathGetIndices' path
       mModelPath <- treeGetRowDragData sel
       case mModelPath of
         (True, Just model', Just path) -> do
-          (source:_) <- treePathGetIndices path
+          (source:_) <- treePathGetIndices' path
           tm <- toTreeModel model
           withManagedPtr tm $ \m ->
             withManagedPtr model' $ \m' ->
@@ -220,7 +218,7 @@ listStoreSetValue :: MonadIO m => ListStore a -> Int32 -> a -> m ()
 listStoreSetValue (ListStore model) index value = do
   liftIO $ modifyIORef (customStoreGetPrivate (CustomStore model)) (Seq.update (fromIntegral index) value)
   stamp <- customStoreGetStamp (CustomStore model)
-  path <- treePathNewFromIndices [index]
+  path <- treePathNewFromIndices' [index]
   i <- treeIterNew stamp (fromIntegral index) 0 0
   treeModelRowChanged (CustomStore model) path i
 
@@ -245,7 +243,7 @@ listStoreInsert (ListStore model) index value = liftIO $ do
                | otherwise                           = fromIntegral $ index
     writeIORef (customStoreGetPrivate (CustomStore model)) (insert index' value seq)
     stamp <- customStoreGetStamp (CustomStore model)
-    p <- treePathNewFromIndices [fromIntegral index']
+    p <- treePathNewFromIndices' [fromIntegral index']
     i <- treeIterNew stamp (fromIntegral index') 0 0
     treeModelRowInserted (CustomStore model) p i
 
@@ -259,7 +257,7 @@ listStorePrepend (ListStore model) value = do
   liftIO $ modifyIORef (customStoreGetPrivate (CustomStore model))
               (\seq -> value Seq.<| seq)
   stamp <- customStoreGetStamp (CustomStore model)
-  p <- treePathNewFromIndices [0]
+  p <- treePathNewFromIndices' [0]
   i <- treeIterNew stamp 0 0 0
   treeModelRowInserted (CustomStore model) p i
 
@@ -275,7 +273,7 @@ listStoreAppend (ListStore model) value = do
   index <- liftIO $ atomicModifyIORef (customStoreGetPrivate (CustomStore model))
                              (\seq -> (seq Seq.|> value, Seq.length seq))
   stamp <- customStoreGetStamp (CustomStore model)
-  p <- treePathNewFromIndices [fromIntegral index]
+  p <- treePathNewFromIndices' [fromIntegral index]
   i <- treeIterNew stamp (fromIntegral index) 0 0
   treeModelRowInserted (CustomStore model) p i
   return $ fromIntegral index
@@ -300,7 +298,7 @@ listStoreRemove (ListStore model) index' = liftIO $ do
   seq <- readIORef (customStoreGetPrivate (CustomStore model))
   when (index >=0 && index < Seq.length seq) $ do
     writeIORef (customStoreGetPrivate (CustomStore model)) (delete index seq)
-    p <- treePathNewFromIndices [fromIntegral index]
+    p <- treePathNewFromIndices' [fromIntegral index]
     treeModelRowDeleted (CustomStore model) p
   where delete :: Int -> Seq a -> Seq a
         delete i xs = front Seq.>< Seq.drop 1 back
@@ -321,7 +319,7 @@ listStoreClear (ListStore model) = liftIO $
   let loop (-1) Seq.EmptyR = return ()
       loop n (seq Seq.:> _) = do
         writeIORef (customStoreGetPrivate (CustomStore model)) seq
-        p <- treePathNewFromIndices [fromIntegral n]
+        p <- treePathNewFromIndices' [fromIntegral n]
         treeModelRowDeleted (CustomStore model) p
         loop (n-1) (Seq.viewr seq)
 
