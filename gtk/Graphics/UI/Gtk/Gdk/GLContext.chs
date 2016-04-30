@@ -50,11 +50,14 @@ module Graphics.UI.Gtk.Gdk.GLContext (
 --
 
 -- * Types
+#if GTK_CHECK_VERSION(3,16,0)
   GLContext,
   GLContextClass,
   castToGLContext, gTypeGLContext,
+#endif
 
 -- * Methods
+#if GTK_CHECK_VERSION(3,16,0)
     glContextGetDisplay,
     glContextGetWindow,
     glContextGetSharedContext,
@@ -66,12 +69,15 @@ module Graphics.UI.Gtk.Gdk.GLContext (
     glContextSetForwardCompatible,
     glContextGetForwardCompatible,
     glContextRealize,
-    #if GTK_CHECK_VERSION(3,20,0)
+#endif
+#if GTK_CHECK_VERSION(3,20,0)
     glContextIsLegacy,
-    #endif
+#endif
+#if GTK_CHECK_VERSION(3,16,0)
     glContextMakeCurrent,
     glContextGetCurrent,
     glContextClearCurrent
+#endif
   ) where
 
 import Control.Monad    (liftM)
@@ -91,7 +97,7 @@ import System.Glib.Attributes
 
 --------------------
 -- Methods
-
+#if GTK_CHECK_VERSION(3,16,0)
 
 -- | Retrieves the 'Graphics.UI.Gtk.Gdk.Display.Display' the context is created for.
 --
@@ -189,6 +195,7 @@ glContextGetForwardCompatible :: GLContextClass self => self -> IO Bool
 glContextGetForwardCompatible self = do
     liftM toBool $ {# call gdk_gl_context_get_forward_compatible #} (toGLContext self)
 
+#endif
 
 #if GTK_CHECK_VERSION(3,20,0)
 -- | Whether the 'GLContext' is in legacy mode or not.
@@ -211,6 +218,7 @@ glContextIsLegacy self = do
 #endif
 
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | Realizes the given 'GLContext'.
 --
 -- It is safe to call this function on a realized 'GLContext'.
@@ -245,3 +253,5 @@ glContextGetCurrent = do
 glContextClearCurrent :: IO ()
 glContextClearCurrent = do
     {# call gdk_gl_context_clear_current #}
+
+#endif

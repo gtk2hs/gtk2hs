@@ -59,15 +59,20 @@ module Graphics.UI.Gtk.Misc.GLArea (
 -- @
 
 -- * Types
+#if GTK_CHECK_VERSION(3,16,0)
   GLArea,
   GLAreaClass,
   castToGLArea, gTypeGLArea,
   toGLArea,
+#endif
 
 -- * Constructors
+#if GTK_CHECK_VERSION(3,16,0)
   glAreaNew,
+#endif
 
 -- * Methods
+#if GTK_CHECK_VERSION(3,16,0)
   glAreaGetContext,
   glAreaMakeCurrent,
   glAreaQueueRender,
@@ -83,17 +88,22 @@ module Graphics.UI.Gtk.Misc.GLArea (
   glAreaGetRequiredVersion,
   glAreaSetRequiredVersion,
   glAreaGetError,
+#endif
 
 -- * Attributes
+#if GTK_CHECK_VERSION(3,16,0)
   glAreaAutoRender,
   glAreaContext,
   glAreaHasAlpha,
   glAreaHasDepthBuffer,
   glAreaHasStencilBuffer,
+#endif
 
 -- * Signals
+#if GTK_CHECK_VERSION(3,16,0)
   glAreaResize,
   glAreaRender
+#endif
 
   ) where
 
@@ -114,6 +124,7 @@ import Graphics.UI.Gtk.Gdk.GLContext
 --------------------
 -- Constructors
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | Creates a new GLArea widget.
 --
 glAreaNew :: IO GLArea
@@ -121,12 +132,14 @@ glAreaNew =
   makeNewObject mkGLArea $
   liftM (castPtr :: Ptr Widget -> Ptr GLArea) $
   {# call unsafe gl_area_new #}
+#endif
 
 
 --------------------
 -- Methods
 
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | Retrieves the 'Graphics.UI.Gtk.Gdk.GLContext.GLContext' used by area.
 --
 glAreaGetContext :: GLAreaClass self => self
@@ -280,10 +293,13 @@ glAreaSetRequiredVersion self major minor =
     {# call gtk_gl_area_set_required_version #}
         (toGLArea self) (fromIntegral major) (fromIntegral minor)
 
+#endif
 
 --------------------
 -- Attributes
 
+
+#if GTK_CHECK_VERSION(3,16,0)
 -- | If set to True the 'glAreaRender' signal will be emitted every time the widget draws. This is the
 -- default and is useful if drawing the widget is faster.
 --
@@ -342,10 +358,12 @@ glAreaHasStencilBuffer = newAttr
   glAreaGetHasStencilBuffer
   glAreaSetHasStencilBuffer
 
+#endif
 
 --------------------
 -- Signals
 
+#if GTK_CHECK_VERSION(3,16,0)
 
 -- | The glAreaResize signal is emitted once when the widget is realized, and then each time the widget
 -- is changed while realized. This is useful in order to keep GL state up to date with the widget
@@ -371,3 +389,5 @@ glAreaRender = Signal (connect_BOXED__BOOL "render" unwrapGLContextPtr)
 unwrapGLContextPtr :: Ptr GLContext -> IO (Maybe GLContext)
 unwrapGLContextPtr ptr = do
     maybeNull (makeNewGObject mkGLContext) (return ptr)
+
+#endif
