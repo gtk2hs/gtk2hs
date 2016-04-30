@@ -66,7 +66,9 @@ module Graphics.UI.Gtk (
 #endif
 --  module Graphics.UI.Gtk.Gdk.GC,
   module Graphics.UI.Gtk.Gdk.EventM,
+#if GTK_MAJOR_VERSION >= 3
   module Graphics.UI.Gtk.Gdk.GLContext,
+#endif
   module Graphics.UI.Gtk.Gdk.Pixbuf,
 #if GTK_MAJOR_VERSION < 3
   module Graphics.UI.Gtk.Gdk.Pixmap,
@@ -257,7 +259,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.Arrow,
   module Graphics.UI.Gtk.Misc.Calendar,
   module Graphics.UI.Gtk.Misc.DrawingArea,
+#if GTK_MAJOR_VERSION >= 3
   module Graphics.UI.Gtk.Misc.GLArea,
+#endif
   module Graphics.UI.Gtk.Misc.EventBox,
   module Graphics.UI.Gtk.Misc.HandleBox,
   module Graphics.UI.Gtk.Misc.IMMulticontext,
@@ -326,7 +330,9 @@ import Graphics.UI.Gtk.Gdk.Region               hiding (makeNewRegion)
 #endif
 --import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.EventM
+#if GTK_MAJOR_VERSION >= 3
 import Graphics.UI.Gtk.Gdk.GLContext
+#endif
 import Graphics.UI.Gtk.Gdk.Pixbuf
 #if GTK_MAJOR_VERSION < 3
 import Graphics.UI.Gtk.Gdk.Pixmap
@@ -522,7 +528,9 @@ import Graphics.UI.Gtk.Misc.Adjustment
 import Graphics.UI.Gtk.Misc.Arrow
 import Graphics.UI.Gtk.Misc.Calendar
 import Graphics.UI.Gtk.Misc.DrawingArea
+#if GTK_MAJOR_VERSION >= 3
 import Graphics.UI.Gtk.Misc.GLArea
+#endif
 import Graphics.UI.Gtk.Misc.EventBox
 import Graphics.UI.Gtk.Misc.HandleBox
 import Graphics.UI.Gtk.Misc.IMMulticontext
