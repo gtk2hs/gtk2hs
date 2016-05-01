@@ -202,6 +202,7 @@ Library
           Graphics.UI.Gtk.Gdk.EventM
           Graphics.UI.Gtk.Gdk.Events
           Graphics.UI.Gtk.Gdk.Gdk
+          Graphics.UI.Gtk.Gdk.GLContext
           Graphics.UI.Gtk.Gdk.Keys
           Graphics.UI.Gtk.Gdk.Pixbuf
           Graphics.UI.Gtk.Gdk.PixbufAnimation
@@ -258,6 +259,7 @@ Library
           Graphics.UI.Gtk.Misc.Arrow
           Graphics.UI.Gtk.Misc.Calendar
           Graphics.UI.Gtk.Misc.DrawingArea
+          Graphics.UI.Gtk.Misc.GLArea
           Graphics.UI.Gtk.Misc.EventBox
           Graphics.UI.Gtk.Misc.HandleBox
           Graphics.UI.Gtk.Misc.IMMulticontext

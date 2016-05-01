@@ -37,6 +37,7 @@
         GdkWindow as DrawWindow, gdk_window_get_type
         GdkGLPixmap		if gtkglext
         GdkGLWindow		if gtkglext
+        GdkGLContext    if gtk-3.16
 	GdkScreen		
 	GdkDisplay		
 	GdkVisual
@@ -149,6 +150,7 @@
                     GtkTreeView
                 GtkCalendar
                 GtkCellView		
+		GtkGLArea if gtk-3.16
 		GtkDrawingArea
 				GtkSpinner		
                 GtkEntry
