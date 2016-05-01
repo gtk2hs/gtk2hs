@@ -234,12 +234,12 @@ statusbarGetMessageArea self =
 -- * Available since Gtk+ version 2.22
 --
 statusbarRemoveAll :: StatusbarClass self => self
-                   -> Int -- ^ @contextId@ a context identifier
+                   -> ContextId -- ^ @contextId@ a context identifier
                    -> IO ()
 statusbarRemoveAll self contextId =
   {#call gtk_statusbar_remove_all #}
     (toStatusbar self)
-    (fromIntegral contextId)
+    contextId
 #endif
 
 --------------------
