@@ -111,6 +111,9 @@ module Graphics.UI.Gtk.General.Enums (
 #if GTK_MAJOR_VERSION < 3
   AnchorType (..),
 #endif
+#if GTK_CHECK_VERSION(3,10,0)
+  StackTransitionType (..),
+#endif
 
 module Graphics.UI.Gtk.Gdk.Enums
   ) where
@@ -507,4 +510,8 @@ instance Flags TextSearchFlags
 --
 -- Removed in Gtk3.
 {#enum AnchorType {underscoreToCase} deriving (Eq,Show)#}
+#endif
+
+#if GTK_CHECK_VERSION(3,10,0)
+{#enum StackTransitionType {underscoreToCase} deriving (Eq,Show)#}
 #endif

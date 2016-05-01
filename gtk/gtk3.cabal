@@ -235,6 +235,8 @@ Library
           Graphics.UI.Gtk.Layout.VBox
           Graphics.UI.Gtk.Layout.VButtonBox
           Graphics.UI.Gtk.Layout.VPaned
+          Graphics.UI.Gtk.Layout.Stack
+          Graphics.UI.Gtk.Layout.StackSwitcher
           Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
           Graphics.UI.Gtk.MenuComboToolbar.ComboBox
           Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem

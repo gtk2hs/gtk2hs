@@ -73,6 +73,7 @@
                 GtkContainer
 				    GtkToolPalette		
 				    GtkToolItemGroup	
+                    GtkStack                            if gtk-3.10
                     WebKitWebView as WebView, webkit_web_view_get_type            if webkit
                     GtkBin
                         GtkAlignment
@@ -117,6 +118,7 @@
 			    GtkSeparatorToolItem	
 			GtkMozEmbed		if mozembed
 			VteTerminal as Terminal if vte
+                        GtkStackSwitcher        if gtk-3.10
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox

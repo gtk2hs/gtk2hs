@@ -232,6 +232,10 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Layout.VBox,
   module Graphics.UI.Gtk.Layout.VButtonBox,
   module Graphics.UI.Gtk.Layout.VPaned,
+#if GTK_CHECK_VERSION(3,10,0)
+  module Graphics.UI.Gtk.Layout.Stack,
+  module Graphics.UI.Gtk.Layout.StackSwitcher,
+#endif
   -- * Ornaments
   module Graphics.UI.Gtk.Ornaments.Frame,
   module Graphics.UI.Gtk.Ornaments.HSeparator,
@@ -498,6 +502,10 @@ import Graphics.UI.Gtk.Layout.Notebook
 #if GTK_MAJOR_VERSION >= 3
 import Graphics.UI.Gtk.Layout.Grid
 import Graphics.UI.Gtk.Layout.Overlay
+#endif
+#if GTK_CHECK_VERSION(3,10,0)
+import Graphics.UI.Gtk.Layout.Stack
+import Graphics.UI.Gtk.Layout.StackSwitcher
 #endif
 import Graphics.UI.Gtk.Layout.Expander
 import Graphics.UI.Gtk.Layout.Table

@@ -103,6 +103,7 @@
 			    GtkSeparatorToolItem	if gtk-2.4
 			GtkMozEmbed		if mozembed
 			VteTerminal as Terminal if vte
+                        GtkStack
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox
@@ -136,6 +137,7 @@
                         GtkSourceView	if gtksourceview2
                     GtkToolbar
                     GtkTreeView
+                    GtkStack
                 GtkCalendar
                 GtkCellView		if gtk-2.6
 		GtkDrawingArea
