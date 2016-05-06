@@ -37,6 +37,8 @@ module Graphics.UI.Gtk.Display.Spinner (
 -- * Types
    Spinner,
    SpinnerClass,
+   castToSpinner, gTypeSpinner,
+   toSpinner,
 
 -- * Constructors
    spinnerNew,
