@@ -98,8 +98,9 @@ listStoreNewDND xs mDSource mDDest = do
   customStoreNew rows ListStore TreeModelIface {
       treeModelIfaceGetFlags      = return [TreeModelListOnly],
       treeModelIfaceGetIter       = \[n] -> readIORef rows >>= \rows ->
-                                     return (if Seq.null rows then Nothing else
-                                             Just (TreeIter 0 (fromIntegral n) 0 0)),
+                                     return (if inRange (0, Seq.length rows - 1) n
+                                                 then Just (TreeIter 0 (fromIntegral n) 0 0)
+                                                 else Nothing),
       treeModelIfaceGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
       treeModelIfaceGetRow        = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows ->
@@ -112,7 +113,11 @@ listStoreNewDND xs mDSource mDDest = do
                                  if inRange (0, Seq.length rows - 1) (fromIntegral (n+1))
                                    then return (Just (TreeIter 0 (n+1) 0 0))
                                    else return Nothing,
-      treeModelIfaceIterChildren  = \_ -> return Nothing,
+      treeModelIfaceIterChildren  = \index -> readIORef rows >>= \rows ->
+                                         case index of
+                                             Nothing | not (Seq.null rows) ->
+                                                        return (Just (TreeIter 0 0 0 0))
+                                             _       -> return Nothing,
       treeModelIfaceIterHasChild  = \_ -> return False,
       treeModelIfaceIterNChildren = \index -> readIORef rows >>= \rows ->
                                            case index of
