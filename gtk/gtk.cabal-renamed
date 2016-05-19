@@ -6,7 +6,7 @@ Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts and many others
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.18
+Cabal-Version:  >= 1.24
 Stability:      provisional
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
@@ -20,7 +20,6 @@ Extra-Source-Files: hsgtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h
                     template-hsc-gtk2hs.h
-                    SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
                     marshal.list
                     hierarchy.list
 
@@ -133,6 +132,11 @@ Flag fmode-binary
                If you have trouble loading gtk in ghci, then it may help to turn this
                option off.
   Default: True
+
+custom-setup
+  setup-depends: base >= 4.6,
+                 Cabal >= 1.24 && < 1.25,
+                 gtk2hs-buildtools >= 0.13.1.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,

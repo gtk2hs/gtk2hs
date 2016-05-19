@@ -1,5 +1,5 @@
 Name:   gtk2hs-buildtools
-Version:        0.13.0.5
+Version:        0.13.1.0
 License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -30,6 +30,15 @@ Source-Repository head
   type:         git
   location:     https://github.com/gtk2hs/gtk2hs
   subdir:       tools
+
+Library
+        build-depends:   base,
+                         Cabal >= 1.24.0.0 && < 1.25,
+                         filepath >= 1.3.0.0 && < 1.5,
+                         directory >= 1.2.0.0 && < 1.3,
+                         containers >= 0.5.5.1 && < 0.6
+        hs-source-dirs:  src
+        exposed-modules: Gtk2HsSetup
 
 Flag ClosureSignals
         Description:    Use the the GClosure-based signals implementation.

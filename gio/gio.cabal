@@ -6,7 +6,7 @@ Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Peter Gavin, Andy Stewart
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.18
+Cabal-Version:  >= 1.24
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
@@ -18,8 +18,7 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
                 It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
 Category:       System
 Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
-Extra-Source-Files: SetupWrapper.hs SetupMain.hs Gtk2HsSetup.hs
-                    marshal.list
+Extra-Source-Files: marshal.list
 					hierarchy.list
 
 x-Types-File:      System/GIO/Types.chs
@@ -38,6 +37,11 @@ Source-Repository head
   type:         git
   location:     https://github.com/gtk2hs/gtk2hs
   subdir:       gio
+
+custom-setup
+  setup-depends: base >= 4.6,
+                 Cabal >= 1.24 && < 1.25,
+                 gtk2hs-buildtools >= 0.13.1.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5, array, containers, mtl, bytestring,
