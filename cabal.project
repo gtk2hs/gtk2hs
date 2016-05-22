@@ -1,0 +1,7 @@
+packages:
+  tools/
+  glib/
+  cairo/
+  pango/
+  gio/
+  gtk/
