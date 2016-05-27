@@ -66,6 +66,10 @@ import Distribution.Simple.Compiler (compilerVersion)
 import Control.Applicative ((<$>))
 
 import Distribution.Simple.Program.Find ( defaultProgramSearchPath )
+import Gtk2HsC2Hs (c2hsMain)
+import HookGenerator (hookGen)
+import TypeGen (typeGen)
+import UNames (saveRootNameSupply)
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
@@ -76,6 +80,7 @@ libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfig
 precompFile = "precompchs.bin"
 
 gtk2hsUserHooks = simpleUserHooks {
+    -- hookedPrograms is only included for backwards compatibility with older Setup.hs.
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
     hookedPreProcessors = [("chs", ourC2hs)],
     confHook = \pd cf ->
@@ -244,7 +249,7 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
                   dir <- maybe [] importDirs (lookupUnitId (installedPkgs lbi) ipi) ]
   (gccProg, _) <- requireProgram verbosity gccProgram (withPrograms lbi)
-  rawSystemProgramConf verbosity c2hsLocal (withPrograms lbi) $
+  c2hsMain $
        map ("--include=" ++) (outDir:chiDirs)
     ++ [ "--cpp=" ++ programPath gccProg, "--cppopts=-E" ]
     ++ ["--cppopts=" ++ opt | opt <- getCppOptions bi lbi]
@@ -252,6 +257,8 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
         "--output=" ++ newOutFile,
         "--precomp=" ++ buildDir lbi </> precompFile,
         header, inDir </> inFile]
+  saveRootNameSupply -- Discard the UNames state so it can be restored by the next c2hsMain call
+  return ()
 
 getCppOptions :: BuildInfo -> LocalBuildInfo -> [String]
 getCppOptions bi lbi
@@ -289,23 +296,6 @@ installCHI _ _ _ _ = return ()
 -- Generating the type hierarchy and signal callback .hs files.
 ------------------------------------------------------------------------------
 
-typeGenProgram :: Program
-typeGenProgram = simpleProgram "gtk2hsTypeGen"
-
-signalGenProgram :: Program
-signalGenProgram = simpleProgram "gtk2hsHookGenerator"
-
-c2hsLocal :: Program
-c2hsLocal = (simpleProgram "gtk2hsC2hs") {
-    programFindVersion = findProgramVersion "--version" $ \str ->
-      -- Invoking "gtk2hsC2hs --version" gives a string like:
-      -- C->Haskell Compiler, version 0.13.4 (gtk2hs branch) "Bin IO", 13 Nov 2004
-      case words str of
-        (_:_:_:ver:_) -> ver
-        _             -> ""
-  }
-
-
 genSynthezisedFiles :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 genSynthezisedFiles verb pd lbi = do
   cPkgs <- getPkgConfigPackages verb lbi pd
@@ -332,22 +322,22 @@ genSynthezisedFiles verb pd lbi = do
                           "x-signals-" `isPrefixOf` field,
                           field /= "x-signals-file"]
 
-      genFile :: Program -> [ProgArg] -> FilePath -> IO ()
+      genFile :: ([String] -> IO String) -> [ProgArg] -> FilePath -> IO ()
       genFile prog args outFile = do
-         res <- rawSystemProgramStdoutConf verb prog (withPrograms lbi) args
+         res <- prog args
          rewriteFile outFile res
 
   forM_ (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
     \(fileTag, f) -> do
       let tag = reverse (drop 4 (reverse fileTag))
       info verb ("Ensuring that class hierarchy in "++f++" is up-to-date.")
-      genFile typeGenProgram (typeOpts tag) f
+      genFile typeGen (typeOpts tag) f
 
   case lookup "x-signals-file" xList of
     Nothing -> return ()
     Just f -> do
       info verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
-      genFile signalGenProgram signalsOpts f
+      genFile hookGen signalsOpts f
 
   writeFile "gtk2hs_macros.h" $ generateMacros cPkgs
 
@@ -470,7 +460,7 @@ sortTopological ms = reverse $ fst $ foldl visit ([], S.empty) (map mdOriginal m
           where
             (out',visited') = foldl visit (out, m `S.insert` visited) (mdRequires md)
 
--- Check user whether install gtk2hs-buildtools correctly.
+-- Included for backwards compatibility with older Setup.hs.
 checkGtk2hsBuildtools :: [Program] -> IO ()
 checkGtk2hsBuildtools programs = do
   programInfos <- mapM (\ prog -> do
@@ -483,3 +473,18 @@ checkGtk2hsBuildtools programs = do
         exitFailure
   forM_ programInfos $ \ (name, location) ->
     when (isNothing location) (printError name)
+
+-- Included for backwards compatibility with older Setup.hs.
+typeGenProgram :: Program
+typeGenProgram = simpleProgram "gtk2hsTypeGen"
+
+-- Included for backwards compatibility with older Setup.hs.
+signalGenProgram :: Program
+signalGenProgram = simpleProgram "gtk2hsHookGenerator"
+
+-- Included for backwards compatibility with older Setup.hs.
+-- We are not going to use this, so reporting the version we will use
+c2hsLocal :: Program
+c2hsLocal = (simpleProgram "gtk2hsC2hs") {
+    programFindVersion = \_ _ -> return . Just $ Version [0,13,13] []
+  }

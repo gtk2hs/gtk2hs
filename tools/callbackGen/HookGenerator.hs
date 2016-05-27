@@ -1,12 +1,11 @@
-{-# OPTIONS -cpp #-}
+{-# LANGUAGE CPP #-}
 -- HookGenerator.hs -*-haskell-*-
 -- Takes a type list of possible hooks from the GTK+ distribution and produces
 -- Haskell functions to connect to these callbacks.
-module Main(main) where
+module HookGenerator(hookGen) where
 
 import Data.Char   (showLitChar)
 import Data.List   (nub, isPrefixOf)
-import System.Environment (getArgs)
 import System.Exit (exitWith, ExitCode(..))
 import System.IO (stderr, hPutStr)
 import Paths_gtk2hs_buildtools (getDataFileName)
@@ -512,8 +511,8 @@ usage = do
    "  <import>        a module to be imported into the template file\n"
  exitWith $ ExitFailure 1
 
-main = do
-  args <- getArgs
+hookGen :: [String] -> IO String
+hookGen args = do
   let showHelp = not (null (filter ("-h" `isPrefixOf`) args++
                             filter ("--help" `isPrefixOf`) args)) || null args
   if showHelp then usage else do
@@ -529,7 +528,7 @@ main = do
   content <- readFile typesFile
   let sigs = parseSignatures content
   template <- readFile templateFile
-  putStr $
+  return $
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss outModuleName

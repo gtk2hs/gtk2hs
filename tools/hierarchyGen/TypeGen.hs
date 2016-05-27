@@ -1,12 +1,11 @@
--- TypeGenerator.hs
+-- TypeGen.hs
 -- Takes a hierarchical list of all objects in GTK+ and produces
 -- Haskell class that reflect this hierarchy.
-module Main (main) where
+module TypeGen (typeGen) where
 
 import Data.Char     (isAlpha, isAlphaNum, toLower, toUpper, isUpper)
 import Data.List     (isPrefixOf)
 import Control.Monad (when)
-import System.Environment (getArgs)
 import System.Exit   (exitWith, ExitCode(..))
 import System.IO (stderr, hPutStr)
 import Paths_gtk2hs_buildtools (getDataFileName)
@@ -61,7 +60,7 @@ pFreshLine ps input = pFL ps input
     pFL ps all                  = pGetObject ps all all
 
 pGetObject :: ParserState -> String -> String -> [(ObjectSpec, TypeQuery)]
-pGetObject ps@ParserState { onlyTags=tags } txt txt' = 
+pGetObject ps@ParserState { onlyTags=tags } txt txt' =
   (if readTag `elem` tags then (:) (spec, specialQuery) else id) $
   pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem''')
   where
@@ -70,10 +69,10 @@ pGetObject ps@ParserState { onlyTags=tags } txt txt' =
     isTagName c = isAlphaNum_ c || c=='-' || c=='.'  --to allow tag 'gtk-2.4'
     (origCName,rem) = span isAlphaNum txt
     (origHsName,_) = span isAlphaNum txt'
-    (eqInst,rem') = 
+    (eqInst,rem') =
        let r = dropWhile isBlank rem in
        if "noEq" `isPrefixOf` r then (True, drop 4 r) else (False, r)
-    (defDestr,rem'') = 
+    (defDestr,rem'') =
        let r = dropWhile isBlank rem' in
        if "noDestr" `isPrefixOf` r then (True, drop 7 r) else (False, r)
     (name,specialQuery,rem''') = case (dropWhile isBlank rem'') of
@@ -106,9 +105,8 @@ indent c = ss ("\n"++replicate (2*c) ' ')
 -- start of code generation
 -------------------------------------------------------------------------------
 
-
-main = do
-  args <- getArgs
+typeGen :: [String] -> IO String
+typeGen args = do
   let showHelp = not (null (filter ("-h" `isPrefixOf`) args++
                             filter ("--help" `isPrefixOf`) args)) || null args
   if showHelp then usage else do
@@ -159,9 +157,9 @@ main = do
   let showImport ('*':m ) = ss "{#import " .ss m .ss "#}" . indent 0
       showImport m = ss "import " . ss m . indent 0
   -----------------------------------------------------------------------------
-  -- Write the result to stdout after substituting values into the template file
+  -- return the result after substituting values into the template file
   --
-  putStr $
+  return $
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
@@ -233,18 +231,18 @@ generateDeclarations rootObject destr prefix objs typeTable =
 
 makeUpcast :: String -> [String] -> ShowS
 makeUpcast rootObject [obj]        = id -- no casting for root
-makeUpcast rootObject (obj:_:_) = 
+makeUpcast rootObject (obj:_:_) =
   indent 0.ss "castTo".ss obj.ss " :: ".ss rootObject.ss "Class obj => obj -> ".ss obj.
   indent 0.ss "castTo".ss obj.ss " = castTo gType".ss obj.ss " \"".ss obj.ss "\"".
   indent 0
 
 makeGType :: TypeTable -> [String] -> ShowS
 makeGType table [obj] = id -- no GType for root
-makeGType table (obj:_:_) = 
+makeGType table (obj:_:_) =
   indent 0.ss "gType".ss obj.ss " :: GType".
   indent 0.ss "gType".ss obj.ss " =".
   indent 1.ss "{# call fun unsafe ".
-    ss (case lookup obj table of 
+    ss (case lookup obj table of
          (Just TypeInfo { tiAlternateName = Just get_type_func }) ->
            get_type_func
          (Just TypeInfo { tiQueryFunction = cname}) ->
@@ -313,7 +311,7 @@ makeRootInstance rootObject name =
   indent 1.ss "unsafeCast".ss rootObject.ss " = ".ss name.ss " . castForeignPtr . un".ss rootObject
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
-templateSubstitute template varSubst = doSubst template 
+templateSubstitute template varSubst = doSubst template
   where doSubst [] = id
         doSubst ('\\':'@':cs) = sc '@' . doSubst cs
         doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs

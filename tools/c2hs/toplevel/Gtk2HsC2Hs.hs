@@ -95,7 +95,7 @@
 --        binding file.  If specified, the emitted C header file is put into
 --        the same directory as the output file.  The same holds for
 --        C->Haskell interface file.  All generated files also share the
---        basename. 
+--        basename.
 --
 --  -t PATH
 --  --output-dir=PATH
@@ -103,7 +103,7 @@
 --
 --        If this option as well as the `-o' option is given, the basename of
 --        the file specified with `-o' is put in the directory specified with
---        `-t'. 
+--        `-t'.
 --
 --  -v,
 --  --version
@@ -121,7 +121,7 @@
 --
 --  --old-ffi [=yes|=no]
 --        Generate hooks using pre-standard FFI libraries.  This currently
---        affects only call hooks where instead of `Addr' types 
+--        affects only call hooks where instead of `Addr' types
 --        `Ptr <someOtherType>' is used.
 --
 --  --lock=NAME
@@ -136,7 +136,7 @@
 --- TODO ----------------------------------------------------------------------
 --
 
-module Main (main)
+module Gtk2HsC2Hs (c2hsMain)
 where
 
 -- standard libraries
@@ -147,7 +147,7 @@ import Control.Monad      (when, unless, mapM)
 import Data.Maybe      (fromJust)
 
 -- base libraries
-import System.Console.GetOpt     
+import System.Console.GetOpt
                   (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, getOpt)
 import FNameOps   (suffix, basename, dirname, stripSuffix, addPath,
                    splitSearchPath)
@@ -158,7 +158,7 @@ import Binary     (Binary(..), putBinFileWithDict, getBinFileWithDict)
 -- c2hs modules
 import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
                    ExitCode(..), stderr, IOMode(..), putStrCIO, hPutStrCIO,
-                   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
+                   hPutStrLnCIO, exitWithCIO, getProgNameCIO,
                    ioeGetErrorString, ioeGetFileName, doesFileExistCIO,
                    removeFileCIO, liftIO,
                    fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
@@ -176,8 +176,8 @@ import C2HSConfig (cpp, cppopts, cppoptsdef, hpaths, tmpdir)
 -- wrapper running the compiler
 -- ============================
 
-main :: IO ()
-main  = runC2HS (version, copyright, disclaimer) compile
+c2hsMain :: [String] -> IO ()
+c2hsMain  = runC2HS (version, copyright, disclaimer) . compile
 
 
 -- option handling
@@ -187,7 +187,7 @@ main  = runC2HS (version, copyright, disclaimer) compile
 -- errTrailer is output after an error message
 --
 header :: String -> String -> String -> String
-header version copyright disclaimer  = 
+header version copyright disclaimer  =
   version ++ "\n" ++ copyright ++ "\n" ++ disclaimer
   ++ "\n\nUsage: c2hs [ option... ] header-file binding-file\n"
 
@@ -228,37 +228,37 @@ data DumpType = Trace         -- compiler trace
 --
 options :: [OptDescr Flag]
 options  = [
-  Option ['C'] 
-         ["cppopts"] 
-         (ReqArg CPPOpts "CPPOPTS") 
+  Option ['C']
+         ["cppopts"]
+         (ReqArg CPPOpts "CPPOPTS")
          "pass CPPOPTS to the C preprocessor",
-  Option ['c'] 
-         ["cpp"] 
-         (ReqArg CPP "CPP") 
+  Option ['c']
+         ["cpp"]
+         (ReqArg CPP "CPP")
          "use executable CPP to invoke C preprocessor",
-  Option ['d'] 
-         ["dump"] 
-         (ReqArg dumpArg "TYPE") 
+  Option ['d']
+         ["dump"]
+         (ReqArg dumpArg "TYPE")
          "dump internal information (for debugging)",
-  Option ['h', '?'] 
-         ["help"] 
-         (NoArg Help) 
+  Option ['h', '?']
+         ["help"]
+         (NoArg Help)
          "brief help (the present message)",
   Option ['i']
          ["include"]
          (ReqArg Include "INCLUDE")
          "include paths for .chi files",
-  Option ['k'] 
-         ["keep"] 
-         (NoArg Keep) 
+  Option ['k']
+         ["keep"]
+         (NoArg Keep)
          "keep pre-processed C header",
-  Option ['o'] 
-         ["output"] 
-         (ReqArg Output "FILE") 
+  Option ['o']
+         ["output"]
+         (ReqArg Output "FILE")
          "output result to FILE (should end in .hs)",
-  Option ['t'] 
-         ["output-dir"] 
-         (ReqArg OutDir "PATH") 
+  Option ['t']
+         ["output-dir"]
+         (ReqArg OutDir "PATH")
          "place generated files in PATH",
   Option ['p']
          ["precomp"]
@@ -268,9 +268,9 @@ options  = [
          ["lock"]
          (ReqArg LockFun "NAME")
          "wrap each foreign call with the function NAME",
-  Option ['v'] 
-         ["version"] 
-         (NoArg Version) 
+  Option ['v']
+         ["version"]
+         (NoArg Version)
          "show version information"]
 
 -- convert argument of `Dump' option
@@ -287,29 +287,26 @@ dumpArg _          = Error "Illegal dump type."
 --
 -- * Exceptions are caught and reported
 --
-compile :: CST s ()
-compile  = 
+compile :: [String] -> CST s ()
+compile cmdLine =
   do
     setup
-    cmdLine <- getArgsCIO
     case getOpt RequireOrder options cmdLine of
       ([Help]   , []  , []) -> doExecute [Help]    []
       ([Version], []  , []) -> doExecute [Version] []
-      (opts     , args, []) 
+      (opts     , args, [])
         | properArgs args -> doExecute opts args
         | otherwise       -> raiseErrs [wrongNoOfArgsErr]
       (_   , _   , errs)  -> raiseErrs errs
   where
-    properArgs [file1, file2] = suffix file1 == hsuffix 
-                                && suffix file2 == chssuffix 
+    properArgs [file1, file2] = suffix file1 == hsuffix
+                                && suffix file2 == chssuffix
     properArgs _              = False
     --
-    doExecute opts args = do
-                            execute opts args
+    doExecute opts args = execute opts args
                               `fatalsHandledBy` failureHandler
-                            exitWithCIO ExitSuccess
     --
-    wrongNoOfArgsErr = 
+    wrongNoOfArgsErr =
       "Supply the header file followed by the binding file.\n\
       \The header file can be omitted if it is supplied in the binding file.\n\
       \The binding file can be omitted if the --precomp flag is given.\n"
@@ -353,7 +350,7 @@ raiseErrs errs = do
 --
 execute :: [Flag] -> [FilePath] -> CST s ()
 execute opts args | Help `elem` opts = help
-                  | otherwise        = 
+                  | otherwise        =
   do
     let vs      = filter (== Version) opts
         opts'   = filter (/= Version) opts
@@ -396,7 +393,7 @@ help  = do
 
 -- process an option
 --
--- * `Help' cannot occur 
+-- * `Help' cannot occur
 --
 processOpt                   :: Flag -> CST s ()
 processOpt (CPPOpts cppopt )  = addCPPOpts [cppopt]
@@ -409,7 +406,7 @@ processOpt (OutDir  fname  )  = setOutDir  fname
 processOpt (PreComp fname  )  = setPreComp fname
 processOpt (LockFun name   )  = setLockFun name
 processOpt Version            = do
-                                  (version, _, _) <- getId 
+                                  (version, _, _) <- getId
                                   putStrCIO (version ++ "\n")
 processOpt (Error   msg    )  = abort      msg
 
@@ -451,13 +448,13 @@ computeOutputName bndFileNoSuffix =
 --   `hpathsSB'
 --
 addCPPOpts      :: [String] -> CST s ()
-addCPPOpts opts  = 
+addCPPOpts opts  =
   do
     let iopts = [opt | opt <- opts, "-I" `isPrefixOf` opt, "-I-" /= opt]
     addHPaths . map (drop 2) $ iopts
     addOpts opts
   where
-    addOpts opts  = setSwitch $ 
+    addOpts opts  = setSwitch $
                       \sb -> sb {cppOptsSB = cppOptsSB sb ++ opts}
 
 -- set the program name of the C proprocessor
@@ -564,7 +561,7 @@ process headerFile preCompFile bndFileStripped  =
           process <- runProcess cpp args
             Nothing Nothing Nothing (Just ppHnd) Nothing
           waitForProcess process
-        case exitCode of 
+        case exitCode of
           ExitFailure _ -> fatal "Error during preprocessing chs file"
           _             -> nop
 
@@ -620,7 +617,7 @@ process headerFile preCompFile bndFileStripped  =
           process <- runProcess cpp args
             Nothing Nothing Nothing (Just preprocHnd) Nothing
           waitForProcess process
-        case exitCode of 
+        case exitCode of
           ExitFailure _ -> fatal "Error during preprocessing custom header file"
           _             -> nop
         --
@@ -660,7 +657,7 @@ process headerFile preCompFile bndFileStripped  =
                          flag <- traceSet dumpCHSSW
                          when flag $
                            (do
-                              putStrCIO ("...dumping CHS to `" ++ chsName 
+                              putStrCIO ("...dumping CHS to `" ++ chsName
                                          ++ "'...\n")
                               dumpCHS chsName mod False)
 
@@ -670,7 +667,7 @@ preCompileHeader :: FilePath -> FilePath -> CST s ()
 preCompileHeader headerFile preCompFile =
   do
     let preprocFile  = basename headerFile ++ isuffix
-    
+
     pcFileExists <- doesFileExistCIO preCompFile
     unless pcFileExists $ do
 
@@ -698,7 +695,7 @@ preCompileHeader headerFile preCompFile =
     --
     (cheader, warnmsgs) <- loadAttrC preprocFile
     putStrCIO warnmsgs
-    
+
     --
     -- save the attributed C to disk
     --
@@ -710,7 +707,7 @@ preCompileHeader headerFile preCompFile =
     keep <- getSwitch keepSB
     unless keep $
       removeFileCIO preprocFile
- 
+
     return ()
   where
     tracePreproc cmd = putTraceStr tracePhasesSW $

@@ -1,12 +1,12 @@
 Name:   gtk2hs-buildtools
-Version:        0.13.1.0
+Version:        0.13.2.0
 License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts, Manuel Chakravaty
 Maintainer:     gtk2hs-devel@lists.sourceforge.net
 Build-Type:     Simple
-Cabal-Version:  >= 1.8
+Cabal-Version:  >= 1.10
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
@@ -31,98 +31,111 @@ Source-Repository head
   location:     https://github.com/gtk2hs/gtk2hs
   subdir:       tools
 
-Library
-        build-depends:   base,
-                         Cabal >= 1.24.0.0 && < 1.25,
-                         filepath >= 1.3.0.0 && < 1.5,
-                         directory >= 1.2.0.0 && < 1.3,
-                         containers >= 0.5.5.1 && < 0.6
-        hs-source-dirs:  src
-        exposed-modules: Gtk2HsSetup
-
 Flag ClosureSignals
         Description:    Use the the GClosure-based signals implementation.
 --        if ! (arch(sparc) || arch(x86_64) || impl(ghc >= 6.4.1))
 --        Default:        False
 
-Executable gtk2hsTypeGen
-        main-is:        TypeGen.hs
-        hs-source-dirs: hierarchyGen
-        other-modules:  Paths_gtk2hs_buildtools
-        build-depends:  base
-
-Executable gtk2hsHookGenerator
-        main-is:        HookGenerator.hs
-        hs-source-dirs: callbackGen
-        if flag(ClosureSignals)
-          cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
-        other-modules:  Paths_gtk2hs_buildtools
-        build-depends:  base
-
-Executable gtk2hsC2hs
-        main-is:        Main.hs
-        build-depends:  base >= 4 && < 5,
-                        process, directory, array, containers, pretty,
-                        filepath, random
-        build-tools:    alex >= 3.0.1, happy >= 1.18.9
-        other-modules:  BaseVersion
-                        Config
-                        Errors
-                        Binary
-                        DLists
-                        FastMutInt
-                        FileOps
-                        FNameOps
-                        Map
-                        Position
-                        Set
-                        UNames
-                        CIO
-                        State
-                        StateBase
-                        StateTrans
-                        Attributes
-                        Idents
-                        NameSpaces
-                        Lexers
-                        C
-                        CAST
-                        CAttrs
-                        CBuiltin
-                        CLexer
-                        CNames
-                        CParser
-                        CParserMonad
-                        CPretty
-                        CTokens
-                        CTrav
-                        CHS
-                        CHSLexer
-                        CInfo
-                        GBMonad
-                        GenBind
-                        GenHeader
-                        C2HSState
-                        Switches
-                        C2HSConfig
-                        Version
-        hs-source-dirs: c2hs/toplevel
-                        c2hs/state
-                        c2hs/gen
-                        c2hs/chs
-                        c2hs/c
-                        c2hs/base/admin
-                        c2hs/base/general
-                        c2hs/base/state
-                        c2hs/base/errors
-                        c2hs/base/syms
-                        c2hs/base/syntax
-        c-sources:      c2hs/toplevel/c2hs_config.c
-        if os(darwin)
-          cpp-options:  -D_C2HS_CPP_IS_GCC
-        else
-          cpp-options:  -D_C2HS_CPP_LANG_SINGLE
-        extensions:     ForeignFunctionInterface
-                        BangPatterns
+Library
+        build-depends:   base >= 4 && < 5,
+                         process, directory, array, containers, pretty,
+                         filepath, random,
+                         Cabal >= 1.24.0.0 && < 1.25,
+                         filepath >= 1.3.0.0 && < 1.5,
+                         directory >= 1.2.0.0 && < 1.3,
+                         containers >= 0.5.5.1 && < 0.6
         if impl(ghc >= 7.7)
           build-depends: hashtables
+        build-tools:     alex >= 3.0.1, happy >= 1.18.9
+        hs-source-dirs:  src
+                         hierarchyGen
+                         callbackGen
+                         c2hs/toplevel
+                         c2hs/state
+                         c2hs/gen
+                         c2hs/chs
+                         c2hs/c
+                         c2hs/base/admin
+                         c2hs/base/general
+                         c2hs/base/state
+                         c2hs/base/errors
+                         c2hs/base/syms
+                         c2hs/base/syntax
+        c-sources:       c2hs/toplevel/c2hs_config.c
+        exposed-modules: Gtk2HsSetup
+                         TypeGen
+                         HookGenerator
+                         Gtk2HsC2Hs
+        other-modules:   Paths_gtk2hs_buildtools
+                         -- gtk2hsC2hs Modules
+                         BaseVersion
+                         Config
+                         Errors
+                         Binary
+                         DLists
+                         FastMutInt
+                         FileOps
+                         FNameOps
+                         Map
+                         Position
+                         Set
+                         UNames
+                         CIO
+                         State
+                         StateBase
+                         StateTrans
+                         Attributes
+                         Idents
+                         NameSpaces
+                         Lexers
+                         C
+                         CAST
+                         CAttrs
+                         CBuiltin
+                         CLexer
+                         CNames
+                         CParser
+                         CParserMonad
+                         CPretty
+                         CTokens
+                         CTrav
+                         CHS
+                         CHSLexer
+                         CInfo
+                         GBMonad
+                         GenBind
+                         GenHeader
+                         C2HSState
+                         Switches
+                         C2HSConfig
+                         Version
+
+        default-language:   Haskell98
+        default-extensions: ForeignFunctionInterface
+                            BangPatterns
+
+        if flag(ClosureSignals)
+          cpp-options:   -DUSE_GCLOSURE_SIGNALS_IMPL
+
+        if os(darwin)
+          cpp-options:   -D_C2HS_CPP_IS_GCC
+        else
+          cpp-options:   -D_C2HS_CPP_LANG_SINGLE
+
+Executable gtk2hsTypeGen
+        main-is:        gtk2hsTypeGenMain.hs
+        hs-source-dirs: exe
+        build-depends:  base, gtk2hs-buildtools
+        default-language: Haskell98
+
+Executable gtk2hsHookGenerator
+        main-is:        gtk2hsHookGeneratorMain.hs
+        hs-source-dirs: exe
+        build-depends:  base, gtk2hs-buildtools
+        default-language: Haskell98
+
+Executable gtk2hsC2hs
+        main-is:        gtk2hsC2hsMain.hs
+        hs-source-dirs: exe
+        build-depends:  base, gtk2hs-buildtools
+        default-language: Haskell98
