@@ -1,5 +1,5 @@
 Name:           gtk
-Version:        0.14.3
+Version:        0.14.4
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -136,7 +136,7 @@ Flag fmode-binary
 custom-setup
   setup-depends: base >= 4.6,
                  Cabal >= 1.24 && < 1.25,
-                 gtk2hs-buildtools >= 0.13.1.0 && < 0.14
+                 gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
@@ -150,9 +150,6 @@ Library
           cpp-options:    -DHAVE_GIO
         if flag(have-quartz-gtk)
           cpp-options:    -DHAVE_QUARTZ_GTK
-
-        build-tools:    gtk2hsC2hs >= 0.13.13,
-                        gtk2hsHookGenerator, gtk2hsTypeGen
 
         exposed-modules:
           Graphics.UI.Gtk

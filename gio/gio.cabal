@@ -1,5 +1,5 @@
 Name:           gio
-Version:        0.13.2.0
+Version:        0.13.3.0
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -41,13 +41,11 @@ Source-Repository head
 custom-setup
   setup-depends: base >= 4.6,
                  Cabal >= 1.24 && < 1.25,
-                 gtk2hs-buildtools >= 0.13.1.0 && < 0.14
+                 gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5, array, containers, mtl, bytestring,
                         glib >= 0.13.0.0 && < 0.14
-        build-tools:    gtk2hsC2hs >= 0.13.13,
-                        gtk2hsHookGenerator, gtk2hsTypeGen
 
         exposed-modules:
           System.GIO

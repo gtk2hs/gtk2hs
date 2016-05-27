@@ -4,8 +4,7 @@
 --
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(postConf),
                              PackageIdentifier(..), PackageName(..) )
-import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages, checkGtk2hsBuildtools,
-                     typeGenProgram, signalGenProgram, c2hsLocal)
+import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages)
 import Distribution.Simple.Setup ( ConfigFlags(configVerbosity), fromFlag)
 import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
@@ -15,8 +14,7 @@ import Distribution.Verbosity
 import Distribution.Simple.Utils
 import System.FilePath
 
-main = do
-  checkGtk2hsBuildtools [c2hsLocal, typeGenProgram]
+main =
   defaultMainWithHooks gtk2hsUserHooks {
 
     postConf = \args cf pd lbi -> do
