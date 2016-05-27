@@ -69,7 +69,7 @@ import Distribution.Simple.Program.Find ( defaultProgramSearchPath )
 import Gtk2HsC2Hs (c2hsMain)
 import HookGenerator (hookGen)
 import TypeGen (typeGen)
-import UNames (saveRootNameSupply)
+import UNames (unsafeResetRootNameSupply)
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
@@ -249,6 +249,7 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
                   ipi <- maybe [] (map fst . componentPackageDeps) (libraryConfig lbi),
                   dir <- maybe [] importDirs (lookupUnitId (installedPkgs lbi) ipi) ]
   (gccProg, _) <- requireProgram verbosity gccProgram (withPrograms lbi)
+  unsafeResetRootNameSupply
   c2hsMain $
        map ("--include=" ++) (outDir:chiDirs)
     ++ [ "--cpp=" ++ programPath gccProg, "--cppopts=-E" ]
@@ -257,7 +258,6 @@ runC2HS bi lbi (inDir, inFile)  (outDir, outFile) verbosity = do
         "--output=" ++ newOutFile,
         "--precomp=" ++ buildDir lbi </> precompFile,
         header, inDir </> inFile]
-  saveRootNameSupply -- Discard the UNames state so it can be restored by the next c2hsMain call
   return ()
 
 getCppOptions :: BuildInfo -> LocalBuildInfo -> [String]
