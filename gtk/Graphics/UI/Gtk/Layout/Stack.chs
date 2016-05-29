@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.Layout.Stack (
 -- @
 
 -- * Types
-#if GTK_CHECK_VERSION(3,10,0)
+#if GTK_CHECK_VERSION(3,12,0)
          Stack
        , castToStack
        , gTypeStack
@@ -72,30 +72,40 @@ module Graphics.UI.Gtk.Layout.Stack (
        , stackSetVisibleChildName
        , stackGetVisibleChildName
        , stackSetVisibleChildFull
+#if GTK_CHECK_VERSION(3,16,0)
        , stackSetHomogeneous
        , stackGetHomogeneous
        , stackSetHhomogeneous
        , stackGetHhomogeneous
        , stackSetVhomogeneous
        , stackGetVhomogeneous
+#endif
        , stackGetTransitionRunning
+#if GTK_CHECK_VERSION(3,18,0)
        , stackSetInterpolateSize
        , stackGetInterpolateSize
+#endif
 
 -- * Attributes
+#if GTK_CHECK_VERSION(3,16,0)
        , stackHhomogeneous
        , stackHomogeneous
+#endif
+#if GTK_CHECK_VERSION(3,18,0)
        , stackInterpolateSize
+#endif
        , stackTransitionDuration
        , stackTransitionRunning
        , stackTransitionType
+#if GTK_CHECK_VERSION(3,16,0)
        , stackVhomogeneous
+#endif
        , stackVisibleChild
        , stackVisibleChildName
 #endif
 ) where
 
-#if GTK_CHECK_VERSION(3,10,0)
+#if GTK_CHECK_VERSION(3,12,0)
 
 import Control.Monad    (liftM)
 
@@ -265,6 +275,7 @@ stackSetVisibleChildFull self name transitionType =
       namePtr
       (fromIntegral $ fromEnum transitionType)
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | Sets the stack to be homogeneous or not. If it is homogeneous,
 -- the stack will request the same size for all its children. If it
 -- isn't, the stack may change size when a different child becomes
@@ -317,6 +328,7 @@ stackGetVhomogeneous self =
   liftM toBool $
   {# call stack_get_vhomogeneous #}
     (toStack self)
+#endif
 
 -- | Returns whether the stack is currently in a transition from one
 -- page to another.
@@ -348,6 +360,7 @@ stackSetInterpolateSize self interpolateSize =
 --------------------
 -- Attributes
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | True if the stack allocates the same width for all children.
 stackHhomogeneous :: StackClass self => Attr self Bool
 stackHhomogeneous = newAttr
@@ -359,6 +372,7 @@ stackHomogeneous :: StackClass self => Attr self Bool
 stackHomogeneous = newAttr
   stackGetHomogeneous
   stackSetHomogeneous
+#endif
 
 -- | Whether or not the size should smoothly change when changing
 -- between differently sized children.
@@ -384,11 +398,13 @@ stackTransitionType = newAttr
   stackGetTransitionType
   stackSetTransitionType
 
+#if GTK_CHECK_VERSION(3,16,0)
 -- | True if the stack allocates the same height for all children.
 stackVhomogeneous :: StackClass self => Attr self Bool
 stackVhomogeneous = newAttr
   stackGetVhomogeneous
   stackSetVhomogeneous
+#endif
 
 -- | The widget currently visible in the stack.
 stackVisibleChild :: StackClass self =>
