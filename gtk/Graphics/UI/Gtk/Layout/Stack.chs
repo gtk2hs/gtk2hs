@@ -338,6 +338,7 @@ stackGetTransitionRunning self =
   {# call stack_get_transition_running #}
     (toStack self)
 
+#if GTK_CHECK_VERSION(3,18,0)
 -- | Returns wether the stack is set up to interpolate between the
 -- sizes of children on page switch.
 stackGetInterpolateSize :: StackClass self => self -> IO Bool
@@ -356,6 +357,7 @@ stackSetInterpolateSize self interpolateSize =
   {# call stack_set_interpolate_size #}
     (toStack self)
     (fromBool interpolateSize)
+#endif
 
 --------------------
 -- Attributes
@@ -374,12 +376,14 @@ stackHomogeneous = newAttr
   stackSetHomogeneous
 #endif
 
+#if GTK_CHECK_VERSION(3,18,0)
 -- | Whether or not the size should smoothly change when changing
 -- between differently sized children.
 stackInterpolateSize :: StackClass self => Attr self Bool
 stackInterpolateSize = newAttr
   stackGetInterpolateSize
   stackSetInterpolateSize
+#endif
 
 -- | The animation duration, in milliseconds.
 stackTransitionDuration :: StackClass self => Attr self Int
