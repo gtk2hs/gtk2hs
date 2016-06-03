@@ -8,10 +8,10 @@ module Int (
 
 -- Constraints applying to all of the following types:
 --
--- * For any types, all arithmetic is performed modulo 2^n, where n is the
+--  * For any types, all arithmetic is performed modulo 2^n, where n is the
 --   number of bit width of the type minus one (for the sign).
 --
--- * The rules that hold for Enum instances over a bounded type such as Int
+--  * The rules that hold for Enum instances over a bounded type such as Int
 --   (see the section of the Haskell report dealing with arithmetic sequences)
 --   also hold for the Enum instances over the various Int types defined here.
 

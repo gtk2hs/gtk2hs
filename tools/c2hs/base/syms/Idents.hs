@@ -191,15 +191,15 @@ isLegalIdent (c:cs)  = if c == '`' then isQualIdent cs
 
 -- given the lexeme of an identifier, yield the abstract identifier (EXPORTED)
 --
--- * the only attribute of the resulting identifier is its source text
+--  * the only attribute of the resulting identifier is its source text
 --   position; as provided in the first argument of this function
 --
--- * only minimal error checking, e.g., the characters of the identifier are
+--  * only minimal error checking, e.g., the characters of the identifier are
 --   not checked for being alphanumerical only; the correct lexis of the
 --   identifier should be ensured by the caller, e.g., the scanner or
 --   `isLegalIdent'
 --
--- * for reasons of simplicity the complete lexeme is hashed (with `quad')
+--  * for reasons of simplicity the complete lexeme is hashed (with `quad')
 --
 lexemeToIdent            :: Position -> String -> Name -> Ident
 lexemeToIdent pos l name  = Ident s k (quad s) (newAttrs pos name)

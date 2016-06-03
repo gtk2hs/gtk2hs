@@ -30,7 +30,7 @@
 --
 --- TODO ----------------------------------------------------------------------
 --
--- * `defObjOrErr': currently, repeated declarations are completely ignored;
+--  * `defObjOrErr': currently, repeated declarations are completely ignored;
 --   eventually, the consistency of the declarations should be checked
 --
 
@@ -71,7 +71,7 @@ nameAnalysis ac  = do
 
 -- traverse a complete header file
 --
--- * in case of an error, back off the current declaration
+--  * in case of an error, back off the current declaration
 --
 naCHeader :: NA ()
 naCHeader  = do
@@ -86,7 +86,7 @@ naCHeader  = do
 
 -- Processing of toplevel declarations
 --
--- * We turn function definitions into prototypes, as we are not interested in
+--  * We turn function definitions into prototypes, as we are not interested in
 --   function bodies.
 --
 naCExtDecl :: CExtDecl -> NA ()
@@ -194,7 +194,7 @@ ide `defTagOrErr` tag  = do
 
 -- associate an object with a referring identifier
 --
--- * currently, repeated declarations are completely ignored; eventually, the
+--  * currently, repeated declarations are completely ignored; eventually, the
 --   consistency of the declarations should be checked
 --
 defObjOrErr           :: Ident -> CObj -> NA ()

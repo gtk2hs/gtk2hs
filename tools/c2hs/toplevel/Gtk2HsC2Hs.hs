@@ -285,7 +285,7 @@ dumpArg _          = Error "Illegal dump type."
 -- main process (set up base configuration, analyse command line, and execute
 -- compilation process)
 --
--- * Exceptions are caught and reported
+--  * Exceptions are caught and reported
 --
 compile :: [String] -> CST s ()
 compile cmdLine =
@@ -343,9 +343,9 @@ raiseErrs errs = do
 
 -- execute the compilation task
 --
--- * if `Help' is present, emit the help message and ignore the rest
--- * if `Version' is present, do it first (and only once)
--- * actual compilation is only invoked if we have one or two extra arguments
+--  * if `Help' is present, emit the help message and ignore the rest
+--  * if `Version' is present, do it first (and only once)
+--  * actual compilation is only invoked if we have one or two extra arguments
 --   (otherwise, it is just skipped)
 --
 execute :: [Flag] -> [FilePath] -> CST s ()
@@ -393,7 +393,7 @@ help  = do
 
 -- process an option
 --
--- * `Help' cannot occur
+--  * `Help' cannot occur
 --
 processOpt                   :: Flag -> CST s ()
 processOpt (CPPOpts cppopt )  = addCPPOpts [cppopt]
@@ -421,7 +421,7 @@ abort msg  = do
 -- Compute the base name for all generated files (Haskell, C header, and .chi
 -- file)
 --
--- * The result is available from the `outputSB' switch
+--  * The result is available from the `outputSB' switch
 --
 computeOutputName :: FilePath -> CST s ()
 computeOutputName bndFileNoSuffix =
@@ -444,7 +444,7 @@ computeOutputName bndFileNoSuffix =
 
 -- set the options for the C proprocessor
 --
--- * any header search path that is set with `-IDIR' is also added to
+--  * any header search path that is set with `-IDIR' is also added to
 --   `hpathsSB'
 --
 addCPPOpts      :: [String] -> CST s ()
@@ -482,9 +482,9 @@ setKeep  = setSwitch $ \sb -> sb {keepSB = True}
 
 -- set the search directories for .chi files
 --
--- * Several -i flags are accumulated. Later paths have higher priority.
+--  * Several -i flags are accumulated. Later paths have higher priority.
 --
--- * The current directory is always searched last because it is the
+--  * The current directory is always searched last because it is the
 --   standard value in the compiler state.
 --
 setInclude :: String -> CST s ()
@@ -526,10 +526,10 @@ setLockFun name = setSwitch $ \sb -> sb { lockFunSB = Just name }
 -- read the binding module, construct a header, run it through CPP, read it,
 -- and finally generate the Haskell target
 --
--- * the header file name (first argument) may be empty; otherwise, it already
+--  * the header file name (first argument) may be empty; otherwise, it already
 --   contains the right suffix
 --
--- * the binding file name has been stripped of the .chs suffix
+--  * the binding file name has been stripped of the .chs suffix
 --
 process                    :: FilePath -> Maybe FilePath -> FilePath -> CST s ()
 process headerFile preCompFile bndFileStripped  =

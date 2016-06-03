@@ -238,7 +238,7 @@ usertype Tmobject  (c:cs) = (ss "Maybe ".sc c.sc '\'',cs)
 
 -- type declaration: only consume variables when they are needed
 --
--- * Tint is used as return value as well. Therefore Integral has to be added
+--  * Tint is used as return value as well. Therefore Integral has to be added
 --   to the context. Grrr.
 --
 context :: [Types] -> [Char] -> [ShowS]

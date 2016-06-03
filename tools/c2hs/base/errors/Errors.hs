@@ -103,9 +103,9 @@ errorLvl (Error lvl _ _)  = lvl
 
 -- converts an error into a string using a fixed format (EXPORTED)
 --
--- * the list of lines of the error message must not be empty
+--  * the list of lines of the error message must not be empty
 --
--- * the format is
+--  * the format is
 --
 --     <fname>:<row>: (column <col>) [<err lvl>]
 --       >>> <line_1>
@@ -113,7 +113,7 @@ errorLvl (Error lvl _ _)  = lvl
 --         ...
 --       <line_n>
 --
--- * internal errors (identified by a special position value) are formatted as
+--  * internal errors (identified by a special position value) are formatted as
 --
 --     INTERNAL ERROR!
 --       >>> <line_1>

@@ -118,7 +118,7 @@ data Traces = Traces {
 
 -- trace setting on startup
 --
--- * all traces are initially off
+--  * all traces are initially off
 --
 initialTraces :: Traces
 initialTraces  = Traces {

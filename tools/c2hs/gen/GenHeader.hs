@@ -41,7 +41,7 @@
 --
 --- TODO ----------------------------------------------------------------------
 --
--- * Ideally, `ghFrag[s]' should be tail recursive
+--  * Ideally, `ghFrag[s]' should be tail recursive
 
 module GenHeader (
   genHeader
@@ -71,9 +71,9 @@ type GH a = CST [Name] a
 
 -- |Generate a custom C header from a CHS binding module.
 --
--- * All CPP directives and inline-C fragments are moved into the custom header
+--  * All CPP directives and inline-C fragments are moved into the custom header
 --
--- * The CPP and inline-C fragments are removed from the .chs tree and
+--  * The CPP and inline-C fragments are removed from the .chs tree and
 --   conditionals are replaced by structured conditionals
 --
 genHeader :: CHSModule -> CST s ([String], CHSModule, String)
@@ -125,7 +125,7 @@ isEOF _   = False
 
 -- Generate the C header for an entire .chs module.
 --
--- * This works more or less like a recursive decent parser for a statement
+--  * This works more or less like a recursive decent parser for a statement
 --   sequence that may contain conditionals, where `ghFrag' implements most of
 --   the state transition system of the associated automaton
 --
@@ -140,7 +140,7 @@ ghModule (CHSModule frags) =
 -- Collect header and fragments up to eof or a CPP directive that is part of a
 -- conditional
 --
--- * We collect the header (ie, CPP directives and inline-C) using a
+--  * We collect the header (ie, CPP directives and inline-C) using a
 --   difference list to avoid worst case O(n^2) complexity due to
 --   concatenation of lines that go into the header.
 --
@@ -198,7 +198,7 @@ ghFrag (frag@(CHSCPP  s  pos) : frags) =
   where
     -- enter a new conditional (may be an #if[[n]def] or #elif)
     --
-    -- * Arguments are the lexeme of the directive `s', the position of that
+    --  * Arguments are the lexeme of the directive `s', the position of that
     --   directive `pos', and the fragments following the directive `frags'
     --
     openIf s pos frags = 
@@ -241,7 +241,7 @@ ghFrag (frag@(CHSCPP  s  pos) : frags) =
     --
     -- turn a completed conditional into a `CHSCond' fragment
     --
-    -- * `(s, fragsTh)' is the CPP directive `s' containing the condition under
+    --  * `(s, fragsTh)' is the CPP directive `s' containing the condition under
     --   which `fragTh' should be executed; `alts' are alternative branches
     --   (with conditions); and `oelse' is an optional else-branch
     --

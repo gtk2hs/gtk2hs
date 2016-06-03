@@ -248,7 +248,7 @@ isFloatHsType _        = False
 
 -- check for integral C types
 --
--- * For marshalling purposes C char's are integral types (see also types
+--  * For marshalling purposes C char's are integral types (see also types
 --   classes for which the FFI guarantees instances for `CChar', `CSChar', and
 --   `CUChar')
 --
@@ -286,11 +286,11 @@ peekCStringLenIde = noPosIdent "peekCStringLenIntConv"
 -- given a C header file and a binding file, expand all hooks in the binding
 -- file using the C header information (EXPORTED)
 --
--- * together with the module, returns the contents of the .chi file
+--  * together with the module, returns the contents of the .chi file
 --
--- * if any error (not warnings) is encountered, a fatal error is raised.
+--  * if any error (not warnings) is encountered, a fatal error is raised.
 --
--- * also returns all warning messages encountered (last component of result)
+--  * also returns all warning messages encountered (last component of result)
 --
 expandHooks        :: AttrC -> CHSModule -> CST s (CHSModule, String, String)
 expandHooks ac mod  = do
@@ -450,7 +450,7 @@ expandHook hook@(CHSFun isPure isUns isNol ide oalias ctxt parms parm pos) =
     mLock <- if isNol then return Nothing else getLock
     let ideLexeme = identToLexeme ide  -- orignal name might have been a shadow
         hsLexeme  = ideLexeme `maybe` identToLexeme $ oalias
-        fiLexeme  = hsLexeme ++ "'_"   -- *Urgh* - probably unique...
+        fiLexeme  = hsLexeme ++ "'_"   --  *Urgh* - probably unique...
         fiIde     = onlyPosIdent nopos fiLexeme
         cdecl'    = cide `simplifyDecl` cdecl
         callHook  = CHSCall isPure isUns isNol cide (Just fiIde) pos
@@ -561,10 +561,10 @@ expandHook (CHSClass oclassIde classIde typeIde pos) =
 
 -- produce code for an enumeration
 --
--- * an extra instance declaration is required when any of the enumeration
+--  * an extra instance declaration is required when any of the enumeration
 --   constants is explicitly assigned a value in its definition
 --
--- * the translation function strips prefixes where possible (different
+--  * the translation function strips prefixes where possible (different
 --   enumerators maye have different prefixes)
 --
 enumDef :: CEnum -> String -> TransFun -> [String] -> GB String
@@ -617,10 +617,10 @@ enumBody indent ((ide, _):list)  =
 
 -- Haskell code for an instance declaration for `Enum'
 --
--- * the expression of all explicitly specified tag values already have to be
+--  * the expression of all explicitly specified tag values already have to be
 --   in normal form, ie, to be an int constant
 --
--- * enumerations start at 0 and whenever an explicit value is specified,
+--  * enumerations start at 0 and whenever an explicit value is specified,
 --   following tags are assigned values continuing from the explicitly
 --   specified one
 --
@@ -677,7 +677,7 @@ enumInst ident list =
 
 -- generate a foreign import declaration that is put into the delayed code
 --
--- * the C declaration is a simplified declaration of the function that we
+--  * the C declaration is a simplified declaration of the function that we
 --   want to import into Haskell land
 --
 callImport :: CHSHook -> Bool -> Bool -> Maybe String -> String -> String
@@ -790,7 +790,7 @@ funDef isPure hsLexeme fiLexeme cdecl octxt mLock parms parm pos =
     --
     -- construct the function type
     --
-    -- * specified types appear in the argument and result only if their "in"
+    --  * specified types appear in the argument and result only if their "in"
     --   and "out" marshaller, respectively, is not the `void' marshaller
     --
     funTy parms parm =
@@ -873,7 +873,7 @@ addDftMarshaller pos parms parm cdecl = do
     -- the result marshalling may not use an "in" marshaller and can only have
     -- one C value
     --
-    -- * a default marshaller maybe used for "out" marshalling
+    --  * a default marshaller maybe used for "out" marshalling
     --
     checkResMarsh (CHSParm (Just _) _  _    _       pos) _   = 
       resMarshIllegalInErr      pos
@@ -937,13 +937,13 @@ addDftMarshaller pos parms parm cdecl = do
 -- compute from an access path, the declarator finally accessed and the index
 -- path required for the access
 --
--- * each element in the index path specifies dereferencing an address and the 
+--  * each element in the index path specifies dereferencing an address and the 
 --   offset to be added to the address before dereferencing
 --
--- * the returned declaration is already normalised (ie, alias have been
+--  * the returned declaration is already normalised (ie, alias have been
 --   expanded) 
 --
--- * it may appear as if `t.m' and `t->m' should have different access paths,
+--  * it may appear as if `t.m' and `t->m' should have different access paths,
 --   as the latter specifies one more dereferencing; this is certainly true in
 --   C, but it doesn't apply here, as `t.m' is merely provided for the
 --   convenience of the interface writer - it is strictly speaking an
@@ -955,7 +955,7 @@ accessPath (CHSRoot ide) =                              -- t
   do
     decl <- findAndChaseDecl ide False True
     return (ide `simplifyDecl` decl, [BitSize 0 0])
-accessPath (CHSDeref (CHSRoot ide) _) =                 -- *t
+accessPath (CHSDeref (CHSRoot ide) _) =                 --  *t
   do
     decl <- findAndChaseDecl ide True True
     return (ide `simplifyDecl` decl, [BitSize 0 0])
@@ -984,7 +984,7 @@ accessPath (CHSRef path ide) =                          -- a.m
       case declr of
         (Just (CVarDeclr _ _), _, _) -> nop
         _                            -> structExpectedErr ide
-accessPath (CHSDeref path pos) =                        -- *a
+accessPath (CHSDeref path pos) =                        --  *a
   do
     (decl, offsets) <- accessPath path
     decl' <- derefOrErr decl
@@ -1003,10 +1003,10 @@ accessPath (CHSDeref path pos) =                        -- *a
 
 -- replaces a decleration by its alias if any
 --
--- * the alias inherits any field size specification that the original
+--  * the alias inherits any field size specification that the original
 --   declaration may have
 --
--- * declaration must have exactly one declarator
+--  * declaration must have exactly one declarator
 --
 replaceByAlias                                :: CDecl -> GB CDecl
 replaceByAlias cdecl@(CDecl _ [(_, _, size)] at)  =
@@ -1082,7 +1082,7 @@ setGet pos access offsets ty =
             where
               -- we have to be careful here to ensure proper sign extension;
               -- in particular, shifting right followed by anding a mask is
-              -- *not* sufficient; instead, we exploit in the following that
+              --  *not* sufficient; instead, we exploit in the following that
               -- `shiftR' performs sign extension
               --
               extractBitfield = "; return $ (val `shiftL` (" 
@@ -1155,11 +1155,11 @@ pointerDef isStar cNameFull hsName ptrKind isNewtype hsType isFun =
 
 -- generate the class and instance definitions for a class hook
 --
--- * the pointer type must not be a stable pointer
+--  * the pointer type must not be a stable pointer
 --
--- * the first super class (if present) must be the direct superclass
+--  * the first super class (if present) must be the direct superclass
 --
--- * all Haskell objects in the superclass list must be pointer objects
+--  * all Haskell objects in the superclass list must be pointer objects
 --
 classDef :: Position                     -- for error messages
          -> String                       -- class name
@@ -1223,19 +1223,19 @@ data ConstResult = IntResult   Integer
 
 -- types that may occur in foreign declarations, ie, Haskell land types
 --
--- * we reprsent C functions with no arguments (ie, the ANSI C `void'
+--  * we reprsent C functions with no arguments (ie, the ANSI C `void'
 --   argument) by `FunET UnitET res' rather than just `res' internally,
 --   although the latter representation is finally emitted into the binding
 --   file; this is because we need to know which types are functions (in
 --   particular, to distinguish between `Ptr a' and `FunPtr a')
 --
--- * aliased types (`DefinedET') are represented by a string plus their C
+--  * aliased types (`DefinedET') are represented by a string plus their C
 --   declaration; the latter is for functions interpreting the following
 --   structure; an aliased type is always a pointer type that is contained in
 --   the pointer map (and got there either from a .chi or from a pointer hook
 --   in the same module)
 --
--- * the representation for pointers does not distinguish between normal,
+--  * the representation for pointers does not distinguish between normal,
 --   function, foreign, and stable pointers; function pointers are identified
 --   by their argument and foreign and stable pointers are only used
 --   indirectly, by referring to type names introduced by a `pointer' hook
@@ -1270,7 +1270,7 @@ isFunExtType _            = False
 
 -- pretty print an external type
 --
--- * a previous version of this function attempted to not print unnecessary
+--  * a previous version of this function attempted to not print unnecessary
 --   brackets; this however doesn't work consistently due to `DefinedET'; so,
 --   we give up on the idea (preferring simplicity)
 --
@@ -1307,12 +1307,12 @@ showExtType UnitET                  = "()"
 
 -- compute the type of the C function declared by the given C object
 --
--- * the identifier specifies in which of the declarators we are interested
+--  * the identifier specifies in which of the declarators we are interested
 --
--- * if the third argument is `True', the function result should not be
+--  * if the third argument is `True', the function result should not be
 --   wrapped into an `IO' type
 --
--- * the caller has to guarantee that the object does indeed refer to a
+--  * the caller has to guarantee that the object does indeed refer to a
 --   function 
 --
 extractFunType                  :: Position -> CDecl -> Bool ->
@@ -1361,9 +1361,9 @@ extractFunType pos cdecl isPure  =
 
 -- compute a non-struct/union type from the given declaration 
 --
--- * the declaration may have at most one declarator
+--  * the declaration may have at most one declarator
 --
--- * C functions are represented as `Ptr (FunEt ...)' or `Addr' if in
+--  * C functions are represented as `Ptr (FunEt ...)' or `Addr' if in
 --   compatibility mode (ie, `--old-ffi=yes')
 --
 extractSimpleType            :: Position -> CDecl -> GB ExtType
@@ -1380,11 +1380,11 @@ extractSimpleType pos cdecl  =
 
 -- compute a Haskell type for a type referenced in a C pointer type
 --
--- * the declaration may have at most one declarator
+--  * the declaration may have at most one declarator
 --
--- * struct/union types are mapped to `()'
+--  * struct/union types are mapped to `()'
 --
--- * NB: this is by definition not a result type
+--  * NB: this is by definition not a result type
 --
 extractPtrType       :: CDecl -> GB ExtType
 extractPtrType cdecl  = do
@@ -1396,16 +1396,16 @@ extractPtrType cdecl  = do
 -- compute a Haskell type from the given C declaration, where C functions are
 -- represented by function pointers
 --
--- * the declaration may have at most one declarator
+--  * the declaration may have at most one declarator
 --
--- * all C pointers (including functions) are represented as `Addr' if in
+--  * all C pointers (including functions) are represented as `Addr' if in
 --   compatibility mode (--old-ffi)
 --
--- * typedef'ed types are chased
+--  * typedef'ed types are chased
 --
--- * takes the pointer map into account
+--  * takes the pointer map into account
 --
--- * IMPORTANT NOTE: `sizeAlignOf' relies on `DefinedET' only being produced
+--  * IMPORTANT NOTE: `sizeAlignOf' relies on `DefinedET' only being produced
 --                   for pointer types; if this ever changes, we need to
 --                   handle `DefinedET's differently.  The problem is that
 --                   entries in the pointer map currently prevent
@@ -1542,7 +1542,7 @@ typeMap  = [([void]                      , UnitET           ),
 
 -- compute the complex (external) type determined by a list of type specifiers
 --
--- * may not be called for a specifier that defines a typedef alias
+--  * may not be called for a specifier that defines a typedef alias
 --
 specType :: Position -> [CDeclSpec] -> Maybe CExpr -> GB CompType
 specType cpos specs osize = 
@@ -1618,9 +1618,9 @@ specType cpos specs osize =
 
 -- precise size representation
 --
--- * this is a pair of a number of octets and a number of bits
+--  * this is a pair of a number of octets and a number of bits
 --
--- * if the number of bits is nonzero, the octet component is aligned by the
+--  * if the number of bits is nonzero, the octet component is aligned by the
 --   alignment constraint for `CIntPT' (important for accessing bitfields with
 --   more than 8 bits)
 --
@@ -1695,7 +1695,7 @@ sizeAlignOfStructPad decls tag =
 --
 sizeAlignOf       :: CDecl -> GB (BitSize, Int)
 --
--- * we make use of the assertion that `extractCompType' can only return a
+--  * we make use of the assertion that `extractCompType' can only return a
 --   `DefinedET' when the declaration is a pointer declaration
 --
 sizeAlignOf (CDecl specs [(Just declr, _, size)] ats) | isArrDeclr declr =
@@ -1737,7 +1737,7 @@ sizeAlignOf cdecl  =
 
 -- apply the given alignment constraint at the given offset
 --
--- * if the alignment constraint is negative or zero, it is the alignment
+--  * if the alignment constraint is negative or zero, it is the alignment
 --   constraint for a bitfield
 --
 alignOffset :: BitSize -> Int -> BitSize

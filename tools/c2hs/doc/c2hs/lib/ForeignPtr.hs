@@ -18,18 +18,18 @@ import Ptr (Ptr)
 
 -- Pointer to external entity associated with a finalizer
 --
--- * concrete implementations may choose a different representation
+--  * concrete implementations may choose a different representation
 --
 newtype ForeignPtr a = ForeignPtr (Ptr a)
                      deriving (Eq)
 
 -- Create a new foreign pointer using the second argument as a finaliser
 --
--- * There is no guarantee on how soon the finaliser is executed after the
+--  * There is no guarantee on how soon the finaliser is executed after the
 --   last reference was dropped; this depends on the details of the Haskell
 --   storage manager 
 --
--- * The only guarantee given is that the finaliser runs before the program
+--  * The only guarantee given is that the finaliser runs before the program
 --   terminates
 --
 newForeignPtr             :: Ptr a -> IO () -> IO (ForeignPtr a)
@@ -39,7 +39,7 @@ newForeignPtr p finalizer  = do
 
 -- Add another finaliser to a foreign pointer
 --
--- * No guarantees are made on the order in which multiple finalisers for a
+--  * No guarantees are made on the order in which multiple finalisers for a
 --   single object are run
 --
 addForeignPtrFinalizer :: ForeignPtr a -> IO () -> IO ()
@@ -49,7 +49,7 @@ addForeignPtrFinalizer (ForeignPtr fp) finalizer =
 -- This function ensures that the foreign object in question is alive at the
 -- given place in the sequence of IO actions
 --
--- * This function can be used to express liveness dependencies between
+--  * This function can be used to express liveness dependencies between
 --   ForeignPtrs: for example, if the finaliser for one `ForeignPtr' touches a
 --   second ForeignPtr, then it is ensured that the second `ForeignPtr' will
 --   stay alive at least as long as the first. This can be useful when you
@@ -65,7 +65,7 @@ touchForeignPtr (ForeignPtr fo)  =
 -- Applies an operation to the vanilla pointer associated with a foreign
 -- pointer 
 --
--- * The foreign object is kept alive at least during the whole action, even
+--  * The foreign object is kept alive at least during the whole action, even
 --   if it is not used directly inside. Note that it is not safe to return the
 --   pointer from the action and use it after the action completes. All uses
 --   of the pointer should be inside the `withForeignPtr' bracket.
@@ -78,14 +78,14 @@ withForeignPtr (ForeignPtr fp) m  = do
 
 -- Extract the vanilla pointer from a foreign pointer
 --
--- * This is a potentially dangerous operations, as if the argument to
+--  * This is a potentially dangerous operations, as if the argument to
 --   foreignPtrToPtr is the last usage occurence of the given foreign pointer,
 --   then its finaliser(s) will be run, which potentially invalidates the
 --   plain pointer just obtained. Hence, `touchForeignPtr' must be used
 --   wherever it has to be guaranteed that the pointer lives on - i.e., has
 --   another usage occurrence. 
 --
--- * To avoid subtle coding errors, hand written marshalling code should
+--  * To avoid subtle coding errors, hand written marshalling code should
 --   preferably use `withForeignPtr' rather than combinations of
 --   `foreignPtrToPtr' and `touchForeignPtr'. However, the later routines are
 --   occasionally preferred in tool generated marshalling code.

@@ -59,12 +59,12 @@ type CStringLen = (CString, Int)        -- strings with explicit length
 -- exported functions
 -- ------------------
 --
--- * the following routines apply the default conversion when converting the
+--  * the following routines apply the default conversion when converting the
 --   C-land character encoding into the Haskell-land character encoding
 --
 --   ** NOTE: The current implementation doesn't handle conversions yet! **
 --
--- * the routines using an explicit length tolerate NUL characters in the
+--  * the routines using an explicit length tolerate NUL characters in the
 --   middle of a string
 --
 
@@ -80,9 +80,9 @@ peekCStringLen (cp, len)  = liftM cCharsToChars $ peekArray len cp
 
 -- marshal a Haskell string into a NUL terminated C strings
 --
--- * the Haskell string may *not* contain any NUL characters
+--  * the Haskell string may *not* contain any NUL characters
 --
--- * new storage is allocated for the C string and must be explicitly freed
+--  * new storage is allocated for the C string and must be explicitly freed
 --
 newCString :: String -> IO CString
 newCString  = newArray0 nUL . charsToCChars
@@ -90,7 +90,7 @@ newCString  = newArray0 nUL . charsToCChars
 -- marshal a Haskell string into a C string (ie, character array) with
 -- explicit length information
 --
--- * new storage is allocated for the C string and must be explicitly freed
+--  * new storage is allocated for the C string and must be explicitly freed
 --
 newCStringLen     :: String -> IO CStringLen
 newCStringLen str  = liftM (pairLength str) $ newArray (charsToCChars str)
@@ -98,9 +98,9 @@ newCStringLen str  = liftM (pairLength str) $ newArray (charsToCChars str)
 -- marshal a Haskell string into a NUL terminated C strings using temporary
 -- storage
 --
--- * the Haskell string may *not* contain any NUL characters
+--  * the Haskell string may *not* contain any NUL characters
 --
--- * see the lifetime constraints of `MarshalAlloc.alloca'
+--  * see the lifetime constraints of `MarshalAlloc.alloca'
 --
 withCString :: String -> (CString -> IO a) -> IO a
 withCString  = withArray0 nUL . charsToCChars
@@ -108,9 +108,9 @@ withCString  = withArray0 nUL . charsToCChars
 -- marshal a Haskell string into a NUL terminated C strings using temporary
 -- storage
 --
--- * the Haskell string may *not* contain any NUL characters
+--  * the Haskell string may *not* contain any NUL characters
 --
--- * see the lifetime constraints of `MarshalAlloc.alloca'
+--  * see the lifetime constraints of `MarshalAlloc.alloca'
 --
 withCStringLen         :: String -> (CStringLen -> IO a) -> IO a
 withCStringLen str act  = withArray (charsToCChars str) $ act . pairLength str

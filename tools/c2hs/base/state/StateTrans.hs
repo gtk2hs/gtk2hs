@@ -135,7 +135,7 @@ yield a  = STB $ \bs gs -> return (bs, gs, Right a)
 
 -- the monad's bind
 --
--- * exceptions are propagated
+--  * exceptions are propagated
 --
 (+>=)   :: STB bs gs a -> (a -> STB bs gs b) -> STB bs gs b
 m +>= k  = let
@@ -234,7 +234,7 @@ liftIO m  = STB $ \bs gs -> m >>= \r -> return (bs, gs, Right r)
 -- `IO' state transformer that must be placed into the context of the external
 -- IO
 --
--- * uncaught exceptions become fatal errors
+--  * uncaught exceptions become fatal errors
 --
 runSTB         :: STB bs gs a -> bs -> gs -> IO a
 runSTB m bs gs  = let
@@ -264,9 +264,9 @@ interleave m gs' = STB $ let
 -- error and exception handling
 -- ----------------------------
 
--- * we exploit the `UserError' component of `IOError' for fatal errors
+--  * we exploit the `UserError' component of `IOError' for fatal errors
 --
--- * we distinguish exceptions and user-defined fatal errors
+--  * we distinguish exceptions and user-defined fatal errors
 --
 --   - exceptions are meant to be caught in order to recover the currently
 --     executed operation; they turn into fatal errors if they are not caught;
@@ -277,7 +277,7 @@ interleave m gs' = STB $ let
 --     to invoke another operation; there is no special support for different
 --     handling of different kinds of fatal-errors
 --
--- * the costs for fatal error handling are already incurred by the `IO' monad;
+--  * the costs for fatal error handling are already incurred by the `IO' monad;
 --   the costs for exceptions mainly is the case distinction in the definition
 --   of `+>='
 --
@@ -289,7 +289,7 @@ throwExc tag msg  = STB $ \bs gs -> return (bs, gs, Left (tag, msg))
 
 -- raise a fatal user-defined error (EXPORTED)
 --
--- * such an error my be caught and handled using `fatalsHandeledBy'
+--  * such an error my be caught and handled using `fatalsHandeledBy'
 --
 fatal   :: String -> STB bs gs a
 fatal s  = liftIO (ioError (userError s))
@@ -298,7 +298,7 @@ fatal s  = liftIO (ioError (userError s))
 -- are caught using the provided handler, which expects to get the exception
 -- message (EXPORTED)
 --
--- * the base and generic state observed by the exception handler is *modified*
+--  * the base and generic state observed by the exception handler is *modified*
 --   by the failed state transformer upto the point where the exception was
 --   thrown (this semantics is the only reasonable when it should be possible
 --   to use updating for maintaining the state)
@@ -327,10 +327,10 @@ catchExc m (tag, handler)  =
 -- for fatal errors, execute the state transformer and apply the error handler
 -- when a fatal error occurs (EXPORTED)
 --
--- * fatal errors are IO monad errors and errors raised by `fatal' as well as
+--  * fatal errors are IO monad errors and errors raised by `fatal' as well as
 --   uncaught exceptions
 --
--- * the base and generic state observed by the error handler is *in contrast
+--  * the base and generic state observed by the error handler is *in contrast
 --   to `catch'* the state *before* the state transformer is applied
 --
 fatalsHandledBy :: STB bs gs a -> (IOError -> STB bs gs a) -> STB bs gs a

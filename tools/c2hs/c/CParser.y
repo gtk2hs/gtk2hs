@@ -241,7 +241,7 @@ header
 
 -- parse a complete C translation unit (C99 6.9)
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     allow empty translation_unit
 --     allow redundant ';'
 --
@@ -254,7 +254,7 @@ translation_unit
 
 -- parse external C declaration (C99 6.9)
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     allow extension keyword before external declaration
 --     asm definitions
 --
@@ -315,7 +315,7 @@ declaration_list
 
 -- parse C statement (C99 6.8)
 --
--- * GNU extension: ' __asm__ (...); ' statements
+--  * GNU extension: ' __asm__ (...); ' statements
 --
 statement :: { CStat }
 statement
@@ -330,7 +330,7 @@ statement
 
 -- parse C labeled statement (C99 6.8.1)
 --
--- * GNU extension: case ranges
+--  * GNU extension: case ranges
 --
 labeled_statement :: { CStat }
 labeled_statement
@@ -343,7 +343,7 @@ labeled_statement
 
 -- parse C compound statement (C99 6.8.2)
 --
--- * GNU extension: '__label__ ident;' declarations
+--  * GNU extension: '__label__ ident;' declarations
 --
 compound_statement :: { CStat }
 compound_statement
@@ -445,7 +445,7 @@ iteration_statement
 
 -- parse C jump statement (C99 6.8.6)
 --
--- * GNU extension: computed gotos
+--  * GNU extension: computed gotos
 --
 jump_statement :: { CStat }
 jump_statement
@@ -569,7 +569,7 @@ declaring_list
 
 -- parse C declaration specifiers (C99 6.7)
 --
--- * summary:
+--  * summary:
 --   [ type_qualifier | storage_class
 --   | basic_type_name | elaborated_type_name | tyident ]{
 --     (    1 >= basic_type_name
@@ -588,10 +588,10 @@ declaration_specifier
 -- A mixture of type qualifiers and storage class specifiers in any order, but
 -- containing at least one storage class specifier.
 --
--- * summary:
+--  * summary:
 --   [type_qualifier | storage_class]{ 1 >= storage_class }
 --
--- * detail:
+--  * detail:
 --   [type_qualifier] storage_class [type_qualifier | storage_class]
 --
 declaration_qualifier_list :: { Reversed [CDeclSpec] }
@@ -617,7 +617,7 @@ declaration_qualifier
 
 -- parse C storage class specifier (C99 6.7.1)
 --
--- * GNU extensions: '__thread' thread local storage
+--  * GNU extensions: '__thread' thread local storage
 --
 storage_class :: { CStorageSpec }
 storage_class
@@ -634,7 +634,7 @@ storage_class
 -- This recignises a whole list of type specifiers rather than just one
 -- as in the C99 grammar.
 --
--- * summary:
+--  * summary:
 --   [type_qualifier | basic_type_name | elaborated_type_name | tyident]{
 --         1 >= basic_type_name
 --     |x| 1 == elaborated_type_name
@@ -667,7 +667,7 @@ basic_type_name
 -- order, but containing at least one basic type name and at least one storage
 -- class specifier.
 --
--- * summary:
+--  * summary:
 --   [type_qualifier | storage_class | basic_type_name]{
 --     1 >= storage_class && 1 >= basic_type_name
 --   }
@@ -693,7 +693,7 @@ basic_declaration_specifier
 -- A mixture of type qualifiers and basic type names in any order, but
 -- containing at least one basic type name.
 --
--- * summary:
+--  * summary:
 --   [type_qualifier | basic_type_name]{ 1 >= basic_type_name }
 --
 basic_type_specifier :: { Reversed [CDeclSpec] }
@@ -718,7 +718,7 @@ basic_type_specifier
 -- A named or anonymous struct, union or enum type along with at least one
 -- storage class and any mix of type qualifiers.
 -- 
--- * summary:
+--  * summary:
 --   [type_qualifier | storage_class | elaborated_type_name]{ 
 --     1 == elaborated_type_name && 1 >= storage_class
 --   }
@@ -741,7 +741,7 @@ sue_declaration_specifier
 -- A struct, union or enum type (named or anonymous) with optional leading and
 -- trailing type qualifiers.
 --
--- * summary:
+--  * summary:
 --   [type_qualifier] elaborated_type_name [type_qualifier]
 --
 sue_type_specifier :: { Reversed [CDeclSpec] }
@@ -763,12 +763,12 @@ sue_type_specifier
 -- A typedef'ed type identifier with at least one storage qualifier and any
 -- number of type qualifiers
 --
--- * Summary:
+--  * Summary:
 --   [type_qualifier | storage_class | tyident]{
 --     1 == tyident && 1 >= storage_class
 --   }
 --
--- * Note:
+--  * Note:
 --   the tyident can also be a: typeof '(' ... ')'
 --
 typedef_declaration_specifier :: { Reversed [CDeclSpec] }
@@ -794,7 +794,7 @@ typedef_declaration_specifier
 
 -- typedef'ed type identifier with optional leading and trailing type qualifiers
 --
--- * Summary:
+--  * Summary:
 --   [type_qualifier] ( tyident | typeof '('...')' ) [type_qualifier]
 --
 typedef_type_specifier :: { Reversed [CDeclSpec] }
@@ -826,7 +826,7 @@ typedef_type_specifier
 
 -- A named or anonymous struct, union or enum type.
 --
--- * summary:
+--  * summary:
 --   (struct|union|enum) (identifier? '{' ... '}' | identifier)
 --
 elaborated_type_name :: { CTypeSpec }
@@ -837,7 +837,7 @@ elaborated_type_name
 
 -- parse C structure or union declaration (C99 6.7.2.1)
 --
--- * summary:
+--  * summary:
 --   (struct|union) (identifier? '{' ... '}' | identifier)
 --
 struct_or_union_specifier :: { CStructUnion }
@@ -891,7 +891,7 @@ struct_default_declaring_list
                 (d,s) -> CDecl declspecs ((d,Nothing,s) : dies) attr }
 
 
--- * GNU extensions:
+--  * GNU extensions:
 --     allow anonymous nested structures and unions
 --
 struct_declaring_list :: { CDecl }
@@ -932,7 +932,7 @@ struct_identifier_declarator
 
 -- parse C enumeration declaration (C99 6.7.2.2)
 --
--- * summary:
+--  * summary:
 --   enum (identifier? '{' ... '}' | identifier)
 --
 enum_specifier :: { CEnum }
@@ -1285,9 +1285,9 @@ postfixing_abstract_declarator
              (params, variadic) -> CFunDeclr declr params variadic attrs }
 
 
--- * Note that we recognise but ignore the C99 static keyword (see C99 6.7.5.3)
+--  * Note that we recognise but ignore the C99 static keyword (see C99 6.7.5.3)
 --
--- * We do not distinguish in the AST between incomplete array types and
+--  * We do not distinguish in the AST between incomplete array types and
 -- complete variable length arrays ([ '*' ] means the latter). (see C99 6.7.5.2)
 --
 array_abstract_declarator :: { CDeclr -> CDeclr }
@@ -1389,7 +1389,7 @@ initializer_list
 
 -- designation
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     old style member designation: 'ident :'
 --     array range designation
 --
@@ -1423,7 +1423,7 @@ array_designator
 --
 -- We cannot use a typedef name as a variable
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     allow a compound statement as an expression
 --     various __builtin_* forms that take type parameters
 --
@@ -1496,7 +1496,7 @@ argument_expression_list
 
 -- parse C unary expression (C99 6.5.3)
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     'alignof' expression or type
 --     '__extension__' to suppress warnings about extensions
 --     allow taking address of a label with: && label
@@ -1669,7 +1669,7 @@ logical_or_expression
 
 -- parse C conditional expression (C99 6.5.15)
 --
--- * GNU extensions:
+--  * GNU extensions:
 --     omitting the `then' part
 --
 conditional_expression :: { CExpr }

@@ -61,11 +61,11 @@ cpp  = case os of
 
 -- C preprocessor options (EXPORTED)
 --
--- * `-x c' forces CPP to regard the input as C code; this option seems to be
+--  * `-x c' forces CPP to regard the input as C code; this option seems to be
 --   understood at least on Linux, FreeBSD, and Solaris and seems to make a
 --   difference over the default language setting on FreeBSD
 --
--- * `-P' would suppress `#line' directives
+--  * `-P' would suppress `#line' directives
 --
 cppopts :: [String]
 cppopts  = case (os,cpp) of
@@ -101,7 +101,7 @@ tmpdir = error "C2HSConfig.tmpdir" -- used to be: "@TMPDIR@"
 
 -- indicates in which direction the C compiler fills bitfields (EXPORTED)
 --
--- * the value is 1 or -1, depending on whether the direction is growing
+--  * the value is 1 or -1, depending on whether the direction is growing
 --   towards the MSB
 --
 bitfieldDirection :: Int
@@ -113,7 +113,7 @@ foreign import ccall bitfield_direction :: CInt
 -- storage unit in its entirety introduce padding or split over two storage
 -- units (EXPORTED)
 --
--- * `True' means that such a bitfield introduces padding (instead of being
+--  * `True' means that such a bitfield introduces padding (instead of being
 --   split)
 --
 bitfieldPadding :: Bool
@@ -131,7 +131,7 @@ foreign import ccall bitfield_int_signed :: CInt
 
 -- the alignment constraint for a bitfield (EXPORTED)
 --
--- * this makes the assumption that the alignment of a bitfield is independent
+--  * this makes the assumption that the alignment of a bitfield is independent
 --   of the bitfield's size
 --
 bitfieldAlignment :: Int

@@ -25,7 +25,7 @@ import Ptr (Ptr, nullPtr)
 -- guard an IO operation and throw an exception if the result meets the given
 -- predicate 
 --
--- * the second argument computes an error message from the result of the IO
+--  * the second argument computes an error message from the result of the IO
 --   operation
 --
 throwIf                 :: (a -> Bool) -> (a -> String) -> IO a -> IO a

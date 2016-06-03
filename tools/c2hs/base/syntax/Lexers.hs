@@ -182,7 +182,7 @@ inBounds c (_, lc, hc)  = c >= lc && c <= hc
 -- Lexical actions take a lexeme with its position and may return a token; in
 -- a variant, an error can be returned (EXPORTED)
 --
--- * if there is no token returned, the current lexeme is discarded lexing
+--  * if there is no token returned, the current lexeme is discarded lexing
 --   continues looking for a token
 --
 type Action    t = String -> Position -> Maybe t
@@ -200,7 +200,7 @@ type Meta s t = String -> Position -> s -> (Maybe (Either Error t), -- err/tok?
 
 -- tree structure used to represent the lexer table (EXPORTED ABSTRACTLY) 
 --
--- * each node in the tree corresponds to a state of the lexer; the associated 
+--  * each node in the tree corresponds to a state of the lexer; the associated 
 --   actions are those that apply when the corresponding state is reached
 --
 data Lexer s t = Lexer (LexAction s t) (Cont s t)
@@ -254,7 +254,7 @@ char c  = \l -> Lexer NoAction (Sparse (1, c, c) [(c, l)])
 -- Close a regular expression with an action that converts the lexeme into a
 -- token (EXPORTED)
 --
--- * Note: After the application of the action, the position is advanced
+--  * Note: After the application of the action, the position is advanced
 --	   according to the length of the lexeme.  This implies that normal
 --	   actions should not be used in the case where a lexeme might contain 
 --	   control characters that imply non-standard changes of the position, 
@@ -282,7 +282,7 @@ lexactionErr re a  = re `lexmeta` a'
 
 -- Close a regular expression with a meta action (EXPORTED)
 --
--- * Note: Meta actions have to advance the position in dependence of the
+--  * Note: Meta actions have to advance the position in dependence of the
 --	   lexeme by themselves.
 --
 lexmeta      :: Regexp s t -> Meta s t -> Lexer s t
@@ -359,7 +359,7 @@ ctrlChars  = ['\n', '\r', '\f', '\t']
 
 -- control lexer (EXPORTED)
 --
--- * implements proper `Position' management in the presence of the standard
+--  * implements proper `Position' management in the presence of the standard
 --   layout control characters
 --
 ctrlLexer :: Lexer s t
@@ -435,16 +435,16 @@ type LexerState s = (String, Position, s)
 
 -- apply a lexer, yielding a token sequence and a list of errors (EXPORTED)
 --
--- * Currently, all errors are fatal; thus, the result is undefined in case of 
+--  * Currently, all errors are fatal; thus, the result is undefined in case of 
 --   an error (this changes when error correction is added).
 --
--- * The final lexer state is returned.
+--  * The final lexer state is returned.
 --
--- * The order of the error messages is undefined.
+--  * The order of the error messages is undefined.
 --
 execLexer :: Lexer s t -> LexerState s -> ([t], LexerState s, [Error])
 --
--- * the following is moderately tuned
+--  * the following is moderately tuned
 --
 execLexer l state@([], _, _) = ([], state, [])
 execLexer l state            = 

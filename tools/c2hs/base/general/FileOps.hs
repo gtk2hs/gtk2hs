@@ -45,9 +45,9 @@ import FNameOps  (dirname, stripDirname, addPath)
 
 -- search for the given file in the given list of directories (EXPORTED)
 --
--- * if the file does not exist, an exception is raised
+--  * if the file does not exist, an exception is raised
 --
--- * if the given file name is absolute, it is first tried whether this file
+--  * if the given file name is absolute, it is first tried whether this file
 --   exists, afterwards the path component is stripped and the given
 --   directories are searched; otherwise, if the file name is not absolute,
 --   the path component is retained while searching the directories
@@ -68,15 +68,15 @@ file `fileFindIn` paths  =
 
 -- |Create a temporary file with a unique name.
 --
--- * A unique sequence of at least six characters and digits is added
+--  * A unique sequence of at least six characters and digits is added
 --   inbetween the two given components (the latter of which must include the
 --   file suffix if any is needed)
 --
--- * Default permissions are used, which might not be optimal, but
+--  * Default permissions are used, which might not be optimal, but
 --   unfortunately the Haskell standard libs don't support proper permission
 --   management.
 --
--- * We make 100 attempts on getting a unique filename before giving up.
+--  * We make 100 attempts on getting a unique filename before giving up.
 --
 mktemp :: FilePath -> FilePath -> IO (Handle, FilePath)
 mktemp pre post =

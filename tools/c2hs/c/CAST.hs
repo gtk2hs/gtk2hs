@@ -83,14 +83,14 @@ instance Eq CExtDecl where
 
 -- C function definition (K&R A10.1) (EXPORTED)
 --
--- * The only type specifiers allowed are `extern' and `static'.
+--  * The only type specifiers allowed are `extern' and `static'.
 --
--- * The declarator must specify explicitly that the declared identifier has
+--  * The declarator must specify explicitly that the declared identifier has
 --   function type.
 --
--- * The optional declaration list is for old-style function declarations.
+--  * The optional declaration list is for old-style function declarations.
 --
--- * The statement must be a compound statement.
+--  * The statement must be a compound statement.
 --
 data CFunDef = CFunDef [CDeclSpec]      -- type specifier and qualifier
                        CDeclr           -- declarator
@@ -205,7 +205,7 @@ instance Eq CBlockItem where
 -- C declaration (K&R A8), structure declaration (K&R A8.3), parameter
 -- declaration (K&R A8.6.3), and type name (K&R A8.8) (EXPORTED) 
 --
--- * Toplevel declarations (K&R A8): 
+--  * Toplevel declarations (K&R A8): 
 --
 --   - they require that the type specifier and qualifier list is not empty,
 --     but gcc allows it and just issues a warning; for the time being, we
@@ -217,7 +217,7 @@ instance Eq CBlockItem where
 --     `Nothing' or `Just init'; and
 --   - abstract declarators are not allowed.
 --
--- * Structure declarations (K&R A8.3):
+--  * Structure declarations (K&R A8.3):
 --
 --   - do not allow storage specifiers;
 --   - do not allow initializers; 
@@ -228,14 +228,14 @@ instance Eq CBlockItem where
 --     Nothing)', `(Nothing, Nothing, Just size)', or `(Just decl, Nothing,
 --     Just size)'.
 --
--- * Parameter declarations (K&R A8.6.3):
+--  * Parameter declarations (K&R A8.6.3):
 --
 --   - allow neither initializers nor size expressions;
 --   - allow at most one declarator triple of the form `(Just declr, Nothing, 
 --     Nothing)' (in case of an empty declarator, the list must be empty); and
 --   - allow abstract declarators.
 --
--- * Type names (A8.8):
+--  * Type names (A8.8):
 --
 --   - do not allow storage specifiers;
 --   - allow neither initializers nor size expressions; and
@@ -355,7 +355,7 @@ instance Eq CTypeSpec where
 
 -- C type qualifier (K&R A8.2) (EXPORTED)
 --
--- * plus `restrict' from C99 and `inline'
+--  * plus `restrict' from C99 and `inline'
 --
 data CTypeQual = CConstQual Attrs
                | CVolatQual Attrs
@@ -376,12 +376,12 @@ instance Eq CTypeQual where
 
 -- C structure of union declaration (K&R A8.3) (EXPORTED)
 --
--- * in both case, either the identifier is present or the list must be
+--  * in both case, either the identifier is present or the list must be
 --   non-empty 
 --
 data CStructUnion = CStruct CStructTag
                             (Maybe Ident)
-                            [CDecl]     -- *structure* declaration
+                            [CDecl]     --  *structure* declaration
                             Attrs
 
 instance Pos CStructUnion where
@@ -411,28 +411,28 @@ instance Eq CEnum where
 
 -- C declarator (K&R A8.5) and abstract declarator (K&R A8.8) (EXPORTED)
 --
--- * We have one type qualifer list `[CTypeQual]' for each indirection (ie,
+--  * We have one type qualifer list `[CTypeQual]' for each indirection (ie,
 --   each occurrence of `*' in the concrete syntax).
 --
--- * We unfold K&R's direct-declarators nonterminal into declarators.  Note
+--  * We unfold K&R's direct-declarators nonterminal into declarators.  Note
 --   that `*(*x)' is equivalent to `**x'.
 --
--- * Declarators (A8.5) and abstract declarators (A8.8) are represented in the 
+--  * Declarators (A8.5) and abstract declarators (A8.8) are represented in the 
 --   same structure.  In the case of a declarator, the identifier in
 --   `CVarDeclr' must be present; in an abstract declarator it misses.
 --   `CVarDeclr Nothing ...' on its own is meaningless, it may only occur as
 --   part of a larger type (ie, there must be a pointer, an array, or function
 --   declarator around).
 --
--- * The qualifiers list in a `CPtrDeclr' may not be empty.
+--  * The qualifiers list in a `CPtrDeclr' may not be empty.
 --
--- * Old and new style function definitions are merged into a single case
+--  * Old and new style function definitions are merged into a single case
 --   `CFunDeclr'.  In case of an old style definition, the parameter list is
 --   empty and the variadic flag is `False' (ie, the parameter names are not
 --   stored in the tree).  Remember, a new style definition with no parameters 
 --   requires a single `void' in the argument list (according to the standard).
 --
--- * We unfold K&R's parameter-type-list nonterminal into the declarator
+--  * We unfold K&R's parameter-type-list nonterminal into the declarator
 --   variant for functions.
 --
 data CDeclr = CVarDeclr (Maybe Ident)           -- declared identifier
@@ -445,7 +445,7 @@ data CDeclr = CVarDeclr (Maybe Ident)           -- declared identifier
                         (Maybe CExpr)           -- array size
                         Attrs
             | CFunDeclr CDeclr
-                        [CDecl]                 -- *parameter* declarations
+                        [CDecl]                 --  *parameter* declarations
                         Bool                    -- is variadic?
                         Attrs
 
@@ -500,10 +500,10 @@ instance Eq CDesignator where
 
 -- C expression (K&R A7) (EXPORTED)
 --
--- * these can be arbitrary expression, as the argument of `sizeof' can be
+--  * these can be arbitrary expression, as the argument of `sizeof' can be
 --   arbitrary, even if appearing in a constant expression
 --
--- * GNU C extension: `alignof'
+--  * GNU C extension: `alignof'
 --
 data CExpr = CComma       [CExpr]       -- comma expression list, n >= 2
                           Attrs
@@ -651,7 +651,7 @@ data CUnaryOp = CPreIncOp               -- prefix increment operator
 
 -- C constant (K&R A2.5 & A7.2) (EXPORTED)
 --
--- * we do not list enumeration constants here, as they are identifiers
+--  * we do not list enumeration constants here, as they are identifiers
 --
 data CConst = CIntConst   Integer
                           Attrs

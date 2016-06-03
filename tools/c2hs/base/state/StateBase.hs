@@ -77,7 +77,7 @@ infixr 1 +>=, +>
 
 -- form of the error state
 --
--- * when no error was raised yet, the error level is the lowest possible one
+--  * when no error was raised yet, the error level is the lowest possible one
 --
 data ErrorState = ErrorState ErrorLvl    -- worst error level that was raised
                              Int         -- number of errors (excl warnings)

@@ -568,7 +568,7 @@ commentInterior  = (    anyButSpecial`star` epsilon
 
 -- control code in the base lexer (is turned into a token)
 --
--- * this covers exactly the same set of characters as contained in `ctrlSet'
+--  * this covers exactly the same set of characters as contained in `ctrlSet'
 --   and `Lexers.ctrlLexer' and advances positions also like the `ctrlLexer'
 --
 ctrl :: CHSLexer
@@ -594,9 +594,9 @@ hook  = string "{#"
 
 -- pre-processor directives and `#c'
 --
--- * we lex `#c' as a directive and special case it in the action
+--  * we lex `#c' as a directive and special case it in the action
 --
--- * we lex C line number pragmas and special case it in the action
+--  * we lex C line number pragmas and special case it in the action
 --
 cpp :: CHSLexer
 cpp = directive
@@ -669,7 +669,7 @@ cLexer =      inlineC                     -- inline C code
 
 -- whitespace
 --
--- * horizontal and vertical tabs, newlines, and form feeds are filter out by
+--  * horizontal and vertical tabs, newlines, and form feeds are filter out by
 --   `Lexers.ctrlLexer' 
 --
 whitespace :: CHSLexer
@@ -777,9 +777,9 @@ ctrlSet           = ['\n', '\f', '\r', '\t', '\v']
 -- generate a token sequence out of a string denoting a CHS file
 -- (EXPORTED) 
 --
--- * the given position is attributed to the first character in the string
+--  * the given position is attributed to the first character in the string
 --
--- * errors are entered into the compiler state
+--  * errors are entered into the compiler state
 --
 lexCHS        :: String -> Position -> CST s [CHSToken]
 lexCHS cs pos  = 

@@ -25,16 +25,16 @@ class Storable a where
 
    -- Yields the storage requirements (in bytes) of the argument
    --
-   -- * Never uses its argument
+   --  * Never uses its argument
    --
    sizeOf      :: a -> Int
 
    -- Yields the alignment constraint of the argument
    --
-   -- * An alignment constraint "x" is fulfilled by any address divisible by
+   --  * An alignment constraint "x" is fulfilled by any address divisible by
    --   "x" 
    --
-   -- * Never uses its argument
+   --  * Never uses its argument
    --
    alignment   :: a -> Int
 

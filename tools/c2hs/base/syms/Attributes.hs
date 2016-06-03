@@ -168,13 +168,13 @@ newAttrs pos name  = Attrs pos name
 -- the type class `Attr' determines which types may be used as attributes
 -- (EXPORTED)
 --
--- * such types have to provide values representing an undefined and a don't
+--  * such types have to provide values representing an undefined and a don't
 --   care state, together with two functions to test for these values
 --
--- * an attribute in an attribute table is initially set to `undef' (before
+--  * an attribute in an attribute table is initially set to `undef' (before
 --   some value is assigned to it)
 --
--- * an attribute with value `dontCare' participated in an already detected
+--  * an attribute with value `dontCare' participated in an already detected
 --   error, it's value may not be used for further computations in order to
 --   avoid error avalanches
 --
@@ -194,13 +194,13 @@ class Attr a where
 -- attribute tables map attribute identifiers to attribute values
 -- (EXPORTED ABSTRACT)
 --
--- * the attributes within a table can be soft or frozen, the former may by be
+--  * the attributes within a table can be soft or frozen, the former may by be
 --   updated, but the latter can not be changed
 --
--- * the attributes in a frozen table are stored in an array for fast
+--  * the attributes in a frozen table are stored in an array for fast
 --   lookup; consequently, the attribute identifiers must be *dense*
 --
--- * the table description string is used to emit better error messages (for
+--  * the table description string is used to emit better error messages (for
 --   internal errors)
 --
 data Attr a =>
@@ -265,7 +265,7 @@ updAttr at (Attrs   pos aid) av =
 
 -- copy the value of an attribute to another one (EXPORTED)
 --
--- * undefined attributes are not copied, to avoid filling the table
+--  * undefined attributes are not copied, to avoid filling the table
 --
 copyAttr :: Attr a => AttrTable a -> Attrs -> Attrs -> AttrTable a
 copyAttr at ats ats'
@@ -338,7 +338,7 @@ instance Attr (StdAttr a) where
 
 -- get an attribute value from a standard attribute table (EXPORTED)
 --
--- * if the attribute can be "don't care", this should be checked before
+--  * if the attribute can be "don't care", this should be checked before
 --   calling this function (using `isDontCareStdAttr')
 --
 getStdAttr         :: AttrTable (StdAttr a) -> Attrs -> a
@@ -365,7 +365,7 @@ isDontCareStdAttr atab at  = isDontCare (getAttr atab at)
 
 -- check if the attribue value is still undefined (EXPORTED)
 --
--- * we also regard "don't care" attributes as undefined
+--  * we also regard "don't care" attributes as undefined
 --
 isUndefStdAttr         :: AttrTable (StdAttr a) -> Attrs -> Bool
 isUndefStdAttr atab at  = isUndef (getAttr atab at)

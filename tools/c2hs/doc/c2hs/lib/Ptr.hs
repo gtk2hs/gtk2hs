@@ -27,12 +27,12 @@ import Word
 
 -- Parametrised data pointer
 --
--- * Suitable type arguments can be used to segregate pointers to incompatible
+--  * Suitable type arguments can be used to segregate pointers to incompatible
 --   values such that the type checker can spot coding mistakes
 --
--- * The size of the value representing a data pointer is system-dependent
+--  * The size of the value representing a data pointer is system-dependent
 --
--- * In C land, values of type `Ptr a' are represented by
+--  * In C land, values of type `Ptr a' are represented by
 --
 --     typedef void  *HsPtr;
 --
@@ -41,7 +41,7 @@ newtype Ptr a = Ptr WordXY
 
 -- Special pointer value that indicates the absence of a data pointer
 --
--- * This value should be compatible with the C constant `NULL'
+--  * This value should be compatible with the C constant `NULL'
 --
 nullPtr :: Ptr a
 nullPtr  = Ptr primNullPtr
@@ -59,14 +59,14 @@ plusPtr (Ptr p) d  = Ptr (p `primPlusPtr` d)
 -- Align the given pointer at the next higher address boundary that is a
 -- multiple of the second argument
 --
--- * This operation is idempotent
+--  * This operation is idempotent
 --
 alignPtr           :: Ptr a -> Int -> Ptr a
 alignPtr (Ptr p) a  = Ptr (p `primAlignPtr` a)
 
 -- Compute the byte difference between two pointers
 --
--- * We have
+--  * We have
 --
 --     p2 == p1 `plusPtr` (p2 `minusPtr` p1)
 --
@@ -75,19 +75,19 @@ minusPtr (Ptr p1) (Ptr p2)  = p1 `primMinusPtr` p2
 
 -- Parametrised function pointer
 --
--- * Suitable type arguments can be used to segregate pointers to incompatible
+--  * Suitable type arguments can be used to segregate pointers to incompatible
 --   values such that the type checker can spot coding mistakes; type
 --   arguments should be functionals
 --
--- * The size of the value representing a function pointer is system-dependent
+--  * The size of the value representing a function pointer is system-dependent
 --
--- * Data and function pointers may be represented differently on some
+--  * Data and function pointers may be represented differently on some
 --   architectures
 --
--- * Routines defined with "foreign export dynamic" should be declared to
+--  * Routines defined with "foreign export dynamic" should be declared to
 --   produce function pointers of the present type
 --
--- * In C land, values of type `FunPtr a' are represented by
+--  * In C land, values of type `FunPtr a' are represented by
 --
 --     typedef void (*HsFunPtr)(void);
 --
@@ -96,7 +96,7 @@ newtype FunPtr a = FunPtr WordXY
 
 -- Special pointer value that indicates the absence of a function pointer
 --
--- * This value should be compatible with the C constant `NULL'
+--  * This value should be compatible with the C constant `NULL'
 --
 nullFunPtr :: FunPtr a
 nullPtr     = Ptr primNullFunPtr

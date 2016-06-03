@@ -21,9 +21,9 @@ import Ptr (Ptr, castPtr)
 -- Pointer to a Haskell expression that is guaranteed not to be affect by
 -- garbage collection
 --
--- * concrete implementations may choose a different representation
+--  * concrete implementations may choose a different representation
 --
--- * In C land, values of type `StablePtr a' are represented by
+--  * In C land, values of type `StablePtr a' are represented by
 --
 --     typedef void *HsStablePtr;
 --
@@ -45,7 +45,7 @@ deRefStablePtr (StablePtr sp)  = do
 
 -- Dissolve the association between the stable pointer and the Haskell value
 --
--- * Afterwards, if the stable pointer is passed to `deRefStablePtr' or
+--  * Afterwards, if the stable pointer is passed to `deRefStablePtr' or
 --   `freeStablePtr', the behaviour is undefined. However, the stable pointer
 --   may still be passed to `castStablePtrToPtr', but the `Ptr ()' value
 --   returned by `castStablePtrToPtr', in this case, is undefined (in
@@ -58,13 +58,13 @@ freeStablePtr (StablePtr sp)  = do
 
 -- Coerces a stable pointer to vanilla pointer
 --
--- * No guarantees are made about the resulting value, except that the
+--  * No guarantees are made about the resulting value, except that the
 --   original stable pointer can be recovered by `castPtrToStablePtr'. In
 --   particular, the address may not refer to a valid memory address and any
 --   attempt to pass it to the member functions of the class `Storable' will
 --   most likely lead to disaster.
 --
--- * A pointer type parametrised with `()' is returned to indicate that no
+--  * A pointer type parametrised with `()' is returned to indicate that no
 --   assumption may be made about the entity referenced by the pointer
 --
 castStablePtrToPtr                :: StablePtr a -> Ptr ()
@@ -73,13 +73,13 @@ castStablePtrToPtr (StablePtr sp)  =
 
 -- Recover a stable pointer from its associated vanilla pointer value
 --
--- * We have
+--  * We have
 --
 --     sp == castPtrToStablePtr (castStablePtrToPtr sp)
 --
 --   as long as `freeStablePtr' has not been executed on `sp'
 --
--- * The behaviour of `castPtrToStablePtr' is undefined for pointers not
+--  * The behaviour of `castPtrToStablePtr' is undefined for pointers not
 --   obtained by `castStablePtrToPtr'
 --
 castPtrToStablePtr   :: Ptr () -> StablePtr a

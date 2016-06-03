@@ -56,7 +56,7 @@ new val  =
 
 -- allocate temporary storage for a value and marshal it into this storage
 --
--- * see the life time constraints imposed by `alloca'
+--  * see the life time constraints imposed by `alloca'
 --
 with       :: Storable a => a -> (Ptr a -> IO b) -> IO b
 with val f  = alloca $ \ptr -> do poke ptr val; f ptr
@@ -82,7 +82,7 @@ toBool  = (/= 0)
 
 -- allocate storage and marshall a storable value wrapped into a `Maybe'
 --
--- * the `nullPtr' is used to represent `Nothing'
+--  * the `nullPtr' is used to represent `Nothing'
 --
 maybeNew :: (      a -> IO (Ptr a))
          -> (Maybe a -> IO (Ptr a))

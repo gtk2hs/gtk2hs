@@ -100,7 +100,7 @@ $visible  = \ -\127
 
 -- character escape sequence (follows K&R A2.5.2)
 --
--- * also used for strings
+--  * also used for strings
 --
 @charesc  = \\([ntvbrfae\\\?\'\"]|$octdigit{1,3}|x$hexdigit+)
 
@@ -118,16 +118,16 @@ tokens :-
 
 -- whitespace (follows K&R A2.1) 
 --
--- * horizontal and vertical tabs, newlines, and form feeds are filter out by
+--  * horizontal and vertical tabs, newlines, and form feeds are filter out by
 --   `Lexers.ctrlLexer' 
 --
--- * comments are not handled, as we assume the input already went through cpp
+--  * comments are not handled, as we assume the input already went through cpp
 --
 $white+					;
 
 -- #line directive (K&R A12.6)
 --
--- * allows further ints after the file name a la GCC; as the GCC CPP docu
+--  * allows further ints after the file name a la GCC; as the GCC CPP docu
 --   doesn't say how many ints there can be, we allow an unbound number
 --
 \#$space*@int$space*(\"($infname|@charesc)*\"$space*)?(@int$space*)*$eol
@@ -135,14 +135,14 @@ $white+					;
 
 -- #pragma directive (K&R A12.8)
 --
--- * we simply ignore any #pragma (but take care to update the position
+--  * we simply ignore any #pragma (but take care to update the position
 --   information)
 --
 \#$space*pragma$anyButNL*$eol		;
 
 -- #itent directive, eg used by rcs/cvs
 --
--- * we simply ignore any #itent (but take care to update the position
+--  * we simply ignore any #itent (but take care to update the position
 --   information)
 --
 \#$space*ident$anyButNL*$eol		;
@@ -153,7 +153,7 @@ $letter($letter|$digit)*	{ \pos len str -> idkwtok (take len str) pos }
 
 -- constants (follows K&R A2.5) 
 --
--- * K&R explicit mentions `enumeration-constants'; however, as they are
+--  * K&R explicit mentions `enumeration-constants'; however, as they are
 --   lexically identifiers, we do not have an extra case for them
 --
 

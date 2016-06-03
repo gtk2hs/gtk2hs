@@ -68,7 +68,7 @@ mallocArray0 size  = mallocArray (size + 1)
 
 -- temporarily allocate space for the given number of elements
 --
--- * see `MarshalAlloc.alloca' for the storage lifetime constraints
+--  * see `MarshalAlloc.alloca' for the storage lifetime constraints
 --
 allocaArray :: Storable a => Int -> (Ptr a -> IO b) -> IO b
 allocaArray  = doAlloca undefined

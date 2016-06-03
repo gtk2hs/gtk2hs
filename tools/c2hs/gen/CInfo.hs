@@ -77,7 +77,7 @@ import qualified
 
 -- C's primitive types (EXPORTED)
 --
--- * `CFunPtrPT' doesn't occur in Haskell representations of C types, but we
+--  * `CFunPtrPT' doesn't occur in Haskell representations of C types, but we
 --   need to know their size, which may be different from `CPtrPT'
 --
 data CPrimType = CPtrPT         -- void *
@@ -102,7 +102,7 @@ data CPrimType = CPtrPT         -- void *
 
 -- size of primitive type of C (EXPORTED)
 --
--- * negative size implies that it is a bit, not an octet size
+--  * negative size implies that it is a bit, not an octet size
 --
 size                :: CPrimType -> Int
 size CPtrPT          = Storable.sizeOf (undefined :: Ptr ())
@@ -126,7 +126,7 @@ size (CUFieldPT bs)  = -bs
 
 -- alignment of C's primitive types (EXPORTED)
 --
--- * more precisely, the padding put before the type's member starts when the
+--  * more precisely, the padding put before the type's member starts when the
 --   preceding component is a char
 --
 alignment                :: CPrimType -> Int
@@ -151,20 +151,20 @@ alignment (CUFieldPT bs)  = fieldAlignment bs
 
 -- alignment constraint for a C bitfield
 --
--- * gets the bitfield size (in bits) as an argument
+--  * gets the bitfield size (in bits) as an argument
 --
--- * alignments constraints smaller or equal to zero are reserved for bitfield
+--  * alignments constraints smaller or equal to zero are reserved for bitfield
 --   alignments
 --
--- * bitfields of size 0 always trigger padding; thus, they get the maximal
+--  * bitfields of size 0 always trigger padding; thus, they get the maximal
 --   size
 --
--- * if bitfields whose size exceeds the space that is still available in a
+--  * if bitfields whose size exceeds the space that is still available in a
 --   partially filled storage unit trigger padding, the size of a storage unit
 --   is provided as the alignment constraint; otherwise, it is 0 (meaning it
 --   definitely starts at the current position)
 --
--- * here, alignment constraint /= 0 are somewhat subtle; they mean that is
+--  * here, alignment constraint /= 0 are somewhat subtle; they mean that is
 --   the given number of bits doesn't fit in what's left in the current
 --   storage unit, alignment to the start of the next storage unit has to be
 --   triggered

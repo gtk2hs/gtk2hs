@@ -39,7 +39,7 @@ mallocBytes size  = failWhenNULL "malloc" (_malloc (fromIntegral size))
 
 -- temporarily allocate space for a storable type
 --
--- * the pointer passed as an argument to the function must *not* escape from
+--  * the pointer passed as an argument to the function must *not* escape from
 --   this function; in other words, in `alloca f' the allocated storage must
 --   not be used after `f' returns
 --
@@ -51,7 +51,7 @@ alloca  = doAlloca undefined
 
 -- temporarily allocate the given number of bytes of storage
 --
--- * the pointer passed as an argument to the function must *not* escape from
+--  * the pointer passed as an argument to the function must *not* escape from
 --   this function; in other words, in `allocaBytes n f' the allocated storage
 --   must not be used after `f' returns
 --

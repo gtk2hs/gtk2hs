@@ -50,11 +50,11 @@ import Binary     (Binary(..))
 
 -- name space (EXPORTED ABSTRACT)
 --
--- * the definitions in the global ranges are stored in a finite map, because
+--  * the definitions in the global ranges are stored in a finite map, because
 --   they tend to be a lot and are normally not updated after the global range
 --   is constructed
 --
--- * the definitions of the local ranges are stored in a single list, usually
+--  * the definitions of the local ranges are stored in a single list, usually
 --   they are not very many and the definitions entered last are the most
 --   frequently accessed ones; the list structure naturally hides older
 --   definitions, i.e., definitions from outer ranges; adding new definitions
@@ -76,9 +76,9 @@ nameSpace  = NameSpace Map.empty []
 
 -- add global definition (EXPORTED)
 --
--- * returns the modfied name space
+--  * returns the modfied name space
 --
--- * if the identfier is already declared, the resulting name space contains
+--  * if the identfier is already declared, the resulting name space contains
 --   the new binding and the second component of the result contains the
 --   definition declared previosuly (which is henceforth not contained in the
 --   name space anymore)
@@ -101,11 +101,11 @@ leaveRange (NameSpace gs (ls:lss))  = (NameSpace gs lss, ls)
 
 -- add local definition (EXPORTED)
 --
--- * returns the modfied name space
+--  * returns the modfied name space
 --
--- * if there is no local range, the definition is entered globally
+--  * if there is no local range, the definition is entered globally
 --
--- * if the identfier is already declared, the resulting name space contains
+--  * if the identfier is already declared, the resulting name space contains
 --   the new binding and the second component of the result contains the
 --   definition declared previosuly (which is henceforth not contained in the
 --   name space anymore)
@@ -122,7 +122,7 @@ defLocal (NameSpace    gs (ls:lss)) id def =
 
 -- search for a definition (EXPORTED)
 --
--- * the definition from the innermost range is returned, if any
+--  * the definition from the innermost range is returned, if any
 --
 find                       :: NameSpace a -> Ident -> Maybe a
 find (NameSpace gs lss) id  = case (lookup lss) of
@@ -141,7 +141,7 @@ find (NameSpace gs lss) id  = case (lookup lss) of
 
 -- dump a name space into a list (EXPORTED)
 --
--- * local ranges are concatenated
+--  * local ranges are concatenated
 --
 nameSpaceToList                    :: NameSpace a -> [(Ident, a)]
 nameSpaceToList (NameSpace gs lss)  = Map.toList gs ++ concat lss

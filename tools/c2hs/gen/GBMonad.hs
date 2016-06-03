@@ -117,10 +117,10 @@ underscoreToCase ide  = let lexeme = identToLexeme ide
 
 -- takes an identifier association table to a translation function
 --
--- * if first argument is `True', identifiers that are not found in the
+--  * if first argument is `True', identifiers that are not found in the
 --   translation table are subjected to `underscoreToCase'
 --
--- * the details of handling the prefix are given in the DOCU section at the
+--  * the details of handling the prefix are given in the DOCU section at the
 --   beginning of this file
 --
 transTabToTransFun :: String -> CHSTrans -> TransFun
@@ -162,10 +162,10 @@ transTabToTransFun prefix (CHSTrans _2Case table) =
 -- map that for maps C pointer types to Haskell types for pointer that have
 -- been registered using a pointer hook
 --
--- * the `Bool' indicates whether for a C type "ctype", we map "ctype" itself
+--  * the `Bool' indicates whether for a C type "ctype", we map "ctype" itself
 --   or "*ctype"
 --
--- * the co-domain details how this pointer is represented in Haskell.
+--  * the co-domain details how this pointer is represented in Haskell.
 --   See HsPtrRep.
 --
 type PointerMap = Map (Bool, Ident) HsPtrRep
@@ -173,7 +173,7 @@ type PointerMap = Map (Bool, Ident) HsPtrRep
 
 -- Define how pointers are represented in Haskell.
 --
--- * The first element is true if the pointer points to a function.
+--  * The first element is true if the pointer points to a function.
 --   The second is the Haskell pointer type (plain
 --   Ptr, ForeignPtr or StablePtr). The third field is (Just wrap) if the
 --   pointer is wrapped in a newtype. Where "wrap" 
@@ -283,9 +283,9 @@ getLock = readCT mLock
 
 -- add code to the delayed fragments (the code is made to start at a new line)
 --
--- * currently only code belonging to call hooks can be delayed
+--  * currently only code belonging to call hooks can be delayed
 --
--- * if code for the same call hook (ie, same C function) is delayed
+--  * if code for the same call hook (ie, same C function) is delayed
 --   repeatedly only the first entry is stored; it is checked that the hooks
 --   specify the same flags (ie, produce the same delayed code)
 --
@@ -348,7 +348,7 @@ queryObj hsName  = do
 
 -- query the Haskell object map for a class
 --
--- * raise an error if the class cannot be found
+--  * raise an error if the class cannot be found
 --
 queryClass        :: Ident -> GB HsObject
 queryClass hsName  = do
@@ -361,7 +361,7 @@ queryClass hsName  = do
 
 -- query the Haskell object map for a pointer
 --
--- * raise an error if the pointer cannot be found
+--  * raise an error if the pointer cannot be found
 --
 queryPointer        :: Ident -> GB HsObject
 queryPointer hsName  = do
@@ -374,7 +374,7 @@ queryPointer hsName  = do
 
 -- merge the pointer and Haskell object maps
 --
--- * currently, the read map overrides any entires for shared keys in the map
+--  * currently, the read map overrides any entires for shared keys in the map
 --   that is already in the monad; this is so that, if multiple import hooks
 --   add entries for shared keys, the textually latest prevails; any local
 --   entries are entered after all import hooks anyway

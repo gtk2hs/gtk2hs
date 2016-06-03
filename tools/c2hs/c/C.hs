@@ -95,7 +95,7 @@ isuffix  = ".i"
 -- given a file name (with suffix), parse that file as a C header and do the
 -- static analysis (collect defined names) (EXPORTED)
 --
--- * currently, lexical and syntactical errors are reported immediately and 
+--  * currently, lexical and syntactical errors are reported immediately and 
 --   abort the program; others are reported as part of the fatal error message;
 --   warnings are returned together with the read unit
 --

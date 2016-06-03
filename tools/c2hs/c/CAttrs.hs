@@ -150,7 +150,7 @@ leaveObjRangeC ac  = ac {
 
 -- add another definitions to the object name space (EXPORTED)
 --
--- * if a definition of the same name was already present, it is returned
+--  * if a definition of the same name was already present, it is returned
 --
 addDefObjC            :: AttrC -> Ident -> CObj -> (AttrC, Maybe CObj)
 addDefObjC ac ide obj  = let om          = defObjsAC ac
@@ -166,7 +166,7 @@ lookupDefObjC ac ide  = find (defObjsAC ac) ide
 -- lookup an identifier in the object name space; if nothing found, try 
 -- whether there is a shadow identifier that matches (EXPORTED)
 --
--- * the returned identifier is the _real_ identifier of the object
+--  * the returned identifier is the _real_ identifier of the object
 --
 lookupDefObjCShadow        :: AttrC -> Ident -> Maybe (CObj, Ident)
 lookupDefObjCShadow ac ide  = 
@@ -180,7 +180,7 @@ lookupDefObjCShadow ac ide  =
 
 -- add another definition to the tag name space (EXPORTED)
 --
--- * if a definition of the same name was already present, it is returned 
+--  * if a definition of the same name was already present, it is returned 
 --
 addDefTagC            :: AttrC -> Ident -> CTag -> (AttrC, Maybe CTag)
 addDefTagC ac ide obj  = let tm          = defTagsAC ac
@@ -196,7 +196,7 @@ lookupDefTagC ac ide  = find (defTagsAC ac) ide
 -- lookup an identifier in the tag name space; if nothing found, try 
 -- whether there is a shadow identifier that matches (EXPORTED)
 --
--- * the returned identifier is the _real_ identifier of the tag
+--  * the returned identifier is the _real_ identifier of the tag
 --
 lookupDefTagCShadow        :: AttrC -> Ident -> Maybe (CTag, Ident)
 lookupDefTagCShadow ac ide  = 
@@ -212,9 +212,9 @@ lookupDefTagCShadow ac ide  =
 -- the given prefix from the identifiers already in the object or tag name
 -- space (EXPORTED)
 --
--- * in case of a collisions, a random entry is selected
+--  * in case of a collisions, a random entry is selected
 -- 
--- * case is not relevant in the prefix and underscores between the prefix and
+--  * case is not relevant in the prefix and underscores between the prefix and
 --   the stem of an identifier are also dropped
 -- 
 applyPrefix           :: AttrC -> String -> AttrC

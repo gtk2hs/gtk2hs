@@ -96,7 +96,7 @@ import Errors      (ErrorLvl(..), Error, makeError, errorLvl, showError)
 
 -- initialization
 --
--- * it gets the version information and the initial extra state as arguments
+--  * it gets the version information and the initial extra state as arguments
 --
 initialBaseState        :: (String, String, String) -> e -> BaseState e
 initialBaseState vcd es  = BaseState {
@@ -114,7 +114,7 @@ initialBaseState vcd es  = BaseState {
 -- initiate a complete run of the ToolKit represented by a PreCST with a void
 -- generic component (type `()') (EXPORTED)
 --
--- * fatals errors are explicitly caught and reported (instead of letting them
+--  * fatals errors are explicitly caught and reported (instead of letting them
 --   through to the runtime system)
 --
 run            :: (String, String, String) -> e -> PreCST e () a -> IO a
@@ -147,7 +147,7 @@ throwExc s1 s2  = CST $ StateTrans.throwExc s1 s2
 
 -- raise a fatal user-defined error (EXPORTED)
 --
--- * such an error my be caught and handled using `fatalsHandeledBy'
+--  * such an error my be caught and handled using `fatalsHandeledBy'
 --
 fatal :: String -> PreCST e s a
 fatal  = CST . StateTrans.fatal
@@ -156,7 +156,7 @@ fatal  = CST . StateTrans.fatal
 -- are caught using the provided handler, which expects to get the exception
 -- message (EXPORTED)
 --
--- * the state observed by the exception handler is *modified* by the failed
+--  * the state observed by the exception handler is *modified* by the failed
 --   state transformer upto the point where the exception was thrown (this
 --   semantics is the only reasonable when it should be possible to use
 --   updating for maintaining the state)
@@ -170,10 +170,10 @@ catchExc m (s, h)  = CST $ StateTrans.catchExc (unpackCST m) (s, unpackCST . h)
 -- for fatal errors, execute the state transformer and apply the error handler
 -- when a fatal error occurs (EXPORTED)
 --
--- * fatal errors are IO monad errors and errors raised by `fatal' as well as
+--  * fatal errors are IO monad errors and errors raised by `fatal' as well as
 --   uncaught exceptions
 --
--- * the base and generic state observed by the error handler is *in contrast
+--  * the base and generic state observed by the error handler is *in contrast
 --   to `catch'* the state *before* the state transformer is applied
 --
 fatalsHandledBy :: PreCST e s a -> (IOError -> PreCST e s a) -> PreCST e s a
@@ -218,7 +218,7 @@ initialErrorState  = ErrorState WarningErr 0 []
 
 -- raise an error (EXPORTED)
 --
--- * a fatal error is reported immediately; see `raiseFatal'
+--  * a fatal error is reported immediately; see `raiseFatal'
 --
 raise     :: Error -> PreCST e s ()
 raise err  = case errorLvl err of
@@ -238,13 +238,13 @@ raiseError pos msg  = raise0 (makeError ErrorErr pos msg)
 
 -- raise a fatal compilation error (EXPORTED)
 --
--- * the error is together with the up-to-now accumulated errors are reported
+--  * the error is together with the up-to-now accumulated errors are reported
 --   as part of the error message of the fatal error exception
 --
--- * the current thread of control is discarded and control is passed to the
+--  * the current thread of control is discarded and control is passed to the
 --   innermost handler for fatal errors
 --
--- * the first argument must contain a short description of the error, while
+--  * the first argument must contain a short description of the error, while
 --   the second and third argument are like the two arguments to `raise'
 --
 raiseFatal                :: String -> Position -> [String] -> PreCST e s a
@@ -260,7 +260,7 @@ raiseFatal0 short err  = do
 
 -- raise an error; internal version, doesn't check whether the error is fatal
 --
--- * the error is entered into the compiler state and a fatal error is
+--  * the error is entered into the compiler state and a fatal error is
 --   triggered if the `errorLimit' is reached
 --
 raise0     :: Error -> PreCST e s ()
