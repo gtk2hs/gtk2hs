@@ -26,7 +26,7 @@
 -- Portability : portable (depends on GHC)
 --
 --
--- Gtk specific functions to for redering with Cairo.
+-- Gtk specific functions to for rendering with Cairo.
 --
 -- Cairo is a graphics library that supports vector graphics and image
 -- compositing that can be used with Gdk.
