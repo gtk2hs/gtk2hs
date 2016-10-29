@@ -1,5 +1,5 @@
 Name:           gtk
-Version:        0.14.5
+Version:        0.14.6
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -383,7 +383,7 @@ Library
         include-dirs:   .
         cpp-options: -U__BLOCKS__
         if os(darwin)
-          cpp-options: -D__attribute__(A)=
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
         if !flag(deprecated)
           cpp-options:  -DDISABLE_DEPRECATED
         else

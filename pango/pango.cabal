@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.13.3.0
+Version:        0.13.3.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -29,7 +29,7 @@ x-Types-Hierarchy: hierarchy.list
 Data-Dir:       demo
 Data-Files:     Layout.hs
                 Makefile
-                
+
 Source-Repository head
   type:         git
   location:     https://github.com/gtk2hs/gtk2hs
@@ -80,7 +80,7 @@ Library
         include-dirs:   .
         cpp-options:    -U__BLOCKS__
         if os(darwin)
-          cpp-options: -D__attribute__(A)=
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
         if os(windows)
           cpp-options: -D__USE_MINGW_ANSI_STDIO=1
         -- Pango 1.26 has a mysterious bug that makes it go into an infinite

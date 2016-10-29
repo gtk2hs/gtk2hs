@@ -1,5 +1,5 @@
 Name:           cairo
-Version:        0.13.3.0
+Version:        0.13.3.1
 License:        BSD3
 License-file:   COPYRIGHT
 Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
@@ -85,3 +85,5 @@ Library
           pkgconfig-depends: cairo-ps
         if flag(cairo_svg)
           pkgconfig-depends: cairo-svg
+        if os(darwin)
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=

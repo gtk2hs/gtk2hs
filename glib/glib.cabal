@@ -1,5 +1,5 @@
 Name:           glib
-Version:        0.13.4.0
+Version:        0.13.4.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -43,7 +43,7 @@ Library
                         containers
         cpp-options:    -U__BLOCKS__
         if os(darwin)
-          cpp-options: -D__attribute__(A)=
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
         if flag(closure_signals)
           cpp-options:  -DUSE_GCLOSURE_SIGNALS_IMPL
           c-sources: System/Glib/hsgclosure.c

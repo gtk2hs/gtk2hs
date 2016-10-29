@@ -1,5 +1,5 @@
 Name:           gtk3
-Version:        0.14.5
+Version:        0.14.6
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -373,7 +373,7 @@ Library
         include-dirs:   .
         cpp-options: -DDISABLE_DEPRECATED -U__BLOCKS__
         if os(darwin)
-          cpp-options: -D__attribute__(A)=
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
         if os(windows)
           cpp-options:    -DWIN32 -fno-exceptions
           cc-options:     -fno-exceptions
@@ -398,7 +398,7 @@ Executable gtk2hs-demo-actionMenu
     main-is: ActionMenu.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, text
+    build-depends: gtk3==0.14.6, base, transformers, text
 
 Executable gtk2hs-demo-buttonBox
     default-language: Haskell98
@@ -406,7 +406,7 @@ Executable gtk2hs-demo-buttonBox
     main-is: ButtonBox.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
 
 Executable gtk2hs-demo-carsim
     default-language: Haskell98
@@ -414,7 +414,7 @@ Executable gtk2hs-demo-carsim
     main-is: CarSim.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, time, cairo
+    build-depends: gtk3==0.14.6, base, transformers, time, cairo
 
 Executable gtk2hs-demo-progress
     default-language: Haskell98
@@ -422,7 +422,7 @@ Executable gtk2hs-demo-progress
     main-is: Progress.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
 
 Executable gtk2hs-demo-progressThreadedRTS
     default-language: Haskell98
@@ -430,7 +430,7 @@ Executable gtk2hs-demo-progressThreadedRTS
     main-is: ProgressThreadedRTS.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
     ghc-options: -threaded
 
 Executable gtk2hs-demo-fastDraw
@@ -439,7 +439,7 @@ Executable gtk2hs-demo-fastDraw
     main-is: FastDraw.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, array, cairo
+    build-depends: gtk3==0.14.6, base, transformers, array, cairo
 
 Executable gtk2hs-demo-fonts
     default-language: Haskell98
@@ -447,7 +447,7 @@ Executable gtk2hs-demo-fonts
     main-is: Fonts.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base
+    build-depends: gtk3==0.14.6, base
 
 Executable gtk2hs-demo-builder
     default-language: Haskell98
@@ -455,7 +455,7 @@ Executable gtk2hs-demo-builder
     main-is: GtkBuilderTest.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
 
 Executable gtk2hs-demo-helloworld
     default-language: Haskell98
@@ -463,7 +463,7 @@ Executable gtk2hs-demo-helloworld
     main-is: World.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
 
 Executable gtk2hs-demo-layout
     default-language: Haskell98
@@ -471,7 +471,7 @@ Executable gtk2hs-demo-layout
     main-is: Layout.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, cairo, text
+    build-depends: gtk3==0.14.6, base, transformers, cairo, text
 
 Executable gtk2hs-demo-menudemo
     default-language: Haskell98
@@ -479,7 +479,7 @@ Executable gtk2hs-demo-menudemo
     main-is: MenuDemo.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, text
+    build-depends: gtk3==0.14.6, base, transformers, text
 
 Executable gtk2hs-demo-combodemo
     default-language: Haskell98
@@ -487,7 +487,7 @@ Executable gtk2hs-demo-combodemo
     main-is: ComboDemo.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, text, base, transformers
+    build-depends: gtk3==0.14.6, text, base, transformers
 
 Executable gtk2hs-demo-notebook
     default-language: Haskell98
@@ -495,7 +495,7 @@ Executable gtk2hs-demo-notebook
     main-is: Notebook.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, text
+    build-depends: gtk3==0.14.6, base, transformers, text
 
 Executable gtk2hs-demo-statusIcon
     default-language: Haskell98
@@ -503,7 +503,7 @@ Executable gtk2hs-demo-statusIcon
     main-is: StatusIcon.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
 
 Executable gtk2hs-demo-arabic
     default-language: Haskell98
@@ -511,7 +511,7 @@ Executable gtk2hs-demo-arabic
     main-is: Arabic.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers, text
+    build-depends: gtk3==0.14.6, base, transformers, text
 
 Executable gtk2hs-demo-overlay
     default-language: Haskell98
@@ -519,4 +519,4 @@ Executable gtk2hs-demo-overlay
     main-is: Overlay.hs
     if !flag(build-demos)
       buildable: False
-    build-depends: gtk3==0.14.5, base, transformers
+    build-depends: gtk3==0.14.6, base, transformers
