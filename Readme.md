@@ -39,7 +39,12 @@ Then make sure the `$HOME/ghc-8.0.1/bin` is in your $PATH.
 Unlike MacPorts you will not need a custom build of GHC for homebrew since it uses the system `libiconv`.  However
 some packaged (such as WebKitGTK) seem to be less well supported on Homebrew.
 
-TODO add install command. If you are a homebrew user and work out the suitable equivalent command to install some or all of the packages above let us know.
+`brew install gtk+3`
+
+And if you got an error about that pkg-config can not find libffi when installing haskell-gi or something like that, you need 
+to find out where your brew installed libffi, and add the pkg_config(e.g. `/usr/local/Cellar/libffi/3.0.13/lib/pkgconfig`) directory to $PKG_CONFIG.
+
+TIPS: If you installed GTK with homebrew, you do not need to install X11 on macOS. The one installed by brew was linked with GTK+'s Quartz backend, and you can use macOS's native display manager, keyboard, and pointing device.
 
 ##### Windows MSYS2
 Install [MSYS2](https://msys2.github.io/) and [Chocolatey](https://chocolatey.org/).  Then in a shell with administrator privileges:
