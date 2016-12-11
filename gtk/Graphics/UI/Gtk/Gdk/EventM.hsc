@@ -98,6 +98,13 @@ module Graphics.UI.Gtk.Gdk.EventM (
 --   you can (and usually have to) use @liftIO@ to execute @IO@ functions.
 --
 
+-- * Classes
+
+  HasCoordinates,
+  HasRootCoordinates,
+  HasModifier,
+  HasTime,
+
 -- * Event monad and type tags
   EventM,
   EAny,
