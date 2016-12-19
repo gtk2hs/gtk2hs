@@ -7,9 +7,9 @@ AppId=Gtk2Hs
 AppVerName=Gtk2Hs 0.10.0
 AppVersion=0.10.0
 AppPublisher=The Gtk2Hs Team
-AppPublisherURL=http://haskell.org/gtk2hs/
-AppSupportURL=http://haskell.org/gtk2hs/
-AppUpdatesURL=http://haskell.org/gtk2hs/
+AppPublisherURL=https://github.com/gtk2hs/
+AppSupportURL=https://github.com/gtk2hs/gtk2hs
+AppUpdatesURL=https://github.com/gtk2hs/gtk2hs
 
 DefaultDirName=c:\gtk2hs\0.10.0
 OutputBaseFilename=gtk2hs-0.10.0-win32-installer

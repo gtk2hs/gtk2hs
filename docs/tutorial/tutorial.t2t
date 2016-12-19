@@ -85,7 +85,7 @@ The Hello World program fleshes out the above template with instructions
 to create a window, i.e. ``window <- windowNew``. The so-called
 constructor ``windowNew :: IO Window`` creates a new top level window. A
 window has certain property which are defined in the 
-[Window module http://haskell.org/gtk2hs/current/Graphics/UI/Gtk/Windows/Window.html].
+[Window module https://hackage.haskell.org/package/gtk-0.14.6/docs/Graphics-UI-Gtk-Windows-Window.html].
 One of these properties is the name that appears in the title bar,
 documented as ``windowTitle :: WindowClas s self => Attr self String``.
 This property is accessible through the ``set`` and ``get`` functions. For

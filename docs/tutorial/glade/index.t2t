@@ -14,7 +14,7 @@ bindings are available on other platforms too, this might also help you get
 started there.
 
 This tutorial page is an adaptation for [Haskell http://www.haskell.org] and
-[Gtk2Hs http://haskell.org/gtk2hs/] of an original tutorial for C and the GTK+
+[Gtk2Hs https://github.com/gtk2hs/gtk2hs] of an original tutorial for C and the GTK+
 C API.
 
 You will need:
@@ -22,7 +22,7 @@ You will need:
 - [GTK+ http://www.gtk.org/] libraries
 - [Glade http://glade.gnome.org/] version 3 (or version 2, but beware of minor
   differences)
-- [Gtk2Hs http://haskell.org/gtk2hs/download/]
+- [Gtk2Hs https://github.com/gtk2hs/gtk2hs]
 - Basic Haskell know-how
 
 
@@ -254,8 +254,8 @@ name in the text entry field we will change the label to display "Hello
 involve two basic concepts: retrieving data from a widget and setting a
 widget's property.
 
-Functions specific to widgets are well [documented http://haskell.org/gtk2hs/docs/current].
-There is even an [API search http://haskell.org/hoogle/?package=gtk]. Among
+Functions specific to widgets are well [documented https://github.com/gtk2hs/gtk2hs/tree/master/docs].
+There is even an [API search https://www.haskell.org/hoogle/?hoogle=gtk]. Among
 other things, we can find functions specific to our immediate needs: labels and
 text entry fields.
 
