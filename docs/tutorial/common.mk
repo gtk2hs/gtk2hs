@@ -42,7 +42,7 @@ $(TOP)/exports : $(hi-files)
 %.pdf : %.tex
 	pdflatex $<
 
-base-url = http://haskell.org/gtk2hs/docs/current/
+base-url = https://github.com/gtk2hs/gtk2hs
 
 $(TOOLSDIR)/AddLinks : $(TOOLSDIR)/AddLinks.hs
 	$(HC) --make $< -o $@
