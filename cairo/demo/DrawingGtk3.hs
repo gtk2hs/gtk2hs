@@ -1,15 +1,18 @@
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
+import qualified Graphics.UI.Gtk as Gtk
 import Graphics.Rendering.Cairo
 import Graphics.UI.Gtk.Gdk.EventM
 
 main = do
   initGUI
   dia <- dialogNew
+  -- in newer versions of GTK, 'size-request' is an invalid signal for Drawing areas,
+  -- so the default size of the window will be changed instead.
+  windowSetDefaultSize dia 400 400
   dialogAddButton dia stockOk ResponseOk
   contain <- dialogGetContentArea dia
   canvas <- drawingAreaNew
-  canvas `on` sizeRequest $ return (Requisition 40 40)
   ctxt <- cairoCreateContext Nothing
   text <- layoutEmpty ctxt
   text `layoutSetText` "Hello World."
