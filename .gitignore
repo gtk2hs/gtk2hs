@@ -10,3 +10,4 @@ cabal-dev
 .virthualenv
 *.swp
 *.*~
+.idea

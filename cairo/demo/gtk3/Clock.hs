@@ -9,6 +9,8 @@
 -- ported to Haskell by:
 --    Duncan Coutts <duncan.coutts@worc.ox.ac.uk>
 --
+-- updated to GTK 3 by Catherine Holloway
+--
 
 import Graphics.Rendering.Cairo
 import Graphics.UI.Gtk
@@ -18,8 +20,11 @@ import Control.Monad (when)
 import Data.Maybe (isJust)
 import Data.IORef
 
-drawClockBackground :: Bool -> Int -> Int -> Render ()
-drawClockBackground quality width height = do
+drawClockBackground :: WidgetClass widget => widget -> Bool -> Render ()
+drawClockBackground canvas quality = do
+
+  width  <- liftIO $ widgetGetAllocatedWidth  canvas
+  height <- liftIO $ widgetGetAllocatedHeight canvas
   save
   scale (fromIntegral width) (fromIntegral height)
 
@@ -39,8 +44,11 @@ drawClockBackground quality width height = do
 
   restore
 
-drawClockHands :: Bool -> Int -> Int -> Render ()
-drawClockHands quality width height = do
+drawClockHands :: WidgetClass widget => widget -> Bool -> Render ()
+drawClockHands canvas quality = do
+
+  width  <- liftIO $ widgetGetAllocatedWidth  canvas
+  height <- liftIO $ widgetGetAllocatedHeight canvas
   save
   scale (fromIntegral width) (fromIntegral height)
 
@@ -275,25 +283,16 @@ initialSize = 256
 
 main = do
   initGUI
-
   window <- windowNew
-  windowSetDecorated window False
-  windowSetResizable window True
   windowSetPosition window WinPosCenterAlways
 
   widgetSetAppPaintable window True
-  windowSetIconFromFile window "cairo-clock-icon.png"
-  windowSetTitle window "Gtk2Hs Cairo Clock"
+  windowSetIconFromFile window "../cairo-clock-icon.png"
+
   windowSetDefaultSize window initialSize initialSize
   windowSetGeometryHints window (Just window)
     (Just (32, 32)) (Just (512, 512))
     Nothing Nothing (Just (1,1))
-
-  let setAlpha widget = do
-        screen <- widgetGetScreen widget
-        colormap <- screenGetRGBAColormap screen
-        maybe (return ()) (widgetSetColormap widget) colormap
-  setAlpha window --TODO: also call setAlpha on alpha screen change
 
   window `on` keyPressEvent $ tryEvent $ do
     "Escape" <- eventKeyName
@@ -312,96 +311,15 @@ main = do
     liftIO $ windowBeginResizeDrag window WindowEdgeSouthEast MiddleButton
                                    (round x) (round y) time
 
-  timeoutAdd (widgetQueueDraw window >> return True) 1000
+  canvas <- drawingAreaNew
+  ctxt <- cairoCreateContext Nothing
+  text <- layoutEmpty ctxt
+  text `layoutSetText` "Hello World."
 
-  backgroundRef <- newIORef (Just undefined)
-  foregroundRef <- newIORef (Just undefined)
-
-  let redrawStaticLayers = do
-        (width, height) <- widgetGetSize window
-        drawWin <- widgetGetDrawWindow window
-        background <- createImageSurface FormatARGB32 width height
-        foreground <- createImageSurface FormatARGB32 width height
-        let clear = do
-              save
-              setOperator OperatorClear
-              paint
-              restore
-        renderWith background $ do
-          clear
-          drawClockBackground True width height
-        renderWith foreground $ do
-          clear
-          drawClockForeground True width height
-        writeIORef backgroundRef (Just background)
-        writeIORef foregroundRef (Just foreground)
-
-  onRealize window redrawStaticLayers
-
-  sizeRef <- newIORef (initialSize, initialSize)
-  timeoutHandlerRef <- newIORef Nothing
-  window `on` configureEvent $ do
-    (w,h) <- eventSize
-    liftIO $ do
-    size <- readIORef sizeRef
-    writeIORef sizeRef (w,h)
-    when (size /= (w,h)) $ do
-
-      background <- readIORef backgroundRef
-      foreground <- readIORef foregroundRef
-      maybe (return ()) surfaceFinish background
-      maybe (return ()) surfaceFinish foreground
-
-      writeIORef backgroundRef Nothing
-      writeIORef foregroundRef Nothing
-
-      timeoutHandler <- readIORef timeoutHandlerRef
-      maybe (return ()) timeoutRemove timeoutHandler
-
-      handler <- timeoutAddFull (do
-        writeIORef timeoutHandlerRef Nothing
-        redrawStaticLayers
-        widgetQueueDraw window
-        return False
-        ) priorityDefaultIdle 300
-      writeIORef timeoutHandlerRef (Just handler)
-
-    return False
-
-  window `on` exposeEvent $ do
-    drawWin <- eventWindow
-    exposeRegion <- eventRegion
-    liftIO $ do
-    (width, height) <- drawableGetSize drawWin
-
-    background <- readIORef backgroundRef
-    foreground <- readIORef foregroundRef
-
-    renderWithDrawable drawWin $ do
-      region exposeRegion
-      clip
-
-      save
-      setOperator OperatorSource
-      setSourceRGBA 0 0 0 0
-      paint
-      restore
-
-      case background of
-        Nothing -> drawClockBackground False width height
-        Just background -> do
-          setSourceSurface background 0 0
-          paint
-
-      drawClockHands (isJust background) width height
-
-      case foreground of
-        Nothing -> drawClockForeground False width height
-        Just foreground -> do
-          setSourceSurface foreground 0 0
-          paint
-
-    return True
-
+  canvas `on` draw $ drawClockBackground canvas True
+  canvas `on` draw $ drawClockHands canvas True
+  set window [ containerChild := canvas, windowDecorated := False,
+               windowResizable := True, windowTitle := "Gtk2Hs Cairo Clock" ]
   widgetShowAll window
+  timeoutAdd (widgetQueueDraw window >> return True) 1000
   mainGUI
