@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- original author:
 --    Mirco "MacSlow" Mueller <macslow@bangang.de>
 --
@@ -19,6 +21,7 @@ import System.Time
 import Control.Monad (when)
 import Data.Maybe (isJust)
 import Data.IORef
+import Data.Text
 
 drawClockBackground :: WidgetClass widget => widget -> Bool -> Render ()
 drawClockBackground canvas quality = do
@@ -294,6 +297,7 @@ main = do
     (Just (32, 32)) (Just (512, 512))
     Nothing Nothing (Just (1,1))
 
+
   window `on` keyPressEvent $ tryEvent $ do
     "Escape" <- eventKeyName
     liftIO mainQuit
@@ -314,12 +318,12 @@ main = do
   canvas <- drawingAreaNew
   ctxt <- cairoCreateContext Nothing
   text <- layoutEmpty ctxt
-  text `layoutSetText` "Hello World."
+  text `layoutSetText` (pack "Hello World.")
 
   canvas `on` draw $ drawClockBackground canvas True
   canvas `on` draw $ drawClockHands canvas True
   set window [ containerChild := canvas, windowDecorated := False,
-               windowResizable := True, windowTitle := "Gtk2Hs Cairo Clock" ]
+               windowResizable := True, windowTitle := (pack "Gtk2Hs Cairo Clock") ]
   widgetShowAll window
   timeoutAdd (widgetQueueDraw window >> return True) 1000
   mainGUI

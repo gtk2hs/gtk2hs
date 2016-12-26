@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+-- An example of Cairo drawing to an SDL screen.
+-- updated to GTK 3 and SDL2 by Catherine Holloway
 -- This example uses SDL 2+ instead of SDL 1 in the gtk2 version, and requires
 -- the haskell package sdl2.
 
@@ -19,12 +22,20 @@ demo2 = do
   lineTo 100 500
   stroke
 
-main = SDL.initialize [ SDL.InitVideo ] $ do
-  screen <- SDL.setWindowMode 600 600 32 [ SDL.Surface ]
+screenWidth = 600
+screenHeight = 600
 
-  --SDL.fillRect screen Nothing (SDL.Pixel maxBound)
-
-  pixels <- fmap castPtr $ screen.surfacePixels
+main = do
+  SDL.initialize [ SDL.InitVideo ]
+  window <-
+    SDL.createWindow
+      "SDL / Cairo Example"
+      SDL.defaultWindow {SDL.windowInitialSize = V2 screenWidth screenHeight}
+  SDL.showWindow window
+  screenSurface <- SDL.getWindowSurface window
+  let white = V4 maxBound maxBound maxBound maxBound
+  SDL.surfaceFillRect screenSurface Nothing white
+  pixels <- fmap castPtr $ surfacePixels screenSurface
 
   canvas <- createImageSurfaceForData pixels FormatRGB24 600 600 (600 * 4)
   renderWith canvas demo1
@@ -32,12 +43,13 @@ main = SDL.initialize [ SDL.InitVideo ] $ do
   withImageSurfaceForData pixels FormatRGB24 600 600 (600 * 4) $ \canvas ->
     renderWith canvas demo2
 
-  --SDL.flip screen
 
+  SDL.updateWindowSurface window
   idle
   where
   idle = do
-    e <- SDL.waitEvent
-    case e of
-         SDL.QuitEvent  -> return ()
+    events <- SDL.pollEvents
+    let quit = elem SDL.QuitEvent $ map SDL.eventPayload events
+    case quit of
+         True -> return ()
          otherwise -> idle
