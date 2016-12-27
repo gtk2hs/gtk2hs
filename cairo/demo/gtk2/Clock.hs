@@ -282,7 +282,7 @@ main = do
   windowSetPosition window WinPosCenterAlways
 
   widgetSetAppPaintable window True
-  windowSetIconFromFile window "cairo-clock-icon.png"
+  windowSetIconFromFile window "../cairo-clock-icon.png"
   windowSetTitle window "Gtk2Hs Cairo Clock"
   windowSetDefaultSize window initialSize initialSize
   windowSetGeometryHints window (Just window)

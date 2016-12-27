@@ -20,14 +20,22 @@ extra-source-files: cairo-gtk2hs.h
 
 Data-Dir:		demo
 Data-Files:		cairo-clock-icon.png
-                CairoGhci.hs
-                Clock.hs
-                Drawing2.hs
-                Drawing.hs
-                Graph.hs
-                Makefile
-                StarAndRing.hs
-                Text.hs
+                gtk2/CairoGhci.hs
+                gtk2/Clock.hs
+                gtk2/Drawing2.hs
+                gtk2/Drawing.hs
+                gtk2/Graph.hs
+                gtk2/Makefile
+                gtk2/StarAndRing.hs
+                gtk2/Text.hs
+                gtk3/CairoGhci.hs
+                gtk3/Clock.hs
+                gtk3/Drawing2.hs
+                gtk3/Drawing.hs
+                gtk3/Graph.hs
+                gtk3/Makefile
+                gtk3/StarAndRing.hs
+                gtk3/Text.hs
 				
 Source-Repository head
   type:         git
