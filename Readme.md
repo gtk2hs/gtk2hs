@@ -42,7 +42,7 @@ some packaged (such as WebKitGTK) seem to be less well supported on Homebrew.
 `brew install gtk+3`
 
 And if you got an error about that pkg-config can not find libffi when installing haskell-gi or something like that, you need 
-to find out where your brew installed libffi, and add the pkg_config(e.g. `/usr/local/Cellar/libffi/3.0.13/lib/pkgconfig`) directory to $PKG_CONFIG.
+to find out where your brew installed libffi, and add the pkg_config(e.g. `/usr/local/Cellar/libffi/3.0.13/lib/pkgconfig`) directory to $PKG_CONFIG_PATH.
 
 TIPS: If you installed GTK with homebrew, you do not need to install X11 on macOS. The one installed by brew was linked with GTK+'s Quartz backend, and you can use macOS's native display manager, keyboard, and pointing device.
 
