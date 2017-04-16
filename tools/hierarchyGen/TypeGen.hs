@@ -214,8 +214,7 @@ generateExports rootObject forwardNames objs =
   foldl (\s1 s2 -> s1.ss ",".indent 1.ss "module ".s2) id
     (map ss forwardNames).
   foldl (\s1 s2 -> s1.ss ",".s2) id
-    [ indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
-      indent 1.ss "to".ss n.ss ", ".
+    [ indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class(..),".
       indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
       indent 1.ss "castTo".ss n.ss ", gType".ss n
     | (n:_) <- objs
@@ -290,9 +289,9 @@ makeClass rootObject destr prefix table (name:parents) =
                                Just TypeInfo { tiDefaultDestr = True } -> ss "objectUnref").ss ")".
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
-  indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
-  indent 0.ss "to".ss name.ss " :: ".ss name.ss "Class o => o -> ".ss name.
-  indent 0.ss "to".ss name.ss " = unsafeCast".ss rootObject.ss " . to".ss rootObject.
+  indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o where".
+  indent 1.ss "to".ss name.ss " :: ".ss name.ss "Class o => o -> ".ss name.
+  indent 1.ss "to".ss name.ss " = unsafeCast".ss rootObject.ss " . to".ss rootObject.
   indent 0.
   makeInstance name (name:init parents).
   makeRootInstance rootObject name.
