@@ -301,6 +301,7 @@ data CTypeSpec = CVoidType    Attrs
                | CIntType     Attrs
                | CLongType    Attrs
                | CFloatType   Attrs
+               | CFloat128Type Attrs
                | CDoubleType  Attrs
                | CSignedType  Attrs
                | CUnsigType   Attrs
@@ -324,6 +325,7 @@ instance Pos CTypeSpec where
   posOf (CIntType       at) = posOf at
   posOf (CLongType      at) = posOf at
   posOf (CFloatType     at) = posOf at
+  posOf (CFloat128Type  at) = posOf at
   posOf (CDoubleType    at) = posOf at
   posOf (CSignedType    at) = posOf at
   posOf (CUnsigType     at) = posOf at
@@ -342,6 +344,7 @@ instance Eq CTypeSpec where
   (CIntType      at1) == (CIntType      at2) = at1 == at2
   (CLongType     at1) == (CLongType     at2) = at1 == at2
   (CFloatType    at1) == (CFloatType    at2) = at1 == at2
+  (CFloat128Type at1) == (CFloat128Type at2) = at1 == at2
   (CDoubleType   at1) == (CDoubleType   at2) = at1 == at2
   (CSignedType   at1) == (CSignedType   at2) = at1 == at2
   (CUnsigType    at1) == (CUnsigType    at2) = at1 == at2
@@ -1058,6 +1061,9 @@ instance Binary CTypeSpec where
             putByte bh 13
             put_ bh ar
             put_ bh as
+    put_ bh (CFloat128Type at) = do
+            putByte bh 14
+            put_ bh at
     get bh = do
             h <- getByte bh
             case h of
@@ -1108,6 +1114,9 @@ instance Binary CTypeSpec where
                     ar <- get bh
                     as <- get bh
                     return (CTypeOfType ar as)
+              14 -> do
+                    at <- get bh
+                    return (CFloat128Type at)
 
 instance Binary CStorageSpec where
     put_ bh (CAuto aa) = do
