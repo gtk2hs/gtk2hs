@@ -18,8 +18,8 @@ Category:       Graphics
 Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 extra-source-files: cairo-gtk2hs.h
 
-Data-Dir:		demo
-Data-Files:		cairo-clock-icon.png
+Data-Dir:       demo
+Data-Files:     cairo-clock-icon.png
                 gtk2/CairoGhci.hs
                 gtk2/Clock.hs
                 gtk2/Drawing2.hs
@@ -36,7 +36,7 @@ Data-Files:		cairo-clock-icon.png
                 gtk3/Makefile
                 gtk3/StarAndRing.hs
                 gtk3/Text.hs
-				
+
 Source-Repository head
   type:         git
   location:     https://github.com/gtk2hs/gtk2hs
@@ -44,13 +44,13 @@ Source-Repository head
 
 Flag cairo_pdf
   Description: Build the PDF backend of Cairo.
-  
+
 Flag cairo_ps
   Description: Build the PostScript backend of Cairo.
 
 Flag cairo_svg
   Description: Build the Scalable Vector Graphics (SVG) backend of Cairo.
-  
+
 custom-setup
   setup-depends: base >= 4.6,
                  Cabal >= 1.24 && < 1.25,
@@ -64,8 +64,8 @@ Library
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types
-			  -- this module is only meant to be used by other
-			  -- modules implementing a Cairo interface
+                          -- this module is only meant to be used by other
+                          -- modules implementing a Cairo interface
                           Graphics.Rendering.Cairo.Internal
         other-modules:
                           Graphics.Rendering.Cairo.Internal.Drawing.Cairo
@@ -93,5 +93,5 @@ Library
           pkgconfig-depends: cairo-ps
         if flag(cairo_svg)
           pkgconfig-depends: cairo-svg
-        if os(darwin)
+        if os(darwin) || os(freebsd)
           cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
