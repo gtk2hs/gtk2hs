@@ -308,7 +308,12 @@ genSynthezisedFiles verb pd lbi = do
                               tag `isPrefixOf` field,
                               field /= (tag++"file")]
               ++ [ "--tag=" ++ tag
+#if MIN_VERSION_Cabal(2,0,0)
+                 | PackageIdentifier name version <- cPkgs
+                 , let major:minor:_ = versionNumbers version
+#else
                  | PackageIdentifier name (Version (major:minor:_) _) <- cPkgs
+#endif
                  , let name' = filter isAlpha (display name)
                  , tag <- name'
                         :[ name' ++ "-" ++ show maj ++ "." ++ show d2
