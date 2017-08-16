@@ -372,7 +372,7 @@ Library
         x-Signals-Import: Graphics.UI.Gtk.General.Threading
         include-dirs:   .
         cpp-options: -DDISABLE_DEPRECATED -U__BLOCKS__
-        if os(darwin)
+        if os(darwin) || os(freebsd)
           cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
         if os(windows)
           cpp-options:    -DWIN32 -fno-exceptions
