@@ -191,6 +191,7 @@ else		{ CTokElse	_ }
 enum		{ CTokEnum	_ }
 extern		{ CTokExtern	_ }
 float		{ CTokFloat	_ }
+"__float128"   { CTokFloat128  _ }
 for		{ CTokFor	_ }
 goto		{ CTokGoto	_ }
 if		{ CTokIf	_ }
@@ -656,6 +657,7 @@ basic_type_name
   | int				{% withAttrs $1 $ CIntType }
   | long			{% withAttrs $1 $ CLongType }
   | float			{% withAttrs $1 $ CFloatType }
+  | "__float128"    {% withAttrs $1 $ CFloat128Type }
   | double			{% withAttrs $1 $ CDoubleType }
   | signed			{% withAttrs $1 $ CSignedType }
   | unsigned			{% withAttrs $1 $ CUnsigType }

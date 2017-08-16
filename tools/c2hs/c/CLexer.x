@@ -111,7 +111,7 @@ $visible  = \ -\127
 @fractpart = @digits
 @mantpart  = @intpart?\.@fractpart|@intpart\.
 @exppart   = [eE][\+\-]?@digits
-@suffix    = [fFlL]
+@suffix    = [fFlLqQwW]
 
 
 tokens :-
@@ -259,6 +259,7 @@ idkwtok ('d':'o':'u':'b':'l':'e':[])			     = tok CTokDouble
 idkwtok ('e':'l':'s':'e':[])				     = tok CTokElse
 idkwtok ('e':'n':'u':'m':[])				     = tok CTokEnum
 idkwtok ('e':'x':'t':'e':'r':'n':[])			     = tok CTokExtern
+idkwtok ('_':'_':'f':'l':'o':'a':'t':'1':'2':'8':[])           = tok CTokFloat128
 idkwtok ('f':'l':'o':'a':'t':[])			     = tok CTokFloat
 idkwtok ('f':'o':'r':[])				     = tok CTokFor
 idkwtok ('g':'o':'t':'o':[])				     = tok CTokGoto
