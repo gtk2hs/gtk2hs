@@ -42,7 +42,8 @@ module Graphics.UI.Gtk.Embedding.Types (
 
 #if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr)
-#if __GLASGOW_HASKELL__ >= 707
+-- TODO work around cpphs https://ghc.haskell.org/trac/ghc/ticket/13553
+#if __GLASGOW_HASKELL__ >= 707 || __GLASGOW_HASKELL__ == 0
 import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
 #else
 import Foreign.ForeignPtr (unsafeForeignPtrToPtr)
