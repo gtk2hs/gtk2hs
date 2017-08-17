@@ -26,6 +26,7 @@ import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                libModules, hasLibs)
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDir, localPkgDescr, installedPkgs, withPrograms),
                                            InstallDirs(..),
+                                           ComponentLocalBuildInfo,
                                            componentPackageDeps,
                                            absoluteInstallDirs,
                                            relocatable,
@@ -36,6 +37,12 @@ import Distribution.Simple.Program (
   rawSystemProgramConf, rawSystemProgramStdoutConf, programName, programPath,
   c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
+#if MIN_VERSION_Cabal(2,0,0)
+import Distribution.Simple.Program.HcPkg ( defaultRegisterOptions )
+import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
+import Distribution.Types.PkgconfigName
+import qualified Distribution.Types.LocalBuildInfo as LBI (componentsConfigs)  -- TODO will be removed in Cabal 2.2
+#endif
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
 import Distribution.Simple.Utils
 import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
@@ -185,8 +192,12 @@ register pkg@PackageDescription { library       = Just lib  } lbi regFlags
        | modeGenerateRegScript -> die "Generate Reg Script not supported"
        | otherwise             -> do
            setupMessage verbosity "Registering" (packageId pkg)
-           registerPackage verbosity (compiler lbi) (withPrograms lbi) False
-                           packageDbs installedPkgInfo
+           registerPackage verbosity (compiler lbi) (withPrograms lbi)
+#if MIN_VERSION_Cabal(2,0,0)
+             packageDbs installedPkgInfo defaultRegisterOptions
+#else
+             False packageDbs installedPkgInfo
+#endif
 
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
@@ -224,8 +235,13 @@ adjustLocalBuildInfo lbi =
 -- Processing .chs files with our local c2hs.
 ------------------------------------------------------------------------------
 
+#if MIN_VERSION_Cabal(2,0,0)
+ourC2hs :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
+ourC2hs bi lbi _ = PreProcessor {
+#else
 ourC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ourC2hs bi lbi = PreProcessor {
+#endif
   platformIndependent = False,
   runPreProcessor = runC2HS bi lbi
 }
@@ -265,15 +281,6 @@ getCppOptions bi lbi
     = nub $
       ["-I" ++ dir | dir <- PD.includeDirs bi]
    ++ [opt | opt@('-':c:_) <- PD.cppOptions bi ++ PD.ccOptions bi, c `elem` "DIU"]
-   ++ ["-D__GLASGOW_HASKELL__="++show (ghcDefine . ghcVersion . compilerId $ LBI.compiler lbi)]
- where
-  ghcDefine (v1:v2:_) = v1 * 100 + v2
-  ghcDefine _ = __GLASGOW_HASKELL__
-
-  ghcVersion :: CompilerId -> [Int]
-  ghcVersion (CompilerId GHCJS v) = drop 3 $ versionBranch v
-  ghcVersion (CompilerId GHC v) = versionBranch v
-  ghcVersion _ = error "Not GHC"
 
 installCHI :: PackageDescription -- ^information from the .cabal file
         -> LocalBuildInfo -- ^information from the configure step
@@ -344,6 +351,7 @@ genSynthezisedFiles verb pd lbi = do
       info verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
       genFile hookGen signalsOpts f
 
+#if __GLASGOW_HASKELL__ < 800
   writeFile "gtk2hs_macros.h" $ generateMacros cPkgs
 
 -- Based on Cabal/Distribution/Simple/Build/Macros.hs
@@ -366,6 +374,7 @@ generateMacros cPkgs = concat $
   where fixchar '-' = '_'
         fixchar '.' = '_'
         fixchar c   = c
+#endif
 
 --FIXME: Cabal should tell us the selected pkg-config package versions in the
 --       LocalBuildInfo or equivalent.
@@ -377,8 +386,14 @@ getPkgConfigPackages verbosity lbi pkg =
     [ do version <- pkgconfig ["--modversion", display pkgname]
          case simpleParse version of
            Nothing -> die "parsing output of pkg-config --modversion failed"
+#if MIN_VERSION_Cabal(2,0,0)
+           Just v  -> return (PackageIdentifier (mkPackageName $ unPkgconfigName pkgname) v)
+    | PkgconfigDependency pkgname _
+#else
            Just v  -> return (PackageIdentifier pkgname v)
-    | Dependency pkgname _ <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
+    | Dependency pkgname _
+#endif
+    <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
     pkgconfig = rawSystemProgramStdoutConf verbosity
                   pkgConfigProgram (withPrograms lbi)
@@ -491,5 +506,10 @@ signalGenProgram = simpleProgram "gtk2hsHookGenerator"
 -- We are not going to use this, so reporting the version we will use
 c2hsLocal :: Program
 c2hsLocal = (simpleProgram "gtk2hsC2hs") {
-    programFindVersion = \_ _ -> return . Just $ Version [0,13,13] []
+    programFindVersion = \_ _ -> return . Just $
+#if MIN_VERSION_Cabal(2,0,0)
+      mkVersion [0,13,13]
+#else
+      Version [0,13,13] []
+#endif
   }

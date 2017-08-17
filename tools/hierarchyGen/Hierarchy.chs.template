@@ -39,11 +39,13 @@ module @MODULE_NAME@ (
   ) where
 
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr)
-#if __GLASGOW_HASKELL__ >= 707
+-- TODO work around cpphs https://ghc.haskell.org/trac/ghc/ticket/13553
+#if __GLASGOW_HASKELL__ >= 707 || __GLASGOW_HASKELL__ == 0
 import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
 #else
 import Foreign.ForeignPtr (unsafeForeignPtrToPtr)
 #endif
+
 import Foreign.C.Types    (CULong(..), CUInt(..), CULLong(..))
 import System.Glib.GType  (GType, typeInstanceIsA)
 @MODULE_IMPORTS@
