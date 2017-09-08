@@ -52,11 +52,11 @@ module Graphics.UI.Gtk.Cairo (
   -- * Functions for the 'Render' monad.
 #if GTK_MAJOR_VERSION < 3
   renderWithDrawable,
-  region,
 #else
   getClipRectangle,
   renderWithDrawWindow,
 #endif
+  region,
   setSourceColor,
   setSourcePixbuf,
   rectangle,
