@@ -290,7 +290,7 @@ newContextMarshal action =
 --   waiting for a source to become ready, then dispatching the
 --   highest priority events sources that are ready. Note that even
 --   when @mayBlock@ is 'True', it is still possible for
---   'mainContextIteration' to return FALSE, since the the wait
+--   'mainContextIteration' to return 'False', since the the wait
 --   may be interrupted for other reasons than an event source
 --   becoming ready.
 mainContextIteration :: MainContext
