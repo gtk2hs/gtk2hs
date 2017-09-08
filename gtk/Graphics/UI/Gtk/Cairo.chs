@@ -171,16 +171,12 @@ rectangle rect = Render $ do
       cr
       (castPtr rectPtr)
 
-#if GTK_MAJOR_VERSION < 3
 -- | Adds the given region to the current path of the 'Render' context.
---
--- Removed in Gtk3.
 region :: Region -> Render ()
 region region = Render $ do
   cr <- ask
   liftIO $ {# call unsafe gdk_cairo_region #}
     cr
     region
-#endif
 
 #endif
