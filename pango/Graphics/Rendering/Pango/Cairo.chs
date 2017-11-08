@@ -24,7 +24,7 @@
 -- Portability : portable (depends on GHC)
 --
 --
--- Pango specific functions to for redering with Cairo.
+-- Pango specific functions for redering with Cairo.
 --
 -- Cairo is a graphics library that supports vector graphics and image
 -- compositing that can be used with Pango. The functions in this module provide
