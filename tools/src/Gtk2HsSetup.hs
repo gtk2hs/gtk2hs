@@ -78,6 +78,11 @@ import HookGenerator (hookGen)
 import TypeGen (typeGen)
 import UNames (unsafeResetRootNameSupply)
 
+#if !MIN_VERSION_Cabal(2,0,0)
+versionNumbers :: Version -> [Int]
+versionNumbers = versionBranch
+#endif
+
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
   [clbi] -> Just clbi
@@ -351,7 +356,6 @@ genSynthezisedFiles verb pd lbi = do
       info verb ("Ensuring that callback hooks in "++f++" are up-to-date.")
       genFile hookGen signalsOpts f
 
-#if __GLASGOW_HASKELL__ < 800
   writeFile "gtk2hs_macros.h" $ generateMacros cPkgs
 
 -- Based on Cabal/Distribution/Simple/Build/Macros.hs
@@ -368,13 +372,12 @@ generateMacros cPkgs = concat $
     ,"\n\n"
     ]
   | pkgid@(PackageIdentifier name version) <- cPkgs
-  , let (major1:major2:minor:_) = map show (versionBranch version ++ repeat 0)
+  , let (major1:major2:minor:_) = map show (versionNumbers version ++ repeat 0)
         pkgname = map fixchar (display name)
   ]
   where fixchar '-' = '_'
         fixchar '.' = '_'
         fixchar c   = c
-#endif
 
 --FIXME: Cabal should tell us the selected pkg-config package versions in the
 --       LocalBuildInfo or equivalent.
