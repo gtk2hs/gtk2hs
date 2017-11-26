@@ -333,7 +333,9 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
                          ,getNumElements
 #endif
                        )
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
 import Graphics.Rendering.Cairo.Internal (imageSurfaceCreateFromPNG)
+#endif
 
 import Graphics.Rendering.Cairo.Types
 import Graphics.Rendering.Cairo.Internal.Utilities (CairoString(..))
