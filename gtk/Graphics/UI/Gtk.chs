@@ -276,6 +276,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.Tooltips,
 #endif
   module Graphics.UI.Gtk.Misc.Viewport,
+#if GTK_MAJOR_VERSION >= 3
+  module Graphics.UI.Gtk.Misc.Switch,
+#endif
   -- * Abstract base classes
   module Graphics.UI.Gtk.Abstract.Box,
   module Graphics.UI.Gtk.Abstract.ButtonBox,
@@ -549,6 +552,9 @@ import Graphics.UI.Gtk.Misc.Tooltip
 import Graphics.UI.Gtk.Misc.Tooltips
 #endif
 import Graphics.UI.Gtk.Misc.Viewport
+#if GTK_MAJOR_VERSION >= 3
+import Graphics.UI.Gtk.Misc.Switch
+#endif
 --import Accessible
 -- abstract base classes
 import Graphics.UI.Gtk.Abstract.Box
