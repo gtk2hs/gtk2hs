@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --  C->Haskell Compiler: pretty printing of C abstract syntax
 --
 --  Author : Manuel M T Chakravarty
@@ -34,6 +35,9 @@ module CPretty (
   -- we are just providing instances to the class `Pretty'
 ) where
 
+#if MIN_VERSION_base(4,11,0)
+import Prelude hiding ((<>))
+#endif
 import Idents (Ident, identToLexeme)
 import Text.PrettyPrint.HughesPJ
 
