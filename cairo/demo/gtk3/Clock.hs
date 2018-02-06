@@ -17,7 +17,7 @@
 import Graphics.Rendering.Cairo
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Gdk.EventM
-import System.Time
+import Data.Time
 import Control.Monad (when)
 import Data.Maybe (isJust)
 import Data.IORef
@@ -62,12 +62,10 @@ drawClockHands canvas quality = do
   setLineCap LineCapRound
   setLineJoin LineJoinRound
 
-  time <- liftIO (getClockTime >>= toCalendarTime)
-  let hours   = fromIntegral (if ctHour time >= 12
-                                then ctHour time - 12
-                                else ctHour time)
-      minutes = fromIntegral (ctMin time)
-      seconds = fromIntegral (ctSec time)
+  time <- liftIO (localTimeOfDay . zonedTimeToLocalTime <$> getZonedTime)
+  let hours   = fromIntegral (todHour time `mod` 12)
+      minutes = fromIntegral (todMin time)
+      seconds = realToFrac (todSec time)
 
   drawHourHand quality hours minutes seconds
   drawMinuteHand quality minutes seconds
