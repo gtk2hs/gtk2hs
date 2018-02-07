@@ -342,11 +342,7 @@ genSynthezisedFiles verb pd lbi = do
       genFile :: ([String] -> IO String) -> [ProgArg] -> FilePath -> IO ()
       genFile prog args outFile = do
          res <- prog args
-#if MIN_VERSION_Cabal(2,1,0)
-         rewriteFile silent outFile res
-#else
          rewriteFile outFile res
-#endif
 
   forM_ (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
     \(fileTag, f) -> do
