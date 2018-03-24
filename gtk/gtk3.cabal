@@ -341,6 +341,7 @@ Library
           Graphics.UI.Gtk.Windows.OffscreenWindow
           Graphics.UI.Gtk.Windows.WindowGroup
           Graphics.UI.Gtk.General.Enums
+          Graphics.UI.Gtk.Types
         other-modules:
           Graphics.UI.Gtk.Gdk.Enums
           Graphics.UI.Gtk.Gdk.PixbufData
@@ -351,7 +352,6 @@ Library
           Graphics.UI.Gtk.Abstract.ContainerChildProperties
           Graphics.UI.Gtk.General.DNDTypes
           Graphics.UI.Gtk.General.Threading
-          Graphics.UI.Gtk.Types
           Graphics.UI.Gtk.Signals
 
         default-language:   Haskell98
