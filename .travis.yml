@@ -34,7 +34,6 @@ install:
   - cabal --version
   - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
   - cabal update
-  - printf 'repository hackage.haskell.org\nurl: http://hackage.haskell.org/' >> $HOME/.cabal/config
   - cabal install Cabal
   - cabal install haddock
   - haddock -V
