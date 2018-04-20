@@ -19,11 +19,11 @@ matrix:
     - env: CABALVER=1.24 GHCVER=8.0.1
       addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,happy-1.19.5,alex-3.1.4,libgtk2.0-dev,libgtk-3-dev], sources: [hvr-ghc]}}
     - env: CABALVER=2.0 GHCVER=8.2.2
-      addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2,happy-1.19.5,alex-3.2.4,libgtk2.0-dev,libgtk-3-dev], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.2,happy-1.19.9,alex-3.2.4,libgtk2.0-dev,libgtk-3-dev], sources: [hvr-ghc]}}
     - env: CABALVER=2.2 GHCVER=8.4.1
-      addons: {apt: {packages: [cabal-install-2.2,ghc-8.4.1,happy-1.19.5,alex-3.2.4,libgtk2.0-dev,libgtk-3-dev], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-2.2,ghc-8.4.1,happy-1.19.9,alex-3.2.4,libgtk2.0-dev,libgtk-3-dev], sources: [hvr-ghc]}}
     - env: CABALVER=head GHCVER=head
-      addons: {apt: {packages: [cabal-install-head,ghc-head,happy-1.19.5,alex-3.1.4,libgtk2.0-dev,libgtk-3-dev],  sources: [hvr-ghc]}}
+      addons: {apt: {packages: [cabal-install-head,ghc-head,happy-1.19.9,alex-3.2.4,libgtk2.0-dev,libgtk-3-dev],  sources: [hvr-ghc]}}
   allow_failures:
     - env: CABALVER=head GHCVER=head
 
