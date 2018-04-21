@@ -318,12 +318,12 @@ treeViewGetModel self =
 -- | Set the 'TreeModel' for the current View.
 --
 treeViewSetModel :: (TreeViewClass self, TreeModelClass model) => self
- -> model
+ -> Maybe model
  -> IO ()
 treeViewSetModel self model =
   {# call tree_view_set_model #}
     (toTreeView self)
-    (toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
 -- | Retrieve a 'TreeSelection' that
 -- holds the current selected nodes of the View.
@@ -1631,7 +1631,7 @@ treeViewGetTooltipContext self Nothing =
 
 -- | The model for the tree view.
 --
-treeViewModel :: (TreeViewClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) model
+treeViewModel :: TreeViewClass self => Attr self (Maybe TreeModel)
 treeViewModel = newAttr
   treeViewGetModel
   treeViewSetModel
