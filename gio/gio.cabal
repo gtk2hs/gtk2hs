@@ -19,7 +19,7 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
 Category:       System
 Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
 Extra-Source-Files: marshal.list
-					hierarchy.list
+                    hierarchy.list
 
 x-Types-File:      System/GIO/Types.chs
 x-Types-ModName:   System.GIO.Types
@@ -40,7 +40,7 @@ Source-Repository head
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 2.1,
+                 Cabal >= 1.24 && < 2.3,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library

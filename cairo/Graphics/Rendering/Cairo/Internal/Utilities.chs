@@ -16,7 +16,7 @@ module Graphics.Rendering.Cairo.Internal.Utilities where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
-import Foreign
+import Foreign hiding (unsafePerformIO)
 import Foreign.C
 -- TODO work around cpphs https://ghc.haskell.org/trac/ghc/ticket/13553
 #if __GLASGOW_HASKELL__ >= 707 || __GLASGOW_HASKELL__ == 0
