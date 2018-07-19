@@ -39,7 +39,7 @@ module Graphics.Rendering.Cairo.Types (
   , HintStyle(..)
   , HintMetrics(..)
   , FontOptions(..), withFontOptions, mkFontOptions
-  , Path(..), unPath
+  , Path, PathElement(..)
 #if CAIRO_CHECK_VERSION(1,10,0)
   , RectangleInt(..)
   , RegionOverlap(..)
@@ -323,14 +323,11 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 --
 -- http://cairographics.org/manual/bindings-path.html
 --
--- {#enum path_data_type_t as PathDataType {underscoreToCase}#}
---
--- type Point = (Double, Double)
--- data PathData = PathMoveTo Point
---               | PathLineTo Point
---               | PathCurveTo Point Point Point
---               | PathClose
-
+data PathElement = MoveTo Double Double
+                 | LineTo Double Double
+                 | CurveTo Double Double Double Double Double Double
+                 | ClosePath
+   deriving (Eq, Read, Show)
 -- | A Cairo path.
 --
 -- * A path is a sequence of drawing operations that are accumulated until
@@ -338,8 +335,8 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 --   useful when drawing lines with special join styles and
 --   'Graphics.Rendering.Cairo.closePath'.
 --
-{#pointer *path_t as Path newtype#}
-unPath (Path x) = x
+type Path = [PathElement]
+
 
 #if CAIRO_CHECK_VERSION(1,10,0)
 

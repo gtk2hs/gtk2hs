@@ -1,6 +1,7 @@
 
-PROGS  = drawing drawing2 starandring text clock graph sdldrawing
-SOURCES = Drawing.hs Drawing2.hs StarAndRing.hs Text.hs Clock.hs Graph.hs CairoSDL.hs
+PROGS  = drawing drawing2 starandring text clock graph sdldrawing paths
+SOURCES = Drawing.hs Drawing2.hs StarAndRing.hs Text.hs Clock.hs Graph.hs CairoSDL.hs Paths.hs
+OUTPUT = paths.png
 
 all : $(PROGS)
 
@@ -25,9 +26,12 @@ graph : Graph.hs
 sdldrawing : CairoSDL.hs
 	$(HC_RULE)
 
+paths : Paths.hs
+	$(HC_RULE)
+
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
 
 clean:
-	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS) $(OUTPUT)
 
 HC=ghc
