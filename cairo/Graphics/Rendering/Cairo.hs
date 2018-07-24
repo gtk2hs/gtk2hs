@@ -127,6 +127,9 @@ module Graphics.Rendering.Cairo (
   , relCurveTo
   , relLineTo
   , relMoveTo
+  , copyPath
+  , copyPathFlat
+  , appendPath
 
   -- ** Patterns
   , withRGBPattern
@@ -300,6 +303,7 @@ module Graphics.Rendering.Cairo (
   , HintMetrics(..)
   , FontOptions
   , Path
+  , PathElement(..)
 #if CAIRO_CHECK_VERSION(1,10,0)
   , RectangleInt(..)
   , RegionOverlap(..)
@@ -996,6 +1000,29 @@ relMoveTo ::
   -> Double -- ^ @dy@ - the Y offset
   -> Render ()
 relMoveTo = liftRender2 Internal.relMoveTo
+
+
+-- | Creates a copy of the current path and returns it to the user.
+copyPath :: Render Path
+copyPath = liftRender0 Internal.copyPath
+
+
+-- | Gets a flattened copy of the current path and returns it to the user.
+--
+-- This function is like copyPath except that any curves in the path will be
+-- approximated with piecewise-linear approximations, accurate to within the current tolerance value.
+-- That is, any path elements created by curveTo or relCurveTo will be replaced by a series of lineTo elements.
+copyPathFlat :: Render Path
+copyPathFlat = liftRender0 Internal.copyPathFlat
+
+
+-- | Append the path onto the current path.
+--
+-- The path may be either the return value from copyPath or copyPathFlat or it may be constructed manually.
+appendPath :: Path      -- ^ the path to append
+           -> Render ()
+appendPath = liftRender1 Internal.appendPath
+
 
 
 -- | Creates a new 'Pattern' corresponding to an opaque color. The color
