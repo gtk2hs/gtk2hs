@@ -304,6 +304,8 @@ module Graphics.Rendering.Cairo (
   , FontOptions
   , Path
   , PathElement(..)
+  , SurfaceType(..)
+  , PatternType(..)
 #if CAIRO_CHECK_VERSION(1,10,0)
   , RectangleInt(..)
   , RegionOverlap(..)
@@ -314,6 +316,9 @@ module Graphics.Rendering.Cairo (
   , Extend(..)
   , Filter(..)
 
+#if CAIRO_CHECK_VERSION(1,12,0)
+-- mesh patterns
+#endif
   ) where
 
 import Control.Monad (unless, when)
@@ -1044,7 +1049,8 @@ withRGBPattern ::
 withRGBPattern r g b f =
   bracketR (Internal.patternCreateRGB r g b)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+                             -- omitted because patternCreateRGB now returns a foreign ptr with patternDestroy as a finalizer
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
@@ -1069,7 +1075,7 @@ withRGBAPattern ::
 withRGBAPattern r g b a f =
   bracketR (Internal.patternCreateRGBA r g b a)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
@@ -1083,7 +1089,7 @@ withPatternForSurface ::
 withPatternForSurface surface f =
   bracketR (Internal.patternCreateForSurface surface)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
@@ -1098,7 +1104,7 @@ withGroupPattern f = do
   context <- ask
   bracketR (Internal.popGroup context)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            f
@@ -1121,14 +1127,14 @@ withLinearPattern ::
 withLinearPattern x0 y0 x1 y1 f =
   bracketR (Internal.patternCreateLinear x0 y0 x1 y1)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
 
 -- | Creates a new radial gradient 'Pattern' between the two circles defined by
--- @(x0, y0, c0)@ and @(x1, y1, c0)@. Before using the gradient pattern, a
--- number of color stops should be defined using 'patternAddColorStopRGB'
+-- @(x0, y0, radius0)@ and @(x1, y1, radius0)@. Before using the gradient pattern,
+-- a number of color stops should be defined using 'patternAddColorStopRGB'
 -- or 'patternAddColorStopRGBA'.
 --
 -- * Note: The coordinates here are in pattern space. For a new pattern,
@@ -1147,7 +1153,7 @@ withRadialPattern ::
 withRadialPattern cx0 cy0 radius0 cx1 cy1 radius1 f =
   bracketR (Internal.patternCreateRadial cx0 cy0 radius0 cx1 cy1 radius1)
            (\pattern -> do status <- Internal.patternStatus pattern
-                           liftIO $ Internal.patternDestroy pattern
+--                           liftIO $ Internal.patternDestroy pattern
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
@@ -1231,7 +1237,7 @@ patternGetMatrix p = liftIO $ Internal.patternGetMatrix p
 patternSetExtend ::
      MonadIO m =>
      Pattern -- ^ a 'Pattern'
-  -> Extend  -- ^ an 'Extent'
+  -> Extend  -- ^ an 'Extend' enum
   -> m ()
 patternSetExtend p e = liftIO $ Internal.patternSetExtend p e
 
@@ -1248,7 +1254,7 @@ patternGetExtend p = liftIO $ Internal.patternGetExtend p
 patternSetFilter ::
      MonadIO m =>
      Pattern -- ^ a 'Pattern'
-  -> Filter  -- ^ a 'Filter'
+  -> Filter  -- ^ a 'Filter' type
   -> m ()
 patternSetFilter p f = liftIO $ Internal.patternSetFilter p f
 
@@ -1259,6 +1265,208 @@ patternGetFilter ::
      Pattern -- ^ a 'Pattern'
   -> m Filter
 patternGetFilter p = liftIO $ Internal.patternGetFilter p
+
+
+
+#if CAIRO_CHECK_VERSION(1,12,0)
+
+-- | Create a new mesh pattern.
+--
+-- Mesh patterns are tensor-product patch meshes (type 7 shadings in PDF).
+-- Mesh patterns may also be used to create other types of shadings that are special cases
+-- of tensor-product patch meshes such as Coons patch meshes (type 6 shading in PDF) and
+-- Gouraud-shaded triangle meshes (type 4 and 5 shadings in PDF).
+--
+-- Refer to <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-pattern-create-mesh>
+-- for a more detailed explanation of their usage, as this library merely provides a wrapper
+-- around the underlying C API.
+--
+patternCreateMesh ::
+      MonadIO m =>
+      m Pattern
+patternCreateMesh = liftIO$ Internal.patternCreateMesh
+
+
+-- | A convenience method that adds a patch to the mesh pattern in a single call.
+--
+-- It translates the provided path into calls to meshPatternMoveTo, meshPatternLineTo, and
+-- meshPatternCurveTo, as appropriate.  The control points are set using meshPatternSetControlPoint
+-- and the corner colors are set using meshPatternSetCornerColorRGB.
+-- The above operations are wrapped in calls to 
+-- At most the first 4 elements of the provided list will be used.
+meshPatternAddPatchRGB ::
+      MonadIO m =>
+      Pattern                    -- ^ the 'Pattern' to modify
+   -> [PathElement]              -- ^ a list of 'PathElement' data
+   -> [(Double,Double)]          -- ^ a list of control points as @(x,y)@ pairs
+   -> [(Double,Double,Double)]   -- ^ a list of corner colors, each of the form @(r,g,b)@
+   -> m Status
+meshPatternAddPatchRGB pat path cps colors = liftIO$ Internal.meshPatternAddPatchRGB pat path cps colors
+
+
+-- | as 'meshPatternAddPatchRGB', but the colors contain an alpha channel.
+--
+-- The corner colors are set using meshPatternSetCornerColorRGBA.
+meshPatternAddPatchRGBA ::
+      MonadIO m =>
+      Pattern                          -- ^ the 'Pattern' to modify
+   -> [PathElement]                    -- ^ a list of 'PathElement' data
+   -> [(Double,Double)]                -- ^ a list of control points as @(x,y)@ pairs
+   -> [(Double,Double,Double,Double)]  -- ^ a list of corner colors, each of the form @(r,g,b,a)@
+   -> m Status
+meshPatternAddPatchRGBA pat path cps colors = liftIO$ Internal.meshPatternAddPatchRGBA pat path cps colors
+
+
+-- | Begin a patch in a mesh pattern.
+--
+-- Safer, more convenient methods 'meshPatternAddPatchRGB' and 'meshPatternAddPatchRGBA' are provided
+-- to avoid the begin/end idiom of the procedural language.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-begin-patch>
+meshPatternBeginPatch ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> m ()
+meshPatternBeginPatch p = liftIO$ Internal.meshPatternBeginPatch p
+
+-- | Indicates the end of the current patch in a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-end-patch>
+meshPatternEndPatch ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> m ()
+meshPatternEndPatch p = liftIO$ Internal.meshPatternEndPatch p
+
+
+-- | Define the first point of the current patch in a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-move-to>
+meshPatternMoveTo ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> Double   -- ^ the @x@ coordinate of the point
+   -> Double   -- ^ the @y@ coordinate of the point
+   -> m ()
+meshPatternMoveTo p x y = liftIO$ Internal.meshPatternMoveTo p x y
+
+
+-- | Adds a line to the current patch from the current point to position @(x,y)@ in pattern-space coordinates.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-line-to>
+meshPatternLineTo ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> Double   -- ^ the @x@ coordinate of the endpoint
+   -> Double   -- ^ the @y@ coordinate of the endpoint
+   -> m ()
+meshPatternLineTo p x y = liftIO$ Internal.meshPatternLineTo p x y
+
+
+-- | Adds a cubic Bézier spline to the current patch from the current point to position @(x3,y3)@
+-- in pattern-space coordinates, using @(x1,y1)@ and @(x2,y2)@ as the control points.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-curve-to>
+meshPatternCurveTo ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> Double   -- ^ @x1@
+   -> Double   -- ^ @y1@
+   -> Double   -- ^ @x2@
+   -> Double   -- ^ @y2@
+   -> Double   -- ^ @x3@
+   -> Double   -- ^ @y3@
+   -> m ()
+meshPatternCurveTo p x1 y1 x2 y2 x3 y3 = liftIO$ Internal.meshPatternCurveTo p x1 y1 x2 y2 x3 y3
+
+
+-- | Set an internal control point of the current mesh patch.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-set-control-point>
+meshPatternSetControlPoint ::
+      MonadIO m =>
+      Pattern     -- ^ the 'Pattern' to modify
+   -> Int         -- ^ the number of the control point to modify, from 0 to 3
+   -> Double      -- ^ the @x@ coordinate of the control point
+   -> Double      -- ^ the @y@ coordinate of the control point
+   -> m ()
+meshPatternSetControlPoint p n x y = liftIO$ Internal.meshPatternSetControlPoint p n x y
+
+
+-- | Sets the color of a corner of the current patch in a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-set-corner-color-rgb>
+meshPatternSetCornerColorRGB ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> Int      -- ^ the number of the corner to modify, from 0 to 3
+   -> Double   -- ^ the @r@ component of a color
+   -> Double   -- ^ the @g@ component of a color
+   -> Double   -- ^ the @b@ component of a color
+   -> m ()
+meshPatternSetCornerColorRGB p n  r g b = liftIO$ Internal.meshPatternSetCornerColorRGB p n r g b
+
+
+-- | Sets the color of a corner of the current patch in a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-set-corner-color-rgba>
+meshPatternSetCornerColorRGBA ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to modify
+   -> Int      -- ^ the number of the corner to modify, from 0 to 3
+   -> Double   -- ^ the @r@ component of a color
+   -> Double   -- ^ the @g@ component of a color
+   -> Double   -- ^ the @b@ component of a color
+   -> Double   -- ^ the @a@ component of a color
+   -> m ()
+meshPatternSetCornerColorRGBA p n r g b a = liftIO$ Internal.meshPatternSetCornerColorRGBA p n r g b a
+
+
+-- | Gets the number of patches specified in the given mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-get-patch-count>
+meshPatternGetPatchCount ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to query
+   -> m (Status, Int)
+meshPatternGetPatchCount p = liftIO$ Internal.meshPatternGetPatchCount p
+
+-- | Gets path defining a spedified patch from a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-get-path>
+meshPatternGetPath ::
+      MonadIO m =>
+      Pattern  -- ^ the 'Pattern' to query
+   -> Int      -- ^ the zero-indexed patch number
+   -> m Path
+meshPatternGetPath p n = liftIO$ Internal.meshPatternGetPath p n
+
+-- | Gets the control point @point_num@ of patch @patch_num@ from a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-get-control-point>
+meshPatternGetControlPoint ::
+      MonadIO m =>
+      Pattern     -- ^ the 'Pattern' to query
+   -> Int         -- ^ @point_num@
+   -> Int         -- ^ @patch_num@
+   -> m (Status, Double, Double)
+meshPatternGetControlPoint p point_num patch_num = liftIO$ Internal.meshPatternGetControlPoint p point_num patch_num
+
+
+-- | Gets the color information in corner @corner_num@ of patch @patch_num@ from a mesh pattern.
+--
+-- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-get-corner-color-rgba>
+meshPatternGetCornerColorRGBA ::
+      MonadIO m =>
+      Pattern     -- ^ the 'Pattern' to query
+   -> Int         -- ^ @corner_num@
+   -> Int         -- ^ @patch_num@
+   -> m (Status, Double, Double, Double, Double)
+meshPatternGetCornerColorRGBA p corner_num patch_num = liftIO$ Internal.meshPatternGetCornerColorRGBA p corner_num patch_num
+
+#endif
+
+
 
 
 -- | Modifies the current transformation matrix (CTM) by translating the

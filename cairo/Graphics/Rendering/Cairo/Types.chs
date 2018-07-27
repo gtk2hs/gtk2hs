@@ -19,7 +19,7 @@ module Graphics.Rendering.Cairo.Types (
   , Matrix(Matrix), MatrixPtr
   , Cairo(Cairo), unCairo
   , Surface(Surface), withSurface, mkSurface, manageSurface
-  , Pattern(Pattern), unPattern
+  , Pattern(Pattern), withPattern, mkPattern, clonePattern
   , Status(..)
   , Operator(..)
   , Antialias(..)
@@ -49,6 +49,8 @@ module Graphics.Rendering.Cairo.Types (
   , Format(..)
   , Extend(..)
   , Filter(..)
+  , SurfaceType(..)
+  , PatternType(..)
 
   , cIntConv
   , cFloatConv
@@ -58,6 +60,7 @@ module Graphics.Rendering.Cairo.Types (
   , cFromEnum
   , peekFloatConv
   , withFloatConv
+  , peekIntConv
 
   ) where
 
@@ -92,13 +95,33 @@ manageSurface (Surface surfaceForeignPtr) = do
 foreign import ccall unsafe "&cairo_surface_destroy"
   surfaceDestroy :: FinalizerPtr Surface
 
+
+{#enum cairo_surface_type_t as SurfaceType {underscoreToCase} deriving(Eq,Read,Show) #}
+
 -- | Patterns can be simple solid colors, various kinds of gradients or
 -- bitmaps. The current pattern for a 'Render' context is used by the 'stroke',
 -- 'fill' and paint operations. These operations composite the current pattern
 -- with the target surface using the currently selected 'Operator'.
 --
-{#pointer *pattern_t as Pattern newtype#}
-unPattern (Pattern x) = x
+{#pointer *pattern_t as Pattern foreign newtype#}
+withPattern (Pattern x) = withForeignPtr x
+
+foreign import ccall unsafe "&cairo_pattern_destroy"
+  patternDestroy :: FinalizerPtr Pattern
+
+mkPattern :: Ptr Pattern -> IO Pattern
+mkPattern ptr = Pattern <$> newForeignPtr patternDestroy ptr
+
+clonePattern :: Ptr Pattern -> IO Pattern
+clonePattern ptr  =  patternReference ptr >>= mkPattern
+
+{#fun pattern_reference as patternReference { castPtr `Ptr Pattern' } -> `Ptr Pattern' castPtr #}
+
+
+
+
+{#enum cairo_pattern_type_t as PatternType {underscoreToCase} deriving(Eq,Read,Show) #}
+
 
 -- | Cairo status.
 --
@@ -388,11 +411,15 @@ foreign import ccall unsafe "&cairo_region_destroy"
 
 {#enum content_t as Content {underscoreToCase} deriving(Eq,Show)#}
 
-data Format = FormatARGB32
-            | FormatRGB24
-            | FormatA8
-            | FormatA1
-            deriving (Enum,Show,Eq)
+{#enum format_t as Format {CAIRO_FORMAT_ARGB32 as FormatARGB32,
+                           CAIRO_FORMAT_RGB24 as FormatRGB24,
+                           CAIRO_FORMAT_A8 as FormatA8,
+                           CAIRO_FORMAT_A1 as FormatA1,
+                           CAIRO_FORMAT_RGB16_565 as FormatRGB16565,
+                           CAIRO_FORMAT_RGB30 as FormatRGB30
+                          } deriving (Eq,Show)
+#}
+
 
 -- | FIXME: We should find out about this.
 {#enum extend_t as Extend {underscoreToCase} deriving(Eq,Show)#}
@@ -437,3 +464,7 @@ withFloatConv  = with . cFloatConv
 {-# INLINE withArrayFloatConv #-}
 withArrayFloatConv :: (Storable b, RealFloat a, RealFloat b) => [a] -> (Ptr b -> IO b1) -> IO b1
 withArrayFloatConv = withArray . map (cFloatConv)
+
+{-# INLINE peekIntConv #-}
+peekIntConv :: (Storable a, Integral a, Integral b) =>  Ptr a -> IO b
+peekIntConv  = liftM cIntConv . peek
