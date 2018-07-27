@@ -130,6 +130,7 @@ module Graphics.Rendering.Cairo (
   , copyPath
   , copyPathFlat
   , appendPath
+  , pathExtents
 
   -- ** Patterns
   , withRGBPattern
@@ -1028,6 +1029,10 @@ appendPath :: Path      -- ^ the path to append
            -> Render ()
 appendPath = liftRender1 Internal.appendPath
 
+
+
+pathExtents :: Render (Double,Double,Double,Double)
+pathExtents = liftRender0 Internal.pathExtents
 
 
 -- | Creates a new 'Pattern' corresponding to an opaque color. The color
