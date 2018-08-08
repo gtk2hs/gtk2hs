@@ -78,7 +78,7 @@ data SpanAttribute
 
   -- | Change the size of the current font.
   --
-  -- * The constuctor takes the size in points (pt) or a predefined
+  -- * The constructor takes the size in points (pt) or a predefined
   --   sizes. Setting the absolute size 12.5pt can be achieved by passing
   --   'FontSize' ('SizePoint' 12.5) to 'markSpan'. Next to predefined
   --   absolute sizes such as 'Pango.SizeSmall' the size can be changed by
