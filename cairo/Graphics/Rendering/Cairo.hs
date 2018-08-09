@@ -133,6 +133,10 @@ module Graphics.Rendering.Cairo (
   , pathExtents
 
   -- ** Patterns
+  , createRGBPattern
+  , createRGBAPattern
+  , createLinearPattern
+  , createRadialPattern
   , withRGBPattern
   , withRGBAPattern
   , withPatternForSurface
@@ -1035,6 +1039,60 @@ pathExtents :: Render (Double,Double,Double,Double)
 pathExtents = liftRender0 Internal.pathExtents
 
 
+
+
+-- | 
+--
+createRGBPattern ::
+      MonadIO m =>
+      Double      -- ^ @r@
+   -> Double      -- ^ @g@
+   -> Double      -- ^ @b@
+   -> m Pattern
+createRGBPattern r g b = liftIO$ Internal.patternCreateRGB r g b
+
+
+-- | 
+--
+createRGBAPattern ::
+      MonadIO m =>
+      Double      -- ^ @r@
+   -> Double      -- ^ @g@
+   -> Double      -- ^ @b@
+   -> Double      -- ^ @a@
+   -> m Pattern
+createRGBAPattern r g b a = liftIO$ Internal.patternCreateRGBA r g b a
+
+
+-- | 
+--
+createLinearPattern ::
+      MonadIO m =>
+      Double      -- ^ @x1@
+   -> Double      -- ^ @y1@
+   -> Double      -- ^ @x2@
+   -> Double      -- ^ @y2@
+   -> m Pattern
+createLinearPattern x1 y1 x2 y2 = liftIO$ Internal.patternCreateLinear x1 y1 x2 y2
+
+
+-- | 
+--
+createRadialPattern ::
+      MonadIO m =>
+      Double      -- ^ @x1@
+   -> Double      -- ^ @y1@
+   -> Double      -- ^ @r1@
+   -> Double      -- ^ @x2@
+   -> Double      -- ^ @y2@
+   -> Double      -- ^ @r2@
+   -> m Pattern
+createRadialPattern x1 y1 r1 x2 y2 r2 = liftIO$ Internal.patternCreateRadial x1 y1 r1 x2 y2 r2
+
+
+
+
+
 -- | Creates a new 'Pattern' corresponding to an opaque color. The color
 -- components are floating point numbers in the range 0 to 1. If the values
 -- passed in are outside that range, they will be clamped.
@@ -1286,10 +1344,10 @@ patternGetFilter p = liftIO $ Internal.patternGetFilter p
 -- for a more detailed explanation of their usage, as this library merely provides a wrapper
 -- around the underlying C API.
 --
-patternCreateMesh ::
+createMeshPattern ::
       MonadIO m =>
       m Pattern
-patternCreateMesh = liftIO$ Internal.patternCreateMesh
+createMeshPattern = liftIO$ Internal.patternCreateMesh
 
 
 -- | A convenience method that adds a patch to the mesh pattern in a single call.
