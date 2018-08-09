@@ -321,8 +321,23 @@ module Graphics.Rendering.Cairo (
   , Extend(..)
   , Filter(..)
 
+  -- mesh patterns
 #if CAIRO_CHECK_VERSION(1,12,0)
--- mesh patterns
+   , createMeshPattern
+   , meshPatternAddPatchRGB
+   , meshPatternAddPatchRGBA
+   , meshPatternBeginPatch
+   , meshPatternEndPatch
+   , meshPatternMoveTo
+   , meshPatternLineTo
+   , meshPatternCurveTo
+   , meshPatternSetControlPoint
+   , meshPatternSetCornerColorRGB
+   , meshPatternSetCornerColorRGBA
+   , meshPatternGetPatchCount
+   , meshPatternGetPath
+   , meshPatternGetControlPoint
+   , meshPatternGetCornerColorRGBA
 #endif
   ) where
 
@@ -1360,11 +1375,17 @@ createMeshPattern = liftIO$ Internal.patternCreateMesh
 meshPatternAddPatchRGB ::
       MonadIO m =>
       Pattern                    -- ^ the 'Pattern' to modify
-   -> [PathElement]              -- ^ a list of 'PathElement' data
+   -> Path                       -- ^ a path to use as the boundary of the mesh pattern
    -> [(Double,Double)]          -- ^ a list of control points as @(x,y)@ pairs
    -> [(Double,Double,Double)]   -- ^ a list of corner colors, each of the form @(r,g,b)@
    -> m Status
-meshPatternAddPatchRGB pat path cps colors = liftIO$ Internal.meshPatternAddPatchRGB pat path cps colors
+meshPatternAddPatchRGB pat elems controlPoints colors = do
+   meshPatternBeginPatch pat
+   mapM_ (liftIO . Internal.convertPathElement pat) (take 4 elems)
+   sequence_ $ zipWith (\(x,y) n -> meshPatternSetControlPoint pat n x y) (take 4 controlPoints) [0..3]
+   sequence_ $ zipWith (\(r,g,b) n -> meshPatternSetCornerColorRGB pat n r g b) (take 4 colors) [0..3]
+   meshPatternEndPatch pat
+   liftIO$ Internal.patternStatus pat
 
 
 -- | as 'meshPatternAddPatchRGB', but the colors contain an alpha channel.
@@ -1373,11 +1394,17 @@ meshPatternAddPatchRGB pat path cps colors = liftIO$ Internal.meshPatternAddPatc
 meshPatternAddPatchRGBA ::
       MonadIO m =>
       Pattern                          -- ^ the 'Pattern' to modify
-   -> [PathElement]                    -- ^ a list of 'PathElement' data
+   -> Path                             -- ^ a path to use as the boundary of the mesh pattern
    -> [(Double,Double)]                -- ^ a list of control points as @(x,y)@ pairs
    -> [(Double,Double,Double,Double)]  -- ^ a list of corner colors, each of the form @(r,g,b,a)@
    -> m Status
-meshPatternAddPatchRGBA pat path cps colors = liftIO$ Internal.meshPatternAddPatchRGBA pat path cps colors
+meshPatternAddPatchRGBA pat elems controlPoints colors = do
+   meshPatternBeginPatch pat
+   mapM_ (liftIO . Internal.convertPathElement pat) (take 4 elems)
+   sequence_ $ zipWith (\(x,y) n -> meshPatternSetControlPoint pat n x y) (take 4 controlPoints) [0..3]
+   sequence_ $ zipWith (\(r,g,b,a) n -> meshPatternSetCornerColorRGBA pat n r g b a) (take 4 colors) [0..3]
+   meshPatternEndPatch pat
+   liftIO$ Internal.patternStatus pat
 
 
 -- | Begin a patch in a mesh pattern.

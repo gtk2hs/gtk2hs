@@ -77,23 +77,5 @@ convertPathElement pat (LineTo x y)                = meshPatternLineTo  pat x y
 convertPathElement pat (CurveTo x1 y1 x2 y2 x3 y3) = meshPatternCurveTo pat x1 y1 x2 y2 x3 y3
 convertPathElement  _  ClosePath                   = return ()
 
-meshPatternAddPatchRGB :: Pattern -> [PathElement] -> [(Double,Double)] -> [(Double,Double,Double)] -> IO Status
-meshPatternAddPatchRGB pat elems controlPoints colors = do
-   meshPatternBeginPatch pat
-   mapM_ (convertPathElement pat) (take 4 elems)
-   sequence_ $ zipWith (\(x,y) n -> meshPatternSetControlPoint pat n x y) (take 4 controlPoints) [0..3]
-   sequence_ $ zipWith (\(r,g,b) n -> meshPatternSetCornerColorRGB pat n r g b) (take 4 colors) [0..3]
-   meshPatternEndPatch pat
-   patternStatus pat
-
-meshPatternAddPatchRGBA :: Pattern -> [PathElement] -> [(Double,Double)] -> [(Double,Double,Double,Double)] -> IO Status
-meshPatternAddPatchRGBA pat elems controlPoints colors = do
-   meshPatternBeginPatch pat
-   mapM_ (convertPathElement pat) (take 4 elems)
-   sequence_ $ zipWith (\(x,y) n -> meshPatternSetControlPoint pat n x y) (take 4 controlPoints) [0..3]
-   sequence_ $ zipWith (\(r,g,b,a) n -> meshPatternSetCornerColorRGBA pat n r g b a) (take 4 colors) [0..3]
-   meshPatternEndPatch pat
-   patternStatus pat
-
 #endif
 
