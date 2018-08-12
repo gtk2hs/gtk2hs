@@ -49,7 +49,7 @@ textPath c string =
 {#fun copy_path_flat    as copyPathFlatC   { unCairo `Cairo' } -> `CPath' CPath #}
 {#fun append_path       as appendPathC     { unCairo `Cairo', unPath `CPath' } -> `()' #}
 {#fun path_destroy      as pathDestroy     { unPath `CPath' } -> `()' #}
-
+{#fun path_extents      as pathExtents     { unCairo `Cairo', alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv* } -> `()' #}
 
 {#enum path_data_type_t as PathDataRecordType {underscoreToCase} deriving(Eq,Show)#}
 
