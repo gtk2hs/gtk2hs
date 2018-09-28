@@ -58,6 +58,7 @@ where
 
 import Control.Applicative (Applicative(..))
 import Control.Monad (liftM, ap)
+import Control.Monad.Fail (MonadFail (..))
 
 import Position   (Position)
 import UNames     (NameSupply)
@@ -110,6 +111,8 @@ instance Monad (PreCST e s) where
   (>>=)  = (+>=)
   (>>)   = (+>)
 
+instance MonadFail (PreCST e s) where
+  fail = error
 
 -- unwrapper coercion function (EXPORTED)
 --

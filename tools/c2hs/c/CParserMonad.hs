@@ -63,6 +63,7 @@ import Idents    (Ident, lexemeToIdent, identToLexeme)
 
 import Control.Applicative (Applicative(..))
 import Control.Monad (liftM, ap)
+import Control.Monad.Fail (MonadFail (..))
 import Data.Set  (Set)
 import qualified Data.Set as Set (fromList, insert, member, delete)
 
@@ -82,6 +83,9 @@ data PState = PState {
      }
 
 newtype P a = P { unP :: PState -> ParseResult a }
+
+instance MonadFail P where
+  fail m = getPos >>= \pos -> failP pos [m]
 
 instance Functor P where
   fmap = liftM
