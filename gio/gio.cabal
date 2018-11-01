@@ -40,7 +40,7 @@ Source-Repository head
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 2.3,
+                 Cabal >= 1.24 && < 2.5,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
