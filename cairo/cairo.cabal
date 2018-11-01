@@ -94,4 +94,4 @@ Library
         if flag(cairo_svg)
           pkgconfig-depends: cairo-svg
         if os(darwin) || os(freebsd)
-          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull=
+          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull= -D_Noreturn=
