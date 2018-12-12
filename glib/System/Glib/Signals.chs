@@ -107,9 +107,9 @@ type ConnectAfter = Bool
 
 type SignalName = String
 
--- | The type of signal handler ids. If you ever need to 'disconnect' a signal
--- handler then you will need to retain the 'ConnectId' you got when you
--- registered it.
+-- | The type of signal handler ids. If you ever need to use
+-- 'signalDisconnect' to disconnect a signal handler then you will
+-- need to retain the 'ConnectId' you got when you registered it.
 --
 data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 
