@@ -706,7 +706,7 @@ widgetDestroy self =
 -- or 'Graphics.Rendering.Cairo.setMatrix' and clip region with
 -- 'Graphics.Rendering.Cairo.clip' prior to calling this function. Also, it
 -- is fine to modify the context with 'Graphics.Rendering.Cairo.save' and
--- 'Graphics.Rendering.Cairo.pushGroup prior to calling this function.
+-- 'Graphics.Rendering.Cairo.pushGroup' prior to calling this function.
 --
 -- Note that special-purpose widgets may contain special code for rendering
 -- to the screen and might appear differently on screen and when rendered
