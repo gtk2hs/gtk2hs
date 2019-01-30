@@ -113,6 +113,7 @@ Library
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
                             BangPatterns
+                            NoMonadFailDesugaring
 
         if flag(ClosureSignals)
           cpp-options:   -DUSE_GCLOSURE_SIGNALS_IMPL
