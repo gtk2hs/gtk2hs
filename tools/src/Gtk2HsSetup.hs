@@ -65,6 +65,7 @@ import Data.Ord as Ord (comparing)
 import Data.Char (isAlpha, isNumber)
 import qualified Data.Map as M
 import qualified Data.Set as S
+import qualified Distribution.PackageDescription as PD
 import qualified Distribution.Simple.LocalBuildInfo as LBI
 import qualified Distribution.InstalledPackageInfo as IPI
        (installedUnitId)
@@ -84,7 +85,11 @@ versionNumbers = versionBranch
 #endif
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
+#if MIN_VERSION_Cabal(2,5,0)
+libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- LBI.componentsConfigs lbi] of
+#else
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
+#endif
   [clbi] -> Just clbi
   _ -> Nothing
 
@@ -176,7 +181,12 @@ register :: PackageDescription -> LocalBuildInfo
          -> IO ()
 register pkg@PackageDescription { library       = Just lib  } lbi regFlags
   = do
-    let clbi = LBI.getComponentLocalBuildInfo lbi LBI.CLibName
+    let clbi = LBI.getComponentLocalBuildInfo lbi
+#if MIN_VERSION_Cabal(2,5,0)
+                   (LBI.CLibName $ PD.libName lib)
+#else
+                    LBI.CLibName
+#endif
 
     absPackageDBs       <- absolutePackageDBPaths packageDbs
     installedPkgInfoRaw <- generateRegistrationInfo
