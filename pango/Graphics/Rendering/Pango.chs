@@ -37,7 +37,7 @@
 -- * Native fonts on MacOS X using ATSUI for complex-text handling.
 --
 -- The integration of Pango
--- with Cairo <http://cairographics.org/> provides a complete solution with
+-- with Cairo <https://cairographics.org> provides a complete solution with
 -- high quality text handling and graphics rendering.
 --
 -- Dynamically loaded modules then handle text layout for particular
