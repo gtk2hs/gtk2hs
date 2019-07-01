@@ -37,6 +37,7 @@
 --- TODO ----------------------------------------------------------------------
 --
 --
+{-# LANGUAGE CPP #-}
 
 module CParserMonad ( 
   P, 
@@ -97,6 +98,10 @@ instance Applicative P where
 instance Monad P where
   return = returnP
   (>>=) = thenP
+
+#if MIN_VERSION_base(4,13,0)
+instance MonadFail P where
+#endif
   fail m = getPos >>= \pos -> failP pos [m]
 
 execParser :: P a -> String -> Position -> [Ident] -> [Name]
