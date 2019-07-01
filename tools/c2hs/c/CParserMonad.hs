@@ -99,10 +99,9 @@ instance Monad P where
   return = returnP
   (>>=) = thenP
 
-#if MIN_VERSION_base(4,13,0)
-instance MonadFail P where
-#endif
+#if !MIN_VERSION_base(4,13,0)
   fail m = getPos >>= \pos -> failP pos [m]
+#endif
 
 execParser :: P a -> String -> Position -> [Ident] -> [Name]
            -> Either a ([String], Position)
