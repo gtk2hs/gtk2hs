@@ -50,7 +50,7 @@ import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   fromFlag, toFlag, RegisterFlags(..), flagToMaybe,
                                   fromFlagOrDefault, defaultRegisterFlags)
 #if MIN_VERSION_Cabal(2,0,0)
-import Distribution.Simple.BuildPaths ( autogenModulesDir )
+import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
 #endif
 import Distribution.Simple.Install ( install )
 import Distribution.Simple.Register ( generateRegistrationInfo, registerPackage )
@@ -248,7 +248,7 @@ adjustLocalBuildInfo = id
 adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
 adjustLocalBuildInfo lbi =
   let extra = (Just libBi, [])
-      libBi = emptyBuildInfo { includeDirs = [ autogenModulesDir lbi
+      libBi = emptyBuildInfo { includeDirs = [ autogenPackageModulesDir lbi
                                              , buildDir lbi ] }
    in lbi { localPkgDescr = updatePackageDescription extra (localPkgDescr lbi) }
 #endif
