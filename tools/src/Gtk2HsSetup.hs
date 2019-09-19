@@ -41,7 +41,6 @@ import Distribution.Simple.Program (
 import Distribution.Simple.Program.HcPkg ( defaultRegisterOptions )
 import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
 import Distribution.Types.PkgconfigName
-import qualified Distribution.Types.LocalBuildInfo as LBI (componentsConfigs)  -- TODO will be removed in Cabal 2.2
 #endif
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
 import Distribution.Simple.Utils
@@ -72,6 +71,7 @@ import qualified Distribution.Simple.LocalBuildInfo as LBI
 import qualified Distribution.InstalledPackageInfo as IPI
        (installedUnitId)
 import Distribution.Simple.Compiler (compilerVersion)
+import qualified Distribution.Compat.Graph as Graph
 
 import Control.Applicative ((<$>))
 
