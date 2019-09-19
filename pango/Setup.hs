@@ -8,7 +8,7 @@ import Distribution.Simple ( defaultMainWithHooks, UserHooks(postConf),
 import Gtk2HsSetup ( gtk2hsUserHooks, getPkgConfigPackages)
 import Distribution.Simple.Setup ( ConfigFlags(configVerbosity), fromFlag)
 import Distribution.Simple.LocalBuildInfo ( LocalBuildInfo(..) )
-import Distribution.Simple.BuildPaths ( autogenModulesDir )
+import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
 import Distribution.Text ( display )
 import Distribution.Version ( Version(..) )
 import Distribution.Verbosity
@@ -48,7 +48,7 @@ writePangoVersionHeaderFile verbosity lbi (Version (major:minor:micro:_) []) = d
     , "#define PANGO_VERSION_MICRO " ++ show micro
     ]
   where
-    targetDir  = autogenModulesDir lbi
+    targetDir  = autogenPackageModulesDir lbi
     targetFile = targetDir </> "hspangoversion.h"
 
 writeVersionHeaderFile _ _ version =
