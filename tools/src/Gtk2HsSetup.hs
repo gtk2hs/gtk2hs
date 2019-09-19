@@ -88,7 +88,17 @@ versionNumbers = versionBranch
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 #if MIN_VERSION_Cabal(2,5,0)
-libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- LBI.componentsConfigs lbi] of
+componentsConfigs :: LocalBuildInfo -> [(ComponentName, ComponentLocalBuildInfo, [ComponentName])]
+componentsConfigs lbi =
+    [ (componentLocalName clbi,
+       clbi,
+       mapMaybe (fmap componentLocalName . flip Graph.lookup g)
+                (componentInternalDeps clbi))
+    | clbi <- Graph.toList g ]
+  where
+    g = componentGraph lbi
+
+libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- componentsConfigs lbi] of
 #else
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
 #endif
