@@ -33,6 +33,7 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDi
                                            absoluteInstallDirs,
                                            relocatable,
                                            compiler)
+import Distribution.Types.LocalBuildInfo as LBI (componentNameCLBIs)
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
