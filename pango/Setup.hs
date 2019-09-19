@@ -14,6 +14,7 @@ import Distribution.Version ( Version(..) )
 import Distribution.Verbosity
 import Distribution.Simple.Utils
 import System.FilePath
+import System.Exit (die)
 
 #if MIN_VERSION_Cabal(2,0,0)
 import Distribution.Version ( versionNumbers )
@@ -42,7 +43,7 @@ writePangoVersionHeaderFile verbosity lbi (versionNumbers -> (major:minor:micro:
 writePangoVersionHeaderFile verbosity lbi (Version (major:minor:micro:_) []) = do
 #endif
   createDirectoryIfMissingVerbose verbosity True targetDir
-  rewriteFile targetFile $ unlines
+  rewriteFileEx verbosity targetFile $ unlines
     [ "#define PANGO_VERSION_MAJOR " ++ show major
     , "#define PANGO_VERSION_MINOR " ++ show minor
     , "#define PANGO_VERSION_MICRO " ++ show micro
