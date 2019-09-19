@@ -88,7 +88,7 @@ versionNumbers = versionBranch
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 #if MIN_VERSION_Cabal(2,5,0)
-componentsConfigs :: LocalBuildInfo -> [(ComponentName, ComponentLocalBuildInfo, [ComponentName])]
+componentsConfigs :: LocalBuildInfo -> [(LBI.ComponentName, ComponentLocalBuildInfo, [LBI.ComponentName])]
 componentsConfigs lbi =
     [ (componentLocalName clbi,
        clbi,
@@ -188,12 +188,24 @@ registerHook pkg_descr localbuildinfo _ flags =
            "Package contains no library to register:" (packageId pkg_descr)
   where verbosity = fromFlag (regVerbosity flags)
 
+getComponentLocalBuildInfo :: LocalBuildInfo -> LBI.ComponentName -> ComponentLocalBuildInfo
+getComponentLocalBuildInfo lbi cname =
+    case componentNameCLBIs lbi cname of
+      [clbi] -> clbi
+      [] ->
+          error $ "internal error: there is no configuration data "
+               ++ "for component " ++ show cname
+      clbis ->
+          error $ "internal error: the component name " ++ show cname
+               ++ "is ambiguous.  Refers to: "
+               ++ intercalate ", " (map (prettyShow . componentUnitId) clbis)
+
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
          -> IO ()
 register pkg@PackageDescription { library       = Just lib  } lbi regFlags
   = do
-    let clbi = LBI.getComponentLocalBuildInfo lbi
+    let clbi = getComponentLocalBuildInfo lbi
 #if MIN_VERSION_Cabal(2,5,0)
                    (LBI.CLibName $ PD.libName lib)
 #else
