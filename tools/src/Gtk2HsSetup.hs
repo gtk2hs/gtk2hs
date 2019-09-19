@@ -34,7 +34,7 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDi
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
-  runDbProgram, runDbProgramOutput, programName, programPath,
+  runDbProgram, getDbProgramOutput, programName, programPath,
   c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
   simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
 #if MIN_VERSION_Cabal(2,0,0)
@@ -415,7 +415,7 @@ getPkgConfigPackages verbosity lbi pkg =
 #endif
     <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
-    pkgconfig = runDbProgramOutput verbosity
+    pkgconfig = getDbProgramOutput verbosity
                   pkgConfigProgram (withPrograms lbi)
 
 ------------------------------------------------------------------------------
