@@ -36,7 +36,7 @@ import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
   runDbProgram, getDbProgramOutput, programName, programPath,
   c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
-  simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
+  simpleProgram, lookupProgram, getProgramOutput, ProgArg)
 #if MIN_VERSION_Cabal(2,0,0)
 import Distribution.Simple.Program.HcPkg ( defaultRegisterOptions )
 import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
