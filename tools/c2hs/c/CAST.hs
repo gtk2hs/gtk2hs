@@ -1064,6 +1064,9 @@ instance Binary CTypeSpec where
     put_ bh (CFloat128Type at) = do
             putByte bh 14
             put_ bh at
+    put_ bh (CBoolType at) = do
+            putByte bh 15
+            put_ bh at
     get bh = do
             h <- getByte bh
             case h of
@@ -1117,6 +1120,9 @@ instance Binary CTypeSpec where
               14 -> do
                     at <- get bh
                     return (CFloat128Type at)
+              15 -> do
+                    at <- get bh
+                    return (CBoolType at)
 
 instance Binary CStorageSpec where
     put_ bh (CAuto aa) = do
