@@ -5,3 +5,5 @@ packages:
   pango/
   gio/
   gtk/
+
+write-ghc-environment-files: never
