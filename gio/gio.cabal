@@ -80,10 +80,10 @@ Library
 
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
-		
-        cpp-options:    -U__BLOCKS__ -Ubool
+
+        cpp-options:    -U__BLOCKS__ -Ubool -D__attribute__(A)=
         if os(darwin) || os(freebsd)
-          cpp-options: -D__attribute__(A)= -D_Nullable= -D_Nonnull= -D_Noreturn=
+          cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn=
 
         x-Signals-File:  System/GIO/Signals.chs
         x-Signals-Modname: System.GIO.Signals
