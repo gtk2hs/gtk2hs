@@ -1,29 +1,14 @@
-{ pkgs ? import nixpkgs ({
-    overlays = import ((builtins.fetchTarball {
-      url = "https://github.com/input-output-hk/haskell.nix/archive/ee945efd4cb22e2cb5c58dce501312562d8ac960.tar.gz";
-      sha256 = "0g5d7f4rcg5shqj4m9wb2dxjkf671nbj6yx671pnq2ncwl00dczy";
-    }) + "/overlays");
-  })
+{ pkgs ? import nixpkgs (import (builtins.fetchTarball {
+      url = "https://github.com/input-output-hk/haskell.nix/archive/3bdc2a068498baac48f3be296a611f750033d551.tar.gz";
+      sha256 = "0jjis8y1p3wj45v72alhcnrcxg1f2p6r6bi0383qwxlmngf3cizz";
+    }))
 , nixpkgs ? builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/afbb73ee7177a7a0833335e49bfa7e567eaf7534.tar.gz";
-    sha256 = "01a1ylyizsg1xvadrbhq60lfdjl8fll5p14zf35as7gfai9g9ycl";
+    url = "https://github.com/NixOS/nixpkgs/archive/393e96b3fac51139c134209c5d4f2738506b140e.tar.gz";
+    sha256 = "0mlgwmrqd4734f2fjxqm44jxpr78qm7yy3kzh1zynd5mn9fpqw0b";
   }
 , haskellCompiler ? "ghc865"
 }:
-let
-  project = pkgs.haskell-nix.cabalProject {
+  pkgs.haskell-nix.cabalProject {
     src = pkgs.haskell-nix.haskellLib.cleanGit { src = ./.; };
     ghc = pkgs.buildPackages.pkgs.haskell.compiler.${haskellCompiler};
-  };
-  shells = {
-    ghc = (project.shellFor {}).overrideAttrs (oldAttrs: {
-      shellHook = (oldAttrs.shellHook or "") + ''
-        unset CABAL_CONFIG
-      '';
-    });
-  };
-in
-  project // {
-    inherit shells;
   }
-
