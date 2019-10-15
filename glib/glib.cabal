@@ -1,5 +1,5 @@
 Name:           glib
-Version:        0.13.7.0
+Version:        0.13.7.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -32,7 +32,7 @@ Flag closure_signals
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 2.5,
+                 Cabal >= 1.24 && < 3.1,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
