@@ -12,7 +12,7 @@ import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
 import Distribution.Text ( display )
 import Distribution.Version ( Version(..) )
 import Distribution.Verbosity
-import Distribution.Simple.Utils
+import Distribution.Simple.Utils hiding (die)
 import System.FilePath
 import System.Exit (die)
 

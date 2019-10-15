@@ -34,6 +34,7 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDi
                                            relocatable,
                                            compiler)
 import Distribution.Types.LocalBuildInfo as LBI (componentNameCLBIs)
+import qualified Distribution.Types.LocalBuildInfo as LBI
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
@@ -46,7 +47,7 @@ import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
 import Distribution.Types.PkgconfigName
 #endif
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
-import Distribution.Simple.Utils
+import Distribution.Simple.Utils hiding (die)
 import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   defaultCopyFlags, ConfigFlags(configVerbosity),
                                   fromFlag, toFlag, RegisterFlags(..), flagToMaybe,
