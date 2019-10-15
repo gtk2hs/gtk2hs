@@ -10,6 +10,8 @@ module Gtk2HsSetup (
   c2hsLocal
   ) where
 
+import Data.Maybe (mapMaybe)
+import Distribution.Pretty (prettyShow)
 import Distribution.Simple
 import Distribution.Simple.PreProcess
 import Distribution.InstalledPackageInfo ( importDirs,
@@ -23,7 +25,7 @@ import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                BuildInfo(..),
                                                emptyBuildInfo, allBuildInfo,
                                                Library(..),
-                                               libModules, hasLibs)
+                                               explicitLibModules, hasLibs)
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDir, localPkgDescr, installedPkgs, withPrograms),
                                            InstallDirs(..),
                                            ComponentLocalBuildInfo,
@@ -31,17 +33,17 @@ import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDi
                                            absoluteInstallDirs,
                                            relocatable,
                                            compiler)
+import Distribution.Types.LocalBuildInfo as LBI (componentNameCLBIs)
 import Distribution.Simple.Compiler  ( Compiler(..) )
 import Distribution.Simple.Program (
   Program(..), ConfiguredProgram(..),
-  rawSystemProgramConf, rawSystemProgramStdoutConf, programName, programPath,
+  runDbProgram, getDbProgramOutput, programName, programPath,
   c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
-  simpleProgram, lookupProgram, rawSystemProgramStdout, ProgArg)
+  simpleProgram, lookupProgram, getProgramOutput, ProgArg)
 #if MIN_VERSION_Cabal(2,0,0)
 import Distribution.Simple.Program.HcPkg ( defaultRegisterOptions )
 import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
 import Distribution.Types.PkgconfigName
-import qualified Distribution.Types.LocalBuildInfo as LBI (componentsConfigs)  -- TODO will be removed in Cabal 2.2
 #endif
 import Distribution.ModuleName ( ModuleName, components, toFilePath )
 import Distribution.Simple.Utils
@@ -49,12 +51,14 @@ import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
                                   defaultCopyFlags, ConfigFlags(configVerbosity),
                                   fromFlag, toFlag, RegisterFlags(..), flagToMaybe,
                                   fromFlagOrDefault, defaultRegisterFlags)
-import Distribution.Simple.BuildPaths ( autogenModulesDir )
+#if MIN_VERSION_Cabal(2,0,0)
+import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
+#endif
 import Distribution.Simple.Install ( install )
 import Distribution.Simple.Register ( generateRegistrationInfo, registerPackage )
 import Distribution.Text ( simpleParse, display )
 import System.FilePath
-import System.Exit (exitFailure)
+import System.Exit (die, exitFailure)
 import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
 import Distribution.Version (Version(..))
 import Distribution.Verbosity
@@ -70,6 +74,7 @@ import qualified Distribution.Simple.LocalBuildInfo as LBI
 import qualified Distribution.InstalledPackageInfo as IPI
        (installedUnitId)
 import Distribution.Simple.Compiler (compilerVersion)
+import qualified Distribution.Compat.Graph as Graph
 
 import Control.Applicative ((<$>))
 
@@ -86,7 +91,17 @@ versionNumbers = versionBranch
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
 #if MIN_VERSION_Cabal(2,5,0)
-libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- LBI.componentsConfigs lbi] of
+componentsConfigs :: LocalBuildInfo -> [(LBI.ComponentName, ComponentLocalBuildInfo, [LBI.ComponentName])]
+componentsConfigs lbi =
+    [ (LBI.componentLocalName clbi,
+       clbi,
+       mapMaybe (fmap LBI.componentLocalName . flip Graph.lookup g)
+                (LBI.componentInternalDeps clbi))
+    | clbi <- Graph.toList g ]
+  where
+    g = LBI.componentGraph lbi
+
+libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- componentsConfigs lbi] of
 #else
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
 #endif
@@ -176,12 +191,24 @@ registerHook pkg_descr localbuildinfo _ flags =
            "Package contains no library to register:" (packageId pkg_descr)
   where verbosity = fromFlag (regVerbosity flags)
 
+getComponentLocalBuildInfo :: LocalBuildInfo -> LBI.ComponentName -> ComponentLocalBuildInfo
+getComponentLocalBuildInfo lbi cname =
+    case LBI.componentNameCLBIs lbi cname of
+      [clbi] -> clbi
+      [] ->
+          error $ "internal error: there is no configuration data "
+               ++ "for component " ++ show cname
+      clbis ->
+          error $ "internal error: the component name " ++ show cname
+               ++ "is ambiguous.  Refers to: "
+               ++ intercalate ", " (map (prettyShow . LBI.componentUnitId) clbis)
+
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
          -> IO ()
 register pkg@PackageDescription { library       = Just lib  } lbi regFlags
   = do
-    let clbi = LBI.getComponentLocalBuildInfo lbi
+    let clbi = getComponentLocalBuildInfo lbi
 #if MIN_VERSION_Cabal(2,5,0)
                    (LBI.CLibName $ PD.libName lib)
 #else
@@ -239,12 +266,17 @@ register _ _ regFlags = notice verbosity "No package to register"
 -- This is a hack for Cabal-1.8, It is not needed in Cabal-1.9.1 or later
 ------------------------------------------------------------------------------
 
+#if MIN_VERSION_Cabal(2,0,0)
+adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
+adjustLocalBuildInfo = id
+#else
 adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
 adjustLocalBuildInfo lbi =
   let extra = (Just libBi, [])
-      libBi = emptyBuildInfo { includeDirs = [ autogenModulesDir lbi
+      libBi = emptyBuildInfo { includeDirs = [ autogenPackageModulesDir lbi
                                              , buildDir lbi ] }
    in lbi { localPkgDescr = updatePackageDescription extra (localPkgDescr lbi) }
+#endif
 
 ------------------------------------------------------------------------------
 -- Processing .chs files with our local c2hs.
@@ -306,7 +338,7 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
   -- cannot use the recommended 'findModuleFiles' since it fails if there exists
   -- a modules that does not have a .chi file
   mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi] . toFilePath)
-                   (PD.libModules lib)
+                   (PD.explicitLibModules lib)
 
   let files = [ f | Just f <- mFiles ]
   installOrdinaryFiles verbosity libPref files
@@ -352,7 +384,7 @@ genSynthezisedFiles verb pd lbi = do
       genFile :: ([String] -> IO String) -> [ProgArg] -> FilePath -> IO ()
       genFile prog args outFile = do
          res <- prog args
-         rewriteFile outFile res
+         rewriteFileEx verb outFile res
 
   forM_ (filter (\(tag,_) -> "x-types-" `isPrefixOf` tag && "file" `isSuffixOf` tag) xList) $
     \(fileTag, f) -> do
@@ -408,7 +440,7 @@ getPkgConfigPackages verbosity lbi pkg =
 #endif
     <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
-    pkgconfig = rawSystemProgramStdoutConf verbosity
+    pkgconfig = getDbProgramOutput verbosity
                   pkgConfigProgram (withPrograms lbi)
 
 ------------------------------------------------------------------------------
