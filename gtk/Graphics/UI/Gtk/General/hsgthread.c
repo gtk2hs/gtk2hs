@@ -47,7 +47,7 @@ static int threads_initialised = 0;
 #if defined( WIN32 )
 static CRITICAL_SECTION gtk2hs_finalizer_mutex;
 #else
-static GStaticMutex gtk2hs_finalizer_mutex;
+static GMutex gtk2hs_finalizer_mutex;
 #endif
 static GSource* gtk2hs_finalizer_source;
 static guint gtk2hs_finalizer_id;
@@ -102,7 +102,7 @@ void gtk2hs_threads_initialise (void) {
 #if defined( WIN32 )
     InitializeCriticalSection(&gtk2hs_finalizer_mutex);
 #else
-    g_static_mutex_init(&gtk2hs_finalizer_mutex);
+    g_mutex_init(&gtk2hs_finalizer_mutex);
 #endif
 
 #if defined( WIN32 ) && GLIB_CHECK_VERSION(2,32,0)
@@ -110,7 +110,6 @@ void gtk2hs_threads_initialise (void) {
     
     gdk_threads_set_lock_functions(imp_rec_lock, imp_rec_unlock);
 #endif
-    g_thread_init(NULL);
     gdk_threads_init();
 
     /* from here onwards, the Gdk lock is held */
@@ -133,7 +132,7 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
 #if defined( WIN32 )
     EnterCriticalSection(&gtk2hs_finalizer_mutex);
 #else
-    g_static_mutex_lock(&gtk2hs_finalizer_mutex);
+    g_mutex_lock(&gtk2hs_finalizer_mutex);
 #endif
     mutex_locked = 1;
   }
@@ -178,7 +177,7 @@ void gtk2hs_g_object_unref_from_mainloop(gpointer object) {
 #if defined( WIN32 )
     LeaveCriticalSection(&gtk2hs_finalizer_mutex);
 #else
-    g_static_mutex_unlock(&gtk2hs_finalizer_mutex);
+    g_mutex_unlock(&gtk2hs_finalizer_mutex);
 #endif
   }
 }
@@ -198,7 +197,7 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
 #if defined( WIN32 )
     EnterCriticalSection(&gtk2hs_finalizer_mutex);
 #else
-    g_static_mutex_lock(&gtk2hs_finalizer_mutex);
+    g_mutex_lock(&gtk2hs_finalizer_mutex);
 #endif
     mutex_locked = 1;
   }
@@ -221,7 +220,7 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
 #if defined( WIN32 )
     LeaveCriticalSection(&gtk2hs_finalizer_mutex);
 #else
-    g_static_mutex_unlock(&gtk2hs_finalizer_mutex);
+    g_mutex_unlock(&gtk2hs_finalizer_mutex);
 #endif
   }
 
