@@ -11,7 +11,11 @@ module Gtk2HsSetup (
   ) where
 
 import Data.Maybe (mapMaybe)
+#if MIN_VERSION_Cabal(2,4,0)
 import Distribution.Pretty (prettyShow)
+#else
+import Distribution.Simple.LocalBuildInfo (getComponentLocalBuildInfo)
+#endif
 import Distribution.Simple
 import Distribution.Simple.PreProcess
 import Distribution.InstalledPackageInfo ( importDirs,
@@ -192,6 +196,7 @@ registerHook pkg_descr localbuildinfo _ flags =
            "Package contains no library to register:" (packageId pkg_descr)
   where verbosity = fromFlag (regVerbosity flags)
 
+#if MIN_VERSION_Cabal(2,4,0)
 getComponentLocalBuildInfo :: LocalBuildInfo -> LBI.ComponentName -> ComponentLocalBuildInfo
 getComponentLocalBuildInfo lbi cname =
     case LBI.componentNameCLBIs lbi cname of
@@ -203,6 +208,7 @@ getComponentLocalBuildInfo lbi cname =
           error $ "internal error: the component name " ++ show cname
                ++ "is ambiguous.  Refers to: "
                ++ intercalate ", " (map (prettyShow . LBI.componentUnitId) clbis)
+#endif
 
 register :: PackageDescription -> LocalBuildInfo
          -> RegisterFlags -- ^Install in the user's database?; verbose
