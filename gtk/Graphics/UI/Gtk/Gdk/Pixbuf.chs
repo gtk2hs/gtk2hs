@@ -81,6 +81,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 #endif
 #if GTK_CHECK_VERSION(3,0,0)
   pixbufNewFromSurface,
+  pixbufNewFromWindow,
 #endif
   pixbufNewFromInline,
   InlineImage,
@@ -370,6 +371,27 @@ pixbufNewFromSurface surface srcX srcY width height =
     (fromIntegral srcY)
     (fromIntegral width)
     (fromIntegral height)
+
+-- | Creates a new pixbuf from a GDK window.
+--
+-- Transfers image data from a GdkWindow and converts it to an RGB(A) representation inside a GdkPixbuf. In other words, copies image data from a server-side drawable to a client-side RGB(A) buffer. This allows you to efficiently read individual pixels on the client side.
+--
+-- This function will create an RGB pixbuf with 8 bits per channel with the size specified by the width and height arguments scaled by the scale factor of window. The pixbuf will contain an alpha channel if the window contains one.
+pixbufNewFromWindow :: DrawWindowClass self 
+  => self -- ^ @window@ - The source window.
+  -> Int -- ^ @srcX@ - Source X coordinate within window.
+  -> Int -- ^ @srcY@ - Source Y coordinate within window.
+  -> Int -- ^ @width@ - Width in pixels of region to get.
+  -> Int -- ^ @height@ - Height in pixels of region to get.
+  -> IO Pixbuf
+pixbufNewFromWindow window srcX srcY width height =
+  wrapNewGObject mkPixbuf $
+    {# call gdk_pixbuf_get_from_window #}
+      (toDrawWindow window)
+      (fromIntegral srcX)
+      (fromIntegral srcY)
+      (fromIntegral width)
+      (fromIntegral height)
 #endif
 
 -- | A string representing an image file format.
