@@ -78,7 +78,7 @@ Library
         x-c2hs-Header:  hspango.h
         includes:       hspango.h
         include-dirs:   .
-        cpp-options:    -U__BLOCKS__ -D__attribute__(A)=
+        cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
           cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn=
         if os(windows)
