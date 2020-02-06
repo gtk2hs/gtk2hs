@@ -374,7 +374,7 @@ Library
         include-dirs:   .
         cpp-options: -DDISABLE_DEPRECATED -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
-          cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn=
+          cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn= -D__attribute__(x)=
         if os(windows)
           cpp-options:    -DWIN32 -fno-exceptions
           cc-options:     -fno-exceptions

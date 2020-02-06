@@ -383,7 +383,7 @@ Library
         include-dirs:   .
         cpp-options: -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
-          cpp-options: -D_Nullable= -D_Nonnull=
+          cpp-options: -D_Nullable= -D_Nonnull= -D__attribute__(x)=
         if !flag(deprecated)
           cpp-options:  -DDISABLE_DEPRECATED
         else
