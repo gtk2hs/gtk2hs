@@ -83,7 +83,7 @@ Library
 
         cpp-options:    -U__BLOCKS__ -Ubool -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
-          cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn=
+          cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn= -D__attribute__(x)=
 
         x-Signals-File:  System/GIO/Signals.chs
         x-Signals-Modname: System.GIO.Signals
