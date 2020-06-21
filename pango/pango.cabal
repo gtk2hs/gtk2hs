@@ -1,5 +1,5 @@
 Name:           pango
-Version:        0.13.8.0
+Version:        0.13.8.1
 License:        LGPL-2.1
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -40,7 +40,7 @@ Flag new-exception
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 3.1,
+                 Cabal >= 1.24 && < 3.3,
                  filepath >= 1.3 && < 1.5,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
