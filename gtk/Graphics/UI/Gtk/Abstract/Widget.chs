@@ -821,7 +821,7 @@ widgetSizeRequest self = alloca $ \reqPtr -> do
 
 -- | This function is only for use in widget implementations. Obtains the
 -- chached requisition information in the widget, unless someone has forced a
--- particular geometry on the widget (e.g. with 'widgetSetUsize'), in which
+-- particular geometry on the widget (e.g. with 'widgetSetSizeRequest'), in which
 -- case it returns that geometry instead of the widget's requisition.
 --
 -- This function differs from 'widgetSizeRequest' in that it retrieves the
