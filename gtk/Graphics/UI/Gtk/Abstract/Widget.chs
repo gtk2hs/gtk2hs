@@ -232,6 +232,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHasScreen,
 #endif
   widgetGetSizeRequest,
+#if GTK_CHECK_VERSION(3,0,0)
+  widgetGetPreferredSize,
+#endif
   widgetSetChildVisible,
   widgetSetSizeRequest,
 #if GTK_CHECK_VERSION(2,4,0)
@@ -2405,6 +2408,37 @@ widgetGetSizeRequest self =
   width <- peek widthPtr
   height <- peek heightPtr
   return (fromIntegral width, fromIntegral height)
+
+#if GTK_CHECK_VERSION(3,0,0)
+-- | Retrieves the minimum and natural size of a widget, taking into account the
+-- widget’s preference for height-for-width management.
+--
+-- This is used to retrieve a suitable size by container widgets which do not
+-- impose any restrictions on the child placement. It can be used to deduce
+-- toplevel window and menu sizes as well as child widgets in free-form containers
+-- such as GtkLayout.
+--
+-- Handle with care. Note that the natural height of a height-for-width widget
+-- will generally be a smaller size than the minimum height, since the required
+-- height for the natural width is generally smaller than the required height for
+-- the minimum width.
+--
+-- Use gtk_widget_get_preferred_height_and_baseline_for_width() if you want
+-- to support baseline alignment.
+--
+-- * Available since Gtk+ version 3.0
+--
+
+widgetGetPreferredSize :: WidgetClass self => self
+ -> IO (Requisition, Requisition) -- ^ @(minimumSize, naturalSize)@
+widgetGetPreferredSize self =
+  alloca $ \minReqPtr ->
+  alloca $ \natReqPtr -> do
+  {#call gtk_widget_get_preferred_size #} (toWidget self) (castPtr minReqPtr) (castPtr natReqPtr)
+  min <- peek minReqPtr
+  nat <- peek natReqPtr
+  return (min, nat)
+#endif
 
 -- %hash c:546d d:3c7f
 -- | Sets whether @widget@ should be mapped along with its when its parent is
