@@ -389,7 +389,7 @@ Library
         else
           x-Types-Tag:  deprecated
         if os(windows)
-          cpp-options:    -DWIN32 -fno-exceptions
+          cpp-options:    -DWIN32
           cc-options:     -fno-exceptions
           extra-libraries: kernel32
 

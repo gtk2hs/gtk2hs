@@ -376,7 +376,7 @@ Library
         if os(darwin) || os(freebsd)
           cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn= -D__attribute__(x)=
         if os(windows)
-          cpp-options:    -DWIN32 -fno-exceptions
+          cpp-options:    -DWIN32
           cc-options:     -fno-exceptions
           extra-libraries: kernel32
 
