@@ -82,6 +82,7 @@ module Graphics.UI.Gtk.Misc.Viewport (
   ) where
 
 import Control.Monad    (liftM)
+import Data.Maybe (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Attributes
@@ -97,15 +98,15 @@ import Graphics.UI.Gtk.General.Enums    (ShadowType(..))
 -- | Creates a new 'Viewport' with the given adjustments.
 --
 viewportNew ::
-    Adjustment  -- ^ @hadjustment@ - horizontal adjustment.
- -> Adjustment  -- ^ @vadjustment@ - vertical adjustment.
+    Maybe Adjustment  -- ^ @hadjustment@ - horizontal adjustment.
+ -> Maybe Adjustment  -- ^ @vadjustment@ - vertical adjustment.
  -> IO Viewport
 viewportNew hadjustment vadjustment =
   makeNewObject mkViewport $
   liftM (castPtr :: Ptr Widget -> Ptr Viewport) $
   {# call unsafe viewport_new #}
-    hadjustment
-    vadjustment
+    (fromMaybe (Adjustment nullForeignPtr) hadjustment)
+    (fromMaybe (Adjustment nullForeignPtr) vadjustment)
 
 --------------------
 -- Methods
