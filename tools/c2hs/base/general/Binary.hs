@@ -250,6 +250,7 @@ expandBin (BinMem _ ix_r sz_r arr_r) off = do
    return ()
 expandBin (BinIO _ _ _) _ = return ()
         -- no need to expand a file, we'll assume they expand by themselves.
+{-# INLINE expandBin #-}
 
 -- -----------------------------------------------------------------------------
 -- Low-level reading/writing of bytes
