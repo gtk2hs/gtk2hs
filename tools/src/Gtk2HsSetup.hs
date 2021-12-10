@@ -62,6 +62,9 @@ import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
 import Distribution.Simple.Install ( install )
 import Distribution.Simple.Register ( generateRegistrationInfo, registerPackage )
 import Distribution.Text ( simpleParse, display )
+#if MIN_VERSION_Cabal(3,6,0)
+import Distribution.Utils.Path ( getSymbolicPath )
+#endif
 import System.FilePath
 import System.Exit (die, exitFailure)
 import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
@@ -463,10 +466,10 @@ fixDeps pd@PD.PackageDescription {
           PD.library = Just lib@PD.Library {
             PD.exposedModules = expMods,
             PD.libBuildInfo = bi@PD.BuildInfo {
-              PD.hsSourceDirs = srcDirs,
               PD.otherModules = othMods
             }}} = do
-  let findModule m = findFileWithExtension [".chs.pp",".chs"] srcDirs
+  let findModule m = findFileWithExtension [".chs.pp",".chs"]
+                       (buildInfoHsSrcDirsFilePaths bi)
                        (joinPath (components m))
   mExpFiles <- mapM findModule expMods
   mOthFiles <- mapM findModule othMods
@@ -565,3 +568,11 @@ c2hsLocal = (simpleProgram "gtk2hsC2hs") {
       Version [0,13,13] []
 #endif
   }
+
+buildInfoHsSrcDirsFilePaths :: PD.BuildInfo -> [FilePath]
+buildInfoHsSrcDirsFilePaths bi =
+#if MIN_VERSION_Cabal(3,6,0)
+  getSymbolicPath <$> PD.hsSourceDirs bi
+#else
+  PD.hsSourceDirs bi
+#endif
