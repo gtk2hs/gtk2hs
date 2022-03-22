@@ -80,6 +80,9 @@ import qualified Distribution.InstalledPackageInfo as IPI
        (installedUnitId)
 import Distribution.Simple.Compiler (compilerVersion)
 import qualified Distribution.Compat.Graph as Graph
+#if MIN_VERSION_Cabal(3,6,0)
+import Distribution.Utils.Path (getSymbolicPath)
+#endif 
 
 import Control.Applicative ((<$>))
 
@@ -466,7 +469,13 @@ fixDeps pd@PD.PackageDescription {
               PD.hsSourceDirs = srcDirs,
               PD.otherModules = othMods
             }}} = do
-  let findModule m = findFileWithExtension [".chs.pp",".chs"] srcDirs
+  let toPath = 
+#if MIN_VERSION_Cabal(3,6,0)
+        getSymbolicPath
+#else 
+        id 
+#endif 
+  let findModule m = findFileWithExtension [".chs.pp",".chs"] (map toPath srcDirs)
                        (joinPath (components m))
   mExpFiles <- mapM findModule expMods
   mOthFiles <- mapM findModule othMods
