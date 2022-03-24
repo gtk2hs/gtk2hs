@@ -1,3 +1,4 @@
+cabal-version:  2.0
 Name:           glib
 Version:        0.13.8.1
 License:        LGPL-2.1
@@ -6,7 +7,6 @@ Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.24
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
@@ -32,13 +32,13 @@ Flag closure_signals
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 3.3,
+                 Cabal >= 2.0 && < 3.7,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
                         utf8-string >= 0.2 && < 1.1,
-                        bytestring >= 0.9.1.10 && < 0.11,
+                        bytestring >= 0.9.1.10 && < 0.12,
                         text >= 1.0.0.0 && < 1.3,
                         containers
         cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS

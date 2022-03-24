@@ -1,3 +1,4 @@
+cabal-version:  2.0
 Name:           cairo
 Version:        0.13.8.1
 License:        BSD3
@@ -6,7 +7,6 @@ Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abrah
 Author:         Axel Simon, Duncan Coutts
 Maintainer:     gtk2hs-users@lists.sourceforge.net
 Build-Type:     Custom
-Cabal-Version:  >= 1.24
 Stability:      stable
 homepage:       http://projects.haskell.org/gtk2hs/
 bug-reports:    https://github.com/gtk2hs/gtk2hs/issues
@@ -53,7 +53,7 @@ Flag cairo_svg
 
 custom-setup
   setup-depends: base >= 4.6,
-                 Cabal >= 1.24 && < 3.3,
+                 Cabal >= 2.0 && < 3.7,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
