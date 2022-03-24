@@ -1,7 +1,7 @@
-cabal-version:  2.0
+cabal-version:  3.2
 Name:   gtk2hs-buildtools
 Version:        0.13.8.3
-License:        GPL-2
+License:        GPL-2.0-only
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts, Manuel Chakravaty
@@ -48,7 +48,7 @@ Library
           build-depends: fail
         if impl(ghc >= 7.7)
           build-depends: hashtables
-        build-tools:     alex >= 3.0.1, happy >= 1.18.9
+        build-tool-depends: alex:alex >= 3.0.1, happy:happy >= 1.18.9
         hs-source-dirs:  src
                          hierarchyGen
                          callbackGen
@@ -68,6 +68,7 @@ Library
                          TypeGen
                          HookGenerator
                          Gtk2HsC2Hs
+        autogen-modules: Paths_gtk2hs_buildtools
         other-modules:   Paths_gtk2hs_buildtools
                          -- gtk2hsC2hs Modules
                          BaseVersion

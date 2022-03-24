@@ -1,7 +1,7 @@
-cabal-version:  2.0
+cabal-version:  3.2
 Name:           pango
 Version:        0.13.8.2
-License:        LGPL-2.1
+License:        LGPL-2.1-only
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
 Author:         Axel Simon, Duncan Coutts
