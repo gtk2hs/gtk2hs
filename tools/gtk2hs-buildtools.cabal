@@ -1,6 +1,6 @@
 cabal-version:  2.0
 Name:   gtk2hs-buildtools
-Version:        0.13.8.2
+Version:        0.13.8.1
 License:        GPL-2
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
