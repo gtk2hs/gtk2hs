@@ -51,6 +51,11 @@ module Graphics.Rendering.Cairo.Types (
   , Filter(..)
   , SurfaceType(..)
   , PatternType(..)
+#ifdef CAIRO_HAS_SVG_SURFACE
+#if CAIRO_CHECK_VERSION(1,16,0)
+  , SvgUnit(..)
+#endif
+#endif
 
   , cIntConv
   , cFloatConv
@@ -426,6 +431,13 @@ foreign import ccall unsafe "&cairo_region_destroy"
 
 -- | Specify how filtering is done.
 {#enum filter_t as Filter {underscoreToCase} deriving(Eq,Show)#}
+
+#ifdef CAIRO_HAS_SVG_SURFACE
+#if CAIRO_CHECK_VERSION(1,16,0)
+-- | Specify the unit used in SVG surfaces.
+{#enum svg_unit_t as SvgUnit {underscoreToCase} deriving(Eq, Show) #}
+#endif
+#endif
 
 -- Marshalling functions
 

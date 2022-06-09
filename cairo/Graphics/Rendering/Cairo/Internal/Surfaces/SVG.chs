@@ -25,4 +25,9 @@ import Foreign.C
 
 {#fun svg_surface_create  as svgSurfaceCreate { withCAString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 
+#if CAIRO_CHECK_VERSION(1,16,0)
+{#fun svg_surface_set_document_unit as svgSurfaceSetDocumentUnit { withSurface* `Surface', cFromEnum `SvgUnit' } -> `()'#}
+{#fun svg_surface_get_document_unit as svgSurfaceGetDocumentUnit { withSurface* `Surface' } -> `SvgUnit' cToEnum#}
+#endif
+
 #endif

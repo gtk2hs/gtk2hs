@@ -1,6 +1,6 @@
 cabal-version:  3.0
 Name:           cairo
-Version:        0.13.8.2
+Version:        0.13.9.0
 License:        BSD-3-Clause
 License-file:   COPYRIGHT
 Copyright:      (c) 2001-2010 The Gtk2Hs Team, (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004

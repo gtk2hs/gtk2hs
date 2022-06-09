@@ -250,6 +250,10 @@ module Graphics.Rendering.Cairo (
 #ifdef CAIRO_HAS_SVG_SURFACE
   -- ** SVG surfaces
   , withSVGSurface
+#if CAIRO_CHECK_VERSION(1,16,0)
+  , svgSurfaceSetDocumentUnit
+  , svgSurfaceGetDocumentUnit
+#endif
 #endif
 
 #if CAIRO_CHECK_VERSION(1,10,0)
@@ -320,6 +324,12 @@ module Graphics.Rendering.Cairo (
   , Format(..)
   , Extend(..)
   , Filter(..)
+
+#ifdef CAIRO_HAS_SVG_SURFACE
+#if CAIRO_CHECK_VERSION(1,16,0)
+  , SvgUnit(..)
+#endif
+#endif
 
   -- mesh patterns
 #if CAIRO_CHECK_VERSION(1,12,0)
@@ -2333,8 +2343,14 @@ psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
 --
 withSVGSurface ::
      FilePath -- ^ @filename@ - a filename for the SVG output (must be writable)
-  -> Double   -- ^ width of the surface, in points (1 point == 1\/72.0 inch)
-  -> Double   -- ^ height of the surface, in points (1 point == 1\/72.0 inch)
+  -> Double   -- ^ Width of the surface. The default unit is points (1 point == 1\/72.0 inch)
+#if CAIRO_CHECK_VERSION(1,16,0)
+              -- and can be changed with 'svgSurfaceSetDocumentUnit'.
+#endif
+  -> Double   -- ^ Height of the surface. The default unit is points (1 point == 1\/72.0 inch)
+#if CAIRO_CHECK_VERSION(1,16,0)
+              -- and can be changed with 'svgSurfaceSetDocumentUnit'.
+#endif
   -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
                        -- only valid within in this action.
   -> IO a
@@ -2345,6 +2361,16 @@ withSVGSurface filename width height f =
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
+
+#if CAIRO_CHECK_VERSION(1,16,0)
+-- | Use the specified unit for the width and height of the generated SVG file.
+svgSurfaceSetDocumentUnit :: MonadIO m => Surface -> SvgUnit -> m ()
+svgSurfaceSetDocumentUnit s unit = liftIO $ Internal.svgSurfaceSetDocumentUnit s unit
+
+-- | Get the specified unit for the width and height of the generated SVG file.
+svgSurfaceGetDocumentUnit :: MonadIO m => Surface -> m SvgUnit
+svgSurfaceGetDocumentUnit s = liftIO $ Internal.svgSurfaceGetDocumentUnit s
+#endif
 #endif
 
 #if CAIRO_CHECK_VERSION(1,10,0)
