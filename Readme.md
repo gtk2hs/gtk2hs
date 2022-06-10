@@ -1,6 +1,6 @@
 # Gtk2Hs
 
-[![Build Status](https://secure.travis-ci.org/gtk2hs/gtk2hs.png)](http://travis-ci.org/gtk2hs/gtk2hs)
+[![Build Status](https://github.com/gtk2hs/gtk2hs/workflows/Haskell-CI/badge.svg)](https://github.com/gtk2hs/gtk2hs/actions?query=branch%3Amaster)
 
 Gtk2Hs is a GUI library for Haskell based on GTK+. GTK+ is an extensive and mature multi-platform toolkit
 for creating graphical user interfaces.
