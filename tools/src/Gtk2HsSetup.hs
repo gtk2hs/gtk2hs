@@ -300,6 +300,7 @@ ourC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ourC2hs bi lbi = PreProcessor {
 #endif
   platformIndependent = False,
+  ppOrdering = (\ _ _ ms -> return ms),
   runPreProcessor = runC2HS bi lbi
 }
 
