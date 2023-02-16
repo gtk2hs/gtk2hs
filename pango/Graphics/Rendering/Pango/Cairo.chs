@@ -54,6 +54,7 @@ module Graphics.Rendering.Pango.Cairo (
   ) where
 
 import Control.Exception    (bracket)
+import Control.Monad        (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
