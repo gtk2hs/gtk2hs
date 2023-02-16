@@ -73,6 +73,7 @@ module Graphics.UI.Gtk.Cairo (
   ) where
 
 import Control.Exception    (bracket)
+import Control.Monad        (liftM, unless)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
