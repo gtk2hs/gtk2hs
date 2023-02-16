@@ -77,6 +77,9 @@ Library
           System.GIO.Volumes.VolumeMonitor
         other-modules:
           System.GIO.Signals
+        autogen-modules:
+          System.GIO.Signals        
+          System.GIO.Types
 
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
