@@ -66,13 +66,15 @@ Library
                          Graphics.Rendering.Pango.Markup
                          Graphics.Rendering.Pango.Cairo
                          -- these four modules are only used in code that creates
-                         -- Pango data structures themselves
+                         -- Pango data structures themselve
                          Graphics.Rendering.Pango.Types
                          Graphics.Rendering.Pango.BasicTypes
                          Graphics.Rendering.Pango.Structs
                          Graphics.Rendering.Pango.Attributes
         other-modules:   Graphics.Rendering.Pango.GlyphStorage
                          Graphics.Rendering.Pango.Description
+        autogen-modules: Graphics.Rendering.Pango.Types
+
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
         x-c2hs-Header:  hspango.h
@@ -91,4 +93,3 @@ Library
         else
           pkgconfig-depends: pango >= 1.0
         pkgconfig-depends:  cairo >= 1.2.0, pangocairo >= 1.10
-
