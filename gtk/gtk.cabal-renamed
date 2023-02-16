@@ -363,6 +363,7 @@ Library
           Graphics.UI.Gtk.Types
           Graphics.UI.Gtk.Signals
         autogen-modules:
+          Graphics.UI.Gtk.Signals
           Graphics.UI.Gtk.Types
 
         default-language:   Haskell98
