@@ -213,7 +213,7 @@ fileInfoRemoveAttribute info attribute =
   withUTFString attribute $ \ attributePtr ->
   {#call g_file_info_remove_attribute#} (toFileInfo info) attributePtr
 
--- | Gets the value of a attribute, formated as a string. This escapes things as needed to make the
+-- | Gets the value of a attribute, formatted as a string. This escapes things as needed to make the
 -- string valid utf8.
 fileInfoGetAttributeAsString :: (FileInfoClass info, GlibString string) => info
  -> string -- ^ @attribute@ a file attribute key.

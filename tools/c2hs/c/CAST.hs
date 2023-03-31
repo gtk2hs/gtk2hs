@@ -414,7 +414,7 @@ instance Eq CEnum where
 
 -- C declarator (K&R A8.5) and abstract declarator (K&R A8.8) (EXPORTED)
 --
---  * We have one type qualifer list `[CTypeQual]' for each indirection (ie,
+--  * We have one type qualifier list `[CTypeQual]' for each indirection (ie,
 --   each occurrence of `*' in the concrete syntax).
 --
 --  * We unfold K&R's direct-declarators nonterminal into declarators.  Note

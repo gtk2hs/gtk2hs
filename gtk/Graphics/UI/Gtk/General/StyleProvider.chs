@@ -34,7 +34,7 @@ module Graphics.UI.Gtk.General.StyleProvider (
 --
 -- @StyleProvider@ is implemented by @CssProvider@ and @Settings@.
 #if GTK_MAJOR_VERSION >= 3
--- * Typess
+-- * Types
   StyleProvider,
   StyleProviderClass,
   castToStyleProvider, gTypeStyleProvider,

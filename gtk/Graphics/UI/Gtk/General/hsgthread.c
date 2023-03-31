@@ -70,7 +70,7 @@ void imp_rec_unlock() {
 /* Initialize the default _fmode on WIN32. */
 void gtk2hs_initialise (void) {
 #if defined( WIN32 ) && defined( GTK2HS_SET_FMODE_BINARY )
-	/* Some Windows GTK binraries (current Fedora MinGW ones) do */
+	/* Some Windows GTK binaries (current Fedora MinGW ones) do */
 	/* not open files in binary mode.  This is a work around.    */
     HANDLE handle = LoadLibrary("MSVCRT.dll");
     if(!handle) { 

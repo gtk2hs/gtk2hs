@@ -189,7 +189,7 @@ scrolledWindowGetVAdjustment self =
 -- 'PolicyType' enumeration. If 'PolicyAlways', the scrollbar is always
 -- present; if 'PolicyNever', the scrollbar is never present; if
 -- 'PolicyAutomatic', the scrollbar is present only if needed (that is, if the
--- slider part of the bar would be smaller than the trough - the display is
+-- slider part of the bar would be smaller than the through - the display is
 -- larger than the page size).
 --
 scrolledWindowSetPolicy :: ScrolledWindowClass self => self

@@ -187,7 +187,7 @@ toolItemGroupSetItemPosition group item position =
     (toToolItem item)
     (fromIntegral position)
 
--- | Wether the group has been collapsed and items are hidden.
+-- | Whether the group has been collapsed and items are hidden.
 --
 -- Default value: 'False'
 --

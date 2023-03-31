@@ -253,7 +253,7 @@ textAttributesCopyValues src dest =
   {# call text_attributes_copy_values #} src dest
 
 -- | This function is use internal for transform TextAttributes.
--- Don't expoert this function.
+-- Don't export this function.
 makeNewTextAttributes :: Ptr TextAttributes -> IO TextAttributes
 makeNewTextAttributes ptr =
   liftM TextAttributes $ newForeignPtr ptr text_attributes_unref

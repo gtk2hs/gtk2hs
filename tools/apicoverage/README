@@ -1,6 +1,6 @@
 The tools in this directory are to help investigate gtk2hs's coverage of the gtk
 API. You should modify the Makefile to set which version of gtk you'd like to
-check aginst. Running 'make' will then download the tarball from the gtk website
+check against. Running 'make' will then download the tarball from the gtk website
 and extract the gtk.def file which contains a complete list of the exported gtk
 functions.
 

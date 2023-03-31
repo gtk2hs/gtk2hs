@@ -163,7 +163,7 @@ gcSetClipRegion = {#call unsafe gc_set_clip_region#}
 --
 -- *  Every tuple in the list contains an even and an odd segment. Even
 --    segments are drawn normally, whereby the 'lineStyle'
---    member of the graphics context defines if odd segements are drawn
+--    member of the graphics context defines if odd segments are drawn
 --    or not. A @phase@ argument greater than 0 will drop
 --    @phase@ pixels before starting to draw.
 --

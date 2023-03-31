@@ -1,6 +1,6 @@
 # system to help check gtk2hs's api coverage
 
-# which vesion of gtk+ to compare against, eg 2.0.9, 2.2.4, 2.4.13
+# which version of gtk+ to compare against, eg 2.0.9, 2.2.4, 2.4.13
 GTK_MAJOR_VERSION = 2
 GTK_MINOR_VERSION = 6
 GTK_MICRO_VERSION = 1

@@ -224,7 +224,7 @@ iconSetRenderIcon set dir state size widget = wrapNewGObject mkPixbuf $
 --
 -- * Each icon in an application is contained in an 'IconSet'. The
 --   'IconSet' contains several variants ('IconSource's) to
---   accomodate for different sizes and states.
+--   accommodate for different sizes and states.
 --
 iconSetNew :: IO IconSet
 iconSetNew  = do
@@ -260,7 +260,7 @@ foreign import ccall unsafe "&gtk_icon_set_unref"
 -- | Check if a given IconSize is registered.
 --
 -- * Useful if your application expects a theme to install a set with a
---   specific size. You can test if this actually happend and use another size
+--   specific size. You can test if this actually happens and use another size
 --   if not.
 --
 iconSizeCheck :: IconSize -> IO Bool

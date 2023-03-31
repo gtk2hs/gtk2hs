@@ -105,7 +105,7 @@ import Graphics.UI.Gtk.General.Structs
 -- plugged into a 'Socket' by 'Graphics.UI.Gtk.Embedding.Socket.socketAddId'.
 --
 -- If a NativeWindowId is supplied the foreign application window will
--- immediatly appear in this 'Plug' once it is shown. If @Nothing@ is passed
+-- immediately appear in this 'Plug' once it is shown. If @Nothing@ is passed
 -- then a 'NativeWindowId' can be extracted from this 'Plug' using 'plugGetId'
 -- and be passed to the application which is to be embedded.
 --

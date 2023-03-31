@@ -129,7 +129,7 @@ instance Pretty CExpr where
   pretty _ = text "<<CPretty: CExpr not yet implemented!>>"
 
 
--- auxilliary functions
+-- auxiliary functions
 -- --------------------
 
 ident :: Ident -> Doc

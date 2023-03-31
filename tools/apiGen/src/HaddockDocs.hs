@@ -22,7 +22,7 @@ data Section = Section Int String [Para]
 data Para =
     ParaText           [Span]    -- an ordinary word-wrapped paragraph
   | ParaCode           [[Span]]  -- a @...@ code block
-  | ParaVerbatm        [String]  -- a > bird-track verbatum code block
+  | ParaVerbatm        [String]  -- a > bird-track verbatim code block
   | ParaTitle          String    -- a title to a subsection eg an example
   | ParaDefItem [Span] [Span]    -- a definition list item
   | ParaListItem       [Span]    -- a itemisted list item

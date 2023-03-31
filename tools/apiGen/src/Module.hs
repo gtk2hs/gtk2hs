@@ -627,7 +627,7 @@ reorderDecls :: Module -> Module
 reorderDecls module_ =
   module_ {
     --FIXME: this wirdness about treating methods differently
-    --       is only for compatability, remove it.
+    --       is only for compatibility, remove it.
     module_decls = List.sortBy (comparing lexicographicCurDocApi) methods
                 ++ List.sortBy (comparing decl_index_api) others
   }

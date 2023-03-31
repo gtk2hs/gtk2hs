@@ -75,7 +75,7 @@ type Bitmap = Pixmap
 -- and @depth@ must not be @Nothing@.
 --
 -- * Note that in Gtk+ 2.0 the @drawable@ can only be a 'DrawWindow', not an
--- arbitary 'Drawable'.
+-- arbitrary 'Drawable'.
 --
 #if GTK_CHECK_VERSION(2,2,0)
 pixmapNew :: DrawableClass drawable

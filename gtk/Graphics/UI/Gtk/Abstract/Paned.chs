@@ -31,7 +31,7 @@ module Graphics.UI.Gtk.Abstract.Paned (
 -- | 'Paned' is the base class for widgets with two panes, arranged either
 -- horizontally ('HPaned') or vertically ('VPaned'). Child widgets are added to
 -- the panes of the widget with 'panedPack1' and 'panedPack2'. The division
--- beween the two children is set by default from the size requests of the
+-- between the two children is set by default from the size requests of the
 -- children, but it can be adjusted by the user.
 --
 -- A paned widget draws a separator between the two child widgets and a

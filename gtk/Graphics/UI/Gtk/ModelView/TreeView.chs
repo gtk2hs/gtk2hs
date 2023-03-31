@@ -393,7 +393,7 @@ treeViewColumnsAutosize self =
   {# call tree_view_columns_autosize #}
     (toTreeView self)
 
--- | Set wether the columns headers are sensitive to mouse clicks.
+-- | Set whether the columns headers are sensitive to mouse clicks.
 --
 treeViewSetHeadersClickable :: TreeViewClass self => self -> Bool -> IO ()
 treeViewSetHeadersClickable self setting =
@@ -683,7 +683,7 @@ treeViewSetCursor self path (Just (focusColumn, startEditing)) =
 -- | Selects a cell in a specific row.
 --
 -- * Similar to 'treeViewSetCursor' but allows a column to
---   containt several 'CellRenderer's.
+--   contain several 'CellRenderer's.
 --
 -- * Only available in Gtk 2.2 and higher.
 --
@@ -793,7 +793,7 @@ treeViewCollapseRow self path =
     (toTreeView self)
     path
 
--- | Call function for every expaned row.
+-- | Call function for every expanded row.
 --
 treeViewMapExpandedRows :: TreeViewClass self => self
  -> (TreePath -> IO ())
@@ -975,7 +975,7 @@ treeViewGetVisibleRect self =
 #ifndef DISABLE_DEPRECATED
 #if GTK_MAJOR_VERSION < 3
 -- | 'treeViewTreeToWidgetCoords' has been deprecated since version 2.12 and should not be used in
--- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
+-- newly-written code. Due to historical reasons the name of this function is incorrect. For converting
 -- bin window coordinates to coordinates relative to bin window, please see
 -- 'treeViewConvertBinWindowToWidgetCoords'.
 --
@@ -1000,7 +1000,7 @@ treeViewTreeToWidgetCoords self (tx, ty) =
   return (fromIntegral wx, fromIntegral wy)
 
 -- | 'treeViewWidgetToTreeCoords' has been deprecated since version 2.12 and should not be used in
--- newly-written code. Due to historial reasons the name of this function is incorrect. For converting
+-- newly-written code. Due to historical reasons the name of this function is incorrect. For converting
 -- coordinates relative to the widget to bin window coordinates, please see
 -- 'treeViewConvertWidgetToBinWindowCoords'.
 --
@@ -1302,7 +1302,7 @@ treeViewGetHoverExpand self =
     (toTreeView self)
 
 -- | Enables of disables the hover expansion mode of the tree view. Hover
--- expansion makes rows expand or collaps if the pointer moves over them.
+-- expansion makes rows expand or collapse if the pointer moves over them.
 --
 -- * Available since Gtk+ version 2.6
 --
@@ -1742,7 +1742,7 @@ treeViewHoverSelection = newAttrFromBoolProperty "hover-selection"
 
 -- %hash c:c694 d:3f15
 -- | Enables of disables the hover expansion mode of @treeView@. Hover
--- expansion makes rows expand or collaps if the pointer moves over them.
+-- expansion makes rows expand or collapse if the pointer moves over them.
 --
 -- This mode is primarily intended for 'TreeView's in popups, e.g. in
 -- 'ComboBox' or 'EntryCompletion'.
@@ -1978,7 +1978,7 @@ afterStartInteractiveSearch =
 -- | Determine if this row should be collapsed.
 --
 -- * If the application connects to this function and returns @False@,
---   the specifc row will not be altered.
+--   the specific row will not be altered.
 --
 onTestCollapseRow, afterTestCollapseRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)
@@ -1991,7 +1991,7 @@ afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 -- | Determine if this row should be expanded.
 --
 -- * If the application connects to this function and returns @False@,
---   the specifc row will not be altered.
+--   the specific row will not be altered.
 --
 onTestExpandRow, afterTestExpandRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)

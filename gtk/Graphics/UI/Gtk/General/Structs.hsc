@@ -618,7 +618,7 @@ toResponse (-11) = ResponseHelp
 toResponse i = ResponseUser $ fromIntegral i
 
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
--- | The identifer of a window of the underlying windowing system.
+-- | The identifier of a window of the underlying windowing system.
 --
 #if defined(GDK_NATIVE_WINDOW_POINTER) && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
 --GDK Quartz also defined GDK_NATIVE_WINDOW_POINTER
@@ -806,7 +806,7 @@ fileSelectionGetButtons fsel =
 
 -- | Retrieves the 'DrawWindow' that the widget draws onto.
 --
--- This function thows an error if the widget has not yet been realized, since
+-- This function throws an error if the widget has not yet been realized, since
 -- a widget does not allocate its window resources until just before it is
 -- displayed on the screen. You can use the
 -- 'Graphics.UI.Gtk.Abstract.Widget.onRealize' signal to give you the
@@ -939,7 +939,7 @@ styleGetBase st ty =
 -- | Retrieve the color for drawing anti-aliased text.
 --
 -- * The anti-aliasing color is the color which is used when the rendering
---   of a character does not make it clear if a certain pixel shoud be set
+--   of a character does not make it clear if a certain pixel should be set
 --   or not. This color is between the text and the base color.
 --
 -- * The parameter @state@ determines for which widget

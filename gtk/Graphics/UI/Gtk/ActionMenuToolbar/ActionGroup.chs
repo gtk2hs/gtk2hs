@@ -249,9 +249,9 @@ actionGroupRemoveAction self action =
     self
     (toAction action)
 
--- Note: for these next few funtions we cannot use the C version because the
--- callback doesn't allow for propper memory management. So like pygtk we
--- implement them natively since they are only convenience functions afterall.
+-- Note: for these next few functions we cannot use the C version because the
+-- callback doesn't allow for proper memory management. So like pygtk we
+-- implement them natively since they are only convenience functions after all.
 
 
 -- | A description of an action.

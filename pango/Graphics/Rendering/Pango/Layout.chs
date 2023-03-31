@@ -4,7 +4,7 @@
 --
 --  Author : Axel Simon
 --
---  Created: 8 Feburary 2003
+--  Created: 8 February 2003
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -426,7 +426,7 @@ layoutGetSpacing :: PangoLayout -> IO Double
 layoutGetSpacing (PangoLayout _ pl) =
   liftM intToPu $ {#call unsafe layout_get_spacing#} pl
 
--- | Set if text should be streched to fit width.
+-- | Set if text should be stretched to fit width.
 --
 -- * Sets whether or not each complete line should be stretched to
 --   fill the entire width of the layout. This stretching is typically
@@ -510,7 +510,7 @@ layoutGetAlignment (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
 --
 type TabPosition = (Double, TabAlign)
 
--- | Set a list of Tab positoins.
+-- | Set a list of Tab positions.
 --
 layoutSetTabs :: PangoLayout -> [TabPosition] -> IO ()
 layoutSetTabs (PangoLayout _ pl) tabs = do
@@ -632,7 +632,7 @@ twoRect f =
 --   directionality equal to the base direction of the layout are inserted.
 --   The weak cursor location is the location where characters of the
 --   directionality opposite to the base direction of the layout are
---   inserted. The first element of the typle is the strong position,
+--   inserted. The first element of the tuple is the strong position,
 --   the second the weak.
 --
 layoutGetCursorPos :: PangoLayout -> Int ->
@@ -653,7 +653,7 @@ data CursorPos
 -- | Move a cursor visually.
 --
 -- * Compute a new cursor position from a previous cursor position. A value
---   of @True@ for the direction will move it to the right, independant of
+--   of @True@ for the direction will move it to the right, independent of
 --   the underlying direction. Hence the cursor position might jump if
 --   left-to-right text is mixed with right-to-left text.
 --
@@ -673,7 +673,7 @@ data CursorPos
 --   a cluster. The @trail@ value can contain a positive
 --   value if the current cursor position is at the end of the current line.
 --   In this case, @idx@ points past the last character of this line while
---   @trail@ contains the number of characters that are reponsible for the
+--   @trail@ contains the number of characters that are responsible for the
 --   line break such as newlines. The actual cursor position is always
 --   @idx+trail@ where the visual cursor should be shown.
 --
@@ -851,7 +851,7 @@ layoutIterGetBaseline (LayoutIter _ li) =
 --
 -- * Each 'LayoutLine' contains a list of 'GlyphItem's. This function
 --   returns the 'GlyphItem' under the current iterator. If the iterator
---   is positioned past the last charactor of the paragraph, the function
+--   is positioned past the last character of the paragraph, the function
 --   returns @Nothing@.
 --
 layoutIterGetItem :: LayoutIter -> IO (Maybe GlyphItem)

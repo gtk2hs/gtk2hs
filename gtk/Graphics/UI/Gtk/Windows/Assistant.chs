@@ -32,7 +32,7 @@ module Graphics.UI.Gtk.Windows.Assistant (
 -- * Detail
 --
 -- | A 'Assistant' is a widget used to represent a generally complex operation
--- splitted in several steps, guiding the user through its pages and
+-- split in several steps, guiding the user through its pages and
 -- controlling the page flow to collect the necessary data.
 
 -- ** GtkAssistant as GtkBuildable

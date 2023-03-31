@@ -87,7 +87,7 @@ constructor ``windowNew :: IO Window`` creates a new top level window. A
 window has certain property which are defined in the 
 [Window module https://hackage.haskell.org/package/gtk-0.14.6/docs/Graphics-UI-Gtk-Windows-Window.html].
 One of these properties is the name that appears in the title bar,
-documented as ``windowTitle :: WindowClas s self => Attr self String``.
+documented as ``windowTitle :: WindowClass self => Attr self String``.
 This property is accessible through the ``set`` and ``get`` functions. For
 instance, the line ``set window [ windowTitle := "Hello World" ]`` sets
 the ``windowTitle`` property of ``window`` to the given string.

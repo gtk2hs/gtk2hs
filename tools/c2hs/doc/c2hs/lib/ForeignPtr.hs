@@ -79,7 +79,7 @@ withForeignPtr (ForeignPtr fp) m  = do
 -- Extract the vanilla pointer from a foreign pointer
 --
 --  * This is a potentially dangerous operations, as if the argument to
---   foreignPtrToPtr is the last usage occurence of the given foreign pointer,
+--   foreignPtrToPtr is the last usage occurrence of the given foreign pointer,
 --   then its finaliser(s) will be run, which potentially invalidates the
 --   plain pointer just obtained. Hence, `touchForeignPtr' must be used
 --   wherever it has to be guaranteed that the pointer lives on - i.e., has

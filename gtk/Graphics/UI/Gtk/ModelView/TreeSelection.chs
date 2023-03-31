@@ -160,7 +160,7 @@ treeSelectionSetSelectFunction ts fun = do
     (castFunPtrToPtr fPtr)
     destroyFunPtr
 
--- | Callback type for a function that is called everytime the selection
+-- | Callback type for a function that is called every time the selection
 -- changes. This function is set with 'treeSelectionSetSelectFunction'.
 --
 type TreeSelectionCB = TreePath -> IO Bool

@@ -6,7 +6,7 @@ renamed all the Event record member names
 
 after 0.9.7
 
-idle priorities now have right names. See eg progrss demo for how to change the code.
+idle priorities now have right names. See eg progress demo for how to change the code.
 
 treeViewSetHadjustment, treeViewSetHadjustment,
 treeViewSetHadjustment, treeViewSetHadjustment  all renamed and the set ones
@@ -20,7 +20,7 @@ type will break if X servers should ever support more than 5 buttons.
 
 Events.hsc: removed several constructors, change the Key event.
 
-General.chs: changed the priorty constants
+General.chs: changed the priority constants
 
 Bin.chs: make binGetChild return Maybe
 

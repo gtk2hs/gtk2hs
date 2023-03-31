@@ -322,7 +322,7 @@ The module \code{base/syntax/Parsers.hs} builds only with GHC 4.$x$
 ($x\geq02$)---if a version 3.$x$ system is selected, the make process
 automatically avoids compiling this module.  Due to a bug in GHC 4.02, the
 generated \code{.hi} file \code{build/ghc-4/base/syntax/Parsers.hs} must be
-edited by hand and the first two occurences of \code{\{\}} (left brace
+edited by hand and the first two occurrences of \code{\{\}} (left brace
 immediately followed by right brace) should be deleted; otherwise, the
 compilation of modules importing \code{Parsers.hs} will fail.  This bug should
 be fixed from GHC 4.02 on.
@@ -443,7 +443,7 @@ in
 %
 it is not very helpful to write ``the value passed to \texttt{format} is one
 greater than that of \texttt{column}''---this is clear from the code.  Instead
-something, like ``the width of the formated region is one character wider than
+something, like ``the width of the formatted region is one character wider than
 that of the cursor's current column position, to avoid some boundary
 conditions'' provides important additional information.
 
@@ -455,7 +455,7 @@ its purpose.  Long explanations belong into the module header or external
 documentation, but brief descriptions ease the orientation in a complex
 module.  If it gets too complex, consider splitting it into sub-modules.
 
-\subsection{Comments for Funtion Definitions}
+\subsection{Comments for Function Definitions}
 
 Figure~\ref{fig:fun-comment} gives the template of a function definition and
 its comments.
@@ -630,7 +630,7 @@ The global error table accumulates warnings (\code{raiseWarning}), errors
 extracted from the state using \code{showErrors}. The operation
 \code{showErrors} pretty prints the accumulated error messages into a
 \code{String}, which is returned, and removes the errors from the global error
-table. On occurence of a fatal error, a fatal error exception is raised and the
+table. On occurrence of a fatal error, a fatal error exception is raised and the
 pretty printed accumulated errors are added to the message of the fatal error
 exception.
 
@@ -640,13 +640,13 @@ present in the global error table.
 \subsubsection{Extra State}
 
 The extra state can be instantiated by the client compiler.  Its initial value 
-is passed to the \code{run} funcion.
+is passed to the \code{run} function.
 
 \subsection{Use of the Generic State}
 \label{sec:generic-state}
 
 The generic state (parameter of \code{CST}) is useful when a data structure
-has to be updated often or has to be plumped thorugh some computation for
+has to be updated often or has to be plumped through some computation for
 other reasons. It does not necessarily mean that the data structure is really
 updated in-place, but it may. It is important for the readability of the code,
 its reuse, and maintainability to keep the state information, i.e., the
@@ -658,7 +658,7 @@ are not only used locally and can be treated in a functional fashion.
 \end{quote}
 %
 As an example consider implementation of a graph-traversal that needs marking.
-The use of a mutable table of marks that is seperate from the data structure
+The use of a mutable table of marks that is separate from the data structure
 representing the graph localizes the state better than storing a `marked' flag
 within each node.  As a result the graph itself will still be a purely
 functional structure, only the short-lived table of marks will be impure and
@@ -690,11 +690,11 @@ system and be user-defined. Exceptions are always user-defined.
 \item Exceptions are meant to be caught in order to recover the currently
   executed operation (e.g., we may want to abort type checking a certain
   expression, but continue with type checking the next function definition).
-  Exceptions turn into fatal errors if they are not caught. Execeptions are
+  Exceptions turn into fatal errors if they are not caught. Exceptions are
   tagged, which allows to deal with multiple kinds of exceptions at the same
   time and to handle them differently.
 
-  Exceptions are raised using \code{thow} and handled using \code{catch}.
+  Exceptions are raised using \code{throw} and handled using \code{catch}.
 
 \item User-defined fatal errors abort the currently executed operation (e.g.,\
   loading a program module), but they may be caught at the top-level in order
@@ -1063,7 +1063,7 @@ We do not need a `real' hash table, because
 %
 We spare us the use of some array that has to be updated destructively. The
 main disadvantage is increased memory usage due to maintaining a complex
-identifiers representation for {\em each identifier occurence} (including the
+identifiers representation for {\em each identifier occurrence} (including the
 often equal, but not shared, lexemes).
 
 This technique speeds up the equality test between \emph{distinct} identifiers.
@@ -1073,7 +1073,7 @@ This technique speeds up the equality test between \emph{distinct} identifiers.
 \label{sec:attrs}
 
 Attributes are not directly stored in the structure tree nodes. Instead, each
-node has a unqiue \emph{attribute identifier}. Each kind of attribute is stored
+node has a unique \emph{attribute identifier}. Each kind of attribute is stored
 in a global attribute table that is accessed via the attribute
 identifiers. These tables may have different representations according to the
 needs of an attribute. The representation may even be changed, e.g.,\ by
@@ -1087,7 +1087,7 @@ Advantages:
 \item Copying the structure tree to change some attribute is avoided.
 \item Complete attributes can be newly used or discarded independent from the
   structure tree or anything else. This is not only positive for minimizing
-  changes in the struture tree, but also for maintaining the whole program
+  changes in the structure tree, but also for maintaining the whole program
   code.
 \end{itemize}
 
@@ -1096,7 +1096,7 @@ Disadvantage: Increased access time to the attributes.
 The handling of the attribute identifiers and the attribute tables is defined
 in the module \code{Attributes}.  The attribute data type \code{Attrs} also
 contains a variant that does not contain an attribute identifier, but only a
-position.  This is used, for example, for the defining occurences of
+position.  This is used, for example, for the defining occurrences of
 identifiers of builtin objects.
 
 \subsection{Making Attributes}
@@ -1121,7 +1121,7 @@ attributes---this facilitates making the attribute tables dense.
 
 The main function of the identifiers attributes is to reference the object
 that the identifiers represents.  Note that the identifiers of the
-\emph{defining occurences} of builtin objects can not be associated with
+\emph{defining occurrences} of builtin objects can not be associated with
 attributes in an attribute table.  A position is the only attribute they can
 take.  (Giving them full attributes would cause some hassle, because they then
 would need a unique name, and furthermore, these attributes would not be used
@@ -1152,7 +1152,7 @@ in such files from now on the PDF signatures.
 
 To keep the core of the compiler as small as possible \emph{primitive
   definition files (PDFs)} are used to specify the translation of the
-primitives occuring in \KCode\ and \FOC.  To ease the maintenance of the
+primitives occurring in \KCode\ and \FOC.  To ease the maintenance of the
 primitives, the PDFs have a restricted layout (although they are standard
 Haskell files).
 
@@ -1215,7 +1215,7 @@ exports the interface to the primitives to the rest of the
 compiler. \code{Primitives} exports a \code{FiniteMap} that maps the
 identifiers of the primitives to a pair of signature and primitive definition.
 
-\chapter{Auxilliary Modules}
+\chapter{Auxiliary Modules}
 \label{cha:aux}
 
 \section{Error Handling}
@@ -1298,7 +1298,7 @@ levels}:
 \item[Warning.] Suspicious constructs in a program generate a warning. This
   does not necessarily mean that the code is incorrect and it does not prevent
   the generation of code or the execution of the program.
-\item[Plain Error.] Notation that is inavlid by the static semantics of the
+\item[Plain Error.] Notation that is invalid by the static semantics of the
   programming language leads to a plain error. A single such error prevents 
   code generation, but the remainder of the program can still be analyzed to
   find further errors.

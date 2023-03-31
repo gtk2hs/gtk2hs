@@ -196,7 +196,7 @@ pixbufGetBitsPerSample pb = liftM fromIntegral $
 --   'pixbufGetRowstride', indicates the number of bytes between rows.
 --
 -- * The returned array is a flat representation of a three dimensional
---   array: x-coordiante, y-coordinate and several channels for each color.
+--   array: x-coordinate, y-coordinate and several channels for each color.
 --   The number of channels is usually 3 for plain RGB data or 4 for
 --   RGB data with an alpha channel. To read or write a specific pixel
 --   use the formula: @p = y * rowstride + x * nChannels@ for the pixel.
@@ -245,13 +245,13 @@ pixbufGetHeight pb = liftM fromIntegral $
 -- | Queries the rowstride of this image.
 --
 -- * Queries the rowstride of a pixbuf, which is the number of bytes between
---   rows. Use this value to caculate the offset to a certain row.
+--   rows. Use this value to calculate the offset to a certain row.
 --
 pixbufGetRowstride :: Pixbuf -> IO Int
 pixbufGetRowstride pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_rowstride#} pb
 
--- | Returns an attribut of an image.
+-- | Returns an attribute of an image.
 --
 -- * Looks up if some information was stored under the @key@ when
 --   this image was saved.
@@ -507,7 +507,7 @@ data InlineImage
 --    into an object file which must be linked into your Haskell program by
 --   specifying @my_image.o@ and @\"-#include my_image.h\"@ on
 --   the command line of GHC.
---   Within you application you delcare a pointer to this image:
+--   Within you application you declare a pointer to this image:
 --
 -- > foreign label "my_image" myImage :: Ptr InlineImage
 --
@@ -727,7 +727,7 @@ pixbufAddAlpha pb (Just (r,g,b)) = wrapNewGObject mkPixbuf $
 
 -- | Copy a rectangular portion into another 'Pixbuf'.
 --
--- The source 'Pixbuf' remains unchanged. Converion between
+-- The source 'Pixbuf' remains unchanged. Conversion between
 -- different formats is done automatically.
 --
 pixbufCopyArea ::

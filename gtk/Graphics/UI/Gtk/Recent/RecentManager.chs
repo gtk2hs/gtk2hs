@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Recent.RecentManager (
 --
 -- The 'RecentManager' acts like a database of all the recently used files.
 -- You can create new 'RecentManager' objects, but it is more efficient to use
--- the standard recent manager for the 'Screen' so that informations about the
+-- the standard recent manager for the 'Screen' so that information about the
 -- recently used files is shared with other people using them. In case the
 -- default screen is being used, adding a new recently used file is as simple
 -- as:
@@ -178,7 +178,7 @@ recentManagerRemoveItem self uri =
                   (\_ -> return False)
 
 -- | Searches for a URI inside the recently used resources list, and returns a
--- structure containing informations about the resource like its MIME type, or
+-- structure containing information about the resource like its MIME type, or
 -- its display name.
 --
 --

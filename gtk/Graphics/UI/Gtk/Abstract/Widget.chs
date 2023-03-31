@@ -43,7 +43,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- the look of applications without the need to write a theme engine in C.
 --
 -- Widgets receive events, that is, signals that indicate some low-level
--- user iteraction. The signal handlers for all these events have to
+-- user interaction. The signal handlers for all these events have to
 -- return @True@ if the signal has been dealt with and @False@ if other
 -- signal handlers should be run.
 
@@ -685,7 +685,7 @@ widgetHideAll self =
 -- unrealized. When a widget is destroyed, it will break any references it
 -- holds to other objects.If the widget is inside a container, the widget will
 -- be removed from the container. The widget will be garbage collected
--- (finalized) time after your last reference to the widget dissapears.
+-- (finalized) time after your last reference to the widget disappears.
 --
 -- In most cases, only toplevel widgets (windows) require explicit
 -- destruction, because when you destroy a toplevel its children will be
@@ -823,7 +823,7 @@ widgetSizeRequest self = alloca $ \reqPtr -> do
   peek reqPtr
 
 -- | This function is only for use in widget implementations. Obtains the
--- chached requisition information in the widget, unless someone has forced a
+-- cached requisition information in the widget, unless someone has forced a
 -- particular geometry on the widget (e.g. with 'widgetSetSizeRequest'), in which
 -- case it returns that geometry instead of the widget's requisition.
 --
@@ -1096,7 +1096,7 @@ widgetSetSensitive self sensitive =
     (toWidget self)
     (fromBool sensitive)
 
--- bad spelling backwards compatability definition
+-- bad spelling backwards compatibility definition
 widgetSetSensitivity :: WidgetClass self => self -> Bool -> IO ()
 widgetSetSensitivity = widgetSetSensitive
 
@@ -1396,7 +1396,7 @@ widgetGetDefaultColormap =
 -- set the direction is present in order so that correct localization into
 -- languages with right-to-left reading directions can be done. Generally,
 -- applications will let the default reading direction present, except for
--- containers where the containers are arranged in an order that is explicitely
+-- containers where the containers are arranged in an order that is explicitly
 -- visual rather than logical (such as buttons for text justification).
 --
 -- If the direction is set to 'TextDirNone', then the value set by
@@ -1516,7 +1516,7 @@ widgetInputShapeCombineRegion self region =
 -- Works even if the widget is obscured. The depth and visual of the resulting pixmap is dependent on
 -- the widget being snapshot and likely differs from those of a target widget displaying the
 -- pixmap. The function 'pixbufGetFromDrawable' can be used to convert the pixmap to a visual
--- independant representation.
+-- independent representation.
 --
 -- The snapshot area used by this function is the widget's allocation plus any extra space occupied by
 -- additional windows belonging to this widget (such as the arrows of a spin button). Thus, the
@@ -1709,7 +1709,7 @@ widgetOverrideCursor self cursor secondaryCursor =
 
 -- | Modifies style values on the widget. Modifications made using this
 -- technique take precedence over style values set via an RC file, however,
--- they will be overriden if a style is explicitely set on the widget using
+-- they will be overridden if a style is explicitly set on the widget using
 -- 'widgetSetStyle'. The 'RcStyle' structure is designed so each field can
 -- either be set or unset, so it is possible, using this function, to modify
 -- some style values and leave the others unchanged.
@@ -2336,7 +2336,7 @@ widgetGetDisplay self =
 
 -- %hash c:8e4e d:252b
 -- | Get the root window where this widget is located. This function can only
--- be called after the widget has been added to a widget heirarchy with
+-- be called after the widget has been added to a widget hierarchy with
 -- 'Window' at the top.
 --
 -- The root window is useful for such purposes as creating a popup
@@ -2375,12 +2375,12 @@ widgetGetScreen self =
 -- %hash c:4fab d:aae2
 -- | Checks whether there is a 'Screen' is associated with this widget. All
 -- toplevel widgets have an associated screen, and all widgets added into a
--- heirarchy with a toplevel window at the top.
+-- hierarchy with a toplevel window at the top.
 --
 -- * Available since Gtk+ version 2.2
 --
 widgetHasScreen :: WidgetClass self => self
- -> IO Bool -- ^ returns @True@ if there is a 'Screen' associcated with the
+ -> IO Bool -- ^ returns @True@ if there is a 'Screen' associated with the
             -- widget.
 widgetHasScreen self =
   liftM toBool $
@@ -2392,7 +2392,7 @@ widgetHasScreen self =
 -- | Gets the size request that was explicitly set for the widget using
 -- 'widgetSetSizeRequest'. A value of -1 for @width@ or @height@
 -- indicates that that dimension has not been set explicitly and the natural
--- requisition of the widget will be used intead. See 'widgetSetSizeRequest'.
+-- requisition of the widget will be used instead. See 'widgetSetSizeRequest'.
 -- To get the size a widget will actually use, call 'widgetSizeRequest' instead
 -- of this function.
 --

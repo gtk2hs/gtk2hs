@@ -27,7 +27,7 @@
 -- Stability   : deprecated
 -- Portability : portable (depends on GHC)
 --
--- Definiton of a record that contains event information. Deprecated in
+-- Definition of a record that contains event information. Deprecated in
 -- favor of 'Graphics.UI.Gtk.Gdk.EventM' and not exported by Gtk.hs.
 --
 module Graphics.UI.Gtk.Gdk.Events (
@@ -324,7 +324,7 @@ data Event =
     --
     eventNotifyType     :: NotifyType,
     eventModifier       :: [Modifier]}
-  -- | Gaining or loosing input focus.
+  -- | Gaining or losing input focus.
   --
   | Focus {
     eventSent   :: Bool,
@@ -354,7 +354,7 @@ data Event =
   --
   -- * This action denotes that the content of the widget should be scrolled.
   --   The event is triggered by the movement of the mouse wheel. Surrounding
-  --   scroll bars are independant of this signal. Most mice do not have
+  --   scroll bars are independent of this signal. Most mice do not have
   --   buttons for horizontal scrolling, hence 'eventDirection' will usually not
   --   contain 'ScrollLeft' and 'ScrollRight'. Mice with additional
   --   buttons may not work on X since only five buttons are supported

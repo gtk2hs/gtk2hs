@@ -1879,7 +1879,7 @@ windowGetUrgencyHint self =
 --
 windowSetGeometryHints :: (WindowClass self, WidgetClass widget) =>
     self             -- ^ @window@ - the top level window
- -> Maybe widget     -- ^ @geometryWidget@ - optionall a widget the geometry
+ -> Maybe widget     -- ^ @geometryWidget@ - optional a widget the geometry
                      -- hints will be applied to rather than directly to the
                      -- top level window
  -> Maybe (Int, Int) -- ^ @(minWidth, minHeight)@ - minimum width and height
@@ -2011,7 +2011,7 @@ windowType :: WindowClass self => ReadAttr self WindowType
 windowType = readAttrFromEnumProperty "type"
   {# call pure unsafe gtk_window_type_get_type #}
 
--- | If @True@, the window has no mimimum size. Setting this to @True@ is 99%
+-- | If @True@, the window has no minimum size. Setting this to @True@ is 99%
 -- of the time a bad idea.
 --
 -- Default value: @False@
@@ -2312,7 +2312,7 @@ windowGravity = newAttr
 -- | Whether the input focus is within this GtkWindow.
 --
 -- Note: If add `window` before `HasToplevelFocus` (has-toplevel-focus attribute)
--- will conflicts with fucntion `windowHasToplevelFocus`, so we named this attribute
+-- will conflicts with function `windowHasToplevelFocus`, so we named this attribute
 -- to `windowToplevelFocus`.
 --
 -- Default values: @False@

@@ -54,7 +54,7 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- parameter that denotes how to fill up unused space.
 --
 -- While the right amount of padding around each widget is a matter of
--- appearance, the 'Packing' paramter specifies the way the widgets in
+-- appearance, the 'Packing' parameter specifies the way the widgets in
 -- the container behave when the window is resized and thereby affect
 -- the usability. Hence, once you have created a window, you should resize
 -- it and see if the widgets behave as expected. The 'Packing' parameter of
@@ -195,7 +195,7 @@ boxPackStart self child packing padding =
 --
 -- Note that
 -- for 'boxPackEnd' the 'PackNatural' option will move a child to the right in
--- an 'HBox' or to the bottom in an 'VBox' if there is more space availble.
+-- an 'HBox' or to the bottom in an 'VBox' if there is more space available.
 --
 boxPackEnd :: (BoxClass self, WidgetClass child) => self
  -> child -- ^ @child@ - the 'Widget' to be added to the box.
@@ -343,7 +343,7 @@ boxSetChildPacking self child packing padding packType =
   where (expand, fill) = fromPacking packing
 
 #if GTK_CHECK_VERSION(3,10,0)
--- | Gets the value set by `boxSetBaselinePostion`
+-- | Gets the value set by `boxSetBaselinePosition`
 boxGetBaselinePosition :: BoxClass self => self
  -> IO BaselinePosition
 boxGetBaselinePosition self =

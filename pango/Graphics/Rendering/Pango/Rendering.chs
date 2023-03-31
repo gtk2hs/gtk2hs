@@ -4,7 +4,7 @@
 --
 --  Author : Axel Simon
 --
---  Created: 8 Feburary 2003
+--  Created: 8 February 2003
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --

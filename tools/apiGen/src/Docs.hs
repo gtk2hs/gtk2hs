@@ -89,7 +89,7 @@ data SignalDoc = SignalDoc {
 
 data DocPara =
     DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
-  | DocParaProgram String               -- a verbatum section
+  | DocParaProgram String               -- a verbatim section
   | DocParaTitle String                 -- a title to a subsection eg an example
   | DocParaDefItem [DocParaSpan] [DocParaSpan] -- a definition list item
   | DocParaListItem [DocParaSpan]       -- a itemisted list item

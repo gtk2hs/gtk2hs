@@ -133,7 +133,7 @@ yield a  = CST $ return a
 (+>=)   :: PreCST e s a -> (a -> PreCST e s b) -> PreCST e s b
 m +>= k  = CST $ unpackCST m >>= (\a -> unpackCST (k a))
 
--- bind dropping the result of the first state transfomer
+-- bind dropping the result of the first state transformer
 --
 (+>)   :: PreCST e s a -> PreCST e s b -> PreCST e s b
 k +> m  = k +>= const m

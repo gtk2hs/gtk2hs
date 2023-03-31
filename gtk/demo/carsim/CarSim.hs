@@ -136,7 +136,7 @@ main = do
 
     -- If 'resume' is called, 'step' will be called at small
     -- timesteps to update car data. If 'pause' is called, 'step'
-    -- calls are stoped.  'resume' is called at program startup,
+    -- calls are stopped.  'resume' is called at program startup,
     -- and then the pause button alternates 'resume' and 'pause'.
 
     let step = do

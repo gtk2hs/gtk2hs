@@ -33,7 +33,7 @@ module Graphics.UI.Gtk.General.IconTheme (
 --
 -- | 'IconTheme' provides a facility for looking up icons by name and size. The main reason for using a
 -- name rather than simply providing a filename is to allow different icons to be used depending on
--- what icon theme is selecetd by the user. The operation of icon themes on Linux and Unix follows the
+-- what icon theme is selected by the user. The operation of icon themes on Linux and Unix follows the
 -- Icon Theme Specification. There is a default icon theme, named hicolor where applications should
 -- install their icons, but more additional application themes can be installed as operating system
 -- vendors and users choose.

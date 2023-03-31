@@ -42,11 +42,11 @@
 module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 -- * Detail
 --
--- | The 'MenuItem' widget and the derived widgets are the only valid childs
+-- | The 'MenuItem' widget and the derived widgets are the only valid children
 -- for menus. Their function is to correctly handle highlighting, alignment,
 -- events and submenus.
 --
--- As it derives from 'Bin' it can hold any valid child widget, altough only
+-- As it derives from 'Bin' it can hold any valid child widget, although only
 -- a few are really useful.
 
 -- * Class Hierarchy
@@ -282,7 +282,7 @@ menuItemGetRightJustified self =
 
 -- | Set the accelerator path on the menu item, through which runtime changes of
 -- the menu item's accelerator caused by the user can be identified and saved
--- to persistant storage (see 'accelMapSave' on this). To setup a default
+-- to persistent storage (see 'accelMapSave' on this). To setup a default
 -- accelerator for this menu item, call 'accelMapAddEntry' with the same accel
 -- path. See also 'accelMapAddEntry' on the specifics of accelerator paths, and
 -- 'menuSetAccelPath' for a more convenient variant of this function.
