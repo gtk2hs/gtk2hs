@@ -92,6 +92,7 @@ import Graphics.Rendering.Cairo.Internal (Render(Render))
 import Control.Monad.Reader
 import Graphics.UI.Gtk.General.Structs (Rectangle(..))
 #endif
+import Control.Monad (unless, liftM)
 
 {# context lib="gdk" prefix="gdk" #}
 
