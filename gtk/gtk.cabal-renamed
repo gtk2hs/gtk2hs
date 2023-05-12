@@ -134,13 +134,16 @@ Flag fmode-binary
   Default: True
 
 custom-setup
-  setup-depends: base >= 4.6,
+  setup-depends: base >= 4.6 && < 5,
                  Cabal >= 2.0 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
-                        array, containers, mtl, bytestring,
+                        array < 0.6,
+                        bytestring < 0.12,
+                        containers < 0.7,
+                        mtl < 2.4,
                         text >= 0.11.0.6 && < 2.1,
                         glib  >= 0.13.0.0 && < 0.14,
                         pango >= 0.13.0.0 && < 0.14,

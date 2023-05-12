@@ -46,7 +46,12 @@ custom-setup
 
 Library
         build-depends:  base >= 4 && < 5,
-                        process, directory, array, containers, pretty, mtl,
+                        array < 0.6,
+                        containers < 0.7,
+                        directory < 1.4,
+                        mtl < 2.4,
+                        process < 1.7,
+                        pretty < 1.2,
                         glib  >= 0.13.0.0 && < 0.14,
                         cairo >= 0.13.0.0 && < 0.14,
                         text >= 0.11.0.6 && < 2.1

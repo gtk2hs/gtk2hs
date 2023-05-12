@@ -31,7 +31,7 @@ Flag closure_signals
   Description:  Connect to signals using the Duncan way.
 
 custom-setup
-  setup-depends: base >= 4.6,
+  setup-depends: base >= 4.6 && < 5,
                  Cabal >= 2.0 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
@@ -40,7 +40,7 @@ Library
                         utf8-string >= 0.2 && < 1.1,
                         bytestring >= 0.9.1.10 && < 0.12,
                         text >= 1.0.0.0 && < 2.1,
-                        containers
+                        containers < 0.7
         cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
           cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn= -D__attribute__(x)=
