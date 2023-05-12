@@ -52,7 +52,7 @@ Flag cairo_svg
   Description: Build the Scalable Vector Graphics (SVG) backend of Cairo.
 
 custom-setup
-  setup-depends: base >= 4.6,
+  setup-depends: base >= 4.6 && <5,
                  Cabal >= 2.0 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
@@ -60,7 +60,9 @@ Library
         build-depends:  base >= 4.8 && < 5,
                         utf8-string >= 0.2 && < 1.1,
                         text >= 1.0.0.0 && < 2.1,
-                        bytestring, mtl, array
+                        array < 0.6,
+                        bytestring < 0.12,
+                        mtl < 2.4
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix
                           Graphics.Rendering.Cairo.Types
