@@ -70,6 +70,7 @@ import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
 import qualified Graphics.Rendering.Cairo as Cairo
 import Graphics.Rendering.Cairo.Internal (Render(Render))
 import Control.Monad.Reader
+import Control.Monad (liftM)
 
 {# context lib="gdk" prefix="gdk" #}
 

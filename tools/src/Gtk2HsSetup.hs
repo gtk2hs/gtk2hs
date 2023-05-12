@@ -299,6 +299,9 @@ ourC2hs bi lbi _ = PreProcessor {
 ourC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
 ourC2hs bi lbi = PreProcessor {
 #endif
+#if MIN_VERSION_Cabal(3,8,1)
+  ppOrdering = \_ _ ms -> return ms,
+#endif
   platformIndependent = False,
   runPreProcessor = runC2HS bi lbi
 }
