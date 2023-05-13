@@ -13,7 +13,7 @@ main = do
         window <- builderGetObject builder castToWindow "window1"
         button <- builderGetObject builder castToButton "button1"
 
-        -- Basic user interation
+        -- Basic user interaction
         on button buttonActivated $ putStrLn "button pressed!"
         on window objectDestroy mainQuit
 

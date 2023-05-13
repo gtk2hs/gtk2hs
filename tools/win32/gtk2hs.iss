@@ -124,10 +124,10 @@ begin
       if LoadStringFromFile(TmpFile, Result) then
       begin
         Result := Trim(Result);
-        Log('ExecOutput: running ' + Filename + ' succeded with output: ' + Result);
+        Log('ExecOutput: running ' + Filename + ' succeeded with output: ' + Result);
       end
       else
-        Log('ExecOutput: running ' + Filename + ' succeded, but the temp file was not created')
+        Log('ExecOutput: running ' + Filename + ' succeeded, but the temp file was not created')
     else
       Log('ExecOutput: running ' + Filename + ' failed, code: ' + IntToStr(ResultCode))
   else
@@ -421,7 +421,7 @@ begin
               'You can fix this problem in a couple of ways:' #13#10 #13#10
               '1) You could uninstall or delete the program that installed the offending files '
             + '(eg it might be that you have an old version of Gtk+ installed).' #13#10 #13#10
-              '2) You could modify the system-wide "Path" envrionment variable and remove the '
+              '2) You could modify the system-wide "Path" environment variable and remove the '
             + 'offending directory from it.'
         end
         else

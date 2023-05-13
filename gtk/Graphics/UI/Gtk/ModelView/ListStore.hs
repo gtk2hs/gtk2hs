@@ -4,7 +4,7 @@
 --
 --  Author : Duncan Coutts, Axel Simon
 --
---  Created: 11 Feburary 2006
+--  Created: 11 February 2006
 --
 --  Copyright (C) 2005 Duncan Coutts, Axel Simon
 --
@@ -284,9 +284,9 @@ listStoreClear :: ListStore a -> IO ()
 listStoreClear (ListStore model) =
 
   -- Since deleting rows can cause callbacks (eg due to selection changes)
-  -- we have to make sure the model is consitent with the view at each
+  -- we have to make sure the model is consistent with the view at each
   -- intermediate step of clearing the store. Otherwise at some intermediate
-  -- stage when the view has only been informed about some delections, the
+  -- stage when the view has only been informed about some deletions, the
   -- user might query the model expecting to find the remaining rows are there
   -- but find them deleted. That'd be bad.
   --

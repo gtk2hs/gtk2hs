@@ -68,7 +68,7 @@
   <code>FileChooserActionOpen</code> here, and when the user
   definitely chooses a file by doubleclicking it or pressing the
   Enter key, the 
-  <code>onFileActived</code> signal is emitted. Then we use:</p>  
+  <code>onFileActivated</code> signal is emitted. Then we use:</p>
   <pre class="codebox">fileChooserGetFilename :: FileChooserClass self =&gt; self -&gt; IO (Maybe FilePath)
 </pre>
   <p>From the filepath, the program can then open the file, or
@@ -304,7 +304,7 @@ Maybe String                 -- title of the dialog or default
   folder. As in the example before, trying to create a folder which
   already exists results in an error message. Overwriting a file,
   however, makes sense and is allowed by default. You can make the
-  user confirm any overwite of a file with:</p>
+  user confirm any overwrite of a file with:</p>
   <pre class="codebox">fileChooserSetDoOverwriteconfirmation :: FileChooserClass self
 =&gt; self -&gt; Bool -&gt; IO ()
 </pre>

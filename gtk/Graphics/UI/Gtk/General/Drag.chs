@@ -39,7 +39,7 @@
 --  eventTime  :: TimeStamp,
 --  eventModifier  :: [Modifier]}
 --
--- drag_set_icon_pixmap : colormaps are a pain, they migth be useful here
+-- drag_set_icon_pixmap : colormaps are a pain, they might be useful here
 -- drag_set_default_icon : obsolete drag_source_set_icon : colormap problem
 --
 -- |
@@ -343,7 +343,7 @@ dragFinish context success del time =
 -- retrieval fails, GTK+ will emit a 'dragDataReceived' signal. Failure of
 -- the retrieval is indicated by passing @Nothing@ in the 'selectionData' signal.
 -- However, when 'dragGetData' is called
--- implicitely because the 'DestDefaultDrop' was set, then the widget will
+-- implicitly because the 'DestDefaultDrop' was set, then the widget will
 -- not receive notification of failed drops.
 --
 dragGetData :: (WidgetClass widget, DragContextClass context)
@@ -470,7 +470,7 @@ dragSetIconDefault context =
 
 -- %hash c:5785 d:af3f
 -- | Checks to see if a mouse drag starting at @(startX, startY)@ and ending
--- at @(currentX, currenty)@ has passed the GTK+ drag threshold, and thus
+-- at @(currentX, currentY)@ has passed the GTK+ drag threshold, and thus
 -- should trigger the beginning of a drag-and-drop operation.
 --
 dragCheckThreshold :: WidgetClass widget => widget

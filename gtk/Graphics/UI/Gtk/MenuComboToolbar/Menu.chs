@@ -25,8 +25,8 @@
 --
 -- The function menuPopup at a specific position is difficult to bind:
 --   The callback function that determines at which position the menu is
---   to be shown is keept after the call returns. Maybe we could destroy
---   this function pointer with a destory event?
+--   to be shown is kept after the call returns. Maybe we could destroy
+--   this function pointer with a destroy event?
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -215,7 +215,7 @@ menuGetAccelGroup self =
 -- its immediate children, its menu items, can be constructed. The main purpose
 -- of this function is to spare the programmer the inconvenience of having to
 -- call 'menuItemSetAccelPath' on each menu item that should support runtime
--- user changable accelerators. Instead, by just calling 'menuSetAccelPath' on
+-- user changeable accelerators. Instead, by just calling 'menuSetAccelPath' on
 -- their parent, each menu item of this menu, that contains a label describing
 -- its purpose, automatically gets an accel path assigned.
 --

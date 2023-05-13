@@ -114,7 +114,7 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
   radioButtonNewWithLabelFromWidget,
   radioButtonNewWithMnemonicFromWidget,
 
-  -- * Compatibilty aliases
+  -- * Compatibility aliases
   radioButtonNewJoinGroup,
   radioButtonNewJoinGroupWithLabel,
   radioButtonNewJoinGroupWithMnemonic,
@@ -318,7 +318,7 @@ radioButtonGroup = newAttr
 -- | Emitted when the group of radio buttons that a radio button belongs to
 -- changes. This is emitted when a radio button switches from being alone to
 -- being part of a group of 2 or more buttons, or vice-versa, and when a
--- buttton is moved from one group of 2 or more buttons to a different one, but
+-- button is moved from one group of 2 or more buttons to a different one, but
 -- not when the composition of the group that a button belongs to changes.
 --
 -- * Available since Gtk+ version 2.4
@@ -336,7 +336,7 @@ groupChanged = Signal (connect_NONE__NONE "group-changed")
 -- | Emitted when the group of radio buttons that a radio button belongs to
 -- changes. This is emitted when a radio button switches from being alone to
 -- being part of a group of 2 or more buttons, or vice-versa, and when a
--- buttton is moved from one group of 2 or more buttons to a different one, but
+-- button is moved from one group of 2 or more buttons to a different one, but
 -- not when the composition of the group that a button belongs to changes.
 --
 onGroupChanged, afterGroupChanged :: RadioButtonClass self => self

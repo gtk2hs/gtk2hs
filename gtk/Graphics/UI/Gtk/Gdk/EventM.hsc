@@ -90,7 +90,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
 --   print a message. Note that the return
 --   value of this statement must be @()@ since 'tryEvent' always
 --   assumes that the
---   function handeled the event if no exception is thrown. A handler
+--   function handled the event if no exception is thrown. A handler
 --   wrapped by 'tryEvent' can also indicate that it cannot handle the
 --   given event by calling 'stopEvent'.
 --
@@ -180,7 +180,7 @@ module Graphics.UI.Gtk.Gdk.EventM (
   eventGrabWindow,
 #endif
 
--- * Auxilliary Definitions
+-- * Auxiliary Definitions
   Modifier(..),         -- a mask of control keys
   TimeStamp,
   currentTime,

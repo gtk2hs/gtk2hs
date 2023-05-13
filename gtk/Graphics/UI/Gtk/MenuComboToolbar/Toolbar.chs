@@ -28,7 +28,7 @@
 module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- * Detail
 --
--- | This widget underwent a signficant overhaul in gtk 2.4 and the
+-- | This widget underwent a significant overhaul in gtk 2.4 and the
 -- recommended api changed substantially. The old interface is still supported
 -- but it is not recommended.
 --
@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 #ifndef DISABLE_DEPRECATED
 -- | * The following information applies to the old interface only.
 --
--- 'Button's, 'RadioButton's and 'ToggleButton's can be added by refering to
+-- 'Button's, 'RadioButton's and 'ToggleButton's can be added by referring to
 -- stock images. Their size can be changed by calling 'toolbarSetIconSize'. In
 -- contrast, normal widget cannot be added. Due to the bad interface of
 -- "Toolbar" mnemonics of 'RadioButton's and 'ToggleButton's are not honored.
@@ -221,7 +221,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 -- which must be a valid entry in the 'Toolbar's Style or the
 -- default 'IconFactory'.
 --
--- If you whish to have 'Tooltips' added to this button you can
+-- If you wish to have 'Tooltips' added to this button you can
 -- specify @Just (tipText, tipPrivate)@ , otherwise specify @Nothing@.
 --
 -- The newly created 'Button' is returned. Use this button to
@@ -341,7 +341,7 @@ toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 --
 -- The @parent@ argument must be set to another
 -- 'RadioButton' in the group. If @Nothing@ is given,
--- a new group is generated (which is the desired behavious for the
+-- a new group is generated (which is the desired behaviour for the
 -- first button of a group).
 --
 -- * Warning: this function is deprecated and should not be used in
@@ -764,7 +764,7 @@ afterStyleChanged = connect_ENUM__NONE "style-changed" True
 -- Application developers should handle this signal if they want to display
 -- a context menu on the toolbar. The context-menu should appear at the
 -- coordinates given by @x@ and @y@. The mouse button number is given by the
--- @button@ parameter. If the menu was popped up using the keybaord, @button@
+-- @button@ parameter. If the menu was popped up using the keyboard, @button@
 -- is -1.
 --
 onPopupContextMenu, afterPopupContextMenu :: ToolbarClass self => self

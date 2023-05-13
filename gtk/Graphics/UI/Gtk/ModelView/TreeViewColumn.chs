@@ -258,7 +258,7 @@ treeViewColumnGetResizable self =
   {# call unsafe tree_view_column_get_resizable #}
     self
 
--- | Set wether the column can be resized.
+-- | Set whether the column can be resized.
 --
 treeViewColumnSetSizing :: TreeViewColumn
  -> TreeViewColumnSizing

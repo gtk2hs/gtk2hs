@@ -250,7 +250,7 @@ rectest:
 	  $(MAKE) -C $$part $(MFLAGS) test || exit; \
 	done
 
-# auxilliary targets
+# auxiliary targets
 #
 .PHONY: recclean reccleanhi cleanall spotless
 

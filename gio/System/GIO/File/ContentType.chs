@@ -31,7 +31,7 @@ module System.GIO.File.ContentType (
 -- * Details
 --
 -- | A content type is a platform specific string that defines the type of a file. On unix it is a mime
--- type, on win32 it is an extension string like ".doc", ".txt" or a percieved string like
+-- type, on win32 it is an extension string like ".doc", ".txt" or a perceived string like
 -- "audio". Such strings can be looked up in the registry at HkeyClassesRoot.
 
 -- * Methods

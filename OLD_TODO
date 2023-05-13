@@ -79,7 +79,7 @@ TODO for gtk2hs
 
 8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
-	* there sould be a rule to rebuild .chi files even if the corresponding
+	* there should be a rule to rebuild .chi files even if the corresponding
 	.hs file still exists. Otherwise the build can stick and you have to
 	delete the .hs file to unstick it. Each .chs file should depend on the
 	.hs file and (or perhaps instead of) the .chi file.

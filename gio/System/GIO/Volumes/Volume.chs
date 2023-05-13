@@ -189,7 +189,7 @@ volumeMount volume flags mountOperation cancellable callback = do
         cCallback
         (castFunPtrToPtr cCallback)
 
--- | Finishes mounting a volume. If any errors occured during the operation, error will be set to contain
+-- | Finishes mounting a volume. If any errors occurred during the operation, error will be set to contain
 -- the errors and 'False' will be returned.
 --
 -- If the mount operation succeeded, 'volumeGetMount' on volume is guaranteed to return the mount
@@ -251,7 +251,7 @@ volumeEjectWithOperationFinish volume result =
                        return ())
 #endif
 
--- | Gets the kinds of identifiers that volume has. Use 'volumeGetIdentifer' to obtain the
+-- | Gets the kinds of identifiers that volume has. Use 'volumeGetIdentifier' to obtain the
 -- identifiers themselves.
 volumeEnumerateIdentifiers :: (VolumeClass volume, GlibString string) => volume
                            -> IO [string]

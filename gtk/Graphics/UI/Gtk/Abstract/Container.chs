@@ -112,7 +112,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 --
 -- > set container [ attr child := value ]
 --
--- And similarily for getting a child attribute's value:
+-- And similarly for getting a child attribute's value:
 --
 -- > value <- get container (attr child)
 --

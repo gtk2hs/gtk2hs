@@ -10,7 +10,7 @@ import System.Exit   (exitWith, ExitCode(..))
 import System.IO (stderr, hPutStr)
 import Paths_gtk2hs_buildtools (getDataFileName)
 
--- The current object and its inheritence relationship is defined by all
+-- The current object and its inheritance relationship is defined by all
 -- ancestors and their column position.
 type ObjectSpec = [(Int,String)]
 

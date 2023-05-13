@@ -374,7 +374,7 @@ queryPointer hsName  = do
 
 -- merge the pointer and Haskell object maps
 --
---  * currently, the read map overrides any entires for shared keys in the map
+--  * currently, the read map overrides any entries for shared keys in the map
 --   that is already in the monad; this is so that, if multiple import hooks
 --   add entries for shared keys, the textually latest prevails; any local
 --   entries are entered after all import hooks anyway

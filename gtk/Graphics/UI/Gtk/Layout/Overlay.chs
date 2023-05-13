@@ -24,7 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A simple container that can display overlayed widgets
+-- A simple container that can display overlaid widgets
 --
 module Graphics.UI.Gtk.Layout.Overlay (
 -- * Detail

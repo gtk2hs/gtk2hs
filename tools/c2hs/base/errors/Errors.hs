@@ -19,7 +19,7 @@
 --
 --- DESCRIPTION ---------------------------------------------------------------
 --
---  This modules exports some auxilliary routines for error handling.
+--  This modules exports some auxiliary routines for error handling.
 --
 --- DOCU ----------------------------------------------------------------------
 --
@@ -78,7 +78,7 @@ data Error = Error ErrorLvl Position [String]  -- (EXPORTED ABSTRACTLY)
 -- note that the equality to on errors takes into account only the error level
 -- and position (not the error text)
 --
--- note that these comparisions are expensive (the positions contain the file
+-- note that these comparisons are expensive (the positions contain the file
 -- names as strings)
 --
 instance Eq Error where

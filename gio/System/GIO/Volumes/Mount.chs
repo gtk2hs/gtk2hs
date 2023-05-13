@@ -317,7 +317,7 @@ mountGuessContentType mount forceRescan cancellable callback = do
         cCallback
         (castFunPtrToPtr cCallback)
 
--- | Finishes guessing content types of mount. If any errors occured during the operation, error will be
+-- | Finishes guessing content types of mount. If any errors occurred during the operation, error will be
 -- set to contain the errors and 'False' will be returned. In particular, you may get an
 -- 'IoErrorNotSupported' if the mount does not support content guessing.
 mountGuessContentTypeFinish :: (MountClass mount, GlibString string) => mount

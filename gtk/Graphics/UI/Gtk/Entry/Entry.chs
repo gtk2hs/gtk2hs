@@ -799,7 +799,7 @@ entryInsertAtCursor = Signal (connect_GLIBSTRING__NONE "insert-at-cursor")
 -- control the cursor programmatically.
 --
 -- The default bindings for this signal come in two variants, the variant with the Shift modifier
--- extends the selection, the variant without the Shift modifer does not. There are too many key
+-- extends the selection, the variant without the Shift modifier does not. There are too many key
 -- combinations to list them all here.
 --
 --   * Arrow keys move by individual characters\/lines

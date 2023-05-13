@@ -267,7 +267,7 @@ rangeSetRange self min max =
 --
 -- * 'SensitivityAuto': the arrow is made insensitive if the thumb is at the end
 --
--- * 'SensitivityOn': the arrow is alwasy sensitive
+-- * 'SensitivityOn': the arrow is always sensitive
 --
 -- * 'SensitivityOff': the arrow is always insensitive
 --
@@ -340,7 +340,7 @@ rangeGetMinSliderSize range =
   {#call gtk_range_get_min_slider_size #}
     (toRange range)
 
--- | This function returns the area that contains the range's trough and its steppers, in 'DrawWindow'
+-- | This function returns the area that contains the range's through and its steppers, in 'DrawWindow'
 -- coordinates.
 --
 -- This function is useful mainly for 'Range' subclasses.
@@ -468,7 +468,7 @@ rangeValue = newAttr
   rangeSetValue
 
 #if GTK_CHECK_VERSION(2,20,0)
--- | Wheter range's slikder has a fixed size, or a size that depends on it's adjustment's page size.
+-- | Whether range's slikder has a fixed size, or a size that depends on it's adjustment's page size.
 rangeSliderSizeFixed :: RangeClass self => Attr self Bool
 rangeSliderSizeFixed = newAttr
   rangeGetSliderSizeFixed

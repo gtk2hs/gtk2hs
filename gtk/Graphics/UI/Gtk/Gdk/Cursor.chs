@@ -122,7 +122,7 @@ cursorNewFromPixmap source mask fg bg x y =
 -- The functions 'displaySupportsCursorAlpha' and 'displaySupportsCursorColor' can be used to determine whether RGBA cursors are supported;
 -- 'displayGetDefaultCursorSize' and 'displayGetMaximalCursorSize' give information about cursor sizes.
 --
--- On the X backend, support for RGBA cursors requires a sufficently new version of the X Render extension.
+-- On the X backend, support for RGBA cursors requires a sufficiently new version of the X Render extension.
 --
 cursorNewFromPixbuf ::
     Display  -- ^ @display@ the 'Display' for which the cursor will be created

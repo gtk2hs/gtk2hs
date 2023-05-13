@@ -1,6 +1,6 @@
 -- This module actually contains data. It is specific to the Gtk+ libs that
 -- we're playing with. If we really cared enough we could split this
--- information out into seperate data files that get read in at runtime.
+-- information out into separate data files that get read in at runtime.
 -- However for now it's easier just to edit the data here and recompile.
 
 module MarshalFixup where
@@ -523,7 +523,7 @@ nukeParameterDocumentation = nukeParamDoc
 -- name was that of the systems native 'codepage' which was usually ascii but
 -- could be one of several obscure multi-byte encodings. For 2.6 they have
 -- changed to always use a UTF8 encoding. However to maintain binary backwards
--- compatability they kept the old names and added new ones with a _utf8 suffix
+-- compatibility they kept the old names and added new ones with a _utf8 suffix
 -- for the new interpretation. However the old names are only in the binary,
 -- they are not exposed through the C header files so all software building
 -- against glib/gtk 2.6 on windows must use the _utf8 versions. Hence we

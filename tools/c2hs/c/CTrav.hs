@@ -109,7 +109,7 @@ import CAttrs     (AttrC, getCHeader, enterNewRangeC, enterNewObjRangeC,
 type CState s    = (AttrC, s)
 type CT     s a  = CST (CState s) a
 
--- read attributed struture tree
+-- read attributed structure tree
 --
 readAttrCCT        :: (AttrC -> a) -> CT s a
 readAttrCCT reader  = readCST $ \(ac, _) -> reader ac
@@ -237,7 +237,7 @@ findObjShadow ide  = readAttrCCT $ \ac -> lookupDefObjCShadow ac ide
 --   object association added; otherwise, if a definition of the same name was
 --   already present, it is returned (see DOCU section)
 --
---  * it is checked that the first occurence of an enumeration tag is
+--  * it is checked that the first occurrence of an enumeration tag is
 --   accompanied by a full definition of the enumeration
 --
 defTag         :: Ident -> CTag -> CT s (Maybe CTag)
@@ -256,16 +256,16 @@ defTag ide tag  =
                            return Nothing               -- transparent for env
   where
     -- compute whether we have the case of a non-conflicting redefined tag
-    -- definition, and if so, return the full definition and the foreward 
+    -- definition, and if so, return the full definition and the forward 
     -- definition's tag identifier
     --
     --  * the first argument contains the _previous_ definition
     --
-    --  * in the case of a structure, a foreward definition after a full
+    --  * in the case of a structure, a forward definition after a full
     --   definition is allowed, so we have to handle this case; enumerations
-    --   don't allow foreward definitions
+    --   don't allow forward definitions
     --
-    --  * there may also be multiple foreward definition; if we have two of
+    --  * there may also be multiple forward definition; if we have two of
     --   them here, one is arbitrarily selected to take the role of the full
     --   definition 
     --
@@ -747,7 +747,7 @@ lookupStructUnion ide ind useShadows
         decl <- findAndChaseDecl ide ind useShadows
         structFromDecl (posOf ide) decl
 
--- for the given identifier, check for the existance of both a type definition
+-- for the given identifier, check for the existence of both a type definition
 -- or a struct, union, or enum definition (EXPORTED)
 --
 --  * if a typedef and a tag exists, the typedef takes precedence
@@ -915,4 +915,4 @@ enumForwardErr     :: Position -> CT s a
 enumForwardErr pos  =
   raiseErrorCTExc pos 
     ["Forward definition of enumeration!",
-     "ANSI C does not permit foreward definitions of enumerations!"]
+     "ANSI C does not permit forward definitions of enumerations!"]

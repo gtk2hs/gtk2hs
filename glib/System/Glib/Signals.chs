@@ -27,7 +27,7 @@
 --    the marshall list mentions OBJECT it refers to an instance of this
 --    GObject which is automatically wrapped with a ref and unref call.
 --    Structures which are not derived from GObject have to be passed as
---    BOXED which gives the signal connect function a possiblity to do the
+--    BOXED which gives the signal connect function a possibility to do the
 --    conversion into a proper ForeignPtr type. In special cases the signal
 --    connect function use a PTR type which will then be mangled in the
 --    user function directly. The latter is needed if a signal delivers a
@@ -113,7 +113,7 @@ type SignalName = String
 --
 data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 
--- old name for backwards compatability
+-- old name for backwards compatibility
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect = signalDisconnect
 {-# DEPRECATED disconnect "use signalDisconnect instead" #-}
@@ -130,7 +130,7 @@ signalDisconnect (ConnectId handler obj) =
 --
 -- * Blocks a handler of an instance so it will not be called during any
 --   signal emissions unless it is unblocked again. Thus \"blocking\" a signal
---   handler means to temporarily deactive it, a signal handler has to be
+--   handler means to temporarily deactivate it, a signal handler has to be
 --   unblocked exactly the same amount of times it has been blocked before
 --   to become active again.
 --

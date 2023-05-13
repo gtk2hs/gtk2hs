@@ -115,7 +115,7 @@ main = do
   let document = Xml.xmlParse apiFile apicontent
       api = Api.extractAPI document
 
-      -- For example whe processing Gtk we'd like to know about the types
+      -- For example when processing Gtk we'd like to know about the types
       -- included from Gdk and Pango
       includeApi = [ Api.extractAPI (Xml.xmlParse apiFile' content')
                    | (apiFile', content') <- zip includeApiFiles includeApiFilesContents]

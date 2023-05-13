@@ -43,7 +43,7 @@ module Graphics.UI.Gtk.Display.ProgressBar (
 -- When an application has no accurate way of knowing the amount of work to
 -- do, it can use the 'ProgressBar' in activity mode, which shows activity by a
 -- block moving back and forth within the progress area. In this mode, the
--- application is required to call 'progressBarPulse' perodically to update the
+-- application is required to call 'progressBarPulse' periodically to update the
 -- progress bar.
 --
 -- There is quite a bit of flexibility provided to control the appearance of

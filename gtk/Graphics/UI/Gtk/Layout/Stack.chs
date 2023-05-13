@@ -339,7 +339,7 @@ stackGetTransitionRunning self =
     (toStack self)
 
 #if GTK_CHECK_VERSION(3,18,0)
--- | Returns wether the stack is set up to interpolate between the
+-- | Returns whether the stack is set up to interpolate between the
 -- sizes of children on page switch.
 stackGetInterpolateSize :: StackClass self => self -> IO Bool
 stackGetInterpolateSize self =

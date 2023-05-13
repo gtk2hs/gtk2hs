@@ -5,7 +5,7 @@
 --
 --  Author : Axel Simon
 --
---  Created: 9 Feburary 2003
+--  Created: 9 February 2003
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --

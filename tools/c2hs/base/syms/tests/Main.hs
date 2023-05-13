@@ -44,7 +44,7 @@ main  = run ("", "", "") () (
 -- assertion) when any of them is executed
 --
           getNameSupply                                         +>= \supply ->
-          -- acces with uninit. attr.s
+          -- access with uninit. attr.s
 --        checkAttrTableErr1 (names supply)                     +>
           -- set already set attr.
 --        checkAttrTableErr2 (names supply)                     +>

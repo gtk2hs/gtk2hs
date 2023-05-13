@@ -149,7 +149,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- of menuitems and toolitems over another one, and demerge them later.
 --
 -- Merging is done based on the names of the XML elements. Each element is
--- identified by a path which consists of the names of its anchestors,
+-- identified by a path which consists of the names of its ancestors,
 -- separated by slashes. For example, the menuitem named \"Left\" in the
 -- example above has the path @\/ui\/menubar\/JustifyMenu\/Left@ and the
 -- toolitem with the same name has path

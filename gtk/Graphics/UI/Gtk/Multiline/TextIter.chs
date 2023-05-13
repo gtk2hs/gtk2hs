@@ -200,7 +200,7 @@ textIterGetVisibleLineOffset ti = liftM fromIntegral $
 -- If the element at this iterator is a non-character
 -- element, such as an image embedded in the buffer, the Unicode \"unknown\"
 -- character 0xFFFC is returned. If invoked on the end iterator,
--- @Nothigng@ is returned.
+-- @Nothing@ is returned.
 --
 textIterGetChar :: TextIter -> IO (Maybe Char)
 textIterGetChar ti = do
@@ -499,7 +499,7 @@ textIterIsStart ti = liftM toBool $
 
 -- | Move 'TextIter' forwards.
 --
--- * Retuns True if the iterator is pointing to a character.
+-- * Returns True if the iterator is pointing to a character.
 --
 textIterForwardChar :: TextIter -> IO Bool
 textIterForwardChar ti = liftM toBool $
@@ -507,7 +507,7 @@ textIterForwardChar ti = liftM toBool $
 
 -- | Move 'TextIter' backwards.
 --
--- * Retuns True if the movement was possible.
+-- * Returns True if the movement was possible.
 --
 textIterBackwardChar :: TextIter -> IO Bool
 textIterBackwardChar ti = liftM toBool $
@@ -516,7 +516,7 @@ textIterBackwardChar ti = liftM toBool $
 -- | Move 'TextIter' forwards by
 -- @n@ characters.
 --
--- * Retuns @True@ if the iterator is pointing to a new character (and @False@ if
+-- * Returns @True@ if the iterator is pointing to a new character (and @False@ if
 --   the iterator points to a picture or has not moved).
 --
 -- *  Note that images embedded
@@ -530,7 +530,7 @@ textIterForwardChars ti n = liftM toBool $
 -- | Move 'TextIter' backwards by
 -- @n@ characters.
 --
--- * Retuns @True@ if the iterator is pointing to a new character (and @False@ if
+-- * Returns @True@ if the iterator is pointing to a new character (and @False@ if
 --   the iterator points to a picture or has not moved).
 --
 textIterBackwardChars :: TextIter -> Int -> IO Bool
@@ -540,7 +540,7 @@ textIterBackwardChars ti n = liftM toBool $
 
 -- | Move 'TextIter' forwards.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if the
+-- * Returns True if the iterator is pointing to a new line (and False if the
 --   iterator points to a picture or has not moved).
 --
 -- * If 'TextIter' is on the first line, it will be moved to the
@@ -552,7 +552,7 @@ textIterForwardLine ti = liftM toBool $
 
 -- | Move 'TextIter' backwards.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if the
+-- * Returns True if the iterator is pointing to a new line (and False if the
 --   iterator points to a picture or has not moved).
 --
 -- * If 'TextIter' is on the first line, it will be moved to the end
@@ -566,7 +566,7 @@ textIterBackwardLine ti = liftM toBool $
 -- | Move 'TextIter' forwards by
 -- @n@ lines.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if the
+-- * Returns True if the iterator is pointing to a new line (and False if the
 --   iterator points to a picture or has not moved).
 --
 -- * If 'TextIter' is on the first line, it will be moved to the
@@ -581,7 +581,7 @@ textIterForwardLines ti n = liftM toBool $
 -- | Move 'TextIter' backwards by
 -- @n@ lines.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if the
+-- * Returns True if the iterator is pointing to a new line (and False if the
 --   iterator points to a picture or has not moved).
 --
 -- * If 'TextIter' is on the first line, it will be moved to the end
@@ -596,7 +596,7 @@ textIterBackwardLines ti n = liftM toBool $
 -- | Move 'TextIter' forwards by
 -- @n@ word ends.
 --
--- * Retuns True if the iterator is pointing to a new word end.
+-- * Returns True if the iterator is pointing to a new word end.
 --
 textIterForwardWordEnds :: TextIter -> Int -> IO Bool
 textIterForwardWordEnds ti n = liftM toBool $
@@ -605,7 +605,7 @@ textIterForwardWordEnds ti n = liftM toBool $
 -- | Move 'TextIter' backwards by
 -- @n@ word beginnings.
 --
--- * Retuns True if the iterator is pointing to a new word start.
+-- * Returns True if the iterator is pointing to a new word start.
 --
 textIterBackwardWordStarts :: TextIter -> Int -> IO Bool
 textIterBackwardWordStarts ti n = liftM toBool $
@@ -614,7 +614,7 @@ textIterBackwardWordStarts ti n = liftM toBool $
 -- | Move 'TextIter' forwards to the
 -- next word end.
 --
--- * Retuns True if the iterator has moved to a new word end.
+-- * Returns True if the iterator has moved to a new word end.
 --
 textIterForwardWordEnd :: TextIter -> IO Bool
 textIterForwardWordEnd ti = liftM toBool $
@@ -623,7 +623,7 @@ textIterForwardWordEnd ti = liftM toBool $
 -- | Move 'TextIter' backwards to
 -- the next word beginning.
 --
--- * Retuns True if the iterator has moved to a new word beginning.
+-- * Returns True if the iterator has moved to a new word beginning.
 --
 textIterBackwardWordStart :: TextIter -> IO Bool
 textIterBackwardWordStart ti = liftM toBool $
@@ -633,7 +633,7 @@ textIterBackwardWordStart ti = liftM toBool $
 -- the next cursor position.
 --
 -- * Some characters are composed of two Unicode codes. This function ensures
---   that 'TextIter' does not point inbetween such double characters.
+--   that 'TextIter' does not point in between such double characters.
 --
 -- * Returns True if 'TextIter' moved and points to a character (not
 --   to an object).
@@ -646,7 +646,7 @@ textIterForwardCursorPosition ti = liftM toBool $
 -- to the next cursor position.
 --
 -- * Some characters are composed of two Unicode codes. This function ensures
---   that 'TextIter' does not point inbetween such double characters.
+--   that 'TextIter' does not point in between such double characters.
 --
 -- * Returns True if 'TextIter' moved and points to a character (not
 --   to an object).
@@ -679,7 +679,7 @@ textIterBackwardCursorPositions ti n = liftM toBool $
 -- | Move 'TextIter' forwards by
 -- @n@ sentence ends.
 --
--- * Retuns True if the iterator is pointing to a new sentence end.
+-- * Returns True if the iterator is pointing to a new sentence end.
 --
 textIterForwardSentenceEnds :: TextIter -> Int -> IO Bool
 textIterForwardSentenceEnds ti n = liftM toBool $
@@ -688,7 +688,7 @@ textIterForwardSentenceEnds ti n = liftM toBool $
 -- | Move 'TextIter' backwards
 -- by @n@ sentence beginnings.
 --
--- * Retuns True if the iterator is pointing to a new sentence start.
+-- * Returns True if the iterator is pointing to a new sentence start.
 --
 textIterBackwardSentenceStarts :: TextIter -> Int -> IO Bool
 textIterBackwardSentenceStarts ti n = liftM toBool $
@@ -697,7 +697,7 @@ textIterBackwardSentenceStarts ti n = liftM toBool $
 -- | Move 'TextIter' forwards to
 -- the next sentence end.
 --
--- * Retuns True if the iterator has moved to a new sentence end.
+-- * Returns True if the iterator has moved to a new sentence end.
 --
 textIterForwardSentenceEnd :: TextIter -> IO Bool
 textIterForwardSentenceEnd ti = liftM toBool $
@@ -706,7 +706,7 @@ textIterForwardSentenceEnd ti = liftM toBool $
 -- | Move 'TextIter' backwards
 -- to the next sentence beginning.
 --
--- * Retuns True if the iterator has moved to a new sentence beginning.
+-- * Returns True if the iterator has moved to a new sentence beginning.
 --
 textIterBackwardSentenceStart :: TextIter -> IO Bool
 textIterBackwardSentenceStart ti = liftM toBool $
@@ -942,7 +942,7 @@ textIterBackwardVisibleLines self count =
 -- | Calls 'textIterForwardVisibleWordEnd' up to count times.
 --
 textIterForwardVisibleWordEnds :: TextIter
- -> Int   -- ^ @couter@ - number of times to move
+ -> Int   -- ^ @counter@ - number of times to move
  -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterForwardVisibleWordEnds self count =
   liftM toBool $
@@ -953,7 +953,7 @@ textIterForwardVisibleWordEnds self count =
 -- | Calls 'textIterBackwardVisibleWordStart' up to count times.
 --
 textIterBackwardVisibleWordStarts :: TextIter
- -> Int   -- ^ @couter@ - number of times to move
+ -> Int   -- ^ @counter@ - number of times to move
  -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleWordStarts self count =
   liftM toBool $
@@ -1008,7 +1008,7 @@ textIterBackwardVisibleCursorPosition self =
 -- | Moves up to count visible cursor positions.
 -- See 'textIterForwardCursorPosition' for details.
 textIterForwardVisibleCursorPositions :: TextIter
- -> Int   -- ^ @couter@ - number of times to move
+ -> Int   -- ^ @counter@ - number of times to move
  -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterForwardVisibleCursorPositions self count =
   liftM toBool $
@@ -1020,7 +1020,7 @@ textIterForwardVisibleCursorPositions self count =
 -- See 'textIterBackwardCursorPosition' for details.
 --
 textIterBackwardVisibleCursorPositions :: TextIter
- -> Int   -- ^ @couter@ - number of times to move
+ -> Int   -- ^ @counter@ - number of times to move
  -> IO Bool -- ^ return @True@ if iter moved and is not the end iterator
 textIterBackwardVisibleCursorPositions self count =
   liftM toBool $

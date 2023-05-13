@@ -68,7 +68,7 @@ genMarshalParameter ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
         String ->       --parameter name suggestion (will be unique)
-        String ->       --C type decleration for the parameter we will marshal
+        String ->       --C type declaration for the parameter we will marshal
         (Maybe String,  --parameter class constraints (or none)
         ParameterKind,  --parameter type (or UnusedParam if the arg is not exposed)
         Doc -> Doc)     --marshaling code (\body -> ... body ...)
@@ -294,7 +294,7 @@ genMarshalResult ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
         Bool ->         --is the function a constructor or ordinary method?
-        String ->       --C type decleration for the return value we will marshal
+        String ->       --C type declaration for the return value we will marshal
         (String,        --Haskell return type
         Doc -> Doc)     --marshaling code (\body -> ... body ...)
 genMarshalResult _ _ _ "gboolean" = ("Bool", \body -> text "liftM toBool $" $$ body)
@@ -482,7 +482,7 @@ genCallOrdinary cname _unsafe@False = c2hsHook "call" (text cname)
 -- name was that of the systems native 'codepage' which was usually ascii but
 -- could be one of several obscure multi-byte encodings. For 2.6 they have
 -- changed to always use a UTF8 encoding. However to maintain binary backwards
--- compatability they kept the old names and added new ones with a _utf8 suffix
+-- compatibility they kept the old names and added new ones with a _utf8 suffix
 -- for the new interpretation. However the old names are only in the binary,
 -- they are not exposed through the C header files so all software building
 -- against glib/gtk 2.6 on windows must use the _utf8 versions. Hence we

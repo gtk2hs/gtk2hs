@@ -306,7 +306,7 @@ editingCanceled = Signal (connect_NONE__NONE "editing-canceled")
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:41f0 d:49f
--- | This signal gets emitted when a cell starts to be edited. The indended
+-- | This signal gets emitted when a cell starts to be edited. The intended
 -- use of this signal is to do special setup on @editable@, e.g. adding a
 -- 'EntryCompletion' or setting up additional columns in a 'ComboBox'.
 --

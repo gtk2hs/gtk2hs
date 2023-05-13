@@ -178,7 +178,7 @@ glContextGetDebugEnabled self = do
 
 -- | Sets whether the 'GLContext' should be forward compatible.
 --
--- Forward compatibile contexts must not support OpenGL functionality that has been marked as
+-- Forward compatible contexts must not support OpenGL functionality that has been marked as
 -- deprecated in the requested version; non-forward compatible contexts, on the other hand, must
 -- support both deprecated and non deprecated functionality.
 --

@@ -4,7 +4,7 @@
 --
 --  Author : Duncan Coutts, Axel Simon
 --
---  Created: 11 Feburary 2006
+--  Created: 11 February 2006
 --
 --  Copyright (C) 2005 Duncan Coutts, Axel Simon
 --
@@ -126,7 +126,7 @@ treeStoreNew forest = treeStoreNewDND forest
 -- * In addition to 'treeStoreNew', this function takes an two interfaces
 --   to implement user-defined drag-and-drop functionality.
 --
-treeStoreNewDND :: Forest a -- ^ the inital tree stored in this model
+treeStoreNewDND :: Forest a -- ^ the initial tree stored in this model
   -> Maybe (DragSourceIface TreeStore a) -- ^ an optional interface for drags
   -> Maybe (DragDestIface TreeStore a) -- ^ an optional interface to handle drops
   -> IO (TreeStore a)
@@ -691,7 +691,7 @@ treeStoreGetTree (TreeStore model) path = do
     _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
 
 -- | Extract a subtree from the current model. Like 'treeStoreGetTree'
---   but returns @Nothing@ if the path refers to a non-existant node.
+--   but returns @Nothing@ if the path refers to a non-existent node.
 --
 treeStoreLookup :: TreeStore a -> TreePath -> IO (Maybe (Tree a))
 treeStoreLookup (TreeStore model) path = do

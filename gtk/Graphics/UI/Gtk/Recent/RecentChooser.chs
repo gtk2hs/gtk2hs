@@ -111,7 +111,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 -- | These identify the various errors that can occur while calling 'RecentChooser' functions.
 {#enum RecentChooserError {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
--- | Used to specify the sorting method to be applyed to the recently used resource list.
+-- | Used to specify the sorting method to be applied to the recently used resource list.
 {#enum RecentSortType {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
 --------------------
@@ -421,7 +421,7 @@ recentChooserFilter = newAttrFromObjectProperty "filter"
 
 -- | This signal is emitted when there is a change in the set of selected
 -- recently used resources. This can happen when a user modifies the selection
--- with the mouse or the keyboard, or when explicitely calling functions to
+-- with the mouse or the keyboard, or when explicitly calling functions to
 -- change the selection.
 --
 --

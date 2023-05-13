@@ -114,7 +114,7 @@ If you are using Stack and list "gtk" as a build dependency in your *.cabal file
 * pango-devel
 * gtk2-devel
 
-This way you won't have to add cabal directory to your $PATH. Skipping cabal configuration and letting Stack manage all dependencies will save you a lot ot time.
+This way you won't have to add cabal directory to your $PATH. Skipping cabal configuration and letting Stack manage all dependencies will save you a lot of time.
 
 === Installing darcs ===
 There are binaries available on [http://darcs.net/Binaries the official download page], or in almost all cases via your package manager as a package named darcs.

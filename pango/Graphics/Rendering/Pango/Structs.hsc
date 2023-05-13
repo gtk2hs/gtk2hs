@@ -65,7 +65,7 @@ import System.Glib.GObject              (makeNewGObject)
 import Graphics.Rendering.Pango.Types
 import Graphics.Rendering.Pango.BasicTypes
 
--- A pango unit is an internal euclidian metric, that is, a measure for
+-- A pango unit is an internal euclidean metric, that is, a measure for
 -- lengths and position.
 --
 -- * Deprecated. Replaced by Double.

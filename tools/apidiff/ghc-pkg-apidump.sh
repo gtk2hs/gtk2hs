@@ -2,7 +2,7 @@
 
 # tool for comparing the exported API of different version of the same GHC
 # library package. It reports type changes and removals but not additions as
-# thoses are what is important from an API compatability point of view.
+# those are what is important from an API compatibility point of view.
 
 # $ ./ghc-pkg-apidump.sh gtk-0.9.10 gtk-0.9.10.2 > apichanges
 

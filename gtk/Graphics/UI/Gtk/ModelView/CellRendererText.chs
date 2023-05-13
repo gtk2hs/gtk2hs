@@ -154,7 +154,7 @@ cellRendererTextNew =
 -- 'cellTextFont' and 'Graphics.UI.Gtk.ModelView.CellRenderer.cellYPad'
 -- attribute set on it. Further changes in these properties do not affect the
 -- height, so they must be accompanied by a subsequent call to this function.
--- Using this function is unflexible, and should really only be used if
+-- Using this function is inflexible, and should really only be used if
 -- calculating the size of a cell is too slow (ie, a massive number of cells
 -- displayed). If @numberOfRows@ is -1, then the fixed height is unset, and
 -- the height is determined by the properties again.

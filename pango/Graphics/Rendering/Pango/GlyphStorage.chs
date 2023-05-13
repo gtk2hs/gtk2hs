@@ -133,7 +133,7 @@ glyphItemXToIndex (GlyphItem (PangoItem ps pir) gs) pos =
 --   determines if the returned array starts with the leftmost glyph
 --   (@False@) or with the rightmost glyph (@True@). If @Nothing@ is
 --   passed in, the direction is taken from the 'GlyphItem', i.e.,
---   the array starts with the leftmost glyph for left-to-rigth text
+--   the array starts with the leftmost glyph for left-to-right text
 --   and with the rightmost glyph for right-to-left text. When multiple
 --   characters compose a single glyph, the width of this glyph is
 --   divided among the characters that compose this cluster.

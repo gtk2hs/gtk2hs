@@ -148,10 +148,10 @@ instance Flags AttachOptions
 
 #if GTK_CHECK_VERSION(3,10,0)
 -- | Whenever a container has some form of natural row it may align children in 
--- that row along a common typographical baseline. If the amount of verical space
+-- that row along a common typographical baseline. If the amount of vertical space
 -- in the row is taller than the total requested height of the baseline-aligned
 -- children then it can use a BaselinePosition to select where to put the
--- baseline inside the extra availible space.
+-- baseline inside the extra available space.
 --
 {#enum BaselinePosition {underscoreToCase} deriving (Eq,Show)#}
 #endif
@@ -343,7 +343,7 @@ fromPacking PackNatural = (False,False)
 {#enum PolicyType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Position a scale's value is drawn relative to the
--- trough
+-- through
 --
 {#enum PositionType {underscoreToCase} deriving (Eq,Show)#}
 
@@ -467,7 +467,7 @@ instance Flags TextSearchFlags
 --
 {#enum ToolbarStyle {underscoreToCase} deriving (Eq,Show)#}
 
--- | Wether columns of a tree or list widget can be resized.
+-- | Whether columns of a tree or list widget can be resized.
 --
 {#enum TreeViewColumnSizing {underscoreToCase} deriving (Eq,Show)#}
 

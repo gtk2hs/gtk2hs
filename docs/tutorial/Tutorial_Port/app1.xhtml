@@ -22,7 +22,7 @@ using the Cairo drawing library. Drawing in Gtk2Hs is not very different from dr
 though that subject is large enough to merit its own tutorials.</p>
 <p>See the <a href="http://cairographics.org/documentation/">Cairo Documentation Site</a> for that.</p>
 <p>Drawing to the screen or in portable network graphics (png), portable document format (pdf),
-postscript (ps) or scaleable vector graphics (svg) formats of any Cairo drawing uses some special syntax in Gtk2Hs. 
+postscript (ps) or scalable vector graphics (svg) formats of any Cairo drawing uses some special syntax in Gtk2Hs.
 The goal of this appendix is to explain what basic functions you need. 
 <h3>1. Drawing</h3>
 
@@ -197,7 +197,7 @@ myDraw w h = do
 <p>Note that this is just like the previous example, except for the actual drawing. This introduces
 <code>setSourceRGBA</code> which sets not just the color but also the transparency, as a 
 measure between 0 and 1. The example also uses a <code>rectangle</code> and a method
-<code>fill</code> which fills closed figures with the specified color and transparancy.</p>
+<code>fill</code> which fills closed figures with the specified color and transparency.</p>
 <p class="notebox"><strong>Note:</strong> Because of a naming conflict with an older
 Gtk2Hs drawing library you must either hide <code>fill</code> in the Graphics.UI.Gtk import 
 statement or use the full name <code>Graphics.Rendering.Cairo.fill</code> .</p>
@@ -250,7 +250,7 @@ are in points (and type <code>Double</code> ), so you'll have to check how this 
 -&gt; IO a</pre>
 <p>To save you could use the same 'recipe' as above, or the shorter notation:</p>
 <pre class="codebox">withPSSurface "myDraw.ps" psw psh (flip renderWith (myDraw psw psh &gt;&gt; showPage))</pre>
-<p>Finally, to save in scaleable vector graphics format, use the same syntax, but with
+<p>Finally, to save in scalable vector graphics format, use the same syntax, but with
 <code>withSVGSurface</code> . So this would be:</p> 
 <pre class="codebox">withSVGSurface "myDraw.svg" pgw pgh (flip renderWith $ myDraw pgw pgh &gt;&gt; showPage)</pre>
 <p>An example that saves the last drawing shown above in all four formats (with different sizes) is:</p>

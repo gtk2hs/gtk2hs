@@ -120,7 +120,7 @@ module Graphics.UI.Gtk.General.RcStyle (
 
 -- ** Optimizing RC Style Matches
 --
--- | Everytime a widget is created and added to the layout hierarchy of a
+-- | Every time a widget is created and added to the layout hierarchy of a
 -- 'Window' (\"anchored\" to be exact), a list of matching RC styles out of all
 -- RC styles read in so far is composed. For this, every RC style is matched
 -- against the widgets class path, the widgets name path and widgets
@@ -276,7 +276,7 @@ module Graphics.UI.Gtk.General.RcStyle (
 -- [@NORMAL@] A color used for a widget in its normal state.
 --
 -- [@ACTIVE@] A variant of the @NORMAL@ color used when the widget is in the
--- 'StateActive' state, and also for the trough of a ScrollBar, tabs of a
+-- 'StateActive' state, and also for the through of a ScrollBar, tabs of a
 -- NoteBook other than the current tab and similar areas. Frequently, this
 -- should be a darker variant of the @NORMAL@ color.
 --
@@ -298,7 +298,7 @@ module Graphics.UI.Gtk.General.RcStyle (
 -- g, b}@, where @r@, @g@ and @b@ are either integers in the range 0-65535 or
 -- floats in the range 0.0-1.0.
 --
--- Since 2.10, colors can also be specified by refering to a symbolic color,
+-- Since 2.10, colors can also be specified by referring to a symbolic color,
 -- as follows: @\@color-name@, or by using expressions to combine colors. The
 -- following expressions are currently supported:
 --
@@ -620,7 +620,7 @@ rcReparseAllForSettings settings forceLoad =
 -- gets a new style, it will both redraw and recompute any cached information
 -- about its appearance. As an example, it is used when the default font size
 -- set by the operating system changes. Note that this function doesn't affect
--- widgets that have a style set explicitely on them with 'widgetSetStyle'.
+-- widgets that have a style set explicitly on them with 'widgetSetStyle'.
 --
 rcResetStyles :: Settings -> IO ()
 rcResetStyles settings =

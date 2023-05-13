@@ -274,7 +274,7 @@ gtk2hs_store_tree_drag_dest_init (GtkTreeDragDestIface *iface)
 
 /**
  *
- *  gtk2hs_store_init: this is called everytime a new custom list object
+ *  gtk2hs_store_init: this is called every time a new custom list object
  *                     instance is created (we do that in gtk2hs_store_new).
  *                     Initialise the list structure's fields here.
  *

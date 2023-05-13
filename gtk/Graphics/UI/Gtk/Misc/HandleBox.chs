@@ -37,12 +37,12 @@ module Graphics.UI.Gtk.Misc.HandleBox (
 --
 -- When reattaching, the ghost and float window, must be aligned along one
 -- of the edges, the snap edge. This either can be specified by the application
--- programmer explicitely, or Gtk+ will pick a reasonable default based on the
+-- programmer explicitly, or Gtk+ will pick a reasonable default based on the
 -- handle position.
 --
 -- To make detaching and reattaching the handlebox as minimally confusing as
 -- possible to the user, it is important to set the snap edge so that the snap
--- edge does not move when the handlebox is deattached. For instance, if the
+-- edge does not move when the handlebox is detached. For instance, if the
 -- handlebox is packed at the bottom of a VBox, then when the handlebox is
 -- detached, the bottom edge of the handlebox's allocation will remain fixed as
 -- the height of the handlebox shrinks, so the snap edge should be set to
@@ -227,7 +227,7 @@ handleBoxSnapEdgeSet = newAttrFromBoolProperty "snap-edge-set"
 --------------------
 -- Signals
 
--- Note: for these two signales we ignore the given Widget in the handler.
+-- Note: for these two signals we ignore the given Widget in the handler.
 
 -- | This signal is emitted when the contents of the handlebox are reattached
 -- to the main window.

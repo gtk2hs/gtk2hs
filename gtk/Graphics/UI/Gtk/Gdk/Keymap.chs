@@ -317,7 +317,7 @@ keymapHaveBidiLayouts self =
 #endif
 
 #if GTK_CHECK_VERSION(2,16,0)
--- | Returns whether the Caps Lock modifer is locked.
+-- | Returns whether the Caps Lock modifier is locked.
 --
 -- * Available since Gdk version 2.16
 --

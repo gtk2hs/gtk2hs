@@ -216,7 +216,7 @@ appInfoGetIcon appinfo =
 -- @launchContext@ to get information about the details of the launcher (like what screen it is on).
 -- Throws a 'GError' if an error occurs
 --
--- To lauch the application without arguments pass a emtpy files list.
+-- To launch the application without arguments pass a empty files list.
 --
 -- Note that even if the launch is successful the application launched can fail to start if it runs
 -- into problems during startup. There is no way to detect this.
@@ -257,7 +257,7 @@ appInfoSupportsUris appinfo =
 -- @launchContext@ to get information about the details of the launcher (like what screen it is on).
 -- Throws a 'GError' if an error occurs.
 --
--- To lauch the application without arguments pass a empty uris list.
+-- To launch the application without arguments pass a empty uris list.
 --
 -- Note that even if the launch is successful the application launched can fail to start if it runs
 -- into problems during startup. There is no way to detect this.

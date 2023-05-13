@@ -256,7 +256,7 @@ comboBoxNewWithModelAndEntry model =
 -- widget and sets the model to the list store. The widget can contain only
 -- strings. The model can be retrieved with 'comboBoxGetModel'. The list
 -- store can be retrieved with 'comboBoxGetModelText'.
--- Any exisiting model or renderers are removed before setting the new text
+-- Any existing model or renderers are removed before setting the new text
 -- model.
 -- Note that the functions 'comboBoxAppendText', 'comboBoxInsertText',
 -- 'comboBoxPrependText', 'comboBoxRemoveText' and 'comboBoxGetActiveText'

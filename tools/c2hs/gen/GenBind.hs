@@ -27,7 +27,7 @@
 --
 --  * If there is an error in one binding hook, it is skipped and the next one 
 --    is processed (to collect as many errors as possible).  However, if at
---    least one error occured, the expansion of binding hooks ends in a fatal
+--    least one error occurred, the expansion of binding hooks ends in a fatal
 --    exception.
 --
 --  * `CST' exceptions are used to back off a binding hook as soon as an error 
@@ -432,7 +432,7 @@ expandHook hook@(CHSCall isPure isUns isNol ide oalias pos) =
     --
     (ObjCO cdecl, ide) <- findFunObj ide True
     mLock <- if isNol then return Nothing else getLock
-    let ideLexeme = identToLexeme ide  -- orignal name might have been a shadow
+    let ideLexeme = identToLexeme ide  -- original name might have been a shadow
         hsLexeme  = ideLexeme `maybe` identToLexeme $ oalias
         cdecl'    = ide `simplifyDecl` cdecl
     callImport hook isPure isUns mLock ideLexeme hsLexeme cdecl' pos
@@ -448,7 +448,7 @@ expandHook hook@(CHSFun isPure isUns isNol ide oalias ctxt parms parm pos) =
     --
     (ObjCO cdecl, cide) <- findFunObj ide True
     mLock <- if isNol then return Nothing else getLock
-    let ideLexeme = identToLexeme ide  -- orignal name might have been a shadow
+    let ideLexeme = identToLexeme ide  -- original name might have been a shadow
         hsLexeme  = ideLexeme `maybe` identToLexeme $ oalias
         fiLexeme  = hsLexeme ++ "'_"   --  *Urgh* - probably unique...
         fiIde     = onlyPosIdent nopos fiLexeme
@@ -928,7 +928,7 @@ addDftMarshaller pos parms parm cdecl = do
         noDftMarshErr pos "\"out\"" hsTy cTys
       return (marsh, case marsh of {Just (_, kind) -> kind == CHSIOArg})
     --
-    -- add void marshaller if no explict one is given
+    -- add void marshaller if no explicit one is given
     --
     addDftVoid marsh@(Just (_, kind)) = return (marsh, kind == CHSIOArg)
     addDftVoid        Nothing         = do
@@ -1001,7 +1001,7 @@ accessPath (CHSDeref path pos) =                        --  *a
         _                                                   -> 
           ptrExpectedErr pos
 
--- replaces a decleration by its alias if any
+-- replaces a declaration by its alias if any
 --
 --  * the alias inherits any field size specification that the original
 --   declaration may have
@@ -1223,7 +1223,7 @@ data ConstResult = IntResult   Integer
 
 -- types that may occur in foreign declarations, ie, Haskell land types
 --
---  * we reprsent C functions with no arguments (ie, the ANSI C `void'
+--  * we represent C functions with no arguments (ie, the ANSI C `void'
 --   argument) by `FunET UnitET res' rather than just `res' internally,
 --   although the latter representation is finally emitted into the binding
 --   file; this is because we need to know which types are functions (in
@@ -1936,7 +1936,7 @@ applyUnary cpos CNegOp     (FloatResult _) =
   illegalConstExprErr cpos "! applied to a float"
 
 
--- auxilliary functions
+-- auxiliary functions
 -- --------------------
 
 -- create an identifier without position information

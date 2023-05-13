@@ -103,7 +103,7 @@ foreign import ccall unsafe "gtk_object_sink"
 -- This is a convenience function to generate a new widget. It adds the
 -- finalizer with the method described under objectSink.
 --
--- * The constr argument is the contructor of the specific object.
+-- * The constr argument is the constructor of the specific object.
 --
 #if GTK_MAJOR_VERSION < 3
 makeNewObject :: ObjectClass obj =>

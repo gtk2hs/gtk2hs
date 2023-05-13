@@ -10,7 +10,7 @@
 # function is not specified, the <name> is converted to
 # gtk_<name'>_get_type where <name'> is <name> where each upperscore
 # letter is converted to an underscore and lowerletter. The underscore
-# is omitted if an upperscore letter preceeded: GtkHButtonBox ->
+# is omitted if an upperscore letter preceded: GtkHButtonBox ->
 # gtk_hbutton_box_get_type. The generation of a type can be
 # conditional by appending 'if <tag>'. Such types are only produces if
 # --tag=<tag> is given on the command line of TypeGenerator.
@@ -228,7 +228,7 @@
         GtkSourceLanguageManager	if gtksourceview2
 	GladeXML			as GladeXML, glade_xml_get_type if libglade
 	GConfClient			as GConf if gconf
-# These ones are actualy interfaces, but interface implementations are GObjects
+# These ones are actually interfaces, but interface implementations are GObjects
 	GtkCellEditable
 	GtkEditable
 	GtkSourceStyle			as SourceStyleObject if gtksourceview2

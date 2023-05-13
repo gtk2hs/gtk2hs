@@ -19,7 +19,7 @@
 --
 --- DESCRIPTION ---------------------------------------------------------------
 --
---  Generates unqiue names according to a method of L. Augustsson, M. Rittri
+--  Generates unique names according to a method of L. Augustsson, M. Rittri
 --  & D. Synek ``Functional pearl: On generating unique names'', Journal of
 --  Functional Programming 4(1), pp 117-123, 1994.
 --
@@ -33,7 +33,7 @@
 --  * This module provides an ordering relation on names (e.g., for using
 --    `Maps'), but no assumption maybe made on the order in which names
 --    are generated from the name space.  Furthermore, names are instances of
---    `Ix' to allow to use them as indicies.
+--    `Ix' to allow to use them as indices.
 --
 --  * A supply should be used *at most* once to *either* split it or extract a
 --    stream of names.  A supply used repeatedly will always generate the same
@@ -77,7 +77,7 @@ instance Ix Name where
   index   (Name from, Name to) (Name idx) = index   (from, to) idx
   inRange (Name from, Name to) (Name idx) = inRange (from, to) idx
 
--- we want to show the number only, to be useful for generating unqiue
+-- we want to show the number only, to be useful for generating unique
 -- printable names
 --
 instance Show Name where

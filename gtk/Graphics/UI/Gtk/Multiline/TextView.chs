@@ -21,13 +21,13 @@
 -- TODO
 --
 -- If PangoTabArray is bound:
---    Fucntions: textViewSetTabs and textViewGetTabs
+--    Functions: textViewSetTabs and textViewGetTabs
 --    Properties: textViewTabs
 --
--- All on... and after... signales had incorrect names (underscore instead of hypens). Thus
+-- All on... and after... signals had incorrect names (underscore instead of hyphens). Thus
 -- they could not have been used in applications and removing them can't break anything.
--- Thus, I've removed them. Also, all key-binding singals are now removed as there is
--- no way to add additional key bindings programatically in a type-safe way, let alone
+-- Thus, I've removed them. Also, all key-binding signals are now removed as there is
+-- no way to add additional key bindings programmatically in a type-safe way, let alone
 -- use these signals.
 --
 -- |
@@ -717,7 +717,7 @@ textViewAddChildInWindow self child whichWindow xpos ypos =
     (fromIntegral xpos)
     (fromIntegral ypos)
 
--- | Move a child widget within the 'TextView'. This is really only apprpriate
+-- | Move a child widget within the 'TextView'. This is really only appropriate
 -- for \"floating\" child widgets added using 'textViewAddChildInWindow'.
 --
 textViewMoveChild :: (TextViewClass self, WidgetClass child) => self

@@ -35,7 +35,7 @@
 --
 --
 --  Since some of the grammar productions are quite difficult to read
---  (especially those involved with the decleration syntax) we document them
+--  (especially those involved with the declaration syntax) we document them
 --  with an extended syntax that allows a more consise representation:
 --
 --  Ordinary rules
@@ -84,7 +84,7 @@
 --
 --- TODO ----------------------------------------------------------------------
 --
---  * GNUC __attribute__s should be enetered into the parse tree since they
+--  * GNUC __attribute__s should be entered into the parse tree since they
 --    contain useful api/abi information.
 --
 --  * Some other extensions are currently recognised by the parser but not
@@ -907,7 +907,7 @@ struct_declaring_list
               case $4 of
                 (d,s) -> CDecl declspecs ((d,Nothing,s) : dies) attr }
 
-  -- We're being far too liberal in the parsing here, we realyl want to just
+  -- We're being far too liberal in the parsing here, we really want to just
   -- allow unnamed struct and union fields but we're actually allowing any
   -- unnamed struct member. Making it allow only unnamed structs or unions in
   -- the parser is far too tricky, it makes things ambiguous. So we'll have to

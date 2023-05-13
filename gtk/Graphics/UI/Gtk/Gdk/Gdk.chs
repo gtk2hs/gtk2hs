@@ -180,7 +180,7 @@ keyboardGrab :: (DrawWindowClass window) =>
            -- for this application are reported as normal, but keyboard events
            -- outside this application are reported with respect to @window@.
            -- Both key press and key release events are always reported,
-           -- independant of the event mask set by the application.
+           -- independent of the event mask set by the application.
   -> TimeStamp -- ^ @time@ - a timestamp from an 'Event', or 'currentTime' if
                -- no timestamp is available.
   -> IO GrabStatus -- ^ @Returns@ - 'GrabSuccess' if the grab was successful.

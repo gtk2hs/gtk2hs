@@ -34,7 +34,7 @@ module Config (-- limits
                --
                errorLimit,
                --
-               -- debuging
+               -- debugging
                --
                assertEnabled)
 where

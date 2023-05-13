@@ -249,7 +249,7 @@ printOperationSetJobName self jobName =
 -- | Sets the number of pages in the document.
 --
 -- This /must/ be set to a positive number before the rendering starts. It
--- may be set in a 'beginPrint' signal hander.
+-- may be set in a 'beginPrint' signal handler.
 --
 -- Note that the page numbers passed to the 'requestPageSetup'
 -- and 'drawPage' signals
@@ -327,7 +327,7 @@ printOperationSetUnit self unit =
     ((fromIntegral . fromEnum) unit)
 
 -- | Sets up the 'PrintOperation' to generate a file instead of showing the
--- print dialog. The indended use of this function is for implementing \"Export
+-- print dialog. The intended use of this function is for implementing \"Export
 -- to PDF\" actions. Currently, PDF is the only supported format.
 --
 -- \"Print to PDF\" support is independent of this and is done by letting
@@ -615,7 +615,7 @@ printOperationJobName = newAttrFromStringProperty "job-name"
 -- | The number of pages in the document.
 --
 -- This must be set to a positive number before the rendering starts. It may be set in a 'beginPrint'
--- signal hander.
+-- signal handler.
 --
 -- Note that the page numbers passed to the 'requestPageSetup' and 'drawPage' signals are 0-based,
 -- i.e. if the user chooses to print all pages, the last 'drawPage' signal will be for page @nPages@ -

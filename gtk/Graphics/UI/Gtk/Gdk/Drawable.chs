@@ -271,7 +271,7 @@ drawPolygon d gc filled points =
 
 -- | Draw a segment of text.
 --
--- * This function draws a segment of text. These segements are the result
+-- * This function draws a segment of text. These segments are the result
 --   of itemizing a string into segments with the same characteristics
 --   (font, text direction, etc.) using
 --   'Graphics.Rendering.Pango.Rendering.itemize'. Each item is then turned

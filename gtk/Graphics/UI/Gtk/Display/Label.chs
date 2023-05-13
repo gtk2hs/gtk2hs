@@ -310,7 +310,7 @@ labelSetAttributes self attrs = do
 -- If you want to get the effective attributes for the label, use 'layoutGetAttributes' ('labelGetLayout' (label)).
 --
 labelGetAttributes :: LabelClass self => self
- -> IO [PangoAttribute]          -- ^ return the attribute list, or Emtpy if none was set.
+ -> IO [PangoAttribute]          -- ^ return the attribute list, or Empty if none was set.
 labelGetAttributes self = do
   (txt :: Text) <- labelGetText self
   (PangoString correct _ _ ) <- makeNewPangoString txt
@@ -982,7 +982,7 @@ labelCopyClipboard = Signal (connect_NONE__NONE "copy-clipboard")
 -- control the cursor programmatically.
 --
 -- The default bindings for this signal come in two variants, the variant with the Shift modifier
--- extends the selection, the variant without the Shift modifer does not. There are too many key
+-- extends the selection, the variant without the Shift modifier does not. There are too many key
 -- combinations to list them all here.
 --
 --   * Arrow keys move by individual characters\/lines

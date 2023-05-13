@@ -39,14 +39,14 @@ module System.GIO.File.FileAttribute (
 --
 -- Keys are strings that contain a key namespace and a key name, separated by a colon,
 -- e.g. "namespace:keyname". Namespaces are included to sort key-value pairs by namespaces for
--- relevance. Keys can be retrived using wildcards, e.g. \"standard::*\" will return all of the keys in
+-- relevance. Keys can be retrieved using wildcards, e.g. \"standard::*\" will return all of the keys in
 -- the "standard" namespace.
 --
 -- Values are stored within the list in 'FileAttributeValue' structures. Values can store different
 -- types, listed in the enum 'FileAttributeType'. Upon creation of a 'FileAttributeValue', the type will
 -- be set to 'FileAttributeTypeInvalid'.
 --
--- The list of possible attributes for a filesystem (pointed to by a 'File') is availible as a
+-- The list of possible attributes for a filesystem (pointed to by a 'File') is available as a
 -- 'FileAttributeInfoList'. This list is queryable by key names as indicated earlier.
 --
 -- Classes that implement 'FileIface' will create a 'FileAttributeInfoList' and install default keys and

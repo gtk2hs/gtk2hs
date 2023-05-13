@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   customStoreGetPrivate,
   customStoreGetStamp,
   customStoreInvalidateIters,
-  -- for backwards compatability, not documented
+  -- for backwards compatibility, not documented
   treeModelGetRow,
   treeModelSetColumn,
   ) where
@@ -129,7 +129,7 @@ customStoreSetColumn model (ColumnId _ setter colId) acc | colId<0 = return ()
          let (beg,_:end) = splitAt colId cols
          writeIORef cMap (beg++setter acc:end)
 
--- this is a backwards compatability definition
+-- this is a backwards compatibility definition
 treeModelSetColumn :: TypedTreeModelClass model
         => model row -- ^ the store in which to allocate a new column
         -> (ColumnId row ty) -- ^ the column that should be set
@@ -153,7 +153,7 @@ data TreeModelIface row = TreeModelIface {
     --   Return @Nothing@ if the path does not exit.
     treeModelIfaceGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
     -- | Convert an iterator to a path. The iterator will always be valid.
-    treeModelIfaceGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
+    treeModelIfaceGetPath       :: TreeIter -> IO TreePath,                      -- convert an iterator to a path
     -- | Retrieve a row at the given iterator.
     treeModelIfaceGetRow        :: TreeIter -> IO row,                           -- get the row at an iter
     -- | Advance the given iterator to the next node at the same level.
@@ -252,7 +252,7 @@ customStoreGetRow model iter =
       impl <- withForeignPtr model gtk2hs_store_get_impl >>= deRefStablePtr
       treeModelIfaceGetRow (customStoreIface impl) iter
 
--- this is a backwards compatability definition
+-- this is a backwards compatibility definition
 treeModelGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
 treeModelGetRow = customStoreGetRow
 

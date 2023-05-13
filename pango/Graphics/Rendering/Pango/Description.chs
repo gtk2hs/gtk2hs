@@ -4,7 +4,7 @@
 --
 --  Author : Axel Simon
 --
---  Created: 8 Feburary 2003
+--  Created: 8 February 2003
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -202,7 +202,7 @@ fontDescriptionMerge :: FontDescription -> FontDescription -> Bool -> IO ()
 fontDescriptionMerge fd1 fd2 replace =
   {#call unsafe merge#} fd1 fd2 (fromBool replace)
 
--- | Determine if two descriptions are simliar.
+-- | Determine if two descriptions are similar.
 --
 -- * Returns 'True' if the two descriptions only differ in weight or style.
 --
@@ -213,7 +213,7 @@ fontDescriptionIsMatch fdA fdB = unsafePerformIO $ liftM toBool $
 -- | Determine which of two descriptions matches a given description better.
 --
 -- * Returns @True@ if the last description is a better match to the first
---   arguement than the middle one.
+--   argument than the middle one.
 --
 -- * Approximate matching is done on weight and style. If the other
 --   attributes do not match, the function returns @False@.
@@ -232,7 +232,7 @@ fontDescriptionBetterMatch fd fdA fdB = unsafePerformIO $ liftM toBool $
 --   word describes one of style, variant, weight or stretch. @SIZE@ is
 --   a decimal number giving the size of the font in points. If any of
 --   these fields is absent, the resulting 'FontDescription' will have
---   the corresponing fields unset.
+--   the corresponding fields unset.
 --
 fontDescriptionFromString :: GlibString string => string -> IO FontDescription
 fontDescriptionFromString descr = withUTFString descr $ \strPtr ->

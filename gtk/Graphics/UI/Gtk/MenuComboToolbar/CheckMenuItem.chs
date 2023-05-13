@@ -173,7 +173,7 @@ checkMenuItemSetInconsistent self setting =
     (toCheckMenuItem self)
     (fromBool setting)
 
--- | Query if the menu check is drawn as inconsistent (inbetween). See
+-- | Query if the menu check is drawn as inconsistent (in between). See
 -- 'checkMenuItemSetInconsistent'.
 --
 checkMenuItemGetInconsistent :: CheckMenuItemClass self => self -> IO Bool

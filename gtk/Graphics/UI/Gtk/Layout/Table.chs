@@ -309,7 +309,7 @@ tableGetDefaultColSpacing self =
   {# call unsafe table_get_default_col_spacing #}
     (toTable self)
 
--- | Changes the homogenous property of table cells, ie. whether all cells are
+-- | Changes the homogeneous property of table cells, ie. whether all cells are
 -- an equal size or not.
 --
 tableSetHomogeneous :: TableClass self => self

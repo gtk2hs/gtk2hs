@@ -20,7 +20,7 @@ main = do
   set window [ containerChild := overlay ]
 
   vbox <- vBoxNew True 3
-  label1 <- labelNew (Just "This is an overlayed label")
+  label1 <- labelNew (Just "This is an overlaid label")
   button <- buttonNewWithLabel ("another one")
   label3 <- labelNew (Just "and a final one")
   boxPackStart vbox label1 PackNatural 3
@@ -44,8 +44,8 @@ main = do
                  | button <- [button1, button2, button3] ]
 
   -- This sets button3 to be a so called 'secondary child'. When the layout
-  -- stlye is ButtonboxStart or ButtonboxEnd, the secondary children are
-  -- grouped seperately from the others. Resize the window to see the effect.
+  -- style is ButtonboxStart or ButtonboxEnd, the secondary children are
+  -- grouped separately from the others. Resize the window to see the effect.
   --
   -- This is not interesting in itself but shows how to set child attributes.
   -- Note that the child attribute 'buttonBoxChildSecondary' takes the

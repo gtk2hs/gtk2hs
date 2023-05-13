@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
   radioMenuItemNewWithLabelFromWidget,
   radioMenuItemNewWithMnemonicFromWidget,
 
-  -- * Compatibilty aliases
+  -- * Compatibility aliases
   radioMenuItemNewJoinGroup,
   radioMenuItemNewJoinGroupWithLabel,
   radioMenuItemNewJoinGroupWithMnemonic,

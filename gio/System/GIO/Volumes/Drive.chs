@@ -35,11 +35,11 @@ module System.GIO.Volumes.Drive (
 --
 -- 'Drive' is a container class for 'Volume' objects that stem from the same piece of media. As such,
 -- 'Drive' abstracts a drive with (or without) removable media and provides operations for querying
--- whether media is available, determing whether media change is automatically detected and ejecting
+-- whether media is available, determining whether media change is automatically detected and ejecting
 -- the media.
 --
 -- If the 'Drive' reports that media isn't automatically detected, one can poll for media; typically one
--- should not do this periodically as a poll for media operation is potententially expensive and may
+-- should not do this periodically as a poll for media operation is potentially expensive and may
 -- spin up the drive creating noise.
 --
 -- 'Drive' supports starting and stopping drives with authentication support for the former. This can be
@@ -175,9 +175,9 @@ driveCanStartDegraded drive =
   liftM toBool $
   {#call g_drive_can_start_degraded#} (toDrive drive)
 
--- | Checks if a drive can be stoped.
+-- | Checks if a drive can be stopped.
 driveCanStop :: DriveClass drive => drive
- -> IO Bool  -- ^ returns 'True' if the drive can be stoped, 'False' otherwise.
+ -> IO Bool  -- ^ returns 'True' if the drive can be stopped, 'False' otherwise.
 driveCanStop drive =
   liftM toBool $
   {#call g_drive_can_stop#} (toDrive drive)
@@ -228,9 +228,9 @@ driveHasMedia drive =
   liftM toBool $
   {#call g_drive_has_media#} (toDrive drive)
 
--- | Checks if drive is capabable of automatically detecting media changes.
+-- | Checks if drive is capable of automatically detecting media changes.
 driveIsMediaCheckAutomatic :: DriveClass drive => drive
- -> IO Bool -- ^ returns 'True' if the drive is capabable of automatically detecting media changes, 'False' otherwise.
+ -> IO Bool -- ^ returns 'True' if the drive is capable of automatically detecting media changes, 'False' otherwise.
 driveIsMediaCheckAutomatic drive =
   liftM toBool $
   {#call g_drive_is_media_check_automatic#} (toDrive drive)
@@ -335,7 +335,7 @@ driveStop drive flags mountOperation cancellable callback = do
         cCallback
         (castFunPtrToPtr cCallback)
 
--- | Finishes stoping a drive.
+-- | Finishes stopping a drive.
 --
 -- Throws a 'GError' if an error occurs.
 driveStopFinish :: DriveClass drive
@@ -351,7 +351,7 @@ driveStopFinish drive result =
                         return ())
 #endif
 
--- | Gets the kinds of identifiers that drive has. Use 'driveGetIdentifer' to obtain the
+-- | Gets the kinds of identifiers that drive has. Use 'driveGetIdentifier' to obtain the
 -- identifiers themselves.
 driveEnumerateIdentifiers :: (DriveClass drive, GlibString string) => drive
                            -> IO [string]

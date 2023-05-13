@@ -17,7 +17,7 @@ import Control.Concurrent
 main :: IO ()
 main = do
 
-  -- It is marked unsafe becuase it is your obligation to ensure you
+  -- It is marked unsafe because it is your obligation to ensure you
   -- only call Gtk+ from one OS thread, or 'bad things' will happen.
   unsafeInitGUIForThreadedRTS
 

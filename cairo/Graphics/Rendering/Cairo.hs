@@ -488,7 +488,7 @@ popGroupToSource = liftRender0 Internal.popGroupToSource
 setSourceRGB ::
      Double -- ^ red component of colour
   -> Double -- ^ green component of colour
-  -> Double -- ^ blue compoment of colour
+  -> Double -- ^ blue component of colour
   -> Render ()
 setSourceRGB = liftRender3 Internal.setSourceRGB
 
@@ -568,7 +568,7 @@ getAntialias = liftRender0 Internal.getAntialias
 
 -- | Sets the dash pattern to be used by 'stroke'. A dash pattern is specified
 -- by dashes, a list of positive values. Each value provides the user-space
--- length of altenate "on" and "off" portions of the stroke. The offset
+-- length of alternate "on" and "off" portions of the stroke. The offset
 -- specifies an offset into the pattern at which the stroke begins.
 --
 -- If @dashes@ is @[]@ then dashing is disabled.
@@ -1232,7 +1232,7 @@ withLinearPattern x0 y0 x1 y1 f =
 withRadialPattern ::
      Double -- ^ @cx0@ - x coordinate for the center of the start circle
   -> Double -- ^ @cy0@ - y coordinate for the center of the start circle
-  -> Double -- ^ @radius0@ - radius of the start cirle
+  -> Double -- ^ @radius0@ - radius of the start circle
   -> Double -- ^ @cx1@ - x coordinate for the center of the end circle
   -> Double -- ^ @cy1@ - y coordinate for the center of the end circle
   -> Double -- ^ @radius1@ - radius of the end circle
@@ -1531,7 +1531,7 @@ meshPatternGetPatchCount ::
    -> m (Status, Int)
 meshPatternGetPatchCount p = liftIO$ Internal.meshPatternGetPatchCount p
 
--- | Gets path defining a spedified patch from a mesh pattern.
+-- | Gets path defining a specified patch from a mesh pattern.
 --
 -- qv <https://www.cairographics.org/manual/cairo-cairo-pattern-t.html#cairo-mesh-pattern-get-path>
 meshPatternGetPath ::
@@ -1812,7 +1812,7 @@ fontOptionsEqual a b = liftIO $ Internal.fontOptionsEqual a b
 fontOptionsSetAntialias :: MonadIO m => FontOptions -> Antialias -> m ()
 fontOptionsSetAntialias a b = liftIO $ Internal.fontOptionsSetAntialias a b
 
--- | Gets the antialising mode for the font options object.
+-- | Gets the antialiasing mode for the font options object.
 --
 fontOptionsGetAntialias :: MonadIO m => FontOptions -> m Antialias
 fontOptionsGetAntialias a = liftIO $ Internal.fontOptionsGetAntialias a
@@ -1880,7 +1880,7 @@ withSimilarSurface surface contentType width height f =
 
 
 -- | Like 'withSimilarSurface' but creates a Surface that is managed by the
--- Haskell memory manager rather than only being temporaily allocated. This
+-- Haskell memory manager rather than only being temporarily allocated. This
 -- is more flexible and allows you to create surfaces that persist, which
 -- can be very useful, for example to cache static elements in an animation.
 --
@@ -1904,7 +1904,7 @@ createSimilarSurface surface contentType width height = do
 -- surface (like a combination of 'withTargetSurface' and 'withSimilarSurface').
 --
 -- This is useful for drawing to a temporary surface and then compositing it
--- into the main suface. For example, the following code draws to a temporary
+-- into the main surface. For example, the following code draws to a temporary
 -- surface and then uses that as a mask:
 --
 -- > renderWithSimilarSurface ContentAlpha 200 200 $ \tmpSurface -> do
@@ -2026,7 +2026,7 @@ formatStrideForWidth = Internal.formatStrideForWidth
 #endif
 
 -- | Creates an image surface of the specified format and dimensions.
--- The initial contents of the surface is undefined; you must explicitely
+-- The initial contents of the surface is undefined; you must explicitly
 -- clear the buffer, using, for example, 'rectangle' and 'fill' if you want it
 -- cleared.
 --
@@ -2046,7 +2046,7 @@ withImageSurface format width height f =
           (\surface -> f surface)
 
 -- | Like 'withImageSurface' but creates a Surface that is managed by the
--- Haskell memory manager rather than only being temporaily allocated. This
+-- Haskell memory manager rather than only being temporarily allocated. This
 -- is more flexible and allows you to create surfaces that persist, which
 -- can be very useful, for example to cache static elements in an animation.
 --
@@ -2150,7 +2150,7 @@ imageSurfaceGetData a = do
 --   number of bytes between rows.
 --
 -- * The returned array is a flat representation of a three dimensional array:
---   x-coordiante, y-coordinate and several channels for each color. The
+--   x-coordinate, y-coordinate and several channels for each color. The
 --   format depends on the 'Format' of the surface:
 --
 --   'FormatARGB32': each pixel is 32 bits with alpha in the upper 8 bits,
@@ -2163,7 +2163,7 @@ imageSurfaceGetData a = do
 --   'FormatA8': each pixel is 8 bits holding an alpha value
 --
 --   'FormatA1': each pixel is one bit where pixels are packed into 32 bit
---   quantities. The ordering depends on the endianes of the platform. On a
+--   quantities. The ordering depends on the endianness of the platform. On a
 --   big-endian machine, the first pixel is in the uppermost bit, on a
 --   little-endian machine the first pixel is in the least-significant bit.
 --
