@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           gio
 Version:        0.13.10.0
 License:        LGPL-2.1-only
@@ -40,7 +40,7 @@ Source-Repository head
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.0 && < 3.11,
+                 Cabal >= 2.2 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
