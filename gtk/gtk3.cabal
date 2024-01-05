@@ -136,10 +136,10 @@ custom-setup
 Library
         build-depends:  base >= 4 && < 5,
                         array < 0.6,
-                        bytestring < 0.12,
+                        bytestring < 0.13,
                         containers < 0.7,
                         mtl < 2.4,
-                        text >= 0.11.0.6 && < 2.1,
+                        text >= 0.11.0.6 && < 2.2,
                         glib  >= 0.13.0.0 && < 0.14,
                         pango >= 0.13.0.0 && < 0.14,
                         cairo >= 0.13.0.0 && < 0.14

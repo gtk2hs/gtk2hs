@@ -38,8 +38,8 @@ custom-setup
 Library
         build-depends:  base >= 4 && < 5,
                         utf8-string >= 0.2 && < 1.1,
-                        bytestring >= 0.9.1.10 && < 0.12,
-                        text >= 1.0.0.0 && < 2.1,
+                        bytestring >= 0.9.1.10 && < 0.13,
+                        text >= 1.0.0.0 && < 2.2,
                         containers < 0.7
         cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
