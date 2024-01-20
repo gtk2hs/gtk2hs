@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           cairo
 Version:        0.13.10.0
 License:        BSD-3-Clause
@@ -15,7 +15,7 @@ Description:    Cairo is a library to render high quality vector graphics. There
                 exist various backends that allows rendering to Gtk windows, PDF,
                 PS, PNG and SVG documents, amongst others.
 Category:       Graphics
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
+Tested-With:    GHC == 9.8.1, GHC == 9.6.3, GHC == 9.4.7, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2, GHC==7.10.3
 extra-source-files: cairo-gtk2hs.h
 
 Data-Dir:       demo
@@ -53,15 +53,15 @@ Flag cairo_svg
 
 custom-setup
   setup-depends: base >= 4.6 && <5,
-                 Cabal >= 2.0 && < 3.11,
+                 Cabal >= 2.2 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4.8 && < 5,
                         utf8-string >= 0.2 && < 1.1,
-                        text >= 1.0.0.0 && < 2.1,
+                        text >= 1.0.0.0 && < 2.2,
                         array < 0.6,
-                        bytestring < 0.12,
+                        bytestring < 0.13,
                         mtl < 2.4
         exposed-modules:  Graphics.Rendering.Cairo
                           Graphics.Rendering.Cairo.Matrix

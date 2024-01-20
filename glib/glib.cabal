@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           glib
 Version:        0.13.10.0
 License:        LGPL-2.1-only
@@ -17,7 +17,7 @@ Description:    GLib is a collection of C data structures and utility functions
                 as much functionality as required to support the packages that
                 wrap libraries that are themselves based on GLib.
 Category:       System
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
+Tested-With:    GHC == 9.8.1, GHC == 9.6.3, GHC == 9.4.7, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2, GHC==7.10.3, GHC==7.8.4, GHC==7.6.3
 Extra-Source-Files:
                 System/Glib/hsgclosure.c
                 System/Glib/hsgclosure.h
@@ -32,14 +32,14 @@ Flag closure_signals
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.0 && < 3.11,
+                 Cabal >= 2.2 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
                         utf8-string >= 0.2 && < 1.1,
-                        bytestring >= 0.9.1.10 && < 0.12,
-                        text >= 1.0.0.0 && < 2.1,
+                        bytestring >= 0.9.1.10 && < 0.13,
+                        text >= 1.0.0.0 && < 2.2,
                         containers < 0.7
         cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)

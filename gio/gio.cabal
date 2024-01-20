@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           gio
 Version:        0.13.10.0
 License:        LGPL-2.1-only
@@ -17,7 +17,7 @@ Description:    GIO is striving to provide a modern, easy-to-use VFS API that si
                 Among other things that means using GObject.
                 It also means not cloning the POSIX API, but providing higher-level, document-centric interfaces.
 Category:       System
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
+Tested-With:    GHC == 9.8.1, GHC == 9.6.3, GHC == 9.4.7, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2, GHC==7.10.3, GHC==7.8.4, GHC==7.6.3
 Extra-Source-Files: marshal.list
                     hierarchy.list
 
@@ -40,13 +40,13 @@ Source-Repository head
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.0 && < 3.11,
+                 Cabal >= 2.2 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
                         array < 0.6,
-                        bytestring < 0.12,
+                        bytestring < 0.13,
                         containers < 0.7,
                         mtl < 2.4,
                         glib >= 0.13.0.0 && < 0.14
@@ -81,6 +81,9 @@ Library
           System.GIO.Volumes.VolumeMonitor
         other-modules:
           System.GIO.Signals
+        autogen-modules:
+          System.GIO.Signals
+          System.GIO.Types
 
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface

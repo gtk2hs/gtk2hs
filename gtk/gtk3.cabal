@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           gtk3
 Version:        0.15.8
 License:        LGPL-2.1-only
@@ -15,7 +15,7 @@ Description: This is the core library of the Gtk2Hs suite of libraries for Haske
              based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
              for creating graphical user interfaces.
 Category:       Graphics
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
+Tested-With:    GHC == 9.8.1, GHC == 9.6.3, GHC == 9.4.7, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2, GHC==7.10.3, GHC==7.8.4, GHC==7.6.3
 Extra-Source-Files: hsgtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h
@@ -130,16 +130,16 @@ Flag fmode-binary
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.0 && < 3.11,
+                 Cabal >= 2.2 && < 3.11,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
                         array < 0.6,
-                        bytestring < 0.12,
+                        bytestring < 0.13,
                         containers < 0.7,
                         mtl < 2.4,
-                        text >= 0.11.0.6 && < 2.1,
+                        text >= 0.11.0.6 && < 2.2,
                         glib  >= 0.13.0.0 && < 0.14,
                         pango >= 0.13.0.0 && < 0.14,
                         cairo >= 0.13.0.0 && < 0.14
@@ -356,6 +356,9 @@ Library
           Graphics.UI.Gtk.General.DNDTypes
           Graphics.UI.Gtk.General.Threading
           Graphics.UI.Gtk.Signals
+        autogen-modules:
+          Graphics.UI.Gtk.Signals
+          Graphics.UI.Gtk.Types
 
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface

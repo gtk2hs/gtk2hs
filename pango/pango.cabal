@@ -1,4 +1,4 @@
-cabal-version:  3.0
+cabal-version:  2.2
 Name:           pango
 Version:        0.13.10.0
 License:        LGPL-2.1-only
@@ -16,7 +16,7 @@ Description:    This package provides a wrapper around the Pango C library that
                 either with Cairo to output text in PDF, PS or other
                 documents or with Gtk+ to display text on-screen.
 Category:       Graphics
-Tested-With:    GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.1
+Tested-With:    GHC == 9.8.1, GHC == 9.6.3, GHC == 9.4.7, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2, GHC==7.10.3
 extra-source-files: template-hsc-gtk2hs.h
                     hspango.h
                     hierarchy.list
@@ -39,8 +39,8 @@ Flag new-exception
   Description:  Enable build with a base library that contains the new exception library.
 
 custom-setup
-  setup-depends: base >= 4.6 && <5,
-                 Cabal >= 2.0 && < 3.11,
+  setup-depends: base >= 4.8 && <5,
+                 Cabal >= 2.2 && < 3.11,
                  filepath >= 1.3 && < 1.5,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
@@ -54,7 +54,7 @@ Library
                         pretty < 1.2,
                         glib  >= 0.13.0.0 && < 0.14,
                         cairo >= 0.13.0.0 && < 0.14,
-                        text >= 0.11.0.6 && < 2.1
+                        text >= 0.11.0.6 && < 2.2
 
         if flag(new-exception)
           build-depends:  base >= 4
@@ -78,6 +78,8 @@ Library
                          Graphics.Rendering.Pango.Attributes
         other-modules:   Graphics.Rendering.Pango.GlyphStorage
                          Graphics.Rendering.Pango.Description
+        autogen-modules:
+                         Graphics.Rendering.Pango.Types
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
         x-c2hs-Header:  hspango.h
