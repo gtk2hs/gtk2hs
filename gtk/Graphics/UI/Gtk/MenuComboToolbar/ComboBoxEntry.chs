@@ -153,7 +153,7 @@ comboBoxEntryNewWithModel model = do
 -- widget and sets the model to the list store. The widget can contain only
 -- strings. The model can be retrieved with 'comboBoxGetModel'. The list
 -- store can be retrieved with 'comboBoxGetModelText'.
--- Any exisiting model or renderers are removed before setting the new text
+-- Any existing model or renderers are removed before setting the new text
 -- model.
 -- In order to respond to new texts that the user enters, it is necessary to
 -- connect to the 'Graphics.UI.Gtk.Entry.Entry.entryActivated' signal of the
@@ -203,7 +203,7 @@ comboBoxEntryGetTextColumn self =
 --
 -- * Returns @Nothing@ if no text is selected or entered.
 --
--- * Availabe in Gtk 2.6 or higher.
+-- * Available in Gtk 2.6 or higher.
 --
 comboBoxEntryGetActiveText :: (ComboBoxEntryClass self, GlibString string) => self
   -> IO (Maybe string)

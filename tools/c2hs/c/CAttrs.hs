@@ -34,7 +34,7 @@
 --  * In addition to the name spaces, the attribute structure tree contains
 --    a ident-definition table, which for attribute handles of identifiers
 --    refers to the identifiers definition.  These are only used in usage
---    occurences, except for one exception: The tag identifiers in forward
+--    occurrences, except for one exception: The tag identifiers in forward
 --    definitions of structures or enums get a reference to the corresponding
 --    full definition - see `CTrav' for full details.
 --

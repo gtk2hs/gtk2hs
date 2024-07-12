@@ -596,7 +596,7 @@ drawWindowSetCursor self cursor =
     (fromMaybe (Cursor nullForeignPtr) cursor)
 
 #if GTK_MAJOR_VERSION < 3 && !defined(HAVE_QUARTZ_GTK) && !defined(GDK_WINDOWING_QUARTZ)
--- | Get the handle to an exising window of the windowing system. The
+-- | Get the handle to an existing window of the windowing system. The
 -- passed-in handle is a reference to a native window, that is, an Xlib XID
 -- for X windows and a HWND for Win32.
 --

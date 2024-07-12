@@ -249,7 +249,7 @@ convertPara knownSymbols para = case para of
   Docs.DocParaDefItem term def -> ParaDefItem (convertSpans knownSymbols term)
                                               (convertSpans knownSymbols def)
   Docs.DocParaListItem spans -> ParaListItem (convertSpans knownSymbols spans)
-  where fixme = "FIXME: if the follwing is a C code example"
+  where fixme = "FIXME: if the following is a C code example"
              ++ ", port it to Haskell or remove it"
         trimBlankLines = reverse . dropWhile (all Char.isSpace)
                        . reverse . dropWhile (all Char.isSpace) . lines

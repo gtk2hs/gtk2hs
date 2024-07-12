@@ -50,7 +50,7 @@ textIterCopy (TextIter iter) = do
       copyBytes iterPtr' iterPtr textIterSize
   return (TextIter iter')
 
--- | Interal marshaling util
+-- | Internal marshaling util
 --
 mkTextIterCopy :: Ptr TextIter -> IO TextIter
 mkTextIterCopy iterPtr = do

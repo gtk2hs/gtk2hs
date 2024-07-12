@@ -111,7 +111,7 @@ gTypeGObject = object
 -- It should be used whenever a function returns a pointer to an existing
 -- 'GObject' (as opposed to a function that constructs a new object).
 --
--- * The first argument is the contructor of the specific object.
+-- * The first argument is the constructor of the specific object.
 --
 makeNewGObject ::
     GObjectClass obj
@@ -139,7 +139,7 @@ constructNewGObject :: GObjectClass obj =>
 constructNewGObject (constr, objectUnref) generator = do
   objPtr <- generator
 #if GLIB_CHECK_VERSION(2,10,0)
-  -- change the exisiting floating reference into a proper reference;
+  -- change the existing floating reference into a proper reference;
   -- the name is confusing, what the function does is ref,sink,unref
   objectRefSink objPtr
 #endif
@@ -207,7 +207,7 @@ objectSetAttribute attr obj (Just val) = do
 --
 -- * Note that this function may crash the Haskell run-time since the
 --   returned type can be forced to be anything. See 'objectCreateAttribute'
---   for a safe wrapper around this funciton.
+--   for a safe wrapper around this function.
 --
 objectGetAttributeUnsafe :: GObjectClass o => Quark -> o -> IO (Maybe a)
 objectGetAttributeUnsafe attr obj = do

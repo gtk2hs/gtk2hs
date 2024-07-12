@@ -296,7 +296,7 @@ getByte :: BinHandle -> IO Word8
 getByte = getWord8
 
 -- -----------------------------------------------------------------------------
--- Primitve Word writes
+-- Primitive Word writes
 
 instance Binary Word8 where
   put_ = putWord8
@@ -358,7 +358,7 @@ instance Binary Word64 where
                (fromIntegral w8))
 
 -- -----------------------------------------------------------------------------
--- Primitve Int writes
+-- Primitive Int writes
 
 instance Binary Int8 where
   put_ h w = put_ h (fromIntegral w :: Word8)
@@ -668,7 +668,7 @@ putBinFileWithDict file_path the_thing = do
   dict_p_p <- tellBin bh
   put_ bh dict_p_p      -- Placeholder for ptr to dictionary
 
-        -- Make some intial state
+        -- Make some initial state
   usr_state <- newWriteState
 
         -- Put the main thing,

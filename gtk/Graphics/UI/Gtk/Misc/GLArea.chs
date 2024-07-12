@@ -172,7 +172,7 @@ glAreaQueueRender self =
 
 -- | Ensures that the area framebuffer object is made the current draw and read
 -- target, and that all the required buffers for the area are created and
--- bound to the frambuffer.
+-- bound to the framebuffer.
 --
 -- This function is automatically called before emitting the 'glAreaRender' signal,
 -- and doesn't normally need to be called by application code.

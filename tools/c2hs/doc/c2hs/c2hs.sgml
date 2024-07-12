@@ -425,7 +425,7 @@ Function hooks are call hooks including parameter marshalling.  Thus, the
 components of a function hook up to and including the <tt/as/ alias are the
 same as for call hooks.  However, an <tt/as/ alias has a different meaning; it
 specifies the name of the generated Haskell function.  The remaining
-components use literals enclosed in backwards and foward single quotes (<tt/`/
+components use literals enclosed in backwards and forward single quotes (<tt/`/
 and <tt/'/) to denote Haskell code fragments (or more precisely, parts of the
 Haskell type signature for the bound function).  The first one is the phrase
 <it/ctxt/ preceding <tt/=>/, which denotes the type context.  This is followed
@@ -465,7 +465,7 @@ the order in which the marshalling specifications are given, with the exception
 that the value of the result marshaller is always the first component in the
 result tuple if it is included at all.
 <p>
-For a set of commonly occuring Haskell and C type combinations, <em/default
+For a set of commonly occurring Haskell and C type combinations, <em/default
 marshallers/ are provided by C-&gt;Haskell if no explicit marshaller is
 given.   The out marshaller for function arguments is by default <tt/void-/.
 The defaults for the in marshallers for function arguments are as follows:
@@ -674,10 +674,10 @@ and establish a type association between <tt/point/ and <tt/PointPtr/.
 {#class [<it/hsid1/ =>] <it/hsid2/ <it/hsid3/#}
 </tscreen>
 <p>
-Class hooks facilitate the definition of a single inheritance class hierachy
+Class hooks facilitate the definition of a single inheritance class hierarchy
 for external pointers including up and down cast functionality.  This is meant
 to be used in cases where the objects referred to by the external pointers are
-order in such a hierachy in the external API - such structures are encountered
+order in such a hierarchy in the external API - such structures are encountered
 in C libraries that provide an object-oriented interface.  Each class hook
 rewrites to a class declaration and one or more instance declarations.
 <p>
@@ -687,7 +687,7 @@ external pointer is identified by <it/hsid3/.  Both the superclass and the
 pointer type must already have been defined by binding hooks that precede the
 class hook.
 <p>
-The pointers in a hierachy must either all be foreign pointers or all be
+The pointers in a hierarchy must either all be foreign pointers or all be
 normal pointers.  Stable pointers are not allowed.  Both pointer defined as
 <tt/newtype/s and those defined by type synonyms may be used in class
 declarations and they may be mixed.  In the case of synonyms, Haskell's usual
@@ -944,7 +944,7 @@ the C header (i.e., we now read the binding module first)
 <item>Solaris-related fix
 <item>Marshalling support for bit masks represented as enumeration types
 <item>Added <tt/fun/ hooks
-<item><tt/as/ aliases can use <tt/^/ convert the orignal identifier with
+<item><tt/as/ aliases can use <tt/^/ convert the original identifier with
 underscore2case
 <item>In call hooks, the attributes `fun' was replaced by `pure' (`fun' is
 will still be recognised for a while to ensure backwards compatibility, but

@@ -511,7 +511,7 @@ instance Ord ModDep where
 
 -- Extract the dependencies of this file. This is intentionally rather naive as it
 -- ignores CPP conditionals. We just require everything which means that the
--- existance of a .chs module may not depend on some CPP condition.
+-- existence of a .chs module may not depend on some CPP condition.
 extractDeps :: ModDep -> IO ModDep
 extractDeps md@ModDep { mdLocation = Nothing } = return md
 extractDeps md@ModDep { mdLocation = Just f } = withUTF8FileContents f $ \con -> do

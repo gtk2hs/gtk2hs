@@ -142,7 +142,7 @@ buttonBoxSetChildNonHomogeneous self child nonHomogeneous =
     (toWidget child)
     (fromBool nonHomogeneous)
 
--- | Returns whether the child is exempted from homogenous sizing.
+-- | Returns whether the child is exempted from homogeneous sizing.
 --
 buttonBoxGetChildNonHomogeneous :: (ButtonBoxClass self, WidgetClass child) => self
  -> child   -- ^ @child@ - a child of the button box widget

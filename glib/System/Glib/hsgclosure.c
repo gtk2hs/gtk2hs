@@ -117,7 +117,7 @@ gtk2hs_closure_marshal(GClosure *closure,
     
     /* barf if anything went wrong */
     /* TODO: pass a sensible value for call site so we get better error messages */
-    /* or perhaps we can propogate any error? */
+    /* or perhaps we can propagate any error? */
     rts_checkSchedStatus("gtk2hs_closure_marshal", cap);
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): ret=%p", hc->callback, ret));
     

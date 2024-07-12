@@ -290,7 +290,7 @@ screenGetWidthMm = screenGetWidthMM
 -- servers this value will not be correct.
 --
 screenGetHeightMM :: Screen
- -> IO Int -- ^ returns the heigth of @screen@ in millimeters.
+ -> IO Int -- ^ returns the height of @screen@ in millimeters.
 screenGetHeightMM self =
   liftM fromIntegral $
   {# call gdk_screen_get_height_mm #}

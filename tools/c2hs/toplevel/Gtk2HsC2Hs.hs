@@ -42,7 +42,7 @@
 --  Note: These also depend on suffixes defined in the compiler proper.
 --
 --  .h   C header file
---  .i   pre-processeed C header file
+--  .i   pre-processed C header file
 --  .hs  Haskell file
 --  .chs Haskell file with C->Haskell hooks (binding file)
 --  .chi C->Haskell interface file
@@ -54,13 +54,13 @@
 --  --cppopts=CPPOPTS
 --        Pass the additional options CPPOPTS to the C preprocessor.
 --
---        Repeated occurences accumulate.
+--        Repeated occurrences accumulate.
 --
 --  -c CPP
 --  --cpp=CPP
 --        Use the executable CPP to invoke CPP.
 --
---        In the case of repeated occurences, the last takes effect.
+--        In the case of repeated occurrences, the last takes effect.
 --
 --  -d TYPE
 --  --dump=TYPE
@@ -128,7 +128,7 @@
 --        Wrap each foreign function call in the function NAME. This
 --        function is usually a function that acquires a lock for
 --        the memory region that the called function is about to access.
---        A wrap function can also be specificed within the file in the
+--        A wrap function can also be specified within the file in the
 --        context hook, in which case it overrides the command line function.
 --        The wrapper function can be omitted on a call-by-call basis by
 --        using the nolock option in the call hook.
@@ -215,7 +215,7 @@ data Flag = CPPOpts String      -- additional options for C preprocessor
           | PreComp String      -- write or read a precompiled header
           | LockFun String      -- wrap each function call in this function
           | Version             -- print version information on stderr
-          | Error   String      -- error occured during processing of options
+          | Error   String      -- error occurred during processing of options
           deriving Eq
 
 data DumpType = Trace         -- compiler trace

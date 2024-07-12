@@ -408,7 +408,7 @@ fileGetChildForDisplayName file displayName =
         withUTFString displayName $ \cDisplayName ->
         propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName)
 
--- | Checks whether file has the prefix specified by prefix. In other word, if the names of inital
+-- | Checks whether file has the prefix specified by prefix. In other word, if the names of initial
 -- elements of files pathname match prefix. Only full pathname elements are matched, so a path like
 -- /foo is not considered a prefix of /foobar, only of / foo/bar.
 --
@@ -1882,7 +1882,7 @@ fileStopMountable file flags mountOperation cancellable callback = do
 
 -- | Finishes a stop operation. See 'fileStopMountable' for details.
 --
--- Finish an asynchronous stop operation that was stoped with 'fileStopMountable'.
+-- Finish an asynchronous stop operation that was stopped with 'fileStopMountable'.
 --
 -- Throws a 'GError' if an error occurs.
 fileStopMountableFinish :: FileClass file

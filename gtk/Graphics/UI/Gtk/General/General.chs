@@ -101,7 +101,7 @@ import Control.Monad.Trans (liftIO)
 {#context lib="gtk" prefix ="gtk"#}
 
 {-
--- | Retreive the current language.
+-- | Retrieve the current language.
 -- * This function returns a String which's pointer can be used later on for
 --   comarisions.
 --
@@ -115,7 +115,7 @@ import Control.Monad.Trans (liftIO)
 
 unsafeInitGUIForThreadedRTS = initGUI
 
--- We compile this module using -#includ"gtk/wingtk.h" to bypass the win32 abi
+-- We compile this module using -#include"gtk/wingtk.h" to bypass the win32 abi
 -- check however we do not compile users programs with this header so if
 -- initGUI was ever inlined in a users program, then that program would not
 -- bypass the abi check and would fail on startup. So to stop that we must

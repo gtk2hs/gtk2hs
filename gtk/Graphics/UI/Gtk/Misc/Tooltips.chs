@@ -95,7 +95,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new goup of 'Tooltips'.
+-- | Create a new group of 'Tooltips'.
 --
 tooltipsNew :: IO Tooltips
 tooltipsNew =

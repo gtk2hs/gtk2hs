@@ -146,7 +146,7 @@ colorSelectionSetCurrentColor self color =
 --
 colorSelectionGetHasOpacityControl :: ColorSelectionClass self => self
  -> IO Bool -- ^ returns @True@ if the color selector has an opacity control.
-            -- @False@ if it does't.
+            -- @False@ if it doesn't.
 colorSelectionGetHasOpacityControl self =
   liftM toBool $
   {# call unsafe color_selection_get_has_opacity_control #}

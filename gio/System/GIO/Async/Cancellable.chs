@@ -99,7 +99,7 @@ cancellablePopCurrent cancellable =
       {# call cancellable_pop_current #}
          (fromMaybe (Cancellable nullForeignPtr) cancellable)
 
--- | Pushes cancellable onto the cancellable stack. The current cancllable can then be recieved using
+-- | Pushes cancellable onto the cancellable stack. The current cancllable can then be received using
 -- 'cancellableGetCurrent' .
 --
 -- This is useful when implementing cancellable operations in code that does not allow you to pass down

@@ -87,7 +87,7 @@ parseExports content = flip Map.lookup concordance
 
 -----------------------------------------------------------------------------
 -- Secondly, scanning, munging stuff
--- to find the code snippets and to do all necesary conversion/escaping
+-- to find the code snippets and to do all necessary conversion/escaping
 -- and add in the links and call the next bit to do any syntax highliting
 --
 data DocType = LaTeX | XHTML

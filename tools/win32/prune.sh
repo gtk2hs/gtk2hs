@@ -13,7 +13,7 @@ rm -rvf */make/ */share/man/ */man/ */share/gtk-doc/ */share/doc/ */src
 # only needed for rebuilding gtk libs
 rm -rvf */share/aclocal/
 
-# don't need deverloper util progs
+# don't need developer util progs
 rm -rvf *-dev-*/bin/
 
 # don't need manifests

@@ -104,7 +104,7 @@
 --    Regarding the character ranges, there seem to be at least two
 --    possibilities.  Doaitse explicitly uses ranges and avoids expanding
 --    them.  The problem with this approach is that we may only have
---    predicates such as `isAlphaNum' to determine whether a givne character
+--    predicates such as `isAlphaNum' to determine whether a given character
 --    belongs to some character class.  From this representation it is
 --    difficult to efficiently compute a range.  The second approach, as
 --    proposed by Tom Pledger <Tom.Pledger@peace.com> (on the Haskell list)
@@ -126,7 +126,7 @@
 --      many re = \l' -> let self = re1 self >||< l' in self
 --
 --    since epsilon = id.''  This should actually be as good as the current
---    definiton and it might be worthwhile to offer it as a variant.
+--    definition and it might be worthwhile to offer it as a variant.
 --
 
 module Lexers (Regexp, Lexer, Action, epsilon, char, (+>), lexaction,

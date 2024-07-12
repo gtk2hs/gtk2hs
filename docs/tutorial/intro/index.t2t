@@ -7,7 +7,7 @@ This is an unreviewed first draft of a //Getting Started// tutorial to Gtk2Hs.
 == Introduction ==
 
 GTK+ started life as the Gimp Tool Kit, that is, the user interface library for the Gimp drawing program. It has grown to a general-purpose, multi-platform user interface library, with bindings for many programming languages. This tutorial describes Gtk2Hs, a binding for the functional programming language Haskell. Gtk+ and Gtk2Hs offer a large number of widgets, ranging from windows and buttons to menus and tree widgets that feature a separation of the GUI element (the view) from the data store (the model). The toolkit includes a visual interface designer, Glade, which stores the composition of several widgets (user interface elements), their layout and many attributes in an XML file. 
-An application can use Gtk2Hs to load these so created windows at runtime and connect the individual widgets to the application logic. Of course, anything that can be created using Glade can also be constructed programatically. Building and destroying, accessing and manipulating widgets is all done through the Gtk2Hs library [API https://github.com/gtk2hs/gtk2hs/tree/master/docs].
+An application can use Gtk2Hs to load these so created windows at runtime and connect the individual widgets to the application logic. Of course, anything that can be created using Glade can also be constructed programmatically. Building and destroying, accessing and manipulating widgets is all done through the Gtk2Hs library [API https://github.com/gtk2hs/gtk2hs/tree/master/docs].
 
 Gtk+ itself is written in C, even though the widgets are described in an objects-oriented fashion with attributes and methods, derived from a single root object. This class hierarchy is reflected in Gtk2Hs using the Haskell type classes and data types. Gtk2Hs provides a Haskell equivalent to most functions in Gtk+. Since
 a graphical user interface is concerned with input and output of an application, most Gtk2Hs functions live in the Haskell IO monad.
@@ -154,8 +154,8 @@ main = do
                  | button <- [button1, button2, button3] ]
   
   -- This sets button3 to be a so called 'secondary child'. When the layout
-  -- stlye is ButtonboxStart or ButtonboxEnd, the secondary children are
-  -- grouped seperately from the others. Resize the window to see the effect.
+  -- style is ButtonboxStart or ButtonboxEnd, the secondary children are
+  -- grouped separately from the others. Resize the window to see the effect.
   --
   -- This is not interesting in itself but shows how to set child attributes.
   -- Note that the child attribute 'buttonBoxChildSecondary' takes the

@@ -183,7 +183,7 @@ levelBarMaxValue = newAttrFromDoubleProperty "max-value"
 
 -- | The "bar-mode" property determines the way LevelBar interprets the
 -- value properties to draw the level fill area. Specifically, when the value is
--- LevelBarModeContinous, LevelBar will draw a single block
+-- LevelBarModeContinuous, LevelBar will draw a single block
 -- representing the current value in that area; when the value is
 -- LevelBarModeDiscrete, the widget will draw a succession of separate
 -- blocks filling the draw area, with the number of blocks being equal to the

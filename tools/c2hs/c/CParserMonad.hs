@@ -1,7 +1,7 @@
 --  C -> Haskell Compiler: Lexer for C Header Files
 --
 --  Author : Manuel M T Chakravarty, Duncan Coutts
---  Created: 12 Febuary 2007
+--  Created: 12 February 2007
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005-2007 Duncan Coutts

@@ -41,7 +41,7 @@ module Graphics.UI.Gtk.Gdk.Display (
 -- 'Display' objects are the GDK representation of the X Display which can
 -- be described as /a workstation consisting of a keyboard a pointing device
 -- (such as a mouse) and one or more screens/. It is used to open and keep
--- track of various 'Screen' objects currently instanciated by the application.
+-- track of various 'Screen' objects currently instantiated by the application.
 -- It is also used to grab and release the keyboard and the mouse pointer.
 
 -- * Class Hierarchy
@@ -194,7 +194,7 @@ displayGetDefaultScreen self =
 -- | Release any pointer grab.
 --
 displayPointerUngrab :: Display
- -> TimeStamp -- ^ @time@ - a timestap (e.g. 'currentTime').
+ -> TimeStamp -- ^ @time@ - a timestamp (e.g. 'currentTime').
  -> IO ()
 displayPointerUngrab self time =
   {# call gdk_display_pointer_ungrab #}
@@ -204,7 +204,7 @@ displayPointerUngrab self time =
 -- | Release any keyboard grab
 --
 displayKeyboardUngrab :: Display
- -> TimeStamp -- ^ @time@ - a timestap (e.g 'currentTime').
+ -> TimeStamp -- ^ @time@ - a timestamp (e.g 'currentTime').
  -> IO ()
 displayKeyboardUngrab self time =
   {# call gdk_display_keyboard_ungrab #}
@@ -245,7 +245,7 @@ displaySync self =
 -- | Flushes any requests queued for the windowing system; this happens
 -- automatically when the main loop blocks waiting for new events, but if your
 -- application is drawing without returning control to the main loop, you may
--- need to call this function explicitely. A common case where this function
+-- need to call this function explicitly. A common case where this function
 -- needs to be called is when an application is executing drawing commands from
 -- a thread other than the thread where the main loop is running.
 --
@@ -409,7 +409,7 @@ displayWarpPointer self screen x y =
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Returns @True@ if multicolored cursors are supported on @display@.
--- Otherwise, cursors have only a forground and a background color.
+-- Otherwise, cursors have only a foreground and a background color.
 --
 -- * Available since Gdk version 2.4
 --
@@ -504,14 +504,14 @@ displayRequestSelectionNotification self (Atom selection) =
     self
     selection
 
--- | Returns whether the speicifed display supports clipboard persistance;
+-- | Returns whether the speicifed display supports clipboard persistence;
 -- i.e. if it's possible to store the clipboard data after an application has
 -- quit. On X11 this checks if a clipboard daemon is running.
 --
 -- * Available since Gdk version 2.6
 --
 displaySupportsClipboardPersistence :: Display
- -> IO Bool -- ^ returns @True@ if the display supports clipboard persistance.
+ -> IO Bool -- ^ returns @True@ if the display supports clipboard persistence.
 displaySupportsClipboardPersistence self =
   liftM toBool $
   {# call gdk_display_supports_clipboard_persistence #}

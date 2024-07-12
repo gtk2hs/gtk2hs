@@ -134,7 +134,7 @@ moveBytes               :: Ptr a -> Ptr a -> Int -> IO ()
 moveBytes dest src size  = memmove dest src (fromIntegral size)
 
 
--- auxilliary routines
+-- auxiliary routines
 -- -------------------
 
 -- basic C routines needed for memory copying

@@ -19,7 +19,7 @@
 --  Lesser General Public License for more details.
 --
 -- TODO
---   I don't know what the elemnt type of the group GSList is for
+--   I don't know what the element type of the group GSList is for
 --   radioActionSetGroup / radioActionGetGroup
 --
 --   Also, the signals clash with those from other modules

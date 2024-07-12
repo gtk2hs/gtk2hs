@@ -185,7 +185,7 @@ switchActivate = Signal (connect_NONE__NONE "activate")
 -- when the underlying state change is complete.
 -- The signal handler should return @True@ to prevent the default handler from running.
 --
--- Visually, the underlying state is represented by the trough color of the switch,
+-- Visually, the underlying state is represented by the through color of the switch,
 -- while the 'switchActive' property is represented by the position of the switch.
 --
 stateSet :: SwitchClass self => Signal self (Bool -> IO Bool)

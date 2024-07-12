@@ -4,7 +4,7 @@
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --
---  Created: 13 Januar 1999
+--  Created: 13 January 1999
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -115,7 +115,7 @@ instance Flags EventMask
 -- | Keyboard modifiers that are depressed when the user presses
 --   a key or a mouse button.
 --
--- * This data type is used to build lists of modifers that were active
+-- * This data type is used to build lists of modifiers that were active
 --   during an event.
 --
 -- * The "Apple" key on Macintoshs is mapped to 'Alt2' and the 'Meta'

@@ -189,7 +189,7 @@ textMarkGetLeftGravity self =
 --------------------
 -- Attributes
 
--- | Retreives the name of a mark.
+-- | Retrieves the name of a mark.
 --
 textMarkName :: TextMarkClass self => ReadAttr self (Maybe MarkName)
 textMarkName = readAttrFromMaybeStringProperty "name"

@@ -282,7 +282,7 @@ selectionDataGet_target selPtr = {#get SelectionData -> target#} selPtr
 #endif
 
 #if GTK_MAJOR_VERSION < 3
--- | Retreives the data in the 'SelectionDataM' monad. The returned array
+-- | Retrieves the data in the 'SelectionDataM' monad. The returned array
 --   must have elements of the size that were used to set this data. If
 --   the size or the type tag does not match, @Nothing@ is returned.
 --

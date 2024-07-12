@@ -413,7 +413,7 @@ buttonGetAlignment self =
 #endif
 
 #if GTK_CHECK_VERSION(2,6,0)
--- | Gets the widget that is currenty set as the image of the button. This may
+-- | Gets the widget that is currently set as the image of the button. This may
 -- have been explicitly set by 'buttonSetImage' or constructed by
 -- 'buttonNewFromStock'.
 --

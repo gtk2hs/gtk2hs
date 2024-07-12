@@ -187,7 +187,7 @@ frameGetShadowType self =
 --
 frameGetLabel :: (FrameClass self, GlibString string) => self
  -> IO string -- ^ returns the text in the label, or if there was no label
-              -- widget or the lable widget was not a 'Label' then an
+              -- widget or the label widget was not a 'Label' then an
               -- exception is thrown
 frameGetLabel self =
   throwIfNull "frameGetLabel: the title of the frame was not a Label widget."

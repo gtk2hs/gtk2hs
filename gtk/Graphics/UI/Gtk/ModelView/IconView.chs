@@ -304,7 +304,7 @@ iconViewGetPathAtPos self x y =
 -- cannot be modified from within this function.
 --
 iconViewSelectedForeach :: IconViewClass self => self
- -> (TreePath -> IO ()) -- ^ @(\path -> ...)@ - The funcion to call for each
+ -> (TreePath -> IO ()) -- ^ @(\path -> ...)@ - The function to call for each
                         -- selected icon.
  -> IO ()
 iconViewSelectedForeach self func = do
@@ -700,7 +700,7 @@ iconViewScrollToPath self path useAlign rowAlign colAlign =
 
 -- %hash c:8354 d:f7f3
 -- | Retrieve the first and last visible path.
--- Note that there may be invisible paths inbetween.
+-- Note that there may be invisible paths in between.
 --
 -- * Available since Gtk+ version 2.8
 --

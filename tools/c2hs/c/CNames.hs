@@ -66,7 +66,7 @@ nameAnalysis ac  = do
                      return ac'
 
 
--- name analyis traversal
+-- name analysis traversal
 -- ----------------------
 
 -- traverse a complete header file
@@ -180,7 +180,7 @@ naCExpr (CConst       _                _) = nop
 naCExpr (CCompoundLit _ inits          _) = mapM_ (naCInit . snd) inits
 
 
--- auxilliary functions
+-- auxiliary functions
 -- --------------------
 
 -- raise an error and exception if the identifier is defined twice

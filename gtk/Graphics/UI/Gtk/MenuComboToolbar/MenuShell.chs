@@ -219,7 +219,7 @@ menuShellCancel self =
 -- to submenus whenever a submenu is popped up, so you don't have to worry
 -- about recursively setting it for your entire menu hierarchy. Only when
 -- programmatically picking a submenu and popping it up manually, the
--- @takeFocus@ property of the submenu needs to be set explicitely.
+-- @takeFocus@ property of the submenu needs to be set explicitly.
 --
 -- Note that setting it to @False@ has side-effects:
 --

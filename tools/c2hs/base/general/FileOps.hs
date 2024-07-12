@@ -69,7 +69,7 @@ file `fileFindIn` paths  =
 -- |Create a temporary file with a unique name.
 --
 --  * A unique sequence of at least six characters and digits is added
---   inbetween the two given components (the latter of which must include the
+--   in between the two given components (the latter of which must include the
 --   file suffix if any is needed)
 --
 --  * Default permissions are used, which might not be optimal, but

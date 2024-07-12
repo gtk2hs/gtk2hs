@@ -115,7 +115,7 @@ withCString  = withArray0 nUL . charsToCChars
 withCStringLen         :: String -> (CStringLen -> IO a) -> IO a
 withCStringLen str act  = withArray (charsToCChars str) $ act . pairLength str
 
--- auxilliary definitions
+-- auxiliary definitions
 -- ----------------------
 
 -- C's end of string character
