@@ -3,7 +3,9 @@
   inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
   inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  outputs = { self, nixpkgs, flake-utils, haskellNix }:
+  inputs.haskell-ci.url = "github:haskell-CI/haskell-ci";
+  inputs.haskell-ci.flake = false;
+  outputs = inputs@{ self, nixpkgs, flake-utils, haskellNix, haskell-ci }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -16,6 +18,7 @@
       let
         overlays = [ haskellNix.overlay
           (final: _prev: {
+            inherit inputs;
             hixProject =
               final.haskell-nix.hix.project {
                 src = ./.;
