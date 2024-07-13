@@ -263,11 +263,12 @@ jobs:
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks all
       - name: build gtk 2.0
         run: |
-          mv gtk/gtk3.cabal gtk3.cabal-renamed
-          mv gtk/gtk.cabal-renamed gtk.cabal
-          $CABAL v2-build $ARG_COMPILER gtk
-          mv gtk/gtk.cabal gtk.cabal-renamed
-          mv gtk/gtk3.cabal-renamed gtk3.cabal
+          cd ${PKGDIR_gtk3}
+          mv gtk3.cabal gtk3.cabal-renamed
+          mv gtk.cabal-renamed gtk.cabal
+          $CABAL v2-build $ARG_COMPILER
+          mv gtk.cabal gtk.cabal-renamed
+          mv gtk3.cabal-renamed gtk3.cabal
       - name: save cache
         uses: actions/cache/save@v4
         if: always()
