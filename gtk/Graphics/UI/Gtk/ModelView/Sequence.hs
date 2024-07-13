@@ -74,7 +74,7 @@ module Graphics.UI.Gtk.ModelView.Sequence (
         ) where
 
 import Prelude hiding (
-        null, length, take, drop, splitAt, foldl, foldl1, foldr, foldr1,
+        null, length, take, drop, splitAt, foldl, foldl', foldl1, foldr, foldr1,
         reverse)
 import qualified Prelude (foldr)
 import Data.List (intersperse)

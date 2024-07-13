@@ -10,6 +10,7 @@ module Gtk2HsSetup (
   c2hsLocal
   ) where
 
+import Data.String (fromString)
 import Data.Maybe (mapMaybe)
 #if MIN_VERSION_Cabal(2,4,0)
 import Distribution.Pretty (prettyShow)
@@ -30,7 +31,7 @@ import Distribution.PackageDescription as PD ( PackageDescription(..),
                                                emptyBuildInfo, allBuildInfo,
                                                Library(..),
                                                explicitLibModules, hasLibs)
-import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(withPackageDB, buildDir, localPkgDescr, installedPkgs, withPrograms),
+import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..), buildDir,
                                            InstallDirs(..),
                                            ComponentLocalBuildInfo,
                                            componentPackageDeps,
@@ -122,7 +123,7 @@ precompFile = "precompchs.bin"
 gtk2hsUserHooks = simpleUserHooks {
     -- hookedPrograms is only included for backwards compatibility with older Setup.hs.
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
-    hookedPreProcessors = [("chs", ourC2hs)],
+    hookedPreProcessors = [(fromString "chs", ourC2hs)],
     confHook = \pd cf ->
       (fmap adjustLocalBuildInfo (confHook simpleUserHooks pd cf)),
     postConf = \args cf pd lbi -> do
@@ -350,7 +351,7 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
   let InstallDirs { libdir = libPref } = absoluteInstallDirs pkg lbi copydest
   -- cannot use the recommended 'findModuleFiles' since it fails if there exists
   -- a modules that does not have a .chi file
-  mFiles <- mapM (findFileWithExtension' ["chi"] [buildDir lbi] . toFilePath)
+  mFiles <- mapM (findFileWithExtension' [fromString "chi"] [buildDir lbi] . toFilePath)
                    (PD.explicitLibModules lib)
 
   let files = [ f | Just f <- mFiles ]
@@ -478,7 +479,7 @@ fixDeps pd@PD.PackageDescription {
 #else 
         id 
 #endif 
-  let findModule m = findFileWithExtension [".chs.pp",".chs"] (map toPath srcDirs)
+  let findModule m = findFileWithExtension [fromString ".chs.pp", fromString ".chs"] (map toPath srcDirs)
                        (joinPath (components m))
   mExpFiles <- mapM findModule expMods
   mOthFiles <- mapM findModule othMods

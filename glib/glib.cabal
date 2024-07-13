@@ -32,7 +32,7 @@ Flag closure_signals
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.2 && < 3.11,
+                 Cabal >= 2.2 && < 3.13,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
@@ -40,7 +40,7 @@ Library
                         utf8-string >= 0.2 && < 1.1,
                         bytestring >= 0.9.1.10 && < 0.13,
                         text >= 1.0.0.0 && < 2.2,
-                        containers < 0.7
+                        containers < 0.8
         cpp-options:    -U__BLOCKS__ -DGLIB_DISABLE_DEPRECATION_WARNINGS
         if os(darwin) || os(freebsd)
           cpp-options: -D_Nullable= -D_Nonnull= -D_Noreturn= -D__attribute__(x)=

@@ -1,4 +1,4 @@
-{ compiler-nix-name = "ghc961";
+{ compiler-nix-name = "ghc9101";
   overlays = [ (import ./overlays/gtk-debug.nix) ];
   shell.tools.cabal = {};
   shell.withHoogle = false;
