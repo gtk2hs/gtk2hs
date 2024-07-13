@@ -1,6 +1,6 @@
 cabal-version:  2.2
 Name:           gtk
-Version:        0.15.8
+Version:        0.15.9
 License:        LGPL-2.1-only
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team

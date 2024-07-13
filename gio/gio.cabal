@@ -1,6 +1,6 @@
 cabal-version:  2.2
 Name:           gio
-Version:        0.13.10.0
+Version:        0.13.11.0
 License:        LGPL-2.1-only
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
