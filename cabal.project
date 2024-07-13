@@ -8,4 +8,7 @@ packages:
   gio/
   gtk/
 
+package gtk
+  flags: +have-quartz-gtk
+
 write-ghc-environment-files: never

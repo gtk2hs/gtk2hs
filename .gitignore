@@ -12,3 +12,7 @@ cabal-dev
 *.*~
 .idea
 /gtk/output
+/cairo/output
+/gio/output
+/glib/output
+/pango/output

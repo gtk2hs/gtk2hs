@@ -363,9 +363,11 @@ Library
           Graphics.UI.Gtk.Abstract.ContainerChildProperties
           Graphics.UI.Gtk.General.DNDTypes
           Graphics.UI.Gtk.General.Threading
-        autogen-modules:
-          Graphics.UI.Gtk.Signals
           Graphics.UI.Gtk.Types
+          Graphics.UI.Gtk.Signals
+        autogen-modules:
+          Graphics.UI.Gtk.Types
+          Graphics.UI.Gtk.Signals
 
         default-language:   Haskell98
         default-extensions: ForeignFunctionInterface
