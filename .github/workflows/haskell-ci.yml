@@ -192,6 +192,9 @@ jobs:
         run: |
           mkdir -p sdist
           $CABAL sdist all --output-dir $GITHUB_WORKSPACE/sdist
+          rm $GITHUB_WORKSPACE/source/gtk/gtk3.cabal
+          mv $GITHUB_WORKSPACE/source/gtk/gtk.cabal-renamed $GITHUB_WORKSPACE/source/gtk/gtk.cabal
+          $CABAL sdist gtk --output-dir $GITHUB_WORKSPACE/sdist
       - name: unpack
         run: |
           mkdir -p unpacked
@@ -210,6 +213,8 @@ jobs:
           echo "PKGDIR_gio=${PKGDIR_gio}" >> "$GITHUB_ENV"
           PKGDIR_gtk3="$(find "$GITHUB_WORKSPACE/unpacked" -maxdepth 1 -type d -regex '.*/gtk3-[0-9.]*')"
           echo "PKGDIR_gtk3=${PKGDIR_gtk3}" >> "$GITHUB_ENV"
+          PKGDIR_gtk="$(find "$GITHUB_WORKSPACE/unpacked" -maxdepth 1 -type d -regex '.*/gtk-[0-9.]*')"
+          echo "PKGDIR_gtk=${PKGDIR_gtk3}" >> "$GITHUB_ENV"
           rm -f cabal.project cabal.project.local
           touch cabal.project
           touch cabal.project.local
@@ -219,9 +224,10 @@ jobs:
           echo "packages: ${PKGDIR_pango}" >> cabal.project
           echo "packages: ${PKGDIR_gio}" >> cabal.project
           echo "packages: ${PKGDIR_gtk3}" >> cabal.project
+          echo "packages: ${PKGDIR_gtk}" >> cabal.project
           cat >> cabal.project <<EOF
           EOF
-          $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: any.$_ installed\n" unless /^(Cabal|cairo|gio|glib|gtk2hs-buildtools|gtk3|pango)$/; }' >> cabal.project.local
+          $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: any.$_ installed\n" unless /^(Cabal|cairo|gio|glib|gtk2hs-buildtools|gtk3|gtk|pango)$/; }' >> cabal.project.local
           cat cabal.project
           cat cabal.project.local
       - name: dump install plan
@@ -254,6 +260,8 @@ jobs:
           ${CABAL} -vnormal check
           cd ${PKGDIR_gtk3} || false
           ${CABAL} -vnormal check
+          cd ${PKGDIR_gtk} || false
+          ${CABAL} -vnormal check
       - name: haddock
         run: |
           $CABAL v2-haddock --disable-documentation --haddock-all $ARG_COMPILER --with-haddock $HADDOCK $ARG_TESTS $ARG_BENCH all
@@ -261,14 +269,6 @@ jobs:
         run: |
           rm -f cabal.project.local
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks all
-      - name: build gtk 2.0
-        run: |
-          cd ${PKGDIR_gtk3}
-          mv gtk3.cabal gtk3.cabal-renamed
-          mv gtk.cabal-renamed gtk.cabal
-          $CABAL v2-build $ARG_COMPILER
-          mv gtk.cabal gtk.cabal-renamed
-          mv gtk3.cabal-renamed gtk3.cabal
       - name: save cache
         uses: actions/cache/save@v4
         if: always()
