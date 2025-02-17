@@ -13,6 +13,9 @@ import Distribution.Text ( display )
 import Distribution.Version ( Version(..) )
 import Distribution.Verbosity
 import Distribution.Simple.Utils hiding (die)
+#if MIN_VERSION_Cabal(3,14,0)
+import Distribution.Utils.Path ( getSymbolicPath )
+#endif
 import System.FilePath
 import System.Exit (die)
 
@@ -49,7 +52,11 @@ writePangoVersionHeaderFile verbosity lbi (Version (major:minor:micro:_) []) = d
     , "#define PANGO_VERSION_MICRO " ++ show micro
     ]
   where
+#if MIN_VERSION_Cabal(3,14,0)
+    targetDir  = getSymbolicPath . autogenPackageModulesDir $ lbi
+#else
     targetDir  = autogenPackageModulesDir lbi
+#endif
     targetFile = targetDir </> "hspangoversion.h"
 
 writeVersionHeaderFile _ _ version =
