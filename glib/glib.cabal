@@ -17,7 +17,7 @@ Description:    GLib is a collection of C data structures and utility functions
                 as much functionality as required to support the packages that
                 wrap libraries that are themselves based on GLib.
 Category:       System
-Tested-With:    GHC == 9.10.1, GHC == 9.8.2, GHC == 9.6.6, GHC == 9.4.8, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7, GHC==8.8.4, GHC==8.6.5, GHC==8.4.4, GHC==8.2.2, GHC==8.0.2
+Tested-With:    GHC == 9.12.2, GHC == 9.10.1, GHC == 9.8.4, GHC == 9.6.6, GHC == 9.4.8, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7
 Extra-Source-Files:
                 System/Glib/hsgclosure.c
                 System/Glib/hsgclosure.h
@@ -32,7 +32,7 @@ Flag closure_signals
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.2 && < 3.13,
+                 Cabal >= 2.2 && < 3.15,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
