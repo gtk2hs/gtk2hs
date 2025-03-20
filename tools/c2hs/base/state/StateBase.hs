@@ -103,13 +103,14 @@ instance Functor (PreCST e s) where
   fmap = liftM
 
 instance Applicative (PreCST e s) where
-  pure  = return
+  pure  = yield
   (<*>) = ap
+  (*>)  = (+>)
 
 instance Monad (PreCST e s) where
-  return = yield
+  return = pure
   (>>=)  = (+>=)
-  (>>)   = (+>)
+  (>>)   = (*>)
 
 instance MonadFail (PreCST e s) where
   fail = error
