@@ -1,6 +1,6 @@
 cabal-version:  2.2
 Name:           gtk3
-Version:        0.15.9
+Version:        0.15.10
 License:        LGPL-2.1-only
 License-file:   COPYING
 Copyright:      (c) 2001-2010 The Gtk2Hs Team
@@ -130,7 +130,7 @@ Flag fmode-binary
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 2.2 && < 3.15,
+                 Cabal >= 3.0 && < 3.15,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
