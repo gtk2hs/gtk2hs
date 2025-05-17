@@ -217,7 +217,7 @@ data Attr a =>
                  | FrozenTable (Array Name a)     -- attribute values
                                String             -- desc of the table
 
-                
+
 
 -- create an attribute table, where all attributes are `undef' (EXPORTED)
 --

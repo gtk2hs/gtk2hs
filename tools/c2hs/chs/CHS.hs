@@ -30,7 +30,7 @@
 --  the hook.  The parser checks the version of the `.chi' file, but does not
 --  otherwise attempt to interpret its contents.  This is only done during
 --  generation of the binding module.  The first line of a .chi file has the
---  form 
+--  form
 --
 --    C->Haskell Interface Version <version>
 --
@@ -75,7 +75,7 @@
 --  alias    -> `underscoreToCase'
 --            | ident `as' ident
 --  ptrkind  -> [`foreign' | `stable' ] ['newtype' | '->' ident]
---  
+--
 --  If `underscoreToCase' occurs in a translation table, it must be the first
 --  entry.
 --
@@ -92,7 +92,7 @@ module CHS (CHSModule(..), CHSFrag(..), CHSHook(..), CHSTrans(..), CHSParm(..),
             skipToLangPragma, hasCPP,
             loadCHS, dumpCHS, hssuffix, chssuffix, loadAllCHI, loadCHI, dumpCHI,
             chisuffix, showCHSParm)
-where 
+where
 
 -- standard libraries
 import Data.Char         (isSpace, toUpper, toLower)
@@ -105,9 +105,9 @@ import Errors    (interr)
 import Idents    (Ident, identToLexeme, onlyPosIdent)
 
 -- C->Haskell
-import C2HSState (CST, nop, doesFileExistCIO, readFileCIO, writeFileCIO, getId, 
-                  getSwitch, chiPathSB, catchExc, throwExc, raiseError, 
-                  fatal, errorsPresent, showErrors, Traces(..), putTraceStr) 
+import C2HSState (CST, nop, doesFileExistCIO, readFileCIO, writeFileCIO, getId,
+                  getSwitch, chiPathSB, catchExc, throwExc, raiseError,
+                  fatal, errorsPresent, showErrors, Traces(..), putTraceStr)
 
 -- friends
 import CHSLexer  (CHSToken(..), lexCHS)
@@ -127,7 +127,7 @@ data CHSModule = CHSModule [CHSFrag]
 --   code)
 --
 --  * `CHSHook' are binding hooks, which are being replaced by Haskell code by
---   `GenBind.expandHooks' 
+--   `GenBind.expandHooks'
 --
 --  * `CHSCPP' and `CHSC' are fragments of C code that are being removed when
 --   generating the custom C header in `GenHeader.genHeader'
@@ -197,7 +197,7 @@ data CHSHook = CHSImport  Bool                  -- qualified?
                           Position
              | CHSField   CHSAccess             -- access type
                           CHSAPath              -- access path
-                          Position 
+                          Position
              | CHSPointer Bool                  -- explicit '*' in hook
                           Ident                 -- C pointer name
                           (Maybe Ident)         -- Haskell name
@@ -223,28 +223,28 @@ instance Pos CHSHook where
   posOf (CHSClass   _ _ _         pos) = pos
 
 -- two hooks are equal if they have the same Haskell name and reference the
--- same C object 
+-- same C object
 --
 instance Eq CHSHook where
-  (CHSImport qual1 ide1 _      _) == (CHSImport qual2 ide2 _      _) =    
+  (CHSImport qual1 ide1 _      _) == (CHSImport qual2 ide2 _      _) =
     qual1 == qual2 && ide1 == ide2
   (CHSContext olib1 opref1 olock1 _   ) ==
-    (CHSContext olib2 opref2 olock2 _   ) =    
+    (CHSContext olib2 opref2 olock2 _   ) =
     olib1 == olib1 && opref1 == opref2 && olock1 == olock2
-  (CHSType ide1                _) == (CHSType ide2                _) = 
+  (CHSType ide1                _) == (CHSType ide2                _) =
     ide1 == ide2
-  (CHSSizeof ide1              _) == (CHSSizeof ide2              _) = 
+  (CHSSizeof ide1              _) == (CHSSizeof ide2              _) =
     ide1 == ide2
-  (CHSEnum ide1 oalias1 _ _ _  _) == (CHSEnum ide2 oalias2 _ _ _  _) = 
+  (CHSEnum ide1 oalias1 _ _ _  _) == (CHSEnum ide2 oalias2 _ _ _  _) =
     oalias1 == oalias2 && ide1 == ide2
-  (CHSCall _ _ _ ide1 oalias1    _) == (CHSCall _ _ _ ide2 oalias2    _) = 
+  (CHSCall _ _ _ ide1 oalias1    _) == (CHSCall _ _ _ ide2 oalias2    _) =
     oalias1 == oalias2 && ide1 == ide2
-  (CHSFun  _ _ _ ide1 oalias1 _ _ _ _) 
-                                  == (CHSFun _ _ _ ide2 oalias2 _ _ _ _) = 
+  (CHSFun  _ _ _ ide1 oalias1 _ _ _ _)
+                                  == (CHSFun _ _ _ ide2 oalias2 _ _ _ _) =
     oalias1 == oalias2 && ide1 == ide2
-  (CHSField acc1 path1         _) == (CHSField acc2 path2         _) =    
+  (CHSField acc1 path1         _) == (CHSField acc2 path2         _) =
     acc1 == acc2 && path1 == path2
-  (CHSPointer _ ide1 oalias1 _ _ _ _) 
+  (CHSPointer _ ide1 oalias1 _ _ _ _)
                                   == (CHSPointer _ ide2 oalias2 _ _ _ _) =
     ide1 == ide2 && oalias1 == oalias2
   (CHSClass _ ide1 _           _) == (CHSClass _ ide2 _           _) =
@@ -301,11 +301,11 @@ instance Show CHSPtrType where
   show CHSStablePtr      = "StablePtr"
 
 instance Read CHSPtrType where
-  readsPrec _ (                            'P':'t':'r':rest) = 
+  readsPrec _ (                            'P':'t':'r':rest) =
     [(CHSPtr, rest)]
-  readsPrec _ ('F':'o':'r':'e':'i':'g':'n':'P':'t':'r':rest) = 
+  readsPrec _ ('F':'o':'r':'e':'i':'g':'n':'P':'t':'r':rest) =
     [(CHSForeignPtr, rest)]
-  readsPrec _ ('S':'t':'a':'b':'l':'e'    :'P':'t':'r':rest) = 
+  readsPrec _ ('S':'t':'a':'b':'l':'e'    :'P':'t':'r':rest) =
     [(CHSStablePtr, rest)]
   readsPrec p (c:cs)
     | isSpace c                                              = readsPrec p cs
@@ -343,7 +343,7 @@ loadCHS fname = do
    -- parse
    --
    traceInfoRead fname
-   contents <- readFileCIO fname 
+   contents <- readFileCIO fname
    traceInfoParse
    mod <- parseCHSModule (Position fname 1 1) contents
 
@@ -364,8 +364,8 @@ loadCHS fname = do
     traceInfoRead fname = putTraceStr tracePhasesSW
                             ("Attempting to read file `"
                              ++ fname ++ "'...\n")
-    traceInfoParse      = putTraceStr tracePhasesSW 
-                            ("...parsing `" 
+    traceInfoParse      = putTraceStr tracePhasesSW
+                            ("...parsing `"
                              ++ fname ++ "'...\n")
     traceInfoErr        = putTraceStr tracePhasesSW
                             ("...error(s) detected in `"
@@ -374,11 +374,11 @@ loadCHS fname = do
                             ("...successfully loaded `"
                              ++ fname ++ "'.\n")
 
--- given a file name (no suffix) and a CHS module, the module is printed 
+-- given a file name (no suffix) and a CHS module, the module is printed
 -- into that file (EXPORTED)
--- 
+--
 --  * the module can be flagged as being pure Haskell
--- 
+--
 --  * the correct suffix will automagically be appended
 --
 dumpCHS                       :: String -> CHSModule -> Bool -> CST s ()
@@ -391,7 +391,7 @@ dumpCHS fname mod pureHaskell  =
     writeFileCIO (fname ++ suffix) (contents version kind)
   where
     contents version kind | hasCPP mod = showCHSModule mod pureHaskell
-                          | otherwise = 
+                          | otherwise =
       "-- GENERATED by " ++ version ++ " " ++ kind ++ "\n\
       \-- Edit the ORIGINAL .chs file instead!\n\n"
       ++ showCHSModule mod pureHaskell
@@ -408,7 +408,7 @@ data LineState = Emit           -- emit LINE pragma if next frag is Haskell
 --  * if the second argument is `True', all fragments must contain Haskell code
 --
 showCHSModule                               :: CHSModule -> Bool -> String
-showCHSModule (CHSModule frags) pureHaskell  = 
+showCHSModule (CHSModule frags) pureHaskell  =
   showFrags pureHaskell Emit frags []
   where
     -- the second argument indicates whether the next fragment (if it is
@@ -418,28 +418,28 @@ showCHSModule (CHSModule frags) pureHaskell  =
     --
     showFrags :: Bool -> LineState -> [CHSFrag] -> ShowS
     showFrags _      _     []                           = id
-    showFrags pureHs state (CHSVerb s      pos : frags) = 
+    showFrags pureHs state (CHSVerb s      pos : frags) =
       let
         (Position fname line _) = pos
         generated        = isBuiltinPos pos
-        emitNow          = state == Emit || 
+        emitNow          = state == Emit ||
                            (state == Wait && not (null s) && nlStart)
         nlStart          = head s == '\n'
         nextState        = if generated then Wait else NoLine
       in
         (if emitNow then
-           showString ("\n{-# LINE " ++ show (line `max` 0) ++ " " ++ 
+           showString ("\n{-# LINE " ++ show (line `max` 0) ++ " " ++
                        show fname ++ " #-}" ++
                        (if nlStart then "" else "\n"))
          else id)
       . showString s
       . showFrags pureHs nextState frags
-    showFrags False  _     (CHSHook hook       : frags) =   
-        showString "{#" 
+    showFrags False  _     (CHSHook hook       : frags) =
+        showString "{#"
       . showCHSHook hook
       . showString "#}"
       . showFrags False Wait frags
-    showFrags False  _     (CHSCPP  s    _     : frags) =   
+    showFrags False  _     (CHSCPP  s    _     : frags) =
         showChar '#'
       . showString s
 --      . showChar '\n'
@@ -464,11 +464,11 @@ showCHSModule (CHSModule frags) pureHaskell  =
       interr "showCHSFrag: Illegal hook, cpp directive, or inline C code!"
 
 showCHSHook :: CHSHook -> ShowS
-showCHSHook (CHSImport isQual ide _ _) =   
+showCHSHook (CHSImport isQual ide _ _) =
     showString "import "
   . (if isQual then showString "qualified " else id)
   . showCHSIdent ide
-showCHSHook (CHSContext olib oprefix olock _) =   
+showCHSHook (CHSContext olib oprefix olock _) =
     showString "context "
   . (case olib of
        Nothing  -> showString ""
@@ -477,28 +477,28 @@ showCHSHook (CHSContext olib oprefix olock _) =
   . (case olock of
        Nothing  -> showString ""
        Just lock -> showString "lock = " . showString lock . showString " ")
-showCHSHook (CHSType ide _) =   
+showCHSHook (CHSType ide _) =
     showString "type "
   . showCHSIdent ide
-showCHSHook (CHSSizeof ide _) =   
+showCHSHook (CHSSizeof ide _) =
     showString "sizeof "
   . showCHSIdent ide
-showCHSHook (CHSEnum ide oalias trans oprefix derive _) =   
+showCHSHook (CHSEnum ide oalias trans oprefix derive _) =
     showString "enum "
   . showIdAlias ide oalias
   . showCHSTrans trans
   . showPrefix oprefix True
   . if null derive then id else showString $
-      "deriving (" 
+      "deriving ("
       ++ concat (intersperse ", " (map identToLexeme derive))
       ++ ") "
-showCHSHook (CHSCall isPure isUns isNol ide oalias _) =   
+showCHSHook (CHSCall isPure isUns isNol ide oalias _) =
     showString "call "
   . (if isPure then showString "pure " else id)
   . (if isUns then showString "unsafe " else id)
   . (if isNol then showString "nolock " else id)
   . showIdAlias ide oalias
-showCHSHook (CHSFun isPure isUns isNol ide oalias octxt parms parm _) =   
+showCHSHook (CHSFun isPure isUns isNol ide oalias octxt parms parm _) =
     showString "fun "
   . (if isPure then showString "pure " else id)
   . (if isUns then showString "unsafe " else id)
@@ -511,7 +511,7 @@ showCHSHook (CHSFun isPure isUns isNol ide oalias octxt parms parm _) =
   . foldr (.) id (intersperse (showString ", ") (map showCHSParm parms))
   . showString "} -> "
   . showCHSParm parm
-showCHSHook (CHSField acc path _) =   
+showCHSHook (CHSField acc path _) =
     (case acc of
        CHSGet -> showString "get "
        CHSSet -> showString "set ")
@@ -525,10 +525,10 @@ showCHSHook (CHSPointer star ide oalias ptrType isNewtype oRefType _) =
        CHSStablePtr  -> showString " stable"
        _             -> showString "")
   . (case (isNewtype, oRefType) of
-       (True , _       ) -> showString " newtype" 
+       (True , _       ) -> showString " newtype"
        (False, Just ide) -> showString " -> " . showCHSIdent ide
        (False, Nothing ) -> showString "")
-showCHSHook (CHSClass oclassIde classIde typeIde _) =   
+showCHSHook (CHSClass oclassIde classIde typeIde _) =
     showString "class "
   . (case oclassIde of
        Nothing       -> showString ""
@@ -539,9 +539,9 @@ showCHSHook (CHSClass oclassIde classIde typeIde _) =
 
 showPrefix                        :: Maybe String -> Bool -> ShowS
 showPrefix Nothing       _         = showString ""
-showPrefix (Just prefix) withWith  =   maybeWith 
-                                     . showString "prefix = " 
-                                     . showString prefix 
+showPrefix (Just prefix) withWith  =   maybeWith
+                                     . showString "prefix = "
+                                     . showString prefix
                                      . showString " "
   where
     maybeWith = if withWith then showString "with " else id
@@ -572,7 +572,7 @@ showCHSParm (CHSParm oimMarsh hsTyStr twoCVals oomMarsh _)  =
     showHsVerb str = showChar '`' . showString str . showChar '\''
 
 showCHSTrans                          :: CHSTrans -> ShowS
-showCHSTrans (CHSTrans _2Case assocs)  =   
+showCHSTrans (CHSTrans _2Case assocs)  =
     showString "{"
   . (if _2Case then showString ("underscoreToCase" ++ maybeComma) else id)
   . foldr (.) id (intersperse (showString ", ") (map showAssoc assocs))
@@ -637,7 +637,7 @@ loadCHI fname  = do
                    -- search for .chi files
                    --
                    paths <- getSwitch chiPathSB
-                   let fullnames = [path ++ '/':fname ++ chisuffix | 
+                   let fullnames = [path ++ '/':fname ++ chisuffix |
                                     path <- paths]
                    fullname <- findFirst fullnames
                      (fatal $ fname++chisuffix++" not found in:\n"++
@@ -662,11 +662,11 @@ loadCHI fname  = do
                    (major, minor) <- case majorMinor versline' of
                                        Nothing     -> errorCHICorrupt fname
                                        Just majMin -> return majMin
-                     
+
                    (version, _, _) <- getId
                    let Just (myMajor, myMinor) = majorMinor version
                    when (major /= myMajor || minor /= myMinor) $
-                     errorCHIVersion fname 
+                     errorCHIVersion fname
                        (major ++ "." ++ minor) (myMajor ++ "." ++ myMinor)
 
                    -- finalize
@@ -677,8 +677,8 @@ loadCHI fname  = do
                     traceInfoRead fname = putTraceStr tracePhasesSW
                                             ("Attempting to read file `"
                                              ++ fname ++ "'...\n")
-                    traceInfoVersion    = putTraceStr tracePhasesSW 
-                                            ("...checking version `" 
+                    traceInfoVersion    = putTraceStr tracePhasesSW
+                                            ("...checking version `"
                                              ++ fname ++ "'...\n")
                     traceInfoOK         = putTraceStr tracePhasesSW
                                             ("...successfully loaded `"
@@ -687,11 +687,11 @@ loadCHI fname  = do
                     findFirst (p:aths)  err =  do
                       e <- doesFileExistCIO p
                       if e then return p else findFirst aths err
-                 
 
--- given a file name (no suffix) and a CHI file, the information is printed 
+
+-- given a file name (no suffix) and a CHI file, the information is printed
 -- into that file (EXPORTED)
--- 
+--
 --  * the correct suffix will automagically be appended
 --
 dumpCHI                :: String -> String -> CST s ()
@@ -764,7 +764,7 @@ parseFrags toks  = do
     parseFrags0 (CHSTokLine    pos  :toks) = do
                                                frags <- parseFrags toks
                                                return $ CHSLine pos : frags
-    parseFrags0 (CHSTokC       pos s:toks) = parseC       pos s      toks 
+    parseFrags0 (CHSTokC       pos s:toks) = parseC       pos s      toks
     parseFrags0 (CHSTokImport  pos  :toks) = parseImport  pos        toks
     parseFrags0 (CHSTokContext pos  :toks) = parseContext pos        toks
     parseFrags0 (CHSTokType    pos  :toks) = parseType    pos        toks
@@ -787,7 +787,7 @@ parseFrags toks  = do
     contFrags      (_                :toks) = contFrags  toks
 
 parseC :: Position -> String -> [CHSToken] -> CST s [CHSFrag]
-parseC pos s toks = 
+parseC pos s toks =
   do
     frags <- collectCtrlAndC toks
     return $ CHSC s pos : frags
@@ -802,7 +802,7 @@ parseC pos s toks =
 
 parseImport :: Position -> [CHSToken] -> CST s [CHSFrag]
 parseImport pos toks = do
-  (qual, modid, toks') <- 
+  (qual, modid, toks') <-
     case toks of
       CHSTokIdent _ ide                :toks ->
         let (ide', toks') = rebuildModuleId ide toks
@@ -819,7 +819,7 @@ parseImport pos toks = do
 -- Qualified module names do not get lexed as a single token so we need to
 -- reconstruct it from a sequence of identifier and dot tokens.
 --
-rebuildModuleId ide (CHSTokDot _ : CHSTokIdent _ ide' : toks) = 
+rebuildModuleId ide (CHSTokDot _ : CHSTokIdent _ ide' : toks) =
   let catIdent ide ide' = onlyPosIdent (posOf ide)  --FIXME: unpleasant hack
                             (identToLexeme ide ++ '.' : identToLexeme ide')
    in rebuildModuleId (catIdent ide ide') toks
@@ -873,7 +873,7 @@ parseEnum pos (CHSTokIdent _ ide:toks) =
 parseEnum _ toks = syntaxError toks
 
 parseCall          :: Position -> [CHSToken] -> CST s [CHSFrag]
-parseCall pos toks  = 
+parseCall pos toks  =
   do
     (isPure  , toks ) <- parseIsPure          toks
     (isUnsafe, toks ) <- parseIsUnsafe        toks
@@ -882,11 +882,11 @@ parseCall pos toks  =
     (oalias  , toks ) <- parseOptAs ide False toks
     toks              <- parseEndHook         toks
     frags             <- parseFrags           toks
-    return $ 
+    return $
       CHSHook (CHSCall isPure isUnsafe isNolock ide (norm ide oalias) pos) : frags
 
 parseFun          :: Position -> [CHSToken] -> CST s [CHSFrag]
-parseFun pos toks  = 
+parseFun pos toks  =
   do
     (isPure  , toks' ) <- parseIsPure          toks
     (isUnsafe, toks'2) <- parseIsUnsafe        toks'
@@ -898,8 +898,8 @@ parseFun pos toks  =
     (parm    , toks'8) <- parseParm            toks'7
     toks'9             <- parseEndHook         toks'8
     frags              <- parseFrags           toks'9
-    return $ 
-      CHSHook 
+    return $
+      CHSHook
         (CHSFun isPure isUnsafe isNolock ide (norm ide oalias) octxt parms parm pos) :
       frags
   where
@@ -908,11 +908,11 @@ parseFun pos toks  =
     parseOptContext toks                                      =
       return (Nothing  , toks)
     --
-    parseParms (CHSTokLBrace _:CHSTokRBrace _:CHSTokArrow _:toks) = 
+    parseParms (CHSTokLBrace _:CHSTokRBrace _:CHSTokArrow _:toks) =
       return ([], toks)
-    parseParms (CHSTokLBrace _                             :toks) = 
+    parseParms (CHSTokLBrace _                             :toks) =
       parseParms' (CHSTokComma nopos:toks)
-    parseParms                                              toks  = 
+    parseParms                                              toks  =
       syntaxError toks
     --
     parseParms' (CHSTokRBrace _:CHSTokArrow _:toks) = return ([], toks)
@@ -947,22 +947,22 @@ parseParm :: [CHSToken] -> CST s (CHSParm, [CHSToken])
 parseParm toks =
   do
     (oimMarsh, toks' ) <- parseOptMarsh toks
-    (hsTyStr, twoCVals, pos, toks'2) <- 
+    (hsTyStr, twoCVals, pos, toks'2) <-
       case toks' of
-        (CHSTokHSVerb pos hsTyStr:CHSTokAmp _:toks'2) -> 
+        (CHSTokHSVerb pos hsTyStr:CHSTokAmp _:toks'2) ->
           return (hsTyStr, True , pos, toks'2)
-        (CHSTokHSVerb pos hsTyStr            :toks'2) -> 
+        (CHSTokHSVerb pos hsTyStr            :toks'2) ->
           return (hsTyStr, False, pos, toks'2)
         toks                                          -> syntaxError toks
     (oomMarsh, toks'3) <- parseOptMarsh toks'2
     return (CHSParm oimMarsh hsTyStr twoCVals oomMarsh pos, toks'3)
   where
     parseOptMarsh :: [CHSToken] -> CST s (Maybe (Ident, CHSArg), [CHSToken])
-    parseOptMarsh (CHSTokIdent _ ide:CHSTokStar _ :toks) = 
+    parseOptMarsh (CHSTokIdent _ ide:CHSTokStar _ :toks) =
       return (Just (ide, CHSIOArg) , toks)
-    parseOptMarsh (CHSTokIdent _ ide:CHSTokMinus _:toks) = 
+    parseOptMarsh (CHSTokIdent _ ide:CHSTokMinus _:toks) =
       return (Just (ide, CHSVoidArg), toks)
-    parseOptMarsh (CHSTokIdent _ ide              :toks) = 
+    parseOptMarsh (CHSTokIdent _ ide              :toks) =
       return (Just (ide, CHSValArg) , toks)
     parseOptMarsh toks                                   =
       return (Nothing, toks)
@@ -977,14 +977,14 @@ parseField pos access toks =
 parsePointer :: Position -> [CHSToken] -> CST s [CHSFrag]
 parsePointer pos toks =
   do
-    (isStar, ide, toks')          <- 
+    (isStar, ide, toks')          <-
       case toks of
         CHSTokStar _:CHSTokIdent _ ide:toks' -> return (True , ide, toks')
         CHSTokIdent _ ide             :toks' -> return (False, ide, toks')
         _                                    -> syntaxError toks
     (oalias , toks'2)             <- parseOptAs ide True toks'
     (ptrType, toks'3)             <- parsePtrType        toks'2
-    let 
+    let
      (isNewtype, oRefType, toks'4) =
       case toks'3 of
         CHSTokNewtype _                  :toks' -> (True , Nothing , toks' )
@@ -992,8 +992,8 @@ parsePointer pos toks =
         _                                       -> (False, Nothing , toks'3)
     toks'5                        <- parseEndHook toks'4
     frags                         <- parseFrags   toks'5
-    return $ 
-      CHSHook 
+    return $
+      CHSHook
        (CHSPointer isStar ide (norm ide oalias) ptrType isNewtype oRefType pos)
        : frags
   where
@@ -1071,29 +1071,29 @@ parseOptPrefix _     toks                  = return (Nothing, toks)
 -- the second indicates whether the first character has to be upper case
 --
 parseOptAs :: Ident -> Bool -> [CHSToken] -> CST s (Maybe Ident, [CHSToken])
-parseOptAs _   _     (CHSTokAs _:CHSTokIdent _ ide:toks) = 
+parseOptAs _   _     (CHSTokAs _:CHSTokIdent _ ide:toks) =
   return (Just ide, toks)
-parseOptAs ide upper (CHSTokAs _:CHSTokHat pos    :toks) = 
+parseOptAs ide upper (CHSTokAs _:CHSTokHat pos    :toks) =
   return (Just $ underscoreToCase ide upper pos, toks)
 parseOptAs _   _     (CHSTokAs _                  :toks) = syntaxError toks
-parseOptAs _   _                                   toks  = 
+parseOptAs _   _                                   toks  =
   return (Nothing, toks)
 
 -- convert C style identifier to Haskell style identifier
 --
 underscoreToCase               :: Ident -> Bool -> Position -> Ident
-underscoreToCase ide upper pos  = 
+underscoreToCase ide upper pos  =
   let lexeme = identToLexeme ide
       ps     = filter (not . null) . parts $ lexeme
   in
   onlyPosIdent pos . adjustHead . concat . map adjustCase $ ps
   where
     parts s = let (l, s') = break (== '_') s
-              in  
+              in
               l : case s' of
                     []      -> []
                     (_:s'') -> parts s''
-    --    
+    --
     adjustCase (c:cs) = toUpper c : map toLower cs
     --
     adjustHead ""     = ""
@@ -1119,13 +1119,13 @@ parsePath' (CHSTokDot _:CHSTokIdent _ ide:toks) =
   do
     (pathWithHole, toks') <- parsePath' toks
     return (pathWithHole . (\hole -> CHSRef hole ide), toks')
-parsePath' (CHSTokDot _:toks) = 
+parsePath' (CHSTokDot _:toks) =
   syntaxError toks
 parsePath' (CHSTokArrow pos:CHSTokIdent _ ide:toks) =
   do
     (pathWithHole, toks') <- parsePath' toks
     return (pathWithHole . (\hole -> CHSRef (CHSDeref hole pos) ide), toks')
-parsePath' (CHSTokArrow _:toks) = 
+parsePath' (CHSTokArrow _:toks) =
   syntaxError toks
 parsePath' toks =
   do
@@ -1143,7 +1143,7 @@ parseTrans (CHSTokLBrace _:toks) =
           -- if there was no `underscoreToCase', we add a comma token to meet
           -- the invariant of `parseTranss'
           --
-          (transs, toks'') <- if _2Case 
+          (transs, toks'') <- if _2Case
                               then parseTranss toks'
                               else parseTranss (CHSTokComma nopos:toks')
           return (CHSTrans _2Case transs, toks'')
@@ -1169,9 +1169,9 @@ parseTrans (CHSTokLBrace _:toks) =
 parseTrans toks = syntaxError toks
 
 parseDerive :: [CHSToken] -> CST s ([Ident], [CHSToken])
-parseDerive (CHSTokDerive _ :CHSTokLParen _:CHSTokRParen _:toks) = 
+parseDerive (CHSTokDerive _ :CHSTokLParen _:CHSTokRParen _:toks) =
   return ([], toks)
-parseDerive (CHSTokDerive _ :CHSTokLParen _:toks)                = 
+parseDerive (CHSTokDerive _ :CHSTokLParen _:toks)                =
   parseCommaIdent (CHSTokComma nopos:toks)
   where
     parseCommaIdent :: [CHSToken] -> CST s ([Ident], [CHSToken])
@@ -1179,7 +1179,7 @@ parseDerive (CHSTokDerive _ :CHSTokLParen _:toks)                =
       do
         (ids, tok') <- parseCommaIdent toks
         return (ide:ids, tok')
-    parseCommaIdent (CHSTokRParen _                 :toks) = 
+    parseCommaIdent (CHSTokRParen _                 :toks) =
       return ([], toks)
 parseDerive toks = return ([],toks)
 
@@ -1205,29 +1205,29 @@ errorIllegal tok  = do
 
 errorEOF :: CST s a
 errorEOF  = do
-              raiseError nopos 
+              raiseError nopos
                 ["Premature end of file!",
                  "The .chs file ends in the middle of a binding hook."]
               raiseSyntaxError
 
 errorCHINotFound     :: String -> CST s a
 errorCHINotFound ide  = do
-  raiseError nopos 
+  raiseError nopos
     ["Unknown .chi file!",
      "Cannot find the .chi file for `" ++ ide ++ "'."]
   raiseSyntaxError
 
 errorCHICorrupt      :: String -> CST s a
 errorCHICorrupt ide  = do
-  raiseError nopos 
+  raiseError nopos
     ["Corrupt .chi file!",
      "The file `" ++  ide ++ ".chi' is corrupt."]
   raiseSyntaxError
 
 errorCHIVersion :: String -> String -> String -> CST s a
 errorCHIVersion ide chiVersion myVersion  = do
-  raiseError nopos 
+  raiseError nopos
     ["Wrong version of .chi file!",
-     "The file `" ++ ide ++ ".chi' is version " 
+     "The file `" ++ ide ++ ".chi' is version "
      ++ chiVersion ++ ", but mine is " ++ myVersion ++ "."]
   raiseSyntaxError

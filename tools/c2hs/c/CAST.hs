@@ -203,9 +203,9 @@ instance Eq CBlockItem where
 
 
 -- C declaration (K&R A8), structure declaration (K&R A8.3), parameter
--- declaration (K&R A8.6.3), and type name (K&R A8.8) (EXPORTED) 
+-- declaration (K&R A8.6.3), and type name (K&R A8.8) (EXPORTED)
 --
---  * Toplevel declarations (K&R A8): 
+--  * Toplevel declarations (K&R A8):
 --
 --   - they require that the type specifier and qualifier list is not empty,
 --     but gcc allows it and just issues a warning; for the time being, we
@@ -220,8 +220,8 @@ instance Eq CBlockItem where
 --  * Structure declarations (K&R A8.3):
 --
 --   - do not allow storage specifiers;
---   - do not allow initializers; 
---   - require a non-empty declarator-triple list, where abstract declarators 
+--   - do not allow initializers;
+--   - require a non-empty declarator-triple list, where abstract declarators
 --     are not allowed; and
 --   - each of the declarator-triples has to contain either a declarator or a
 --     size expression, or both, ie, it has the form `(Just decl, Nothing,
@@ -231,7 +231,7 @@ instance Eq CBlockItem where
 --  * Parameter declarations (K&R A8.6.3):
 --
 --   - allow neither initializers nor size expressions;
---   - allow at most one declarator triple of the form `(Just declr, Nothing, 
+--   - allow at most one declarator triple of the form `(Just declr, Nothing,
 --     Nothing)' (in case of an empty declarator, the list must be empty); and
 --   - allow abstract declarators.
 --
@@ -239,10 +239,10 @@ instance Eq CBlockItem where
 --
 --   - do not allow storage specifiers;
 --   - allow neither initializers nor size expressions; and
---   - allow at most one declarator triple of the form `(Just declr, Nothing, 
+--   - allow at most one declarator triple of the form `(Just declr, Nothing,
 --     Nothing)' (in case of an empty declarator, the list must be empty),
 --     where the declarator must be abstract, ie, must not contain a declared
---     identifier. 
+--     identifier.
 --
 data CDecl = CDecl [CDeclSpec]          -- type specifier and qualifier
                    [(Maybe CDeclr,      -- declarator (may be omitted)
@@ -380,7 +380,7 @@ instance Eq CTypeQual where
 -- C structure of union declaration (K&R A8.3) (EXPORTED)
 --
 --  * in both case, either the identifier is present or the list must be
---   non-empty 
+--   non-empty
 --
 data CStructUnion = CStruct CStructTag
                             (Maybe Ident)
@@ -420,7 +420,7 @@ instance Eq CEnum where
 --  * We unfold K&R's direct-declarators nonterminal into declarators.  Note
 --   that `*(*x)' is equivalent to `**x'.
 --
---  * Declarators (A8.5) and abstract declarators (A8.8) are represented in the 
+--  * Declarators (A8.5) and abstract declarators (A8.8) are represented in the
 --   same structure.  In the case of a declarator, the identifier in
 --   `CVarDeclr' must be present; in an abstract declarator it misses.
 --   `CVarDeclr Nothing ...' on its own is meaningless, it may only occur as
@@ -432,7 +432,7 @@ instance Eq CEnum where
 --  * Old and new style function definitions are merged into a single case
 --   `CFunDeclr'.  In case of an old style definition, the parameter list is
 --   empty and the variadic flag is `False' (ie, the parameter names are not
---   stored in the tree).  Remember, a new style definition with no parameters 
+--   stored in the tree).  Remember, a new style definition with no parameters
 --   requires a single `void' in the argument list (according to the standard).
 --
 --  * We unfold K&R's parameter-type-list nonterminal into the declarator

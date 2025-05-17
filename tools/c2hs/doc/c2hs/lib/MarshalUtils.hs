@@ -18,9 +18,9 @@ module MarshalUtils (
   --
   maybeNew,      -- :: (      a -> IO (Ptr a))
                  -- -> (Maybe a -> IO (Ptr a))
-  maybeWith,     -- :: (      a -> (Ptr b -> IO c) -> IO c) 
+  maybeWith,     -- :: (      a -> (Ptr b -> IO c) -> IO c)
                  -- -> (Maybe a -> (Ptr b -> IO c) -> IO c)
-  maybePeek,     -- :: (Ptr a -> IO        b ) 
+  maybePeek,     -- :: (Ptr a -> IO        b )
                  -- -> (Ptr a -> IO (Maybe b))
 
   -- marshalling lists of storable objects
@@ -48,8 +48,8 @@ import MarshalAlloc (malloc, alloca)
 -- allocate storage for a value and marshal it into this storage
 --
 new     :: Storable a => a -> IO (Ptr a)
-new val  = 
-  do 
+new val  =
+  do
     ptr <- malloc
     poke ptr val
     return ptr
@@ -91,12 +91,12 @@ maybeNew  = maybe (return nullPtr)
 -- converts a withXXX combinator into one marshalling a value wrapped into a
 -- `Maybe'
 --
-maybeWith :: (      a -> (Ptr b -> IO c) -> IO c) 
+maybeWith :: (      a -> (Ptr b -> IO c) -> IO c)
           -> (Maybe a -> (Ptr b -> IO c) -> IO c)
 maybeWith  = maybe ($ nullPtr)
 
 -- convert a peek combinator into a one returning `Nothing' if applied to a
--- `nullPtr' 
+-- `nullPtr'
 --
 maybePeek                           :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybePeek peek ptr | ptr == nullPtr  = return Nothing

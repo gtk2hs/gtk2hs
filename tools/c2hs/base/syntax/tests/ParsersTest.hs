@@ -40,7 +40,7 @@ instance Show CharTok where
 instance Token CharTok
 
 stringToCharToks   :: String -> [CharTok]
-stringToCharToks s  = 
+stringToCharToks s  =
   cts 1 s
   where
     cts _ []     = []
@@ -75,13 +75,13 @@ expr = sep1 (\l a r -> Add l r a) (chara '+') prod
 
 prod = sep1 (\l a r -> Mul l r a) (chara '*') prim
 
-prim =     var 
+prim =     var
        <|> chars '(' -*> expr *-> chars ')'
 
 --var = list1 alphaNum `action` Var
 var = alpha' *> many (:) [] alphaNum `action` \((c, at), cs) -> Var (c:cs) at
       where
-        alpha' = alpha *> meta getName 
+        alpha' = alpha *> meta getName
                  `action` \(CharTok c pos, n) -> (c, newAttrs pos n)
 --               `action` \(CharTok c pos) -> (c, newAttrsOnlyPos pos)
 
@@ -106,7 +106,7 @@ getName (n:ns) = (ns, n)
 
 --vars = many (const (1+)) 0 (char 'x')
 --vars = sep1 (++) (token (CharTok '-' nopos)) ((\c -> [c]) $> char 'x')
---vars = seplist1 (token (CharTok '-' undefined)) (token (CharTok 'x' undefined)) 
+--vars = seplist1 (token (CharTok '-' undefined)) (token (CharTok 'x' undefined))
 
 {-
 testparse    :: String  -> IO ()
@@ -120,7 +120,7 @@ testparse cs  = let (tree, errs) = (execParser expr . stringToCharToks) cs
 
 
 parse    :: Parser [Name] CharTok t -> String  -> PreCST e s (t, [CharTok])
-parse p cs  = 
+parse p cs  =
   do
     nsupp <- getNameSupply
     let ns = names nsupp
@@ -147,5 +147,5 @@ doIt  = let cs = "a+b*(xy+abcdefg)"
           let stringify = concat . map show
           putStrCIO ("`list alpha *> char0 '.'' accepts from `abc.junk' \
                      \the prefix `" ++ stringify (abc ++ [dot])
-                     ++ "',\nand the rest is `" ++ stringify rest 
+                     ++ "',\nand the rest is `" ++ stringify rest
                      ++ "'.\n")

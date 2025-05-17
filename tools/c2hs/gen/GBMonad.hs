@@ -35,7 +35,7 @@
 --  is performed.  If this also doesn't match, the identifier without prefix
 --  (possible after underscoreToCase translation is returned).  If there is a
 --  match, the translation (without any further stripping of prefix) is
---  returned.  
+--  returned.
 --
 --  Pointer map
 --  -----------
@@ -108,11 +108,11 @@ underscoreToCase ide  = let lexeme = identToLexeme ide
                         concat . map adjustCase $ ps
                         where
                           parts s = let (l, s') = break (== '_') s
-                                    in  
+                                    in
                                     l : case s' of
                                           []      -> []
                                           (_:s'') -> parts s''
-                          
+
                           adjustCase (c:cs) = toUpper c : map toLower cs
 
 -- takes an identifier association table to a translation function
@@ -125,7 +125,7 @@ underscoreToCase ide  = let lexeme = identToLexeme ide
 --
 transTabToTransFun :: String -> CHSTrans -> TransFun
 transTabToTransFun prefix (CHSTrans _2Case table) =
-  \ide -> let 
+  \ide -> let
             lexeme = identToLexeme ide
             dft    = if _2Case                  -- default uses maybe the...
                      then underscoreToCase ide  -- ..._2case transformed...
@@ -133,14 +133,14 @@ transTabToTransFun prefix (CHSTrans _2Case table) =
           in
           case lookup ide table of                  -- lookup original ident
             Just ide' -> identToLexeme ide'         -- original ident matches
-            Nothing   -> 
+            Nothing   ->
               case eat prefix lexeme of
                 Nothing          -> dft             -- no match & no prefix
-                Just eatenLexeme -> 
-                  let 
+                Just eatenLexeme ->
+                  let
                     eatenIde = onlyPosIdent (posOf ide) eatenLexeme
-                    eatenDft = if _2Case 
-                               then underscoreToCase eatenIde 
+                    eatenDft = if _2Case
+                               then underscoreToCase eatenIde
                                else eatenLexeme
                   in
                   case lookup eatenIde table of     -- lookup without prefix
@@ -176,7 +176,7 @@ type PointerMap = Map (Bool, Ident) HsPtrRep
 --  * The first element is true if the pointer points to a function.
 --   The second is the Haskell pointer type (plain
 --   Ptr, ForeignPtr or StablePtr). The third field is (Just wrap) if the
---   pointer is wrapped in a newtype. Where "wrap" 
+--   pointer is wrapped in a newtype. Where "wrap"
 --   contains the name of the Haskell data type that was defined for this
 --   pointer. The forth element contains the type argument of the
 --   Ptr, ForeignPtr or StablePtr and is the same as "wrap"
@@ -203,16 +203,16 @@ type HsObjectMap = Map Ident HsObject
 
 {- FIXME: What a mess...
 instance Show HsObject where
-  show (Pointer ptrType isNewtype) = 
+  show (Pointer ptrType isNewtype) =
     "Pointer " ++ show ptrType ++ show isNewtype
-  show (Class   osuper  pointer  ) = 
+  show (Class   osuper  pointer  ) =
     "Class " ++ show ptrType ++ show isNewtype
 -}
 -- super kludgy (depends on Show instance of Ident)
 instance Read Ident where
   readsPrec _ ('`':lexeme) = let (ideChars, rest) = span (/= '\'') lexeme
                              in
-                             if null ideChars 
+                             if null ideChars
                              then []
                              else [(onlyPosIdent nopos ideChars, tail rest)]
   readsPrec p (c:cs)
@@ -230,7 +230,7 @@ instance Read Ident where
 --     that created them (the latter allows avoid duplication of foreign
 --     export declarations), and
 -- (4) a map associating C pointer types with their Haskell representation
---     
+--
 -- access to the attributes of the C structure tree is via the `CT' monad of
 -- which we use an instance here
 --
@@ -259,7 +259,7 @@ initialGBState mLock = GBState {
 --
 setContext            :: (Maybe String) -> (Maybe String) -> (Maybe String) ->
                          GB ()
-setContext lib prefix newMLock = 
+setContext lib prefix newMLock =
   transCT $ \state -> (state {lib    = fromMaybe "" lib,
                               prefix = fromMaybe "" prefix,
                               mLock  = case newMLock of
@@ -290,7 +290,7 @@ getLock = readCT mLock
 --   specify the same flags (ie, produce the same delayed code)
 --
 delayCode          :: CHSHook -> String -> GB ()
-delayCode hook str  = 
+delayCode hook str  =
   do
     frags <- readCT frags
     frags' <- delay hook frags
@@ -300,8 +300,8 @@ delayCode hook str  =
       --
       delay hook@(CHSCall isFun isUns _ ide oalias _) frags =
         case find (\(hook', _) -> hook' == hook) frags of
-          Just (CHSCall isFun' isUns' _ ide' _ _, _) 
-            |    isFun == isFun' 
+          Just (CHSCall isFun' isUns' _ ide' _ _, _)
+            |    isFun == isFun'
               && isUns == isUns'
               && ide   == ide'   -> return frags
             | otherwise          -> err (posOf ide) (posOf ide')
@@ -320,7 +320,7 @@ getDelayedCode  = readCT (map snd . frags)
 --
 ptrMapsTo :: (Bool, Ident) -> HsPtrRep -> GB ()
 (isStar, cName) `ptrMapsTo` hsRepr =
-  transCT (\state -> (state { 
+  transCT (\state -> (state {
                         ptrmap = Map.insert (isStar, cName) hsRepr (ptrmap state)
                       }, ()))
 
@@ -335,7 +335,7 @@ queryPtr pcName  = do
 --
 objIs :: Ident -> HsObject -> GB ()
 hsName `objIs` obj =
-  transCT (\state -> (state { 
+  transCT (\state -> (state {
                         objmap = Map.insert hsName obj (objmap state)
                       }, ()))
 
@@ -388,7 +388,7 @@ queryPointer hsName  = do
 --
 mergeMaps     :: String -> GB ()
 mergeMaps str  =
-  transCT (\state -> (state { 
+  transCT (\state -> (state {
                         ptrmap = Map.union (ptrmap state) readPtrMap,
                         objmap = Map.union (objmap state) readObjMap
                       }, ()))
@@ -417,7 +417,7 @@ dumpMaps  = do
 
 incompatibleCallHooksErr            :: Position -> Position -> GB a
 incompatibleCallHooksErr here there  =
-  raiseErrorCTExc here 
+  raiseErrorCTExc here
     ["Incompatible call hooks!",
      "There is a another call hook for the same C function at " ++ show there,
      "The flags and C function name of the two hooks should be identical,",

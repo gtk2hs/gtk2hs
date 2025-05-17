@@ -108,7 +108,7 @@ prettyDeclr (odeclr, oinit, oexpr) =
 
 instance Pretty CDeclr where
   pretty (CVarDeclr oide                   _) = maybe empty ident oide
-  pretty (CPtrDeclr inds declr             _) = 
+  pretty (CPtrDeclr inds declr             _) =
     let
       oneLevel ind = parens . (hsep (map pretty ind) <+>) . (text "*" <>)
     in
@@ -119,7 +119,7 @@ instance Pretty CDeclr where
     let
       varDoc = if isVariadic then text ", ..." else empty
     in
-    pretty declr 
+    pretty declr
     <+> parens (hsep (punctuate comma (map pretty decls)) <> varDoc)
 
 instance Pretty CInit where

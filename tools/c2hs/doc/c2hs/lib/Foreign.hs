@@ -2,7 +2,7 @@
 --
 -- Bundles the language-independent FFI library functionality
 
-module Foreign ( 
+module Foreign (
   module Int,
   module Word,
   module Ptr,

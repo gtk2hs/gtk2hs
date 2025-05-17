@@ -1,115 +1,75 @@
-{-# LANGUAGE CPP, ViewPatterns #-}
+{-# LANGUAGE CPP #-}
 -- | Build a Gtk2hs package.
---
-module Gtk2HsSetup (
-  gtk2hsUserHooks,
-  getPkgConfigPackages,
-  checkGtk2hsBuildtools,
-  typeGenProgram,
-  signalGenProgram,
-  c2hsLocal
+module Gtk2HsSetup
+  ( gtk2hsUserHooks
+  , getPkgConfigPackages
+  , checkGtk2hsBuildtools
+  , typeGenProgram
+  , signalGenProgram
+  , c2hsLocal
   ) where
 
-import Data.String(fromString)
-import Data.Maybe (mapMaybe)
-#if MIN_VERSION_Cabal(3,14,0)
-import Data.Bifunctor (bimap)
-#endif
+import           Control.Applicative
+import           Control.Monad
+import           Data.Char                              (isAlpha, isNumber)
+import           Data.List                              (isPrefixOf, isSuffixOf,
+                                                         minimumBy, nub,
+                                                         stripPrefix, tails)
+import qualified Data.Map                               as M
+import           Data.Maybe
+import           Data.Ord                               as Ord
+import qualified Data.Set                               as S
+import           Data.String
+import qualified Distribution.Compat.Graph              as Graph
+import           Distribution.InstalledPackageInfo
+import qualified Distribution.InstalledPackageInfo      as IPI
+import           Distribution.ModuleName                (ModuleName, components,
+                                                         toFilePath)
+import           Distribution.PackageDescription        as PD
+import qualified Distribution.PackageDescription        as PD
+import           Distribution.Simple
+import           Distribution.Simple.BuildPaths         (autogenPackageModulesDir)
+import           Distribution.Simple.Compiler           (Compiler (..),
+                                                         compilerVersion)
+import           Distribution.Simple.Install            (install)
+import           Distribution.Simple.LocalBuildInfo     as LBI
+import           Distribution.Simple.PackageIndex       (lookupUnitId)
+import           Distribution.Simple.PreProcess
+import           Distribution.Simple.Program
+import           Distribution.Simple.Program.Find       (defaultProgramSearchPath)
+import           Distribution.Simple.Program.HcPkg      (defaultRegisterOptions)
+import           Distribution.Simple.Register           (generateRegistrationInfo,
+                                                         registerPackage)
+import           Distribution.Simple.Utils              hiding (die)
+import           Distribution.Text                      (display, simpleParse)
+import qualified Distribution.Types.LocalBuildInfo      as LBI
+import           Distribution.Types.PkgconfigDependency (PkgconfigDependency (..))
+import           Distribution.Types.PkgconfigName
+import           Distribution.Verbosity
+import           Distribution.Version                   (Version (..))
+import           Gtk2HsC2Hs                             (c2hsMain)
+import           HookGenerator                          (hookGen)
+import           System.Directory
+import           System.Exit                            (die, exitFailure)
+import           System.FilePath
+import           TypeGen                                (typeGen)
+import           UNames                                 (unsafeResetRootNameSupply)
+import           Distribution.Simple.Setup
+
 #if MIN_VERSION_Cabal(2,4,0)
-import Distribution.Pretty (prettyShow)
+import           Distribution.Pretty                    (prettyShow)
 #else
-import Distribution.Simple.LocalBuildInfo (getComponentLocalBuildInfo)
+import           Distribution.Simple.LocalBuildInfo     (getComponentLocalBuildInfo)
 #endif
-import Distribution.Simple
-import Distribution.Simple.PreProcess
-import Distribution.InstalledPackageInfo ( importDirs,
-                                           showInstalledPackageInfo,
-                                           libraryDirs,
-                                           extraLibraries,
-                                           extraGHCiLibraries )
-import Distribution.Simple.PackageIndex ( lookupUnitId )
-import Distribution.PackageDescription as PD ( PackageDescription(..),
-                                               updatePackageDescription,
-                                               BuildInfo(..),
-                                               emptyBuildInfo, allBuildInfo,
-                                               Library(..),
-                                               explicitLibModules, hasLibs)
-import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..), buildDir,
-                                           InstallDirs(..),
-                                           ComponentLocalBuildInfo,
-                                           componentPackageDeps,
-                                           absoluteInstallDirs,
-                                           relocatable,
-                                           compiler)
-import Distribution.Types.LocalBuildInfo as LBI (componentNameCLBIs)
-import qualified Distribution.Types.LocalBuildInfo as LBI
-import Distribution.Simple.Compiler  ( Compiler(..) )
-import Distribution.Simple.Program (
-  Program(..), ConfiguredProgram(..),
-  runDbProgram, getDbProgramOutput, programName, programPath,
-  c2hsProgram, pkgConfigProgram, gccProgram, requireProgram, ghcPkgProgram,
-  simpleProgram, lookupProgram, getProgramOutput, ProgArg)
-#if MIN_VERSION_Cabal(2,0,0)
-import Distribution.Simple.Program.HcPkg ( defaultRegisterOptions )
-import Distribution.Types.PkgconfigDependency ( PkgconfigDependency(..) )
-import Distribution.Types.PkgconfigName
-#endif
-import Distribution.ModuleName ( ModuleName, components, toFilePath )
-import Distribution.Simple.Utils hiding (die)
-#if MIN_VERSION_Cabal(3,14,0)
-import Distribution.Simple.Setup (CommonSetupFlags(..), CopyFlags(..), InstallFlags(..), 
-                                  CopyDest(..), defaultCommonSetupFlags, defaultCopyFlags, 
-                                  ConfigFlags(configVerbosity), fromFlag, toFlag, 
-                                  RegisterFlags(..), flagToMaybe, fromFlagOrDefault, 
-                                  defaultRegisterFlags)
-#else
-import Distribution.Simple.Setup (CopyFlags(..), InstallFlags(..), CopyDest(..),
-                                  defaultCopyFlags, ConfigFlags(configVerbosity),
-                                  fromFlag, toFlag, RegisterFlags(..), flagToMaybe,
-                                  fromFlagOrDefault, defaultRegisterFlags)
-#endif
-#if MIN_VERSION_Cabal(2,0,0)
-import Distribution.Simple.BuildPaths ( autogenPackageModulesDir )
-#endif
-import Distribution.Simple.Install ( install )
-#if MIN_VERSION_Cabal(3,14,0)
-import Distribution.Utils.Path (getSymbolicPath, makeRelativePathEx)
-#endif
-import Distribution.Simple.Register ( generateRegistrationInfo, registerPackage )
-import Distribution.Text ( simpleParse, display )
-import System.FilePath
-import System.Exit (die, exitFailure)
-import System.Directory ( doesFileExist, getDirectoryContents, doesDirectoryExist )
-import Distribution.Version (Version(..))
-import Distribution.Verbosity
-import Control.Monad (when, unless, filterM, liftM, forM, forM_)
-import Data.Maybe ( isJust, isNothing, fromMaybe, maybeToList, catMaybes )
-import Data.List (isPrefixOf, isSuffixOf, nub, minimumBy, stripPrefix, tails )
-import Data.Ord as Ord (comparing)
-import Data.Char (isAlpha, isNumber)
-import qualified Data.Map as M
-import qualified Data.Set as S
-import qualified Distribution.PackageDescription as PD
-import qualified Distribution.Simple.LocalBuildInfo as LBI
-import qualified Distribution.InstalledPackageInfo as IPI
-       (installedUnitId)
-import Distribution.Simple.Compiler (compilerVersion)
-import qualified Distribution.Compat.Graph as Graph
+
 #if MIN_VERSION_Cabal(3,6,0)
-import Distribution.Utils.Path (getSymbolicPath)
-#endif 
+import           Distribution.Utils.Path                (getSymbolicPath)
+#endif
 
-import Control.Applicative ((<$>))
-
-import Distribution.Simple.Program.Find ( defaultProgramSearchPath )
-import Gtk2HsC2Hs (c2hsMain)
-import HookGenerator (hookGen)
-import TypeGen (typeGen)
-import UNames (unsafeResetRootNameSupply)
-
-#if !MIN_VERSION_Cabal(2,0,0)
-versionNumbers :: Version -> [Int]
-versionNumbers = versionBranch
+#if MIN_VERSION_Cabal(3,14,0)
+import           Data.Bifunctor                         (bimap)
+import           Distribution.Utils.Path                (getSymbolicPath,
+                                                         makeRelativePathEx)
 #endif
 
 onDefaultSearchPath f a b = f a b defaultProgramSearchPath
@@ -129,7 +89,7 @@ libraryConfig lbi = case [clbi | (LBI.CLibName _, clbi, _) <- componentsConfigs 
 libraryConfig lbi = case [clbi | (LBI.CLibName, clbi, _) <- LBI.componentsConfigs lbi] of
 #endif
   [clbi] -> Just clbi
-  _ -> Nothing
+  _      -> Nothing
 
 -- the name of the c2hs pre-compiled header file
 precompFile = "precompchs.bin"
@@ -138,8 +98,6 @@ gtk2hsUserHooks = simpleUserHooks {
     -- hookedPrograms is only included for backwards compatibility with older Setup.hs.
     hookedPrograms = [typeGenProgram, signalGenProgram, c2hsLocal],
     hookedPreProcessors = [(fromString "chs", ourC2hs)],
-    confHook = \pd cf ->
-      (fmap adjustLocalBuildInfo (confHook simpleUserHooks pd cf)),
     postConf = \args cf pd lbi -> do
       genSynthezisedFiles (fromFlag (configVerbosity cf)) pd lbi
       postConf simpleUserHooks args cf pd lbi,
@@ -170,7 +128,7 @@ fixLibs :: [FilePath] -> [String] -> [String]
 fixLibs dlls = concatMap $ \ lib ->
     case filter (isLib lib) dlls of
                 dlls@(_:_) -> [dropExtension (pickDll dlls)]
-                _          -> if lib == "z" then [] else [lib]
+                _          -> [lib | lib /= "z"]
   where
     -- If there are several .dll files matching the one we're after then we
     -- just have to guess. For example for recent Windows cairo builds we get
@@ -191,13 +149,13 @@ fixLibs dlls = concatMap $ \ lib ->
 installHook :: PackageDescription -> LocalBuildInfo
                    -> UserHooks -> InstallFlags -> IO ()
 installHook pkg_descr localbuildinfo _ flags = do
-# if MIN_VERSION_Cabal(3,14,0)
-  let copyFlags = defaultCopyFlags { 
+#if MIN_VERSION_Cabal(3,14,0)
+  let copyFlags = defaultCopyFlags {
                         copyCommonFlags = defaultCommonSetupFlags {
                           setupDistPref = installDistPref flags,
                           setupVerbosity = installVerbosity flags
                         },
-                        copyDest = toFlag NoCopyDest 
+                        copyDest = toFlag NoCopyDest
                    }
 #else
   let copyFlags = defaultCopyFlags {
@@ -226,18 +184,18 @@ installHook pkg_descr localbuildinfo _ flags = do
 #endif
   when (hasLibs pkg_descr) $ register pkg_descr localbuildinfo registerFlags
 
-registerHook :: PackageDescription -> LocalBuildInfo
-        -> UserHooks -> RegisterFlags -> IO ()
+registerHook :: PackageDescription -> LocalBuildInfo -> UserHooks -> RegisterFlags -> IO ()
 registerHook pkg_descr localbuildinfo _ flags =
-    if hasLibs pkg_descr
-    then register pkg_descr localbuildinfo flags
-    else setupMessage verbosity
-           "Package contains no library to register:" (packageId pkg_descr)
+  if hasLibs pkg_descr
+  then register pkg_descr localbuildinfo flags
+  else setupMessage verbosity "Package contains no library to register:" (packageId pkg_descr)
+  where
 #if MIN_VERSION_Cabal(3,14,0)
-  where verbosity = fromFlag (setupVerbosity . registerCommonFlags $ flags)
+    verbosity = fromFlag (setupVerbosity . registerCommonFlags $ flags)
 #else
-  where verbosity = fromFlag (regVerbosity flags)
+    verbosity = fromFlag (regVerbosity flags)
 #endif
+
 #if MIN_VERSION_Cabal(2,4,0)
 getComponentLocalBuildInfo :: LocalBuildInfo -> LBI.ComponentName -> ComponentLocalBuildInfo
 getComponentLocalBuildInfo lbi cname =
@@ -273,7 +231,7 @@ register pkg@PackageDescription { library       = Just lib  } lbi regFlags
                            verbosity pkg lib lbi clbi inplace reloc distPref
                            (registrationPackageDB absPackageDBs)
 
-    dllsInScope <- getSearchPath >>= (filterM doesDirectoryExist) >>= getDlls
+    dllsInScope <- getSearchPath >>= filterM doesDirectoryExist >>= getDlls
     let libs = fixLibs dllsInScope (extraLibraries installedPkgInfoRaw)
         installedPkgInfo = installedPkgInfoRaw {
                                 extraGHCiLibraries = libs }
@@ -292,12 +250,7 @@ register pkg@PackageDescription { library       = Just lib  } lbi regFlags
 #else
            registerPackage verbosity (compiler lbi) (withPrograms lbi)
 #endif
-#if MIN_VERSION_Cabal(2,0,0)
              packageDbs installedPkgInfo defaultRegisterOptions
-#else
-             False packageDbs installedPkgInfo
-#endif
-
   where
     modeGenerateRegFile = isJust (flagToMaybe (regGenPkgConf regFlags))
 #if MIN_VERSION_Cabal(3,14,0)
@@ -332,32 +285,11 @@ register _ _ regFlags = notice verbosity "No package to register"
 #endif
 
 ------------------------------------------------------------------------------
--- This is a hack for Cabal-1.8, It is not needed in Cabal-1.9.1 or later
-------------------------------------------------------------------------------
-
-#if MIN_VERSION_Cabal(2,0,0)
-adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
-adjustLocalBuildInfo = id
-#else
-adjustLocalBuildInfo :: LocalBuildInfo -> LocalBuildInfo
-adjustLocalBuildInfo lbi =
-  let extra = (Just libBi, [])
-      libBi = emptyBuildInfo { includeDirs = [ autogenPackageModulesDir lbi
-                                             , buildDir lbi ] }
-   in lbi { localPkgDescr = updatePackageDescription extra (localPkgDescr lbi) }
-#endif
-
-------------------------------------------------------------------------------
 -- Processing .chs files with our local c2hs.
 ------------------------------------------------------------------------------
 
-#if MIN_VERSION_Cabal(2,0,0)
 ourC2hs :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
 ourC2hs bi lbi _ = PreProcessor {
-#else
-ourC2hs :: BuildInfo -> LocalBuildInfo -> PreProcessor
-ourC2hs bi lbi = PreProcessor {
-#endif
 #if MIN_VERSION_Cabal(3,8,1)
   ppOrdering = \_ _ ms -> return ms,
 #endif
@@ -426,9 +358,9 @@ installCHI pkg@PD.PackageDescription { library = Just lib } lbi verbosity copyde
 #endif
 
 #if MIN_VERSION_Cabal(3,14,0)
-  let files = [ bimap getSymbolicPath getSymbolicPath $ f | Just f <- mFiles ]
+  let files = map (bimap getSymbolicPath getSymbolicPath) $ catMaybes mFiles
 #else
-  let files = [ f | Just f <- mFiles ]
+  let files = catMaybes mFiles
 #endif
   installOrdinaryFiles verbosity libPref files
 
@@ -450,12 +382,8 @@ genSynthezisedFiles verb pd lbi = do
                               tag `isPrefixOf` field,
                               field /= (tag++"file")]
               ++ [ "--tag=" ++ tag
-#if MIN_VERSION_Cabal(2,0,0)
                  | PackageIdentifier name version <- cPkgs
                  , let major:minor:_ = versionNumbers version
-#else
-                 | PackageIdentifier name (Version (major:minor:_) _) <- cPkgs
-#endif
                  , let name' = filter isAlpha (display name)
                  , tag <- name'
                         :[ name' ++ "-" ++ show maj ++ "." ++ show d2
@@ -519,13 +447,8 @@ getPkgConfigPackages verbosity lbi pkg =
     [ do version <- pkgconfig ["--modversion", display pkgname]
          case simpleParse version of
            Nothing -> die "parsing output of pkg-config --modversion failed"
-#if MIN_VERSION_Cabal(2,0,0)
            Just v  -> return (PackageIdentifier (mkPackageName $ unPkgconfigName pkgname) v)
     | PkgconfigDependency pkgname _
-#else
-           Just v  -> return (PackageIdentifier pkgname v)
-    | Dependency pkgname _
-#endif
     <- concatMap pkgconfigDepends (allBuildInfo pkg) ]
   where
     pkgconfig = getDbProgramOutput verbosity
@@ -547,12 +470,12 @@ fixDeps pd@PD.PackageDescription {
               PD.hsSourceDirs = srcDirs,
               PD.otherModules = othMods
             }}} = do
-  let toPath = 
+  let toPath =
 #if MIN_VERSION_Cabal(3,6,0)
         getSymbolicPath
-#else 
-        id 
-#endif 
+#else
+        id
+#endif
 #if MIN_VERSION_Cabal(3,14,0)
   let findModule m = findFileWithExtension [fromString ".chs.pp", fromString ".chs"] srcDirs
                        (makeRelativePathEx . toFilePath $ m)
@@ -565,7 +488,7 @@ fixDeps pd@PD.PackageDescription {
 
   -- tag all exposed files with True so we throw an error if we need to build
   -- an exposed module before an internal modules (we cannot express this)
-#if MIN_VERSION_Cabal(3,14,0)  
+#if MIN_VERSION_Cabal(3,14,0)
   let modDeps = zipWith (ModDep True []) expMods (map (getSymbolicPath <$>) mExpFiles) ++
                 zipWith (ModDep False []) othMods (map (getSymbolicPath <$>) mOthFiles)
 #else
@@ -573,14 +496,14 @@ fixDeps pd@PD.PackageDescription {
                 zipWith (ModDep False []) othMods mOthFiles
 #endif
   modDeps <- mapM extractDeps modDeps
-  let (othMods, expMods) = span (not . mdExposed) $ reverse $ sortTopological modDeps
+  let (othMods, expMods) = break mdExposed $ reverse $ sortTopological modDeps
   return pd { PD.library = Just lib {
     PD.exposedModules = map mdOriginal (reverse expMods),
     PD.libBuildInfo = bi { PD.otherModules = map mdOriginal (reverse othMods) }
   }}
 
 data ModDep = ModDep {
-  mdExposed :: Bool,
+  mdExposed  :: Bool,
   mdRequires :: [ModuleName],
   mdOriginal :: ModuleName,
   mdLocation :: Maybe FilePath
@@ -600,7 +523,7 @@ instance Ord ModDep where
 extractDeps :: ModDep -> IO ModDep
 extractDeps md@ModDep { mdLocation = Nothing } = return md
 extractDeps md@ModDep { mdLocation = Just f } = withUTF8FileContents f $ \con -> do
-  let findImports acc (('{':'#':xs):xxs) = case (dropWhile (' ' ==) xs) of
+  let findImports acc (('{':'#':xs):xxs) = case dropWhile (' ' ==) xs of
         ('i':'m':'p':'o':'r':'t':' ':ys) ->
           case simpleParse (takeWhile ('#' /=) ys) of
             Just m -> findImports (m:acc) xxs
@@ -656,9 +579,5 @@ signalGenProgram = simpleProgram "gtk2hsHookGenerator"
 c2hsLocal :: Program
 c2hsLocal = (simpleProgram "gtk2hsC2hs") {
     programFindVersion = \_ _ -> return . Just $
-#if MIN_VERSION_Cabal(2,0,0)
       mkVersion [0,13,13]
-#else
-      Version [0,13,13] []
-#endif
   }

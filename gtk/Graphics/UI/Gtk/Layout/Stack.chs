@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.Layout.Stack (
 -- Transitions between pages can be animated as slides or fades. This
 -- can be controlled with 'stackSetTransitionType'. These
 -- animations respect the 'gtk-enable-animations' setting.
---       
+--
 -- The GtkStack widget was added in GTK+ 3.10.
 --
 -- * Class Hierarchy

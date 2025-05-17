@@ -27,7 +27,7 @@ newtype ForeignPtr a = ForeignPtr (Ptr a)
 --
 --  * There is no guarantee on how soon the finaliser is executed after the
 --   last reference was dropped; this depends on the details of the Haskell
---   storage manager 
+--   storage manager
 --
 --  * The only guarantee given is that the finaliser runs before the program
 --   terminates
@@ -63,7 +63,7 @@ touchForeignPtr (ForeignPtr fo)  =
   fo `seq` return ()
 
 -- Applies an operation to the vanilla pointer associated with a foreign
--- pointer 
+-- pointer
 --
 --  * The foreign object is kept alive at least during the whole action, even
 --   if it is not used directly inside. Note that it is not safe to return the
@@ -83,7 +83,7 @@ withForeignPtr (ForeignPtr fp) m  = do
 --   then its finaliser(s) will be run, which potentially invalidates the
 --   plain pointer just obtained. Hence, `touchForeignPtr' must be used
 --   wherever it has to be guaranteed that the pointer lives on - i.e., has
---   another usage occurrence. 
+--   another usage occurrence.
 --
 --  * To avoid subtle coding errors, hand written marshalling code should
 --   preferably use `withForeignPtr' rather than combinations of

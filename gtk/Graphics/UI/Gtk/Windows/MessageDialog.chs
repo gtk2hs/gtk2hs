@@ -162,8 +162,8 @@ messageDialogNew mWindow flags mType bType msg =
   makeNewObject mkMessageDialog $
   liftM (castPtr :: Ptr Widget -> Ptr MessageDialog) $
   call_message_dialog_new mWindow flags mType bType msgPtr
-                                
-                                
+
+
 call_message_dialog_new :: Maybe Window -> [DialogFlags] ->
                            MessageType -> ButtonsType -> Ptr CChar ->
                            IO (Ptr Widget)
@@ -238,7 +238,7 @@ messageDialogSetSecondaryMarkup self str =
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_markup"
   message_dialog_format_secondary_markup :: Ptr MessageDialog ->
                                            Ptr CChar -> IO ()
-                                        
+
 messageDialogSetSecondaryText :: (MessageDialogClass self, GlibString string) => self
  -> string -- ^ @str@ - text to be shown as second line
  -> IO ()

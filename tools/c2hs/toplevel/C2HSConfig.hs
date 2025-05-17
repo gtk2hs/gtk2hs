@@ -24,7 +24,7 @@
 --  Configuration options; largely set by `configure'.
 --
 --- TODO ----------------------------------------------------------------------
---  
+--
 module C2HSConfig (
   --
   -- programs and paths

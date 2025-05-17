@@ -18,7 +18,7 @@ main = do
   -- Creates a new button with the label "Hello World".
 
   vBox <- vBoxNew False 0
-  
+
   checkbutton <- checkButtonNewWithLabel "Click me!"
   -- stackSwitcher <- labelNew (Just "foo")
   -- stack <- labelNew (Just "bar")

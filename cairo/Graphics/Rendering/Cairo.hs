@@ -1066,7 +1066,7 @@ pathExtents = liftRender0 Internal.pathExtents
 
 
 
--- | 
+-- |
 --
 createRGBPattern ::
       MonadIO m =>
@@ -1077,7 +1077,7 @@ createRGBPattern ::
 createRGBPattern r g b = liftIO$ Internal.patternCreateRGB r g b
 
 
--- | 
+-- |
 --
 createRGBAPattern ::
       MonadIO m =>
@@ -1089,7 +1089,7 @@ createRGBAPattern ::
 createRGBAPattern r g b a = liftIO$ Internal.patternCreateRGBA r g b a
 
 
--- | 
+-- |
 --
 createLinearPattern ::
       MonadIO m =>
@@ -1101,7 +1101,7 @@ createLinearPattern ::
 createLinearPattern x1 y1 x2 y2 = liftIO$ Internal.patternCreateLinear x1 y1 x2 y2
 
 
--- | 
+-- |
 --
 createRadialPattern ::
       MonadIO m =>
@@ -1380,7 +1380,7 @@ createMeshPattern = liftIO$ Internal.patternCreateMesh
 -- It translates the provided path into calls to meshPatternMoveTo, meshPatternLineTo, and
 -- meshPatternCurveTo, as appropriate.  The control points are set using meshPatternSetControlPoint
 -- and the corner colors are set using meshPatternSetCornerColorRGB.
--- The above operations are wrapped in calls to 
+-- The above operations are wrapped in calls to
 -- At most the first 4 elements of the provided list will be used.
 meshPatternAddPatchRGB ::
       MonadIO m =>
@@ -1718,7 +1718,7 @@ getFontMatrix = liftRender0 Internal.getFontMatrix
 --
 setFontOptions :: FontOptions -> Render ()
 setFontOptions = liftRender1 Internal.setFontOptions
-        
+
 -- | A drawing operator that generates the shape from a string of Unicode
 -- characters, rendered according to the current font face, font size (font
 -- matrix), and font options.

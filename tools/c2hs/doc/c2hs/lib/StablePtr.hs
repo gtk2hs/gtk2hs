@@ -5,7 +5,7 @@
 -- will the value of the stable pointer itself change during garbage
 -- collection (ordinary references may be relocated during garbage
 -- collection). Consequently, stable pointers can be passed to foreign code,
--- which can handle it as an opaque reference to a Haskell value. 
+-- which can handle it as an opaque reference to a Haskell value.
 
 module StablePtr (
   StablePtr,          -- data StablePtr a; instances: Eq
@@ -50,7 +50,7 @@ deRefStablePtr (StablePtr sp)  = do
 --   may still be passed to `castStablePtrToPtr', but the `Ptr ()' value
 --   returned by `castStablePtrToPtr', in this case, is undefined (in
 --   particular, it may be `Ptr.nullPtr'). Nevertheless, the call is guaranteed
---   not to diverge. 
+--   not to diverge.
 --
 freeStablePtr                :: StablePtr a -> IO ()
 freeStablePtr (StablePtr sp)  = do

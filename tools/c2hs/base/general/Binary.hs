@@ -66,9 +66,9 @@ import Data.HashTable.Class as HashTable
               (HashTable)
 import Data.HashTable.IO as HashTable
               (BasicHashTable, toList, new, insert, lookup)
-# else
+#else
 import Data.HashTable as HashTable
-# endif
+#endif
 #endif
 import Data.Array.IO
 import Data.Array
@@ -92,7 +92,7 @@ import GHC.IOBase (IO(IO))
 import GHC.Word                 ( Word8(..) )
 # if __GLASGOW_HASKELL__<602
 import GHC.Handle               ( hSetBinaryMode )
-# endif
+#endif
 -- for debug
 import System.CPUTime           (getCPUTime)
 import Numeric                  (showFFloat)
@@ -653,7 +653,7 @@ getBinFileWithDict file_path = do
 
         -- Initialise the user-data field of bh
   let bh' = setUserData bh (initReadState dict)
-        
+
         -- At last, get the thing
   get bh'
 
@@ -707,9 +707,9 @@ data UserData =
 #if __GLASGOW_HASKELL__>=602
 # if __GLASGOW_HASKELL__>=707
               ud_map  :: BasicHashTable String Int -- The index of each string
-# else
+#else
               ud_map  :: HashTable String Int -- The index of each string
-# endif
+#endif
 #else
               ud_map  :: IORef (Map String Int)
 #endif
@@ -728,9 +728,9 @@ newWriteState = do
 #if __GLASGOW_HASKELL__>=602
 # if __GLASGOW_HASKELL__>=707
   out_r <- HashTable.new
-# else
+#else
   out_r <- HashTable.new (==) HashTable.hashString
-# endif
+#endif
 #else
   out_r <- newIORef Map.empty
 #endif
@@ -843,4 +843,3 @@ printElapsedTime :: String -> IO ()
 printElapsedTime msg = do
   time <- getCPUTime
   hPutStr stderr $ "elapsed time: " ++ Numeric.showFFloat (Just 2) ((fromIntegral time) / 10^12) " (" ++ msg ++ ")\n"
-

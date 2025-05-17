@@ -20,7 +20,7 @@
 --- DESCRIPTION ---------------------------------------------------------------
 --
 --  Parser for C translation units, which have already been run through the C
---  preprocessor.  
+--  preprocessor.
 --
 --- DOCU ----------------------------------------------------------------------
 --
@@ -423,7 +423,7 @@ selection_statement
   | if '(' expression ')' statement else statement
 	{% withAttrs $1 $ CIf $3 $5 (Just $7) }
 
-  | switch '(' expression ')' statement	
+  | switch '(' expression ')' statement
 	{% withAttrs $1 $ CSwitch $3 $5 }
 
 
@@ -719,9 +719,9 @@ basic_type_specifier
 
 -- A named or anonymous struct, union or enum type along with at least one
 -- storage class and any mix of type qualifiers.
--- 
+--
 --  * summary:
---   [type_qualifier | storage_class | elaborated_type_name]{ 
+--   [type_qualifier | storage_class | elaborated_type_name]{
 --     1 == elaborated_type_name && 1 >= storage_class
 --   }
 --
@@ -997,7 +997,7 @@ typedef_declarator :: { CDeclr }
 typedef_declarator
   -- would be ambiguous as parameter
   : paren_typedef_declarator		{ $1 }
-  
+
   -- not ambiguous as param
   | parameter_typedef_declarator	{ $1 }
 
@@ -1801,8 +1801,8 @@ attr
 
 
 attribute_list :: { () }
-  : attribute						{ () } 
-  | attribute_list ',' attribute			{ () } 
+  : attribute						{ () }
+  | attribute_list ',' attribute			{ () }
 
 
 attribute :: { () }

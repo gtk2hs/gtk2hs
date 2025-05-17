@@ -27,7 +27,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Detail
---      
+--
 -- | The 'CellRenderer' is a base class of a set of objects used for rendering
 -- a cell to a 'Drawable'. These objects are used primarily by the 'TreeView'
 -- widget, though they aren't tied to them in any specific way. It is worth

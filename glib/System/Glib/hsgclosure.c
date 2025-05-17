@@ -84,16 +84,16 @@ gtk2hs_closure_marshal(GClosure *closure,
     SchedulerStatus cap;
 #endif
     guint i;
-    
+
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to run callback, n_param_values=%d", hc->callback, n_param_values));
 #ifdef GHC_RTS_USES_CAPABILITY
     cap = rts_lock();
 #else
     rts_lock();
 #endif
-    
+
     call = (StgClosure *)deRefStablePtr(hc->callback);
-   
+
     /* construct the function call */
     for (i = 0; i < n_param_values; i++) {
         WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): param_values[%d]=%s :: %s",
@@ -103,9 +103,9 @@ gtk2hs_closure_marshal(GClosure *closure,
                            g_type_name(G_VALUE_TYPE(&param_values[i]))));
         call = rts_apply(CAP call, gtk2hs_value_as_haskellobj(CAP &param_values[i]));
     }
-    
+
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to rts_evalIO", hc->callback));
-    
+
     /* perform the call */
     #if __GLASGOW_HASKELL__>=704
     rts_evalIO(&cap, rts_apply(CAP (HaskellObj)runIO_closure, call),&ret);
@@ -114,13 +114,13 @@ gtk2hs_closure_marshal(GClosure *closure,
     #endif
 
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to rts_checkSchedStatus", hc->callback));
-    
+
     /* barf if anything went wrong */
     /* TODO: pass a sensible value for call site so we get better error messages */
     /* or perhaps we can propagate any error? */
     rts_checkSchedStatus("gtk2hs_closure_marshal", cap);
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): ret=%p", hc->callback, ret));
-    
+
     if (return_value) {
         WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): return_value :: %s, ret=%p, UNTAG_CLOSURE(ret)=%p",
 	                   hc->callback,
@@ -130,7 +130,7 @@ gtk2hs_closure_marshal(GClosure *closure,
 			   UNTAG_CLOSURE(ret)));
         gtk2hs_value_from_haskellobj(return_value, ret);
     }
-    
+
 #ifdef GHC_RTS_USES_CAPABILITY
     rts_unlock(cap);
 #else
@@ -143,7 +143,7 @@ GClosure *
 gtk2hs_closure_new(HsStablePtr callback)
 {
     GClosure *closure;
-    
+
     WHEN_DEBUG(g_debug("gtk2hs_closure_new: enter, callback=%p", callback));
     closure = g_closure_new_simple(sizeof(Gtk2HsClosure), NULL);
     /* TODO: check if we should be using invalidate or finalise notifier */
@@ -151,9 +151,9 @@ gtk2hs_closure_new(HsStablePtr callback)
     g_closure_set_marshal(closure, gtk2hs_closure_marshal);
 
     ((Gtk2HsClosure *)closure)->callback = callback;
-    
+
     WHEN_DEBUG(g_debug("gtk2hs_closure_new: leave"));
-    
+
     return closure;
 }
 

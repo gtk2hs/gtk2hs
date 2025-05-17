@@ -21,7 +21,7 @@
 --
 --  This module instantiates the Compiler Toolkit's extra state with C2HS's
 --  uncommon state information that should be stored in the Toolkit's base
---  state. 
+--  state.
 --
 --  This modules re-exports everything provided by `State', and thus, should be
 --  used as the single reference to state related functionality within C2HS.
@@ -48,14 +48,14 @@ module C2HSState (-- re-exports all of `State'
                   -- switches
                   --
                   SwitchBoard(..), Traces(..), setTraces, traceSet,
-                  putTraceStr, setSwitch, getSwitch) 
+                  putTraceStr, setSwitch, getSwitch)
 where
 
 import Control.Monad    (when)
 
 import State
 
-import Switches (SwitchBoard(..), Traces(..), 
+import Switches (SwitchBoard(..), Traces(..),
                  initialSwitchBoard)
 
 

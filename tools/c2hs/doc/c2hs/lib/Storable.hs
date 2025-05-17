@@ -32,7 +32,7 @@ class Storable a where
    -- Yields the alignment constraint of the argument
    --
    --  * An alignment constraint "x" is fulfilled by any address divisible by
-   --   "x" 
+   --   "x"
    --
    --  * Never uses its argument
    --

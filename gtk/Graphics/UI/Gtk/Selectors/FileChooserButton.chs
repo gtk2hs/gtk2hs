@@ -77,7 +77,7 @@ module Graphics.UI.Gtk.Selectors.FileChooserButton (
   fileChooserButtonWidthChars,
 
 -- * Signals
-  fileChooserButtonFileSet 
+  fileChooserButtonFileSet
 #endif
   ) where
 

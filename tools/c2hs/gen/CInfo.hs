@@ -55,19 +55,19 @@
 --
 
 module CInfo (
-  CPrimType(..), size, alignment, 
+  CPrimType(..), size, alignment,
   bitfieldDirection, bitfieldPadding, bitfieldIntSigned, bitfieldAlignment
-) where 
+) where
 
 import Foreign.C
 
 -- we can't rely on the compiler used to compile c2hs already having the new
 -- FFI, so this is system dependent
 --
-import C2HSConfig (Ptr, FunPtr, 
+import C2HSConfig (Ptr, FunPtr,
                    bitfieldDirection, bitfieldPadding, bitfieldIntSigned,
                    bitfieldAlignment)
-import qualified  
+import qualified
        C2HSConfig as Storable
                   (Storable(sizeOf, alignment))
 

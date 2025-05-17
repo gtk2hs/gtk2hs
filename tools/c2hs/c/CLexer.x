@@ -26,7 +26,7 @@
 --
 --  language: Haskell 98
 --
---  We assume that the input already went through cpp.  Thus, we do not handle 
+--  We assume that the input already went through cpp.  Thus, we do not handle
 --  comments and preprocessor directives here.  The lexer recognizes all tokens
 --  of ANCI C except those occurring only in function bodies.  It supports the
 --  C99 `restrict' extension: <http://www.lysator.liu.se/c/restrict.html> as
@@ -35,15 +35,15 @@
 --  Comments:
 --
 --  * There is no support for the optional feature of extended characters (see
---    K&R A2.5.2) or the corresponding strings (A2.6). 
+--    K&R A2.5.2) or the corresponding strings (A2.6).
 --
 --  * We add `typedef-name' (K&R 8.9) as a token, as proposed in K&R A13.
 --    However, as these tokens cannot be recognized lexically, but require a
---    context analysis, they are never produced by the lexer, but instead have 
+--    context analysis, they are never produced by the lexer, but instead have
 --    to be introduced in a later phase (by converting the corresponding
---    identifiers). 
+--    identifiers).
 --
---  * We also recognize GNU C `__attribute__', `__extension__', `__const', 
+--  * We also recognize GNU C `__attribute__', `__extension__', `__const',
 --    `__const__', `__inline', `__inline__', `__restrict', and `__restrict__'.
 --
 --  * Any line starting with `#pragma' is ignored.
@@ -116,10 +116,10 @@ $visible  = \ -\127
 
 tokens :-
 
--- whitespace (follows K&R A2.1) 
+-- whitespace (follows K&R A2.1)
 --
 --  * horizontal and vertical tabs, newlines, and form feeds are filter out by
---   `Lexers.ctrlLexer' 
+--   `Lexers.ctrlLexer'
 --
 --  * comments are not handled, as we assume the input already went through cpp
 --
@@ -151,7 +151,7 @@ $white+					;
 --
 $letter($letter|$digit)*	{ \pos len str -> idkwtok (take len str) pos }
 
--- constants (follows K&R A2.5) 
+-- constants (follows K&R A2.5)
 --
 --  * K&R explicit mentions `enumeration-constants'; however, as they are
 --   lexically identifiers, we do not have an extra case for them

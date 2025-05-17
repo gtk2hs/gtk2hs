@@ -68,12 +68,12 @@ type CStringLen = (CString, Int)        -- strings with explicit length
 --   middle of a string
 --
 
--- marshal a NUL terminated C string into a Haskell string 
+-- marshal a NUL terminated C string into a Haskell string
 --
 peekCString    :: CString -> IO String
 peekCString cp  = liftM cCharsToChars $ peekArray0 nUL cp
 
--- marshal a C string with explicit length into a Haskell string 
+-- marshal a C string with explicit length into a Haskell string
 --
 peekCStringLen           :: CStringLen -> IO String
 peekCStringLen (cp, len)  = liftM cCharsToChars $ peekArray len cp

@@ -25,7 +25,7 @@
 --    - `CObj' in `defObjsAC': The name space of objects, functions, typedef
 --        names, and enum constants.
 --    - `CTag' in `defTagsAC': The name space of tags of structures, unions,
---        and enumerations. 
+--        and enumerations.
 --
 --  * The final state of the names spaces are preserved in the attributed
 --    structure tree.  This allows further fast lookups for globally defined
@@ -102,7 +102,7 @@ data AttrC = AttrC {
 --
 attrC        :: CHeader -> AttrC
 attrC header  = AttrC {
-                    headerAC  = header, 
+                    headerAC  = header,
                     defObjsAC = cObjNS,
                     defTagsAC = cTagNS,
                     shadowsAC = cShadowNS,
@@ -163,13 +163,13 @@ addDefObjC ac ide obj  = let om          = defObjsAC ac
 lookupDefObjC        :: AttrC -> Ident -> Maybe CObj
 lookupDefObjC ac ide  = find (defObjsAC ac) ide
 
--- lookup an identifier in the object name space; if nothing found, try 
+-- lookup an identifier in the object name space; if nothing found, try
 -- whether there is a shadow identifier that matches (EXPORTED)
 --
 --  * the returned identifier is the _real_ identifier of the object
 --
 lookupDefObjCShadow        :: AttrC -> Ident -> Maybe (CObj, Ident)
-lookupDefObjCShadow ac ide  = 
+lookupDefObjCShadow ac ide  =
   case lookupDefObjC ac ide of
     Just obj -> Just (obj, ide)
     Nothing  -> case find (shadowsAC ac) ide of
@@ -180,7 +180,7 @@ lookupDefObjCShadow ac ide  =
 
 -- add another definition to the tag name space (EXPORTED)
 --
---  * if a definition of the same name was already present, it is returned 
+--  * if a definition of the same name was already present, it is returned
 --
 addDefTagC            :: AttrC -> Ident -> CTag -> (AttrC, Maybe CTag)
 addDefTagC ac ide obj  = let tm          = defTagsAC ac
@@ -193,13 +193,13 @@ addDefTagC ac ide obj  = let tm          = defTagsAC ac
 lookupDefTagC        :: AttrC -> Ident -> Maybe CTag
 lookupDefTagC ac ide  = find (defTagsAC ac) ide
 
--- lookup an identifier in the tag name space; if nothing found, try 
+-- lookup an identifier in the tag name space; if nothing found, try
 -- whether there is a shadow identifier that matches (EXPORTED)
 --
 --  * the returned identifier is the _real_ identifier of the tag
 --
 lookupDefTagCShadow        :: AttrC -> Ident -> Maybe (CTag, Ident)
-lookupDefTagCShadow ac ide  = 
+lookupDefTagCShadow ac ide  =
   case lookupDefTagC ac ide of
     Just tag -> Just (tag, ide)
     Nothing  -> case find (shadowsAC ac) ide of
@@ -213,13 +213,13 @@ lookupDefTagCShadow ac ide  =
 -- space (EXPORTED)
 --
 --  * in case of a collisions, a random entry is selected
--- 
+--
 --  * case is not relevant in the prefix and underscores between the prefix and
 --   the stem of an identifier are also dropped
--- 
+--
 applyPrefix           :: AttrC -> String -> AttrC
 applyPrefix ac prefix  =
-  let 
+  let
     shadows    = shadowsAC ac
     names      =    map fst (nameSpaceToList (defObjsAC ac))
                  ++ map fst (nameSpaceToList (defTagsAC ac))
@@ -230,7 +230,7 @@ applyPrefix ac prefix  =
     strip prefix ide = case eat prefix (identToLexeme ide) of
                          Nothing      -> Nothing
                          Just ""      -> Nothing
-                         Just newName -> Just 
+                         Just newName -> Just
                                            (onlyPosIdent (posOf ide) newName,
                                             ide)
     --
@@ -252,13 +252,13 @@ getDefOfIdentC    :: AttrC -> Ident -> CDef
 getDefOfIdentC ac  = getAttr (defsAC ac) . getIdentAttrs
 
 setDefOfIdentC           :: AttrC -> Ident -> CDef -> AttrC
-setDefOfIdentC ac id def  = 
+setDefOfIdentC ac id def  =
   let tot' = setAttr (defsAC ac) (getIdentAttrs id) def
   in
   ac {defsAC = tot'}
 
 updDefOfIdentC            :: AttrC -> Ident -> CDef -> AttrC
-updDefOfIdentC ac id def  = 
+updDefOfIdentC ac id def  =
   let tot' = updAttr (defsAC ac) (getIdentAttrs id) def
   in
   ac {defsAC = tot'}
@@ -339,9 +339,9 @@ instance Eq CDef where
   (TagCD tag1) == (TagCD tag2) = tag1 == tag2
   DontCareCD   == _            = True
   _            == DontCareCD   = True
-  UndefCD      == _            = 
+  UndefCD      == _            =
     interr "CAttrs: Attempt to compare an undefined C definition!"
-  _            == UndefCD      = 
+  _            == UndefCD      =
     interr "CAttrs: Attempt to compare an undefined C definition!"
   _            == _            = False
 

@@ -6,5 +6,5 @@ license:        GPL
 executable:     ApiGen
 main-is:        ApiGen.hs
 hs-source-dirs: src
-other-modules:  Api, Docs, AddDocs, HaddockDocs, CodeGen, Marshal, 
+other-modules:  Api, Docs, AddDocs, HaddockDocs, CodeGen, Marshal,
                 MarshalFixup, ModuleScan, ExcludeApi, Utils, Module, Names

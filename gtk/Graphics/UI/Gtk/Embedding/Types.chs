@@ -30,11 +30,11 @@ module Graphics.UI.Gtk.Embedding.Types (
 
 #if (defined(HAVE_PLUG_AND_SOCKET) && (!defined(WIN32) || GTK_CHECK_VERSION(2,8,0))) || defined(GDK_WINDOWING_X11)
   Socket(Socket), SocketClass,
-  toSocket, 
+  toSocket,
   mkSocket, unSocket,
   castToSocket, gTypeSocket,
   Plug(Plug), PlugClass,
-  toPlug, 
+  toPlug,
   mkPlug, unPlug,
   castToPlug, gTypePlug,
 #endif

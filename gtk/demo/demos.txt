@@ -70,8 +70,8 @@ pango: use pango (http://www.pango.org/) layout to make a long paragraph adjust 
 Needs: --enable-cairo and/or cairo lib installed at Gtk2HS build time(to render the fonts)
 
 profileviewer: This is a slightly larger demo that combines use of glade, the file chooser
-  dialog, program state (IORefs) and use of the mogul tree view wrapper interface. 
-  The program is a simple viewer for the log files that ghc produces when you do time profiling. 
+  dialog, program state (IORefs) and use of the mogul tree view wrapper interface.
+  The program is a simple viewer for the log files that ghc produces when you do time profiling.
 
 soe: SOE (School of Expression) is an alternative implementation of the graphics library used in
   a book by Paul Hudak, http://www.haskell.org/soe/.

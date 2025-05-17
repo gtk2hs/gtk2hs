@@ -113,7 +113,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- > }
 -- >
 -- > class "GtkFileChooserDefault" binding "my-own-gtkfilechooser-bindings"
--- >    
+-- >
 --
 
 -- * Class Hierarchy

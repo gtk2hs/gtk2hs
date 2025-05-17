@@ -44,7 +44,7 @@ int bitfield_direction ()
 
   /* if setting the second bit in a bitfield makes the storage unit contain
    * the value `2', the direction of bitfields must be increasing towards the
-   * MSB 
+   * MSB
    */
   v.allbits            = 0;
   v.twobits.second_bit = 1;
@@ -53,7 +53,7 @@ int bitfield_direction ()
 }
 
 
-/* use padding for overspilling bitfields?  
+/* use padding for overspilling bitfields?
  * =======================================
  */
 
@@ -109,7 +109,7 @@ int bitfield_int_signed ()
 }
 
 
-/* alignment constraint for bitfields	    
+/* alignment constraint for bitfields
  * ==================================
  */
 

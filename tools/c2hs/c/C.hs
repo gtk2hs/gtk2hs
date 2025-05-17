@@ -34,8 +34,8 @@ module C (-- interface to KL for all non-KL modules
           --
           -- stuff from `Common' (reexported)
           --
-          Pos(posOf), 
-          --          
+          Pos(posOf),
+          --
           -- structure tree
           --
           module CAST,
@@ -43,7 +43,7 @@ module C (-- interface to KL for all non-KL modules
           -- attributed structure tree with operations (reexported from
           -- `CAttrs')
           --
-          AttrC, getCHeader, 
+          AttrC, getCHeader,
           CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
           getDefOfIdentC,
           --
@@ -78,7 +78,7 @@ import C2HSState  (CST, IOMode(..),
 import CAST
 import CParser    (parseC)
 import CPretty
-import CAttrs     (AttrC, attrC, getCHeader, 
+import CAttrs     (AttrC, attrC, getCHeader,
                    CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
                    getDefOfIdentC)
 import CNames     (nameAnalysis)
@@ -95,7 +95,7 @@ isuffix  = ".i"
 -- given a file name (with suffix), parse that file as a C header and do the
 -- static analysis (collect defined names) (EXPORTED)
 --
---  * currently, lexical and syntactical errors are reported immediately and 
+--  * currently, lexical and syntactical errors are reported immediately and
 --   abort the program; others are reported as part of the fatal error message;
 --   warnings are returned together with the read unit
 --
@@ -134,11 +134,11 @@ loadAttrC fname  = do
                       traceInfoRead fname = putTraceStr tracePhasesSW
                                               ("Attempting to read file `"
                                                ++ fname ++ "'...\n")
-                      traceInfoParse      = putTraceStr tracePhasesSW 
-                                              ("...parsing `" 
+                      traceInfoParse      = putTraceStr tracePhasesSW
+                                              ("...parsing `"
                                                ++ fname ++ "'...\n")
-                      traceInfoNA         = putTraceStr tracePhasesSW 
-                                              ("...name analysis of `" 
+                      traceInfoNA         = putTraceStr tracePhasesSW
+                                              ("...name analysis of `"
                                                ++ fname ++ "'...\n")
                       traceInfoErr        = putTraceStr tracePhasesSW
                                               ("...error(s) detected in `"

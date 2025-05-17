@@ -8,7 +8,7 @@ module MarshalError (
   --
   throwIf,       -- :: (a -> Bool) -> (a -> String) -> IO a       -> IO a
   throwIf_,      -- :: (a -> Bool) -> (a -> String) -> IO a       -> IO ()
-  throwIfNeg,    -- :: (Ord a, Num a) 
+  throwIfNeg,    -- :: (Ord a, Num a)
                  -- =>                (a -> String) -> IO a       -> IO a
   throwIfNeg_,   -- :: (Ord a, Num a)
                  -- =>                (a -> String) -> IO a       -> IO ()
@@ -23,13 +23,13 @@ import Ptr (Ptr, nullPtr)
 
 
 -- guard an IO operation and throw an exception if the result meets the given
--- predicate 
+-- predicate
 --
 --  * the second argument computes an error message from the result of the IO
 --   operation
 --
 throwIf                 :: (a -> Bool) -> (a -> String) -> IO a -> IO a
-throwIf pred msgfct act  = 
+throwIf pred msgfct act  =
   do
     res <- act
     (if pred res then ioError . userError . msgfct else return) res

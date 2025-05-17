@@ -3,7 +3,7 @@
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
 #   2000, 2001, 2002 Free Software Foundation, Inc.
 
-timestamp='2002-03-20'
+timestamp='2025-05-17'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -845,7 +845,7 @@ EOF
 		;;
 	  a.out-i386-linux)
 		echo "${UNAME_MACHINE}-pc-linux-gnuaout"
-		exit 0 ;;		
+		exit 0 ;;
 	  coff-i386)
 		echo "${UNAME_MACHINE}-pc-linux-gnucoff"
 		exit 0 ;;
@@ -866,9 +866,9 @@ EOF
 	#  else
 	LIBC=gnulibc1
 	#  endif
-	# else
+	#else
 	LIBC=gnulibc1
-	# endif
+	#endif
 	#else
 	#ifdef __INTEL_COMPILER
 	LIBC=gnu
@@ -1228,9 +1228,9 @@ main ()
 #  else
     printf ("vax-dec-bsd\n"); exit (0);
 #  endif
-# else
+#else
     printf ("vax-dec-ultrix\n"); exit (0);
-# endif
+#endif
 #endif
 
 #if defined (alliant) && defined (i860)

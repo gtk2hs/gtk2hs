@@ -48,7 +48,7 @@ import CAttrs    (AttrC, CObj(..), CTag(..), CDef(..))
 import CBuiltin  (builtinTypeNames)
 import CTrav     (CT, getCHeaderCT, runCT, enter, enterObjs, leave, leaveObjs,
                   ifCTExc, raiseErrorCTExc, defObj, findTypeObj, findValueObj,
-                  defTag, refersToDef, isTypedef) 
+                  defTag, refersToDef, isTypedef)
 
 
 -- monad and wrapper
@@ -91,7 +91,7 @@ naCHeader  = do
 --
 naCExtDecl :: CExtDecl -> NA ()
 naCExtDecl (CDeclExt decl                        ) = naCDecl decl
-naCExtDecl (CFDefExt (CFunDef specs declr _ _ at)) = 
+naCExtDecl (CFDefExt (CFunDef specs declr _ _ at)) =
   naCDecl $ CDecl specs [(Just declr, Nothing, Nothing)] at
 naCExtDecl (CAsmExt at                           ) = return ()
 
@@ -212,7 +212,7 @@ mapMaybeM_ m (Just a)  = m a >> return ()
 
 declaredTwiceErr              :: Ident -> Position -> NA a
 declaredTwiceErr ide otherPos  =
-  raiseErrorCTExc (posOf ide) 
+  raiseErrorCTExc (posOf ide)
     ["Identifier declared twice!",
-     "The identifier `" ++ identToLexeme ide ++ "' was already declared at " 
+     "The identifier `" ++ identToLexeme ide ++ "' was already declared at "
      ++ show otherPos ++ "."]

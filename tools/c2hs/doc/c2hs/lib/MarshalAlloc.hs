@@ -61,7 +61,7 @@ allocaBytes size  = bracket (mallocBytes size) free
 -- adjust a malloc'ed storage area to the given size
 --
 reallocBytes          :: Ptr a -> Int -> IO (Ptr a)
-reallocBytes ptr size  = 
+reallocBytes ptr size  =
   failWhenNULL "realloc" (_realloc ptr (fromIntegral size))
 
 -- free malloc'ed storage

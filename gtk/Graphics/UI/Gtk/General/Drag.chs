@@ -264,7 +264,7 @@ dragDestFindTarget widget context Nothing = do
     (toDragContext context)
     (TargetList nullForeignPtr)
   if ttPtr==nullPtr then return Nothing else return (Just (Atom ttPtr))
-        
+
 -- %hash c:41c7 d:af3f
 -- | Returns the list of targets this widget can accept for drag-and-drop.
 --

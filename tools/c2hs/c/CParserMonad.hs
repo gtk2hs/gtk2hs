@@ -39,8 +39,8 @@
 --
 {-# LANGUAGE CPP #-}
 
-module CParserMonad ( 
-  P, 
+module CParserMonad (
+  P,
   execParser,
   failP,
   getNewName,        -- :: P Name
@@ -74,7 +74,7 @@ data ParseResult a
   = POk !PState a
   | PFailed [String] Position   -- The error message and position
 
-data PState = PState { 
+data PState = PState {
         curPos     :: !Position,        -- position at current input location
         curInput   :: !String,          -- the current input
         prevToken  ::  CToken,          -- the previous token

@@ -28,7 +28,7 @@
 --  * CHS files are assumed to be Haskell 98 files that include C2HS binding
 --    hooks.
 --
---  * Haskell code is not tokenised, but binding hooks (delimited by `{#'and 
+--  * Haskell code is not tokenised, but binding hooks (delimited by `{#'and
 --    `#}') are analysed.  Therefore the lexer operates in two states
 --    (realised as two lexer coupled by meta actions) depending on whether
 --    Haskell code or a binding hook is currently read.  The lexer reading
@@ -90,12 +90,12 @@
 --
 --      ident       -> letter (letter | digit | `\'')*
 --                   | `\'' letter (letter | digit)* `\''
---      reservedid  -> `as' | `call' | `class' | `context' | `deriving' 
---                   | `enum' | `foreign' | `fun' | `get' | `lib' 
+--      reservedid  -> `as' | `call' | `class' | `context' | `deriving'
+--                   | `enum' | `foreign' | `fun' | `get' | `lib'
 --                   | `newtype' | `pointer' | `prefix' | `pure' | `set'
---                   | `sizeof' | `stable' | `type' | `underscoreToCase' 
+--                   | `sizeof' | `stable' | `type' | `underscoreToCase'
 --                   | `unsafe' | `with' | 'lock' | 'unlock'
---      reservedsym -> `{#' | `#}' | `{' | `}' | `,' | `.' | `->' | `=' 
+--      reservedsym -> `{#' | `#}' | `{' | `}' | `,' | `.' | `->' | `='
 --                   | `=>' | '-' | `*' | `&' | `^'
 --      string      -> `"' instr* `"'
 --      verbhs      -> `\`' instr* `\''
@@ -107,14 +107,14 @@
 --    Identifiers can be enclosed in single quotes to avoid collision with
 --    C->Haskell keywords.
 --
---  * In the binding-hook lexer, the lexeme `#}' transfers control back to the 
+--  * In the binding-hook lexer, the lexeme `#}' transfers control back to the
 --    base lexer.  An occurrence of the lexeme `{#' inside the binding-hook
 --    lexer triggers an error.  The symbol `{#' is not explicitly represented
 --    in the resulting token stream.  However, the occurrence of a token
 --    representing one of the reserved identifiers `call', `context', `enum',
 --    and `field' marks the start of a binding hook.  Strictly speaking, `#}'
 --    need also not occur in the token stream, as the next `haskell' token
---    marks a hook's end.  It is, however, useful for producing accurate error 
+--    marks a hook's end.  It is, however, useful for producing accurate error
 --    messages (in case an hook is closed to early) to have a token
 --    representing `#}'.
 --
@@ -160,14 +160,14 @@
 --
 --  * In `haskell', the case of a single `"' (without a matching second one)
 --    is caught by an eplicit error raising rule.  This shouldn't be
---    necessary, but for some strange reason, the lexer otherwise hangs when a 
+--    necessary, but for some strange reason, the lexer otherwise hangs when a
 --    single `"' appears in the input.
 --
 --  * Comments in the "gap" of a string are not yet supported.
 --
 
-module CHSLexer (CHSToken(..), lexCHS) 
-where 
+module CHSLexer (CHSToken(..), lexCHS)
+where
 
 import Data.List         ((\\))
 import Data.Char         (isDigit)
@@ -182,7 +182,7 @@ import Lexers    (Regexp, Lexer, Action, epsilon, char, (+>), lexaction,
                   lexactionErr, lexmeta, (>|<), (>||<), ctrlLexer, star, plus,
                   quest, alt, string, LexerState, execLexer)
 
-import C2HSState (CST, raise, raiseError, nop, getNameSupply) 
+import C2HSState (CST, raise, raiseError, nop, getNameSupply)
 
 
 -- token definition
@@ -229,7 +229,7 @@ data CHSToken = CHSTokArrow   Position          -- `->'
               | CHSTokWith    Position          -- `with'
               | CHSTokLock    Position          -- `lock'
               | CHSTokNolock  Position          -- `nolock'
-              | CHSTokString  Position String   -- string 
+              | CHSTokString  Position String   -- string
               | CHSTokHSVerb  Position String   -- verbatim Haskell (`...')
               | CHSTokIdent   Position Ident    -- identifier
               | CHSTokHaskell Position String   -- verbatim Haskell code
@@ -417,7 +417,7 @@ initialState  = do
 -- raise an error if the given state is not a final state
 --
 assertFinalState :: Position -> CHSLexerState -> CST s ()
-assertFinalState pos CHSLS {nestLvl = nestLvl, inHook = inHook} 
+assertFinalState pos CHSLS {nestLvl = nestLvl, inHook = inHook}
   | nestLvl > 0 = raiseError pos ["Unexpected end of file!",
                                   "Unclosed nested comment."]
   | inHook      = raiseError pos ["Unexpected end of file!",
@@ -433,8 +433,8 @@ type CHSRegexp = Regexp CHSLexerState CHSToken
 -- for actions that need a new unique name
 --
 infixl 3 `lexactionName`
-lexactionName :: CHSRegexp 
-              -> (String -> Position -> Name -> CHSToken) 
+lexactionName :: CHSRegexp
+              -> (String -> Position -> Name -> CHSToken)
               -> CHSLexer
 re `lexactionName` action = re `lexmeta` action'
   where
@@ -492,9 +492,9 @@ haskell  = (    anyButSpecial`star` epsilon
            )
            `lexaction` copyVerbatim
            >||< char '"'                                -- this is a bad kludge
-                `lexactionErr` 
+                `lexactionErr`
                   \_ pos -> (Left $ makeError ErrorErr pos
-                                              ["Lexical error!", 
+                                              ["Lexical error!",
                                               "Unclosed string."])
            where
              anyButSpecial    = alt (inlineSet \\ specialSet)
@@ -505,7 +505,7 @@ haskell  = (    anyButSpecial`star` epsilon
 
 -- action copying the input verbatim to `CHSTokHaskell' tokens
 --
-copyVerbatim        :: CHSAction 
+copyVerbatim        :: CHSAction
 copyVerbatim cs pos  = Just $ CHSTokHaskell pos cs
 
 -- nested comments
@@ -543,7 +543,7 @@ nested  =
     --
     commentCloseErr pos =
       Just $ Left (makeError ErrorErr pos
-                             ["Lexical error!", 
+                             ["Lexical error!",
                              "`-}' not preceded by a matching `{-'."])
                              {- for Haskell emacs mode :-( -}
 
@@ -572,7 +572,7 @@ commentInterior  = (    anyButSpecial`star` epsilon
 --   and `Lexers.ctrlLexer' and advances positions also like the `ctrlLexer'
 --
 ctrl :: CHSLexer
-ctrl  =     
+ctrl  =
        char '\n' `lexmeta` newline
   >||< char '\r' `lexmeta` newline
   >||< char '\v' `lexmeta` newline
@@ -583,7 +583,7 @@ ctrl  =
     formfeed [c] pos = ctrlResult pos c (incPos pos 1)
     tab      [c] pos = ctrlResult pos c (tabPos pos)
 
-    ctrlResult pos c pos' s = 
+    ctrlResult pos c pos' s =
       (Just $ Right (CHSTokCtrl pos c), pos', s, Nothing)
 
 -- start of a binding hook (ie, enter the binding hook lexer)
@@ -601,9 +601,9 @@ hook  = string "{#"
 cpp :: CHSLexer
 cpp = directive
       where
-        directive = 
+        directive =
           string "\n#" +> alt ('\t':inlineSet)`star` epsilon
-          `lexmeta` 
+          `lexmeta`
              \(_:_:dir) pos s ->        -- strip off the "\n#"
                case dir of
                  ['c']                      ->          -- #c
@@ -615,11 +615,11 @@ cpp = directive
                    let pos' = adjustPosByCLinePragma line pos
                     in (Just $ Right (CHSTokLine pos'), pos', s, Nothing)
                  _                            ->        -- CPP directive
-                   (Just $ Right (CHSTokCPP pos dir), 
+                   (Just $ Right (CHSTokCPP pos dir),
                     retPos pos, s, Nothing)
 
 adjustPosByCLinePragma :: String -> Position -> Position
-adjustPosByCLinePragma str (Position fname _ _) = 
+adjustPosByCLinePragma str (Position fname _ _) =
   (Position fname' row' 0)
   where
     str'            = dropWhite str
@@ -648,8 +648,8 @@ bhLexer  =      identOrKW
            where
              anyButNL  = alt (anySet \\ ['\n'])
              endOfHook = string "#}"
-                         `lexmeta` 
-                          \_ pos s -> (Just $ Right (CHSTokEndHook pos), 
+                         `lexmeta`
+                          \_ pos s -> (Just $ Right (CHSTokEndHook pos),
                                        incPos pos 2, s, Just chslexer)
 
 -- the inline-C lexer
@@ -659,18 +659,18 @@ cLexer =      inlineC                     -- inline C code
          >||< ctrl                        -- control code (preserved)
          >||< string "\n#endc"            -- end of inline C code...
               `lexmeta`                   -- ...preserve '\n' as control token
-              \_ pos s -> (Just $ Right (CHSTokCtrl pos '\n'), retPos pos, s, 
+              \_ pos s -> (Just $ Right (CHSTokCtrl pos '\n'), retPos pos, s,
                            Just chslexer)
          where
            inlineC = alt inlineSet `lexaction` copyVerbatimC
            --
-           copyVerbatimC :: CHSAction 
+           copyVerbatimC :: CHSAction
            copyVerbatimC cs pos = Just $ CHSTokC pos cs
 
 -- whitespace
 --
 --  * horizontal and vertical tabs, newlines, and form feeds are filter out by
---   `Lexers.ctrlLexer' 
+--   `Lexers.ctrlLexer'
 --
 whitespace :: CHSLexer
 whitespace  =      (char ' ' `lexaction` \_ _ -> Nothing)
@@ -682,7 +682,7 @@ identOrKW :: CHSLexer
 --
 -- the strictness annotations seem to help a bit
 --
-identOrKW  = 
+identOrKW  =
        -- identifier or keyword
        (letter +> (letter >|< digit >|< char '\'')`star` epsilon
        `lexactionName` \cs pos name -> (idkwtok $!pos) cs name)
@@ -775,14 +775,14 @@ ctrlSet           = ['\n', '\f', '\r', '\t', '\v']
 -- -------------------
 
 -- generate a token sequence out of a string denoting a CHS file
--- (EXPORTED) 
+-- (EXPORTED)
 --
 --  * the given position is attributed to the first character in the string
 --
 --  * errors are entered into the compiler state
 --
 lexCHS        :: String -> Position -> CST s [CHSToken]
-lexCHS cs pos  = 
+lexCHS cs pos  =
   do
     state <- initialState
     let (ts, lstate, errs) = execLexer chslexer (cs, pos, state)

@@ -2,7 +2,7 @@
 --
 -- Bundles the C specific FFI library functionality
 
-module CForeign ( 
+module CForeign (
   module CTypes,
   module CTypesISO,
   module CError,

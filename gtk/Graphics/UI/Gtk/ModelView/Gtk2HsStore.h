@@ -20,7 +20,7 @@ typedef struct _Gtk2HsStoreClass  Gtk2HsStoreClass;
 struct _Gtk2HsStore
 {
   GObject parent;
-  
+
   /*< private >*/
   HsStablePtr     impl;        /* a StablePtr CustomStore */
   HsStablePtr     priv;        /* a StablePtr to private data */

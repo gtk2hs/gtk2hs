@@ -99,4 +99,4 @@ testExceptions  = putStrCIO "Testing exception handling...\n\n"             +>
                                   putStrCIO ("ATTENTION: This message must \
                                              \never show!!!\n")
 
-                                
+

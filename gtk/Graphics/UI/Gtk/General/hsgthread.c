@@ -31,8 +31,9 @@
 #define DEFINE_LPCREATETYPEINFO
 #define DEFINED_LPDISPATCH
 
-#include <glib.h>
 #include <gdk/gdk.h>
+#include <glib.h>
+#include <gtk/gtk.h>
 #include "hsgthread.h"
 
 #if defined( WIN32 )
@@ -73,12 +74,12 @@ void gtk2hs_initialise (void) {
 	/* Some Windows GTK binaries (current Fedora MinGW ones) do */
 	/* not open files in binary mode.  This is a work around.    */
     HANDLE handle = LoadLibrary("MSVCRT.dll");
-    if(!handle) { 
+    if(!handle) {
         fprintf(stderr, "Warning: failed to load MSVCRT.dll, ");
         fprintf(stderr, "binary mode was not set!\n");
         return;
     }
-    
+
     int *_fmode_ptr = GetProcAddress(handle, "_fmode");
     if(!_fmode_ptr) {
         fprintf(stderr, "Warning: failed to load address of _fmode from MSVCRT.dll, ");
@@ -107,13 +108,14 @@ void gtk2hs_threads_initialise (void) {
 
 #if defined( WIN32 ) && GLIB_CHECK_VERSION(2,32,0)
     g_rec_mutex_init(&recursive_mutex);
-    
+
     gdk_threads_set_lock_functions(imp_rec_lock, imp_rec_unlock);
 #endif
-    gdk_threads_init();
-
     /* from here onwards, the Gdk lock is held */
+#if !GTK_CHECK_VERSION(3,6,0)
+    gdk_threads_init();
     gdk_threads_enter();
+#endif
 
   }
 }
@@ -187,8 +189,10 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
   gint index;
   g_assert(gtk2hs_finalizers!=NULL);
 
+#if !GTK_CHECK_VERSION(3,6,0)
   gdk_threads_enter();
-	
+#endif
+
   int mutex_locked = 0;
   if (threads_initialised) {
 #ifdef DEBUG
@@ -224,8 +228,9 @@ gboolean gtk2hs_run_finalizers(gpointer data) {
 #endif
   }
 
+#if !GTK_CHECK_VERSION(3,6,0)
   gdk_threads_leave();
+#endif
 
   return FALSE;
 }
-

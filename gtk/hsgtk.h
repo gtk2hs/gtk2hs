@@ -10,12 +10,12 @@
 #undef Bool
 #undef True
 #undef False
-#undef Button1 
+#undef Button1
 #undef Button2
 #undef Button3
 #undef Button4
 #undef Button5
-#undef Button1Mask 
+#undef Button1Mask
 #undef Button2Mask
 #undef Button3Mask
 #undef Button4Mask

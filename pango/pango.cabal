@@ -42,7 +42,7 @@ custom-setup
   setup-depends: base >= 4.8 && <5,
                  Cabal >= 3.0 && < 3.15,
                  filepath >= 1.3 && < 1.6,
-                 gtk2hs-buildtools >= 0.13.2.0 && < 0.14
+                 gtk2hs-buildtools >= 0.13.12.0 && < 0.14
 
 Library
         build-depends:  base >= 4.8 && < 5,
@@ -98,4 +98,3 @@ Library
         else
           pkgconfig-depends: pango >= 1.0
         pkgconfig-depends:  cairo >= 1.2.0, pangocairo >= 1.10
-

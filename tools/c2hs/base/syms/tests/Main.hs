@@ -101,7 +101,7 @@ testAttrTables ns  =
   in
   if ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7 && ok8
   then
-    putStrCIO "...they are ok.\n"               
+    putStrCIO "...they are ok.\n"
   else
     putStrCIO "...ERROR DETECTED: test(s) "                +>
     putIfNotOk "ok1" ok1                                   +>

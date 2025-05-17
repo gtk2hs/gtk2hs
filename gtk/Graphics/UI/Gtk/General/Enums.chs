@@ -147,7 +147,7 @@ instance Flags AccelFlags
 instance Flags AttachOptions
 
 #if GTK_CHECK_VERSION(3,10,0)
--- | Whenever a container has some form of natural row it may align children in 
+-- | Whenever a container has some form of natural row it may align children in
 -- that row along a common typographical baseline. If the amount of vertical space
 -- in the row is taller than the total requested height of the baseline-aligned
 -- children then it can use a BaselinePosition to select where to put the
