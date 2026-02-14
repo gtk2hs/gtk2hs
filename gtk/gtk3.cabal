@@ -15,7 +15,7 @@ Description: This is the core library of the Gtk2Hs suite of libraries for Haske
              based on Gtk+. Gtk+ is an extensive and mature multi-platform toolkit
              for creating graphical user interfaces.
 Category:       Graphics
-Tested-With:    GHC == 9.12.2, GHC == 9.10.1, GHC == 9.8.4, GHC == 9.6.6, GHC == 9.4.8, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7
+Tested-With:    GHC == 9.14.1, GHC == 9.12.2, GHC == 9.10.1, GHC == 9.8.4, GHC == 9.6.6, GHC == 9.4.8, GHC == 9.2.8, GHC==9.0.2, GHC==8.10.7
 Extra-Source-Files: hsgtk.h
                     Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
                     Graphics/UI/Gtk/General/hsgthread.h
@@ -130,14 +130,14 @@ Flag fmode-binary
 
 custom-setup
   setup-depends: base >= 4.6 && < 5,
-                 Cabal >= 3.0 && < 3.15,
+                 Cabal >= 3.0 && < 3.17,
                  gtk2hs-buildtools >= 0.13.2.0 && < 0.14
 
 Library
         build-depends:  base >= 4 && < 5,
                         array < 0.6,
                         bytestring < 0.13,
-                        containers < 0.8,
+                        containers < 0.9,
                         mtl < 2.4,
                         text >= 0.11.0.6 && < 2.2,
                         glib  >= 0.13.0.0 && < 0.14,

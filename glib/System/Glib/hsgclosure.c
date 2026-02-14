@@ -107,7 +107,9 @@ gtk2hs_closure_marshal(GClosure *closure,
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal(%p): about to rts_evalIO", hc->callback));
     
     /* perform the call */
-    #if __GLASGOW_HASKELL__>=704
+    #if (__GLASGOW_HASKELL__>=912 && __GLASGOW_HASKELL_PATCHLEVEL1__>=3) || __GLASGOW_HASKELL__>=914
+    rts_evalIO(&cap, rts_apply(CAP (HaskellObj)ghc_hs_iface->runIO_closure, call),&ret);
+    #elif __GLASGOW_HASKELL__>=704
     rts_evalIO(&cap, rts_apply(CAP (HaskellObj)runIO_closure, call),&ret);
     #else
     cap=rts_evalIO(CAP rts_apply(CAP (HaskellObj)runIO_closure, call),&ret);
